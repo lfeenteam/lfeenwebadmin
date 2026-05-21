@@ -1,0 +1,92 @@
+.img-wrapper {
+  position: relative;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .icon-container {
+    position: absolute;
+    bottom: -14px;
+    right: 10px;
+    display: flex;
+    gap: 8px; // spacing between icons
+  }
+
+  .cart-btn-overlay {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+  }
+
+
+}
+
+.cards-circle {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.pricing-section {
+  .section-title {
+    margin-bottom: 8px;
+  }
+
+  mat-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .custom-radio {
+    font-size: 14px;
+    color: #2c2c2c;
+
+    .mat-radio-outer-circle {
+      border-width: 2px;
+    }
+
+    .mat-radio-inner-circle {
+      background-color: var(--mat-sys-primary); // Customize selected color
+    }
+
+    &.mat-radio-checked {
+      .mat-radio-outer-circle {
+        border-color: var(--mat-sys-primary);
+      }
+    }
+  }
+}
+
+.iconPosition {
+  position: relative;
+  top: 3px;
+}
+
+.productcard {
+  -webkit-transition: 0.1s ease-in;
+  transition: 0.1s ease-in;
+
+  &:hover {
+    scale: 1.01;
+  }
+}    
+
+.active-primary{
+  &.bg-primary{
+    i-tabler, .mdc-list-item__primary-text{
+      color: white;
+    }
+  }
+}

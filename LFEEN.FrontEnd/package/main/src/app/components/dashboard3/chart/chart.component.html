@@ -1,0 +1,78 @@
+<div class="d3-chart-wrapper">
+  <div class="d3-growth-card">
+    <div class="d3-growth-header">
+
+      <div class="d3-growth-title-wrap">
+        <div class="d3-section-header">
+          <h2 class="d3-section-title">{{ 'd3.chart.title' | translate }}</h2>
+        </div>
+        <p class="d3-growth-subtitle">{{ 'd3.chart.subtitle' | translate }}</p>
+      </div>
+      <div class="d3-growth-tabs">
+        @for (tab of tabs; track tab; let i = $index) {
+          <button type="button"
+                  class="d3-tab"
+                  [class.active]="activeTab === i"
+                  (click)="setTab(i)">
+            {{ tab | translate }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="d3-chart-area">
+      <apx-chart
+        #chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [yaxis]="chartOptions.yaxis"
+        [stroke]="chartOptions.stroke"
+        [fill]="chartOptions.fill"
+        [grid]="chartOptions.grid"
+        [dataLabels]="chartOptions.dataLabels"
+        [tooltip]="chartOptions.tooltip"
+        [markers]="chartOptions.markers"
+        [colors]="chartOptions.colors">
+      </apx-chart>
+    </div>
+  </div>
+  <!-- Right: Detailed Comparison -->
+  <div class="d3-comparison-card">
+    <div class="d3-section-header">
+      <h3 class="d3-section-title">{{ 'd3.chart.comparisonTitle' | translate }}</h3>
+    </div>
+
+    <div class="d3-comparison-table">
+      <div class="d3-comparison-head">
+        <span class="d3-col-label">{{ 'd3.chart.colMetric' | translate }}</span>
+        <span class="d3-col-guests">{{ 'd3.chart.colGuests' | translate }}</span>
+        <span class="d3-col-hosts">{{ 'd3.chart.colHosts' | translate }}</span>
+      </div>
+
+      @for (row of comparisonRows; track row.label) {
+        <div class="d3-comparison-row">
+          <span class="d3-col-label">{{ row.label | translate }}</span>
+          <span class="d3-col-guests" [style.color]="row.guestsColor || '#0F172B'">{{ row.guests }}</span>
+          <span class="d3-col-hosts" [style.color]="row.hostsColor || '#0F172B'">{{ row.hosts }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="d3-distribution">
+      <div class="d3-distribution-title">{{ 'd3.chart.distributionTitle' | translate }}</div>
+      <div class="d3-distribution-bar">
+        @for (seg of distributionSegments; track seg.label) {
+          <div class="d3-seg" [style.width.%]="seg.value" [style.background-color]="seg.color"></div>
+        }
+      </div>
+      <div class="d3-distribution-legend">
+        @for (seg of distributionSegments; track seg.label) {
+          <span class="d3-legend-item">
+            {{ seg.label | translate }}
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+</div>

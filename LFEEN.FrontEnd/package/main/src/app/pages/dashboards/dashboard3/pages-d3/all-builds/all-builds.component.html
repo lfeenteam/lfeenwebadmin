@@ -1,0 +1,44 @@
+<section class="all-builds-metrics">
+  @for (card of cards; track card.titleKey) {
+    <article class="metric-card">
+      <div class="metric-content">
+        <p class="metric-title">{{ card.titleKey | translate }}</p>
+        <h3 class="metric-value" [ngClass]="card.tone">{{ card.value }}</h3>
+      </div>
+
+      <span class="metric-icon" [ngClass]="card.tone">
+        <i-tabler [name]="card.icon"></i-tabler>
+      </span>
+    </article>
+  }
+</section>
+
+<div class="tabs-filter-container">
+  <app-tabs-filter
+    [activeTab]="activeTab"
+    [searchQuery]="searchQuery"
+    (activeTabChange)="activeTab = $event"
+    (searchQueryChange)="searchQuery = $event">
+  </app-tabs-filter>
+
+  <div class="view-toggle-row">
+    <div class="view-toggle" role="group" [attr.aria-label]="'d3.allBuilds.viewToggle.label' | translate">
+      <button
+        type="button"
+        class="view-btn"
+        [class.active]="viewMode === 'list'"
+        (click)="setViewMode('list')">
+        <i-tabler name="list"></i-tabler>
+      </button>
+      <button
+        type="button"
+        class="view-btn"
+        [class.active]="viewMode === 'grid'"
+        (click)="setViewMode('grid')">
+        <i-tabler name="layout-grid"></i-tabler>
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode"></app-cards-builds>

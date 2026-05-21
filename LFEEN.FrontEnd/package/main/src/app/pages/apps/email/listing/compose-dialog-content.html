@@ -1,0 +1,39 @@
+<!-- -------------------------------------------------------------- -->
+<!-- compose email -->
+<!-- -------------------------------------------------------------- -->
+
+<mat-dialog-content class="mat-typography">
+  <div class="d-flex align-items-center justify-content-between m-b-16">
+    <h3>Compose Email</h3>
+    <button mat-icon-button mat-dialog-close class="d-flex justify-content-center">
+      <i-tabler name="x" class="icon-20 d-flex"></i-tabler>
+    </button>
+  </div>
+  <form class="basic-form">
+    <div class="row">
+      <div class="col-sm-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput placeholder="To" type="email" />
+        </mat-form-field>
+      </div>
+      <div class="col-sm-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <input matInput placeholder="Subject" type="text" />
+        </mat-form-field>
+      </div>
+      <div class="col-12">
+        <div class="NgxEditor__Wrapper">
+          <ngx-editor-menu [editor]="editor" [(ngModel)]="htmlContent1" [toolbar]="toolbar" class=""> </ngx-editor-menu>
+          <ngx-editor [editor]="editor" [disabled]="false" [placeholder]="'Type here...'" class="b-t-1"></ngx-editor>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-divider></mat-divider>
+<mat-dialog-actions>
+  <button mat-flat-button mat-dialog-close>Send</button>
+  <button mat-flat-button mat-dialog-close class="m-l-8 bg-error">
+    Save as a Draft
+  </button>
+</mat-dialog-actions>

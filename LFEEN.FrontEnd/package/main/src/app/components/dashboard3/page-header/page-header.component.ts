@@ -1,0 +1,25 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { TablerIconsModule } from 'angular-tabler-icons';
+
+@Component({
+  selector: 'app-dashboard3-page-header',
+  standalone: true,
+  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  templateUrl: './page-header.component.html',
+  styleUrl: './page-header.component.scss',
+})
+export class PageHeaderComponent {
+  @Input({ required: true }) titleKey!: string;
+  @Input() breadcrumbKey = 'd3.header.platform';
+  @Input() showLive = true;
+  @Input() showDate = true;
+
+  @Output() sidebarToggle = new EventEmitter<void>();
+
+  onSidebarToggle(event: Event): void {
+    event.stopPropagation();
+    this.sidebarToggle.emit();
+  }
+}

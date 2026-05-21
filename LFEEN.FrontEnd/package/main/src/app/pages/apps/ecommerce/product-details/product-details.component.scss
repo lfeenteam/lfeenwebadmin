@@ -1,0 +1,41 @@
+.border-style{
+    border-color: var(--mat-sys-secondary)
+}
+.mat-card {
+    min-height: 100%; /* Ensures cards grow equally */
+  }
+
+  
+  .progress {
+    flex-grow: 1;
+    width: 25px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #fcfafa;
+  }
+  
+  .count {
+    width: 50px;
+    text-align: right;
+    font-size: 14px;
+  }
+  .cards-circle {
+    width: 25px;
+    height: 25px;
+    border-radius: var(--mat-sys-corner-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--mat-sys-primary); // <-- dynamic!
+    .theme-icon {
+      display: none;
+    }
+    &.selected {
+      .theme-icon {
+        display: block;
+        color: white;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }

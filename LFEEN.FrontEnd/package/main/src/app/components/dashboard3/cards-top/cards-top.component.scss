@@ -1,0 +1,320 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+}
+
+.d3-cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+
+  .d3-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .d3-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .d3-section-bar {
+      width: 4px;
+      height: 24px;
+      background-color: #000000;
+      border-radius: 8px;
+
+      &.green {
+        background-color: #00BC7D;
+      }
+
+      &.blue {
+        background-color: #2B7FFF;
+      }
+    }
+
+    .d3-section-title {
+      all: unset;
+      font-family: 'Cairo', sans-serif !important;
+      font-weight: 700 !important;
+      font-size: 20px !important;
+      color: #0F172B !important;
+
+      @media (max-width: 576px) {
+        font-size: 18px !important;
+      }
+    }
+  }
+
+  .d3-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: stretch;
+
+    @media (max-width: 1400px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .d3-card {
+    background-color: #FFFFFF;
+    border: 1px solid #F1F5F9;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 150px;
+    height: 100%;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    &.d3-card-sm {
+      min-height: 100px;
+      padding: 16px 20px;
+    }
+    .d3-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+
+      .d3-card-icon,
+      .d3-alert-icon {
+        width:40px;
+        height:40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0F172B;
+        background-color: #F8FAFC;
+        flex-shrink: 0;
+
+        ::ng-deep svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .d3-alert-icon {
+        background-color: #FEE2E2;
+        color: #FB2C36;
+
+        ::ng-deep svg {
+          width: 22px;
+          height: 22px;
+          stroke-width: 2;
+        }
+      }
+
+      .d3-card-title {
+        font-family: 'Cairo', sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        color: #62748E;
+        text-align: start;
+        flex: 1;
+
+        @media (max-width: 576px) {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .d3-card-body {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      margin-top: 2px;
+
+      .d3-riyal-icon {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        color: #0F172B;
+        order: 2;
+        flex-shrink: 0;
+
+        &--en {
+          width: auto;
+          min-width: 42px;
+          height: 28px;
+        }
+      }
+
+      .d3-card-value {
+        font-family: 'Cairo', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #0F172B;
+        line-height: 1.2;
+        order: 1;
+
+        @media (max-width: 768px) {
+          font-size: 24px;
+        }
+
+        &.green {
+          color: #10B981;
+        }
+
+        &.blue {
+          color: #155DFC;
+        }
+      }
+
+      .d3-star-icon {
+        color: #FFBA00;
+        order: 2;
+        display: inline-flex;
+        align-items: center;
+
+        ::ng-deep svg {
+          width: 18px;
+          height: 18px;
+          fill: none;
+          stroke: #FFBA00;
+          stroke-width: 1.33px;
+        }
+      }
+    }
+
+    .d3-card-trend {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 4px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      margin-top: auto;
+
+      i-tabler {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        line-height: 0;
+      }
+
+      ::ng-deep svg {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2.2;
+        display: block;
+      }
+
+      span {
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      &.up {
+        color: #10B981;
+      }
+
+      &.warn {
+        color: #EF4444;
+      }
+    }
+
+    .d3-card-note {
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      color: #90A1B9;
+      text-align: start;
+      margin-top: auto;
+    }
+  }
+
+  .d3-split-section {
+    .d3-split-headers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+
+      .d3-section-header:last-child {
+        justify-self: start;
+      }
+
+    
+    }
+
+    .d3-split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+
+      @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .d3-half-grid {
+      grid-template-columns: repeat(2, 1fr);
+
+      @media (max-width: 576px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .d3-n-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+
+      .d3-n-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: #10B981;
+        color: #ffffff;
+        font-family: 'Cairo', sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .d3-cards-wrapper {
+    .d3-split-headers {
+      grid-template-columns: 1fr;
+      text-align: start;
+      
+      .d3-section-header:last-child {
+        justify-self: start;
+      }
+    }
+  }
+}

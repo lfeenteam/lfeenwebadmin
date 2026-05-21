@@ -1,0 +1,108 @@
+<div class="d3-cards-wrapper">
+
+  <!-- Section 1: Platform Performance -->
+  <section class="d3-section">
+    <div class="d3-section-header">
+      <span class="d3-section-bar"></span>
+      <h3 class="d3-section-title">{{ 'd3.sections.platformPerformance' | translate }}</h3>
+    </div>
+
+    <div class="d3-cards-grid">
+      @for (card of platformCards; track card.title) {
+        <div class="d3-card">
+          <div class="d3-card-top">
+            <span class="d3-card-title">{{ card.title | translate }}</span>
+            @if (card.alert) {
+              <span class="d3-alert-icon">
+                <i-tabler name="circle-x"></i-tabler>
+              </span>
+            } @else {
+              <span class="d3-card-icon">
+                @if (card.iconName) {
+                  <i-tabler [name]="card.iconName"></i-tabler>
+                }
+              </span>
+            }
+          </div>
+
+          <div class="d3-card-body">
+            <span class="d3-card-value">{{ card.value }}</span>
+            @if (card.currency) {
+              <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="d3-riyal-icon" [class.d3-riyal-icon--en]="currencyIconEn" />
+            }
+          </div>
+
+          @if (card.trendPrefix || card.trendSuffixKey) {
+            <div class="d3-card-trend"
+                 [class.up]="card.trendType === 'up'"
+                 [class.warn]="card.trendType === 'warn'">
+              <i-tabler [name]="card.trendType === 'up' ? 'trending-up' : 'arrow-down'"></i-tabler>
+              <span>
+                @if (card.trendPrefix) { {{ card.trendPrefix }} }
+                @if (card.trendSuffixKey) { {{ card.trendSuffixKey | translate }} }
+              </span>
+            </div>
+          }
+          @if (card.trendNote) {
+            <div class="d3-card-note">{{ card.trendNote | translate }}</div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Section 2: Hosts & Guests Apps -->
+  <section class="d3-section d3-split-section">
+    <div class="d3-split-headers">
+      <div class="d3-section-header">
+        <span class="d3-section-bar blue"></span>
+        <h3 class="d3-section-title">{{ 'd3.sections.hostsApp' | translate }}</h3>
+      </div>
+      <div class="d3-section-header">
+        <span class="d3-section-bar green"></span>
+        <h3 class="d3-section-title">{{ 'd3.sections.guestsApp' | translate }}</h3>
+      </div>
+    </div>
+
+    <div class="d3-split-grid">
+      <!-- Hosts cards (right) -->
+      <div class="d3-cards-grid d3-half-grid">
+        @for (card of hostsCards; track card.title) {
+          <div class="d3-card d3-card-sm">
+            <div class="d3-card-top">
+              <span class="d3-card-title">{{ card.title | translate }}</span>
+            </div>
+            <div class="d3-card-body">
+              <span class="d3-card-value"
+                    [class.green]="card.trendType === 'up'"
+                    [class.blue]="card.trendType === 'blue'">{{ card.value }}</span>
+              @if (card.iconName === 'star') {
+                <i-tabler name="star" class="d3-star-icon"></i-tabler>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Guests cards (left) -->
+      <div class="d3-cards-grid d3-half-grid">
+        @for (card of guestsCards; track card.title) {
+          <div class="d3-card d3-card-sm">
+            <div class="d3-card-top">
+              <span class="d3-card-title">{{ card.title | translate }}</span>
+            </div>
+            <div class="d3-card-body">
+              <span class="d3-card-value"
+                    [class.green]="card.trendType === 'up'"
+                    [class.blue]="card.trendType === 'blue'">{{ card.value }}</span>
+              @if (card.iconName === 'star') {
+                <i-tabler name="star" class="d3-star-icon"></i-tabler>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+</div>

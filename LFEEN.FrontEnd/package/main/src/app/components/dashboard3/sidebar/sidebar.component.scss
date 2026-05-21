@@ -1,0 +1,265 @@
+:host {
+  display: block;
+  width: 256px;
+  font-family: 'Cairo', sans-serif;
+  transition: width 0.25s ease;
+}
+
+:host(.mobile-mode) {
+  width: 100% !important;
+
+  .d3-sidebar {
+    width: 100%;
+  }
+
+  .d3-sidebar-list {
+    width: 100% !important;
+  }
+
+  .d3-mobile-close {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F1F5F9;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0F172B;
+  }
+}
+
+:host(.collapsed) {
+  width: 72px;
+}
+
+.d3-sidebar {
+  height: 100vh;
+  background-color: #ffffff;
+  color: #121212;
+  display: flex;
+  flex-direction: column;
+  border-inline-end: 1px solid #eaeaea;
+  font-family: 'Cairo', sans-serif;
+
+  .d3-branding {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px !important;
+    opacity: 1;
+    margin-top: 16px;
+
+    .d3-logo-text {
+      flex: 1;
+   margin-inline-end: 14px;
+      padding: 0  !important;
+      font-family: 'Cairo', 'Inter', sans-serif !important;
+      font-weight: 600 !important;
+      font-size: 15px !important;
+      line-height: 20px !important;
+      letter-spacing: -0.15px !important;
+      color: #121212 !important;
+      text-align: start;
+    }
+
+    .d3-collapse-btn {
+      color: #9a9a9a;
+      cursor: pointer;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+  }
+
+  .d3-sidebar-list {
+    width: 255px;
+    height: 392px;
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+    padding-top: 22px !important;
+    padding-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    margin-top: 16px;
+    box-sizing: border-box;
+
+    .d3-menu-item {
+      color: #4a4a4a;
+      transition: all 0.2s ease;
+      width: 223px;
+      height: 48px;
+      padding: 12px 16px !important;
+      border-radius: 12px !important;
+      margin-bottom: 0;
+      font-family: 'Cairo', sans-serif;
+      box-sizing: border-box;
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: #121212;
+      }
+
+      &.active-link {
+        background-color: #000000;
+        color: #ffffff;
+
+        ::ng-deep .mat-mdc-list-item-icon,
+        ::ng-deep i-tabler {
+          color: #ffffff;
+        }
+
+        .d3-menu-title {
+          color: #ffffff;
+        }
+      }
+
+      ::ng-deep .mdc-list-item__content,
+      ::ng-deep .mat-mdc-list-item-unscoped-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        padding: 0 !important;
+      }
+
+      .d3-menu-title {
+        font-family: 'Cairo', sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 16px !important;
+        line-height: 24px !important;
+        letter-spacing: 0 !important;
+        text-align: start;
+        vertical-align: middle;
+        color: #62748E;
+      }
+
+      ::ng-deep i-tabler,
+      ::ng-deep i-tabler svg {
+        width: 20px !important;
+        height: 20px !important;
+        opacity: 1;
+      }
+
+      &:not(.active-link) {
+        ::ng-deep i-tabler,
+        ::ng-deep i-tabler svg {
+          color: #62748E;
+        }
+      }
+    }
+
+    .d3-menu-divider {
+      height: 1px;
+      background-color: #eaeaea;
+      margin: 12px 8px;
+    }
+  }
+}
+
+:host(:not(.collapsed)) .d3-sidebar .d3-sidebar-list .d3-menu-item {
+  ::ng-deep .mdc-list-item__start,
+  ::ng-deep .mat-mdc-list-item-icon {
+    margin: 0 !important;
+    margin-inline-start: 12px !important;
+  }
+}
+
+// Collapsed styles must come after expanded rules so they win the cascade
+:host(.collapsed) {
+  .d3-logo-text,
+  .d3-menu-title,
+  ::ng-deep .mdc-list-item__primary-text {
+    display: none !important;
+  }
+
+  .d3-branding {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    height: auto;
+    padding: 16px 0 0 !important;
+    margin-top: 0;
+  }
+
+  .d3-collapse-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #F1F5F9;
+    border-radius: 6px;
+  }
+
+  .d3-sidebar-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    padding-inline: 8px !important;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    // Icon is a direct flex child of .mdc-list-item (outside __content).
+    // __content has flex:1 and keeps the icon pinned to the start until hidden.
+    .d3-menu-item.mdc-list-item {
+      --mat-list-list-item-leading-icon-start-space: 0;
+      --mat-list-list-item-leading-icon-end-space: 0;
+      width: 48px !important;
+      max-width: 48px !important;
+      height: 48px !important;
+      min-height: 48px !important;
+      padding: 0 !important;
+      margin-inline: auto !important;
+      box-sizing: border-box !important;
+      justify-content: center !important;
+      align-items: center !important;
+
+      &.mdc-list-item--with-leading-icon {
+        &,
+        [dir='rtl'] & {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+      }
+
+      ::ng-deep .mdc-list-item__content {
+        display: none !important;
+        flex: 0 0 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      &.mdc-list-item--with-leading-icon ::ng-deep .mdc-list-item__start {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-inline: 0 !important;
+        flex: 0 0 auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      ::ng-deep .d-flex {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    }
+
+    .d3-menu-divider {
+      width: 32px;
+      margin: 8px auto !important;
+    }
+  }
+}

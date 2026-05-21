@@ -1,0 +1,50 @@
+<div class="followers-contents">
+  <div class="header-content">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <div class="d-flex align-items-center gap-8">
+        <h5 class="f-w-500 f-s-20">Followers</h5>
+        
+        <div class="p-x-6 p-y-2 rounded-pill bg-secondary text-white">
+          <div class="f-s-14 lh-sm">{{ filteredCount }}</div>
+        </div>
+      </div>
+
+      <!-- Search bar pushed to the right -->
+      <div class="flex-grow-1 d-flex justify-content-end mt-3">
+        <mat-form-field appearance="outline" class="w-30 search-bar-style">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput placeholder="Search Followers" [(ngModel)]="searchText"/>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row"> 
+      @for(followercard of filteredFollowercards(); track followercard.id){
+        <div class="col-sm-6 col-lg-4">
+          <mat-card class="cardWithShadow">
+            <mat-card-content>
+              <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center">
+                  <img src="{{ followercard.imgSrc }}" width="40" alt="user" class="rounded-circle" />
+                  <div class="m-l-16">
+                    <h6 class="m-0 f-w-600 f-s-16">{{ followercard.title }}</h6>
+                    <span class="d-flex align-items-center f-s-14"><i-tabler name="map-pin"
+                        class="icon-14 m-r-4"></i-tabler>{{ followercard.subtext }}</span>
+                  </div>
+                </div>
+                @if (followercard.status) {
+                  <button mat-flat-button color="primary" class="m-l-auto">
+                    Follow
+                  </button>
+                }@else {
+                  <button mat-stroked-button class="m-l-auto">Unfollow</button>
+                }
+               
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    </div>
+    
+  </div>
+</div>

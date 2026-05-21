@@ -1,0 +1,68 @@
+<div class="d3-insights-wrapper">
+  <!-- Top Cities Card (right in RTL) -->
+  <div class="d3-insights-card d3-cities-card">
+    <div class="d3-card-header">
+      <h3 class="d3-card-title">{{ 'd3.insights.topCities' | translate }}</h3>
+    </div>
+
+    <div class="d3-cities-list">
+      @for (city of cities; track city.rank) {
+        <div class="d3-city-item">
+                   <span class="d3-city-rank">{{ city.rank }}</span>
+          <div class="d3-city-info">
+            <div class="d3-city-name">{{ city.name | translate }}</div>
+            <div class="d3-city-meta">{{ city.reservations }} {{ 'd3.insights.reservation' | translate }} • {{ city.hosts }} {{ 'd3.insights.host' | translate }}</div>
+          </div>
+       
+                    <span class="d3-city-status" [ngClass]="'status-' + city.status">{{ statusLabel(city.status) | translate }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Revenue Sources Card (middle) -->
+  <div class="d3-insights-card d3-revenue-card">
+    <div class="d3-card-header">
+      <h3 class="d3-card-title">{{ 'd3.insights.revenueSources' | translate }}</h3>
+    </div>
+
+    <div class="d3-revenue-list">
+      @for (source of revenueSources; track source.label) {
+        <div class="d3-revenue-item">
+         
+          <span class="d3-revenue-label">{{ source.label | translate }}</span>
+           <span class="d3-revenue-percent">{{ source.percent }}%</span>
+          <div class="d3-revenue-bar-wrap">
+            <div class="d3-revenue-bar" [style.width.%]="source.percent" [style.background-color]="source.color"></div>
+          </div>
+        </div>
+      }
+      <div class="d3-revenue-note mt-4">
+      {{ 'd3.insights.revenueNote' | translate }}
+    </div>
+    </div>
+
+    
+  </div>
+
+  <!-- Decisions Card (left in RTL) -->
+  <div class="d3-insights-card d3-decisions-card">
+    <div class="d3-card-header">
+      <h3 class="d3-card-title">{{ 'd3.insights.needsCeoDecision' | translate }}</h3>
+    </div>
+
+    <div class="d3-decisions-list">
+      @for (item of decisions; track item.title) {
+        <div class="d3-decision-item" [ngClass]="'type-' + item.type">
+          <div class="d3-decision-icon">
+            <i-tabler [name]="item.icon"></i-tabler>
+          </div>
+          <div class="d3-decision-body">
+            <div class="d3-decision-title">{{ item.title | translate }}</div>
+            <div class="d3-decision-desc">{{ item.description | translate }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

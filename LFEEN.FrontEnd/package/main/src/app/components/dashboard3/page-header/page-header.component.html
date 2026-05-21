@@ -1,0 +1,27 @@
+<header class="d3-page-header">
+  <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
+    <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
+  </button>
+
+  <div class="d3-page-header-main">
+    <h1 class="d3-page-title">{{ titleKey | translate }}</h1>
+
+    @if (breadcrumbKey) {
+      <span class="d3-page-divider"></span>
+      <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+    }
+  </div>
+
+  <div class="d3-page-header-meta">
+    @if (showLive) {
+      <div class="d3-page-live-badge">
+        <span class="d3-page-live-dot"></span>
+        <span class="d3-page-live-text">{{ 'd3.header.live' | translate }}</span>
+      </div>
+    }
+
+    @if (showDate) {
+      <span class="d3-page-date-badge">{{ 'd3.header.date' | translate }}</span>
+    }
+  </div>
+</header>

@@ -1,0 +1,36 @@
+<div class="d3-sidebar">
+  <div class="d3-branding">
+    <img src="./assets/images/logos/Group 4.svg" alt="logo" width="28" />
+    <h3 class="d3-logo-text">{{ 'd3.sidebar.brand' | translate }}</h3>
+    @if (mobileMode) {
+      <i-tabler
+        name="x"
+        class="d3-collapse-btn d3-mobile-close"
+        (click)="closeMobile()"></i-tabler>
+    } @else {
+      <i-tabler
+        [name]="collapsed ? 'layout-sidebar-right-expand' : 'layout-sidebar-right-collapse'"
+        class="d3-collapse-btn"
+        (click)="toggleSidebar()"></i-tabler>
+    }
+  </div>
+
+  <mat-nav-list class="d3-sidebar-list">
+    @for(item of navItems; track item.title) {
+      @if(item.divider) {
+        <div class="d3-menu-divider"></div>
+      } @else {
+        <a mat-list-item href="#" (click)="navigateTo(item, $event)"
+          [class.active-link]="isActive(item)"
+          class="d3-menu-item">
+          <span matListItemIcon class="d-flex">
+            <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
+          </span>
+          @if (!collapsed || mobileMode) {
+            <span matListItemTitle class="d3-menu-title">{{ item.title! | translate }}</span>
+          }
+        </a>
+      }
+    }
+  </mat-nav-list>
+</div>

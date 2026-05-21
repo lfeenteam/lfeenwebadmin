@@ -1,0 +1,203 @@
+@use "../variables" as *;
+
+// dashboard 1
+
+.congrats-bg {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+}
+
+.social-chips {
+  img {
+    margin-left: -9px;
+    border: 2px solid $white;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+.text-truncate-2 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 215px;
+  width: 100%;
+}
+
+[dir="ltr"] {
+  .theme-select {
+    .mdc-text-field--outlined
+      .mdc-notched-outline
+      .mdc-notched-outline__leading {
+      border-top-left-radius: var(--mat-sys-corner-full);
+      border-bottom-left-radius: var(--mat-sys-corner-full);
+      width: 18px;
+    }
+
+    .mdc-text-field--outlined
+      .mdc-notched-outline
+      .mdc-notched-outline__trailing {
+      border-top-right-radius: var(--mat-sys-corner-full);
+      border-bottom-right-radius: var(--mat-sys-corner-full);
+    }
+  }
+}
+// theme select
+.theme-select {
+  width: 130px;
+}
+
+// expansion panel
+
+html .mat-expansion-panel:not([class*="mat-elevation-z"]) {
+  box-shadow: var(--mat-sys-level2);
+}
+
+.rounded-bars {
+  .apexcharts-bar-series.apexcharts-plot-series .apexcharts-series path {
+    clip-path: inset(0 0 5% 0 round 20px);
+  }
+}
+
+// dashboard 2
+.welcome-img {
+  position: absolute;
+  right: -33px;
+  bottom: -30px;
+}
+
+.top-img {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.custom-tabs {
+  .mat-mdc-tab .mdc-tab__ripple::before {
+    border-radius: $border-radius;
+  }
+  .mat-mdc-tab-label-container {
+    border-bottom: 0;
+  }
+  .mat-mdc-tab-body-content {
+    overflow: unset;
+  }
+  .mat-mdc-tab-ripple {
+    border-radius: $border-radius;
+  }
+  .mat-mdc-tab {
+    border-radius: $border-radius;
+    .mdc-tab-indicator {
+      display: none;
+    }
+    &.mdc-tab--active {
+      background-color: $primary;
+      .mdc-tab__text-label {
+        color: $white;
+      }
+      &:hover,
+      &:focus {
+        .mdc-tab__text-label {
+          color: $white !important;
+        }
+      }
+    }
+  }
+}
+
+.timeline-border {
+  border-radius: $border-radius;
+  &.timeline-border-primary {
+    border-left: 5px solid $primary;
+  }
+  &.timeline-border-success {
+    border-left: 5px solid $success;
+  }
+  &.timeline-border-error {
+    border-left: 5px solid $error;
+  }
+  &.timeline-border-accent {
+    border-left: 5px solid $accent;
+  }
+}
+
+.timeline {
+  position: relative;
+  .timeline-item {
+    position: relative;
+    height: 70px;
+    .time {
+      padding: 6px 16px 6px 0;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+    .desc {
+      padding: 6px 16px;
+    }
+    .timline-border {
+      width: 1px;
+      height: 100%;
+      background-color: $borderColor;
+      flex-shrink: 0;
+    }
+    .point {
+      flex-direction: column;
+      .timeline-badge {
+        width: 12px;
+        height: 12px;
+        border-radius: 50px;
+        background-color: transparent;
+        flex-shrink: 0;
+        &.border-primary {
+          border: 2px solid $primary;
+        }
+        &.border-accent {
+          border: 2px solid $accent;
+        }
+        &.border-success {
+          border: 2px solid $success;
+        }
+        &.border-warning {
+          border: 2px solid $warning;
+        }
+        &.border-error {
+          border: 2px solid $error;
+        }
+      }
+
+      .timeline-border {
+        width: 1px;
+        height: 100%;
+        background-color: $borderColor;
+        flex-shrink: 0;
+      }
+    }
+    &:last-child {
+      .timeline-border {
+        display: none !important;
+      }
+    }
+  }
+}
+
+
+// User Profile Tab
+.profileTabs {
+  background-color: var(--mat-sys-surface-bright);
+
+  .mat-mdc-tab-label-container{
+    border-bottom-width: 0;
+  }
+
+  .mat-mdc-tab.mdc-tab-indicator--active{
+    .mdc-tab__text-label{
+      color: var(--mat-sys-primary) !important;
+    }
+  }
+}

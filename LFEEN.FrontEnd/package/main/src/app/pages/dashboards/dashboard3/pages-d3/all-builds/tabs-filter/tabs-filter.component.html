@@ -1,0 +1,57 @@
+<section class="tabs-filter">
+  <div class="tabs-filter-toolbar">
+    <nav class="tabs-row" aria-label="Building tabs">
+      @for (tab of tabs; track tab.id) {
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab === tab.id"
+          (click)="selectTab(tab.id)">
+          {{ tab.labelKey | translate }}
+        </button>
+      }
+    </nav>
+
+    <div class="filters-row">
+      <div class="search-box">
+        <i-tabler name="search" class="search-icon"></i-tabler>
+        <input
+          type="search"
+          class="search-input"
+          [placeholder]="'d3.allBuilds.filters.searchPlaceholder' | translate"
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchInput($event)" />
+      </div>
+
+      <div class="filter-dropdowns">
+        @for (filter of filterOptions; track filter.id) {
+          <div class="filter-dropdown">
+            <button
+              type="button"
+              class="filter-pill"
+              [matMenuTriggerFor]="filterMenu"
+              [attr.aria-label]="filter.labelKey | translate">
+              <span>{{ getFilterLabelKey(filter) | translate }}</span>
+            </button>
+
+            <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow">
+              @for (item of filter.items; track item.value) {
+                <button
+                  mat-menu-item
+                  type="button"
+                  [class.selected]="isFilterSelected(filter.id, item.value)"
+                  (click)="selectFilterOption(filter.id, item.value)">
+                  {{ item.labelKey | translate }}
+                </button>
+              }
+            </mat-menu>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="filter-icon-btn" [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate">
+        <i-tabler name="filter"></i-tabler>
+      </button>
+    </div>
+  </div>
+</section>

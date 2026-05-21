@@ -1,0 +1,291 @@
+<div>
+  <form [formGroup]="AddProduct" (ngSubmit)="getAddProduct(AddProduct.value)">
+    <div class="row">
+      <div class="col-lg-8">
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle>General</h4>
+          <mat-label class="f-s-14 f-w-600 m-b-8 d-block m-t-20">Product Name <span
+              class="text-error">*</span></mat-label>
+          <mat-form-field appearance="outline" class="w-100 p-0" color="primary">
+            <input type="text" matInput placeholder="Product name" formControlName="product_name" />
+
+            <mat-hint class="f-s-12">A product name is required and recommended to be unique.
+            </mat-hint>
+          </mat-form-field>
+
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">Description</div>
+          <div class="NgxEditor__Wrapper">
+            <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" class=""> </ngx-editor-menu>
+            <ngx-editor [editor]="editor" [disabled]="false" [placeholder]="'Type here...'"
+              formControlName="description" class="b-t-1"></ngx-editor> 
+          </div>
+          <div class="f-s-12 m-t-2">
+            Set a description to the product for better visibility.
+          </div>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle class="m-b-24">Media</h4>
+          <div class="custom-dropzone dropzone-box mt-2" ngx-dropzone [accept]="'image/*'" (change)="onSelect($event)"
+            [multiple]="true">
+            <ngx-dropzone-label>
+              <div class="dropzone-content d-flex align-items-center justify-content-center flex-col">
+                <img src="assets/images/products/Screenshot_1.png" alt="Upload" width="80" class="upload-icon m-b-16" />
+                <p class="headline">Drop or select file</p>
+                <p class="subtext f-s-14">
+                  Drop files here or click to
+                  <span class="browse-link text-primary">browse</span> through your machine.
+                </p>
+              </div>
+            </ngx-dropzone-label>
+
+            @for (f of mediaArray.controls; track f) {
+            <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" formArrayName="media" [file]="f.value"
+              [removable]="true" (removed)="onRemove(f.value, $index)">
+              <ngx-dropzone-label></ngx-dropzone-label>
+            </ngx-dropzone-image-preview>
+            }
+          </div>
+
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-15">Files:</div>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle>Variation</h4>
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">
+            Add Product Variations
+          </div>
+          <div class="row">
+            <div class="col-lg-4">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="size" disableOptionCentering placeholder="Size">
+                  @for (size of sizes; track size) {
+                  <mat-option [value]="size">
+                    <span [ngClass]="{ 'highlight-size': size === 'XL' }">
+                      {{ size }}
+                    </span>
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-lg-4">
+              <mat-form-field appearance="outline" class="w-100">
+                <input matInput type="text" formControlName="variations" placeholder="Variations" />
+              </mat-form-field>
+            </div>
+            <div class="col-lg-4">
+              <button mat-flat-button class="bg-error icon-37">X</button>
+            </div>
+          </div>
+          <div class="w-50">
+            <button mat-flat-button class="bg-light-primary text-primary m-l-0">
+              <div class="d-flex align-items-center">
+                <tabler-icon name="plus" class="m-r-5"></tabler-icon>
+                <span class="mt-3"> Add another variations</span>
+              </div>
+            </button>
+          </div>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle>Pricing</h4>
+          <mat-label class="f-s-14 f-w-600 m-b-8 d-block m-t-20">Base Price <span
+              class="text-error">*</span></mat-label>
+          <mat-form-field appearance="outline" class="w-100 p-0" color="primary">
+            <input type="text" formControlName="base_price" placeholder="Base Price " aria-label="text" matInput />
+            <mat-hint class="f-s-12">Set the product price.</mat-hint>
+          </mat-form-field>
+
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">
+            Discount Type<span class="text-error">*</span>
+          </div>
+          <mat-radio-group [value]="selectedOption" (change)="onSeasonChange($event)"
+            aria-labelledby="example-radio-group-label" class="d-flex flex-wrap gap-24 justify-content-start 100 mt-2">
+            @for (season of seasons; track season) {
+            <mat-card class="cardWithShadow b-1 rounded d-flex gap-30 align-items-center flex-row">
+              <mat-radio-button class="p-r-16 p-l-6 p-y-2" color="primary" [value]="season">
+                {{ season }}
+              </mat-radio-button>
+            </mat-card>
+            }
+          </mat-radio-group>
+
+          <ng-container [ngSwitch]="selectedOption">
+            <div *ngSwitchCase="'Percentage %'" output>
+              <div class="f-s-14 f-w-500 mt-4">
+                Set Discount Percentage<span class="text-error">*</span>
+              </div>
+              <mat-slider class="m-b-10">
+                <input formControlName="set_discount_percentage" matSliderThumb min="0" max="100" step="1" value="30" />
+              </mat-slider>
+              <div>
+                <mat-hint class="f-s-12">Set a percentage discount to be applied on this
+                  product.</mat-hint>
+              </div>
+            </div>
+
+            <div *ngSwitchCase="'Fixed Price'" class="w-100">
+              <div>
+                <div class="f-s-14 f-w-500 m-b-5">
+                  Fixed Discounted Price <span class="text-error">*</span>
+                </div>
+                <mat-form-field class="w-100 m-b-10" appearance="outline">
+                  <input formControlName="fixed_discounted_price" type="text" placeholder="Fixed Discounted Price"
+                    aria-label="text" matInput />
+                  <mat-hint class="f-s-12">Set the discounted product price. The product will be
+                    reduced at the determined fixed price.
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+          </ng-container>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="f-s-14 f-w-600 m-b-8 d-block">
+                Tax Class<span class="text-error">*</span>
+              </div>
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-select formControlName="tax_class" disableOptionCentering placeholder="Tax Class">
+                  @for (taxClass of taxClasses; track taxClass) {
+                  <mat-option [value]="taxClass">
+                    {{ taxClass }}
+                  </mat-option>
+                  }
+                </mat-select>
+                <mat-hint class="f-s-12">Set the product tax class.</mat-hint>
+              </mat-form-field>
+            </div>
+            <div class="col-lg-6">
+              <div class="f-s-14 f-w-600 m-b-8 d-block">
+                VAT Amount (%)<span class="text-error">*</span>
+              </div>
+              <mat-form-field class="w-100" appearance="outline">
+                <input type="text" placeholder="Product name" formControlName="VAT_amount" matInput />
+                <mat-hint class="f-s-12">Set the product VAT about.</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+      <div class="col-lg-4">
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle class="m-b-10">Thumbnail</h4>
+          <div class="custom-dropzone" ngx-dropzone [accept]="'image/*'" (change)="onSelect($event)" [multiple]="true"
+            class="dropzone-box">
+            <ngx-dropzone-label>
+              <div class="dropzone-content">
+                <p class="headline">Drop or select file</p>
+                <p class="subtext f-s-14">
+                  Drop files here or click to
+                  <span class="browse-link text-primary">browse</span> through your machine.
+                </p>
+              </div>
+            </ngx-dropzone-label>
+
+            @for (f of files; track f) {
+            <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" [file]="f" [removable]="true"
+              (removed)="onRemove(f)">
+              <ngx-dropzone-label></ngx-dropzone-label>
+            </ngx-dropzone-image-preview>
+            }
+          </div>
+          <div class="f-s-12">
+            Set the product thumbnail image. Only *.png, *.jpg and *.jpeg image
+            files are accepted.
+          </div>
+          <div class="f-s-16 f-w-500 m-t-15">Files:</div>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <div class="d-flex justify-content-between">
+            <h4 Ctitle>Status</h4>
+            <div class="cards-circle">
+              <tabler-icon name="home" class="theme-icon"></tabler-icon>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="w-100 m-t-20">
+            <mat-select formControlName="status" disableOptionCentering placeholder="Select status">
+              @for (status of productStatuses; track status) {
+              <mat-option [value]="status.value">
+                {{ status.label }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-hint>Set the product status.</mat-hint>
+          </mat-form-field>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle>Product Details</h4>
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">Categories</div>
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-select placeholder="Categories" formControlName="categories">
+              @for (category of categories; track category) {
+              <mat-option [value]="category">
+                {{ category }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-hint>Add product to a category.</mat-hint>
+          </mat-form-field>
+          <div class="w-50 m-t-20">
+            <button mat-flat-button class="bg-light-primary text-primary m-l-0">
+              <div class="d-flex align-items-center">
+                <tabler-icon name="plus" class="m-r-5"></tabler-icon>
+                <span class="mt-3"> Create new category</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">Tags</div>
+          <mat-form-field class="w-100" appearance="outline">
+            <div formArrayName="tags">
+              <mat-chip-grid #chipGrid>
+                @for(tag of tags;track tag){
+                <mat-chip [removable]="true" (removed)="removeTag(tag)">
+                  {{ tag }}
+                  <button matChipRemove>×</button>
+                </mat-chip>
+
+                }
+
+                <input placeholder="Tags" [matAutocomplete]="auto" [matChipInputFor]="chipGrid"
+                  (matChipInputTokenEnd)="addTagFromInput($event)" />
+              </mat-chip-grid>
+            </div>
+          </mat-form-field>
+
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectTag($event.option.viewValue)">
+            @for (tag of allTags; track tag) {
+            <mat-option [value]="tag">
+              {{ tag }}
+            </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-card>
+        <mat-card class="cardWithShadow b-1 rounded p-30">
+          <h4 Ctitle>Product Template</h4>
+          <div class="f-s-14 f-w-600 m-b-8 d-block m-t-20">
+            Select a product template
+          </div>
+          <mat-form-field appearance="outline" class="w-100 p-b-20">
+            <mat-select formControlName="default_template" disableOptionCentering placeholder="Select template">
+              @for (template of templates; track template) {
+              <mat-option [value]="template">
+                {{ template }}
+              </mat-option>
+              }
+            </mat-select>
+            <mat-hint>Assign a template from your current theme to define how a single
+              product is displayed.</mat-hint>
+          </mat-form-field>
+        </mat-card>
+      </div>
+    </div>
+    <div class="d-flex gap-20">
+      <button mat-flat-button type="submit">
+        {{ isEditMode ? "Update Product" : "Add Product" }}
+      </button>
+      <button mat-button class="b-1 border-error text-error" type="button" (click)="getBack()">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

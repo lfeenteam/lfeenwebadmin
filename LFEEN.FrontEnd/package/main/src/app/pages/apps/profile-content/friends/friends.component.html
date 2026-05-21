@@ -1,0 +1,54 @@
+<div class="friend-contents">
+    <div class="friend-header-content">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="d-flex align-items-center gap-8">
+            <div class="f-w-500 f-s-20">Friends</div>
+      
+            <div class="p-x-6 p-y-2 rounded-pill bg-secondary text-white">
+              <div class="f-s-14 lh-sm" >{{ filteredCount }}</div>
+            </div>
+          </div>
+            
+      
+            <!-- Search bar pushed to the right -->
+            <div class="flex-grow-1 d-flex justify-content-end mt-3">
+              <mat-form-field appearance="outline" class="w-30 search-bar-style">
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput placeholder="Search Friends"  [(ngModel)]="searchText"
+                (ngModelChange)="applyFilter()"/>
+              </mat-form-field>
+            </div>
+          </div>
+    </div>
+    <div class="row">
+        @for(socialcard of filteredSocialcards; track socialcard.id) {
+        <div class="col-sm-6 col-lg-4">
+          <mat-card class="cardWithShadow overflow-hidden">
+            <mat-card-content class="text-center p-y-24">
+              <img src="{{ socialcard.imgSrc }}" class="rounded-circle" width="80" />
+              <mat-card-title class="f-s-18 m-b-0 m-t-16">{{
+                socialcard.username
+                }}</mat-card-title>
+              <mat-card-subtitle class="f-s-12 f-s-14">{{
+                socialcard.post
+                }}</mat-card-subtitle>
+            </mat-card-content>
+            <div class="b-t-1 p-x-24  p-y-8 d-flex justify-content-center bg-light-primary">
+              <button mat-icon-button class="d-flex justify-content-center">
+                <i-tabler name="brand-facebook" class="icon-18 d-flex text-primary"></i-tabler>
+              </button>
+              <button mat-icon-button class="d-flex justify-content-center">
+                <i-tabler name="brand-instagram" class="icon-18 d-flex text-error"></i-tabler>
+              </button>
+              <button mat-icon-button class="d-flex justify-content-center">
+                <i-tabler name="brand-github" class="icon-18 d-flex text-success"></i-tabler>
+              </button>
+              <button mat-icon-button class="d-flex justify-content-center">
+                <i-tabler name="brand-twitter" class="icon-18 d-flex text-secondary"></i-tabler>
+              </button>
+            </div>
+          </mat-card>
+        </div>
+        }
+      </div>
+</div>

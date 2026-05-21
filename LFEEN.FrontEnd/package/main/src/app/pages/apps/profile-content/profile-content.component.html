@@ -1,0 +1,118 @@
+<div class="profileContent">
+  <div class="profileCard">
+    <mat-card class="cardWithShadow overflow-hidden">
+      <!-- Cover Image -->
+      <img mat-card-image src="assets/images/backgrounds/profilebg.jpg" alt="Profile Cover" class="w-100" />
+
+      <div class="row align-items-center">
+        <div class="col-lg-4 order-1">
+          <div class="d-flex align-items-center justify-content-around m-24">
+            <div class="text-center">
+              <tabler-icon class="icon-20 m-b-4" name="file-description"></tabler-icon>
+              <h6 class="mb-0 f-s-21 f-w-500">938</h6>
+              <p class="m-y-0 f-s-14">Posts</p>
+            </div>
+            <div class="text-center">
+              <tabler-icon class="icon-20 m-b-4" name="user-circle"></tabler-icon>
+              <h6 class="mb-0 f-s-21 f-w-500">3,586</h6>
+              <p class="m-y-0 f-s-14">Followers</p>
+            </div>
+            <div class="text-center">
+              <tabler-icon class="icon-20 m-b-4" name="user-check"></tabler-icon>
+              <h6 class="mb-0 f-s-21 f-w-500">2,659</h6>
+              <p class="m-y-0 f-s-14">Following</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 order-2">
+          <div class="profile-img-container text-center m-t--48">
+            <div class="profile-border-bg d-flex align-items-center justify-content-center rounded-circle m-x-auto">
+              <div class="profile-border d-flex align-items-center justify-content-center rounded-circle">
+                <img src="assets/images/profile/user-1.jpg" class="profile-pic rounded-circle w-100 h-100 object-cover"
+                  alt="user" />
+              </div>
+            </div>
+            <div class="text-center m-t-2">
+              <h4 class="f-s-18 f-w-600">Mathew Anderson</h4>
+              <p class="m-y-0">Designer</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 order-3">
+          <div class="d-flex align-items-center justify-content-center gap-16 social-btns m-y-16">
+            <button mat-mini-fab class="bg-primary text-white icon-32"
+              aria-label="Example icon button with a bookmark icon">
+              <i-tabler class="icon-18 d-flex" name="brand-facebook"></i-tabler>
+            </button>
+            <button mat-mini-fab class="bg-secondary text-white icon-32"
+              aria-label="Example icon button with a home icon">
+              <i-tabler class="icon-18 d-flex" name="brand-twitter"></i-tabler>
+            </button>
+            <button mat-mini-fab class="bg-success text-white icon-32"
+              aria-label="Example icon button with a home icon">
+              <i-tabler class="icon-18 d-flex" name="brand-dribbble"></i-tabler>
+            </button>
+            <button mat-mini-fab class="bg-error text-white icon-32" aria-label="Example icon button with a home icon">
+              <i-tabler class="icon-18 d-flex" name="brand-youtube"></i-tabler>
+            </button>
+            <button mat-flat-button>
+              Add To Story
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- Navigation Tabs -->
+      <div class="profileTabs m-t-16">
+        <mat-tab-group [(selectedIndex)]="selectedTab" mat-stretch-tabs="false" mat-align-tabs="end">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <tabler-icon name="user-circle" class="m-r-8 icon-20"></tabler-icon>
+              Profile
+            </ng-template>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <tabler-icon name="heart" class="m-r-8 icon-20"></tabler-icon>
+              Followers
+            </ng-template>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <tabler-icon name="user-circle" class="m-r-8 icon-20"></tabler-icon>
+              Friends
+            </ng-template>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <tabler-icon name="photo" class="m-r-8 icon-20"></tabler-icon>
+              Gallery
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </mat-card>
+
+    <div class="tabContent">
+      <ng-container [ngSwitch]="selectedTab">
+        <div *ngSwitchCase="0">
+          <app-profile></app-profile>
+        </div>
+        <div *ngSwitchCase="1">
+          <app-followers></app-followers>
+        </div>
+        <div *ngSwitchCase="2">
+          <app-friends></app-friends>
+        </div>
+        <div *ngSwitchCase="3">
+          <app-gallery></app-gallery>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

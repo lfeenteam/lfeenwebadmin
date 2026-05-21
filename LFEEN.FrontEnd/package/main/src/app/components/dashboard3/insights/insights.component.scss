@@ -1,0 +1,310 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+}
+
+.d3-insights-wrapper {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.d3-insights-card {
+  background-color: #FFFFFF;
+  border: 1px solid #F1F5F9;
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 450px;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (max-width: 576px) {
+    padding: 16px;
+    min-height: auto;
+  }
+}
+
+.d3-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: start;
+
+  &.center {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .d3-card-title {
+    all: unset;
+    font-family: 'Cairo', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    color: #0F172B !important;
+
+    @media (max-width: 576px) {
+      font-size: 18px !important;
+    }
+  }
+}
+
+/* ===== Decisions Card ===== */
+.d3-decisions-card {
+  .d3-decisions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+      min-height: 72px;
+  }
+
+  .d3-decision-item {
+    display: flex;
+    align-items: center;
+    min-height: 72px;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background-color: #F8FAFC;
+    border-inline-start: 4px solid #CBD5E1;
+    box-sizing: border-box;
+
+    .d3-decision-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      display: inline-flex;
+      color: #62748E;
+
+      ::ng-deep svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .d3-decision-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: start;
+    }
+
+    .d3-decision-title {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0F172B;
+    }
+
+    .d3-decision-desc {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: #62748E;
+      line-height: 1.5;
+    }
+
+    &.type-urgent {
+      background-color: #FEF2F2;
+      border-inline-start-color: #EF4444;
+
+      .d3-decision-icon { color: #EF4444; }
+      .d3-decision-title { color: #B91C1C; }
+      .d3-decision-desc { color: #DC2626; }
+    }
+
+    &.type-warning {
+      background-color: #FFFBEB;
+      border-inline-start-color: #F59E0B;
+
+      .d3-decision-icon { color: #F59E0B; }
+      .d3-decision-title { color: #92400E; }
+      .d3-decision-desc { color: #B45309; }
+    }
+
+    &.type-info {
+      background-color: #EFF6FF;
+      border-inline-start-color: #3B82F6;
+
+      .d3-decision-icon { color: #3B82F6; }
+      .d3-decision-title { color: #1D4ED8; }
+      .d3-decision-desc { color: #2563EB; }
+    }
+
+    &.type-success {
+      background-color: #ECFDF5;
+      border-inline-start-color: #10B981;
+
+      .d3-decision-icon { color: #10B981; }
+      .d3-decision-title { color: #047857; }
+      .d3-decision-desc { color: #059669; }
+    }
+
+    &.type-neutral {
+      background-color: #F8FAFC;
+      border-inline-start-color: #CBD5E1;
+
+      .d3-decision-icon { color: #62748E; }
+      .d3-decision-title { color: #0F172B; }
+      .d3-decision-desc { color: #62748E; }
+    }
+  }
+}
+
+/* ===== Revenue Sources Card ===== */
+.d3-revenue-card {
+  .d3-revenue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    flex: 1;
+  }
+
+  .d3-revenue-item {
+    display: grid;
+    grid-template-columns: 1fr 40px;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 8px;
+    align-items: center;
+
+    .d3-revenue-percent {
+      grid-column: 2;
+      grid-row: 1;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0F172B;
+      text-align: end;
+    }
+
+    .d3-revenue-label {
+      grid-column: 1;
+      grid-row: 1;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0F172B;
+      text-align: start;
+    }
+
+    .d3-revenue-bar-wrap {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background-color: #F1F5F9;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .d3-revenue-bar {
+      height: 100%;
+      border-radius: 999px;
+    }
+  }
+
+  .d3-revenue-note {
+    background-color: #F8FAFC;
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    font-family: 'Cairo', sans-serif;
+    border: 1px solid #E2E8F0;
+    font-size: 12px;
+    color: #62748E;
+    line-height: 1.6;
+  }
+}
+
+.d3-cities-card {
+  .d3-cities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .d3-city-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+
+    .d3-city-rank {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: #62748E;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #F1F5F9;
+      border-radius: 8px;
+    }
+
+    .d3-city-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      text-align: start;
+    }
+
+    .d3-city-name {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0F172B;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .d3-city-meta {
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      color: #62748E;
+      line-height: 1;
+      margin: 0;
+      padding: 0;
+    }
+
+    .d3-city-status {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+
+      &.status-excellent { color: #009966; background-color: #ECFDF5; }
+      &.status-growth    { color: #155DFC; background-color: #ECFDF5; }
+      &.status-stable    { color: #45556C; background-color: #ECFDF5; }
+      &.status-new       { color: #E17100; background-color: #ECFDF5; }
+    }
+  }
+}
+
+/* Responsiveness handled above */

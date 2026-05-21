@@ -1,0 +1,158 @@
+<mat-card class="cardWithShadow overflow-hidden position-relative">
+  <mat-sidenav-container class="email-box">
+    <mat-sidenav #mailnav [mode]="isOver() ? 'over' : 'side'" [opened]="!isOver()" class="mail-sidebar">
+      <ng-scrollbar class="position-relative" style="height: 100%">
+        <div class="p-16">
+          <button mat-flat-button color="primary" class="w-100 btn-block" (click)="getAddProductRoute()">
+            Add New Product
+          </button>
+        </div>
+        <h5 class="m-0 p-t-16 p-x-32 f-s-14 f-w-600">Filter by Category</h5>
+        <div class="p-16">
+          <mat-nav-list>
+            @for(folder of folders; track folder){
+            <mat-list-item role="listitem" class="m-b-2 gap-10 active-primary" [ngClass]="{
+                'bg-primary': selectedCategory === folder.name
+              }" (click)="getCategory(folder.name)">
+              <span matListItemIcon class="m-r-0">
+                <i-tabler name="{{ folder.icon }}" class="icon-18"></i-tabler>
+              </span>
+              <span matListItemTitle class="f-w-400 f-s-14">{{
+                folder.name | titlecase
+                }}</span>
+            </mat-list-item>
+            }
+          </mat-nav-list>
+        </div>
+        <h5 class="m-0 p-t-16 p-x-32 f-s-14 f-w-600 b-t-1">Sort By</h5>
+        <div class="p-16">
+          <mat-nav-list>
+            @for (note of notes; track note) {
+            <mat-list-item role="listitem" class="m-b-2 gap-10 active-primary"
+              [ngClass]="{ 'bg-primary': selectedSortBy === note.name }" (click)="getSorted(note.name)">
+              <span matListItemIcon class="m-r-0">
+                <i-tabler name="{{ note.icon }}" class="icon-18"></i-tabler>
+              </span>
+              <span matListItemTitle class="f-w-400 f-s-14">{{
+                note.name | titlecase
+                }}</span>
+            </mat-list-item>
+            }
+          </mat-nav-list>
+        </div>
+        <h5 class="m-0 p-t-16 p-x-32 f-s-14 f-w-600 b-t-1">By Gender</h5>
+        <div class="p-16 pricing-section">
+          <mat-radio-group [(ngModel)]="selectedGender" class="m-b-20">
+            @for (price of genderOptions; track price.value) {
+            <mat-radio-button class="custom-radio" [value]="price.value" (click)="getGender(price.value)">
+              {{ price.label | titlecase }}
+            </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+        <h5 class="m-0 p-t-16 p-x-32 f-s-14 f-w-600 b-t-1">By Pricing</h5>
+        <div class="p-16 pricing-section">
+          <mat-radio-group [(ngModel)]="selectedPrice" class="m-b-20">
+            @for (price of priceOptions; track price.value) {
+            <mat-radio-button class="custom-radio" [value]="price.value" (click)="getPricing(price.value)">
+              {{ price.label | titlecase }}
+            </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+        <div class="b-t-1 p-20">
+          <button mat-flat-button class="w-100 m-y-20" (click)="getRestFilter()">
+            Reset Filters
+          </button>
+        </div>
+      </ng-scrollbar>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <div class="p-24">
+        <div class="d-flex align-items-center justify-content-between m-b-24">
+          @if(!isMobileView){
+          <h6 class="f-s-20 f-w-600">Products</h6>
+          } @if(isMobileView){
+          <button mat-mini-fab class="bg-primary text-white" aria-label="Example icon button with a delete icon"
+            (click)="mailnav.toggle()">
+            <i-tabler class="icon-18 d-flex" name="menu"></i-tabler>
+          </button>
+          }
+
+          <div class="flex-grow-1 d-flex justify-content-end">
+            <mat-form-field class="hide-hint" appearance="outline" [ngClass]="{
+                'w-30': !isMobileView,
+                searchBar: isMobileView
+              }">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput placeholder="Search Product" [(ngModel)]="searchText" (ngModelChange)="filterCards()" />
+              @if(searchText){
+              <button matSuffix mat-icon-button aria-label="Clear" (click)="getProductList()">
+                <mat-icon>close</mat-icon>
+              </button>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          @for(productcard of filteredCards; track productcard.product_name) {
+          <div class="col-sm-6 col-lg-4 p-x-12">
+            <mat-card class="cardWithShadow productcard overflow-hidden b-1 cursor-pointer"
+              (click)="getviewDetails(productcard)">
+              <a routerLink="/widgets/cards">
+                <div class="img-wrapper position-relative">
+                  <img [src]="productcard.imagePath" alt="imgSrc" class="w-100" mat-card-image />
+                  <div class="d-flex align-items-center icon-container">
+                    <button mat-mini-fab class="cart-btn-overlay bg-error text-white" matTooltip="Delete" (click)="
+                        openDialog(productcard.id); $event.stopPropagation()
+                      ">
+                      <i-tabler name="trash" class="icon-16 d-flex"></i-tabler>
+                    </button>
+                    <button mat-mini-fab class="cart-btn-overlay bg-primary text-white" matTooltip="Edit"
+                      (click)="getEditedProduct(productcard)">
+                      <i-tabler name="pencil" class="icon-16 d-flex"></i-tabler>
+                    </button>
+                  </div>
+                </div>
+              </a>
+
+              <mat-card-content class="p-b-24 p-t-12 position-relative">
+                <mat-card-title class="mat-headline-2 f-s-16 m-b-4 text-ellipsis text-nowrap">
+                  {{ productcard.product_name }}
+                </mat-card-title>
+
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center">
+                    <h6 class="f-s-16 f-w-600">${{ productcard.base_price }}</h6>
+                    <span class="f-s-14 m-l-8 text-decoration-line-through">${{ productcard.dealPrice }}</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    @if(productcard.rating !== undefined){
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                    <i-tabler name="star" class="icon-17 text-warning"
+                      [ngClass]="getStarClass(star, productcard.rating )"></i-tabler>
+                    }
+                    }
+  
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          }@empty {
+          <div class="col-12 text-center p-4 m-t-30">
+            <img src="assets/images/products/empty-shopping-cart.svg" width="200" height="200" />
+            <div class="f-s-48 f-w-600">There is no Product</div>
+            <div class="f-s-14 f-w-500">
+              The Product you are searching is no longer available.
+            </div>
+            <button mat-flat-button (click)="getProductList()" class="m-t-10">
+              Try Again
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</mat-card>
