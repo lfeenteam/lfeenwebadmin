@@ -54,7 +54,8 @@
 
     .d3-logo-text {
       flex: 1;
-   margin-inline-end: 14px;
+      margin-inline-start: 12px !important;
+      margin-inline-end: 14px;
       padding: 0  !important;
       font-family: 'Cairo', 'Inter', sans-serif !important;
       font-weight: 600 !important;
@@ -62,7 +63,7 @@
       line-height: 20px !important;
       letter-spacing: -0.15px !important;
       color: #121212 !important;
-      text-align: start;
+      text-align: center;
     }
 
     .d3-collapse-btn {

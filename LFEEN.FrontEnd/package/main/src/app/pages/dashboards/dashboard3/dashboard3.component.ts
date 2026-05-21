@@ -34,6 +34,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   pageBreadcrumbKey = 'd3.header.platform';
   pageShowLive = true;
   pageShowDate = true;
+  isLoginRoute = false;
 
   private routeSub?: Subscription;
 
@@ -44,14 +45,22 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.updateIsLoginRoute();
     this.applyRouteHeaderData();
     this.routeSub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.applyRouteHeaderData());
+      .subscribe(() => {
+        this.updateIsLoginRoute();
+        this.applyRouteHeaderData();
+      });
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+  }
+
+  private updateIsLoginRoute(): void {
+    this.isLoginRoute = this.router.url.includes('/login');
   }
 
   private applyRouteHeaderData(): void {

@@ -95,8 +95,15 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                redirectTo: 'ceo',
+                redirectTo: 'login',
                 pathMatch: 'full',
+              },
+              {
+                path: 'login',
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/login/login.component'
+                  ).then((m) => m.LoginComponent),
               },
               {
                 path: 'ceo',

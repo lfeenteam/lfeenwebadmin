@@ -157,6 +157,64 @@
         "units": "Units",
         "occupancy": "Occupancy",
         "bookings": "Bookings"
+      },
+      "table": {
+        "buildingHost": "Building / Host",
+        "location": "Location",
+        "lastUpdate": "Last Update",
+        "units": "Units",
+        "occupancy": "Occupancy",
+        "bookings": "Bookings",
+        "status": "Status"
+      },
+      "buildings": {
+        "hotel": "Hotel",
+        "apartments": "Residential Apartments",
+        "villas": "Villas",
+        "chalets": "Chalets",
+        "compounds": "Institutional Units",
+        "rests": "Rest Houses",
+        "commercial": "Commercial Tower"
+      },
+      "buildingNames": {
+        "building1": "Al Waha Riyadh Hotel",
+        "building2": "Nargis Luxury Apartments",
+        "building3": "Naseem Al Dammam Complex",
+        "building4": "Red Sea Chalets",
+        "building5": "Al Marou Luxury Villas",
+        "building6": "Al Wadi Rest Houses",
+        "building7": "Sky Tower Commercial",
+        "building8": "Golden Beach Resort"
+      },
+      "buildingHosts": {
+        "host1": "Reyadah Hotel Group",
+        "host2": "Iwa Real Estate Company",
+        "host3": "Fahad Al Qahtani (Individual)",
+        "host4": "Red Sea Resorts Company",
+        "host5": "Modern Real Estate Developer",
+        "host6": "Facility Owner",
+        "host7": "Sky Real Estate Company",
+        "host8": "Hospitality Group"
+      },
+      "buildingLocations": {
+        "location1": "Riyadh, Al Olaya",
+        "location2": "Jeddah, Al Shati District",
+        "location3": "Dammam, Al Zahoor District",
+        "location4": "Yanbu, Waterfront",
+        "location5": "Khobar, Al Marou District",
+        "location6": "Taif, Shafa",
+        "location7": "Riyadh, Al Olaya",
+        "location8": "Jeddah, Corniche"
+      },
+      "buildingDates": {
+        "date1": "October 14",
+        "date2": "October 12",
+        "date3": "October 8",
+        "date4": "October 5",
+        "date5": "October 1",
+        "date6": "September 25",
+        "date7": "September 20",
+        "date8": "September 15"
       }
     },
     "sections": {
@@ -233,6 +291,22 @@
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
       "cityKhobar": "Khobar"
+    },
+    "loginPage": {
+      "sidebar": {
+        "title1": "Smart Management",
+        "title2": "For the largest booking platform in the Kingdom",
+        "description": "Full control of properties, hosts, and daily operations with artificial intelligence and extreme accuracy."
+      },
+      "form": {
+        "title": "Admin Login",
+        "subtitle": "Welcome Sultan, please enter your details to continue",
+        "emailLabel": "Admin Email",
+        "passwordLabel": "Password",
+        "forgotPassword": "Forgot password?",
+        "rememberMe": "Remember login details on this device",
+        "submit": "Enter Control Panel"
+      }
     }
   }
 }

@@ -1,0 +1,76 @@
+<div class="login-container" dir="rtl">
+  <!-- Left Side: Illustration and Text -->
+  <div class="login-sidebar">
+    <div class="sidebar-content">
+      <div class="illustration-wrapper">
+        <img src="assets/images/backgrounds/login_image1.png" alt="Dashboard Illustration" class="login-illustration" />
+      </div>
+      <div class="sidebar-text">
+        <h1 class="sidebar-title">{{ 'd3.loginPage.sidebar.title1' | translate }}</h1>
+        <h1 class="sidebar-title">{{ 'd3.loginPage.sidebar.title2' | translate }}</h1>
+        <p class="sidebar-description">
+          {{ 'd3.loginPage.sidebar.description' | translate }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Login Form -->
+  <div class="login-form-container">
+    <div class="login-form-content">
+      <div class="logo-wrapper">
+        <img src="assets/images/logos/Layer_x0020_1.png" alt="LFEEN Logo" class="logo" />
+      </div>
+
+      <div class="form-header">
+        <h2 class="form-title">{{ 'd3.loginPage.form.title' | translate }}</h2>
+        <p class="form-subtitle">{{ 'd3.loginPage.form.subtitle' | translate }}</p>
+      </div>
+
+      <form class="login-form">
+        <!-- Email Field -->
+        <div class="field-group">
+          <label class="field-label">{{ 'd3.loginPage.form.emailLabel' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-100">
+            <input matInput type="email" placeholder="admin@lafin.sa" />
+            <mat-icon matPrefix>
+              <i-tabler name="mail" class="icon-20"></i-tabler>
+            </mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Password Field -->
+        <div class="field-group">
+          <div class="label-row">
+            <label class="field-label">{{ 'd3.loginPage.form.passwordLabel' | translate }}</label>
+            <a href="javascript:void(0)" class="forgot-password">{{ 'd3.loginPage.form.forgotPassword' | translate }}</a>
+          </div>
+          <mat-form-field appearance="outline" class="w-100">
+            <input matInput [type]="hide ? 'password' : 'text'" placeholder="........" />
+            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+              <mat-icon>
+                <i-tabler [name]="hide ? 'eye-off' : 'eye'" class="icon-20"></i-tabler>
+              </mat-icon>
+            </button>
+            <mat-icon matPrefix>
+              <i-tabler name="lock" class="icon-20"></i-tabler>
+            </mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="remember-me-row">
+          <mat-checkbox color="primary">{{ 'd3.loginPage.form.rememberMe' | translate }}</mat-checkbox>
+        </div>
+
+        <!-- Submit Button -->
+        <button mat-flat-button color="primary" class="login-button">
+          <div class="button-content">
+            <i-tabler name="arrow-left" class="icon-20"></i-tabler>
+            <span>{{ 'd3.loginPage.form.submit' | translate }}</span>
+          </div>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

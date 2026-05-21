@@ -33,21 +33,21 @@
       </div>
 
       <div class="card-main">
-        <h3 class="building-title">{{ building.title }}</h3>
-        <p class="building-host" *ngIf="building.host">{{ building.host }}</p>
+        <h3 class="building-title">{{ building.title | translate }}</h3>
+        <p class="building-host" *ngIf="building.host">{{ building.host | translate }}</p>
         <p class="building-location" *ngIf="viewMode === 'grid'">
           <i-tabler name="map-pin" class="location-icon"></i-tabler>
-          <span>{{ building.location }}</span>
+          <span>{{ building.location | translate }}</span>
         </p>
       </div>
 
       <div class="card-location" *ngIf="viewMode === 'list'">
         <i-tabler name="map-pin" class="location-icon"></i-tabler>
-        <span>{{ building.location }}</span>
+        <span>{{ building.location | translate }}</span>
       </div>
 
       <div class="card-update" *ngIf="viewMode === 'list'">
-        {{ building.lastUpdate }}
+        {{ building.lastUpdate | translate }}
       </div>
 
       <div class="card-stats">
@@ -85,7 +85,7 @@
       </div>
 
       <div class="card-footer">
-        <span class="type-tag">{{ building.typeLabel }}</span>
+        <span class="type-tag">{{ building.typeLabel | translate }}</span>
         <div class="card-actions">
           <button type="button" class="action-btn view-btn" aria-label="View building">
             <i-tabler name="eye"></i-tabler>

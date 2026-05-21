@@ -1,32 +1,38 @@
 <div class="dashboard-wrapper d-flex" [attr.dir]="currentDir" [class.sidebar-mobile-open]="sidebarMobileOpen">
   <!-- Sidebar -->
-  <app-dashboard3-sidebar
-    class="dashboard-sidebar"
-    [attr.dir]="currentDir"
-    [(collapsed)]="sidebarCollapsed"
-    [mobileMode]="sidebarMobileOpen"
-    (mobileClose)="closeMobileSidebar()"></app-dashboard3-sidebar>
+  @if (!isLoginRoute) {
+    <app-dashboard3-sidebar
+      class="dashboard-sidebar"
+      [attr.dir]="currentDir"
+      [(collapsed)]="sidebarCollapsed"
+      [mobileMode]="sidebarMobileOpen"
+      (mobileClose)="closeMobileSidebar()"></app-dashboard3-sidebar>
+  }
 
   <!-- Mobile overlay -->
-  <div class="sidebar-overlay" (click)="closeMobileSidebar()"></div>
+  @if (!isLoginRoute) {
+    <div class="sidebar-overlay" (click)="closeMobileSidebar()"></div>
+  }
 
   <!-- Main Content -->
   <div class="content-area flex-grow-1 d-flex flex-column">
     <!-- Header -->
-    @if (headerType === 'ceo') {
-      <app-dashboard3-header (sidebarToggle)="toggleMobileSidebar()"></app-dashboard3-header>
-    } @else if (pageTitleKey) {
-      <app-dashboard3-page-header
-        [titleKey]="pageTitleKey"
-        [breadcrumbKey]="pageBreadcrumbKey"
-        [showLive]="pageShowLive"
-        [showDate]="pageShowDate"
-        (sidebarToggle)="toggleMobileSidebar()">
-      </app-dashboard3-page-header>
+    @if (!isLoginRoute) {
+      @if (headerType === 'ceo') {
+        <app-dashboard3-header (sidebarToggle)="toggleMobileSidebar()"></app-dashboard3-header>
+      } @else if (pageTitleKey) {
+        <app-dashboard3-page-header
+          [titleKey]="pageTitleKey"
+          [breadcrumbKey]="pageBreadcrumbKey"
+          [showLive]="pageShowLive"
+          [showDate]="pageShowDate"
+          (sidebarToggle)="toggleMobileSidebar()">
+        </app-dashboard3-page-header>
+      }
     }
 
     <!-- Routed Page Content -->
-    <div class="page-content">
+    <div class="page-content" [class.p-0]="isLoginRoute">
       <router-outlet></router-outlet>
     </div>
   </div>

@@ -36,7 +36,7 @@
 
 .d3-comparison-card {
   background-color: #ffffff;
-  border: 1px solid #F1F5F9;
+  border: 1px solid #e1e3e5;
   border-radius: 24px;
   padding: 24px;
   display: flex;
@@ -44,6 +44,7 @@
   gap: 24px;
   min-height: 450px;
   box-sizing: border-box;
+  box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
   transition: box-shadow 0.2s ease;
 
   &:hover {
@@ -166,7 +167,7 @@
 }
 .d3-growth-card {
   background-color: #ffffff;
-  border: 1px solid #F1F5F9;
+  border: 1px solid #e1e3e5;
   border-radius: 40px;
   padding: 32px;
   display: flex;
@@ -174,6 +175,7 @@
   gap: 40px;
   min-height: 468px;
   box-sizing: border-box;
+  box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
 
   .d3-growth-header {
     display: flex;

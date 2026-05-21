@@ -5,13 +5,13 @@ export type BuildingStatus = 'active' | 'stopped';
 export interface BuildingCardItem {
   id: string;
   title: string;
-  host?: string;
+  host: string;
   location: string;
   status: BuildingStatus;
   typeLabel: string;
   units: number;
   occupancy: number;
   bookings: number;
-  lastUpdate?: string;
+  lastUpdate: string;
   tab: BuildingTab;
 }
