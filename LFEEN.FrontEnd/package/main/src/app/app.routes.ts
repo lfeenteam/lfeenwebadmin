@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -15,13 +16,13 @@ export const routes: Routes = [
     children: [
       {
         path: '',
+        pathMatch: 'full',
+        redirectTo: 'd3/login',
+      },
+      {
+        path: '',
         component: FullComponent,
         children: [
-          {
-            path: '',
-            redirectTo: 'dashboards/dashboard1',
-            pathMatch: 'full',
-          },
           {
             path: 'starter',
             loadChildren: () =>
@@ -107,6 +108,7 @@ export const routes: Routes = [
               },
               {
                 path: 'ceo',
+                canActivate: [authGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/ceo-page/ceo-page.component'
@@ -115,6 +117,7 @@ export const routes: Routes = [
               },
               {
                 path: 'buildings',
+                canActivate: [authGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-builds/all-builds.component'

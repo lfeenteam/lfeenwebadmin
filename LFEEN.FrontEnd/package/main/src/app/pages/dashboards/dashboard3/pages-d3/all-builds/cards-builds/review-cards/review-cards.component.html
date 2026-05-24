@@ -1,0 +1,89 @@
+<article class="review-card" [class.review-card--list]="viewMode === 'list'">
+
+  <!-- ══ GRID VIEW ══ -->
+  @if (viewMode === 'grid') {
+    <div class="card-top">
+      <span class="new-badge">
+        <span class="new-dot"></span>
+        جديد
+      </span>
+      <span class="building-icon review-icon">
+        <i-tabler name="clock-hour-3"></i-tabler>
+      </span>
+    </div>
+
+    <div class="card-main">
+      <h3 class="building-title">{{ building.title | translate }}</h3>
+      <p class="building-location">
+        <i-tabler name="map-pin" class="location-icon"></i-tabler>
+        <span>{{ building.location | translate }}</span>
+      </p>
+    </div>
+
+    <div class="card-stats">
+      <div class="stat-col stat-col-start">
+        <span class="stat-label">{{ 'd3.allBuilds.buildingCard.units' | translate }}</span>
+        <span class="stat-value">{{ building.units }}</span>
+      </div>
+      <div class="stat-col stat-col-end">
+        <span class="stat-label">{{ 'd3.allBuilds.table.lastUpdate' | translate }}</span>
+        <span class="stat-value value-date">{{ building.lastUpdate | translate }}</span>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <span class="type-tag">{{ building.typeLabel | translate }}</span>
+      <button type="button" class="action-btn back-btn" aria-label="Go back">
+        <i-tabler name="arrow-left"></i-tabler>
+      </button>
+    </div>
+  }
+
+  <!-- ══ LIST VIEW ══ -->
+  @if (viewMode === 'list') {
+    <!-- col 1: icon -->
+    <div class="list-icon-col">
+      <span class="building-icon">
+        <i-tabler name="clock-hour-3"></i-tabler>
+      </span>
+    </div>
+
+    <!-- col 2: name + host -->
+    <div class="list-info-col">
+      <span class="building-title">{{ building.title | translate }}</span>
+      <span class="building-host">{{ building.host | translate }}</span>
+    </div>
+
+    <!-- col 3: location -->
+    <div class="list-location-col">
+      <i-tabler name="map-pin" class="location-icon"></i-tabler>
+      <span>{{ building.location | translate }}</span>
+    </div>
+
+    <!-- col 4: request date -->
+    <div class="list-date-col">
+      {{ building.lastUpdate | translate }}
+    </div>
+
+    <!-- col 5: units -->
+    <div class="list-units-col">
+      {{ building.units }}
+    </div>
+
+    <!-- col 6: status badge -->
+    <div class="list-status-col">
+      <span class="status-badge">
+        <span class="status-dot"></span>
+        {{ 'd3.allBuilds.underReview.statusLabel' | translate }}
+      </span>
+    </div>
+
+    <!-- col 7: actions -->
+    <div class="list-actions-col">
+      <button type="button" class="action-btn view-btn" aria-label="View">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+    </div>
+  }
+
+</article>

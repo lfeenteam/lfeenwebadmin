@@ -1,0 +1,393 @@
+:host {
+  display: block;
+}
+
+// ════════════════════════════════════════
+// GRID VIEW
+// ════════════════════════════════════════
+.review-card {
+  border-radius: 30px;
+  background: #FFFFFF;
+  border: 1px solid #FEF08A;
+  box-shadow: 0px 1px 2px -1px #0000001A;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    border-color: #deded8;
+    box-shadow: 0 8px 24px rgba(17, 17, 16, 0.06);
+  }
+}
+
+// Card Top
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+}
+
+.new-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #B45309;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 20px;
+  padding: 4px 12px;
+
+  .new-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #B45309;
+  }
+}
+
+.building-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #F59E0B;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ::ng-deep svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.5;
+  }
+}
+
+// Card Main
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.building-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.3;
+  color: #111110;
+  text-align: right;
+}
+
+.building-location {
+  margin: 0;
+  display: inline-flex;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9E9E9A;
+
+  .location-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+
+    ::ng-deep svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+    }
+  }
+}
+
+// Card Stats
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px solid #E8E8E4;
+  border-bottom: 1px solid #E8E8E4;
+  direction: rtl;
+
+  .stat-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .stat-col-start {
+    align-items: flex-start;
+    text-align: right;
+  }
+
+  .stat-col-end {
+    align-items: flex-end;
+    text-align: left;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9a9a96;
+  }
+
+  .stat-value {
+    font-size: 12px;
+    font-weight: 900;
+    color: #111110;
+    line-height: 1.2;
+  }
+
+  .value-date {
+    color: #B45309;
+  }
+}
+
+// Card Footer
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .type-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: #D97706;
+    background: #FFFBEB;
+    border-radius: 4px;
+    padding: 4px 12px;
+  }
+}
+
+.action-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #E8E8E4;
+  background: #F7F7F5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b6b67;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: #efefed;
+    border-color: #deded8;
+  }
+
+  ::ng-deep svg {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 2;
+  }
+}
+
+.review-card--list {
+  display: grid;
+  
+  grid-template-columns: 50px 1.5fr 1fr 1fr 80px 120px 60px;
+  align-items: center;
+  gap: 0 16px;
+  padding: 0 22px;
+  height: 72px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid #FEF08A;
+  box-shadow: none;
+  background: #ffffff;
+  flex-direction: unset;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #FFFBEB;
+    border-color: #F3E8A0;
+    box-shadow: none;
+  }
+
+  // ── col 1: icon
+  .list-icon-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .building-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      // ensure icon is truly centred inside the circle
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      ::ng-deep svg {
+      
+        position: static;
+        transform: none;
+      }
+    }
+  }
+
+  // ── col 2: name + host
+  .list-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: right;
+    direction: rtl;
+
+    .building-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: #B45309;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .building-host {
+      font-size: 11px;
+      font-weight: 600;
+      color: #B45309;
+      opacity: 0.7;
+      line-height: 1.3;
+    }
+  }
+
+  // ── col 3: location
+  .list-location-col {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #B45309;
+    direction: rtl;
+
+    .location-icon {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+
+      ::ng-deep svg {
+        width: 14px;
+        height: 14px;
+        stroke-width: 2;
+      }
+    }
+  }
+
+  // ── col 4: date
+  .list-date-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+    color: #B45309;
+    text-align: center;
+  }
+
+  // ── col 5: units
+  .list-units-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+    color: #111110;
+    text-align: center;
+  }
+
+  // ── col 6: status
+  .list-status-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // ── col 7: actions
+  .list-actions-col {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+// Status badge (list only)
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 25px;
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  font-weight: 900;
+  font-size: 10px;
+  color: #B45309;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #B45309;
+    flex-shrink: 0;
+  }
+}
+
+// View button (list only)
+.view-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9E9E9A;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    color: #B45309;
+    background: #FFFBEB;
+  }
+
+  ::ng-deep svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .review-card--list {
+    min-width: max-content;
+    height: 64px;
+    padding: 0 16px;
+    gap: 0 12px;
+  }
+}

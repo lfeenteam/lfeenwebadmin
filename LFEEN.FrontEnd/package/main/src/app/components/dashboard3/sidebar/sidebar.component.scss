@@ -54,12 +54,12 @@
 
     .d3-logo-text {
       flex: 1;
-      margin-inline-start: 12px !important;
+      margin-inline-start: 8px !important;
       margin-inline-end: 14px;
       padding: 0  !important;
       font-family: 'Cairo', 'Inter', sans-serif !important;
       font-weight: 600 !important;
-      font-size: 15px !important;
+      font-size: 14px !important;
       line-height: 20px !important;
       letter-spacing: -0.15px !important;
       color: #121212 !important;
@@ -160,11 +160,20 @@
   }
 }
 
-:host(:not(.collapsed)) .d3-sidebar .d3-sidebar-list .d3-menu-item {
-  ::ng-deep .mdc-list-item__start,
-  ::ng-deep .mat-mdc-list-item-icon {
-    margin: 0 !important;
-    margin-inline-start: 12px !important;
+:host(:not(.collapsed)) {
+  .d3-sidebar-list .d3-menu-item {
+    ::ng-deep .mdc-list-item__start {
+      display: flex !important;
+      align-items: center !important;
+      margin-inline-end: 0 !important;
+    }
+
+    ::ng-deep .mdc-list-item__content {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 12px;
+    }
   }
 }
 

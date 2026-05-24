@@ -27,12 +27,12 @@
         <p class="form-subtitle">{{ 'd3.loginPage.form.subtitle' | translate }}</p>
       </div>
 
-      <form class="login-form">
+      <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <!-- Email Field -->
         <div class="field-group">
           <label class="field-label">{{ 'd3.loginPage.form.emailLabel' | translate }}</label>
           <mat-form-field appearance="outline" class="w-100">
-            <input matInput type="email" placeholder="admin@lafin.sa" />
+            <input matInput type="email" placeholder="admin@lafin.sa" formControlName="email" />
             <mat-icon matPrefix>
               <i-tabler name="mail" class="icon-20"></i-tabler>
             </mat-icon>
@@ -46,8 +46,8 @@
             <a href="javascript:void(0)" class="forgot-password">{{ 'd3.loginPage.form.forgotPassword' | translate }}</a>
           </div>
           <mat-form-field appearance="outline" class="w-100">
-            <input matInput [type]="hide ? 'password' : 'text'" placeholder="........" />
-            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+            <input matInput [type]="hide ? 'password' : 'text'" placeholder="........" formControlName="password" />
+            <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
               <mat-icon>
                 <i-tabler [name]="hide ? 'eye-off' : 'eye'" class="icon-20"></i-tabler>
               </mat-icon>
@@ -64,10 +64,14 @@
         </div>
 
         <!-- Submit Button -->
-        <button mat-flat-button color="primary" class="login-button">
+        <button mat-flat-button color="primary" class="login-button" type="submit" [disabled]="loginForm.invalid || loading()">
           <div class="button-content">
-            <i-tabler name="arrow-left" class="icon-20"></i-tabler>
-            <span>{{ 'd3.loginPage.form.submit' | translate }}</span>
+            @if (loading()) {
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+            } @else {
+              <span>{{ 'd3.loginPage.form.submit' | translate }}</span>
+              <i-tabler name="arrow-left" class="icon-20"></i-tabler>
+            }
           </div>
         </button>
       </form>

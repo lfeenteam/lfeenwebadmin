@@ -1,13 +1,22 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { TranslateModule } from '@ngx-translate/core';
 import { BuildingCardItem, BuildingViewMode } from '../building-card.model';
+import { BulidingCardsComponent } from './buliding-cards/buliding-cards.component';
+import { ReviewCardsComponent } from './review-cards/review-cards.component';
+
 
 @Component({
   selector: 'app-cards-builds',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule],
+  imports: [
+    CommonModule,
+    TablerIconsModule,
+    TranslateModule,
+    BulidingCardsComponent,
+    ReviewCardsComponent
+  ],
   templateUrl: './cards-builds.component.html',
   styleUrl: './cards-builds.component.scss'
 })
@@ -15,16 +24,13 @@ export class CardsBuildsComponent {
   @Input() buildings: BuildingCardItem[] = [];
   @Input() viewMode: BuildingViewMode = 'grid';
 
-  occupancyTone(occupancy: number, status: BuildingCardItem['status']): 'high' | 'medium' | 'low' | 'stopped' {
-    if (status === 'stopped' || occupancy === 0) {
-      return 'stopped';
-    }
-    if (occupancy >= 75) {
-      return 'high';
-    }
-    if (occupancy >= 50) {
-      return 'medium';
-    }
+  occupancyTone(occupancy: number, status: string): string {
+    if (status === 'stopped') return 'stopped';
+    if (occupancy >= 75) return 'high';
+    if (occupancy >= 50) return 'medium';
     return 'low';
+  }
+   get hasUnderReview(): boolean {
+    return this.buildings.some(b => b.tab === 'underReview');
   }
 }

@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import {
   HttpClient,
+  HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
@@ -21,6 +22,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
+import { AuthInterceptor } from './guards/auth.interceptor';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -68,6 +70,11 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding()
     ),
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
     provideClientHydration(),
     provideAnimationsAsync(),
     importProvidersFrom(

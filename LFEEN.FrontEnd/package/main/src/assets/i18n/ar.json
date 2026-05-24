@@ -131,6 +131,10 @@
         "published": "مباني منشورة",
         "underReview": "تحت المراجعة"
       },
+      "underReview": {
+        "statusLabel": "تحت المراجعة",
+        "sectionTitle": "تحت المراجعة"
+      },
       "filters": {
         "searchPlaceholder": "بحث باسم المبنى أو المدينة...",
         "allStatuses": "كل الحالات",
@@ -307,7 +311,11 @@
         "passwordLabel": "كلمة المرور",
         "forgotPassword": "نسيت كلمة المرور؟",
         "rememberMe": "تذكر بيانات الدخول على هذا الجهاز",
-        "submit": "دخول لوحة التحكم"
+        "submit": "دخول لوحة التحكم",
+        "messages": {
+          "success": "تم تسجيل الدخول بنجاح",
+          "error": "فشل تسجيل الدخول"
+        }
       }
     }
   }

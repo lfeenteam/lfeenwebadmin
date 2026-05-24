@@ -129,6 +129,10 @@
         "published": "Published Buildings",
         "underReview": "Under Review"
       },
+      "underReview": {
+        "statusLabel": "Under Review",
+        "sectionTitle": "Under Review"
+      },
       "filters": {
         "searchPlaceholder": "Search by building name or city...",
         "allStatuses": "All Statuses",
@@ -305,7 +309,11 @@
         "passwordLabel": "Password",
         "forgotPassword": "Forgot password?",
         "rememberMe": "Remember login details on this device",
-        "submit": "Enter Control Panel"
+        "submit": "Enter Control Panel",
+        "messages": {
+          "success": "Login Successful",
+          "error": "Login Failed"
+        }
       }
     }
   }
