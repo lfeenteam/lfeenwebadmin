@@ -1,0 +1,209 @@
+<div class="build-review" dir="rtl">
+
+
+  <!-- Building Info Card -->
+<div class="building-card">
+  <div class="building-image">
+    <img src="assets/images/products/review_image.png" alt="صورة المبنى" />
+  </div>
+
+  <div class="building-info">
+    <div class="building-header">
+      <h4 class="building-name">{{ building.name | translate }}</h4>
+    <span class="building-id">{{ building.id }}</span>
+    </div>
+
+    <div class="building-location">
+      <span class="location-icon"> <i-tabler name="map-pin" class="location-icon"></i-tabler></span>
+      <span>{{ building.location | translate }}</span>
+    </div>
+
+ <div class="building-org">
+  <span class="org-label">المؤسسة المشغّلة</span>
+
+  <span class="org-badge">
+    <span class="org-dot">
+    <img   src="assets/images/logos/Group 4.svg" alt="company" />
+   </span>
+    <span>مجموعة ريادة الفندقية</span>
+  </span>
+</div>
+  </div>
+
+  <div class="building-meta">
+    <div class="units-box">
+      <span class="units-label">إجمالي الوحدات</span>
+      <span class="units-count">{{ building.totalUnits }}</span>
+    </div>
+  </div>
+</div>
+
+  <!-- Progress Bar -->
+<div class="progress-section">
+  <div class="progress-header">
+    <span class="progress-status">حالة المراجعة: {{ completedCount }} من {{ reviewSections.length }} أقسام مكتملة</span>
+    <span class="progress-percent">%{{ progressPercent }}</span>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" [style.width.%]="progressPercent"></div>
+  </div>
+</div>
+
+  <!-- Review Sections or Image Review -->
+  @if (currentView === 'list') {
+    <div class="review-sections">
+      @for (section of reviewSections; track section.title; let i = $index) {
+        <div class="review-card" [class.completed]="section.completed" (click)="openSection(i)">
+         <div class="review-card-inner">
+          <span class="review-icon-box" [class.success]="section.status === 'accepted'">
+            <img
+              *ngIf="section.status !== 'accepted'"
+              class="review-icon"
+              [src]="section.iconUrl"
+              [alt]="section.title"
+            />
+            <i-tabler *ngIf="section.status === 'accepted'" name="circle-check" class="success-icon"></i-tabler>
+          </span>
+        
+          <div class="title-stack">
+            <span class="review-title">{{ section.title }}</span>
+            <span class="review-status-text" *ngIf="section.status === 'accepted'">مقبولة</span>
+          </div>
+        
+          <button class="review-arrow"><i-tabler name="arrow-left"></i-tabler></button>
+        </div>
+        </div>
+      }
+    </div>
+  
+    <!-- Notes Section (Main view) -->
+    <div class="notes-section" *ngIf="false"> <!-- Hidden in main view until needed -->
+      <div class="notes-header">
+        <span class="notes-title">ملاحظات المراجعة</span>
+        <span class="notes-required">/ سبب الرفض (إلزامي في حال الرفض)</span>
+      </div>
+      <textarea
+        class="notes-textarea"
+        placeholder="يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض..."
+        rows="4"
+      ></textarea>
+    </div>
+  
+    <!-- Action Buttons -->
+    <div class="action-wrapper">
+      <div class="action-buttons">
+        <button class="btn btn-approve" [disabled]="true">
+          <span>اعتماد الموافقة النهائية</span>
+          <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+        </button>
+    
+        <button class="btn btn-reject" [disabled]="true">
+          <span>رفض الطلب</span>
+          <i-tabler name="circle-x" class="btn-icon"></i-tabler>
+        </button>
+      </div>
+    
+      <div class="lock-notice">
+        <i-tabler name="lock" class="lock-icon"></i-tabler>
+        <span>يجب إتمام مراجعة كافة الأقسام أعلاه قبل اتخاذ قرار القبول أو الرفض النهائي</span>
+      </div>
+    </div>
+  } @else if (currentView === 'images') {
+    <app-review-image (back)="onBack()" (approve)="onSectionApproved(0)"></app-review-image>
+  } @else if (currentView === 'terms') {
+    <app-review-terms (back)="onBack()" (approve)="onSectionApproved(1)"></app-review-terms>
+  } @else if (currentView === 'license') {
+    <app-review-license (back)="onBack()" (approve)="onSectionApproved(2)"></app-review-license>
+  } @else if (currentView === 'final') {
+    <div class="final-decision-container">
+        
+        <!-- Success State -->
+        @if (isFinalSuccess) {
+            <div class="success-final-card">
+                <div class="celebrate-icon">
+                    <i-tabler name="confetti"></i-tabler>
+                </div>
+                <h3>جاهز للاعتماد النهائي</h3>
+                <p>لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد العقار ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً</p>
+            </div>
+        }
+
+        <!-- Rejection State -->
+        @if (!isFinalSuccess) {
+            <div class="rejection-summary-final">
+                <div class="summary-header">
+                    <div class="icon-box">
+                        <i-tabler name="clipboard-list"></i-tabler>
+                    </div>
+                    <div class="summary-text">
+                        <h3>ملخص أسباب الرفض</h3>
+                        <p>موجز الملاحظات للأقسام الثلاثة</p>
+                    </div>
+                </div>
+
+                <div class="rejection-list">
+                    @for (section of rejectedSectionsSummary; track section.title; let i = $index) {
+                        <div class="rejection-item">
+                            <div class="item-icon">{{ i + 1 }}</div>
+                            <div class="item-content">
+                                <span class="item-title">ملاحظات {{ section.title }}</span>
+                                <p class="item-reason">{{ section.notes }}</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="final-notes-input">
+                    <span class="input-label">الملاحظات النهائية (للمضيف)</span>
+                    <textarea [(ngModel)]="finalRejectionNotes" placeholder="اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب..." rows="3"></textarea>
+                </div>
+            </div>
+        }
+
+        <!-- Final Action Buttons -->
+        <div class="action-buttons-final">
+            <button class="btn-approve-final" [disabled]="!isFinalSuccess" (click)="onApprove()">
+                <span>اعتماد الموافقة النهائية</span>
+                <i-tabler name="circle-check"></i-tabler>
+            </button>
+            <button class="btn-reject-final" [class.active]="!isFinalSuccess" (click)="onReject()">
+                <span>رفض الطلب نهائياً</span>
+                <i-tabler name="circle-x"></i-tabler>
+            </button>
+        </div>
+    </div>
+  }
+
+  <!-- Success Modal Overlay -->
+  <div class="modal-overlay" *ngIf="showSuccessModal">
+    <div class="success-modal">
+        <div class="modal-content">
+            <div class="success-icon-container">
+                <div class="confetti-bg">
+                    <i-tabler name="confetti"></i-tabler>
+                </div>
+                <div class="building-icon-badge">
+                    <i-tabler name="building-community"></i-tabler>
+                </div>
+            </div>
+
+            <h3 class="modal-title">تم اعتماد المبنى بنجاح</h3>
+            <p class="modal-description">
+                لقد تمت مراجعة كافة مستندات وصور {{ building.name }} والموافقة عليها. المبنى الآن متاح للظهور في المنصة، يمكنك الانتقال لمراجعة الوحدات التفصيلية الآن.
+            </p>
+
+            <div class="modal-actions">
+                <button class="btn-primary-modal" (click)="goToUnits()">
+                    <span>مراجعة الوحدات ({{ building.totalUnits }}) الآن</span>
+                    <i-tabler name="arrow-left"></i-tabler>
+                </button>
+                <button class="btn-secondary-modal" (click)="closeModal()">
+                    الذهاب لصفحة الوحدات لاحقا
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</div>

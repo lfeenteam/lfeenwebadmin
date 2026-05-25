@@ -1,0 +1,65 @@
+.permissions-container {
+  padding: 0;
+
+  .header-card {
+    border-radius: 16px;
+    .dept-icon-wrapper {
+      width: 64px;
+      height: 64px;
+      background-color: #fff;
+    }
+    .stat-item {
+      min-width: 120px;
+      background-color: #f8fafc;
+      border-color: #e2e8f0 !important;
+    }
+  }
+
+  .permissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    thead {
+      background-color: #fcfcfc;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    tr {
+      border-bottom: 1px solid #f1f5f9;
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .alert-box {
+    background-color: #fffbeb;
+    border: 1px solid #fef3c7;
+    .text-warning { color: #d97706; }
+    .text-warning-dark { color: #92400e; }
+  }
+
+  .save-btn {
+    background-color: #000;
+    color: #fff;
+    border-radius: 8px;
+    height: 44px;
+    font-weight: 600;
+    padding: 0 24px;
+  }
+
+  .cancel-btn {
+    border-color: #e2e8f0;
+    border-radius: 8px;
+    height: 44px;
+    font-weight: 600;
+    padding: 0 24px;
+    background-color: #f8fafc;
+  }
+}
+
+::ng-deep {
+  .mat-mdc-slide-toggle.mat-primary {
+    --mdc-switch-selected-track-color: #000;
+    --mdc-switch-selected-handle-color: #fff;
+    --mdc-switch-unselected-track-color: #e2e8f0;
+  }
+}

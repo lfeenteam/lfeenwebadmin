@@ -1,0 +1,92 @@
+<div class="team-management-container">
+  <!-- Stats Section -->
+  <div class="row m-b-24">
+    @for(stat of stats; track stat.label) {
+    <div class="col-sm-6 col-lg-3">
+      <mat-card class="border stat-card">
+        <mat-card-content class="p-24 d-flex align-items-center  gap-12">
+          <div class="stat-icon-wrapper d-flex align-items-center justify-content-center bg-light-{{stat.color}} text-{{stat.color}}">
+            <img [src]="stat.icon" class="icon-24" />
+          </div>
+          <div >
+            <span class="stat-label d-block">{{ stat.label }}</span>
+            <h2 class="stat-value m-0" [style.color]="stat.valueColor">{{ stat.value }}</h2>
+          </div>
+          
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
+  </div>
+  <div class="d-flex align-items-center justify-content-between m-b-24 flex-wrap gap-16">
+   
+    <div class="tabs-wrapper">
+      <button mat-button class="tab-btn active">هيكل الأقسام</button>
+      <button mat-button class="tab-btn">كل الموظفين</button>
+      <button mat-button class="tab-btn">سجل العمليات</button>
+    </div>
+     <div class="d-flex align-items-center gap-16">
+    
+      <div class="search-wrapper position-relative">
+        <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+        <input type="text" class="form-control search-input" placeholder="بحث عن موظف...">
+      </div>
+        <button mat-flat-button color="primary" class="add-dept-btn">
+        <i-tabler name="plus" class="icon-18 m-r-8"></i-tabler>
+        إضافة قسم جديد
+      </button>
+    </div>
+  </div>
+
+  <!-- Departments Grid -->
+  <div class="row">
+    @for(dept of departments; track dept.id) {
+    <div class="col-md-6 col-lg-4">
+      <mat-card class="shadow-none border dept-card m-b-24">
+        <mat-card-content class="p-32">
+          <div class="d-flex justify-content-between m-b-16">
+             <div class="dept-icon-wrapper rounded border d-flex align-items-center justify-content-center">
+              <i-tabler [name]="dept.icon" class="icon-24"></i-tabler>
+            </div>
+            <span class="status-badge active" *ngIf="dept.status === 'active'">
+              <span class="dot"></span> نشط
+            </span>
+           
+          </div>
+          
+          <h3 class="f-s-20 f-w-700 m-b-8">{{ dept.name }}</h3>
+          <p class="f-s-13 text-muted m-b-24 line-height-20">{{ dept.description }}</p>
+
+          <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
+            <div class="d-flex align-items-center justify-content-between m-b-12">
+              <div class="d-flex align-items-center gap-8 text-muted f-s-12">
+                <i-tabler name="user-cog" class="icon-16"></i-tabler>
+                المدير المسؤول
+              </div>
+              <span class="f-s-13 f-w-600">{{ dept.manager }}</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-8 text-muted f-s-12">
+                <i-tabler name="users" class="icon-16"></i-tabler>
+                عدد الموظفين
+              </div>
+              <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
+            </div>
+          </div>
+
+          <div class="d-flex gap-8">
+           
+            <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn" [routerLink]="['/d3/permissions', dept.id]">
+              صلاحيات القسم
+              <i-tabler name="shield-check" class="icon-18 m-l-8"></i-tabler>
+            </button>
+             <button mat-stroked-button class="view-btn icon-40 p-0 min-width-40">
+              <i-tabler name="eye" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,201 @@
+<div class="review-image-container" dir="rtl">
+  <!-- Section Header -->
+  <div class="section-group">
+    <div class="section-title-wrapper">
+      <span class="section-indicator"></span>
+      <span class="section-title">الصورة الرئيسية (الخارجية)</span>
+    </div>
+    
+    <div class="main-image-card" [class.rejected]="mainImage.status === 'rejected'" [class.accepted]="mainImage.status === 'accepted'">
+      <div class="image-wrapper">
+        <img [src]="mainImage.url" alt="Main Building Image">
+        <div class="image-actions">
+              <button class="btn-action btn-accept" [class.active]="mainImage.status === 'accepted'" (click)="setStatus(mainImage, 'accepted')">
+            <i-tabler name="check"></i-tabler>
+          </button>
+          <button class="btn-action btn-reject" [class.active]="mainImage.status === 'rejected'" (click)="setStatus(mainImage, 'rejected')">
+            <i-tabler name="x"></i-tabler>
+          </button>
+      
+        </div>
+      </div>
+      <div class="card-footer-main">
+          <div class="text-info">
+          <span class="image-name">{{ mainImage.name }}</span>
+          <span class="image-category">{{ mainImage.category }}</span>
+        </div>
+        <div class="status-info">
+          <span class="status-label" [ngClass]="{
+            'text-danger': mainImage.status === 'rejected',
+            'text-success': mainImage.status === 'accepted',
+            'text-muted': mainImage.status === 'pending'
+          }">
+            {{ mainImage.status === 'rejected' ? 'مرفوضة' : (mainImage.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+          </span>
+        </div>
+      
+      </div>
+      
+      @if (mainImage.status === 'rejected') {
+        <div class="rejection-inputs">
+          <input type="text" placeholder="سبب الرفض..." [(ngModel)]="mainImage.rejectionReason">
+          <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="mainImage.suggestedSolution">
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Exterior Images -->
+  <div class="section-group">
+    <div class="section-title-wrapper">
+      <span class="section-indicator"></span>
+      <span class="section-title">الصور الخارجية للمبنى</span>
+      <span class="section-count">{{ exteriorImages.length }} صور</span>
+    </div>
+    
+    <div class="image-grid">
+      @for (img of exteriorImages; track img.id) {
+        <div class="image-card" [class.rejected]="img.status === 'rejected'" [class.accepted]="img.status === 'accepted'">
+          <div class="image-wrapper">
+            <img [src]="img.url" [alt]="img.name">
+            <div class="image-actions">
+                <button class="btn-action btn-accept" [class.active]="img.status === 'accepted'" (click)="setStatus(img, 'accepted')">
+                <i-tabler name="check"></i-tabler>
+              </button>
+              <button class="btn-action btn-reject" [class.active]="img.status === 'rejected'" (click)="setStatus(img, 'rejected')">
+                <i-tabler name="x"></i-tabler>
+              </button>
+            
+            </div>
+          </div>
+          <div class="card-footer">
+          
+            <div class="text-info">
+              <span class="image-name">{{ img.name }}</span>
+              <span class="image-category">{{ img.category }}</span>
+            </div>
+              <div class="status-info">
+              <span class="status-label" [ngClass]="{
+                'text-danger': img.status === 'rejected',
+                'text-success': img.status === 'accepted',
+                'text-muted': img.status === 'pending'
+              }">
+                {{ img.status === 'rejected' ? 'مرفوضة' : (img.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+              </span>
+            </div>
+          </div>
+          
+          @if (img.status === 'rejected') {
+            <div class="rejection-inputs">
+              <input type="text" placeholder="سبب الرفض..." [(ngModel)]="img.rejectionReason">
+              <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="img.suggestedSolution">
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Interior Images -->
+  <div class="section-group">
+    <div class="section-title-wrapper">
+      <span class="section-indicator"></span>
+      <span class="section-title">الصور الداخلية للعقار</span>
+      <span class="section-count">{{ interiorImages.length }} صور</span>
+    </div>
+    
+    <div class="image-grid">
+      @for (img of interiorImages; track img.id) {
+        <div class="image-card" [class.rejected]="img.status === 'rejected'" [class.accepted]="img.status === 'accepted'">
+          <div class="image-wrapper">
+            <img [src]="img.url" [alt]="img.name">
+            <div class="image-actions">
+           
+              <button class="btn-action btn-accept" [class.active]="img.status === 'accepted'" (click)="setStatus(img, 'accepted')">
+                <i-tabler name="check"></i-tabler>
+              </button>
+                 <button class="btn-action btn-reject" [class.active]="img.status === 'rejected'" (click)="setStatus(img, 'rejected')">
+                <i-tabler name="x"></i-tabler>
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            
+            <div class="text-info">
+              <span class="image-name">{{ img.name }}</span>
+              <span class="image-category">{{ img.category }}</span>
+            </div>
+            <div class="status-info">
+              <span class="status-label" [ngClass]="{
+                'text-danger': img.status === 'rejected',
+                'text-success': img.status === 'accepted',
+                'text-muted': img.status === 'pending'
+              }">
+                {{ img.status === 'rejected' ? 'مرفوضة' : (img.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+              </span>
+            </div>
+          </div>
+          
+          @if (img.status === 'rejected') {
+            <div class="rejection-inputs">
+              <input type="text" placeholder="سبب الرفض..." [(ngModel)]="img.rejectionReason">
+              <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="img.suggestedSolution">
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Rejection Summary -->
+  @if (hasRejections) {
+    <div class="rejection-summary">
+      <div class="summary-header">
+        <div class="icon-box">
+          <i-tabler name="clipboard-list"></i-tabler>
+        </div>
+        <div class="summary-text">
+          <h3>ملخص أسباب الرفض</h3>
+          <p>تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً</p>
+        </div>
+      </div>
+      
+      <div class="rejection-list">
+        @for (item of rejectedSections; track item.title) {
+          <div class="rejection-item">
+            <div class="item-icon">!</div>
+            <div class="item-content">
+              <span class="item-title">{{ item.title }}</span>
+              <p class="item-reason">{{ item.reason }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Review Notes -->
+  <div class="notes-section" *ngIf="hasRejections">
+    <div class="notes-header">
+      <span class="notes-title">ملاحظات المراجعة</span>
+      <span class="notes-required">/ سبب الرفض (إلزامي في حال الرفض)</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      placeholder="يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض..."
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="btn btn-approve" (click)="approve.emit()">
+      <span>اعتماد الصور العقار</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" (click)="goBack()">
+      <span>رفض الطلب</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+</div>

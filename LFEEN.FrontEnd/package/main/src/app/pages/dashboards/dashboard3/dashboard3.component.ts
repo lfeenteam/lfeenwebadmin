@@ -34,6 +34,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   pageBreadcrumbKey = 'd3.header.platform';
   pageShowLive = true;
   pageShowDate = true;
+  pageShowBack = false;
+  pageStatusBadge: { text: string; color: string } | null = null;
+
   isLoginRoute = false;
 
   private routeSub?: Subscription;
@@ -70,6 +73,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.pageBreadcrumbKey = data.breadcrumbKey ?? 'd3.header.platform';
     this.pageShowLive = data.showLive ?? true;
     this.pageShowDate = data.showDate ?? true;
+    this.pageShowBack = data.showBack ?? false;
+    this.pageStatusBadge = data.statusBadge ?? null;
+
   }
 
   private getActiveChildRouteData(): D3RouteHeaderData {
@@ -90,5 +96,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
 
   closeMobileSidebar(): void {
     this.sidebarMobileOpen = false;
+  }
+
+  onPageBack(): void {
+    window.history.back();
   }
 }

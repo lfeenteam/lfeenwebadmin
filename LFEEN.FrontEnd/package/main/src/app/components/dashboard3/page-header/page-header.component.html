@@ -1,27 +1,41 @@
-<header class="d3-page-header">
-  <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
-    <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
-  </button>
-
-  <div class="d3-page-header-main">
-    <h1 class="d3-page-title">{{ titleKey | translate }}</h1>
-
-    @if (breadcrumbKey) {
-      <span class="d3-page-divider"></span>
-      <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+<header class="d3-page-header" [dir]="'rtl'">
+  <div class="d3-page-header-right">
+    @if (showBack) {
+      <button class="d3-page-back-btn" type="button" (click)="onBack($event)">
+        <i-tabler name="arrow-right" class="d3-page-icon"></i-tabler>
+      </button>
+    } @else {
+      <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
+        <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
+      </button>
     }
+
+    <div class="d3-page-header-main">
+      @if (breadcrumbKey) {
+        <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+        <i-tabler name="chevron-left" class="d3-breadcrumb-arrow"></i-tabler>
+      }
+      <h1 class="d3-page-title">{{ titleKey | translate }}</h1>
+    </div>
   </div>
 
   <div class="d3-page-header-meta">
-    @if (showLive) {
-      <div class="d3-page-live-badge">
-        <span class="d3-page-live-dot"></span>
-        <span class="d3-page-live-text">{{ 'd3.header.live' | translate }}</span>
+    @if (statusBadge) {
+      <div class="d3-page-status-badge" [style.background-color]="statusBadge.color + '1A'">
+        <span class="d3-page-status-dot" [style.background-color]="statusBadge.color"></span>
+        <span class="d3-page-status-text" [style.color]="statusBadge.color">{{ statusBadge.text | translate }}</span>
       </div>
-    }
-
-    @if (showDate) {
-      <span class="d3-page-date-badge">{{ 'd3.header.date' | translate }}</span>
+    } @else {
+      @if (showLive) {
+        <div class="d3-page-live-badge">
+          <span class="d3-page-live-dot"></span>
+          <span class="d3-page-live-text">{{ 'd3.header.live' | translate }}</span>
+        </div>
+      }
+  
+      @if (showDate) {
+        <span class="d3-page-date-badge">{{ 'd3.header.date' | translate }}</span>
+      }
     }
   </div>
 </header>

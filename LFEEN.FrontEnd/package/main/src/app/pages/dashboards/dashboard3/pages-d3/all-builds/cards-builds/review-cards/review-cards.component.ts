@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BuildingCardItem, BuildingViewMode } from '../../building-card.model';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -13,4 +14,10 @@ import { TranslateModule } from '@ngx-translate/core';
 export class ReviewCardsComponent {
   @Input() building!: BuildingCardItem;
   @Input() viewMode: BuildingViewMode = 'grid';
+
+  constructor(private router: Router, private route: ActivatedRoute) {}
+
+  goToBuildReview(): void {
+    this.router.navigate(['../build-review', this.building.id], { relativeTo: this.route });
+  }
 }

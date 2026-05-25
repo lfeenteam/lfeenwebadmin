@@ -1,0 +1,220 @@
+.review-terms-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    font-family: 'Cairo', sans-serif;
+}
+
+.section-header {
+    text-align: right;
+    .section-title { font-size: 20px; font-weight: 900; color: #111110; margin: 0; }
+    .section-subtitle { font-size: 13px; color: #9E9E9A; margin: 8px 0 0; }
+}
+
+.time-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.time-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E8E4;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+
+    &.flex-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-icon {
+        width: 44px;
+        height: 44px;
+        background: #F7F7F5;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #111110;
+
+        i-tabler { width: 24px; height: 24px; ::ng-deep svg { width: 24px; height: 24px; } }
+    }
+
+    .time-label { font-size: 11px; color: #9E9E9A; font-weight: 700; }
+    .time-value { font-size: 20px; font-weight: 900; color: #111110; }
+
+    .early-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+        margin-right: 12px;
+        .status-badge { font-size: 10px; color: #059669; font-weight: 900; }
+    }
+}
+
+.rules-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .section-indicator {
+        width: 6px;
+        height: 24px;
+        background-color: #111110;
+        border-radius: 100px;
+    }
+
+    .section-title { font-size: 18px; font-weight: 900; color: #111110; }
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.rule-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E8E4;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .rule-title { font-size: 14px; font-weight: 700; color: #111110; flex: 1; text-align: right; }
+    .rule-icon { width: 20px; height: 20px; color: #111110; ::ng-deep svg { width: 20px; height: 20px; } }
+}
+
+.custom-rules-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E8E4;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .rule-text-wrap {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        direction: rtl;
+
+        .rule-index {
+            width: 20px;
+            height: 20px;
+            background: #F7F7F5;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: #111110;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .rule-text { font-size: 14px; color: #111110; margin: 0; line-height: 1.6; }
+    }
+}
+
+.notes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .notes-title { font-size: 14px; font-weight: 900; color: #111110; }
+        .notes-required { font-size: 12px; color: #059669; font-weight: 700; }
+    }
+
+    .notes-textarea {
+        width: 100%;
+        border: 1px solid #E8E8E4;
+        background: #FCFCFB;
+        border-radius: 24px;
+        padding: 20px;
+        font-size: 14px;
+        font-family: inherit;
+        color: #111110;
+        resize: none;
+        outline: none;
+        text-align: right;
+
+        &::placeholder { color: #9E9E9A; }
+    }
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 16px;
+
+    .btn {
+        height: 60px;
+        border-radius: 20px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-size: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        i-tabler { width: 22px; height: 22px; ::ng-deep svg { width: 22px; height: 22px; stroke-width: 2.5; } }
+
+        &.btn-approve { background: #111110; color: #FFFFFF; &:hover { opacity: 0.9; } }
+        &.btn-reject { background: #FFFFFF; color: #DC2626; border: 1px solid #E8E8E4; &:hover { background: #FEF2F2; } }
+    }
+}
+
+// Toggle Switch Style
+.toggle-wrap {
+    position: relative;
+    width: 32px;
+    height: 18px;
+
+    input { display: none; }
+    label {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #E8E8E4;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: .3s;
+
+        &:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+    }
+
+    input:checked + label { background-color: #111110; }
+    input:checked + label:before { transform: translateX(14px); }
+}

@@ -1,0 +1,81 @@
+<div class="permissions-container">
+  <!-- Header Card -->
+  <mat-card class="shadow-none border m-b-24 header-card">
+    <mat-card-content class="p-24 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-24">
+        <div class="dept-icon-wrapper rounded border d-flex align-items-center justify-content-center">
+          <i-tabler name="briefcase" class="icon-32"></i-tabler>
+        </div>
+        <div>
+          <h2 class="f-s-24 f-w-700 m-b-4">{{ deptName }} ({{ deptEnglishName }})</h2>
+          <p class="f-s-14 text-muted m-0">إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.</p>
+        </div>
+      </div>
+      <div class="d-flex gap-16">
+        <div class="stat-item rounded border p-x-20 p-y-10 text-center">
+          <span class="f-s-12 text-muted d-block">عدد الموظفين</span>
+          <span class="f-s-18 f-w-700">{{ employeeCount }}</span>
+        </div>
+        <div class="stat-item rounded border p-x-20 p-y-10 text-center">
+          <span class="f-s-12 text-muted d-block">المدير المسؤول</span>
+          <span class="f-s-14 f-w-700">{{ manager }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Permissions Table -->
+  <mat-card class="shadow-none border m-b-24">
+    <mat-card-content class="p-0">
+      <div class="table-responsive">
+        <table class="table permissions-table m-0">
+          <thead>
+            <tr>
+              <th class="p-24 f-s-13 text-muted f-w-600">القسم / الوظيفة</th>
+              <th class="p-24 f-s-13 text-muted f-w-600">وصف الصلاحية</th>
+              <th class="p-24 f-s-13 text-muted f-w-600 text-center">الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(perm of permissions; track perm.id) {
+            <tr>
+              <td class="p-24">
+                <div class="d-flex align-items-center gap-12">
+                  <i-tabler [name]="perm.icon" class="icon-20 text-muted"></i-tabler>
+                  <span class="f-s-15 f-w-700">{{ perm.name }}</span>
+                </div>
+              </td>
+              <td class="p-24">
+                <span class="f-s-14 text-muted">{{ perm.description }}</span>
+              </td>
+              <td class="p-24 text-center">
+                <mat-slide-toggle color="primary" [(ngModel)]="perm.enabled"></mat-slide-toggle>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Alert Box -->
+  <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
+    <i-tabler name="alert-triangle" class="icon-24 text-warning"></i-tabler>
+    <div>
+      <h4 class="f-s-14 f-w-700 m-b-4 text-warning-dark">تنبيه تشغيلي هام</h4>
+      <p class="f-s-13 text-warning-dark m-0 opacity-75">أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{ employeeCount }} موظف) التابعين لقسم {{ deptName }}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم.</p>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="d-flex gap-16 justify-content-start">
+    <button mat-flat-button color="dark" class="save-btn" (click)="savePermissions()">
+      <i-tabler name="device-floppy" class="icon-18 m-r-8"></i-tabler>
+      حفظ وتحديث الصلاحيات
+    </button>
+    <button mat-stroked-button class="cancel-btn" (click)="cancelChanges()">
+      إلغاء التغييرات
+    </button>
+  </div>
+</div>

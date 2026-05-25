@@ -1,0 +1,70 @@
+<div class="review-license-container" dir="rtl">
+  <div class="section-header">
+    <div class="header-main">
+        <h2 class="section-title">مراجعة ترخيص وزارة السياحة</h2>
+        <div class="license-badge">
+            <span class="badge-label">رقم الترخيص المميز</span>
+            <span class="badge-value">{{ licenseNumber }}</span>
+        </div>
+    </div>
+    <p class="section-subtitle">يرجى التحقق من صحة الرقم الترخيص وتاريخ انتهاء الوثيقة المرفقة.</p>
+  </div>
+
+  <!-- License Document Preview -->
+  <div class="document-section">
+    <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">معاينة الترخيص</span>
+        <button class="btn-text"><i-tabler name="external-link"></i-tabler> تكبير الوثيقة</button>
+    </div>
+
+    <div class="document-preview">
+        <img [src]="licenseImage" alt="License Document">
+        <!-- Optional Overlay if rejected/expired -->
+        <div class="expired-overlay" *ngIf="isExpired">
+            <span class="expired-tag">منتهي</span>
+        </div>
+    </div>
+  </div>
+
+  <!-- License Details -->
+  <div class="license-meta-grid">
+    <div class="meta-item">
+        <span class="meta-label">تاريخ إصدار الترخيص</span>
+        <span class="meta-value">{{ issueDate }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-label">تاريخ انتهاء الترخيص</span>
+        <span class="meta-value" [class.text-danger]="isExpired">{{ expiryDate }}</span>
+    </div>
+    <div class="meta-item full-width">
+        <span class="meta-label">نوع نشاط المنشأة</span>
+        <span class="meta-value">{{ businessType }}</span>
+        <div class="verification-status">
+            <i-tabler name="circle-check" class="verify-icon"></i-tabler>
+            <span>نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة</span>
+        </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes-section">
+    <div class="notes-header">
+        <span class="notes-title">ملاحظات المراجعة / سبب الرفض</span>
+        <span class="notes-required">اختياري للموافقة</span>
+    </div>
+    <textarea class="notes-textarea" placeholder="في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها..." rows="4"></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-buttons">
+    <button class="btn btn-approve" (click)="approve.emit()">
+        <span>اعتماد مراجعة ترخيص وزارة السياحة</span>
+        <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" (click)="back.emit()">
+        <span>رفض الطلب</span>
+        <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+</div>

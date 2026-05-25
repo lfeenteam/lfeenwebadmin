@@ -9,6 +9,8 @@ import {
 } from './building-card.model';
 import { CardsBuildsComponent } from './cards-builds/cards-builds.component';
 import { TabsFilterComponent } from './tabs-filter/tabs-filter.component';
+import { BuildingReviewService } from './building-review.service';
+import { Subscription } from 'rxjs';
 
 interface BuildingMetricCard {
   titleKey: string;
@@ -34,6 +36,8 @@ export class AllBuildsComponent {
   activeTab: BuildingTab = 'published';
   searchQuery = '';
   viewMode: BuildingViewMode = 'grid';
+  allBuildings: BuildingCardItem[] = [];
+  private sub = new Subscription();
 
   cards: BuildingMetricCard[] = [
     {
@@ -62,112 +66,19 @@ export class AllBuildsComponent {
     }
   ];
 
-  private readonly allBuildings: BuildingCardItem[] = [
-    {
-      id: '1',
-      title: 'd3.allBuilds.buildingNames.building1',
-      host: 'd3.allBuilds.buildingHosts.host1',
-      location: 'd3.allBuilds.buildingLocations.location1',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.hotel',
-      units: 120,
-      occupancy: 85,
-      bookings: 42,
-      lastUpdate: 'd3.allBuilds.buildingDates.date1',
-      tab: 'published'
-    },
-    {
-      id: '2',
-      title: 'd3.allBuilds.buildingNames.building2',
-      host: 'd3.allBuilds.buildingHosts.host2',
-      location: 'd3.allBuilds.buildingLocations.location2',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.apartments',
-      units: 45,
-      occupancy: 63,
-      bookings: 18,
-      lastUpdate: 'd3.allBuilds.buildingDates.date2',
-      tab: 'published'
-    },
-    {
-      id: '3',
-      title: 'd3.allBuilds.buildingNames.building3',
-      host: 'd3.allBuilds.buildingHosts.host3',
-      location: 'd3.allBuilds.buildingLocations.location3',
-      status: 'stopped',
-      typeLabel: 'd3.allBuilds.buildings.compounds',
-      units: 18,
-      occupancy: 0,
-      bookings: 0,
-      lastUpdate: 'd3.allBuilds.buildingDates.date3',
-      tab: 'published'
-    },
-    {
-      id: '4',
-      title: 'd3.allBuilds.buildingNames.building4',
-      host: 'd3.allBuilds.buildingHosts.host4',
-      location: 'd3.allBuilds.buildingLocations.location4',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.chalets',
-      units: 12,
-      occupancy: 92,
-      bookings: 8,
-      lastUpdate: 'd3.allBuilds.buildingDates.date4',
-      tab: 'published'
-    },
-    {
-      id: '5',
-      title: 'd3.allBuilds.buildingNames.building5',
-      host: 'd3.allBuilds.buildingHosts.host5',
-      location: 'd3.allBuilds.buildingLocations.location5',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.villas',
-      units: 8,
-      occupancy: 62,
-      bookings: 3,
-      lastUpdate: 'd3.allBuilds.buildingDates.date5',
-      tab: 'published'
-    },
-    {
-      id: '6',
-      title: 'd3.allBuilds.buildingNames.building6',
-      host: 'd3.allBuilds.buildingHosts.host6',
-      location: 'd3.allBuilds.buildingLocations.location6',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.rests',
-      units: 15,
-      occupancy: 45,
-      bookings: 12,
-      lastUpdate: 'd3.allBuilds.buildingDates.date6',
-      tab: 'published'
-    },
-    {
-      id: '7',
-      title: 'd3.allBuilds.buildingNames.building7',
-      host: 'd3.allBuilds.buildingHosts.host7',
-      location: 'd3.allBuilds.buildingLocations.location7',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.compounds',
-      units: 80,
-      occupancy: 68,
-      bookings: 22,
-      lastUpdate: 'd3.allBuilds.buildingDates.date7',
-      tab: 'underReview'
-    },
-    {
-      id: '8',
-      title: 'd3.allBuilds.buildingNames.building8',
-      host: 'd3.allBuilds.buildingHosts.host8',
-      location: 'd3.allBuilds.buildingLocations.location8',
-      status: 'active',
-      typeLabel: 'd3.allBuilds.buildings.hotel',
-      units: 95,
-      occupancy: 55,
-      bookings: 31,
-      lastUpdate: 'd3.allBuilds.buildingDates.date8',
-      tab: 'underReview'
-    }
-  ];
+  constructor(private buildingService: BuildingReviewService) {}
+
+  ngOnInit(): void {
+    this.sub.add(
+      this.buildingService.getBuildings().subscribe(builds => {
+        this.allBuildings = builds;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
 
   get filteredBuildings(): BuildingCardItem[] {
     const query = this.searchQuery.trim().toLowerCase();

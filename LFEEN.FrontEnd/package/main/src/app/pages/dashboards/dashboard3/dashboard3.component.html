@@ -5,6 +5,7 @@
       class="dashboard-sidebar"
       [attr.dir]="currentDir"
       [(collapsed)]="sidebarCollapsed"
+    
       [mobileMode]="sidebarMobileOpen"
       (mobileClose)="closeMobileSidebar()"></app-dashboard3-sidebar>
   }
@@ -26,7 +27,10 @@
           [breadcrumbKey]="pageBreadcrumbKey"
           [showLive]="pageShowLive"
           [showDate]="pageShowDate"
-          (sidebarToggle)="toggleMobileSidebar()">
+          [showBack]="pageShowBack"
+          [statusBadge]="pageStatusBadge"
+          (sidebarToggle)="toggleMobileSidebar()"
+          (back)="onPageBack()">
         </app-dashboard3-page-header>
       }
     }

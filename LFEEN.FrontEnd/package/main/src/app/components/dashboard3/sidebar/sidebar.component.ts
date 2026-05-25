@@ -1,16 +1,10 @@
-import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-
-interface NavItem {
-  title?: string;
-  icon?: string;
-  link?: string;
-  divider?: boolean;
-}
+import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
 
 @Component({
   selector: 'app-dashboard3-sidebar',
@@ -19,7 +13,7 @@ interface NavItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   @Input() collapsed = false;
   @Output() collapsedChange = new EventEmitter<boolean>();
   @Input() mobileMode = false;
@@ -37,18 +31,30 @@ export class SidebarComponent {
     this.mobileClose.emit();
   }
 
-  navItems: NavItem[] = [
-    { title: 'd3.sidebar.dashboard', icon: 'layout-dashboard', link: '/d3/ceo' },
-    { title: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
-    { title: 'd3.sidebar.units', icon: 'smart-home', link: '/units' },
-    { title: 'd3.sidebar.bookings', icon: 'calendar-time', link: '/bookings' },
-    { title: 'd3.sidebar.complaints', icon: 'message-exclamation', link: '/complaints' },
-    { title: 'd3.sidebar.customers', icon: 'users', link: '/customers' },
-    { divider: true },
-    { title: 'd3.sidebar.settings', icon: 'settings', link: '/settings' },
-  ];
+  navItems: NavItem[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private sidebarService: SidebarService) {}
+
+  ngOnInit(): void {
+    this.sidebarService.getSidebarItems().subscribe({
+      next: (items) => {
+        this.navItems = items;
+      },
+      error: () => {
+        // Fallback or handle error
+        this.navItems = [
+          { title: 'd3.sidebar.dashboard', icon: 'layout-dashboard', link: '/d3/ceo' },
+          { title: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
+          { title: 'd3.sidebar.units', icon: 'smart-home', link: '/units' },
+          { title: 'd3.sidebar.bookings', icon: 'calendar-time', link: '/bookings' },
+          { title: 'd3.sidebar.complaints', icon: 'message-exclamation', link: '/complaints' },
+          { title: 'd3.sidebar.customers', icon: 'users', link: '/d3/team-management' },
+          { divider: true },
+          { title: 'd3.sidebar.settings', icon: 'settings', link: '/settings' },
+        ];
+      }
+    });
+  }
 
   getLangPrefix(): string {
     const lang = this.router.url.split('/')[1];

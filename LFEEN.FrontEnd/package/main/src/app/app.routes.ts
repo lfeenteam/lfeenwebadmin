@@ -124,8 +124,67 @@ export const routes: Routes = [
                   ).then((m) => m.AllBuildsComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'd3.allBuilds.title',
+                  titleKey: 'كل المباني',
+                  breadcrumbKey: 'المنصة',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'build-review',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
+                  ).then((m) => m.BuildReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.buildReview.title',
                   breadcrumbKey: 'd3.header.platform',
+                },
+              },
+              {
+                path: 'build-review/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
+                  ).then((m) => m.BuildReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'مراجعة برج ريتاج السكني',
+                  breadcrumbKey: 'طلبات المراجعة',
+                  showBack: true,
+                  statusBadge: { text: 'طلب عاجل', color: '#DC2626' }
+                },
+              },
+              {
+                path: 'team-management',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
+                  ).then((m) => m.TeamManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إدارة الفريق والمسؤولين',
+                  breadcrumbKey: 'المنصة',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'permissions/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/permissions.component'
+                  ).then((m) => m.PermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'صلاحيات القسم',
+                  breadcrumbKey: 'إدارة الفريق',
+                  showBack: true
                 },
               },
             ],

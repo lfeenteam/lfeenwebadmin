@@ -6,4 +6,6 @@ export interface D3RouteHeaderData {
   breadcrumbKey?: string;
   showLive?: boolean;
   showDate?: boolean;
+  showBack?: boolean;
+  statusBadge?: { text: string; color: string };
 }

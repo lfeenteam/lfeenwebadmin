@@ -33,7 +33,7 @@
 
     <div class="card-footer">
       <span class="type-tag">{{ building.typeLabel | translate }}</span>
-      <button type="button" class="action-btn back-btn" aria-label="Go back">
+      <button type="button" class="action-btn back-btn" aria-label="View build review" (click)="goToBuildReview()">
         <i-tabler name="arrow-left"></i-tabler>
       </button>
     </div>
@@ -80,7 +80,7 @@
 
     <!-- col 7: actions -->
     <div class="list-actions-col">
-      <button type="button" class="action-btn view-btn" aria-label="View">
+      <button type="button" class="action-btn view-btn" aria-label="View build review" (click)="goToBuildReview()">
         <i-tabler name="eye"></i-tabler>
       </button>
     </div>

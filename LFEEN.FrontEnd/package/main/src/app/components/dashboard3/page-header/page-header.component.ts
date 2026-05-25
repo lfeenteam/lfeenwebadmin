@@ -15,11 +15,19 @@ export class PageHeaderComponent {
   @Input() breadcrumbKey = 'd3.header.platform';
   @Input() showLive = true;
   @Input() showDate = true;
+  @Input() showBack = false;
+  @Input() statusBadge: { text: string; color: string } | null = null;
 
   @Output() sidebarToggle = new EventEmitter<void>();
+  @Output() back = new EventEmitter<void>();
 
   onSidebarToggle(event: Event): void {
     event.stopPropagation();
     this.sidebarToggle.emit();
+  }
+
+  onBack(event: Event): void {
+    event.stopPropagation();
+    this.back.emit();
   }
 }
