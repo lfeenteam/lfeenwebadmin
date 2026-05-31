@@ -40,120 +40,228 @@
   }
 
   .add-dept-btn {
-    border-radius: 10px;
-    padding: 10px 20px;
-    background-color: #000;
-    color: #fff;
-    height: 44px;
+    background-color: #111110 !important;
+    color: #fff !important;
+    border-radius: 14px;
+    padding: 0 20px;
+    height: 40px;
     font-weight: 700;
+    font-size: 14px;
+    
+    ::ng-deep {
+      .mdc-button__label {
+        width: 100%;
+      }
+    }
   }
 
-  .search-wrapper {
-    .search-icon {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
+.search-wrapper {
+  .search-icon {
+    position: absolute;
+    right: 14px;      
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+  }
+  .search-input {
+    padding: 6px 44px 7px 16px;  
+    height: 36px;               
+    border-radius: 12px;       
+    border: none;                 
+    width: 200px;                
+    background-color: #F7F7F5;
+    font-size: 14px;
+    &::placeholder {
       color: #94a3b8;
     }
-    .search-input {
-      padding-right: 44px;
-      height: 44px;
-      border-radius: 10px;
-      border: 1px solid #f1f5f9;
-      width: 280px;
-      background-color: #F7F7F5;
-      font-size: 14px;
-      &::placeholder {
-        color: #94a3b8;
-      }
+    &:focus {
+      outline: none;             
+      box-shadow: none;        
     }
   }
+}
 
-  .tabs-wrapper {
+
+.tabs-wrapper {
+  border-bottom: 1px solid #E8E8E4;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 55px;
+
+  position: relative;
+
+  .tab-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    padding: 0;
+    height: 55px;
     display: flex;
-    gap: 8px;
-    padding: 16px 8px; 
-    .tab-btn {
-      font-size: 14px;
-      font-weight: 500;
-      color: #64748b;
-      padding: 8px 16px;
-      &.active {
-        color: #111110;
-        font-weight: 900;
-        position: relative;
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 16px;
-          right: 16px;
-          height: 2px;
-          background-color: #111110;
-        }
+    align-items: center;
+
+    &.active {
+      color: #111110;
+      font-weight: 900;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px; 
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #111110;
+      }
+    }
+  }
+}
+.dept-card {
+  height: 400px;          
+  border-radius: 40px;
+  background: #FFFFFF01;
+  border: 1px solid #E8E8E4 !important;
+  box-shadow:
+    0px 4px 6px -4px #0000001A,
+    0px 10px 15px -3px #0000001A;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  mat-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .dept-title {
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
+
+  .dept-description {
+    color: #6B6B67;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 19.5px;
+    text-align: right;
+    flex-shrink: 0;
+
+    /* حجز مساحة ثابتة لـ 3 أسطر بالضبط */
+    height: calc(19.5px * 3);   /* = 58.5px */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ── صندوق المعلومات: ثابت الارتفاع ── */
+  .dept-info-box {
+    background-color: #FCFCFB;
+    border: 1px solid #E8E8E4;
+    border-radius: 18px;
+    flex-shrink: 0;
+
+    .label-text {
+      color: #9E9E9A;
+    }
+  }
+
+  /* ── الأزرار: تُدفع دائماً للأسفل ── */
+  .dept-actions {
+    margin-top: auto;   /* يدفع الأزرار لأسفل الكارد مهما قلّ المحتوى */
+    flex-shrink: 0;
+  }
+
+  /* ── باقي عناصر الكارد (بدون تغيير) ── */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    height: 22px;
+
+    &.active {
+      background-color: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #dcfce7;
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        background-color: #16a34a;
+        border-radius: 50%;
       }
     }
   }
 
-  .dept-card {
-    height: 400px;
-    border-radius: 40px;
+  .dept-icon-wrapper {
+    width: 55px;
+    height: 55px;
+    background-color: #F7F7F5;
     border: 1px solid #E8E8E4 !important;
-    transition: all 0.2s ease-in-out;
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    }
+    border-radius: 24px !important;
+    flex-shrink: 0;
+  }
 
-    .status-badge {
-      display: inline-flex;
+  .view-btn {
+    background-color: #F7F7F5;
+    border-radius: 16px;
+    border: none !important;
+    color: #000;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i-tabler, i, .tabler-icon {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      &.active {
-        background-color: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #dcfce7;
-        .dot {
-          width: 6px;
-          height: 6px;
-          background-color: #16a34a;
-          border-radius: 50%;
-        }
-      }
-    }
-
-    .dept-icon-wrapper {
-      width: 48px;
-      height: 48px;
-      background-color: #f8fafc;
-      border: 1px solid #f1f5f9 !important;
-      border-radius: 12px !important;
-    }
-
-    .dept-info-box {
-      background-color: #f8fafc;
-      border: 1px solid #f1f5f9;
-      border-radius: 12px;
-    }
-
-    .view-btn {
-      border-color: #e2e8f0;
-      color: #000;
-    }
-
-    .permissions-btn {
-      background-color: #000;
-      color: #fff;
-      border-radius: 8px;
-      height: 40px;
-      font-weight: 600;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
     }
   }
+
+  .permissions-btn {
+    background-color: #000;
+    color: #fff;
+    border-radius: 8px;
+    height: 40px;
+    font-weight: 600;
+    border: 1.33px solid #FFFFFF99 !important;
+
+    ::ng-deep {
+      .mdc-button__label {
+        width: 100%;
+      }
+      i-tabler, svg {
+        color: #FFFFFF99 !important;
+        width: 16px !important;
+        height: 16px !important;
+        display: flex !important;
+        align-items: center;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
 }
 
 .bg-light-primary { background-color: #eff6ff; }

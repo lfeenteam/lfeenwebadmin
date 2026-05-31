@@ -41,23 +41,32 @@ export class LoginComponent {
     private router: Router,
     private translate: TranslateService
   ) {
+    const savedEmail = localStorage.getItem('rememberedEmail');
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [savedEmail || '', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
+      rememberMe: [!!savedEmail],
     });
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
+      const { email, password, rememberMe } = this.loginForm.value;
       const toastOptions = {
         timeOut: 6000,
         extendedTimeOut: 1500,
       };
 
-      this.loginService.login(this.loginForm.value)
+      this.loginService.login({ email, password }, rememberMe)
         .pipe(finalize(() => this.loginService.loading.set(false)))
         .subscribe({
           next: (response) => {
+            if (rememberMe) {
+              localStorage.setItem('rememberedEmail', email);
+            } else {
+              localStorage.removeItem('rememberedEmail');
+            }
+
             const successMsg = this.translate.instant('d3.loginPage.form.messages.success');
             this.toastr.success(successMsg, undefined, toastOptions);
         

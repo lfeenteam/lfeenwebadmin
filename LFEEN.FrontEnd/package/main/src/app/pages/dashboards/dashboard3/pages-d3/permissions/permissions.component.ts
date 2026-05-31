@@ -33,7 +33,7 @@ export class PermissionsComponent {
       name: 'لوحة التحكم',
       description: 'الوصول للرسوم البيانية والملخص العام للأداء المالي والتشغيلي.',
       enabled: true,
-      icon: 'layout-dashboard'
+      icon: 'layout-grid'
     },
     {
       id: 2,
@@ -45,14 +45,14 @@ export class PermissionsComponent {
     {
       id: 3,
       name: 'إدارة الوحدات',
-      description: 'إدارة تفاصيل الغرف والأجنحة، تحديث السعر، وتعديل المواصفات الداخلية.',
+      description: 'إدارة تفاصيل الغرف والأجنحة تحديث السمة وتعديل المواصفات الداخلية.',
       enabled: true,
-      icon: 'door-enter'
+      icon: 'home'
     },
     {
       id: 4,
       name: 'الحجوزات',
-      description: 'مراقبة جدول الحجوزات تحديث حالات الدفع، وإدارة عمليات الإلغاء.',
+      description: 'مراقبة جدول الحجوزات تحديث حالات الدفع وإدارة عمليات الإلغاء.',
       enabled: true,
       icon: 'calendar-event'
     },
@@ -61,14 +61,14 @@ export class PermissionsComponent {
       name: 'إدارة الشكاوى',
       description: 'الوصول لرسائل العملاء والشكاوى الفنية المرفوعة ضد المضيفين.',
       enabled: false,
-      icon: 'message-report'
+      icon: 'message-dots'
     },
     {
       id: 6,
       name: 'إدارة الفريق',
-      description: 'صلاحية تعديل أدوار الموظفين وتعديل صلاحيات الوصول للأقسام.',
+      description: 'صلاحية تسجيل أدوار الموظفين وتعديل صلاحيات الوصول للأقسام.',
       enabled: false,
-      icon: 'users-group'
+      icon: 'users'
     }
   ];
 

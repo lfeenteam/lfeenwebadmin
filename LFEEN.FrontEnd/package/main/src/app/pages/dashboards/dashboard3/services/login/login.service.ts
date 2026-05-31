@@ -16,16 +16,26 @@ export class LoginService {
   private tokenExpiresKey = 'auth_token_expires_at';
   private refreshTokenExpiresKey = 'auth_refresh_token_expires_at';
   private userKey = 'auth_user';
+  private rememberMeKey = 'auth_remember_me';
+
+  private refreshTimeout: any;
 
   loading = signal<boolean>(false);
   isLoggedIn = signal<boolean>(this.checkAuthentication());
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    if (this.isLoggedIn()) {
+      this.scheduleTokenRefresh();
+    }
+  }
 
-  login(credentials: LoginRequest): Observable<LoginResponse> {
+  login(credentials: LoginRequest, rememberMe: boolean = false): Observable<LoginResponse> {
     this.loading.set(true);
     return this.http.post<LoginResponse>(this.apiUrl, credentials).pipe(
-      tap((response) => this.handleAuthentication(response))
+      tap((response) => {
+        this.setRememberMe(rememberMe);
+        this.handleAuthentication(response);
+      })
     );
   }
 
@@ -42,6 +52,41 @@ export class LoginService {
 
   setToken(response: LoginResponse): void {
     this.handleAuthentication(response);
+  }
+
+  private setRememberMe(value: boolean): void {
+    localStorage.setItem(this.rememberMeKey, value.toString());
+  }
+
+  getRememberMe(): boolean {
+    return localStorage.getItem(this.rememberMeKey) === 'true';
+  }
+
+  scheduleTokenRefresh(): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout);
+    }
+
+    const expiry = this.getAccessTokenExpiry();
+    if (!expiry) return;
+
+    const now = Date.now();
+    const expiresAt = expiry.getTime();
+    // Refresh 10 seconds before expiry
+    const delay = expiresAt - now - 10000;
+
+    if (delay > 0) {
+      this.refreshTimeout = setTimeout(() => {
+        this.refreshToken().subscribe({
+          error: (err) => console.error('Auto token refresh failed', err)
+        });
+      }, delay);
+    } else if (this.hasValidRefreshToken()) {
+      // If already expired or within 10s, refresh immediately
+      this.refreshToken().subscribe({
+        error: (err) => console.error('Immediate token refresh failed', err)
+      });
+    }
   }
 
   getToken(): string | null {
@@ -87,11 +132,15 @@ export class LoginService {
   }
 
   logout(): void {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout);
+    }
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.tokenExpiresKey);
     localStorage.removeItem(this.refreshTokenExpiresKey);
     localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.rememberMeKey);
     this.isLoggedIn.set(false);
   }
 
@@ -110,6 +159,7 @@ export class LoginService {
       })
     );
     this.isLoggedIn.set(true);
+    this.scheduleTokenRefresh();
   }
 
   private checkAuthentication(): boolean {

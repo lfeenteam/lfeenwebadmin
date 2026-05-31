@@ -1,26 +1,80 @@
 .permissions-container {
   padding: 0;
+  font-family: 'Cairo', sans-serif !important;
+
+  .permissions-description {
+    font-family: 'Cairo', sans-serif !important;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0px;
+    text-align: right;
+    color: #6B6B67;
+  }
+
+  .stat-label {
+    font-weight: 900;
+    font-size: 9px;
+    line-height: 13.5px;
+    letter-spacing: 0px;
+    text-align: right;
+    text-transform: uppercase;
+    color: #9E9E9A;
+  }
+
+  .stat-value {
+      font-weight: 900;
+    font-size: 14px;
+    line-height: 28px;
+    letter-spacing: 0px;
+    text-align: right;
+    color: #111110;
+  }
 
   .header-card {
-    border-radius: 16px;
+    border-radius: 20px;
+    background-color: #FCFCFB;
+    border: 1px solid #E8E8E4;
     .dept-icon-wrapper {
-      width: 64px;
-      height: 64px;
-      background-color: #fff;
+      width: 56px;
+      height: 56px;
+      background-color: #FFFFFF;
+      border: 1px solid #E8E8E4 !important;
+      border-radius: 16px !important;
     }
     .stat-item {
-      min-width: 120px;
-      background-color: #f8fafc;
-      border-color: #e2e8f0 !important;
+      min-width: 100px;
+      background-color: #FFFFFF;
+  border: 1px solid #E8E8E4 !important;
+      border-radius: 12px;
+      padding: 12px 20px;
     }
+  }
+
+  .table-card {
+    border: 1px solid #E8E8E4 !important;
+    border-radius: 24px !important;
+    overflow: hidden;
   }
 
   .permissions-table {
     width: 100%;
     border-collapse: collapse;
     thead {
-      background-color: #fcfcfc;
-      border-bottom: 1px solid #f1f5f9;
+      background-color: #FCFCFB;
+      border-bottom: 1px solid #E8E8E4;
+      
+      th {
+        font-weight: 900;
+        font-size: 10px;
+        line-height: 100%;
+        letter-spacing: 1px;
+        text-align: right;
+        vertical-align: middle;
+        text-transform: uppercase;
+        color: #9E9E9A;
+        padding: 24px;
+      }
     }
     tr {
       border-bottom: 1px solid #f1f5f9;

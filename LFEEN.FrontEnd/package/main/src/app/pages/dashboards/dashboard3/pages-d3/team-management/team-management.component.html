@@ -31,62 +31,75 @@
         <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
         <input type="text" class="form-control search-input" placeholder="بحث عن موظف...">
       </div>
-        <button mat-flat-button color="primary" class="add-dept-btn">
-        <i-tabler name="plus" class="icon-18 m-r-8"></i-tabler>
-        إضافة قسم جديد
-      </button>
+        <button mat-flat-button class="add-dept-btn">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            <i-tabler name="plus" class="icon-18"></i-tabler>
+            إضافة قسم جديد
+            
+          </div>
+        </button>
     </div>
   </div>
 
   <!-- Departments Grid -->
   <div class="row">
-    @for(dept of departments; track dept.id) {
-    <div class="col-md-6 col-lg-4">
-      <mat-card class="shadow-none border dept-card m-b-24">
-        <mat-card-content class="p-32">
-          <div class="d-flex justify-content-between m-b-16">
-             <div class="dept-icon-wrapper rounded border d-flex align-items-center justify-content-center">
-              <i-tabler [name]="dept.icon" class="icon-24"></i-tabler>
-            </div>
-            <span class="status-badge active" *ngIf="dept.status === 'active'">
-              <span class="dot"></span> نشط
-            </span>
-           
-          </div>
-          
-          <h3 class="f-s-20 f-w-700 m-b-8">{{ dept.name }}</h3>
-          <p class="f-s-13 text-muted m-b-24 line-height-20">{{ dept.description }}</p>
+  @for(dept of departments; track dept.id) {
+<div class="col-md-6 col-lg-4">
+  <mat-card class="shadow-none border dept-card m-b-24">
+    <mat-card-content class="p-32">
 
-          <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
-            <div class="d-flex align-items-center justify-content-between m-b-12">
-              <div class="d-flex align-items-center gap-8 text-muted f-s-12">
-                <i-tabler name="user-cog" class="icon-16"></i-tabler>
-                المدير المسؤول
-              </div>
-              <span class="f-s-13 f-w-600">{{ dept.manager }}</span>
-            </div>
-            <div class="d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center gap-8 text-muted f-s-12">
-                <i-tabler name="users" class="icon-16"></i-tabler>
-                عدد الموظفين
-              </div>
-              <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
-            </div>
-          </div>
+      <!-- Top Row: Icon + Status Badge -->
+      <div class="d-flex justify-content-between align-items-start m-b-16">
+        <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+          <i-tabler [name]="dept.icon" class="icon-24"></i-tabler>
+        </div>
+        <span class="status-badge active" *ngIf="dept.status === 'active'">
+          <span class="dot"></span> نشط
+        </span>
+      </div>
 
-          <div class="d-flex gap-8">
-           
-            <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn" [routerLink]="['/d3/permissions', dept.id]">
-              صلاحيات القسم
-              <i-tabler name="shield-check" class="icon-18 m-l-8"></i-tabler>
-            </button>
-             <button mat-stroked-button class="view-btn icon-40 p-0 min-width-40">
-              <i-tabler name="eye" class="icon-18"></i-tabler>
-            </button>
+      <!-- Title -->
+      <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ dept.name }}</h4>
+
+      <!-- Description: fixed height with clamp -->
+      <p class="dept-description m-b-24">{{ dept.description }}</p>
+
+      <!-- Info Box -->
+      <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
+        <div class="d-flex align-items-center justify-content-between m-b-12">
+          <div class="d-flex align-items-center gap-8 label-text f-s-12">
+            <i-tabler name="user-cog" class="icon-16"></i-tabler>
+            المدير المسؤول
           </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    }
+          <span class="f-s-12 f-w-700">{{ dept.manager }}</span>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-8 label-text f-s-12">
+            <i-tabler name="users" class="icon-16"></i-tabler>
+            عدد الموظفين
+          </div>
+          <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons: always pinned to bottom -->
+      <div class="dept-actions d-flex gap-8">
+        <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn"
+          [routerLink]="['../permissions', dept.id]">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            صلاحيات القسم
+            <i-tabler name="shield-check" class="icon-16"></i-tabler>
+          </div>
+        </button>
+        <button mat-flat-button
+          class="view-btn icon-40 p-0 min-width-40 d-flex align-items-center justify-content-center">
+          <i-tabler name="eye" class="icon-20"></i-tabler>
+        </button>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
+}
   </div>
 </div>
