@@ -115,7 +115,9 @@
       "bookings": "Bookings",
       "complaints": "Complaints",
       "customers": "Customers",
-      "settings": "Settings"
+      "settings": "Settings",
+      "notifications": "Notifications",
+      "logout": "Logout"
     },
     "allBuilds": {
       "title": "All Buildings",
@@ -161,6 +163,15 @@
         "units": "Units",
         "occupancy": "Occupancy",
         "bookings": "Bookings"
+      },
+      "table": {
+        "buildingHost": "Building / Host",
+        "location": "Location",
+        "lastUpdate": "Last Update",
+        "units": "Units",
+        "occupancy": "Occupancy",
+        "bookings": "Bookings",
+        "status": "Status"
       },
       "table": {
         "buildingHost": "Building / Host",
@@ -219,6 +230,23 @@
         "date6": "September 25",
         "date7": "September 20",
         "date8": "September 15"
+      }
+    },
+    "allUnits": {
+      "title": "All Units",
+      "placeholder": "Units content under development...",
+      "cards": {
+        "publishedUnits": "Published Properties",
+        "activeUnits": "Active Units",
+        "stoppedUnits": "Stopped Units",
+        "underReviewUnits": "Under Review"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by unit name, number, or property...",
+        "allProperties": "All Properties",
+        "allStatuses": "All Statuses",
+        "unitType": "Unit Type",
+        "sortNewest": "Sort: Newest"
       }
     },
     "sections": {
@@ -314,6 +342,28 @@
           "success": "Login Successful",
           "error": "Login Failed"
         }
+      }
+    },
+    "teamManagement": {
+      "title": "Team Management",
+      "stats": {
+        "totalEmployees": "Total Employees",
+        "departmentCount": "Number of Departments",
+        "activeManagers": "Active Managers",
+        "pendingActivation": "Pending Activation"
+      },
+      "tabs": {
+        "structure": "Department Structure",
+        "allEmployees": "All Employees",
+        "opsLog": "Operations Log"
+      },
+      "searchPlaceholder": "Search for employee...",
+      "addDept": "Add New Department",
+      "deptCard": {
+        "active": "Active",
+        "manager": "Manager In Charge",
+        "employees": "Employee Count",
+        "permissions": "Department Permissions"
       }
     }
   }

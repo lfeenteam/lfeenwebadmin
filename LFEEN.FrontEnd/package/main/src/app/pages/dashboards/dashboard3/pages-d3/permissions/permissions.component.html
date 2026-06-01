@@ -38,15 +38,17 @@
           </thead>
           <tbody>
             @for(perm of permissions; track perm.id) {
-            <tr>
+            <tr [class.disabled-row]="!perm.enabled">
               <td class="p-24">
                 <div class="d-flex align-items-center gap-12">
-                  <i-tabler [name]="perm.icon" class="icon-20 text-muted"></i-tabler>
-                  <span class="f-s-15 f-w-700">{{ perm.name }}</span>
+                  <div class="permission-icon-wrapper">
+                    <i-tabler [name]="perm.icon" class="permission-icon"></i-tabler>
+                  </div>
+                  <span class="f-s-14 f-w-900">{{ perm.name }}</span>
                 </div>
               </td>
               <td class="p-24">
-                <span class="f-s-14 text-muted">{{ perm.description }}</span>
+                <span class="perm-desc">{{ perm.description }}</span>
               </td>
               <td class="p-24 text-center">
                 <mat-slide-toggle color="primary" [(ngModel)]="perm.enabled"></mat-slide-toggle>
@@ -63,19 +65,20 @@
   <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
     <i-tabler name="alert-triangle" class="icon-24 text-warning"></i-tabler>
     <div>
-      <h4 class="f-s-14 f-w-700 m-b-4 text-warning-dark">تنبيه تشغيلي هام</h4>
-      <p class="f-s-13 text-warning-dark m-0 opacity-75">أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{ employeeCount }} موظف) التابعين لقسم {{ deptName }}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم.</p>
+      <h4>تنبيه تشغيلي هام</h4>
+      <p>أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{ employeeCount }} موظف) التابعين لقسم {{ deptName }}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم.</p>
     </div>
   </div>
 
   <!-- Actions -->
-  <div class="d-flex gap-16 justify-content-start">
-    <button mat-flat-button color="dark" class="save-btn" (click)="savePermissions()">
-      <i-tabler name="device-floppy" class="icon-18 m-r-8"></i-tabler>
-      حفظ وتحديث الصلاحيات
-    </button>
+  <div class="d-flex gap-16 justify-content-end">
     <button mat-stroked-button class="cancel-btn" (click)="cancelChanges()">
       إلغاء التغييرات
     </button>
+    <button mat-flat-button color="dark" class="save-btn" (click)="savePermissions()">
+      حفظ وتحديث الصلاحيات
+      <i-tabler name="device-floppy" class="icon-16"></i-tabler>
+    </button>
+    
   </div>
 </div>

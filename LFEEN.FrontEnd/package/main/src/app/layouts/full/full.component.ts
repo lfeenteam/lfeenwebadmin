@@ -72,6 +72,7 @@ export class FullComponent implements OnInit {
   @ViewChild('content', { static: true }) content!: MatSidenavContent;
   //get options from service
   options = this.settings.getOptions();
+  isDashboard = false;
   private layoutChangesSubscription = Subscription.EMPTY;
   private isMobileScreen = false;
   private isContentWidthFixed = true;
@@ -222,8 +223,9 @@ export class FullComponent implements OnInit {
     // This is for scroll to top
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((e) => {
+      .subscribe((e: any) => {
         this.content.scrollTo({ top: 0 });
+        this.isDashboard = e.url.includes('/dashboards/') || e.url.includes('/d3/ceo');
       });
   }
 

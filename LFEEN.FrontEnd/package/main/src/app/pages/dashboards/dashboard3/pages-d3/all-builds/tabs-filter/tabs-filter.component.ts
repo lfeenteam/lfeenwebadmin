@@ -20,19 +20,13 @@ export interface BuildFilterOption {
   styleUrl: './tabs-filter.component.scss'
 })
 export class TabsFilterComponent {
-  @Input() activeTab: BuildingTab = 'published';
+  @Input() activeTab: string = 'published';
   @Input() searchQuery = '';
-
-  @Output() activeTabChange = new EventEmitter<BuildingTab>();
-  @Output() searchQueryChange = new EventEmitter<string>();
-  @Output() filtersChange = new EventEmitter<Record<string, string>>();
-
-  readonly tabs: { id: BuildingTab; labelKey: string }[] = [
+  @Input() tabs: { id: string; labelKey: string }[] = [
     { id: 'published', labelKey: 'd3.allBuilds.tabs.published' },
     { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' }
   ];
-
-  readonly filterOptions: BuildFilterOption[] = [
+  @Input() filterOptions: BuildFilterOption[] = [
     {
       id: 'status',
       labelKey: 'd3.allBuilds.filters.allStatuses',
@@ -72,6 +66,11 @@ export class TabsFilterComponent {
       ]
     }
   ];
+  @Input() searchPlaceholder: string = 'd3.allBuilds.filters.searchPlaceholder';
+
+  @Output() activeTabChange = new EventEmitter<string>();
+  @Output() searchQueryChange = new EventEmitter<string>();
+  @Output() filtersChange = new EventEmitter<Record<string, string>>();
 
   selectedFilters: Record<string, string> = {
     status: 'all',
@@ -80,7 +79,7 @@ export class TabsFilterComponent {
     sort: 'newest'
   };
 
-  selectTab(tab: BuildingTab): void {
+  selectTab(tab: string): void {
     if (this.activeTab === tab) {
       return;
     }

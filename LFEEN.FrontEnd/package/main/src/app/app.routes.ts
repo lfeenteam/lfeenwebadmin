@@ -131,6 +131,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'units',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/all-units.component'
+                  ).then((m) => m.AllUnitsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'كل الوحدات',
+                  breadcrumbKey: 'المنصة',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
                 path: 'build-review',
                 canActivate: [authGuard],
                 loadComponent: () =>

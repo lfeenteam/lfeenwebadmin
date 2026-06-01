@@ -13,15 +13,7 @@
     </nav>
 
     <div class="filters-row">
-      <div class="search-box">
-        <i-tabler name="search" class="search-icon"></i-tabler>
-        <input
-          type="search"
-          class="search-input"
-          [placeholder]="'d3.allBuilds.filters.searchPlaceholder' | translate"
-          [ngModel]="searchQuery"
-          (ngModelChange)="onSearchInput($event)" />
-      </div>
+ 
 
       <div class="filter-dropdowns">
         @for (filter of filterOptions; track filter.id) {
@@ -52,6 +44,15 @@
       <button type="button" class="filter-icon-btn" [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate">
         <i-tabler name="filter"></i-tabler>
       </button>
+           <div class="search-box">
+        <i-tabler name="search" class="search-icon"></i-tabler>
+        <input
+          type="search"
+          class="search-input"
+          [placeholder]="searchPlaceholder | translate"
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchInput($event)" />
+      </div>
     </div>
   </div>
 </section>

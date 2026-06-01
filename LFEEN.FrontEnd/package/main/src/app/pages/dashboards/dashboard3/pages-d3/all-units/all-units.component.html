@@ -11,4 +11,6 @@
   (viewModeChange)="setViewMode($event)">
 </app-dashboard-sub-header>
 
-<app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"></app-cards-builds>
+<div class="units-content">
+  <app-cards-units [buildings]="filteredUnitsData"></app-cards-units>
+</div>

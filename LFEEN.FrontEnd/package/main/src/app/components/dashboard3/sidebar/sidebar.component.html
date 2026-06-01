@@ -16,21 +16,101 @@
   </div>
 
   <mat-nav-list class="d3-sidebar-list">
-    @for(item of navItems; track item.title) {
+    @for(item of filteredNavItems(); track item.titleAr || item.title) {
       @if(item.divider) {
         <div class="d3-menu-divider"></div>
       } @else {
-        <a mat-list-item href="#" (click)="navigateTo(item, $event)"
-          [class.active-link]="isActive(item)"
-          class="d3-menu-item">
-          <span matListItemIcon class="d-flex">
-            <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
-          </span>
-          @if (!collapsed || mobileMode) {
-            <span matListItemTitle class="d3-menu-title">{{ item.title! | translate }}</span>
-          }
-        </a>
+        @if (item.children && item.children.length > 0) {
+          <div class="d3-submenu-container" [class.is-expanded]="isExpanded(item)">
+            <a mat-list-item href="#" (click)="toggleSubmenu(item, $event)"
+              class="d3-menu-item has-children">
+              <span class="d-flex align-items-center gap-12 w-100">
+                <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
+                <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+                  {{ item.titleAr || item.titleEn ? (currentLang === 'ar' ? item.titleAr : item.titleEn) : (item.title! | translate) }}
+                </span>
+                <i-tabler *ngIf="!collapsed || mobileMode" [name]="isExpanded(item) ? 'chevron-up' : 'chevron-down'" class="icon-16 ms-auto"></i-tabler>
+              </span>
+            </a>
+            @if (isExpanded(item) && (!collapsed || mobileMode)) {
+              <div class="d3-submenu">
+                @for(child of item.children; track child.titleAr || child.title) {
+                  <a mat-list-item href="#" (click)="navigateTo(child, $event)"
+                    [class.active-link]="isActive(child)"
+                    class="d3-menu-item d3-child-item">
+                    <span class="d-flex align-items-center gap-12 w-100">
+                      <i-tabler [name]="child.icon!" class="icon-18"></i-tabler>
+                      <span class="d3-menu-title sub-title">
+                        {{ child.titleAr || child.titleEn ? (currentLang === 'ar' ? child.titleAr : child.titleEn) : (child.title! | translate) }}
+                      </span>
+                    </span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a mat-list-item href="#" (click)="navigateTo(item, $event)"
+            [class.active-link]="isActive(item)"
+            class="d3-menu-item">
+            <span class="d-flex align-items-center gap-12 w-100">
+              <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
+              <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+                {{ item.titleAr || item.titleEn ? (currentLang === 'ar' ? item.titleAr : item.titleEn) : (item.title! | translate) }}
+              </span>
+            </span>
+          </a>
+        }
       }
     }
   </mat-nav-list>
+
+  <div class="d3-sidebar-footer">
+    @if (!isCeoPage()) {
+      <div class="footer-items">
+        <a mat-list-item class="d3-menu-item footer-item">
+          <span class="d-flex align-items-center gap-12 w-100">
+            <span class="icon-wrapper">
+              <i-tabler name="bell" class="icon-20"></i-tabler>
+              <span class="notification-dot"></span>
+            </span>
+            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+              {{ 'd3.sidebar.notifications' | translate }}
+            </span>
+          </span>
+        </a>
+        <a mat-list-item (click)="navigateTo({link: '/settings'}, $event)" class="d3-menu-item footer-item">
+          <span class="d-flex align-items-center gap-12 w-100">
+            <i-tabler name="settings" class="icon-20"></i-tabler>
+            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+              {{ 'd3.sidebar.settings' | translate }}
+            </span>
+          </span>
+        </a>
+      </div>
+    }
+    
+    <div class="footer-bottom">
+      <a mat-list-item (click)="logout()" class="d3-menu-item footer-item logout-item">
+        <span class="d-flex align-items-center gap-12 w-100">
+          <i-tabler name="logout" class="icon-20"></i-tabler>
+          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+            {{ 'd3.sidebar.logout' | translate }}
+          </span>
+        </span>
+      </a>
+
+      @if (!isCeoPage()) {
+        <div class="user-profile-wrapper">
+          <div class="user-profile">
+            <img [src]="user()?.image || './assets/images/profile/user-1.jpg'" alt="user" class="profile-img" />
+            <div class="user-info" *ngIf="!collapsed || mobileMode">
+              <span class="user-name">{{ user()?.fullName }}</span>
+              <span class="user-role">{{ user()?.roles?.[0] }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
 </div>

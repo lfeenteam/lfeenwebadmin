@@ -8,16 +8,10 @@ import {
   BuildingViewMode
 } from './building-card.model';
 import { CardsBuildsComponent } from './cards-builds/cards-builds.component';
-import { TabsFilterComponent } from './tabs-filter/tabs-filter.component';
+import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
+import { MetricCard, TabOption, ViewMode, BuildFilterOption } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.model';
 import { BuildingReviewService } from './building-review.service';
 import { Subscription } from 'rxjs';
-
-interface BuildingMetricCard {
-  titleKey: string;
-  value: string;
-  icon: string;
-  tone: 'green' | 'gray' | 'black' | 'orange';
-}
 
 @Component({
   selector: 'app-all-builds',
@@ -26,20 +20,20 @@ interface BuildingMetricCard {
     CommonModule,
     TablerIconsModule,
     TranslateModule,
-    TabsFilterComponent,
+    DashboardSubHeaderComponent,
     CardsBuildsComponent
   ],
   templateUrl: './all-builds.component.html',
   styleUrl: './all-builds.component.scss'
 })
 export class AllBuildsComponent {
-  activeTab: BuildingTab = 'published';
+  activeTab: string = 'published';
   searchQuery = '';
-  viewMode: BuildingViewMode = 'grid';
+  viewMode: ViewMode = 'grid';
   allBuildings: BuildingCardItem[] = [];
   private sub = new Subscription();
 
-  cards: BuildingMetricCard[] = [
+  metrics: MetricCard[] = [
     {
       titleKey: 'd3.allBuilds.cards.buildingsAvailable',
       value: '1,10',
@@ -65,6 +59,54 @@ export class AllBuildsComponent {
       tone: 'orange'
     }
   ];
+
+  tabs: TabOption[] = [
+    { id: 'published', labelKey: 'd3.allBuilds.tabs.published' },
+    { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' }
+  ];
+
+  filterOptions: BuildFilterOption[] = [
+    {
+      id: 'status',
+      labelKey: 'd3.allBuilds.filters.allStatuses',
+      items: [
+        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
+        { value: 'active', labelKey: 'd3.allBuilds.buildingCard.statusActive' },
+        { value: 'stopped', labelKey: 'd3.allBuilds.buildingCard.statusStopped' }
+      ]
+    },
+    {
+      id: 'city',
+      labelKey: 'd3.allBuilds.filters.allCities',
+      items: [
+        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
+        { value: 'riyadh', labelKey: 'd3.allBuilds.filters.options.riyadh' },
+        { value: 'jeddah', labelKey: 'd3.allBuilds.filters.options.jeddah' },
+        { value: 'dammam', labelKey: 'd3.allBuilds.filters.options.dammam' }
+      ]
+    },
+    {
+      id: 'type',
+      labelKey: 'd3.allBuilds.filters.allTypes',
+      items: [
+        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
+        { value: 'hotel', labelKey: 'd3.allBuilds.filters.options.hotel' },
+        { value: 'apartments', labelKey: 'd3.allBuilds.filters.options.apartments' },
+        { value: 'villas', labelKey: 'd3.allBuilds.filters.options.villas' }
+      ]
+    },
+    {
+      id: 'sort',
+      labelKey: 'd3.allBuilds.filters.newest',
+      items: [
+        { value: 'newest', labelKey: 'd3.allBuilds.filters.newest' },
+        { value: 'oldest', labelKey: 'd3.allBuilds.filters.options.oldest' },
+        { value: 'occupancy', labelKey: 'd3.allBuilds.filters.options.occupancyHigh' }
+      ]
+    }
+  ];
+
+  searchPlaceholder = 'd3.allBuilds.filters.searchPlaceholder';
 
   constructor(private buildingService: BuildingReviewService) {}
 
@@ -99,7 +141,15 @@ export class AllBuildsComponent {
     });
   }
 
-  setViewMode(mode: BuildingViewMode): void {
+  onTabChange(tab: string): void {
+    this.activeTab = tab;
+  }
+
+  onSearch(query: string): void {
+    this.searchQuery = query;
+  }
+
+  setViewMode(mode: ViewMode): void {
     this.viewMode = mode;
   }
 }

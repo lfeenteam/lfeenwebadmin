@@ -117,7 +117,9 @@
       "bookings": "الحجوزات",
       "complaints": "شكوى",
       "customers": "العملاء",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "notifications": "التنبيهات",
+      "logout": "تسجيل الخروج"
     },
     "allBuilds": {
       "title": "كل المباني",
@@ -223,6 +225,23 @@
         "date8": "١٥ سبتمبر"
       }
     },
+    "allUnits": {
+      "title": "كل الوحدات",
+      "placeholder": "محتوى الوحدات قيد التطوير...",
+      "cards": {
+        "publishedUnits": "عقارات منشورة",
+        "activeUnits": "وحدات نشطة",
+        "stoppedUnits": "وحدات متوقفة",
+        "underReviewUnits": "تحت المراجعة"
+      },
+      "filters": {
+        "searchPlaceholder": "بحث باسم الوحدة، رقمها، أو العقار...",
+        "allProperties": "كل العقارات",
+        "allStatuses": "كل الحالات",
+        "unitType": "نوع الوحدة",
+        "sortNewest": "ترتيب: الأحدث"
+      }
+    },
     "sections": {
       "platformPerformance": "أداء المنصة الكلي",
       "hostsApp": "تطبيق المضيفين",
@@ -316,6 +335,28 @@
           "success": "تم تسجيل الدخول بنجاح",
           "error": "فشل تسجيل الدخول"
         }
+      }
+    },
+    "teamManagement": {
+      "title": "إدارة الفريق",
+      "stats": {
+        "totalEmployees": "إجمالي الموظفين",
+        "departmentCount": "عدد الأقسام",
+        "activeManagers": "المدراء النشطون",
+        "pendingActivation": "قيد التفعيل"
+      },
+      "tabs": {
+        "structure": "هيكل الأقسام",
+        "allEmployees": "كل الموظفين",
+        "opsLog": "سجل العمليات"
+      },
+      "searchPlaceholder": "بحث عن موظف...",
+      "addDept": "إضافة قسم جديد",
+      "deptCard": {
+        "active": "نشط",
+        "manager": "المدير المسؤول",
+        "employees": "عدد الموظفين",
+        "permissions": "صلاحيات القسم"
       }
     }
   }

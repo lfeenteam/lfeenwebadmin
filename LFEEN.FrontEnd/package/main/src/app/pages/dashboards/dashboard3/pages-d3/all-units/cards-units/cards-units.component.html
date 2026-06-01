@@ -1,0 +1,38 @@
+@for (building of buildings; track building.id) {
+  <section class="building-units-group">
+    <header class="building-header">
+  
+
+      <div class="building-header__right">
+     
+        <div class="building-image">
+          <img [src]="building.image" [alt]="building.name">
+        </div>
+           <div class="building-info">
+          <h2 class="building-name">{{ building.name }}</h2>
+          <p class="building-meta">
+              <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+             {{ building.location }} · {{ building.publishedUnits }} وحدة منشورة
+           
+          </p>
+        </div>
+      </div>
+        <div class="building-header__left">
+       
+        <span class="building-badge">
+          <i-tabler name="discount-check" class="badge-icon"></i-tabler>
+          معتمد
+        </span>
+         <div class="building-menu">
+          <i-tabler name="dots-vertical"></i-tabler>
+        </div>
+      </div>
+    </header>
+
+    <div class="units-grid">
+      @for (unit of building.units; track unit.id) {
+        <app-unit-card [unit]="unit"></app-unit-card>
+      }
+    </div>
+  </section>
+}

@@ -17,11 +17,18 @@ export class LoginService {
   private refreshTokenExpiresKey = 'auth_refresh_token_expires_at';
   private userKey = 'auth_user';
   private rememberMeKey = 'auth_remember_me';
+  private sidebarKey = 'auth_sidebar';
+  private permissionsKey = 'auth_permissions';
 
   private refreshTimeout: any;
 
   loading = signal<boolean>(false);
   isLoggedIn = signal<boolean>(this.checkAuthentication());
+  
+  // Signals الجديدة لإدارة الحالة في الذاكرة
+  currentUser = signal<any>(this.getStoredUser());
+  permissions = signal<string[]>(this.getStoredPermissions());
+  sidebar = signal<any[]>(this.getStoredSidebar());
 
   constructor(private http: HttpClient) {
     if (this.isLoggedIn()) {
@@ -108,8 +115,30 @@ export class LoginService {
   }
 
   getUser(): any {
-    const user = localStorage.getItem(this.userKey);
+    return this.currentUser();
+  }
+
+  getSidebar(): any[] {
+    return this.sidebar();
+  }
+
+  getPermissions(): string[] {
+    return this.permissions();
+  }
+
+  private getStoredUser(): any {
+    const user = sessionStorage.getItem(this.userKey);
     return user ? JSON.parse(user) : null;
+  }
+
+  private getStoredSidebar(): any[] {
+    const sidebar = sessionStorage.getItem(this.sidebarKey);
+    return sidebar ? JSON.parse(sidebar) : [];
+  }
+
+  private getStoredPermissions(): string[] {
+    const permissions = sessionStorage.getItem(this.permissionsKey);
+    return permissions ? JSON.parse(permissions) : [];
   }
 
   isAuthenticated(): boolean {
@@ -139,8 +168,17 @@ export class LoginService {
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.tokenExpiresKey);
     localStorage.removeItem(this.refreshTokenExpiresKey);
-    localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.rememberMeKey);
+    
+    // مسح البيانات من sessionStorage
+    sessionStorage.removeItem(this.userKey);
+    sessionStorage.removeItem(this.sidebarKey);
+    sessionStorage.removeItem(this.permissionsKey);
+
+    // تحديث Signals
+    this.currentUser.set(null);
+    this.permissions.set([]);
+    this.sidebar.set([]);
     this.isLoggedIn.set(false);
   }
 
@@ -149,15 +187,23 @@ export class LoginService {
     localStorage.setItem(this.refreshTokenKey, response.refreshToken);
     localStorage.setItem(this.tokenExpiresKey, response.accessTokenExpiresAt);
     localStorage.setItem(this.refreshTokenExpiresKey, response.refreshTokenExpiresAt);
-    localStorage.setItem(
-      this.userKey,
-      JSON.stringify({
-        userId: response.userId,
-        fullName: response.fullName || (response as any).userName,
-        email: response.email,
-        roles: response.roles,
-      })
-    );
+    
+    // تخزين البيانات في sessionStorage بدلاً من localStorage
+    sessionStorage.setItem(this.sidebarKey, JSON.stringify(response.sidebar));
+    sessionStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
+    const userData = {
+      userId: response.userId,
+      fullName: response.fullName || (response as any).userName,
+      email: response.email,
+      roles: response.roles,
+    };
+    sessionStorage.setItem(this.userKey, JSON.stringify(userData));
+
+    // تحديث Signals للواجهة
+    this.sidebar.set(response.sidebar);
+    this.permissions.set(response.permissions);
+    this.currentUser.set(userData);
+
     this.isLoggedIn.set(true);
     this.scheduleTokenRefresh();
   }

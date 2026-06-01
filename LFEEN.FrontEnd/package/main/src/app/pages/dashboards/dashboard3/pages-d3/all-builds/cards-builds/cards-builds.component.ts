@@ -23,6 +23,7 @@ import { ReviewCardsComponent } from './review-cards/review-cards.component';
 export class CardsBuildsComponent {
   @Input() buildings: BuildingCardItem[] = [];
   @Input() viewMode: BuildingViewMode = 'grid';
+  @Input() activeTab: string = 'published';
 
   occupancyTone(occupancy: number, status: string): string {
     if (status === 'stopped') return 'stopped';
@@ -30,7 +31,12 @@ export class CardsBuildsComponent {
     if (occupancy >= 50) return 'medium';
     return 'low';
   }
-   get hasUnderReview(): boolean {
+
+  get isReviewTab(): boolean {
+    return this.activeTab === 'underReview';
+  }
+
+  get hasUnderReview(): boolean {
     return this.buildings.some(b => b.tab === 'underReview');
   }
 }

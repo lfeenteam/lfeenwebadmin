@@ -390,3 +390,35 @@ body {
   flex-direction: column;
   height: 100%;
 }
+
+.sidebar-bottom-actions {
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 16px;
+  
+  .notification-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 7px;
+    height: 7px;
+    background-color: #fa5a7d;
+    border: 1px solid #fff;
+    border-radius: 50%;
+  }
+
+  .user-profile-img {
+    img {
+      border: 2px solid var(--mat-sys-primary-fixed-dim);
+    }
+  }
+}
+
+.sidebarNav-mini {
+  .sidebarNav {
+    .sidebar-bottom-actions {
+      .gap-16 {
+        gap: 20px !important;
+      }
+    }
+  }
+}

@@ -1,10 +1,12 @@
-import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
+import { LoginService } from '../../../pages/dashboards/dashboard3/services/login/login.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard3-sidebar',
@@ -31,29 +33,71 @@ export class SidebarComponent implements OnInit {
     this.mobileClose.emit();
   }
 
-  navItems: NavItem[] = [];
+  expandedItems: { [key: string]: boolean } = {};
+  isCeoPage = signal<boolean>(false);
+  user = this.loginService.currentUser;
 
-  constructor(private router: Router, private sidebarService: SidebarService) {}
+  // فلترة القائمة لاستبعاد الإعدادات إذا لم نكن في صفحة CEO
+  filteredNavItems = signal<NavItem[]>([]);
 
-  ngOnInit(): void {
-    this.sidebarService.getSidebarItems().subscribe({
-      next: (items) => {
-        this.navItems = items;
-      },
-      error: () => {
-        // Fallback or handle error
-        this.navItems = [
-          { title: 'd3.sidebar.dashboard', icon: 'layout-dashboard', link: '/d3/ceo' },
-          { title: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
-          { title: 'd3.sidebar.units', icon: 'smart-home', link: '/units' },
-          { title: 'd3.sidebar.bookings', icon: 'calendar-time', link: '/bookings' },
-          { title: 'd3.sidebar.complaints', icon: 'message-exclamation', link: '/complaints' },
-          { title: 'd3.sidebar.customers', icon: 'users', link: '/d3/team-management' },
-          { divider: true },
-          { title: 'd3.sidebar.settings', icon: 'settings', link: '/settings' },
-        ];
-      }
+  constructor(
+    private router: Router,
+    private sidebarService: SidebarService,
+    private translate: TranslateService,
+    private loginService: LoginService
+  ) {
+    this.checkIfCeoPage();
+    this.updateFilteredItems();
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.checkIfCeoPage();
+      this.updateFilteredItems();
     });
+  }
+
+  ngOnInit(): void {}
+
+  private updateFilteredItems(): void {
+    const items = this.sidebarService.sidebarItems();
+    if (!this.isCeoPage()) {
+      // استبعاد أي عنصر يخص الإعدادات من القائمة الرئيسية
+      this.filteredNavItems.set(items.filter(item => 
+        item.titleEn?.toLowerCase() !== 'settings' && 
+        item.titleAr !== 'الإعدادات' &&
+        item.title !== 'd3.sidebar.settings'
+      ));
+    } else {
+      this.filteredNavItems.set(items);
+    }
+  }
+
+  private checkIfCeoPage(): void {
+    // افترضنا أن صفحة CEO تحتوي على 'ceo' في المسار
+    this.isCeoPage.set(this.router.url.includes('/ceo'));
+  }
+
+  get currentLang(): string {
+    return this.translate.currentLang || 'en';
+  }
+
+  getItemTitle(item: NavItem): string {
+    if (this.currentLang === 'ar') {
+      return item.titleAr || (item.title ? this.translate.instant(item.title) : '');
+    }
+    return item.titleEn || (item.title ? this.translate.instant(item.title) : '');
+  }
+
+  toggleSubmenu(item: NavItem, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const key = item.titleAr || item.title || '';
+    this.expandedItems[key] = !this.expandedItems[key];
+  }
+
+  isExpanded(item: NavItem): boolean {
+    const key = item.titleAr || item.title || '';
+    return !!this.expandedItems[key];
   }
 
   getLangPrefix(): string {
@@ -81,5 +125,10 @@ export class SidebarComponent implements OnInit {
   toggleSidebar(): void {
     this.collapsed = !this.collapsed;
     this.collapsedChange.emit(this.collapsed);
+  }
+
+  logout(): void {
+    this.loginService.logout();
+    this.router.navigateByUrl(this.getLangPrefix() + '/d3/login');
   }
 }

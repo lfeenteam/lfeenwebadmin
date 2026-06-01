@@ -1,7 +1,7 @@
 <section class="buildings-grid" [class.list-view]="viewMode === 'list'">
 
   <!-- ══ Published: normal table header (list only) ══ -->
-  @if (viewMode === 'list' && !hasUnderReview) {
+  @if (viewMode === 'list' && activeTab === 'published') {
     <header class="table-header">
       <div class="header-col col-info">{{ 'd3.allBuilds.table.buildingHost' | translate }}</div>
       <div class="header-col col-location">{{ 'd3.allBuilds.table.location' | translate }}</div>
@@ -24,7 +24,7 @@
 </section>
 
 <!-- ══ Under Review section — sits OUTSIDE the main grid ══ -->
-@if (hasUnderReview) {
+@if (activeTab === 'underReview') {
   <div class="review-section" [class.review-section--list]="viewMode === 'list'">
 
     <!-- Title row (always visible, above the table) -->

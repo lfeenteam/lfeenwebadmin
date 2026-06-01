@@ -3,6 +3,18 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface SidebarItem {
+  id: string;
+  key: string;
+  titleAr: string;
+  titleEn: string;
+  icon: string | null;
+  route: string | null;
+  requiredPermission: string | null;
+  order: number;
+  children: SidebarItem[];
+}
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -12,4 +24,6 @@ export interface LoginResponse {
   fullName: string;
   email: string;
   roles: string[];
+  permissions: string[];
+  sidebar: SidebarItem[];
 }

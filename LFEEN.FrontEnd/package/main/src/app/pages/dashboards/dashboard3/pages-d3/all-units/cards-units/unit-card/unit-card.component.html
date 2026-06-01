@@ -1,0 +1,41 @@
+<article class="unit-card" [class.stopped]="unit.status === 'stopped'">
+  <div class="unit-card__top">
+ 
+    <div class="unit-card__id">{{ unit.unitNumber }}</div>
+       <div class="unit-card__status">
+      <span class="status-dot"></span>
+      <span class="status-text">{{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}</span>
+    </div>
+  </div>
+
+  <div class="unit-card__body">
+    <h3 class="unit-card__title">{{ unit.title }}</h3>
+    <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
+
+    <div class="unit-card__info-container">
+      <div class="info-row">
+        <div class="info-right">
+          <i-tabler name="info-circle" class="info-icon"></i-tabler>
+          <span class="info-label">النوع</span>
+        </div>
+        <span class="info-value">{{ unit.type }}</span>
+      </div>
+      <div class="info-row">
+        <div class="info-right">
+          <i-tabler name="layout-list" class="info-icon"></i-tabler>
+          <span class="info-label">الوصف</span>
+        </div>
+        <span class="info-value">{{ unit.description }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="unit-card__footer">
+    <button class="footer-btn eye-btn">
+      <i-tabler name="eye"></i-tabler>
+    </button>
+    <button class="footer-btn menu-btn">
+      <i-tabler name="dots-vertical"></i-tabler>
+    </button>
+  </div>
+</article>

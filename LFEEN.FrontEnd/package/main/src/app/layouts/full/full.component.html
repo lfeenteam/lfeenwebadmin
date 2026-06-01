@@ -20,7 +20,7 @@
           }
         </mat-nav-list>
       </ng-scrollbar>
-      <div class="p-24 m-t-auto profile-bar">
+      <div class="p-24 m-t-auto profile-bar" *ngIf="isDashboard">
         <div class="bg-light-primary d-flex align-items-center rounded p-16">
           <img src="/assets/images/profile/user-1.jpg" class="rounded-circle" width="40" />
           <div class="m-l-16">
@@ -31,6 +31,22 @@
             <a mat-icon-button [routerLink]="['/authentication/login']" class="d-flex justify-content-center">
               <i-tabler name="power" class="text-primary icon-18 d-flex"></i-tabler>
             </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- الجزء الجديد للصفحات العادية -->
+      <div class="m-t-auto sidebar-bottom-actions p-b-24" *ngIf="!isDashboard">
+        <div class="d-flex flex-column align-items-center gap-16">
+          <button mat-icon-button class="d-flex justify-content-center position-relative">
+            <i-tabler name="bell" class="icon-22"></i-tabler>
+            <span class="notification-dot"></span>
+          </button>
+          <button mat-icon-button class="d-flex justify-content-center">
+            <i-tabler name="settings" class="icon-22"></i-tabler>
+          </button>
+          <div class="user-profile-img cursor-pointer">
+            <img src="/assets/images/profile/user-1.jpg" class="rounded-circle" width="35" />
           </div>
         </div>
       </div>
