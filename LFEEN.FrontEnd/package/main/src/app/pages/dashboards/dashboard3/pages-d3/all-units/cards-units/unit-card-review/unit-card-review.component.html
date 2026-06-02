@@ -1,0 +1,42 @@
+<article class="unit-card" [class.stopped]="unit.status === 'stopped'" [class.under-review]="unit.status === 'underReview'">
+  <div class="unit-card__top">
+    <div class="unit-card__id">{{ unit.unitNumber }}</div>
+    <div class="unit-card__status" *ngIf="unit.status === 'underReview'">
+      <span class="status-text">قيد المراجعة</span>
+    </div>
+    <div class="unit-card__status" *ngIf="unit.status === 'stopped'">
+      <span class="status-text">معطل</span>
+    </div>
+  </div>
+
+  <div class="unit-card__body">
+    <h3 class="unit-card__title">{{ unit.title }}</h3>
+    <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
+
+    <div class="unit-card__info-container" *ngIf="unit.status !== 'stopped'">
+      <div class="info-row">
+        <div class="info-right">
+          <i-tabler name="info-circle" class="info-icon"></i-tabler>
+          <span class="info-label">النوع</span>
+        </div>
+        <span class="info-value">{{ unit.type }}</span>
+      </div>
+      <div class="info-row">
+        <div class="info-right">
+          <i-tabler name="layout-list" class="info-icon"></i-tabler>
+          <span class="info-label">الوصف</span>
+        </div>
+        <span class="info-value">{{ unit.description }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="unit-card__footer">
+    <button class="footer-btn arrow-btn" *ngIf="unit.status !== 'stopped'">
+      <i-tabler name="arrow-left"></i-tabler>
+    </button>
+    <div class="stopped-lock" *ngIf="unit.status === 'stopped'">
+      <i-tabler name="lock"></i-tabler>
+    </div>
+  </div>
+</article>

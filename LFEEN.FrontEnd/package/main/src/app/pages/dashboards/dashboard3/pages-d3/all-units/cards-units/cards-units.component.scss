@@ -8,6 +8,56 @@
   }
 }
 
+.property-review-banner {
+  background: #FFFBEB;
+  border-radius: 30px;
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 40px;
+  margin-bottom: 24px;
+  direction: rtl;
+  border: 1px solid #FEF3C7;
+
+  .banner-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .review-btn {
+    all: unset;
+    cursor: pointer;
+    background: #B45309;
+    color: #FFFFFF;
+    padding: 10px 24px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #92400E;
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
 .building-header {
   margin-top: 50px;
   display: flex;
@@ -51,7 +101,6 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 6px;
 
   .meta-icon {

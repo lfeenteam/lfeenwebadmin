@@ -123,15 +123,35 @@ export class AllUnitsComponent {
   get filteredUnitsData(): BuildingWithUnits[] {
     const query = this.searchQuery.trim().toLowerCase();
     
-    // In a real app, we would also filter by activeTab (published vs underReview)
-    // For now, let's just implement basic search filtering
-    return this.buildingsWithUnits.map(building => ({
-      ...building,
-      units: building.units.filter(unit => 
-        !query || 
-        unit.title.toLowerCase().includes(query) || 
-        unit.unitNumber.toLowerCase().includes(query)
-      )
-    })).filter(building => building.units.length > 0);
+    return this.buildingsWithUnits.map(building => {
+      // If it's the underReview tab and building needs property review, we keep it even if units are empty
+      if (this.activeTab === 'underReview' && building.needsPropertyReview) {
+        return building;
+      }
+
+      const filteredUnits = building.units.filter(unit => {
+        // Filter by tab
+        let matchesTab = false;
+        if (this.activeTab === 'underReview') {
+          // In underReview tab, we show units that are underReview OR stopped units of a building that needs review
+          matchesTab = unit.status === 'underReview' || (!!building.needsPropertyReview && unit.status === 'stopped');
+        } else {
+          // In published tab, we show active and stopped units (but maybe not the ones in buildings needing review)
+          matchesTab = unit.status === 'active' || (!building.needsPropertyReview && unit.status === 'stopped');
+        }
+        
+        if (!matchesTab) return false;
+
+        // Filter by search query
+        return !query || 
+          unit.title.toLowerCase().includes(query) || 
+          unit.unitNumber.toLowerCase().includes(query);
+      });
+
+      return {
+        ...building,
+        units: filteredUnits
+      };
+    }).filter(building => building.units.length > 0 || (this.activeTab === 'underReview' && building.needsPropertyReview));
   }
 }

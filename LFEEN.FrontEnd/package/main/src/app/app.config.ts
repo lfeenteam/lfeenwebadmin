@@ -79,7 +79,10 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     importProvidersFrom(
       FormsModule,
-      ToastrModule.forRoot(),
+      ToastrModule.forRoot({
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+      }),
       ReactiveFormsModule,
       MaterialModule,
       NgxPermissionsModule.forRoot(),

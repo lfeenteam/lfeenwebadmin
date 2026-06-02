@@ -12,9 +12,31 @@ export interface Department {
   descriptionEn: string;
   managerId: string | null;
   managerFullName: string | null;
+  managerAvatar?: string | null;
   employeeCount: number;
+  activeManagersCount?: number;
+  pendingActivationCount?: number;
   createdAt: string;
   updatedAt: string | null;
+}
+
+export interface EmployeeRole {
+  id?: string;
+  roleId: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+}
+
+export interface Employee {
+  userId: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  isActive: boolean;
+  avatar?: string | null;
+  roles: EmployeeRole[];
 }
 
 @Injectable({
@@ -27,5 +49,37 @@ export class DepartmentService {
 
   getDepartments(): Observable<Department[]> {
     return this.http.get<Department[]>(this.apiUrl);
+  }
+
+  getDepartmentById(id: string): Observable<Department> {
+    return this.http.get<Department>(`${this.apiUrl}/${id}`);
+  }
+
+  getDepartmentEmployees(id: string): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/${id}/employees`);
+  }
+
+  getAllEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/employees`);
+  }
+
+  getDepartmentRoles(id: string): Observable<EmployeeRole[]> {
+    return this.http.get<EmployeeRole[]>(`${this.apiUrl}/${id}/roles`);
+  }
+
+  addEmployee(id: string, employeeData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/employees`, employeeData);
+  }
+
+  getEmployeeById(userId: string): Observable<Employee> {
+    return this.http.get<Employee>(`${this.apiUrl}/employees/${userId}`);
+  }
+
+  updateEmployee(departmentId: string, userId: string, employee: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${departmentId}/employees/${userId}`, employee);
+  }
+
+  deleteEmployee(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/employees/${userId}`);
   }
 }

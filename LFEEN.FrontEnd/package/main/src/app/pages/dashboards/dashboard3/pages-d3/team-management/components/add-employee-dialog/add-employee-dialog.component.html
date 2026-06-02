@@ -1,0 +1,86 @@
+<div class="dialog-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <div class="dialog-header d-flex align-items-center justify-content-between">
+    <h2 class="dialog-title m-0">
+      {{ (data.employee ? 'common.edit' : 'd3.teamManagement.addEmployeeDialog.title') | translate }}
+    </h2>
+    <button mat-icon-button (click)="dialogRef.close()" class="close-btn">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <mat-dialog-content class="p-t-24">
+    <form [formGroup]="employeeForm" class="row">
+      <!-- Full Name -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.fullName' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+          <input matInput formControlName="fullName" [placeholder]="'d3.teamManagement.addEmployeeDialog.fullNamePlaceholder' | translate">
+        </mat-form-field>
+      </div>
+
+      <!-- Email -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.email' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+          <input matInput formControlName="email" [placeholder]="'d3.teamManagement.addEmployeeDialog.emailPlaceholder' | translate">
+        </mat-form-field>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.phone' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+          <input matInput formControlName="phoneNumber" [placeholder]="'d3.teamManagement.addEmployeeDialog.phonePlaceholder' | translate">
+        </mat-form-field>
+      </div>
+
+      <!-- Job Role -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.jobRole' | translate }}</mat-label>
+        <div class="custom-dropdown-container position-relative">
+          <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16" 
+               (click)="toggleDropdown()"
+               [class.has-value]="employeeForm.get('roleId')?.value">
+            <span class="flex-grow-1 text-center font-medium">
+              {{ getSelectedRoleName() || ('d3.teamManagement.addEmployeeDialog.jobRolePlaceholder' | translate) }}
+            </span>
+            <i-tabler name="chevron-down" class="icon-18 text-warning"></i-tabler>
+          </div>
+          
+          @if (isDropdownOpen) {
+            <div class="custom-dropdown-list shadow-lg">
+              @for (role of roles; track role.roleId) {
+                <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectRole(role)">
+                  {{ currentLang === 'ar' ? role.nameAr : role.nameEn }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Temp Password -->
+      <div class="col-12 m-b-8">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.tempPassword' | translate }}</mat-label>
+        <div class="password-field-wrapper">
+          <div class="password-input-wrapper">
+            <input type="text" formControlName="password" class="password-input">
+          </div>
+          <button mat-icon-button type="button" (click)="copyPassword()" class="copy-btn">
+            <i-tabler name="copy" class="icon-20"></i-tabler>
+          </button>
+        </div>
+        <p class="password-hint text-center m-t-8">{{ 'd3.teamManagement.addEmployeeDialog.passwordHint' | translate }}</p>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="p-b-24 d-flex align-items-center justify-content-center gap-24">
+    <button mat-button (click)="dialogRef.close()" class="cancel-btn-text">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-flat-button type="button" color="dark" class="submit-btn" (click)="saveEmployee()" style="position: relative; z-index: 10;">
+      {{ 'd3.teamManagement.addEmployeeDialog.submit' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

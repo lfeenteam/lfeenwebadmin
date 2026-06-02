@@ -2,3 +2,13 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.custom-dialog-container {
+  .mdc-dialog__surface {
+    border-radius: 40px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    background-color: #fff !important;
+    padding: 8px !important;
+  }
+}
+

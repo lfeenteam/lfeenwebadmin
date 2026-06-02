@@ -100,6 +100,15 @@
   "Disabled": "معطل",
   "APPS": "تطبيقات",
   "Profile": "الملف الشخصي",
+  "common": {
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "save": "حفظ",
+    "confirm": "تأكيد",
+    "deleteConfirmTitle": "تأكيد الحذف",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء."
+  },
   "d3": {
     "header": {
       "title": "لوحة تحكم المدير التنفيذي",
@@ -350,13 +359,44 @@
         "allEmployees": "كل الموظفين",
         "opsLog": "سجل العمليات"
       },
-      "searchPlaceholder": "بحث عن موظف...",
+      "searchPlaceholder": "بحث باسم الموظف، رقم الهوية أو الهاتف...",
       "addDept": "إضافة قسم جديد",
+      "addEmployee": "إضافة موظف جديد",
+      "filters": {
+        "allDepts": "كل الأقسام",
+        "allRoles": "كل الأدوار"
+      },
+      "table": {
+        "employee": "الموظف",
+        "idNumber": "رقم الهوية",
+        "phone": "رقم الهاتف",
+        "role": "الدور الوظيفي",
+        "status": "الحالة"
+      },
       "deptCard": {
         "active": "نشط",
+        "pending": "قيد التفعيل",
         "manager": "المدير المسؤول",
         "employees": "عدد الموظفين",
         "permissions": "صلاحيات القسم"
+      },
+      "deptManagerTitle": "مدير {{name}}",
+      "deptEmployees": "قائمة موظفي القسم",
+      "searchPlaceholder": "ابحث في فريق {{name}}...",
+      "searchPlaceholderSimple": "ابحث في فريق العمل...",
+      "addEmployeeDialog": {
+        "title": "إضافة موظف جديد",
+        "fullName": "الاسم الكامل",
+        "fullNamePlaceholder": "أدخل اسم الموظف...",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "example@domain.com",
+        "phone": "رقم الهاتف",
+        "phonePlaceholder": "05xxxxxxxx",
+        "jobRole": "الدور الوظيفي",
+        "jobRolePlaceholder": "اختر الدور الوظيفي",
+        "tempPassword": "كلمة المرور المؤقتة",
+        "passwordHint": "سيتم إرسال كلمة المرور هذه إلى البريد الإلكتروني للموظف تلقائياً.",
+        "submit": "حفظ وإرسال"
       }
     }
   }

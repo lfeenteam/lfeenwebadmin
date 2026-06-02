@@ -98,6 +98,15 @@
   "Menu 1": "Menu 1",
   "Menu 2": "Menu 2",
   "Disabled": "Disabled",
+  "common": {
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "confirm": "Confirm",
+    "deleteConfirmTitle": "Confirm Delete",
+    "deleteConfirmMessage": "Are you sure you want to delete this employee? This action cannot be undone."
+  },
   "d3": {
     "header": {
       "title": "CEO Dashboard",
@@ -357,13 +366,44 @@
         "allEmployees": "All Employees",
         "opsLog": "Operations Log"
       },
-      "searchPlaceholder": "Search for employee...",
+      "searchPlaceholder": "Search by employee name, ID or phone...",
       "addDept": "Add New Department",
+      "addEmployee": "Add New Employee",
+      "filters": {
+        "allDepts": "All Departments",
+        "allRoles": "All Roles"
+      },
+      "table": {
+        "employee": "Employee",
+        "idNumber": "ID Number",
+        "phone": "Phone Number",
+        "role": "Job Role",
+        "status": "Status"
+      },
       "deptCard": {
         "active": "Active",
+        "pending": "Pending",
         "manager": "Manager In Charge",
         "employees": "Employee Count",
         "permissions": "Department Permissions"
+      },
+      "deptManagerTitle": "{{name}} Manager",
+      "deptEmployees": "Department Employees List",
+      "searchPlaceholder": "Search in {{name}} team...",
+      "searchPlaceholderSimple": "Search in the team...",
+      "addEmployeeDialog": {
+        "title": "Add New Employee",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter employee name...",
+        "email": "Email Address",
+        "emailPlaceholder": "example@domain.com",
+        "phone": "Phone Number",
+        "phonePlaceholder": "05xxxxxxxx",
+        "jobRole": "Job Role",
+        "jobRolePlaceholder": "Choose Job Role",
+        "tempPassword": "Temporary Password",
+        "passwordHint": "This password will be sent to the employee's email automatically.",
+        "submit": "Save and Send"
       }
     }
   }

@@ -189,6 +189,22 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'team-management/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
+                  ).then((m) => m.TeamManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إدارة الفريق',
+                  breadcrumbKey: 'إدارة الفريق',
+                  showLive: true,
+                  showDate: true,
+                  showBack: true
+                },
+              },
+              {
                 path: 'permissions/:id',
                 canActivate: [authGuard],
                 loadComponent: () =>

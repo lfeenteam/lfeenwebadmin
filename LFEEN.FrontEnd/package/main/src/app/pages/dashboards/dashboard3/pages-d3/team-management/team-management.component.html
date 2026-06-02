@@ -2,104 +2,178 @@
   <!-- Stats Section -->
   <div class="row m-b-24">
     @for(stat of stats; track stat.label) {
-    <div class="col-sm-6 col-lg-3">
+    <div class="col-sm-6" [class.col-lg-3]="!departmentId" [class.col-lg-4]="departmentId">
       <mat-card class="border stat-card">
-        <mat-card-content class="p-24 d-flex align-items-center  gap-12">
+        <mat-card-content class="p-24 d-flex align-items-center gap-12">
           <div class="stat-icon-wrapper d-flex align-items-center justify-content-center bg-light-{{stat.color}} text-{{stat.color}}">
             <img [src]="stat.icon" class="icon-24" />
           </div>
-          <div >
-            <span class="stat-label d-block">{{ stat.label | translate }}</span>
-            <h2 class="stat-value m-0" [style.color]="stat.valueColor">{{ stat.value }}</h2>
+          <div>
+            <span class="stat-label d-block text-start">{{ stat.label | translate }}</span>
+            <h2 class="stat-value m-0 text-start" [style.color]="stat.valueColor">{{ stat.value }}</h2>
           </div>
-          
         </mat-card-content>
       </mat-card>
     </div>
     }
   </div>
-  <div class="d-flex align-items-center justify-content-between m-b-24 flex-wrap gap-16">
-   
-    <div class="tabs-wrapper">
-      <button mat-button class="tab-btn active">{{ 'd3.teamManagement.tabs.structure' | translate }}</button>
-      <button mat-button class="tab-btn">{{ 'd3.teamManagement.tabs.allEmployees' | translate }}</button>
-      <button mat-button class="tab-btn">{{ 'd3.teamManagement.tabs.opsLog' | translate }}</button>
-    </div>
-     <div class="d-flex align-items-center gap-16">
-    
-      <div class="search-wrapper position-relative">
-        <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
-        <input type="text" class="form-control search-input" [placeholder]="'d3.teamManagement.searchPlaceholder' | translate">
-      </div>
-        <button mat-flat-button class="add-dept-btn">
-          <div class="d-flex align-items-center justify-content-center gap-8">
-            <i-tabler name="plus" class="icon-18"></i-tabler>
-            {{ 'd3.teamManagement.addDept' | translate }}
-            
-          </div>
+
+  <div class="d-flex align-items-center justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
+    @if (activeTab === 'structure' && !departmentId) {
+      <div class="tabs-wrapper no-border">
+        <button mat-button class="tab-btn active" 
+                (click)="setActiveTab('structure')">
+          {{ 'd3.teamManagement.tabs.structure' | translate }}
         </button>
-    </div>
+        <button mat-button class="tab-btn"
+                (click)="setActiveTab('employees')">
+          {{ 'd3.teamManagement.tabs.allEmployees' | translate }}
+        </button>
+        <button mat-button class="tab-btn"
+                (click)="setActiveTab('logs')">
+          {{ 'd3.teamManagement.tabs.opsLog' | translate }}
+        </button>
+      </div>
+
+      <app-team-header 
+        [isBoxed]="false"
+        actionLabel="d3.teamManagement.addDept"
+        actionIcon="plus"
+        (action)="onHeaderAction()">
+      </app-team-header>
+    }
   </div>
 
-  <!-- Departments Grid -->
-  <div class="row">
-  @for(dept of departments; track dept.id) {
-<div class="col-md-6 col-lg-4">
-  <mat-card class="shadow-none border dept-card m-b-24">
-    <mat-card-content class="p-32">
+  @if (activeTab === 'employees' && !departmentId) {
+    <app-team-header 
+      [isBoxed]="true"
+      actionLabel="d3.teamManagement.addEmployee"
+      actionIcon="user-plus"
+      [showFilters]="true"
+      (action)="onHeaderAction()">
+    </app-team-header>
 
-      <!-- Top Row: Icon + Status Badge -->
-      <div class="d-flex justify-content-between align-items-start m-b-16">
-        <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
-          <i-tabler [name]="iconMap[dept.code] || 'briefcase'" class="icon-24"></i-tabler>
-        </div>
-        <span class="status-badge active">
-          <span class="dot"></span> {{ 'd3.teamManagement.deptCard.active' | translate }}
-        </span>
-      </div>
-
-      <!-- Title -->
-      <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ currentLang === 'ar' ? dept.nameAr : dept.nameEn }}</h4>
-
-      <!-- Description: fixed height with clamp -->
-      <p class="dept-description m-b-24">{{ currentLang === 'ar' ? dept.descriptionAr : dept.descriptionEn }}</p>
-
-      <!-- Info Box -->
-      <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
-        <div class="d-flex align-items-center justify-content-between m-b-12">
-          <div class="d-flex align-items-center gap-8 label-text f-s-12">
-            <i-tabler name="user-cog" class="icon-16"></i-tabler>
-            {{ 'd3.teamManagement.deptCard.manager' | translate }}
-          </div>
-          <span class="f-s-12 f-w-700">{{ dept.managerFullName || '---' }}</span>
-        </div>
-        <div class="d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-8 label-text f-s-12">
-            <i-tabler name="users" class="icon-16"></i-tabler>
-            {{ 'd3.teamManagement.deptCard.employees' | translate }}
-          </div>
-          <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
-        </div>
-      </div>
-
-      <!-- Action Buttons: always pinned to bottom -->
-      <div class="dept-actions d-flex gap-8">
-        <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn"
-          [routerLink]="['../permissions', dept.id]">
-          <div class="d-flex align-items-center justify-content-center gap-8">
-            {{ 'd3.teamManagement.deptCard.permissions' | translate }}
-            <i-tabler name="shield-check" class="icon-16"></i-tabler>
-          </div>
+    <div class="border-bottom-gray m-b-24">
+      <div class="tabs-wrapper">
+        <button mat-button class="tab-btn" 
+                (click)="setActiveTab('structure')">
+          {{ 'd3.teamManagement.tabs.structure' | translate }}
         </button>
-        <button mat-flat-button
-          class="view-btn icon-40 p-0 min-width-40 d-flex align-items-center justify-content-center">
-          <i-tabler name="eye" class="icon-20"></i-tabler>
+        <button mat-button class="tab-btn active"
+                (click)="setActiveTab('employees')">
+          {{ 'd3.teamManagement.tabs.allEmployees' | translate }}
+        </button>
+        <button mat-button class="tab-btn"
+                (click)="setActiveTab('logs')">
+          {{ 'd3.teamManagement.tabs.opsLog' | translate }}
         </button>
       </div>
+    </div>
+  }
 
-    </mat-card-content>
-  </mat-card>
-</div>
-}
-  </div>
+  <!-- Content Sections -->
+  @if (activeTab === 'structure' && !departmentId) {
+    <!-- Departments Grid -->
+    <div class="row">
+      @for(dept of departments; track dept.id) {
+        <div class="col-md-6 col-lg-4">
+          <mat-card class="shadow-none border dept-card m-b-24">
+            <mat-card-content class="p-32">
+              <!-- Top Row: Icon + Status Badge -->
+              <div class="d-flex justify-content-between align-items-start m-b-16">
+                <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+                  <i-tabler [name]="iconMap[dept.code] || 'briefcase'" class="icon-24"></i-tabler>
+                </div>
+                <span class="status-badge active">
+                  <span class="dot"></span> {{ 'd3.teamManagement.deptCard.active' | translate }}
+                </span>
+              </div>
+
+              <!-- Title -->
+              <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ currentLang === 'ar' ? dept.nameAr : dept.nameEn }}</h4>
+
+              <!-- Description -->
+              <p class="dept-description m-b-24">{{ currentLang === 'ar' ? dept.descriptionAr : dept.descriptionEn }}</p>
+
+              <!-- Info Box -->
+              <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
+                <div class="d-flex align-items-center justify-content-between m-b-12">
+                  <div class="d-flex align-items-center gap-8 label-text f-s-12">
+                    <i-tabler name="user-cog" class="icon-16"></i-tabler>
+                    {{ 'd3.teamManagement.deptCard.manager' | translate }}
+                  </div>
+                  <span class="f-s-12 f-w-700">{{ dept.managerFullName || '---' }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-8 label-text f-s-12">
+                    <i-tabler name="users" class="icon-16"></i-tabler>
+                    {{ 'd3.teamManagement.deptCard.employees' | translate }}
+                  </div>
+                  <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="dept-actions d-flex gap-8">
+                <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn"
+                  [routerLink]="['../permissions', dept.id]">
+                  <div class="d-flex align-items-center justify-content-center gap-8">
+                    {{ 'd3.teamManagement.deptCard.permissions' | translate }}
+                    <i-tabler name="shield-check" class="icon-16"></i-tabler>
+                  </div>
+                </button>
+                <button mat-flat-button
+                  class="view-btn icon-40 p-0 min-width-40 d-flex align-items-center justify-content-center"
+                  [routerLink]="[dept.id]">
+                  <i-tabler name="eye" class="icon-20"></i-tabler>
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    </div>
+  } @else if (activeTab === 'employees' || departmentId) {
+    @if (departmentId && selectedDepartment) {
+      <mat-card class="shadow-none border manager-card m-b-24 overflow-visible">
+        <mat-card-content class="p-32 p-y-24">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-24 position-relative">
+      
+
+            <!-- Middle/Right Info (First in HTML = Right in RTL) -->
+            <div class="d-flex align-items-center flex-grow-1 manager-info-gap">
+              <div class="manager-avatar-wrapper">
+                <img [src]="selectedDepartment.managerAvatar || 'assets/images/profile/user-1.jpg'" class="rounded-12" width="80" height="80" />
+              </div>
+
+              <div class="manager-details text-start">
+                <div class="d-flex align-items-center gap-8 m-b-4">
+                  <h3 class="m-0 f-s-22 f-w-900">{{ selectedDepartment.managerFullName }}</h3>
+                  <i-tabler name="crown" class="crown-icon"></i-tabler>
+                </div>
+                <p class="m-0 text-dark f-s-14 f-w-700">
+                  {{ 'd3.teamManagement.deptManagerTitle' | translate : { name: (currentLang === 'ar' ? selectedDepartment.nameAr : selectedDepartment.nameEn) } }}
+                </p>
+                <p class="m-0 manager-desc max-width-400">
+                  {{ currentLang === 'ar' ? selectedDepartment.descriptionAr : selectedDepartment.descriptionEn }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Left Action (Last in HTML = Left in RTL) -->
+            <button mat-flat-button color="dark" class="add-emp-btn d-flex align-items-center gap-8 shadow-sm" (click)="onHeaderAction()">
+              <i-tabler name="user-plus" class="add-emp-icon"></i-tabler>
+              {{ 'd3.teamManagement.addEmployee' | translate }}
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <app-employee-list [employees]="employees" [showHeader]="!!departmentId" (edit)="onEditEmployee($event)" (delete)="onDeleteEmployee($event)"></app-employee-list>
+  } @else if (activeTab === 'logs') {
+    <div class="p-24 text-center">
+      <p>{{ 'd3.teamManagement.tabs.opsLog' | translate }} coming soon...</p>
+    </div>
+  }
 </div>

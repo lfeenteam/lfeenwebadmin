@@ -1,37 +1,59 @@
 @for (building of buildings; track building.id) {
   <section class="building-units-group">
-    <header class="building-header">
-  
-
-      <div class="building-header__right">
-     
-        <div class="building-image">
-          <img [src]="building.image" [alt]="building.name">
-        </div>
-           <div class="building-info">
-          <h2 class="building-name">{{ building.name }}</h2>
-          <p class="building-meta">
+    @if (isReviewTab && building.needsPropertyReview) {
+      <div class="property-review-banner">
+        <div class="banner-right">
+          <div class="building-image">
+            <img [src]="building.image" [alt]="building.name">
+          </div>
+          <div class="building-info">
+            <h2 class="building-name">{{ building.name }}</h2>
+            <p class="building-meta">
               <i-tabler name="map-pin" class="meta-icon"></i-tabler>
-             {{ building.location }} · {{ building.publishedUnits }} وحدة منشورة
-           
-          </p>
+              {{ building.location }} · بانتظار مراجعة العقار أولاً
+            </p>
+          </div>
+        </div>
+        <div class="banner-left">
+          <button class="review-btn">
+            مراجعة العقار أولاً
+            <i-tabler name="arrow-left" class="btn-icon"></i-tabler>
+          </button>
         </div>
       </div>
+    } @else {
+      <header class="building-header">
+        <div class="building-header__right">
+          <div class="building-image">
+            <img [src]="building.image" [alt]="building.name">
+          </div>
+          <div class="building-info">
+            <h2 class="building-name">{{ building.name }}</h2>
+            <p class="building-meta">
+              <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+              {{ building.location }} · {{ building.publishedUnits }} وحدة منشورة
+            </p>
+          </div>
+        </div>
         <div class="building-header__left">
-       
-        <span class="building-badge">
-          <i-tabler name="discount-check" class="badge-icon"></i-tabler>
-          معتمد
-        </span>
-         <div class="building-menu">
-          <i-tabler name="dots-vertical"></i-tabler>
+          <span class="building-badge">
+            <i-tabler name="discount-check" class="badge-icon"></i-tabler>
+            معتمد
+          </span>
+          <div class="building-menu">
+            <i-tabler name="dots-vertical"></i-tabler>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    }
 
-    <div class="units-grid">
+    <div class="units-grid" *ngIf="building.units.length > 0">
       @for (unit of building.units; track unit.id) {
-        <app-unit-card [unit]="unit"></app-unit-card>
+        @if (isReviewTab) {
+          <app-unit-card-review [unit]="unit"></app-unit-card-review>
+        } @else {
+          <app-unit-card [unit]="unit"></app-unit-card>
+        }
       }
     </div>
   </section>

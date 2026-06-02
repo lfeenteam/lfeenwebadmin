@@ -1,0 +1,13 @@
+<div class="employees-table-container border rounded-40 m-b-24">
+  @if (showHeader) {
+    <div class="m-b-32 d-flex align-items-center justify-content-between flex-wrap gap-16 table-header-section">
+      <h3 class="m-0 f-s-20 f-w-900 order-1">{{ title || ('d3.teamManagement.deptEmployees' | translate) }}</h3>
+      <div class="search-wrapper order-2 position-relative">
+        <i-tabler name="search" class="icon-18 search-icon position-absolute"></i-tabler>
+        <input type="text" class="form-control search-input" [placeholder]="'d3.teamManagement.searchPlaceholderSimple' | translate">
+      </div>
+    </div>
+  }
+
+  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)"></app-all-employees>
+</div>

@@ -1,0 +1,227 @@
+.unit-card {
+  background: #ffffff;
+  border-radius: 32px;
+  border: 1px solid #E8E8E4;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0px 4px 12px 0px #00000005;
+  font-family: 'Cairo', sans-serif;
+  transition: transform 0.2s ease;
+  direction: rtl;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    background: #F0FDF4;
+    padding: 6px 12px;
+    border-radius: 8px;
+    direction: rtl;
+
+    .status-text {
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+  }
+
+  &__id {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111110;
+    background: #F7F7F5;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid #E8E8E4;
+    min-width: 42px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111110;
+  }
+
+  &__details {
+    margin: 0;
+    font-size: 12px;
+    color: #9E9E9A;
+    font-weight: 600;
+  }
+
+  &__info-container {
+    margin-top: 18px;
+    background: #FCFCFB;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+  border: 1px solid #E8E8E4;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 24px;
+    direction: rtl;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0F0EE;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .info-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #9E9E9A;
+
+    .info-label {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .info-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .info-value {
+    font-size: 13px;
+    color: #111110;
+    font-weight: 800;
+  }
+
+  &__footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 16px;
+
+    .footer-btn {
+      all: unset;
+      cursor: pointer;
+      color: #111110;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.7;
+      }
+
+      &.arrow-btn {
+        background: #FFFFFF;
+        border: 1px solid #E8E8E4;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #E8E8E4;
+
+        i-tabler {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+
+          ::ng-deep svg {
+            width: 20px !important;
+            height: 20px !important;
+          }
+        }
+      }
+    }
+
+    .stopped-lock {
+      margin: 0 auto;
+      color: #E8E8E4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      i-tabler {
+        ::ng-deep svg {
+          width: 28px;
+          height: 28px;
+        }
+      }
+    }
+  }
+
+  &.under-review {
+    .unit-card__status {
+      background: #FFFBEB;
+      color: #B45309;
+      padding: 4px 8px;
+      border-radius: 4px;
+
+      .status-text {
+        color: #B45309;
+      }
+    }
+  }
+
+  &.stopped {
+    background: #FCFCFB;
+    border-color: #F0F0EE;
+    box-shadow: none;
+    
+    .unit-card__title, .unit-card__details {
+      color: #E8E8E4;
+    }
+
+    .unit-card__id {
+      background: #FFFFFF;
+      border-color: #F7F7F5;
+      color: #E8E8E4;
+    }
+
+    .unit-card__status {
+      background: #FFFFFF;
+      color: #E8E8E4;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #F7F7F5;
+
+      .status-text {
+        color: #E8E8E4;
+        font-size: 8px;
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-export type UnitStatus = 'active' | 'stopped';
+export type UnitStatus = 'active' | 'stopped' | 'underReview';
 
 export interface UnitCardItem {
   id: string;
@@ -20,4 +20,5 @@ export interface BuildingWithUnits {
   publishedUnits: number;
   image: string;
   units: UnitCardItem[];
+  needsPropertyReview?: boolean;
 }

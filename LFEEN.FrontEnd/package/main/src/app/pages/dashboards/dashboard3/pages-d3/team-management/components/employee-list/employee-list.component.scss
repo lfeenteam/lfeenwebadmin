@@ -1,0 +1,53 @@
+.employees-table-container {
+  background-color: #fff;
+  border: 1px solid #E8E8E4 !important;
+  border-radius: 40px !important;
+  overflow: hidden;
+  font-family: 'Cairo', sans-serif !important;
+
+  h3, h2, h5, span, p, button, input {
+    font-family: 'Cairo', sans-serif !important;
+  }
+
+  .table-header-section {
+    padding: 32px 32px 0 32px;
+  }
+
+  .search-wrapper {
+    width: 288px !important;
+    height: 36px !important;
+    background-color: #F7F7F5 !important;
+    border-radius: 12px !important;
+    position: relative !important;
+    display: flex !important;
+    overflow: hidden;
+  }
+
+  .search-input {
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 44px 0 16px !important; // 44px on right for icon
+    font-size: 13px !important;
+    color: #111110 !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    &::placeholder {
+      color: #9E9E9A !important;
+    }
+  }
+
+  .search-icon {
+    position: absolute !important;
+    right: 16px !important;
+    left: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #9E9E9A !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+  }
+}
