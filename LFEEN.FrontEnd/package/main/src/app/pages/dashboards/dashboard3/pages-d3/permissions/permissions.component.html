@@ -37,23 +37,31 @@
             </tr>
           </thead>
           <tbody>
-            @for(perm of permissions; track perm.id) {
-            <tr [class.disabled-row]="!perm.enabled">
-              <td class="p-24">
-                <div class="d-flex align-items-center gap-12">
-                  <div class="permission-icon-wrapper">
-                    <i-tabler [name]="perm.icon" class="permission-icon"></i-tabler>
+            @if(isLoading) {
+              <tr>
+                <td colspan="3" class="p-24 text-center">
+                  <mat-spinner diameter="32" class="m-auto"></mat-spinner>
+                </td>
+              </tr>
+            } @else {
+              @for(perm of permissions; track perm.id) {
+              <tr [class.disabled-row]="!perm.enabled">
+                <td class="p-24">
+                  <div class="d-flex align-items-center gap-12">
+                    <div class="permission-icon-wrapper">
+                      <i-tabler [name]="perm.icon" class="permission-icon"></i-tabler>
+                    </div>
+                    <span class="f-s-14 f-w-900">{{ perm.name }}</span>
                   </div>
-                  <span class="f-s-14 f-w-900">{{ perm.name }}</span>
-                </div>
-              </td>
-              <td class="p-24">
-                <span class="perm-desc">{{ perm.description }}</span>
-              </td>
-              <td class="p-24 text-center">
-                <mat-slide-toggle color="primary" [(ngModel)]="perm.enabled"></mat-slide-toggle>
-              </td>
-            </tr>
+                </td>
+                <td class="p-24">
+                  <span class="perm-desc">{{ perm.description }}</span>
+                </td>
+                <td class="p-24 text-center">
+                  <mat-slide-toggle color="primary" [(ngModel)]="perm.enabled"></mat-slide-toggle>
+                </td>
+              </tr>
+              }
             }
           </tbody>
         </table>

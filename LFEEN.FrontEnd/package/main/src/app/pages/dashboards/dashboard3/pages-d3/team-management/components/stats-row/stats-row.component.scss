@@ -1,0 +1,42 @@
+.stat-card {
+  border-radius: 28px;
+  border: 1px solid #f1f5f9 !important;
+  background: #FFFFFF01;
+  box-shadow:
+    0px 1px 2px -1px #0000001A,
+    0px 1px 3px 0px #0000001A;
+
+  .stat-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+  }
+
+  .stat-label {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 15px;
+    color: #6B6B67;
+    text-align: start;
+  }
+
+  .stat-value {
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.2;
+    text-align: start;
+  }
+}
+
+.bg-light-primary { background-color: #eff6ff; }
+.text-primary { color: #3b82f6; }
+.bg-light-accent { background-color: #f8fafc; }
+.text-accent { color: #64748b; }
+.bg-light-success { background-color: #f0fdf4; }
+.text-success { color: #16a34a; }
+.bg-light-warning { background-color: #fffbeb; }
+.text-warning { color: #d97706; }
+.bg-light-danger { background-color: #fef2f2 !important; }
+.text-danger { color: #ef4444 !important; }

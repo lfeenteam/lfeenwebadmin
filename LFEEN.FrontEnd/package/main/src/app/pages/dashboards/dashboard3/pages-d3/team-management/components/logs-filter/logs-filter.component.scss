@@ -1,26 +1,25 @@
-.boxed-container {
+.logs-filter-box {
   background: #fff;
   border: 1px solid #F1F1F0;
   border-radius: 24px;
   padding: 8px 16px;
-  margin-bottom: 24px;
-  display: flex;
   box-shadow: 0px 1px 2px 0px #0000000D;
+  font-family: 'Cairo', sans-serif;
 }
 
-.search-wrapper {
+.logs-search-wrapper {
   min-width: 200px;
 
-  .search-icon {
-    position: absolute;
+  .logs-search-icon {
+   position: absolute;
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8;
   }
 
-  .search-input {
-    height: 40px;
+  .logs-search-input {
+   height: 40px;
     width: 100%;
     padding: 7px 48px 7px 16px;
     border-radius: 12px;
@@ -29,33 +28,33 @@
     font-size: 13px;
     font-family: 'Cairo', sans-serif;
     outline: none;
-
-    &::placeholder {
-      color: #9E9E9A;
+    &:focus {
+      border-color: #111110;
     }
 
-    &:focus {
-      box-shadow: none;
+    &::placeholder {
+   
+      color: #9E9E9A;
     }
   }
 }
 
-:host-context([dir='ltr']) {
-  .search-wrapper {
-    .search-icon {
-      right: auto;
-      left: 12px;
+:host-context([dir='rtl']) {
+  .logs-search-wrapper {
+    .logs-search-icon {
+      left: auto;
+      right: 12px;
     }
-    .search-input {
-      padding-left: 48px;
-      padding-right: 16px;
+    .logs-search-input {
+      padding-left: 16px;
+      padding-right: 40px;
     }
   }
 }
 
 .filter-select-native {
   height: 40px;
-  padding: 8px 20px 8px 32px;
+  padding: 8px 20px;
   border-radius: 12px;
   border: 1px solid #E8E8E4;
   background: #fff;
@@ -76,25 +75,17 @@
 
   option {
     font-family: 'Cairo', sans-serif;
+    font-weight: 500;
   }
 }
 
-.action-btn {
-  --mdc-filled-button-container-color: #111110;
-  --mdc-filled-button-label-text-color: #fff;
-  background-color: #111110;
-  color: #fff;
+.filter-icon-btn {
+  width: 40px;
   height: 40px;
-  border-radius: 14px;
-  padding: 0 16px;
-  font-weight: 700;
-  font-size: 12px;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.hide-hint ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-  display: none;
+  border-radius: 12px;
+  background-color: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  color: #6B6B67;
+  flex-shrink: 0;
+  cursor: pointer;
 }

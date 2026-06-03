@@ -13,34 +13,74 @@
       <!-- Full Name -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.fullName' | translate }}</mat-label>
-        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+        <mat-form-field appearance="outline" class="w-100 custom-form-field"
+          [class.field-invalid]="employeeForm.get('fullName')?.invalid && employeeForm.get('fullName')?.touched">
           <input matInput formControlName="fullName" [placeholder]="'d3.teamManagement.addEmployeeDialog.fullNamePlaceholder' | translate">
         </mat-form-field>
+        @if (employeeForm.get('fullName')?.invalid && employeeForm.get('fullName')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('fullName')?.hasError('required')) {
+              {{ currentLang === 'ar' ? 'الاسم مطلوب' : 'Name is required' }}
+            } @else if (employeeForm.get('fullName')?.hasError('minlength')) {
+              {{ currentLang === 'ar' ? 'الاسم لا يقل عن حرفين' : 'Name must be at least 2 characters' }}
+            }
+          </p>
+        }
+        @if (serverErrors['fullName']) {
+          <p class="field-error-msg">{{ serverErrors['fullName'] }}</p>
+        }
       </div>
 
       <!-- Email -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.email' | translate }}</mat-label>
-        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+        <mat-form-field appearance="outline" class="w-100 custom-form-field"
+          [class.field-invalid]="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
           <input matInput formControlName="email" [placeholder]="'d3.teamManagement.addEmployeeDialog.emailPlaceholder' | translate">
         </mat-form-field>
+        @if (employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('email')?.hasError('required')) {
+              {{ currentLang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required' }}
+            } @else if (employeeForm.get('email')?.hasError('email')) {
+              {{ currentLang === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format' }}
+            }
+          </p>
+        }
+        @if (serverErrors['email']) {
+          <p class="field-error-msg">{{ serverErrors['email'] }}</p>
+        }
       </div>
 
       <!-- Phone Number -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.phone' | translate }}</mat-label>
-        <mat-form-field appearance="outline" class="w-100 custom-form-field">
+        <mat-form-field appearance="outline" class="w-100 custom-form-field"
+          [class.field-invalid]="employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched">
           <input matInput formControlName="phoneNumber" [placeholder]="'d3.teamManagement.addEmployeeDialog.phonePlaceholder' | translate">
         </mat-form-field>
+        @if (employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('phoneNumber')?.hasError('required')) {
+              {{ currentLang === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required' }}
+            } @else if (employeeForm.get('phoneNumber')?.hasError('pattern')) {
+              {{ currentLang === 'ar' ? 'أرقام و + فقط' : 'Numbers and + only' }}
+            }
+          </p>
+        }
+        @if (serverErrors['phoneNumber']) {
+          <p class="field-error-msg">{{ serverErrors['phoneNumber'] }}</p>
+        }
       </div>
 
       <!-- Job Role -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.jobRole' | translate }}</mat-label>
         <div class="custom-dropdown-container position-relative">
-          <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16" 
+          <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
                (click)="toggleDropdown()"
-               [class.has-value]="employeeForm.get('roleId')?.value">
+               [class.has-value]="employeeForm.get('roleId')?.value"
+               [class.is-invalid]="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
             <span class="flex-grow-1 text-center font-medium">
               {{ getSelectedRoleName() || ('d3.teamManagement.addEmployeeDialog.jobRolePlaceholder' | translate) }}
             </span>
@@ -49,7 +89,7 @@
           
           @if (isDropdownOpen) {
             <div class="custom-dropdown-list shadow-lg">
-              @for (role of roles; track role.roleId) {
+              @for (role of roles; track role.id) {
                 <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectRole(role)">
                   {{ currentLang === 'ar' ? role.nameAr : role.nameEn }}
                 </div>
@@ -57,21 +97,31 @@
             </div>
           }
         </div>
+        @if (employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched) {
+          <p class="field-error-msg">
+            {{ currentLang === 'ar' ? 'الدور الوظيفي مطلوب' : 'Job role is required' }}
+          </p>
+        }
       </div>
 
-      <!-- Temp Password -->
-      <div class="col-12 m-b-8">
-        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.tempPassword' | translate }}</mat-label>
-        <div class="password-field-wrapper">
-          <div class="password-input-wrapper">
-            <input type="text" formControlName="password" class="password-input">
+      <!-- Temp Password (add mode only) -->
+      @if (!data.employee) {
+        <div class="col-12 m-b-8">
+          <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.tempPassword' | translate }}</mat-label>
+          <div class="password-field-wrapper">
+            <div class="password-input-wrapper">
+              <input type="text" formControlName="password" class="password-input">
+            </div>
+            <button mat-icon-button type="button" (click)="copyPassword()" class="copy-btn">
+              <i-tabler name="copy" class="icon-20"></i-tabler>
+            </button>
           </div>
-          <button mat-icon-button type="button" (click)="copyPassword()" class="copy-btn">
-            <i-tabler name="copy" class="icon-20"></i-tabler>
-          </button>
+          @if (employeeForm.get('password')?.touched && employeeForm.get('password')?.hasError('pattern')) {
+            <p class="validation-error m-t-4">{{ currentLang === 'ar' ? 'يجب أن تحتوي على حرف كبير على الأقل' : 'Must contain at least one capital letter' }}</p>
+          }
+          <p class="password-hint text-center m-t-8">{{ 'd3.teamManagement.addEmployeeDialog.passwordHint' | translate }}</p>
         </div>
-        <p class="password-hint text-center m-t-8">{{ 'd3.teamManagement.addEmployeeDialog.passwordHint' | translate }}</p>
-      </div>
+      }
     </form>
   </mat-dialog-content>
 

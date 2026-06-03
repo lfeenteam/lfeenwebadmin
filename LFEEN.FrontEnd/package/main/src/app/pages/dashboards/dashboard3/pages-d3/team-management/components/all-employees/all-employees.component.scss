@@ -9,7 +9,13 @@
 .initials-avatar {
   width: 40px;
   height: 40px;
+  border-radius: 12px;
+  border: 1px solid #E8E8E4;
+  background: #F8FAFC;
+  opacity: 1;
   font-size: 14px;
+  font-weight: 600;
+  color: #9E9E9A;
 }
 
 .status-badge {
@@ -59,9 +65,14 @@ table {
   
   th.mat-mdc-header-cell {
     background-color: #FCFCFB;
-    color: #64748b;
-    font-weight: 700;
-    font-size: 12px;
+    color: #9E9E9A;
+    font-weight: 900;
+    font-size: 10px;
+    line-height: 100%;
+    letter-spacing: 1px;
+    text-align: right;
+    vertical-align: middle;
+    text-transform: uppercase;
     padding: 16px 32px;
     border-bottom: 1px solid #E8E8E4;
   }
@@ -81,6 +92,24 @@ table {
       font-weight: 500;
     }
   }
+}
+
+.icon-muted { color: #9E9E9A; }
+
+.employee-name {
+  color: #111110;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.employee-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #E8E8E4;
+  background: #F8FAFC;
+  opacity: 1;
+  object-fit: cover;
 }
 
 .bg-light-primary { background-color: #eff6ff; }

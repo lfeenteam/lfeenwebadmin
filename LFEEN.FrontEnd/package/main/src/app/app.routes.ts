@@ -189,6 +189,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'team-management/add',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'
+                  ).then((m) => m.AddDepartmentComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إضافة قسم جديد',
+                  breadcrumbKey: 'إدارة الفريق',
+                  showBack: true
+                },
+              },
+              {
                 path: 'team-management/:id',
                 canActivate: [authGuard],
                 loadComponent: () =>

@@ -352,7 +352,11 @@
         "totalEmployees": "إجمالي الموظفين",
         "departmentCount": "عدد الأقسام",
         "activeManagers": "المدراء النشطون",
-        "pendingActivation": "قيد التفعيل"
+        "pendingActivation": "قيد التفعيل",
+        "partialOps": "تشبيات جزئية",
+        "rejectedOps": "عمليات مرفوضة",
+        "successfulOps": "عمليات ناجحة",
+        "totalOps": "إجمالي العمليات"
       },
       "tabs": {
         "structure": "هيكل الأقسام",
@@ -382,8 +386,23 @@
       },
       "deptManagerTitle": "مدير {{name}}",
       "deptEmployees": "قائمة موظفي القسم",
-      "searchPlaceholder": "ابحث في فريق {{name}}...",
+      
       "searchPlaceholderSimple": "ابحث في فريق العمل...",
+      "opsLog": {
+        "filters": {
+          "searchPlaceholder": "بحث باسم الموظف، الإجراء، أو القسم...",
+          "actionType": "نوع الإجراء",
+          "allDepts": "كل الأقسام",
+          "allDates": "كل التواريخ"
+        },
+        "table": {
+          "dateTime": "التاريخ والوقت",
+          "user": "المستخدم",
+          "action": "الإجراء المنفذ",
+          "department": "القسم المتأثر",
+          "status": "الحالة"
+        }
+      },
       "addEmployeeDialog": {
         "title": "إضافة موظف جديد",
         "fullName": "الاسم الكامل",
@@ -397,6 +416,68 @@
         "tempPassword": "كلمة المرور المؤقتة",
         "passwordHint": "سيتم إرسال كلمة المرور هذه إلى البريد الإلكتروني للموظف تلقائياً.",
         "submit": "حفظ وإرسال"
+      }
+    },
+    "addDepartment": {
+      "sectionTitle1": "بيانات القسم والمهام",
+      "deptName": "اسم القسم",
+      "deptNamePlaceholder": "مثال: قسم التشغيل، خدمة العملاء، القيمسات...",
+      "tasksDescription": "وصف المهام والمسؤوليات",
+      "tasksDescriptionPlaceholder": "اكتب ملخصًا للمهام الإدارية والتشغيلية التي سيتولاها هذا القسم...",
+      "permissionsTitle": "مصفوفة صلاحيات النظام",
+      "enableAll": "تحديث الكل",
+      "disableAll": "إلغاء الكل",
+      "save": "حفظ وإنشاء القسم",
+      "cancel": "إلغاء",
+      "permissions": {
+        "dashboard": {
+          "title": "لوحة التحكم",
+          "description": "الوصول لتحديثات الأنشطة وأرصدة الذكاء"
+        },
+        "buildings": {
+          "title": "إدارة المباني",
+          "description": "مراجعة قائمة المباني واعتماد الإيجارات الجديدة"
+        },
+        "units": {
+          "title": "إدارة الوحدات",
+          "description": "التحكم في خصائص الوحدات والرسوم المالية للذكاء"
+        },
+        "reservations": {
+          "title": "الحجوزات",
+          "description": "متابعة الحجوزات المفتوحة وإدارة طلبات الإلغاء"
+        },
+        "guests": {
+          "title": "الضيوف",
+          "description": "الوصول لبيانات الضيوف ومؤسسات المباني"
+        },
+        "hosts": {
+          "title": "المضيفون",
+          "description": "إدارة حسابات المضيفين وصيانة ملفاتهم المالية"
+        },
+        "revenue": {
+          "title": "الإيرادات",
+          "description": "مراقبة الطلبات المجدولة وخصوصية المعلومات المالية"
+        },
+        "reports": {
+          "title": "التقارير",
+          "description": "تقييم التقارير التفصيلية والمالية لكافة المباني"
+        },
+        "complaints": {
+          "title": "الشكاوى",
+          "description": "الوصول لمسائل الدعم الفني للمستخدمين"
+        },
+        "cities": {
+          "title": "المدن",
+          "description": "إدارة تفاصيل المدن وفروع المسؤولية المختلفة"
+        },
+        "team": {
+          "title": "إدارة الفرق",
+          "description": "صلاحية إضافة موظفين جدد وتغيير مجرى القسم"
+        },
+        "settings": {
+          "title": "الإعدادات",
+          "description": "ضبط إعدادات النظام ومتطلبات التشغيل الآلي"
+        }
       }
     }
   }

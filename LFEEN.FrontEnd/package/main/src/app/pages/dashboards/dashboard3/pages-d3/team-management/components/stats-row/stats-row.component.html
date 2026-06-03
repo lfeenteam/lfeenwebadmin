@@ -1,0 +1,21 @@
+<div class="row m-b-24">
+  @for(stat of stats; track stat.label) {
+  <div class="col-sm-6" [class.col-lg-3]="!isDeptView" [class.col-lg-4]="isDeptView">
+    <mat-card class="border stat-card">
+      <mat-card-content class="p-24 d-flex align-items-center gap-12">
+        <div class="stat-icon-wrapper d-flex align-items-center justify-content-center bg-light-{{stat.color}} text-{{stat.color}}">
+          @if (stat.icon.startsWith('assets')) {
+            <img [src]="stat.icon" class="icon-24" />
+          } @else {
+            <i-tabler [name]="stat.icon" class="icon-24"></i-tabler>
+          }
+        </div>
+        <div>
+          <span class="stat-label d-block text-start">{{ stat.label | translate }}</span>
+          <h2 class="stat-value m-0 text-start" [style.color]="stat.valueColor">{{ stat.value }}</h2>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  }
+</div>

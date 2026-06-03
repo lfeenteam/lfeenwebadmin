@@ -1,35 +1,30 @@
 <div [class.boxed-container]="isBoxed" [class.d-flex]="!isBoxed" class="align-items-center justify-content-between flex-wrap gap-16" [class.m-b-24]="!isBoxed">
   <div class="d-flex align-items-center gap-16 flex-grow-1 flex-wrap">
-    
+
     <!-- Search Input -->
     <div class="search-wrapper position-relative" [class.flex-grow-1]="isBoxed">
       <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
-      <input type="text" 
-             class="form-control search-input" 
-             [class.bg-gray]="!isBoxed"
+      <input type="text"
+             class="search-input"
              [placeholder]="'d3.teamManagement.searchPlaceholder' | translate"
              [(ngModel)]="searchQuery"
              (ngModelChange)="onSearchChange()">
     </div>
 
     @if (showFilters) {
-      <mat-form-field appearance="outline" class="filter-select hide-hint no-arrow">
-        <mat-select [placeholder]="'d3.teamManagement.filters.allDepts' | translate" (selectionChange)="onDeptFilterChange($event.value)">
-          <mat-option value="">{{ 'd3.teamManagement.filters.allDepts' | translate }}</mat-option>
-          @for (dept of departments; track dept) {
-            <mat-option [value]="dept">{{ dept }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <select class="filter-select-native" (change)="onDeptFilterChange($any($event.target).value)">
+        <option value="">{{ 'd3.teamManagement.filters.allDepts' | translate }}</option>
+        @for (dept of departments; track dept) {
+          <option [value]="dept">{{ dept }}</option>
+        }
+      </select>
 
-      <mat-form-field appearance="outline" class="filter-select hide-hint no-arrow">
-        <mat-select [placeholder]="'d3.teamManagement.filters.allRoles' | translate" (selectionChange)="onRoleFilterChange($event.value)">
-          <mat-option value="">{{ 'd3.teamManagement.filters.allRoles' | translate }}</mat-option>
-          @for (role of roles; track role) {
-            <mat-option [value]="role">{{ role }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <select class="filter-select-native" (change)="onRoleFilterChange($any($event.target).value)">
+        <option value="">{{ 'd3.teamManagement.filters.allRoles' | translate }}</option>
+        @for (role of roles; track role) {
+          <option [value]="role">{{ role }}</option>
+        }
+      </select>
     }
 
     <!-- Action Button -->

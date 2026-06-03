@@ -1,0 +1,92 @@
+<div class="add-dept-page" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+
+  <!-- Section: بيانات القسم والمهام -->
+  <div class="section-card m-b-24">
+    <div class="section-header d-flex align-items-center justify-content-between m-b-16">
+      <div class="d-flex align-items-center gap-10">
+        <span class="section-bar"></span>
+        <h4 class="section-title m-0">{{ 'd3.addDepartment.sectionTitle1' | translate }}</h4>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+
+    <!-- اسم القسم -->
+    <div class="field-group m-b-20">
+      <label class="field-label">{{ 'd3.addDepartment.deptName' | translate }}</label>
+      <input
+        type="text"
+        class="custom-input"
+        [placeholder]="'d3.addDepartment.deptNamePlaceholder' | translate"
+        [formControl]="nameControl"
+      />
+    </div>
+
+    <!-- وصف المهام -->
+    <div class="field-group">
+      <label class="field-label">{{ 'd3.addDepartment.tasksDescription' | translate }}</label>
+      <textarea
+        class="custom-textarea"
+        rows="4"
+        [placeholder]="'d3.addDepartment.tasksDescriptionPlaceholder' | translate"
+        [formControl]="descriptionControl"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Section: مصفوفة صلاحيات النظام -->
+  <div class="section-card">
+    <div class="section-header d-flex align-items-center justify-content-between m-b-16">
+      <div class="d-flex align-items-center gap-10">
+        <span class="section-bar"></span>
+        <h4 class="section-title m-0">{{ 'd3.addDepartment.permissionsTitle' | translate }}</h4>
+      </div>
+      <div class="d-flex gap-8">
+        <button mat-stroked-button class="toggle-all-btn" (click)="enableAll()">
+          {{ 'd3.addDepartment.enableAll' | translate }}
+        </button>
+        <button mat-stroked-button class="toggle-all-btn cancel-all" (click)="disableAll()">
+          {{ 'd3.addDepartment.disableAll' | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+    <div class="row g-12">
+      @for (perm of permissions; track perm.key) {
+        <div class="col-6 col-md-3">
+          <div class="perm-card" [class.perm-active]="perm.enabled">
+            <div class="perm-card-top d-flex align-items-center justify-content-between m-b-16">
+              <div class="perm-icon-wrap d-flex align-items-center justify-content-center">
+                <i-tabler [name]="perm.icon" class="icon-22 perm-icon"></i-tabler>
+              </div>
+              <mat-slide-toggle
+                [(ngModel)]="perm.enabled"
+                color="primary"
+                class="perm-toggle">
+              </mat-slide-toggle>
+            </div>
+            <h5 class="perm-title f-s-14 f-w-700 m-b-4">
+              {{ 'd3.addDepartment.permissions.' + perm.key + '.title' | translate }}
+            </h5>
+            <p class="perm-desc f-s-11 m-0">
+              {{ 'd3.addDepartment.permissions.' + perm.key + '.description' | translate }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="action-bar d-flex align-items-center justify-content-end gap-12 m-t-32">
+    <button mat-button class="cancel-btn" (click)="cancel()">
+      {{ 'd3.addDepartment.cancel' | translate }}
+    </button>
+    <button mat-flat-button class="save-btn" (click)="save()">
+      <div class="d-flex align-items-center gap-8">
+        <i-tabler name="plus" class="icon-16"></i-tabler>
+        {{ 'd3.addDepartment.save' | translate }}
+      </div>
+    </button>
+  </div>
+
+</div>

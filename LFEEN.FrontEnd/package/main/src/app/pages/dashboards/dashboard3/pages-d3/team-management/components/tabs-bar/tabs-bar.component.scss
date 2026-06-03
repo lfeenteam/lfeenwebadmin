@@ -1,0 +1,23 @@
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 48px;
+  position: relative;
+
+  .tab-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    padding: 0;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    font-family: 'Cairo', sans-serif;
+
+    &.active {
+      color: #111110;
+      font-weight: 900;
+    }
+  }
+}

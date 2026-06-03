@@ -1,30 +1,36 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from 'src/app/material.module';
-import { TablerIconsModule } from 'angular-tabler-icons';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { DepartmentService, Department, Employee } from './department.service';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { AddEmployeeDialogComponent } from './components/add-employee-dialog/add-employee-dialog.component';
 import { DeleteConfirmDialogComponent } from './components/delete-confirm-dialog/delete-confirm-dialog.component';
-
-
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
 import { EmployeeListComponent } from './components/employee-list/employee-list.component';
+import { StatsRowComponent } from './components/stats-row/stats-row.component';
+import { TabsBarComponent } from './components/tabs-bar/tabs-bar.component';
+import { DeptCardComponent } from './components/dept-card/dept-card.component';
+import { ManagerCardComponent } from './components/manager-card/manager-card.component';
+import { LogsFilterComponent } from './components/logs-filter/logs-filter.component';
+import { OpsLogTableComponent, OpsLog } from './components/ops-log-table/ops-log-table.component';
 
 @Component({
   selector: 'app-team-management',
   standalone: true,
   imports: [
-    CommonModule, 
-    MaterialModule, 
-    TablerIconsModule, 
-    RouterModule, 
+    CommonModule,
+    RouterModule,
     TranslateModule,
     TeamHeaderComponent,
-    EmployeeListComponent
+    EmployeeListComponent,
+    StatsRowComponent,
+    TabsBarComponent,
+    DeptCardComponent,
+    ManagerCardComponent,
+    LogsFilterComponent,
+    OpsLogTableComponent
   ],
   templateUrl: './team-management.component.html',
   styleUrl: './team-management.component.scss'
@@ -37,6 +43,72 @@ export class TeamManagementComponent implements OnInit {
   selectedDepartment: Department | null = null;
   employees: Employee[] = [];
 
+  logsSearchQuery = '';
+  logsFilterAction = '';
+  logsFilterDept = '';
+  logsFilterDate = '';
+
+  logsActionTypes = ['تعديل الصلاحيات', 'إضافة موظف', 'حذف وحدة', 'اعتماد مستندات'];
+  logsDepts = ['التشغيل', 'خدمة العملاء', 'المباني', 'التقنية'];
+  logsDates = ['اليوم', 'هذا الأسبوع', 'هذا الشهر'];
+
+  opsLogs: OpsLog[] = [
+    {
+      id: '1',
+      date: '١٤ أكتوبر ٢٠٢٤',
+      time: '١١:٤٥ م',
+      user: { name: 'فهد السيف', role: 'مدير التشغيل', avatar: 'assets/images/profile/user-1.jpg', isCrown: true },
+      actionText: 'تعديل صلاحيات الوصول للقسم',
+      actionIcon: 'user-cog',
+      department: 'التشغيل',
+      status: 'completed',
+      statusLabel: 'مكتمل'
+    },
+    {
+      id: '2',
+      date: '١٤ أكتوبر ٢٠٢٤',
+      time: '٩:٣٠ م',
+      user: { name: 'ريم العبدالله', role: 'مديرة خدمة العملاء', avatar: 'assets/images/profile/user-2.jpg', isCrown: true },
+      actionText: 'إضافة موظف جديد للفريق',
+      actionIcon: 'user-plus',
+      department: 'خدمة العملاء',
+      status: 'completed',
+      statusLabel: 'مكتمل'
+    },
+    {
+      id: '3',
+      date: '١٤ أكتوبر ٢٠٢٤',
+      time: '٩:٠٥ م',
+      user: { name: 'ياسر الحربي', role: 'مدير التقنية', avatar: 'assets/images/profile/user-3.jpg', isCrown: true },
+      actionText: 'محاولة حذف وحدة سكنية نشطة',
+      actionIcon: 'file-x',
+      department: 'المباني',
+      status: 'failed',
+      statusLabel: 'خطأ النظام'
+    },
+    {
+      id: '4',
+      date: '١٤ أكتوبر ٢٠٢٤',
+      time: '٩:٣٤ م',
+      user: { name: 'أحمد المنصور', role: 'موظف تشغيل', avatar: null, isCrown: false },
+      actionText: 'اعتماد مستندات مبنى جديد',
+      actionIcon: 'file-check',
+      department: 'المباني',
+      status: 'completed',
+      statusLabel: 'مكتمل'
+    }
+  ];
+
+  get filteredLogs(): OpsLog[] {
+    return this.opsLogs.filter(log => {
+      const q = this.logsSearchQuery.trim();
+      const matchSearch = !q || log.user.name.includes(q) || log.actionText.includes(q) || log.department.includes(q);
+      const matchAction = !this.logsFilterAction || log.actionText.includes(this.logsFilterAction);
+      const matchDept = !this.logsFilterDept || log.department === this.logsFilterDept;
+      return matchSearch && matchAction && matchDept;
+    });
+  }
+
   iconMap: { [key: string]: string } = {
     'CS': 'headset',
     'IT': 'code',
@@ -48,6 +120,7 @@ export class TeamManagementComponent implements OnInit {
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private route: ActivatedRoute,
+    private router: Router,
     private dialog: MatDialog,
     private toastr: ToastrService
   ) {}
@@ -138,6 +211,15 @@ export class TeamManagementComponent implements OnInit {
         this.stats[0].value = this.departments.reduce((sum, d) => sum + d.employeeCount, 0);
         this.stats[1].value = this.departments.length;
       }
+    } else if (this.activeTab === 'logs') {
+      this.stats = [
+        { label: 'd3.teamManagement.stats.totalOps', value: '١٢,٨٤٧', icon: 'database', color: 'primary', valueColor: '#000' },
+          { label: 'd3.teamManagement.stats.successfulOps', value: '١٢,٨٠٠', icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
+        { label: 'd3.teamManagement.stats.partialOps', value: '١٢', icon: 'alert-triangle', color: 'warning', valueColor: '#d97706' },
+        { label: 'd3.teamManagement.stats.rejectedOps', value: '٤٧', icon: 'circle-x', color: 'danger', valueColor: '#ef4444' },
+      
+        
+      ];
     } else {
       this.stats = [
         { label: 'd3.teamManagement.stats.totalEmployees', value: 156, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
@@ -204,7 +286,7 @@ export class TeamManagementComponent implements OnInit {
 
   onHeaderAction(): void {
     if (this.activeTab === 'structure') {
-      console.log('Add Department clicked');
+      this.router.navigate(['add'], { relativeTo: this.route });
     } else if (this.activeTab === 'employees' || this.departmentId) {
       this.openAddEmployeeDialog();
     }

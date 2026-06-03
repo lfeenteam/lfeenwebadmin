@@ -1,0 +1,59 @@
+.manager-card {
+  border-radius: 40px;
+  background-color: #FCFCFB;
+  border: 1px solid #E8E8E4 !important;
+
+  .manager-avatar-wrapper {
+    img {
+      border: 1px solid #E8E8E4;
+      object-fit: cover;
+    }
+  }
+
+  .manager-info-gap {
+    gap: 18px;
+  }
+
+  .manager-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .manager-desc {
+    color: #6B6B67;
+    font-size: 12px;
+  }
+
+  .crown-icon {
+    width: 24px;
+    height: 24px;
+    color: #B45309;
+  }
+}
+
+.add-emp-icon {
+  width: 20px;
+  height: 20px;
+  color: #FFFFFFB2;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.add-emp-btn {
+  --mdc-filled-button-container-color: #111110;
+  --mdc-filled-button-label-text-color: #fff;
+  width: 234px;
+  height: 52px;
+  gap: 12px;
+  padding: 16px 40px;
+  border-radius: 16px;
+  background-color: #111110;
+  color: #fff;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.max-width-400 {
+  max-width: 400px;
+}

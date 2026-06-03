@@ -1,0 +1,11 @@
+<div class="tabs-wrapper" [class.no-border]="noBorder">
+  <button mat-button class="tab-btn" [class.active]="activeTab === 'structure'" (click)="tabChange.emit('structure')">
+    {{ 'd3.teamManagement.tabs.structure' | translate }}
+  </button>
+  <button mat-button class="tab-btn" [class.active]="activeTab === 'employees'" (click)="tabChange.emit('employees')">
+    {{ 'd3.teamManagement.tabs.allEmployees' | translate }}
+  </button>
+  <button mat-button class="tab-btn" [class.active]="activeTab === 'logs'" (click)="tabChange.emit('logs')">
+    {{ 'd3.teamManagement.tabs.opsLog' | translate }}
+  </button>
+</div>

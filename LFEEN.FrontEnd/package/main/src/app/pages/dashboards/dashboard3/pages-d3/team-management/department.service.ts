@@ -29,6 +29,17 @@ export interface EmployeeRole {
   descriptionEn: string;
 }
 
+export interface DepartmentRole {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  departmentId: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
 export interface Employee {
   userId: string;
   fullName: string;
@@ -63,8 +74,8 @@ export class DepartmentService {
     return this.http.get<Employee[]>(`${this.apiUrl}/employees`);
   }
 
-  getDepartmentRoles(id: string): Observable<EmployeeRole[]> {
-    return this.http.get<EmployeeRole[]>(`${this.apiUrl}/${id}/roles`);
+  getDepartmentRoles(id: string): Observable<DepartmentRole[]> {
+    return this.http.get<DepartmentRole[]>(`${this.apiUrl}/${id}/roles`);
   }
 
   addEmployee(id: string, employeeData: any): Observable<any> {

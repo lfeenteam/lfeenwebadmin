@@ -405,6 +405,68 @@
         "passwordHint": "This password will be sent to the employee's email automatically.",
         "submit": "Save and Send"
       }
+    },
+    "addDepartment": {
+      "sectionTitle1": "Department Data and Tasks",
+      "deptName": "Department Name",
+      "deptNamePlaceholder": "Example: Operations Department, Customer Service, Accounts...",
+      "tasksDescription": "Tasks and Responsibilities Description",
+      "tasksDescriptionPlaceholder": "Write a summary of the administrative and operational tasks that this department will undertake...",
+      "permissionsTitle": "System Permissions Matrix",
+      "enableAll": "Enable All",
+      "disableAll": "Disable All",
+      "save": "Save and Create Department",
+      "cancel": "Cancel",
+      "permissions": {
+        "dashboard": {
+          "title": "Dashboard",
+          "description": "Access to activity updates and intelligence balance"
+        },
+        "buildings": {
+          "title": "Building Management",
+          "description": "Review building list and approve new rental fees"
+        },
+        "units": {
+          "title": "Unit Management",
+          "description": "Control unit properties and financial charges for intelligence"
+        },
+        "reservations": {
+          "title": "Reservations",
+          "description": "Monitor open reservations and manage cancellation requests"
+        },
+        "guests": {
+          "title": "Guests",
+          "description": "Access guest data and building institutions"
+        },
+        "hosts": {
+          "title": "Hosts",
+          "description": "Manage host accounts and maintain their financial records"
+        },
+        "revenue": {
+          "title": "Revenue",
+          "description": "Monitor scheduled orders and financial information privacy"
+        },
+        "reports": {
+          "title": "Reports",
+          "description": "Evaluate detailed and financial reports for all buildings"
+        },
+        "complaints": {
+          "title": "Complaints",
+          "description": "Access technical support issues for users"
+        },
+        "cities": {
+          "title": "Cities",
+          "description": "Manage city details and different responsibility branches"
+        },
+        "team": {
+          "title": "Team Management",
+          "description": "Ability to add new employees and change department course"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Adjust system settings and automatic operation requirements"
+        }
+      }
     }
   }
 }

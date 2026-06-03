@@ -1,0 +1,31 @@
+<mat-card class="shadow-none border manager-card m-b-24 overflow-visible">
+  <mat-card-content class="p-32 p-y-24">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-24 position-relative">
+
+      <!-- Manager Info -->
+      <div class="d-flex align-items-center flex-grow-1 manager-info-gap">
+        <div class="manager-avatar-wrapper">
+          <img [src]="department.managerAvatar || 'assets/images/profile/user-1.jpg'" class="rounded-12" width="80" height="80" />
+        </div>
+        <div class="manager-details text-start">
+          <div class="d-flex align-items-center gap-8 m-b-4">
+            <h3 class="m-0 f-s-22 f-w-900">{{ department.managerFullName }}</h3>
+            <i-tabler name="crown" class="crown-icon"></i-tabler>
+          </div>
+          <p class="m-0 text-dark f-s-14 f-w-700">
+            {{ 'd3.teamManagement.deptManagerTitle' | translate : { name: (currentLang === 'ar' ? department.nameAr : department.nameEn) } }}
+          </p>
+          <p class="m-0 manager-desc max-width-400">
+            {{ currentLang === 'ar' ? department.descriptionAr : department.descriptionEn }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Add Employee Button -->
+      <button mat-flat-button color="dark" class="add-emp-btn d-flex align-items-center gap-8 shadow-sm" (click)="addEmployee.emit()">
+        <i-tabler name="user-plus" class="add-emp-icon"></i-tabler>
+        {{ 'd3.teamManagement.addEmployee' | translate }}
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

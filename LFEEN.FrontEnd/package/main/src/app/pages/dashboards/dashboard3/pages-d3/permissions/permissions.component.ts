@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DepartmentService } from '../team-management/department.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface Permission {
-  id: number;
+  id: string;
   name: string;
   description: string;
   enabled: boolean;
@@ -20,60 +22,64 @@ interface Permission {
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss'
 })
-export class PermissionsComponent {
+export class PermissionsComponent implements OnInit {
   deptId: string | null = null;
-  deptName = 'قسم التشغيل';
-  deptEnglishName = 'Operations';
-  manager = 'فهد السيف';
-  employeeCount = 12;
+  deptName = '';
+  deptEnglishName = '';
+  manager = '';
+  employeeCount = 0;
+  isLoading = true;
 
-  permissions: Permission[] = [
-    {
-      id: 1,
-      name: 'لوحة التحكم',
-      description: 'الوصول للرسوم البيانية والملخص العام للأداء المالي والتشغيلي.',
-      enabled: true,
-      icon: 'layout-grid'
-    },
-    {
-      id: 2,
-      name: 'إدارة المباني',
-      description: 'مراجعة وثائق المباني المرفوعة من المضيفين وقبولها أو رفضها.',
-      enabled: true,
-      icon: 'building'
-    },
-    {
-      id: 3,
-      name: 'إدارة الوحدات',
-      description: 'إدارة تفاصيل الغرف والأجنحة تحديث السمة وتعديل المواصفات الداخلية.',
-      enabled: true,
-      icon: 'home'
-    },
-    {
-      id: 4,
-      name: 'الحجوزات',
-      description: 'مراقبة جدول الحجوزات تحديث حالات الدفع وإدارة عمليات الإلغاء.',
-      enabled: true,
-      icon: 'calendar-event'
-    },
-    {
-      id: 5,
-      name: 'إدارة الشكاوى',
-      description: 'الوصول لرسائل العملاء والشكاوى الفنية المرفوعة ضد المضيفين.',
-      enabled: false,
-      icon: 'message-dots'
-    },
-    {
-      id: 6,
-      name: 'إدارة الفريق',
-      description: 'صلاحية تسجيل أدوار الموظفين وتعديل صلاحيات الوصول للأقسام.',
-      enabled: false,
-      icon: 'users'
-    }
-  ];
+  permissions: Permission[] = [];
 
-  constructor(private route: ActivatedRoute) {
+  constructor(
+    private route: ActivatedRoute,
+    private departmentService: DepartmentService,
+    private translate: TranslateService
+  ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
+  }
+
+  ngOnInit(): void {
+    if (this.deptId) {
+      this.loadDepartment(this.deptId);
+      this.loadRoles(this.deptId);
+    }
+  }
+
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
+
+  private loadDepartment(id: string): void {
+    this.departmentService.getDepartmentById(id).subscribe({
+      next: (dept) => {
+        this.deptName = dept.nameAr;
+        this.deptEnglishName = dept.nameEn;
+        this.manager = dept.managerFullName || '---';
+        this.employeeCount = dept.employeeCount;
+      },
+      error: (err) => console.error('Error loading department', err)
+    });
+  }
+
+  private loadRoles(id: string): void {
+    this.departmentService.getDepartmentRoles(id).subscribe({
+      next: (roles) => {
+        this.permissions = roles.map(role => ({
+          id: role.id,
+          name: this.currentLang === 'ar' ? role.nameAr : role.nameEn,
+          description: this.currentLang === 'ar' ? role.descriptionAr : role.descriptionEn,
+          enabled: true,
+          icon: 'user-circle'
+        }));
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading roles', err);
+        this.isLoading = false;
+      }
+    });
   }
 
   savePermissions(): void {

@@ -10,5 +10,20 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background-color: #fff !important;
     padding: 8px !important;
   }
+
+  .mat-mdc-dialog-content {
+    overflow: visible !important;
+  }
+
+  .close-btn.mat-mdc-icon-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .mat-mdc-button-touch-target {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
 }
 

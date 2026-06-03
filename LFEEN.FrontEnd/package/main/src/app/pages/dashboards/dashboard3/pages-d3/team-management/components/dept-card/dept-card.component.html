@@ -1,0 +1,53 @@
+<mat-card class="shadow-none border dept-card m-b-24">
+  <mat-card-content class="p-32">
+    <!-- Top Row: Icon + Status Badge -->
+    <div class="d-flex justify-content-between align-items-start m-b-16">
+      <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+        <i-tabler [name]="iconMap[dept.code] || 'briefcase'" class="icon-24"></i-tabler>
+      </div>
+      <span class="status-badge active">
+        <span class="dot"></span> {{ 'd3.teamManagement.deptCard.active' | translate }}
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ currentLang === 'ar' ? dept.nameAr : dept.nameEn }}</h4>
+
+    <!-- Description -->
+    <p class="dept-description m-b-24">{{ currentLang === 'ar' ? dept.descriptionAr : dept.descriptionEn }}</p>
+
+    <!-- Info Box -->
+    <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">
+      <div class="d-flex align-items-center justify-content-between m-b-12">
+        <div class="d-flex align-items-center gap-8 label-text f-s-12">
+          <i-tabler name="user-cog" class="icon-16"></i-tabler>
+          {{ 'd3.teamManagement.deptCard.manager' | translate }}
+        </div>
+        <span class="f-s-12 f-w-700">{{ dept.managerFullName || '---' }}</span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-8 label-text f-s-12">
+          <i-tabler name="users" class="icon-16"></i-tabler>
+          {{ 'd3.teamManagement.deptCard.employees' | translate }}
+        </div>
+        <span class="f-s-13 f-w-600">{{ dept.employeeCount }}</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="dept-actions d-flex gap-8">
+      <button mat-flat-button color="dark" class="flex-grow-1 permissions-btn"
+        [routerLink]="['../permissions', dept.id]">
+        <div class="d-flex align-items-center justify-content-center gap-8">
+          {{ 'd3.teamManagement.deptCard.permissions' | translate }}
+          <i-tabler name="shield-check" class="icon-16"></i-tabler>
+        </div>
+      </button>
+      <button mat-flat-button
+        class="view-btn icon-40 p-0 min-width-40 d-flex align-items-center justify-content-center"
+        [routerLink]="[dept.id]">
+        <i-tabler name="eye" class="icon-20"></i-tabler>
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

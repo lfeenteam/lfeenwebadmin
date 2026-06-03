@@ -1,0 +1,89 @@
+<div class="ops-log-wrapper table-responsive">
+  <table mat-table [dataSource]="logs" class="w-100 ops-log-table">
+
+    <!-- DateTime Column -->
+    <ng-container matColumnDef="dateTime">
+      <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.dateTime' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <div class="log-date-cell">
+          <span class="log-date-text d-block">{{ row.date }}</span>
+          <span class="log-time">{{ row.time }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- User Column -->
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.user' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <div class="d-flex align-items-center gap-10 p-y-12">
+          @if (row.user.avatar) {
+            <img [src]="row.user.avatar" class="log-user-avatar" />
+          } @else {
+            <div class="log-initials-avatar d-flex align-items-center justify-content-center">
+              {{ getInitials(row.user.name) }}
+            </div>
+          }
+          <div>
+            <div class="d-flex align-items-center gap-4">
+          
+              <span class="f-s-16 f-w-900">{{ row.user.name }}</span>
+                  @if (row.user.isCrown) {
+                <i-tabler name="crown" class="icon-14 log-crown-icon"></i-tabler>
+              }
+            </div>
+            <span class="text-role">{{ row.user.role }}</span>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Action Column -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.action' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <div class="d-flex align-items-center gap-8">
+          <div class="log-action-icon" [class.failed]="row.status === 'failed'">
+            <i-tabler [name]="row.actionIcon" class="icon-16"></i-tabler>
+          </div>
+          <span class="f-s-14 f-w-700" [class.text-danger]="row.status === 'failed'">{{ row.actionText }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Department Column -->
+    <ng-container matColumnDef="department">
+      <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.department' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <span class="dept-log-chip">{{ row.department }}</span>
+      </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.status' | translate }}</th>
+      <td mat-cell *matCellDef="let row">
+        <span class="log-status-badge"
+              [class.completed]="row.status === 'completed'"
+              [class.failed]="row.status === 'failed'"
+              [class.pending]="row.status === 'pending'">
+          <span class="dot"></span>
+          {{ row.statusLabel }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Expand Column -->
+    <ng-container matColumnDef="expand">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <button mat-icon-button class="expand-row-btn">
+          <i-tabler name="chevron-left" class="icon-16 text-muted"></i-tabler>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="log-row"></tr>
+  </table>
+</div>
