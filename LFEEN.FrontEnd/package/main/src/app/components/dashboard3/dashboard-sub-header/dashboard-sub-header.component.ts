@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TabsFilterComponent } from 'src/app/pages/dashboards/dashboard3/pages-d3/all-builds/tabs-filter/tabs-filter.component';
-import { MetricCard, TabOption, ViewMode, BuildFilterOption } from './dashboard-sub-header.model';
+import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../../pages/dashboards/dashboard3/interfaces/dashboard-sub-header.model';
 
 @Component({
   selector: 'app-dashboard-sub-header',

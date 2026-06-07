@@ -6,7 +6,7 @@ import { ReviewImageComponent } from './review-image/review-image.component';
 import { ReviewTermsComponent } from './review-terms/review-terms.component';
 import { ReviewLicenseComponent } from './review-license/review-license.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BuildingReviewService } from '../all-builds/building-review.service';
+import { BuildingReviewService } from '../../services/building-review.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({

@@ -1,13 +1,16 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, signal, effect, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { map, distinctUntilChanged, skip } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { LoginService } from './login/login.service';
-import { SidebarItem } from './login/login.model';
+import { SidebarItem } from '../interfaces/login.model';
+import { CoreService } from '../../../../services/core.service';
 
 export interface NavItem {
+  id?: string;
+  key?: string;
   title?: string;
-  titleAr?: string;
-  titleEn?: string;
+  translationKey?: string;
   icon?: string;
   link?: string | null;
   divider?: boolean;
@@ -18,35 +21,45 @@ export interface NavItem {
   providedIn: 'root'
 })
 export class SidebarService {
-  private apiUrl = '/api/sidebar/items';
+  private loginService = inject(LoginService);
+  private coreService = inject(CoreService);
 
-  // Using signals for sidebar items
   sidebarItems = signal<NavItem[]>([]);
 
-  constructor(private http: HttpClient, private loginService: LoginService) {
-    this.loadSidebarItems();
+  constructor() {
+    // rebuild whenever the sidebar signal updates (login or refresh)
+    effect(() => {
+      this.buildNavItems(this.loginService.sidebar());
+    });
+
+    // when language changes, refresh the token → server returns sidebar in new language
+    toObservable(this.coreService.getOptionsSignal())
+      .pipe(
+        map(opts => opts.language),
+        distinctUntilChanged(),
+        skip(1)
+      )
+      .subscribe(() => {
+        this.loginService.refreshToken().subscribe({ error: () => {} });
+      });
   }
 
-  loadSidebarItems(): void {
-    const dynamicSidebar = this.loginService.getSidebar();
+  private buildNavItems(dynamicSidebar: any[]): void {
     let items: NavItem[] = [];
 
-    if (dynamicSidebar && dynamicSidebar.length > 0) {
+    if (dynamicSidebar?.length) {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
-    // Add static items that might be missing from API
     const staticItems: NavItem[] = [
-      { title: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
-      { title: 'd3.sidebar.units', icon: 'smart-home', link: '/d3/units' },
-      { title: 'd3.sidebar.bookings', icon: 'calendar-time', link: '/bookings' },
-      { title: 'd3.sidebar.complaints', icon: 'message-exclamation', link: '/complaints' }
+      { translationKey: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
+      { translationKey: 'd3.sidebar.units',     icon: 'smart-home',          link: '/d3/units' },
+      { translationKey: 'd3.sidebar.bookings',  icon: 'calendar-time',       link: '/bookings' },
+      { translationKey: 'd3.sidebar.complaints',icon: 'message-exclamation', link: '/complaints' }
     ];
 
-    // Merge logic: Add static items if they don't exist by link
     staticItems.forEach(sItem => {
       if (!items.find(i => i.link === sItem.link)) {
-        // Insert after dashboard if possible
         const dashIndex = items.findIndex(i => i.icon === 'layout-dashboard');
         if (dashIndex !== -1) {
           items.splice(dashIndex + 1, 0, sItem);
@@ -56,10 +69,9 @@ export class SidebarService {
       }
     });
 
-    // Add Settings at the bottom
     if (!items.find(i => i.link === '/settings')) {
       items.push({ divider: true });
-      items.push({ title: 'd3.sidebar.settings', icon: 'settings', link: '/settings' });
+      items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/settings' });
     }
 
     this.sidebarItems.set(items);
@@ -70,42 +82,44 @@ export class SidebarService {
   }
 
   private mapSidebarToNavItems(items: SidebarItem[]): NavItem[] {
-    // Map of keys to static icons
     const iconMap: { [key: string]: string } = {
-      'dashboard': 'layout-dashboard',
-      'departments': 'building-skyscraper',
-      'departments-all': 'list',
-      'department-it': 'code',
-      'department-cs': 'headset',
-      'department-ops': 'briefcase',
+      'dashboard':        'layout-dashboard',
+      'departments':      'building-skyscraper',
+      'departments-all':  'list',
+      'department-it':    'code',
+      'department-cs':    'headset',
+      'department-ops':   'briefcase',
       'users-management': 'users',
-      'admin-users': 'user-cog',
-      'roles': 'shield-check',
-      'permissions': 'lock',
-      'permission-groups': 'layers-intersect'
+      'admin-users':      'user-cog',
+      'roles':            'shield-check',
+      'permissions':      'lock',
+      'permission-groups':'layers-intersect'
     };
 
-    // Map of API routes to App routes
-    const routeMap: { [key: string]: string } = {
-      'dashboard': '/d3/ceo',
+    const exactRouteMap: { [key: string]: string } = {
+      'dashboard':       '/d3/ceo',
       'departments-all': '/d3/team-management',
-      'department-it': '/d3/team-management',
-      'department-cs': '/d3/team-management',
-      'department-ops': '/d3/team-management',
-      'admin-users': '/d3/team-management',
-      'roles': '/d3/team-management',
-      'permissions': '/d3/team-management',
-      'permission-groups': '/d3/team-management'
     };
 
     return items
       .sort((a, b) => a.order - b.order)
-      .map(item => ({
-        titleAr: item.titleAr,
-        titleEn: item.titleEn,
-        icon: iconMap[item.key] || 'point',
-        link: routeMap[item.key] || item.route,
-        children: item.children && item.children.length > 0 ? this.mapSidebarToNavItems(item.children) : undefined
-      }));
+      .map(item => {
+        let link: string | null = null;
+        if (exactRouteMap[item.key]) {
+          link = exactRouteMap[item.key];
+        } else if (item.route && !item.children?.length) {
+          link = `/d3/team-management/${item.id}`;
+        }
+
+        return {
+          id: item.id,
+          key: item.key,
+          // title comes from server in the correct language via Accept-Language
+          title: item.title || item.titleEn || item.titleAr || '',
+          icon: iconMap[item.key] || 'point',
+          link,
+          children: item.children?.length ? this.mapSidebarToNavItems(item.children) : undefined
+        };
+      });
   }
 }

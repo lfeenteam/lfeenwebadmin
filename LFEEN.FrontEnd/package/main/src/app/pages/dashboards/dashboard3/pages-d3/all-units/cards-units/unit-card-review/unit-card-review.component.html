@@ -2,10 +2,10 @@
   <div class="unit-card__top">
     <div class="unit-card__id">{{ unit.unitNumber }}</div>
     <div class="unit-card__status" *ngIf="unit.status === 'underReview'">
-      <span class="status-text">قيد المراجعة</span>
+      <span class="status-text">{{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}</span>
     </div>
     <div class="unit-card__status" *ngIf="unit.status === 'stopped'">
-      <span class="status-text">معطل</span>
+      <span class="status-text">{{ 'd3.allUnits.unitCard.statusStopped' | translate }}</span>
     </div>
   </div>
 
@@ -17,14 +17,14 @@
       <div class="info-row">
         <div class="info-right">
           <i-tabler name="info-circle" class="info-icon"></i-tabler>
-          <span class="info-label">النوع</span>
+          <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
         </div>
         <span class="info-value">{{ unit.type }}</span>
       </div>
       <div class="info-row">
         <div class="info-right">
           <i-tabler name="layout-list" class="info-icon"></i-tabler>
-          <span class="info-label">الوصف</span>
+          <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
         </div>
         <span class="info-value">{{ unit.description }}</span>
       </div>

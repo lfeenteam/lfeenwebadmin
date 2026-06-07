@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
-import { UnitCardItem } from '../../unit-card.model';
+import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 
 @Component({
   selector: 'app-unit-card',

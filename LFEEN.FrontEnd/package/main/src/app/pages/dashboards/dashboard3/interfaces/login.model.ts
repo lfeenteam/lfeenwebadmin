@@ -6,8 +6,9 @@ export interface LoginRequest {
 export interface SidebarItem {
   id: string;
   key: string;
-  titleAr: string;
-  titleEn: string;
+  title?: string;
+  titleAr?: string;
+  titleEn?: string;
   icon: string | null;
   route: string | null;
   requiredPermission: string | null;

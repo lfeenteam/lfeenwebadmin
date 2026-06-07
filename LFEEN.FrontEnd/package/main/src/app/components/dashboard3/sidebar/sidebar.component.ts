@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -37,8 +37,15 @@ export class SidebarComponent implements OnInit {
   isCeoPage = signal<boolean>(false);
   user = this.loginService.currentUser;
 
-  // فلترة القائمة لاستبعاد الإعدادات إذا لم نكن في صفحة CEO
-  filteredNavItems = signal<NavItem[]>([]);
+  // computed: يتحدث تلقائيًا لما sidebarItems أو isCeoPage يتغيروا
+  filteredNavItems = computed(() => {
+    const items = this.sidebarService.sidebarItems();
+    if (this.isCeoPage()) return items;
+    return items.filter(item =>
+      item.translationKey !== 'd3.sidebar.settings' &&
+      item.key !== 'settings'
+    );
+  });
 
   constructor(
     private router: Router,
@@ -47,56 +54,30 @@ export class SidebarComponent implements OnInit {
     private loginService: LoginService
   ) {
     this.checkIfCeoPage();
-    this.updateFilteredItems();
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.checkIfCeoPage();
-      this.updateFilteredItems();
-    });
+    ).subscribe(() => this.checkIfCeoPage());
   }
 
   ngOnInit(): void {}
 
-  private updateFilteredItems(): void {
-    const items = this.sidebarService.sidebarItems();
-    if (!this.isCeoPage()) {
-      // استبعاد أي عنصر يخص الإعدادات من القائمة الرئيسية
-      this.filteredNavItems.set(items.filter(item => 
-        item.titleEn?.toLowerCase() !== 'settings' && 
-        item.titleAr !== 'الإعدادات' &&
-        item.title !== 'd3.sidebar.settings'
-      ));
-    } else {
-      this.filteredNavItems.set(items);
-    }
-  }
-
   private checkIfCeoPage(): void {
-    // افترضنا أن صفحة CEO تحتوي على 'ceo' في المسار
     this.isCeoPage.set(this.router.url.includes('/ceo'));
   }
 
-  get currentLang(): string {
-    return this.translate.currentLang || 'en';
-  }
-
   getItemTitle(item: NavItem): string {
-    if (this.currentLang === 'ar') {
-      return item.titleAr || (item.title ? this.translate.instant(item.title) : '');
-    }
-    return item.titleEn || (item.title ? this.translate.instant(item.title) : '');
+    return item.title || (item.translationKey ? this.translate.instant(item.translationKey) : '');
   }
 
   toggleSubmenu(item: NavItem, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    const key = item.titleAr || item.title || '';
+    const key = item.id || item.translationKey || '';
     this.expandedItems[key] = !this.expandedItems[key];
   }
 
   isExpanded(item: NavItem): boolean {
-    const key = item.titleAr || item.title || '';
+    const key = item.id || item.translationKey || '';
     return !!this.expandedItems[key];
   }
 
@@ -119,7 +100,12 @@ export class SidebarComponent implements OnInit {
 
   isActive(item: NavItem): boolean {
     if (!item.link) return false;
-    return this.router.url.startsWith(this.buildLink(item.link));
+    const built = this.buildLink(item.link);
+    return this.router.url === built || this.router.url.startsWith(built + '/');
+  }
+
+  isChildActive(item: NavItem): boolean {
+    return !!item.children?.some(child => this.isActive(child));
   }
 
   toggleSidebar(): void {

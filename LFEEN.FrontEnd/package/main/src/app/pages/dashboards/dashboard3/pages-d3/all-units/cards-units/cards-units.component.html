@@ -10,13 +10,13 @@
             <h2 class="building-name">{{ building.name }}</h2>
             <p class="building-meta">
               <i-tabler name="map-pin" class="meta-icon"></i-tabler>
-              {{ building.location }} · بانتظار مراجعة العقار أولاً
+              {{ building.location }} · {{ 'd3.allUnits.cardsUnits.awaitingReviewMeta' | translate }}
             </p>
           </div>
         </div>
         <div class="banner-left">
           <button class="review-btn">
-            مراجعة العقار أولاً
+            {{ 'd3.allUnits.cardsUnits.reviewPropertyBtn' | translate }}
             <i-tabler name="arrow-left" class="btn-icon"></i-tabler>
           </button>
         </div>
@@ -31,14 +31,14 @@
             <h2 class="building-name">{{ building.name }}</h2>
             <p class="building-meta">
               <i-tabler name="map-pin" class="meta-icon"></i-tabler>
-              {{ building.location }} · {{ building.publishedUnits }} وحدة منشورة
+              {{ building.location }} · {{ 'd3.allUnits.cardsUnits.publishedUnits' | translate: { count: building.publishedUnits } }}
             </p>
           </div>
         </div>
         <div class="building-header__left">
           <span class="building-badge">
             <i-tabler name="discount-check" class="badge-icon"></i-tabler>
-            معتمد
+            {{ 'd3.allUnits.cardsUnits.approvedBadge' | translate }}
           </span>
           <div class="building-menu">
             <i-tabler name="dots-vertical"></i-tabler>

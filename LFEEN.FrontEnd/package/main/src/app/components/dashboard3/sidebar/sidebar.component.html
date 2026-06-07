@@ -16,32 +16,32 @@
   </div>
 
   <mat-nav-list class="d3-sidebar-list">
-    @for(item of filteredNavItems(); track item.titleAr || item.title) {
+    @for(item of filteredNavItems(); track item.id || item.translationKey) {
       @if(item.divider) {
         <div class="d3-menu-divider"></div>
       } @else {
         @if (item.children && item.children.length > 0) {
-          <div class="d3-submenu-container" [class.is-expanded]="isExpanded(item)">
+          <div class="d3-submenu-container" [class.is-expanded]="isExpanded(item)" [class.has-active-child]="isChildActive(item)">
             <a mat-list-item href="#" (click)="toggleSubmenu(item, $event)"
               class="d3-menu-item has-children">
               <span class="d-flex align-items-center gap-12 w-100">
                 <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
                 <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                  {{ item.titleAr || item.titleEn ? (currentLang === 'ar' ? item.titleAr : item.titleEn) : (item.title! | translate) }}
+                  {{ item.id ? item.title : (item.translationKey! | translate) }}
                 </span>
                 <i-tabler *ngIf="!collapsed || mobileMode" [name]="isExpanded(item) ? 'chevron-up' : 'chevron-down'" class="icon-16 ms-auto"></i-tabler>
               </span>
             </a>
             @if (isExpanded(item) && (!collapsed || mobileMode)) {
               <div class="d3-submenu">
-                @for(child of item.children; track child.titleAr || child.title) {
+                @for(child of item.children; track child.id || child.key) {
                   <a mat-list-item href="#" (click)="navigateTo(child, $event)"
                     [class.active-link]="isActive(child)"
                     class="d3-menu-item d3-child-item">
                     <span class="d-flex align-items-center gap-12 w-100">
                       <i-tabler [name]="child.icon!" class="icon-18"></i-tabler>
                       <span class="d3-menu-title sub-title">
-                        {{ child.titleAr || child.titleEn ? (currentLang === 'ar' ? child.titleAr : child.titleEn) : (child.title! | translate) }}
+                        {{ child.id ? child.title : (child.translationKey! | translate) }}
                       </span>
                     </span>
                   </a>
@@ -56,7 +56,7 @@
             <span class="d-flex align-items-center gap-12 w-100">
               <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
               <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                {{ item.titleAr || item.titleEn ? (currentLang === 'ar' ? item.titleAr : item.titleEn) : (item.title! | translate) }}
+                {{ item.id ? item.title : (item.translationKey! | translate) }}
               </span>
             </span>
           </a>

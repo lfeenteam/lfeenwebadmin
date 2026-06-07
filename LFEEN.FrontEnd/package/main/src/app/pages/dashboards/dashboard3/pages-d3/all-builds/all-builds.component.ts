@@ -2,15 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  BuildingCardItem,
-  BuildingTab,
-  BuildingViewMode
-} from './building-card.model';
+import { BuildingCardItem } from '../../interfaces/building-card.model';
 import { CardsBuildsComponent } from './cards-builds/cards-builds.component';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
-import { MetricCard, TabOption, ViewMode, BuildFilterOption } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.model';
-import { BuildingReviewService } from './building-review.service';
+import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
+import { BuildingReviewService } from '../../services/building-review.service';
 import { Subscription } from 'rxjs';
 
 @Component({

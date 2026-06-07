@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, Subscription } from 'rxjs';
-import { D3HeaderType, D3RouteHeaderData } from './dashboard3-header.model';
+import { D3HeaderType, D3RouteHeaderData } from './interfaces/dashboard3-header.model';
 
 @Component({
   selector: 'app-dashboard3',

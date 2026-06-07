@@ -11,10 +11,10 @@
     </div>
 
     <!-- Title -->
-    <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ currentLang === 'ar' ? dept.nameAr : dept.nameEn }}</h4>
+    <h4 class="f-s-20 f-w-900 m-b-2 dept-title">{{ dept.name || (currentLang === 'ar' ? dept.nameAr : dept.nameEn) }}</h4>
 
     <!-- Description -->
-    <p class="dept-description m-b-24">{{ currentLang === 'ar' ? dept.descriptionAr : dept.descriptionEn }}</p>
+    <p class="dept-description m-b-24">{{ dept.description || (currentLang === 'ar' ? dept.descriptionAr : dept.descriptionEn) }}</p>
 
     <!-- Info Box -->
     <div class="dept-info-box rounded-12 p-16 m-b-24 bg-light-gray">

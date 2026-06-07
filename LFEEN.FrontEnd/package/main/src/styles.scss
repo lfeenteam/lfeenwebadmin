@@ -2,7 +2,18 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.role-dialog-panel {
+  .mat-mdc-dialog-container {
+    border-radius: 40px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    overflow: hidden !important;
+  }
 
+  .mdc-dialog__surface {
+    border-radius: 40px !important;
+    overflow: hidden !important;
+  }
+}
 .custom-dialog-container {
   .mdc-dialog__surface {
     border-radius: 40px !important;

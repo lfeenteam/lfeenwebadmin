@@ -20,9 +20,9 @@
         @if (employeeForm.get('fullName')?.invalid && employeeForm.get('fullName')?.touched) {
           <p class="field-error-msg">
             @if (employeeForm.get('fullName')?.hasError('required')) {
-              {{ currentLang === 'ar' ? 'الاسم مطلوب' : 'Name is required' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.nameRequired' | translate }}
             } @else if (employeeForm.get('fullName')?.hasError('minlength')) {
-              {{ currentLang === 'ar' ? 'الاسم لا يقل عن حرفين' : 'Name must be at least 2 characters' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.nameMinLength' | translate }}
             }
           </p>
         }
@@ -41,9 +41,9 @@
         @if (employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched) {
           <p class="field-error-msg">
             @if (employeeForm.get('email')?.hasError('required')) {
-              {{ currentLang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.emailRequired' | translate }}
             } @else if (employeeForm.get('email')?.hasError('email')) {
-              {{ currentLang === 'ar' ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.emailInvalid' | translate }}
             }
           </p>
         }
@@ -62,9 +62,9 @@
         @if (employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched) {
           <p class="field-error-msg">
             @if (employeeForm.get('phoneNumber')?.hasError('required')) {
-              {{ currentLang === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.phoneRequired' | translate }}
             } @else if (employeeForm.get('phoneNumber')?.hasError('pattern')) {
-              {{ currentLang === 'ar' ? 'أرقام و + فقط' : 'Numbers and + only' }}
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.phonePattern' | translate }}
             }
           </p>
         }
@@ -91,7 +91,7 @@
             <div class="custom-dropdown-list shadow-lg">
               @for (role of roles; track role.id) {
                 <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectRole(role)">
-                  {{ currentLang === 'ar' ? role.nameAr : role.nameEn }}
+                  {{ (currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name }}
                 </div>
               }
             </div>
@@ -99,7 +99,7 @@
         </div>
         @if (employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched) {
           <p class="field-error-msg">
-            {{ currentLang === 'ar' ? 'الدور الوظيفي مطلوب' : 'Job role is required' }}
+            {{ 'd3.teamManagement.addEmployeeDialog.validation.roleRequired' | translate }}
           </p>
         }
       </div>
@@ -107,18 +107,6 @@
       <!-- Temp Password (add mode only) -->
       @if (!data.employee) {
         <div class="col-12 m-b-8">
-          <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.tempPassword' | translate }}</mat-label>
-          <div class="password-field-wrapper">
-            <div class="password-input-wrapper">
-              <input type="text" formControlName="password" class="password-input">
-            </div>
-            <button mat-icon-button type="button" (click)="copyPassword()" class="copy-btn">
-              <i-tabler name="copy" class="icon-20"></i-tabler>
-            </button>
-          </div>
-          @if (employeeForm.get('password')?.touched && employeeForm.get('password')?.hasError('pattern')) {
-            <p class="validation-error m-t-4">{{ currentLang === 'ar' ? 'يجب أن تحتوي على حرف كبير على الأقل' : 'Must contain at least one capital letter' }}</p>
-          }
           <p class="password-hint text-center m-t-8">{{ 'd3.teamManagement.addEmployeeDialog.passwordHint' | translate }}</p>
         </div>
       }
@@ -129,7 +117,10 @@
     <button mat-button (click)="dialogRef.close()" class="cancel-btn-text">
       {{ 'common.cancel' | translate }}
     </button>
-    <button mat-flat-button type="button" color="dark" class="submit-btn" (click)="saveEmployee()" style="position: relative; z-index: 10;">
+    <button mat-flat-button type="button" color="dark" class="submit-btn" (click)="saveEmployee()" [disabled]="isSubmitting" style="position: relative; z-index: 10;">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      }
       {{ 'd3.teamManagement.addEmployeeDialog.submit' | translate }}
     </button>
   </mat-dialog-actions>

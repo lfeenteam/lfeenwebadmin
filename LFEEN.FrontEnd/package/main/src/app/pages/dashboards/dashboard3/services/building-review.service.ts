@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { BuildingCardItem } from './building-card.model';
+import { BuildingCardItem } from '../interfaces/building-card.model';
 
 @Injectable({
   providedIn: 'root'

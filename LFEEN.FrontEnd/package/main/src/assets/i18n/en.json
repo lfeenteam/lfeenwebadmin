@@ -142,7 +142,8 @@
       },
       "underReview": {
         "statusLabel": "Under Review",
-        "sectionTitle": "Under Review"
+        "sectionTitle": "Under Review",
+        "newBadge": "New"
       },
       "filters": {
         "searchPlaceholder": "Search by building name or city...",
@@ -256,6 +257,18 @@
         "allStatuses": "All Statuses",
         "unitType": "Unit Type",
         "sortNewest": "Sort: Newest"
+      },
+      "unitCard": {
+        "type": "Type",
+        "description": "Description",
+        "statusUnderReview": "Under Review",
+        "statusStopped": "Disabled"
+      },
+      "cardsUnits": {
+        "awaitingReviewMeta": "Awaiting property review first",
+        "reviewPropertyBtn": "Review Property First",
+        "publishedUnits": "{{count}} published units",
+        "approvedBadge": "Approved"
       }
     },
     "sections": {
@@ -403,15 +416,32 @@
         "jobRolePlaceholder": "Choose Job Role",
         "tempPassword": "Temporary Password",
         "passwordHint": "This password will be sent to the employee's email automatically.",
-        "submit": "Save and Send"
+        "submit": "Save and Send",
+        "validation": {
+          "nameRequired": "Name is required",
+          "nameMinLength": "Name must be at least 2 characters",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email format",
+          "phoneRequired": "Phone number is required",
+          "phonePattern": "Numbers and + only",
+          "roleRequired": "Job role is required"
+        }
       }
     },
     "addDepartment": {
       "sectionTitle1": "Department Data and Tasks",
       "deptName": "Department Name",
       "deptNamePlaceholder": "Example: Operations Department, Customer Service, Accounts...",
+      "nameRequired": "Department name is required",
+      "nameMinLength": "Name must be at least 2 characters",
+      "deptCode": "Department Code",
+      "deptCodePlaceholder": "e.g. OPS, HR, FINANCE...",
+      "codeRequired": "Department code is required",
       "tasksDescription": "Tasks and Responsibilities Description",
       "tasksDescriptionPlaceholder": "Write a summary of the administrative and operational tasks that this department will undertake...",
+      "roleSectionTitle": "Default Job Role",
+      "roleName": "Job Role Name",
+      "roleDescription": "Role Description",
       "permissionsTitle": "System Permissions Matrix",
       "enableAll": "Enable All",
       "disableAll": "Disable All",
@@ -466,6 +496,23 @@
           "title": "Settings",
           "description": "Adjust system settings and automatic operation requirements"
         }
+      }
+    },
+    "addRoleDialog": {
+      "titleEdit": "Edit Job Role",
+      "titleAdd": "Add New Role",
+      "subtitle": "These permissions will be assigned to the {{dept}} department",
+      "defaultDept": "Operations",
+      "roleNameLabel": "Job Role Name",
+      "namePlaceholderAr": "e.g. Booking Auditor, Quality Supervisor...",
+      "descriptionLabel": "Permission Description",
+      "descriptionPlaceholderAr": "Write a summary of tasks this role holder can perform...",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Role to System",
+      "validation": {
+        "nameRequired": "Role name is required",
+        "nameMinLength": "Name must be at least 2 characters"
       }
     }
   }

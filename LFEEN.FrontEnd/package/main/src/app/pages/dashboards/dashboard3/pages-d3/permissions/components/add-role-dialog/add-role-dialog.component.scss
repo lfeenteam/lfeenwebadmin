@@ -1,0 +1,235 @@
+.role-dialog-container {
+  width: 450px;
+  max-width: 576px;
+  border-radius: 40px !important;
+  box-shadow: 0px 25px 50px -12px #00000040;
+  padding: 8px;
+  background-color: #fff;
+  font-family: 'Cairo', sans-serif !important;
+  position: relative;
+  overflow: hidden;
+
+  * {
+    font-family: 'Cairo', sans-serif !important;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 16px;
+    inset-inline-end: 16px;
+    color: #9E9E9A;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-mdc-focus-indicator {
+      border-radius: 8px;
+    }
+
+    i-tabler {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .dialog-header {
+    padding: 32px 32px 24px;
+
+    .role-icon-wrapper {
+      width: 64px;
+      height: 64px;
+      background-color: #111110;
+      border-radius: 20px;
+      color: #fff;
+
+      i-tabler {
+        color: #fff;
+        ::ng-deep svg { stroke: #fff; }
+      }
+    }
+
+    .dialog-title {
+      color: #111110;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .dialog-subtitle {
+      color: #9E9E9A;
+      font-weight: 700;
+      font-size: 12px;
+      margin: 0;
+    }
+  }
+
+  mat-dialog-content {
+    padding: 0 32px 8px !important;
+    max-height: unset !important;
+    overflow: visible !important;
+  }
+
+  .field-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: #3D3D3A;
+    text-align: right;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .field-error-msg {
+    font-size: 12px;
+    color: #e53935;
+    text-align: start;
+    margin: 4px 4px 0;
+  }
+
+  // ── Bilingual input ─────────────────────────────────────────
+  .bilingual-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+    border: 1px solid #E8E8E4;
+    border-radius: 16px;
+    padding: 0 12px;
+    height: 56px;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+      border-color: #9E9E9A;
+    }
+
+    &.is-invalid {
+      border-color: #e53935;
+    }
+
+    &.secondary {
+      background-color: #FAFAFA;
+      border-style: dashed;
+    }
+
+    &.textarea-wrapper {
+      height: auto;
+      padding: 12px;
+      align-items: flex-start;
+    }
+  }
+
+  .bilingual-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111110;
+    height: 100%;
+
+    &::placeholder {
+      color: #9E9E9A;
+      font-weight: 400;
+    }
+  }
+
+  .bilingual-textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111110;
+    line-height: 1.6;
+
+    &::placeholder {
+      color: #9E9E9A;
+      font-weight: 400;
+    }
+  }
+
+  .lang-chip {
+    flex-shrink: 0;
+    background-color: #F4F4F2;
+    border: 1px solid #E8E8E4;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B6B67;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    line-height: 1.4;
+
+    &:hover {
+      border-color: #9E9E9A;
+      color: #111110;
+    }
+
+    &.active {
+      background-color: #111110;
+      border-color: #111110;
+      color: #fff;
+    }
+
+    &.static {
+      cursor: default;
+      pointer-events: none;
+    }
+  }
+
+  // ── Dialog actions ──────────────────────────────────────────
+  .dialog-actions {
+    padding: 16px 32px 32px !important;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .cancel-btn {
+    min-width: 80px;
+    height: 52px;
+    color: #6B6B67 !important;
+    font-weight: 700;
+    font-size: 16px;
+    background: transparent !important;
+    border: none;
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    flex: 1;
+    height: 56px;
+    border-radius: 16px !important;
+    background-color: #111110 !important;
+    color: #fff !important;
+    font-weight: 900;
+    font-size: 16px;
+    cursor: pointer;
+
+    ::ng-deep .mdc-button__label {
+      color: #fff !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // hide mat-form-field subscription wrapper globally inside dialog
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+}

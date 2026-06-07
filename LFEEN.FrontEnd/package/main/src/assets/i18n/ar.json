@@ -144,7 +144,8 @@
       },
       "underReview": {
         "statusLabel": "تحت المراجعة",
-        "sectionTitle": "تحت المراجعة"
+        "sectionTitle": "تحت المراجعة",
+        "newBadge": "جديد"
       },
       "filters": {
         "searchPlaceholder": "بحث باسم المبنى أو المدينة...",
@@ -249,6 +250,18 @@
         "allStatuses": "كل الحالات",
         "unitType": "نوع الوحدة",
         "sortNewest": "ترتيب: الأحدث"
+      },
+      "unitCard": {
+        "type": "النوع",
+        "description": "الوصف",
+        "statusUnderReview": "قيد المراجعة",
+        "statusStopped": "معطل"
+      },
+      "cardsUnits": {
+        "awaitingReviewMeta": "بانتظار مراجعة العقار أولاً",
+        "reviewPropertyBtn": "مراجعة العقار أولاً",
+        "publishedUnits": "{{count}} وحدة منشورة",
+        "approvedBadge": "معتمد"
       }
     },
     "sections": {
@@ -415,15 +428,32 @@
         "jobRolePlaceholder": "اختر الدور الوظيفي",
         "tempPassword": "كلمة المرور المؤقتة",
         "passwordHint": "سيتم إرسال كلمة المرور هذه إلى البريد الإلكتروني للموظف تلقائياً.",
-        "submit": "حفظ وإرسال"
+        "submit": "حفظ وإرسال",
+        "validation": {
+          "nameRequired": "الاسم مطلوب",
+          "nameMinLength": "الاسم لا يقل عن حرفين",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phonePattern": "أرقام و + فقط",
+          "roleRequired": "الدور الوظيفي مطلوب"
+        }
       }
     },
     "addDepartment": {
       "sectionTitle1": "بيانات القسم والمهام",
       "deptName": "اسم القسم",
       "deptNamePlaceholder": "مثال: قسم التشغيل، خدمة العملاء، القيمسات...",
+      "nameRequired": "اسم القسم مطلوب",
+      "nameMinLength": "الاسم لا يقل عن حرفين",
+      "deptCode": "كود القسم",
+      "deptCodePlaceholder": "مثال: OPS، HR، FINANCE...",
+      "codeRequired": "كود القسم مطلوب",
       "tasksDescription": "وصف المهام والمسؤوليات",
       "tasksDescriptionPlaceholder": "اكتب ملخصًا للمهام الإدارية والتشغيلية التي سيتولاها هذا القسم...",
+      "roleSectionTitle": "الدور الوظيفي الافتراضي",
+      "roleName": "اسم الدور الوظيفي",
+      "roleDescription": "وصف الدور",
       "permissionsTitle": "مصفوفة صلاحيات النظام",
       "enableAll": "تحديث الكل",
       "disableAll": "إلغاء الكل",
@@ -478,6 +508,23 @@
           "title": "الإعدادات",
           "description": "ضبط إعدادات النظام ومتطلبات التشغيل الآلي"
         }
+      }
+    },
+    "addRoleDialog": {
+      "titleEdit": "تعديل الدور الوظيفي",
+      "titleAdd": "إضافة دور جديد",
+      "subtitle": "سيتم تخصيص هذه الصلاحيات لقسم {{dept}}",
+      "defaultDept": "التشغيل",
+      "roleNameLabel": "اسم الدور الوظيفي",
+      "namePlaceholderAr": "مثال: مدقق حجوزات، مشرف جودة...",
+      "descriptionLabel": "وصف الصلاحية",
+      "descriptionPlaceholderAr": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة الدور للنظام",
+      "validation": {
+        "nameRequired": "اسم الدور مطلوب",
+        "nameMinLength": "الاسم لا يقل عن حرفين"
       }
     }
   }

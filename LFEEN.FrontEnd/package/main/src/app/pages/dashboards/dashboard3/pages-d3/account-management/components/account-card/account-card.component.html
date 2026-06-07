@@ -1,0 +1,57 @@
+<mat-card class="account-card shadow-none">
+  <mat-card-content class="p-24">
+
+    <!-- Top row: avatar/logo + status badge -->
+    <div class="d-flex justify-content-between align-items-start m-b-20">
+      @if (account.paymentBadge === 'stripe') {
+        <span class="payment-badge stripe-badge">stripe</span>
+      } @else {
+        <div class="avatar-initials">{{ account.avatarInitials }}</div>
+      }
+      <span class="status-badge" [ngClass]="account.status">
+        @if (account.status !== 'rejected' && account.status !== 'suspended') {
+          <span class="dot"></span>
+        }
+        {{ statusLabel }}
+      </span>
+    </div>
+
+    <!-- Name -->
+    <h4 class="account-name m-b-4">{{ account.name }}</h4>
+    @if (account.tradeName) {
+      <p class="trade-name m-b-12">{{ account.tradeName }}</p>
+    }
+
+    <div class="card-divider m-b-16"></div>
+
+    <!-- Info rows -->
+    <div class="info-rows m-b-20">
+      <div class="info-row d-flex justify-content-between align-items-center m-b-10">
+        <span class="info-label">{{ idFieldLabel }}</span>
+        <span class="info-value">{{ account.idNumber }}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between align-items-center m-b-10">
+        <span class="info-label">تاريخ الانضمام</span>
+        <span class="info-value">{{ account.joinDate }}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between align-items-center">
+        <span class="info-label">عدد المقترات</span>
+        <span class="info-value">{{ account.propertyCount }} {{ account.unit }}</span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="card-actions d-flex align-items-center gap-8">
+      <button mat-icon-button class="icon-action-btn">
+        <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+      </button>
+      <button mat-icon-button class="icon-action-btn">
+        <i-tabler name="eye" class="icon-18"></i-tabler>
+      </button>
+      <button mat-flat-button class="action-main-btn flex-grow-1">
+        {{ actionLabel }}
+      </button>
+    </div>
+
+  </mat-card-content>
+</mat-card>

@@ -1,16 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { switchMap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { DepartmentService } from '../../../../services/department.service';
+import { LoginService } from '../../../../services/login/login.service';
 
 interface PermissionItem {
   key: string;
-  title: string;
-  description: string;
   icon: string;
+  nameAr: string;
+  nameEn: string;
   enabled: boolean;
 }
 
@@ -22,101 +27,45 @@ interface PermissionItem {
   styleUrl: './add-department.component.scss'
 })
 export class AddDepartmentComponent {
-  nameControl = new FormControl('');
-  descriptionControl = new FormControl('');
+  form: FormGroup;
+  isSubmitting = false;
+
+  showDeptNameSecondary = false;
+  showDeptDescSecondary = false;
 
   permissions: PermissionItem[] = [
-    {
-      key: 'dashboard',
-      title: 'لوحة التحكم',
-      description: 'الوصول لتحديثات الأنشطة وأرصدة الذكاء',
-      icon: 'layout-grid',
-      enabled: true
-    },
-    {
-      key: 'buildings',
-      title: 'إدارة المباني',
-      description: 'مراجعة قائمة المباني واعتماد الإيجارات الجديدة',
-      icon: 'building',
-      enabled: true
-    },
-    {
-      key: 'units',
-      title: 'إدارة الوحدات',
-      description: 'التحكم في خصائص الوحدات والرسوم المالية للذكاء',
-      icon: 'home',
-      enabled: true
-    },
-    {
-      key: 'reservations',
-      title: 'الحجوزات',
-      description: 'متابعة الحجوزات المفتوحة وإدارة طلبات الإلغاء',
-      icon: 'calendar-event',
-      enabled: true
-    },
-    {
-      key: 'guests',
-      title: 'الضيوف',
-      description: 'الوصول لبيانات الضيوف ومؤسسات المباني',
-      icon: 'users',
-      enabled: false
-    },
-    {
-      key: 'hosts',
-      title: 'المضيفون',
-      description: 'إدارة حسابات المضيفين وصيانة ملفاتهم المالية',
-      icon: 'user-check',
-      enabled: false
-    },
-    {
-      key: 'revenue',
-      title: 'الإيرادات',
-      description: 'مراقبة الطلبات المجدولة وخصوصية المعلومات المالية',
-      icon: 'chart-bar',
-      enabled: false
-    },
-    {
-      key: 'reports',
-      title: 'التقارير',
-      description: 'تقييم التقارير التفصيلية والمالية لكافة المباني',
-      icon: 'file-analytics',
-      enabled: false
-    },
-    {
-      key: 'complaints',
-      title: 'الشكاوى',
-      description: 'الوصول لمسائل الدعم الفني للمستخدمين',
-      icon: 'message-dots',
-      enabled: false
-    },
-    {
-      key: 'cities',
-      title: 'المدن',
-      description: 'إدارة تفاصيل المدن وفروع المسؤولية المختلفة',
-      icon: 'map-pin',
-      enabled: false
-    },
-    {
-      key: 'team',
-      title: 'إدارة الفرق',
-      description: 'صلاحية إضافة موظفين جدد وتغيير مجرى القسم',
-      icon: 'users-group',
-      enabled: false
-    },
-    {
-      key: 'settings',
-      title: 'الإعدادات',
-      description: 'ضبط إعدادات النظام ومتطلبات التشغيل الآلي',
-      icon: 'settings',
-      enabled: false
-    },
+    { key: 'dashboard',    icon: 'layout-grid',    nameAr: 'لوحة التحكم',    nameEn: 'Dashboard',           enabled: true  },
+    { key: 'buildings',    icon: 'building',        nameAr: 'إدارة المباني',  nameEn: 'Building Management', enabled: true  },
+    { key: 'units',        icon: 'home',            nameAr: 'إدارة الوحدات', nameEn: 'Unit Management',     enabled: true  },
+    { key: 'reservations', icon: 'calendar-event',  nameAr: 'الحجوزات',       nameEn: 'Reservations',        enabled: true  },
+    { key: 'guests',       icon: 'users',           nameAr: 'الضيوف',         nameEn: 'Guests',              enabled: false },
+    { key: 'hosts',        icon: 'user-check',      nameAr: 'المضيفون',       nameEn: 'Hosts',               enabled: false },
+    { key: 'revenue',      icon: 'chart-bar',       nameAr: 'الإيرادات',      nameEn: 'Revenue',             enabled: false },
+    { key: 'reports',      icon: 'file-analytics',  nameAr: 'التقارير',       nameEn: 'Reports',             enabled: false },
+    { key: 'complaints',   icon: 'message-dots',    nameAr: 'الشكاوى',        nameEn: 'Complaints',          enabled: false },
+    { key: 'cities',       icon: 'map-pin',         nameAr: 'المدن',          nameEn: 'Cities',              enabled: false },
+    { key: 'team',         icon: 'users-group',     nameAr: 'إدارة الفرق',    nameEn: 'Team Management',     enabled: false },
+    { key: 'settings',     icon: 'settings',        nameAr: 'الإعدادات',      nameEn: 'Settings',            enabled: false },
   ];
 
   constructor(
+    private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
-  ) {}
+    private translate: TranslateService,
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService,
+    private departmentService: DepartmentService,
+    private loginService: LoginService
+  ) {
+    this.form = this.fb.group({
+      deptNameAr: ['', [Validators.required, Validators.minLength(2)]],
+      deptNameEn: [''],
+      deptCode: ['', Validators.required],
+      deptDescriptionAr: [''],
+      deptDescriptionEn: [''],
+    });
+  }
 
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
@@ -131,12 +80,57 @@ export class AddDepartmentComponent {
   }
 
   save(): void {
-    console.log({
-      name: this.nameControl.value,
-      description: this.descriptionControl.value,
-      permissions: this.permissions.filter(p => p.enabled).map(p => p.key)
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toastr.warning(
+        this.currentLang === 'ar' ? 'يرجى تعبئة الحقول المطلوبة' : 'Please fill required fields'
+      );
+      return;
+    }
+
+    this.isSubmitting = true;
+    const v = this.form.value;
+    const managerId = this.loginService.currentUser()?.userId ?? '';
+    const enabledPerms = this.permissions.filter(p => p.enabled);
+
+    this.departmentService.createDepartment({
+      nameAr: v.deptNameAr,
+      nameEn: v.deptNameEn || v.deptNameAr,
+      code: v.deptCode,
+      descriptionAr: v.deptDescriptionAr,
+      descriptionEn: v.deptDescriptionEn || v.deptDescriptionAr,
+      managerId
+    }).pipe(
+      switchMap(dept => {
+        if (enabledPerms.length === 0) return of(null);
+        return forkJoin(
+          enabledPerms.map(perm =>
+            this.departmentService.createRole({
+              nameAr: perm.nameAr,
+              nameEn: perm.nameEn,
+              descriptionAr: '',
+              descriptionEn: '',
+              departmentId: dept.id
+            })
+          )
+        );
+      })
+    ).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.toastr.success(
+          this.currentLang === 'ar' ? 'تم إضافة القسم والأدوار بنجاح' : 'Department and roles added successfully'
+        );
+        this.router.navigate(['../'], { relativeTo: this.route });
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.toastr.error(
+          this.currentLang === 'ar' ? 'حدث خطأ أثناء العملية' : 'Error during operation'
+        );
+        this.cdr.detectChanges();
+      }
     });
-    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   cancel(): void {

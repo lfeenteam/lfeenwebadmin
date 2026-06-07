@@ -41,15 +41,17 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private addAuthorizationHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
     const token = this.loginService.getToken();
-    if (!token) {
-      return req;
+    const lang = localStorage.getItem('preferred_language') || 'en';
+
+    const headers: Record<string, string> = {
+      'Accept-Language': lang,
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    return req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    return req.clone({ setHeaders: headers });
   }
 
   private logoutAndRedirect(error: HttpErrorResponse): Observable<never> {

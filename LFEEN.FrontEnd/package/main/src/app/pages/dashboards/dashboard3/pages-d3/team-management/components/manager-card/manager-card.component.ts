@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
-import { Department } from '../../department.service';
+import { Department } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-manager-card',

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { BuildingWithUnits } from './unit-card.model';
+import { BuildingWithUnits } from '../interfaces/unit-card.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class UnitsService {
       name: 'برج ريتاج السكني',
       location: 'جدة، حي الشاطئ',
       publishedUnits: 12,
-      image: 'assets/images/products/review_image.png', 
+      image: 'assets/images/products/review_image.png',
       units: [
         {
           id: 'u1',
@@ -69,7 +69,7 @@ export class UnitsService {
       name: 'برج ريتاج السكني',
       location: 'جدة، حي الشاطئ',
       publishedUnits: 12,
-      image: 'assets/images/products/s2.jpg', 
+      image: 'assets/images/products/s2.jpg',
       units: [
         {
           id: 'u5',
@@ -121,7 +121,6 @@ export class UnitsService {
         }
       ]
     },
-    // وحدات تحت المراجعة للعرض
     {
       id: 'b3',
       name: 'برج ريتاج السكني (قيد المراجعة)',

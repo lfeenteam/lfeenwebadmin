@@ -1,92 +1,149 @@
 <div class="add-dept-page" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <form [formGroup]="form">
 
-  <!-- Section: بيانات القسم والمهام -->
-  <div class="section-card m-b-24">
-    <div class="section-header d-flex align-items-center justify-content-between m-b-16">
-      <div class="d-flex align-items-center gap-10">
-        <span class="section-bar"></span>
-        <h4 class="section-title m-0">{{ 'd3.addDepartment.sectionTitle1' | translate }}</h4>
-      </div>
-    </div>
-    <div class="section-divider"></div>
-
-    <!-- اسم القسم -->
-    <div class="field-group m-b-20">
-      <label class="field-label">{{ 'd3.addDepartment.deptName' | translate }}</label>
-      <input
-        type="text"
-        class="custom-input"
-        [placeholder]="'d3.addDepartment.deptNamePlaceholder' | translate"
-        [formControl]="nameControl"
-      />
-    </div>
-
-    <!-- وصف المهام -->
-    <div class="field-group">
-      <label class="field-label">{{ 'd3.addDepartment.tasksDescription' | translate }}</label>
-      <textarea
-        class="custom-textarea"
-        rows="4"
-        [placeholder]="'d3.addDepartment.tasksDescriptionPlaceholder' | translate"
-        [formControl]="descriptionControl"
-      ></textarea>
-    </div>
-  </div>
-
-  <!-- Section: مصفوفة صلاحيات النظام -->
-  <div class="section-card">
-    <div class="section-header d-flex align-items-center justify-content-between m-b-16">
-      <div class="d-flex align-items-center gap-10">
-        <span class="section-bar"></span>
-        <h4 class="section-title m-0">{{ 'd3.addDepartment.permissionsTitle' | translate }}</h4>
-      </div>
-      <div class="d-flex gap-8">
-        <button mat-stroked-button class="toggle-all-btn" (click)="enableAll()">
-          {{ 'd3.addDepartment.enableAll' | translate }}
-        </button>
-        <button mat-stroked-button class="toggle-all-btn cancel-all" (click)="disableAll()">
-          {{ 'd3.addDepartment.disableAll' | translate }}
-        </button>
-      </div>
-    </div>
-    <div class="section-divider"></div>
-    <div class="row g-12">
-      @for (perm of permissions; track perm.key) {
-        <div class="col-6 col-md-3">
-          <div class="perm-card" [class.perm-active]="perm.enabled">
-            <div class="perm-card-top d-flex align-items-center justify-content-between m-b-16">
-              <div class="perm-icon-wrap d-flex align-items-center justify-content-center">
-                <i-tabler [name]="perm.icon" class="icon-22 perm-icon"></i-tabler>
-              </div>
-              <mat-slide-toggle
-                [(ngModel)]="perm.enabled"
-                color="primary"
-                class="perm-toggle">
-              </mat-slide-toggle>
-            </div>
-            <h5 class="perm-title f-s-14 f-w-700 m-b-4">
-              {{ 'd3.addDepartment.permissions.' + perm.key + '.title' | translate }}
-            </h5>
-            <p class="perm-desc f-s-11 m-0">
-              {{ 'd3.addDepartment.permissions.' + perm.key + '.description' | translate }}
-            </p>
-          </div>
+    <!-- Section: بيانات القسم -->
+    <div class="section-card m-b-24">
+      <div class="section-header d-flex align-items-center justify-content-between m-b-16">
+        <div class="d-flex align-items-center gap-10">
+          <span class="section-bar"></span>
+          <h4 class="section-title m-0">{{ 'd3.addDepartment.sectionTitle1' | translate }}</h4>
         </div>
-      }
-    </div>
-  </div>
-
-  <!-- Action Bar -->
-  <div class="action-bar d-flex align-items-center justify-content-end gap-12 m-t-32">
-    <button mat-button class="cancel-btn" (click)="cancel()">
-      {{ 'd3.addDepartment.cancel' | translate }}
-    </button>
-    <button mat-flat-button class="save-btn" (click)="save()">
-      <div class="d-flex align-items-center gap-8">
-        <i-tabler name="plus" class="icon-16"></i-tabler>
-        {{ 'd3.addDepartment.save' | translate }}
       </div>
-    </button>
-  </div>
+      <div class="section-divider"></div>
 
+      <!-- اسم القسم (bilingual) -->
+      <div class="field-group m-b-20">
+        <label class="field-label">{{ 'd3.addDepartment.deptName' | translate }}</label>
+
+        @if (currentLang === 'ar') {
+          <div class="bilingual-input-wrapper" [class.is-invalid]="form.get('deptNameAr')?.invalid && form.get('deptNameAr')?.touched">
+            <input class="bilingual-input" formControlName="deptNameAr" [placeholder]="'d3.addDepartment.deptNamePlaceholder' | translate">
+            <button type="button" class="lang-chip" [class.active]="showDeptNameSecondary" (click)="showDeptNameSecondary = !showDeptNameSecondary">English</button>
+          </div>
+          @if (form.get('deptNameAr')?.invalid && form.get('deptNameAr')?.touched) {
+            <p class="field-error-msg">
+              @if (form.get('deptNameAr')?.hasError('required')) { {{ 'd3.addDepartment.nameRequired' | translate }} }
+              @else if (form.get('deptNameAr')?.hasError('minlength')) { {{ 'd3.addDepartment.nameMinLength' | translate }} }
+            </p>
+          }
+          @if (showDeptNameSecondary) {
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="ltr">
+              <input class="bilingual-input" formControlName="deptNameEn" placeholder="e.g. Operations Department...">
+              <span class="lang-chip static">English</span>
+            </div>
+          }
+        } @else {
+          <div class="bilingual-input-wrapper">
+            <input class="bilingual-input" formControlName="deptNameEn" placeholder="e.g. Operations Department...">
+            <button type="button" class="lang-chip" [class.active]="showDeptNameSecondary" (click)="showDeptNameSecondary = !showDeptNameSecondary">عربي</button>
+          </div>
+          @if (showDeptNameSecondary) {
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="rtl">
+              <input class="bilingual-input" formControlName="deptNameAr" [placeholder]="'d3.addDepartment.deptNamePlaceholder' | translate">
+              <span class="lang-chip static">عربي</span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- كود القسم -->
+      <div class="field-group m-b-20">
+        <label class="field-label">{{ 'd3.addDepartment.deptCode' | translate }}</label>
+        <div class="bilingual-input-wrapper" [class.is-invalid]="form.get('deptCode')?.invalid && form.get('deptCode')?.touched">
+          <input class="bilingual-input" formControlName="deptCode" [placeholder]="'d3.addDepartment.deptCodePlaceholder' | translate">
+        </div>
+        @if (form.get('deptCode')?.invalid && form.get('deptCode')?.touched) {
+          <p class="field-error-msg">{{ 'd3.addDepartment.codeRequired' | translate }}</p>
+        }
+      </div>
+
+      <!-- وصف المهام (bilingual) -->
+      <div class="field-group">
+        <label class="field-label">{{ 'd3.addDepartment.tasksDescription' | translate }}</label>
+
+        @if (currentLang === 'ar') {
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="deptDescriptionAr" rows="4"
+              [placeholder]="'d3.addDepartment.tasksDescriptionPlaceholder' | translate"></textarea>
+            <button type="button" class="lang-chip align-self-start m-t-8" [class.active]="showDeptDescSecondary" (click)="showDeptDescSecondary = !showDeptDescSecondary">English</button>
+          </div>
+          @if (showDeptDescSecondary) {
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8" dir="ltr">
+              <textarea class="bilingual-textarea" formControlName="deptDescriptionEn" rows="3" placeholder="Describe the department tasks..."></textarea>
+              <span class="lang-chip static align-self-start m-t-8">English</span>
+            </div>
+          }
+        } @else {
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="deptDescriptionEn" rows="4" placeholder="Describe the department tasks..."></textarea>
+            <button type="button" class="lang-chip align-self-start m-t-8" [class.active]="showDeptDescSecondary" (click)="showDeptDescSecondary = !showDeptDescSecondary">عربي</button>
+          </div>
+          @if (showDeptDescSecondary) {
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8" dir="rtl">
+              <textarea class="bilingual-textarea" formControlName="deptDescriptionAr" rows="3"
+                [placeholder]="'d3.addDepartment.tasksDescriptionPlaceholder' | translate"></textarea>
+              <span class="lang-chip static align-self-start m-t-8">عربي</span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Section: مصفوفة صلاحيات النظام -->
+    <div class="section-card">
+      <div class="section-header d-flex align-items-center justify-content-between m-b-16">
+        <div class="d-flex align-items-center gap-10">
+          <span class="section-bar"></span>
+          <h4 class="section-title m-0">{{ 'd3.addDepartment.permissionsTitle' | translate }}</h4>
+        </div>
+        <div class="d-flex gap-8">
+          <button type="button" mat-stroked-button class="toggle-all-btn" (click)="enableAll()">
+            {{ 'd3.addDepartment.enableAll' | translate }}
+          </button>
+          <button type="button" mat-stroked-button class="toggle-all-btn cancel-all" (click)="disableAll()">
+            {{ 'd3.addDepartment.disableAll' | translate }}
+          </button>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="row g-12">
+        @for (perm of permissions; track perm.key) {
+          <div class="col-6 col-md-3">
+            <div class="perm-card" [class.perm-active]="perm.enabled">
+              <div class="perm-card-top d-flex align-items-center justify-content-between m-b-16">
+                <div class="perm-icon-wrap d-flex align-items-center justify-content-center">
+                  <i-tabler [name]="perm.icon" class="icon-22 perm-icon"></i-tabler>
+                </div>
+                <mat-slide-toggle [(ngModel)]="perm.enabled" [ngModelOptions]="{standalone: true}" color="primary" class="perm-toggle"></mat-slide-toggle>
+              </div>
+              <h5 class="perm-title f-s-14 f-w-700 m-b-4">
+                {{ 'd3.addDepartment.permissions.' + perm.key + '.title' | translate }}
+              </h5>
+              <p class="perm-desc f-s-11 m-0">
+                {{ 'd3.addDepartment.permissions.' + perm.key + '.description' | translate }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar d-flex align-items-center justify-content-end gap-12 m-t-32">
+      <button type="button" mat-button class="cancel-btn" (click)="cancel()">
+        {{ 'd3.addDepartment.cancel' | translate }}
+      </button>
+      <button type="submit" mat-flat-button class="save-btn" (click)="save()" [disabled]="isSubmitting">
+        <div class="d-flex align-items-center gap-8">
+          @if (isSubmitting) {
+            <mat-spinner diameter="16" style="display:inline-block;vertical-align:middle;"></mat-spinner>
+          } @else {
+            <i-tabler name="plus" class="icon-16"></i-tabler>
+          }
+          {{ 'd3.addDepartment.save' | translate }}
+        </div>
+      </button>
+    </div>
+
+  </form>
 </div>

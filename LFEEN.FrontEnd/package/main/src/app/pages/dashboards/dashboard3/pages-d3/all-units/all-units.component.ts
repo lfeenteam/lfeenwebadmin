@@ -3,9 +3,9 @@ import { Component } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
-import { MetricCard, TabOption, ViewMode, BuildFilterOption } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.model';
-import { UnitsService } from './units.service';
-import { BuildingWithUnits } from './unit-card.model';
+import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
+import { UnitsService } from '../../services/units.service';
+import { BuildingWithUnits } from '../../interfaces/unit-card.model';
 import { Subscription } from 'rxjs';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
 

@@ -1,6 +1,6 @@
 <div class="permissions-container">
   <!-- Header Card -->
-  <mat-card class=" m-b-24 header-card">
+  <mat-card class="m-b-24 header-card">
     <mat-card-content class="p-24 d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center gap-24">
         <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
@@ -24,7 +24,7 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Permissions Table -->
+  <!-- Roles Table -->
   <mat-card class="shadow-none table-card m-b-24">
     <mat-card-content class="p-0">
       <div class="table-responsive">
@@ -33,37 +33,64 @@
             <tr>
               <th>القسم / الوظيفة</th>
               <th>وصف الصلاحية</th>
-              <th class="text-center">الحالة</th>
+              <th class="text-center actions-header">الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            @if(isLoading) {
+            @if (isLoading) {
               <tr>
                 <td colspan="3" class="p-24 text-center">
                   <mat-spinner diameter="32" class="m-auto"></mat-spinner>
                 </td>
               </tr>
             } @else {
-              @for(perm of permissions; track perm.id) {
-              <tr [class.disabled-row]="!perm.enabled">
-                <td class="p-24">
-                  <div class="d-flex align-items-center gap-12">
-                    <div class="permission-icon-wrapper">
-                      <i-tabler [name]="perm.icon" class="permission-icon"></i-tabler>
+              @for (role of roles; track role.id) {
+                <tr>
+                  <td class="p-24">
+                    <div class="d-flex align-items-center gap-12">
+                      <div class="permission-icon-wrapper">
+                        <i-tabler [name]="role.icon" class="permission-icon"></i-tabler>
+                      </div>
+                      <span class="f-s-14 f-w-900">{{ role.name }}</span>
                     </div>
-                    <span class="f-s-14 f-w-900">{{ perm.name }}</span>
-                  </div>
-                </td>
-                <td class="p-24">
-                  <span class="perm-desc">{{ perm.description }}</span>
-                </td>
-                <td class="p-24 text-center">
-                  <mat-slide-toggle color="primary" [(ngModel)]="perm.enabled"></mat-slide-toggle>
-                </td>
-              </tr>
+                  </td>
+                  <td class="p-24">
+                    <span class="perm-desc">{{ role.description }}</span>
+                  </td>
+                  <td class="p-24 text-center actions-col">
+                    @if (deletingId === role.id) {
+                      <mat-spinner diameter="20" class="m-auto"></mat-spinner>
+                    } @else {
+                      <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                        <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                      </button>
+                      <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
+                        <button mat-menu-item (click)="editRole(role)">
+                          <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
+                          <span>تعديل</span>
+                        </button>
+                        <button mat-menu-item class="delete-item" (click)="deleteRole(role)">
+                          <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
+                          <span>حذف</span>
+                        </button>
+                      </mat-menu>
+                    }
+                  </td>
+                </tr>
               }
             }
           </tbody>
+          <!-- Add Role Row -->
+      <tfoot>
+  <tr class="add-role-row">
+    <td colspan="3" class="p-16">
+      <button class="add-role-btn d-inline-flex align-items-center gap-8" (click)="openAddRoleDialog()">
+        <i-tabler name="plus" class="icon-16"></i-tabler>
+        إضافة دور (Role) أو صلاحية جديدة للقسم
+      </button>
+    </td>
+  </tr>
+</tfoot>
         </table>
       </div>
     </mat-card-content>
@@ -80,13 +107,12 @@
 
   <!-- Actions -->
   <div class="d-flex gap-16 justify-content-end">
-    <button mat-stroked-button class="cancel-btn" (click)="cancelChanges()">
+    <button mat-stroked-button class="cancel-btn">
       إلغاء التغييرات
     </button>
-    <button mat-flat-button color="dark" class="save-btn" (click)="savePermissions()">
+    <button mat-flat-button color="dark" class="save-btn">
       حفظ وتحديث الصلاحيات
       <i-tabler name="device-floppy" class="icon-16"></i-tabler>
     </button>
-    
   </div>
 </div>

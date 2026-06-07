@@ -11,16 +11,17 @@ import {
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { DepartmentService, DepartmentRole } from '../../department.service';
+import { DepartmentService } from '../../../../services/department.service';
+import { DepartmentRole } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-add-employee-dialog',
   standalone: true,
   imports: [
-    CommonModule, 
-    MaterialModule, 
-    TablerIconsModule, 
-    TranslateModule, 
+    CommonModule,
+    MaterialModule,
+    TablerIconsModule,
+    TranslateModule,
     ReactiveFormsModule
   ],
   templateUrl: './add-employee-dialog.component.html',
@@ -29,9 +30,9 @@ import { DepartmentService, DepartmentRole } from '../../department.service';
 export class AddEmployeeDialogComponent implements OnInit {
   employeeForm: FormGroup;
   roles: DepartmentRole[] = [];
-  tempPassword = '';
   isDropdownOpen = false;
-  selectedRole: { nameAr: string; nameEn: string } | null = null;
+  isSubmitting = false;
+  selectedRole: { name?: string; nameAr?: string; nameEn?: string } | null = null;
   serverErrors: Record<string, string> = {};
 
   private readonly fieldMap: Record<string, string> = {
@@ -39,7 +40,6 @@ export class AddEmployeeDialogComponent implements OnInit {
     'request.fullname': 'fullName',
     'request.phonenumber': 'phoneNumber',
     'request.roleid': 'roleId',
-    'request.password': 'password',
   };
 
   private readonly errorMessageMap: Record<string, string> = {
@@ -67,13 +67,11 @@ export class AddEmployeeDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<AddEmployeeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { departmentId: string, employee?: any }
   ) {
-    this.tempPassword = this.data.employee ? '********' : this.generateTempPassword();
     this.employeeForm = this.fb.group({
       fullName: [this.data.employee?.fullName || '', [Validators.required, Validators.minLength(2)]],
       email: [this.data.employee?.email || '', [Validators.required, Validators.email]],
       phoneNumber: [this.data.employee?.phoneNumber || '', [Validators.required, Validators.pattern(/^[+\d]+$/)]],
       roleId: [this.data.employee?.roles?.[0]?.roleId || '', Validators.required],
-      password: [this.tempPassword, this.data.employee ? [] : [Validators.required, Validators.pattern(/(?=.*[A-Z])/)]]
     });
 
     if (this.data.employee) {
@@ -90,10 +88,8 @@ export class AddEmployeeDialogComponent implements OnInit {
   }
 
   selectRole(role: any): void {
-    console.log('Selecting role:', role);
     this.selectedRole = role;
-    const roleIdValue = role.id;
-    this.employeeForm.get('roleId')?.setValue(roleIdValue);
+    this.employeeForm.get('roleId')?.setValue(role.id);
     this.isDropdownOpen = false;
     this.cdr.detectChanges();
   }
@@ -101,7 +97,6 @@ export class AddEmployeeDialogComponent implements OnInit {
   loadRoles(): void {
     this.departmentService.getDepartmentRoles(this.data.departmentId).subscribe({
       next: (roles) => {
-        console.log('Loaded Roles:', roles);
         this.roles = roles;
         this.cdr.detectChanges();
       },
@@ -109,28 +104,12 @@ export class AddEmployeeDialogComponent implements OnInit {
     });
   }
 
-  generateTempPassword(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = 'Lafin-2024-';
-    for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
-  copyPassword(): void {
-    const password = this.employeeForm.get('password')?.value;
-    if (!password) return;
-    navigator.clipboard.writeText(password).then(() => {
-      this.toastr.success(
-        this.currentLang === 'ar' ? 'تم نسخ كلمة المرور بنجاح' : 'Password copied successfully'
-      );
-    });
-  }
-
   getSelectedRoleName(): string {
     if (!this.selectedRole) return '';
-    return this.currentLang === 'ar' ? this.selectedRole.nameAr : this.selectedRole.nameEn;
+    return this.selectedRole.nameAr
+      || this.selectedRole.nameEn
+      || this.selectedRole.name
+      || '';
   }
 
   saveEmployee(): void {
@@ -143,17 +122,16 @@ export class AddEmployeeDialogComponent implements OnInit {
         roleIds: [formData.roleId]
       };
 
-      if (!this.data.employee) {
-        (submissionData as any).password = formData.password;
-      }
-
-      const request = this.data.employee 
+      const request = this.data.employee
         ? this.departmentService.updateEmployee(this.data.departmentId, this.data.employee.userId, submissionData)
         : this.departmentService.addEmployee(this.data.departmentId, submissionData);
 
       this.serverErrors = {};
+      this.isSubmitting = true;
+
       request.subscribe({
         next: () => {
+          this.isSubmitting = false;
           this.toastr.success(
             this.currentLang === 'ar'
               ? (this.data.employee ? 'تم تحديث بيانات الموظف بنجاح' : 'تم إضافة الموظف بنجاح')
@@ -162,6 +140,7 @@ export class AddEmployeeDialogComponent implements OnInit {
           this.dialogRef.close(true);
         },
         error: (err) => {
+          this.isSubmitting = false;
           const apiErrors: { field: string; message: string }[] = err?.error?.errors || [];
           if (apiErrors.length) {
             apiErrors.forEach(e => {
@@ -185,7 +164,7 @@ export class AddEmployeeDialogComponent implements OnInit {
     }
   }
 
-get currentLang(): string {
+  get currentLang(): string {
     return this.translate.currentLang || 'ar';
   }
 }

@@ -1,0 +1,109 @@
+<div class="role-dialog-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <button mat-icon-button class="close-btn" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header text-center">
+    <div class="role-icon-wrapper d-flex align-items-center justify-content-center m-auto m-b-16">
+      <i-tabler name="shield-check" class="icon-28"></i-tabler>
+    </div>
+    <h2 class="dialog-title f-s-20 f-w-900 m-b-8">
+      {{ (data.role ? 'd3.addRoleDialog.titleEdit' : 'd3.addRoleDialog.titleAdd') | translate }}
+    </h2>
+    <p class="dialog-subtitle f-s-12 m-0">
+      {{ 'd3.addRoleDialog.subtitle' | translate: { dept: data.deptName || ('d3.addRoleDialog.defaultDept' | translate) } }}
+    </p>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="roleForm">
+
+      <!-- Name field -->
+      <div class="m-b-20">
+        <mat-label class="field-label d-block m-b-8">{{ 'd3.addRoleDialog.roleNameLabel' | translate }}</mat-label>
+
+        @if (currentLang === 'ar') {
+          <div class="bilingual-input-wrapper" [class.is-invalid]="roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched">
+            <input class="bilingual-input" formControlName="nameAr" [placeholder]="'d3.addRoleDialog.namePlaceholderAr' | translate">
+            <button type="button" class="lang-chip" [class.active]="showNameSecondary" (click)="showNameSecondary = !showNameSecondary">
+              English
+            </button>
+          </div>
+          @if (roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched) {
+            <p class="field-error-msg">
+              @if (roleForm.get('nameAr')?.hasError('required')) { {{ 'd3.addRoleDialog.validation.nameRequired' | translate }} }
+              @else if (roleForm.get('nameAr')?.hasError('minlength')) { {{ 'd3.addRoleDialog.validation.nameMinLength' | translate }} }
+            </p>
+          }
+          @if (showNameSecondary) {
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="ltr">
+              <input class="bilingual-input" formControlName="nameEn" placeholder="e.g. Quality Supervisor...">
+              <span class="lang-chip static">English</span>
+            </div>
+          }
+        } @else {
+          <div class="bilingual-input-wrapper" [class.is-invalid]="roleForm.get('nameEn')?.invalid && roleForm.get('nameEn')?.touched">
+            <input class="bilingual-input" formControlName="nameEn" placeholder="e.g. Quality Supervisor...">
+            <button type="button" class="lang-chip" [class.active]="showNameSecondary" (click)="showNameSecondary = !showNameSecondary">
+              عربي
+            </button>
+          </div>
+          @if (showNameSecondary) {
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="rtl">
+              <input class="bilingual-input" formControlName="nameAr" [placeholder]="'d3.addRoleDialog.namePlaceholderAr' | translate">
+              <span class="lang-chip static">عربي</span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Description field -->
+      <div>
+        <mat-label class="field-label d-block m-b-8">{{ 'd3.addRoleDialog.descriptionLabel' | translate }}</mat-label>
+
+        @if (currentLang === 'ar') {
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionAr" rows="4"
+              [placeholder]="'d3.addRoleDialog.descriptionPlaceholderAr' | translate"></textarea>
+            <button type="button" class="lang-chip align-self-start m-t-8" [class.active]="showDescSecondary" (click)="showDescSecondary = !showDescSecondary">
+              English
+            </button>
+          </div>
+          @if (showDescSecondary) {
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8" dir="ltr">
+              <textarea class="bilingual-textarea" formControlName="descriptionEn" rows="3"
+                placeholder="Describe the tasks this role holder can perform..."></textarea>
+              <span class="lang-chip static align-self-start m-t-8">English</span>
+            </div>
+          }
+        } @else {
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionEn" rows="4"
+              placeholder="Describe the tasks this role holder can perform..."></textarea>
+            <button type="button" class="lang-chip align-self-start m-t-8" [class.active]="showDescSecondary" (click)="showDescSecondary = !showDescSecondary">
+              عربي
+            </button>
+          </div>
+          @if (showDescSecondary) {
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8" dir="rtl">
+              <textarea class="bilingual-textarea" formControlName="descriptionAr" rows="3"
+                [placeholder]="'d3.addRoleDialog.descriptionPlaceholderAr' | translate"></textarea>
+              <span class="lang-chip static align-self-start m-t-8">عربي</span>
+            </div>
+          }
+        }
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions d-flex justify-content-between gap-12">
+    <button mat-button (click)="dialogRef.close()" class="cancel-btn">{{ 'd3.addRoleDialog.cancelBtn' | translate }}</button>
+    <button mat-flat-button color="dark" class="submit-btn" (click)="save()" [disabled]="isSubmitting">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      }
+      {{ (data.role ? 'd3.addRoleDialog.saveBtn' : 'd3.addRoleDialog.addBtn') | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

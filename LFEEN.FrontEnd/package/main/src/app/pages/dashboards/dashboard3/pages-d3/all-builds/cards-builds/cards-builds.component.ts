@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
-import { BuildingCardItem, BuildingViewMode } from '../building-card.model';
+import { BuildingCardItem, BuildingViewMode } from '../../../interfaces/building-card.model';
 import { BulidingCardsComponent } from './buliding-cards/buliding-cards.component';
 import { ReviewCardsComponent } from './review-cards/review-cards.component';
 

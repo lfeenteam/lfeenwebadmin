@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BuildingCardItem, BuildingViewMode } from '../../building-card.model';
+import { BuildingCardItem, BuildingViewMode } from '../../../../interfaces/building-card.model';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';

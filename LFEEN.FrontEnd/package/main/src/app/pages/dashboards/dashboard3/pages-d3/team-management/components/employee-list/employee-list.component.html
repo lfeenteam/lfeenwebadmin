@@ -10,4 +10,31 @@
   }
 
   <app-all-employees [employees]="filteredEmployees" (edit)="onEdit($event)" (delete)="onDelete($event)"></app-all-employees>
+
+  @if (totalPages > 1) {
+    <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">
+      <span class="f-s-13 text-muted">
+        {{ totalCount }} {{ 'd3.teamManagement.pagination.total' | translate }}
+      </span>
+      <div class="d-flex align-items-center gap-4">
+        <button mat-icon-button class="page-nav-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)">
+          <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+        </button>
+        @for (p of pageNumbers; track p) {
+          <button class="page-number-btn"
+            [class.active]="p === currentPage"
+            (click)="changePage(p)">
+            {{ p }}
+          </button>
+        }
+        <button mat-icon-button class="page-nav-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(currentPage + 1)">
+          <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </div>
+  }
 </div>

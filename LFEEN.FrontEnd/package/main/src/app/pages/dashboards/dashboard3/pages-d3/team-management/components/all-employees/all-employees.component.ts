@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Employee } from '../../department.service';
+import { Employee } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-all-employees',

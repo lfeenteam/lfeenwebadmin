@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
-import { BuildingTab } from '../building-card.model';
-
 export interface BuildFilterOption {
   id: string;
   labelKey: string;
