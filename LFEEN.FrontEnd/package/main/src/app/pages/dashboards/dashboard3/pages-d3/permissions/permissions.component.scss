@@ -192,6 +192,14 @@
   .actions-col {
     width: 80px;
   }
+
+  .actions-header-wide {
+    width: 120px;
+  }
+
+  .actions-col-wide {
+    width: 120px;
+  }
  .action-dots-btn {
     color: #9E9E9A;
     width: 36px !important;
@@ -294,7 +302,6 @@ tfoot {
   
   svg {
     display: block !important;
-    vertical-align: middle !important;
   }
 }
 ::ng-deep .mat-mdc-menu-item-text {

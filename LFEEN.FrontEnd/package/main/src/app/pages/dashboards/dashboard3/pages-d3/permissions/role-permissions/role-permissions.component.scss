@@ -1,0 +1,156 @@
+.role-perms-container {
+  font-family: 'Cairo', sans-serif !important;
+
+  .dept-desc {
+    font-weight: 700;
+    font-size: 12px;
+    color: #6B6B67;
+  }
+
+  .stat-label {
+    font-weight: 900;
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #9E9E9A;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    font-weight: 900;
+    font-size: 14px;
+    color: #111110;
+  }
+
+  // ── Header Card ──────────────────────────
+  .header-card {
+    border-radius: 20px !important;
+    background-color: #FCFCFB;
+    border: 1px solid #E8E8E4;
+
+    .dept-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      background-color: #fff;
+      border: 1px solid #E8E8E4;
+      border-radius: 16px;
+    }
+
+    .stat-item {
+      min-width: 110px;
+      background-color: #fff;
+      border: 1px solid #E8E8E4;
+      border-radius: 12px;
+      padding: 12px 20px;
+    }
+  }
+
+  // ── Permissions Card ─────────────────────
+  .perms-card {
+    border: 1px solid #E8E8E4 !important;
+    border-radius: 24px !important;
+    overflow: hidden;
+
+    .card-header-row {
+      background-color: #FCFCFB;
+
+      .active-count {
+        font-weight: 700;
+        font-size: 12px;
+        color: #6B6B67;
+      }
+
+      .role-badge {
+        background: #111110;
+        color: #fff;
+        border-radius: 20px;
+        padding: 4px 16px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+    }
+
+    .perms-divider {
+      height: 1px;
+      background: #E8E8E4;
+    }
+
+    .perm-row {
+      border-bottom: 1px solid #F1F1EE;
+      transition: background 0.15s;
+
+      &:last-child { border-bottom: none; }
+      &:hover { background: #FCFCFB; }
+
+      .perm-info {
+        flex: 1;
+        padding-inline-end: 16px;
+
+        .perm-name {
+          font-weight: 900;
+          font-size: 14px;
+          color: #111110;
+          margin-bottom: 3px;
+        }
+
+        .perm-desc {
+          font-weight: 700;
+          font-size: 12px;
+          color: #9E9E9A;
+          line-height: 16px;
+        }
+      }
+
+      .toggle-spinner {
+        flex-shrink: 0;
+      }
+    }
+
+    .empty-state {
+      .text-muted { color: #9E9E9A; }
+    }
+  }
+
+  // ── Footer Buttons ───────────────────────
+  .save-btn {
+    background-color: #111110;
+    color: #fff;
+    border-radius: 12px;
+    height: auto;
+    font-weight: 700;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .cancel-btn {
+    border: none;
+    border-radius: 12px;
+    height: auto;
+    font-weight: 700;
+    padding: 12px 32px;
+    background-color: #F7F7F5;
+    color: #111110;
+    font-size: 14px;
+  }
+}
+
+// ── Slide toggle ON when disabled ──────────
+::ng-deep .role-perms-container {
+  .mat-mdc-slide-toggle.mat-primary {
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-handle-color: #fff;
+    --mdc-switch-unselected-track-color: #EDEDEB;
+    --mdc-switch-unselected-handle-color: #fff;
+
+    .mdc-switch:enabled .mdc-switch__track::after {
+      background-color: #111110 !important;
+    }
+
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #EDEDEB !important;
+      border: 1px solid #E8E8E4;
+    }
+  }
+}

@@ -8,16 +8,16 @@
         </div>
         <div>
           <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName }} ({{ deptEnglishName }})</h2>
-          <p class="permissions-description m-0">إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.</p>
+          <p class="permissions-description m-0">{{ 'd3.permissions.description' | translate }}</p>
         </div>
       </div>
       <div class="d-flex gap-16">
         <div class="stat-item p-x-20 p-y-10 text-center">
-          <span class="stat-label d-block">عدد الموظفين</span>
+          <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
           <span class="stat-value">{{ employeeCount }}</span>
         </div>
         <div class="stat-item rounded border p-x-20 p-y-10 text-center">
-          <span class="stat-label d-block">المدير المسؤول</span>
+          <span class="stat-label d-block">{{ 'd3.permissions.manager' | translate }}</span>
           <span class="stat-value">{{ manager }}</span>
         </div>
       </div>
@@ -31,9 +31,9 @@
         <table class="table permissions-table m-0">
           <thead>
             <tr>
-              <th>القسم / الوظيفة</th>
-              <th>وصف الصلاحية</th>
-              <th class="text-center actions-header">الإجراءات</th>
+              <th>{{ 'd3.permissions.table.department' | translate }}</th>
+              <th>{{ 'd3.permissions.table.description' | translate }}</th>
+              <th class="text-center actions-header-wide">{{ 'd3.permissions.table.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -57,21 +57,26 @@
                   <td class="p-24">
                     <span class="perm-desc">{{ role.description }}</span>
                   </td>
-                  <td class="p-24 text-center actions-col">
+                  <td class="p-24 text-center actions-col-wide">
                     @if (deletingId === role.id) {
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
-                      <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
-                        <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                      </button>
+                      <div class="d-flex align-items-center justify-content-center gap-4">
+                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
+                          <i-tabler name="eye" class="icon-18"></i-tabler>
+                        </button>
+                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                        </button>
+                      </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
                         <button mat-menu-item (click)="editRole(role)">
                           <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
-                          <span>تعديل</span>
+                          <span>{{ 'd3.permissions.table.editBtn' | translate }}</span>
                         </button>
                         <button mat-menu-item class="delete-item" (click)="deleteRole(role)">
                           <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
-                          <span>حذف</span>
+                          <span>{{ 'd3.permissions.table.deleteBtn' | translate }}</span>
                         </button>
                       </mat-menu>
                     }
@@ -86,7 +91,7 @@
     <td colspan="3" class="p-16">
       <button class="add-role-btn d-inline-flex align-items-center gap-8" (click)="openAddRoleDialog()">
         <i-tabler name="plus" class="icon-16"></i-tabler>
-        إضافة دور (Role) أو صلاحية جديدة للقسم
+        {{ 'd3.permissions.table.addRoleBtn' | translate }}
       </button>
     </td>
   </tr>
@@ -100,18 +105,18 @@
   <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
     <i-tabler name="alert-triangle" class="icon-24 text-warning"></i-tabler>
     <div>
-      <h4>تنبيه تشغيلي هام</h4>
-      <p>أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{ employeeCount }} موظف) التابعين لقسم {{ deptName }}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم.</p>
+      <h4>{{ 'd3.permissions.alert.title' | translate }}</h4>
+      <p>{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: deptName } }}</p>
     </div>
   </div>
 
   <!-- Actions -->
   <div class="d-flex gap-16 justify-content-end">
     <button mat-stroked-button class="cancel-btn">
-      إلغاء التغييرات
+      {{ 'd3.permissions.cancelBtn' | translate }}
     </button>
     <button mat-flat-button color="dark" class="save-btn">
-      حفظ وتحديث الصلاحيات
+      {{ 'd3.permissions.saveBtn' | translate }}
       <i-tabler name="device-floppy" class="icon-16"></i-tabler>
     </button>
   </div>

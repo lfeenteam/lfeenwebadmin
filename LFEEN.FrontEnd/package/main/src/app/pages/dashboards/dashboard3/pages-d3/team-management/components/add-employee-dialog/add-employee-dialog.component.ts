@@ -12,7 +12,7 @@ import {
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../../../services/department.service';
-import { DepartmentRole } from '../../../../interfaces/department.model';
+import { Department, DepartmentRole } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-add-employee-dialog',
@@ -34,6 +34,11 @@ export class AddEmployeeDialogComponent implements OnInit {
   isSubmitting = false;
   selectedRole: { name?: string; nameAr?: string; nameEn?: string } | null = null;
   serverErrors: Record<string, string> = {};
+
+  // Department dropdown (used when fromAllEmployees = true)
+  departments: Department[] = [];
+  selectedDept: Department | null = null;
+  isDeptDropdownOpen = false;
 
   private readonly fieldMap: Record<string, string> = {
     'request.email': 'email',
@@ -65,7 +70,7 @@ export class AddEmployeeDialogComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddEmployeeDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { departmentId: string, employee?: any }
+    @Inject(MAT_DIALOG_DATA) public data: { departmentId: string; employee?: any; fromAllEmployees?: boolean }
   ) {
     this.employeeForm = this.fb.group({
       fullName: [this.data.employee?.fullName || '', [Validators.required, Validators.minLength(2)]],
@@ -80,7 +85,38 @@ export class AddEmployeeDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (this.data.fromAllEmployees) {
+      this.loadDepartments();
+    } else {
+      this.loadRoles();
+    }
+  }
+
+  loadDepartments(): void {
+    this.departmentService.getAllDepartmentsForDropdown().subscribe({
+      next: (depts) => {
+        this.departments = depts;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error loading departments', err)
+    });
+  }
+
+  selectDepartment(dept: Department): void {
+    this.selectedDept = dept;
+    this.isDeptDropdownOpen = false;
+    this.roles = [];
+    this.selectedRole = null;
+    this.employeeForm.get('roleId')?.setValue('');
     this.loadRoles();
+    this.cdr.detectChanges();
+  }
+
+  getSelectedDeptName(): string {
+    if (!this.selectedDept) return '';
+    return (this.currentLang === 'ar' ? this.selectedDept.nameAr : this.selectedDept.nameEn)
+      || this.selectedDept.name
+      || '';
   }
 
   toggleDropdown(): void {
@@ -95,7 +131,9 @@ export class AddEmployeeDialogComponent implements OnInit {
   }
 
   loadRoles(): void {
-    this.departmentService.getDepartmentRoles(this.data.departmentId).subscribe({
+    const deptId = this.data.fromAllEmployees ? this.selectedDept?.id : this.data.departmentId;
+    if (!deptId) return;
+    this.departmentService.getDepartmentRoles(deptId).subscribe({
       next: (roles) => {
         this.roles = roles;
         this.cdr.detectChanges();
@@ -113,6 +151,13 @@ export class AddEmployeeDialogComponent implements OnInit {
   }
 
   saveEmployee(): void {
+    if (this.data.fromAllEmployees && !this.selectedDept) {
+      this.toastr.warning(
+        this.currentLang === 'ar' ? 'يرجى اختيار القسم أولاً' : 'Please select a department first'
+      );
+      return;
+    }
+
     if (this.employeeForm.valid) {
       const formData = this.employeeForm.value;
       const submissionData = {
@@ -122,9 +167,11 @@ export class AddEmployeeDialogComponent implements OnInit {
         roleIds: [formData.roleId]
       };
 
+      const deptId = this.data.fromAllEmployees ? this.selectedDept!.id : this.data.departmentId;
+
       const request = this.data.employee
-        ? this.departmentService.updateEmployee(this.data.departmentId, this.data.employee.userId, submissionData)
-        : this.departmentService.addEmployee(this.data.departmentId, submissionData);
+        ? this.departmentService.updateEmployee(deptId, this.data.employee.userId, submissionData)
+        : this.departmentService.addEmployee(deptId, submissionData);
 
       this.serverErrors = {};
       this.isSubmitting = true;

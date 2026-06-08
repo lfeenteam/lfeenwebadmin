@@ -1,28 +1,28 @@
 <div class="review-license-container" dir="rtl">
   <div class="section-header">
     <div class="header-main">
-        <h2 class="section-title">مراجعة ترخيص وزارة السياحة</h2>
+        <h2 class="section-title">{{ 'd3.buildReview.license.title' | translate }}</h2>
         <div class="license-badge">
-            <span class="badge-label">رقم الترخيص المميز</span>
+            <span class="badge-label">{{ 'd3.buildReview.license.licenseNumberLabel' | translate }}</span>
             <span class="badge-value">{{ licenseNumber }}</span>
         </div>
     </div>
-    <p class="section-subtitle">يرجى التحقق من صحة الرقم الترخيص وتاريخ انتهاء الوثيقة المرفقة.</p>
+    <p class="section-subtitle">{{ 'd3.buildReview.license.subtitle' | translate }}</p>
   </div>
 
   <!-- License Document Preview -->
   <div class="document-section">
     <div class="section-title-wrapper">
         <span class="section-indicator"></span>
-        <span class="section-title">معاينة الترخيص</span>
-        <button class="btn-text"><i-tabler name="external-link"></i-tabler> تكبير الوثيقة</button>
+        <span class="section-title">{{ 'd3.buildReview.license.previewTitle' | translate }}</span>
+        <button class="btn-text"><i-tabler name="external-link"></i-tabler> {{ 'd3.buildReview.license.enlargeBtn' | translate }}</button>
     </div>
 
     <div class="document-preview">
         <img [src]="licenseImage" alt="License Document">
         <!-- Optional Overlay if rejected/expired -->
         <div class="expired-overlay" *ngIf="isExpired">
-            <span class="expired-tag">منتهي</span>
+            <span class="expired-tag">{{ 'd3.buildReview.license.expiredTag' | translate }}</span>
         </div>
     </div>
   </div>
@@ -30,19 +30,19 @@
   <!-- License Details -->
   <div class="license-meta-grid">
     <div class="meta-item">
-        <span class="meta-label">تاريخ إصدار الترخيص</span>
+        <span class="meta-label">{{ 'd3.buildReview.license.issueDateLabel' | translate }}</span>
         <span class="meta-value">{{ issueDate }}</span>
     </div>
     <div class="meta-item">
-        <span class="meta-label">تاريخ انتهاء الترخيص</span>
+        <span class="meta-label">{{ 'd3.buildReview.license.expiryDateLabel' | translate }}</span>
         <span class="meta-value" [class.text-danger]="isExpired">{{ expiryDate }}</span>
     </div>
     <div class="meta-item full-width">
-        <span class="meta-label">نوع نشاط المنشأة</span>
+        <span class="meta-label">{{ 'd3.buildReview.license.businessTypeLabel' | translate }}</span>
         <span class="meta-value">{{ businessType }}</span>
         <div class="verification-status">
             <i-tabler name="circle-check" class="verify-icon"></i-tabler>
-            <span>نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة</span>
+            <span>{{ 'd3.buildReview.license.verificationStatus' | translate }}</span>
         </div>
     </div>
   </div>
@@ -50,20 +50,20 @@
   <!-- Notes -->
   <div class="notes-section">
     <div class="notes-header">
-        <span class="notes-title">ملاحظات المراجعة / سبب الرفض</span>
-        <span class="notes-required">اختياري للموافقة</span>
+        <span class="notes-title">{{ 'd3.buildReview.license.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.license.notesOptional' | translate }}</span>
     </div>
-    <textarea class="notes-textarea" placeholder="في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها..." rows="4"></textarea>
+    <textarea class="notes-textarea" [placeholder]="'d3.buildReview.license.notesPlaceholder' | translate" rows="4"></textarea>
   </div>
 
   <!-- Actions -->
   <div class="action-buttons">
     <button class="btn btn-approve" (click)="approve.emit()">
-        <span>اعتماد مراجعة ترخيص وزارة السياحة</span>
+        <span>{{ 'd3.buildReview.license.approveBtn' | translate }}</span>
         <i-tabler name="circle-check"></i-tabler>
     </button>
     <button class="btn btn-reject" (click)="back.emit()">
-        <span>رفض الطلب</span>
+        <span>{{ 'd3.buildReview.license.rejectBtn' | translate }}</span>
         <i-tabler name="circle-x"></i-tabler>
     </button>
   </div>

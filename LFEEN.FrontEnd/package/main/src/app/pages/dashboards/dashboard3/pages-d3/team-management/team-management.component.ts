@@ -250,17 +250,20 @@ export class TeamManagementComponent implements OnInit {
   }
 
   onEditEmployee(employee: Employee): void {
-    if (!this.departmentId) return;
+    const deptId = this.departmentId || employee.roles?.[0]?.id || '';
 
     const dialogRef = this.dialog.open(AddEmployeeDialogComponent, {
       width: '640px',
       maxWidth: '95vw',
-      data: { departmentId: this.departmentId, employee },
+      data: { departmentId: deptId, employee },
       panelClass: 'custom-dialog-container'
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadDepartmentDetails(this.departmentId!);
+      if (result) {
+        if (this.departmentId) this.loadDepartmentDetails(this.departmentId);
+        else this.loadAllEmployees();
+      }
     });
   }
 
@@ -297,17 +300,21 @@ export class TeamManagementComponent implements OnInit {
   }
 
   openAddEmployeeDialog(): void {
-    if (!this.departmentId) return;
-
     const dialogRef = this.dialog.open(AddEmployeeDialogComponent, {
       width: '640px',
       maxWidth: '95vw',
-      data: { departmentId: this.departmentId },
+      data: {
+        departmentId: this.departmentId || '',
+        fromAllEmployees: !this.departmentId
+      },
       panelClass: 'custom-dialog-container'
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadDepartmentDetails(this.departmentId!);
+      if (result) {
+        if (this.departmentId) this.loadDepartmentDetails(this.departmentId);
+        else this.loadAllEmployees();
+      }
     });
   }
 

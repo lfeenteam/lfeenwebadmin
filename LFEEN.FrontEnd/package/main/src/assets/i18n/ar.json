@@ -123,6 +123,7 @@
       "dashboard": "لوحة التحكم",
       "buildings": "المباني",
       "units": "الوحدات",
+      "accountManagement": "إدارة الحسابات",
       "bookings": "الحجوزات",
       "complaints": "شكوى",
       "customers": "العملاء",
@@ -424,6 +425,8 @@
         "emailPlaceholder": "example@domain.com",
         "phone": "رقم الهاتف",
         "phonePlaceholder": "05xxxxxxxx",
+        "department": "القسم",
+        "departmentPlaceholder": "اختر القسم",
         "jobRole": "الدور الوظيفي",
         "jobRolePlaceholder": "اختر الدور الوظيفي",
         "tempPassword": "كلمة المرور المؤقتة",
@@ -510,6 +513,22 @@
         }
       }
     },
+    "addRolePage": {
+      "title": "إضافة دور وظيفي جديد",
+      "subtitle": "قم بتحديد بيانات الدور الجديد وصلاحيات الوصول الخاصة به داخل القسم",
+      "basicInfoTitle": "معلومات الدور الأساسية",
+      "roleNameLabel": "اسم الدور الوظيفي",
+      "roleNamePlaceholder": "مثال: مدير عمليات، مشرف جودة...",
+      "descriptionLabel": "وصف الدور",
+      "descriptionPlaceholder": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
+      "permissionsTitle": "تحديد صلاحيات الدور",
+      "selectedCount": "تم تفعيل {{count}} صلاحيات",
+      "saveBtn": "حفظ الدور الوظيفي",
+      "cancelBtn": "إلغاء",
+      "validation": {
+        "nameRequired": "اسم الدور مطلوب"
+      }
+    },
     "addRoleDialog": {
       "titleEdit": "تعديل الدور الوظيفي",
       "titleAdd": "إضافة دور جديد",
@@ -525,6 +544,111 @@
       "validation": {
         "nameRequired": "اسم الدور مطلوب",
         "nameMinLength": "الاسم لا يقل عن حرفين"
+      }
+    },
+    "permissions": {
+      "description": "إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.",
+      "employeeCount": "عدد الموظفين",
+      "manager": "المدير المسؤول",
+      "table": {
+        "department": "القسم / الوظيفة",
+        "description": "وصف الصلاحية",
+        "actions": "الإجراءات",
+        "viewTooltip": "عرض",
+        "editBtn": "تعديل",
+        "deleteBtn": "حذف",
+        "addRoleBtn": "إضافة دور (Role) أو صلاحية جديدة للقسم"
+      },
+      "alert": {
+        "title": "تنبيه تشغيلي هام",
+        "message": "أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{count}} موظف) التابعين لقسم {{dept}}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم."
+      },
+      "cancelBtn": "إلغاء التغييرات",
+      "saveBtn": "حفظ وتحديث الصلاحيات"
+    },
+    "buildReview": {
+      "buildingInfo": {
+        "imageAlt": "صورة المبنى",
+        "orgLabel": "المؤسسة المشغّلة",
+        "orgName": "مجموعة ريادة الفندقية",
+        "totalUnitsLabel": "إجمالي الوحدات"
+      },
+      "progress": {
+        "statusLabel": "حالة المراجعة: {{completed}} من {{total}} أقسام مكتملة"
+      },
+      "sections": {
+        "statusAccepted": "مقبولة"
+      },
+      "actions": {
+        "approve": "اعتماد الموافقة النهائية",
+        "reject": "رفض الطلب",
+        "rejectFinal": "رفض الطلب نهائياً",
+        "lockNotice": "يجب إتمام مراجعة كافة الأقسام أعلاه قبل اتخاذ قرار القبول أو الرفض النهائي"
+      },
+      "finalDecision": {
+        "readyTitle": "جاهز للاعتماد النهائي",
+        "readyDesc": "لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد العقار ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً",
+        "rejectionSummaryTitle": "ملخص أسباب الرفض",
+        "rejectionSummarySubtitle": "موجز الملاحظات للأقسام الثلاثة",
+        "sectionNotesPrefix": "ملاحظات",
+        "finalNotesLabel": "الملاحظات النهائية (للمضيف)",
+        "finalNotesPlaceholder": "اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب..."
+      },
+      "successModal": {
+        "title": "تم اعتماد المبنى بنجاح",
+        "description": "لقد تمت مراجعة كافة مستندات وصور {{buildingName}} والموافقة عليها. المبنى الآن متاح للظهور في المنصة، يمكنك الانتقال لمراجعة الوحدات التفصيلية الآن.",
+        "reviewUnitsBtn": "مراجعة الوحدات ({{count}}) الآن",
+        "laterBtn": "الذهاب لصفحة الوحدات لاحقا"
+      },
+      "images": {
+        "mainImageTitle": "الصورة الرئيسية (الخارجية)",
+        "exteriorTitle": "الصور الخارجية للمبنى",
+        "interiorTitle": "الصور الداخلية للعقار",
+        "imagesCount": "{{count}} صور",
+        "statusRejected": "مرفوضة",
+        "statusAccepted": "مقبولة",
+        "statusPending": "بانتظار القرار",
+        "rejectionReasonPlaceholder": "سبب الرفض...",
+        "suggestedSolutionPlaceholder": "الحل المقترح للمضيف...",
+        "rejectionSummaryTitle": "ملخص أسباب الرفض",
+        "rejectionSummarySubtitle": "تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً",
+        "notesTitle": "ملاحظات المراجعة",
+        "notesRequired": "/ سبب الرفض (إلزامي في حال الرفض)",
+        "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض...",
+        "approveBtn": "اعتماد الصور العقار",
+        "rejectBtn": "رفض الطلب"
+      },
+      "license": {
+        "title": "مراجعة ترخيص وزارة السياحة",
+        "licenseNumberLabel": "رقم الترخيص المميز",
+        "subtitle": "يرجى التحقق من صحة الرقم الترخيص وتاريخ انتهاء الوثيقة المرفقة.",
+        "previewTitle": "معاينة الترخيص",
+        "enlargeBtn": "تكبير الوثيقة",
+        "expiredTag": "منتهي",
+        "issueDateLabel": "تاريخ إصدار الترخيص",
+        "expiryDateLabel": "تاريخ انتهاء الترخيص",
+        "businessTypeLabel": "نوع نشاط المنشأة",
+        "verificationStatus": "نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "approveBtn": "اعتماد مراجعة ترخيص وزارة السياحة",
+        "rejectBtn": "رفض الطلب"
+      },
+      "terms": {
+        "title": "مراجعة شروط وقوانين العقار",
+        "subtitle": "يرجى مراجعة سياسات الدخول والخروج والقواعد التي وضعها المضيف لضمان توافقها مع معايير لفين.",
+        "checkInLabel": "موعد الدخول",
+        "checkOutLabel": "موعد الخروج",
+        "earlyCheckInLabel": "دخول مبكر",
+        "earlyCheckInAvailable": "متاح",
+        "generalRulesTitle": "القوانين العامة",
+        "customRulesTitle": "شروط مخصصة من المضيف",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "approveBtn": "اعتماد مراجعة الشروط وقوانين العقار",
+        "rejectBtn": "رفض الطلب"
       }
     }
   }

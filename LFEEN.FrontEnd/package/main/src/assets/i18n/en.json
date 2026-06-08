@@ -121,6 +121,7 @@
       "dashboard": "Dashboard",
       "buildings": "Buildings",
       "units": "Units",
+      "accountManagement": "Account Management",
       "bookings": "Bookings",
       "complaints": "Complaints",
       "customers": "Customers",
@@ -412,6 +413,8 @@
         "emailPlaceholder": "example@domain.com",
         "phone": "Phone Number",
         "phonePlaceholder": "05xxxxxxxx",
+        "department": "Department",
+        "departmentPlaceholder": "Choose Department",
         "jobRole": "Job Role",
         "jobRolePlaceholder": "Choose Job Role",
         "tempPassword": "Temporary Password",
@@ -498,6 +501,22 @@
         }
       }
     },
+    "addRolePage": {
+      "title": "Add New Job Role",
+      "subtitle": "Define the new role's details and access permissions within the department",
+      "basicInfoTitle": "Basic Role Information",
+      "roleNameLabel": "Job Role Name",
+      "roleNamePlaceholder": "e.g. Operations Manager, Quality Supervisor...",
+      "descriptionLabel": "Role Description",
+      "descriptionPlaceholder": "Write a summary of tasks this role holder can perform...",
+      "permissionsTitle": "Set Role Permissions",
+      "selectedCount": "{{count}} permissions enabled",
+      "saveBtn": "Save Job Role",
+      "cancelBtn": "Cancel",
+      "validation": {
+        "nameRequired": "Role name is required"
+      }
+    },
     "addRoleDialog": {
       "titleEdit": "Edit Job Role",
       "titleAdd": "Add New Role",
@@ -513,6 +532,111 @@
       "validation": {
         "nameRequired": "Role name is required",
         "nameMinLength": "Name must be at least 2 characters"
+      }
+    },
+    "permissions": {
+      "description": "Manage bookings, hosts, and residential units directly.",
+      "employeeCount": "Employee Count",
+      "manager": "Responsible Manager",
+      "table": {
+        "department": "Department / Job Title",
+        "description": "Permission Description",
+        "actions": "Actions",
+        "viewTooltip": "View",
+        "editBtn": "Edit",
+        "deleteBtn": "Delete",
+        "addRoleBtn": "Add a Role or new permission to the department"
+      },
+      "alert": {
+        "title": "Important Operational Alert",
+        "message": "Any change in these permissions will be applied immediately to all current employees ({{count}} employees) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department."
+      },
+      "cancelBtn": "Cancel Changes",
+      "saveBtn": "Save and Update Permissions"
+    },
+    "buildReview": {
+      "buildingInfo": {
+        "imageAlt": "Building Image",
+        "orgLabel": "Operating Organization",
+        "orgName": "Riyadah Hotel Group",
+        "totalUnitsLabel": "Total Units"
+      },
+      "progress": {
+        "statusLabel": "Review Status: {{completed}} of {{total}} sections completed"
+      },
+      "sections": {
+        "statusAccepted": "Accepted"
+      },
+      "actions": {
+        "approve": "Final Approval",
+        "reject": "Reject Request",
+        "rejectFinal": "Reject Request Finally",
+        "lockNotice": "All sections above must be reviewed before making a final accept or reject decision"
+      },
+      "finalDecision": {
+        "readyTitle": "Ready for Final Approval",
+        "readyDesc": "All required documents and data have been successfully reviewed. You can now approve the property to activate the host account and start receiving bookings immediately.",
+        "rejectionSummaryTitle": "Rejection Reasons Summary",
+        "rejectionSummarySubtitle": "Notes summary for the three sections",
+        "sectionNotesPrefix": "Notes for",
+        "finalNotesLabel": "Final Notes (for Host)",
+        "finalNotesPlaceholder": "Write a final summary to be sent to the host clarifying the steps needed to correct the request..."
+      },
+      "successModal": {
+        "title": "Building Approved Successfully",
+        "description": "All documents and images of {{buildingName}} have been reviewed and approved. The building is now available on the platform. You can proceed to review the detailed units now.",
+        "reviewUnitsBtn": "Review Units ({{count}}) Now",
+        "laterBtn": "Go to Units Page Later"
+      },
+      "images": {
+        "mainImageTitle": "Main Image (Exterior)",
+        "exteriorTitle": "Exterior Building Images",
+        "interiorTitle": "Interior Property Images",
+        "imagesCount": "{{count}} images",
+        "statusRejected": "Rejected",
+        "statusAccepted": "Accepted",
+        "statusPending": "Awaiting Decision",
+        "rejectionReasonPlaceholder": "Rejection reason...",
+        "suggestedSolutionPlaceholder": "Suggested solution for host...",
+        "rejectionSummaryTitle": "Rejection Summary",
+        "rejectionSummarySubtitle": "Issues noted in the uploaded images. Please review.",
+        "notesTitle": "Review Notes",
+        "notesRequired": "/ Rejection Reason (Mandatory if rejected)",
+        "notesPlaceholder": "Please write the rejection reasons in detail here to enable the reject option...",
+        "approveBtn": "Approve Property Images",
+        "rejectBtn": "Reject Request"
+      },
+      "license": {
+        "title": "Tourism Ministry License Review",
+        "licenseNumberLabel": "License Number",
+        "subtitle": "Please verify the license number and the expiry date of the attached document.",
+        "previewTitle": "License Preview",
+        "enlargeBtn": "Enlarge Document",
+        "expiredTag": "Expired",
+        "issueDateLabel": "License Issue Date",
+        "expiryDateLabel": "License Expiry Date",
+        "businessTypeLabel": "Facility Activity Type",
+        "verificationStatus": "Automated Verification: Matches Ministry of Commerce data",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "approveBtn": "Approve Tourism Ministry License Review",
+        "rejectBtn": "Reject Request"
+      },
+      "terms": {
+        "title": "Property Terms and Conditions Review",
+        "subtitle": "Please review the check-in/check-out policies and rules set by the host to ensure they comply with LFEEN standards.",
+        "checkInLabel": "Check-in Time",
+        "checkOutLabel": "Check-out Time",
+        "earlyCheckInLabel": "Early Check-in",
+        "earlyCheckInAvailable": "Available",
+        "generalRulesTitle": "General Rules",
+        "customRulesTitle": "Custom Host Rules",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "approveBtn": "Approve Property Terms and Conditions Review",
+        "rejectBtn": "Reject Request"
       }
     }
   }

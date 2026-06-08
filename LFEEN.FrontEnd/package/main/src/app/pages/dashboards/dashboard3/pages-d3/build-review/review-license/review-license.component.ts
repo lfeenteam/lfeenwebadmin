@@ -2,11 +2,12 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-review-license',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, FormsModule],
+  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule],
   templateUrl: './review-license.component.html',
   styleUrl: './review-license.component.scss'
 })

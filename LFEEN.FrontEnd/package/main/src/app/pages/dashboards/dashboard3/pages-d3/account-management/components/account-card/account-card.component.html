@@ -1,57 +1,93 @@
-<mat-card class="account-card shadow-none">
-  <mat-card-content class="p-24">
+<mat-card class="account-card shadow-none" [class.under-review-card]="account.status === 'under_review'">
+  <mat-card-content>
 
-    <!-- Top row: avatar/logo + status badge -->
-    <div class="d-flex justify-content-between align-items-start m-b-20">
-      @if (account.paymentBadge === 'stripe') {
-        <span class="payment-badge stripe-badge">stripe</span>
-      } @else {
-        <div class="avatar-initials">{{ account.avatarInitials }}</div>
-      }
-      <span class="status-badge" [ngClass]="account.status">
-        @if (account.status !== 'rejected' && account.status !== 'suspended') {
+    <!-- ===== Layout خاص بـ under_review ===== -->
+    @if (account.status === 'under_review') {
+
+      <div class="d-flex justify-content-between align-items-start">
+        <span class="status-badge under_review">
           <span class="dot"></span>
+          {{ statusLabel }}
+        </span>
+
+        @if (account.paymentBadge === 'stripe') {
+          <div class="stripe-badge">stripe</div>
+        } @else {
+          <div class="avatar-initials" [class]="'avatar-color-' + avatarColor">
+            {{ account.avatarInitials }}
+          </div>
         }
-        {{ statusLabel }}
-      </span>
-    </div>
+      </div>
 
-    <!-- Name -->
-    <h4 class="account-name m-b-4">{{ account.name }}</h4>
-    @if (account.tradeName) {
-      <p class="trade-name m-b-12">{{ account.tradeName }}</p>
+      <h4 class="account-name m-t-16">{{ account.name }}</h4>
+
+      <div class="card-divider"></div>
+
+      <div class="info-rows">
+        <div class="info-row d-flex justify-content-between align-items-center">
+          <span class="info-label">تاريخ الطلب</span>
+          <span class="info-value">{{ account.joinDate }}</span>
+        </div>
+      </div>
+
+      <div class="card-actions d-flex align-items-center justify-content-start">
+        <button mat-icon-button class="icon-action-btn">
+          <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+        </button>
+      </div>
+
+    } @else {
+    <!-- ===== Layout الافتراضي ===== -->
+
+      <div class="d-flex justify-content-between align-items-start m-b-16">
+        <div class="avatar-initials" [class]="'avatar-color-' + avatarColor">
+          {{ account.avatarInitials }}
+        </div>
+        <span class="status-badge" [ngClass]="account.status">
+          @if (account.status === 'active') {
+            <span class="dot"></span>
+          }
+          {{ statusLabel }}
+        </span>
+      </div>
+
+      <h4 class="account-name">{{ account.name }}</h4>
+      @if (account.tradeName) {
+        <p class="trade-name">{{ account.tradeName }}</p>
+      }
+
+      <div class="card-divider"></div>
+
+      <div class="info-rows-wrapper">
+        <div class="info-rows">
+          <div class="info-row d-flex justify-content-between align-items-center">
+            <span class="info-label">{{ idFieldLabel }}</span>
+            <span class="info-value">{{ account.idNumber }}</span>
+          </div>
+          <div class="info-row d-flex justify-content-between align-items-center">
+            <span class="info-label">تاريخ الانضمام</span>
+            <span class="info-value">{{ account.joinDate }}</span>
+          </div>
+          <div class="info-row d-flex justify-content-between align-items-center">
+            <span class="info-label">عدد العقارات</span>
+            <span class="info-value">{{ account.propertyCount }} {{ account.unit }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions d-flex align-items-center justify-content-between">
+        <span class="action-type-badge">{{ actionLabel }}</span>
+        <div class="d-flex align-items-center gap-8">
+          <button mat-icon-button class="icon-action-btn">
+            <i-tabler name="eye" class="icon-18"></i-tabler>
+          </button>
+          <button mat-icon-button class="icon-action-btn">
+            <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+          </button>
+        </div>
+      </div>
+
     }
-
-    <div class="card-divider m-b-16"></div>
-
-    <!-- Info rows -->
-    <div class="info-rows m-b-20">
-      <div class="info-row d-flex justify-content-between align-items-center m-b-10">
-        <span class="info-label">{{ idFieldLabel }}</span>
-        <span class="info-value">{{ account.idNumber }}</span>
-      </div>
-      <div class="info-row d-flex justify-content-between align-items-center m-b-10">
-        <span class="info-label">تاريخ الانضمام</span>
-        <span class="info-value">{{ account.joinDate }}</span>
-      </div>
-      <div class="info-row d-flex justify-content-between align-items-center">
-        <span class="info-label">عدد المقترات</span>
-        <span class="info-value">{{ account.propertyCount }} {{ account.unit }}</span>
-      </div>
-    </div>
-
-    <!-- Action buttons -->
-    <div class="card-actions d-flex align-items-center gap-8">
-      <button mat-icon-button class="icon-action-btn">
-        <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
-      </button>
-      <button mat-icon-button class="icon-action-btn">
-        <i-tabler name="eye" class="icon-18"></i-tabler>
-      </button>
-      <button mat-flat-button class="action-main-btn flex-grow-1">
-        {{ actionLabel }}
-      </button>
-    </div>
 
   </mat-card-content>
 </mat-card>

@@ -219,6 +219,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'account-management',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/account-management/account-management.component'
+                  ).then((m) => m.AccountManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إدارة الحسابات',
+                  breadcrumbKey: 'المنصة',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
                 path: 'permissions/:id',
                 canActivate: [authGuard],
                 loadComponent: () =>
@@ -229,6 +244,34 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'صلاحيات القسم',
                   breadcrumbKey: 'إدارة الفريق',
+                  showBack: true
+                },
+              },
+              {
+                path: 'permissions/:id/add-role',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
+                  ).then((m) => m.AddRoleComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إضافة دور وظيفي جديد',
+                  breadcrumbKey: 'إعدادات الصلاحيات والأدوار',
+                  showBack: true
+                },
+              },
+              {
+                path: 'permissions/:id/role/:roleId',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
+                  ).then((m) => m.RolePermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'إعدادات الصلاحيات والأدوار',
+                  breadcrumbKey: 'صلاحيات القسم',
                   showBack: true
                 },
               },

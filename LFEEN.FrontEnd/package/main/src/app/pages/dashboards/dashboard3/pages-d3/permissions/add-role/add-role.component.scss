@@ -1,0 +1,233 @@
+.add-role-container {
+  font-family: 'Cairo', sans-serif !important;
+
+  .page-title-block {
+    .page-subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6B6B67;
+    }
+  }
+
+  // ── Section Header ─────────────────────────
+  .section-bar {
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: #111110;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: #111110;
+  }
+
+  // ── Info Card ──────────────────────────────
+  .info-card {
+    border-radius: 20px !important;
+    border: 1px solid #E8E8E4 !important;
+    background: #FCFCFB;
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111110;
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: #DC2626;
+      font-weight: 600;
+    }
+
+    // Bilingual input pattern (reused from add-role-dialog)
+    .bilingual-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1.5px solid #E8E8E4;
+      border-radius: 12px;
+      padding: 0 12px;
+      transition: border-color 0.15s;
+
+      &:focus-within { border-color: #111110; }
+      &.is-invalid { border-color: #DC2626; }
+      &.secondary { background: #F7F7F5; }
+
+      &.textarea-wrapper {
+        align-items: flex-start;
+        padding: 12px;
+      }
+
+      .bilingual-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: 'Cairo', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #111110;
+        padding: 12px 0;
+
+        &::placeholder { color: #BFBFBA; font-weight: 600; }
+      }
+
+      .bilingual-textarea {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: 'Cairo', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #111110;
+        resize: none;
+        line-height: 1.6;
+
+        &::placeholder { color: #BFBFBA; font-weight: 600; }
+      }
+
+      .lang-chip {
+        flex-shrink: 0;
+        background: #F1F1EE;
+        border: 1px solid #E8E8E4;
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #6B6B67;
+        cursor: pointer;
+        transition: all 0.15s;
+
+        &:hover { background: #E8E8E4; color: #111110; }
+        &.active { background: #111110; color: #fff; border-color: #111110; }
+        &.static { cursor: default; pointer-events: none; }
+      }
+    }
+  }
+
+  // ── Permissions Card ───────────────────────
+  .perms-card {
+    border: 1px solid #E8E8E4 !important;
+    border-radius: 24px !important;
+    overflow: hidden;
+
+    .perms-card-header {
+      background: #FCFCFB;
+
+      .selected-badge {
+        background: #F1F1EE;
+        border: 1px solid #E8E8E4;
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6B6B67;
+      }
+    }
+
+    .perms-divider {
+      height: 1px;
+      background: #E8E8E4;
+    }
+
+    .perm-row {
+      border-bottom: 1px solid #F1F1EE;
+      transition: background 0.15s;
+
+      &:last-child { border-bottom: none; }
+      &:hover { background: #FCFCFB; }
+
+      .perm-info {
+        flex: 1;
+        padding-inline-end: 16px;
+
+        .perm-name {
+          font-weight: 900;
+          font-size: 14px;
+          color: #111110;
+          margin-bottom: 3px;
+        }
+
+        .perm-desc {
+          font-weight: 700;
+          font-size: 12px;
+          color: #9E9E9A;
+          line-height: 16px;
+        }
+      }
+    }
+  }
+
+  // ── Alert Box ──────────────────────────────
+  .alert-box {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 16px;
+
+    h4 {
+      font-size: 13px;
+      font-weight: 900;
+      color: #92400E;
+    }
+
+    p {
+      font-size: 12px;
+      font-weight: 700;
+      color: #B45309;
+    }
+
+    .text-warning { color: #D97706; }
+  }
+
+  // ── Footer Buttons ─────────────────────────
+  .save-btn {
+    background-color: #111110;
+    color: #fff;
+    border-radius: 12px;
+    height: auto;
+    font-weight: 700;
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .cancel-btn {
+    border: none;
+    border-radius: 12px;
+    height: auto;
+    font-weight: 700;
+    padding: 12px 32px;
+    background-color: #F7F7F5;
+    color: #111110;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+// ── Slide Toggle colors ─────────────────────
+::ng-deep .add-role-container {
+  .mat-mdc-slide-toggle.mat-primary {
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-handle-color: #fff;
+    --mdc-switch-unselected-track-color: #EDEDEB;
+    --mdc-switch-unselected-handle-color: #fff;
+
+    .mdc-switch:enabled .mdc-switch__track::after {
+      background-color: #111110 !important;
+    }
+
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #EDEDEB !important;
+      border: 1px solid #E8E8E4;
+    }
+  }
+}

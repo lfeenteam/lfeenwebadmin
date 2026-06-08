@@ -1,0 +1,36 @@
+<div class="account-management-container">
+
+  <!-- Stats -->
+  <app-stats-row [stats]="stats"></app-stats-row>
+
+  <!-- Search + Filter header -->
+  <app-account-header
+    [searchQuery]="searchQuery"
+    [activeFilter]="activeFilter"
+    (searchQueryChange)="searchQuery = $event"
+    (filterChange)="activeFilter = $event">
+  </app-account-header>
+
+  <!-- Tabs -->
+  <div class="border-bottom-gray m-b-24">
+    <app-account-tabs-bar
+      [activeTab]="activeTab"
+      (tabChange)="setActiveTab($event)">
+    </app-account-tabs-bar>
+  </div>
+
+  <!-- Cards grid -->
+  <div class="row">
+    @for (account of filteredAccounts; track account.id) {
+      <div class="col-md-6 col-lg-4 m-b-8">
+        <app-account-card [account]="account"></app-account-card>
+      </div>
+    }
+    @empty {
+      <div class="col-12 empty-state d-flex flex-column align-items-center justify-content-center p-48">
+        <span class="f-s-14 text-muted">لا توجد حسابات مطابقة</span>
+      </div>
+    }
+  </div>
+
+</div>

@@ -63,7 +63,31 @@ export interface DepartmentRole {
   description?: string;
   descriptionAr?: string;
   descriptionEn?: string;
-  departmentId: string;
+  departmentId: string | null;
+  departmentNameAr?: string | null;
+  departmentNameEn?: string | null;
+  isDeleted?: boolean;
   createdAt: string;
   updatedAt: string | null;
+}
+
+export interface RolePermission {
+  id: string;
+  permissionGroupId: string;
+  permissionGroupName: string;
+  code: string;
+  name: string;
+  description: string;
+  action: string;
+  createdAt: string;
+  updatedAt: string | null;
+  impliedPermissionIds: string[];
+}
+
+export interface RolePermissionsResponse {
+  data: RolePermission[];
+  totalCount: number;
+  page: number;
+  nextpage: number | null;
+  totalPages: number;
 }

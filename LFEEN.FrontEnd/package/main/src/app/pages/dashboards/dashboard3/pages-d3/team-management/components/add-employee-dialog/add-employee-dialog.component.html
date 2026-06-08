@@ -10,6 +10,34 @@
 
   <mat-dialog-content class="p-t-24">
     <form [formGroup]="employeeForm" class="row">
+
+      <!-- Department Dropdown (all-employees mode only) -->
+      @if (data.fromAllEmployees) {
+        <div class="col-12 m-b-20">
+          <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.department' | translate }}</mat-label>
+          <div class="custom-dropdown-container position-relative">
+            <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
+                 (click)="isDeptDropdownOpen = !isDeptDropdownOpen"
+                 [class.has-value]="selectedDept">
+              <span class="flex-grow-1 text-center font-medium">
+                {{ getSelectedDeptName() || ('d3.teamManagement.addEmployeeDialog.departmentPlaceholder' | translate) }}
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 text-warning"></i-tabler>
+            </div>
+
+            @if (isDeptDropdownOpen) {
+              <div class="custom-dropdown-list shadow-lg">
+                @for (dept of departments; track dept.id) {
+                  <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectDepartment(dept)">
+                    {{ (currentLang === 'ar' ? dept.nameAr : dept.nameEn) ?? dept.name }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Full Name -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.fullName' | translate }}</mat-label>
@@ -78,15 +106,17 @@
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.jobRole' | translate }}</mat-label>
         <div class="custom-dropdown-container position-relative">
           <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
-               (click)="toggleDropdown()"
+               (click)="data.fromAllEmployees && !selectedDept ? null : toggleDropdown()"
                [class.has-value]="employeeForm.get('roleId')?.value"
-               [class.is-invalid]="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
+               [class.is-invalid]="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched"
+               [style.opacity]="data.fromAllEmployees && !selectedDept ? '0.5' : '1'"
+               [style.cursor]="data.fromAllEmployees && !selectedDept ? 'not-allowed' : 'pointer'">
             <span class="flex-grow-1 text-center font-medium">
               {{ getSelectedRoleName() || ('d3.teamManagement.addEmployeeDialog.jobRolePlaceholder' | translate) }}
             </span>
             <i-tabler name="chevron-down" class="icon-18 text-warning"></i-tabler>
           </div>
-          
+
           @if (isDropdownOpen) {
             <div class="custom-dropdown-list shadow-lg">
               @for (role of roles; track role.id) {

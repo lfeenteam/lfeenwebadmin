@@ -17,9 +17,9 @@ export class AccountCardComponent {
   get statusLabel(): string {
     const map: Record<string, string> = {
       active: 'نشط',
-      suspended: 'موقوف',
-      under_review: 'تحت المراجعة',
-      rejected: 'مرفوض'
+      under_review: 'جديد',
+      rejected: 'مرفوض',
+      suspended: 'موقوف'
     };
     return map[this.account?.status] ?? '';
   }
@@ -29,6 +29,12 @@ export class AccountCardComponent {
   }
 
   get actionLabel(): string {
-    return this.account?.type === 'company' ? 'أعمال مؤسسة' : 'أفراد إسناد';
+    return this.account?.type === 'company' ? 'أعمال مؤسسة' : 'أفراد (مستقل)';
+  }
+
+  get avatarColor(): string {
+    const colors = ['orange', 'blue', 'green', 'purple', 'red'];
+    const code = (this.account?.avatarInitials ?? 'A').charCodeAt(0);
+    return colors[code % colors.length];
   }
 }

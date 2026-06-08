@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../services/department.service';
 import { DepartmentRole } from '../../interfaces/department.model';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 
@@ -23,7 +23,7 @@ interface RoleRow {
 @Component({
   selector: 'app-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule],
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss'
 })
@@ -40,6 +40,7 @@ export class PermissionsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private dialog: MatDialog,
@@ -92,22 +93,17 @@ export class PermissionsComponent implements OnInit {
   }
 
 openAddRoleDialog(): void {
-  const ref = this.dialog.open(AddRoleDialogComponent, {
-    width: '450px',
-    maxWidth: '576px',
-    maxHeight: '100vh',
-    panelClass: 'role-dialog-panel',
-    data: { departmentId: this.deptId, deptName: this.deptName }
-  });
-  ref.afterClosed().subscribe(result => {
-    if (result && this.deptId) this.loadRoles(this.deptId);
-  });
+  this.router.navigate([`/${this.translate.currentLang || 'ar'}/d3/permissions/${this.deptId}/add-role`]);
+}
+
+viewPermissions(role: RoleRow): void {
+  this.router.navigate([`/ar/d3/permissions/${this.deptId}/role/${role.id}`]);
 }
 
 editRole(role: RoleRow): void {
   const ref = this.dialog.open(AddRoleDialogComponent, {
-    width: '450px',
-    maxWidth: '576px',
+    width: '560px',
+    maxWidth: '600px',
     maxHeight: '100vh',
     panelClass: 'role-dialog-panel',
     data: { departmentId: this.deptId, role: role.raw, deptName: this.deptName }

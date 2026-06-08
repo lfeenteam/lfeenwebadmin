@@ -1,0 +1,31 @@
+<div class="account-header d-flex align-items-center gap-12">
+
+  <!-- Search -->
+  <div class="search-wrapper d-flex align-items-center gap-8 flex-grow-1">
+    <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="ابحث باسم الحساب أو الرقم الضريبي"
+      [value]="searchQuery"
+      (input)="searchQueryChange.emit($any($event.target).value)" />
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-chips d-flex align-items-center gap-8">
+    @for (f of filters; track f.key) {
+      <button
+        class="filter-chip"
+        [class.active]="activeFilter === f.key"
+        (click)="filterChange.emit(f.key)">
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Filter icon -->
+  <button mat-icon-button class="filter-icon-btn">
+    <i-tabler name="adjustments-horizontal" class="icon-20"></i-tabler>
+  </button>
+
+</div>

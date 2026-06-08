@@ -1,0 +1,79 @@
+.account-header {
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  margin-bottom: 20px;
+
+  // ── Search ──
+  .search-wrapper {
+    min-width: 0;
+
+    .search-icon {
+      color: #9E9E9A;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      color: #111110;
+      width: 100%;
+
+      &::placeholder {
+        color: #B0B0AA;
+      }
+    }
+  }
+
+  // ── Filter chips ──
+  .filter-chips {
+    flex-shrink: 0;
+
+    .filter-chip {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 20px;
+      border: 1px solid #E8E8E4;
+      background: #F7F7F5;
+      color: #6B6B67;
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+
+      &:hover {
+        background: #EFEFEB;
+      }
+
+      &.active {
+        background: #111110;
+        color: #fff;
+        border-color: #111110;
+      }
+    }
+  }
+
+  // ── Filter icon button ──
+  .filter-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #F7F7F5;
+    border: 1px solid #E8E8E4;
+    color: #444;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #EFEFEB;
+    }
+  }
+}

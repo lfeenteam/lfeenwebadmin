@@ -3,7 +3,7 @@
   <div class="section-group">
     <div class="section-title-wrapper">
       <span class="section-indicator"></span>
-      <span class="section-title">الصورة الرئيسية (الخارجية)</span>
+      <span class="section-title">{{ 'd3.buildReview.images.mainImageTitle' | translate }}</span>
     </div>
     
     <div class="main-image-card" [class.rejected]="mainImage.status === 'rejected'" [class.accepted]="mainImage.status === 'accepted'">
@@ -30,7 +30,7 @@
             'text-success': mainImage.status === 'accepted',
             'text-muted': mainImage.status === 'pending'
           }">
-            {{ mainImage.status === 'rejected' ? 'مرفوضة' : (mainImage.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+            {{ (mainImage.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (mainImage.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
           </span>
         </div>
       
@@ -38,8 +38,8 @@
       
       @if (mainImage.status === 'rejected') {
         <div class="rejection-inputs">
-          <input type="text" placeholder="سبب الرفض..." [(ngModel)]="mainImage.rejectionReason">
-          <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="mainImage.suggestedSolution">
+          <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="mainImage.rejectionReason">
+          <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="mainImage.suggestedSolution">
         </div>
       }
     </div>
@@ -49,8 +49,8 @@
   <div class="section-group">
     <div class="section-title-wrapper">
       <span class="section-indicator"></span>
-      <span class="section-title">الصور الخارجية للمبنى</span>
-      <span class="section-count">{{ exteriorImages.length }} صور</span>
+      <span class="section-title">{{ 'd3.buildReview.images.exteriorTitle' | translate }}</span>
+      <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: exteriorImages.length } }}</span>
     </div>
     
     <div class="image-grid">
@@ -80,15 +80,15 @@
                 'text-success': img.status === 'accepted',
                 'text-muted': img.status === 'pending'
               }">
-                {{ img.status === 'rejected' ? 'مرفوضة' : (img.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+                {{ (img.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (img.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
               </span>
             </div>
           </div>
-          
+
           @if (img.status === 'rejected') {
             <div class="rejection-inputs">
-              <input type="text" placeholder="سبب الرفض..." [(ngModel)]="img.rejectionReason">
-              <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="img.suggestedSolution">
+              <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="img.rejectionReason">
+              <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="img.suggestedSolution">
             </div>
           }
         </div>
@@ -100,8 +100,8 @@
   <div class="section-group">
     <div class="section-title-wrapper">
       <span class="section-indicator"></span>
-      <span class="section-title">الصور الداخلية للعقار</span>
-      <span class="section-count">{{ interiorImages.length }} صور</span>
+      <span class="section-title">{{ 'd3.buildReview.images.interiorTitle' | translate }}</span>
+      <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: interiorImages.length } }}</span>
     </div>
     
     <div class="image-grid">
@@ -131,15 +131,15 @@
                 'text-success': img.status === 'accepted',
                 'text-muted': img.status === 'pending'
               }">
-                {{ img.status === 'rejected' ? 'مرفوضة' : (img.status === 'accepted' ? 'مقبولة' : 'بانتظار القرار') }}
+                {{ (img.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (img.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
               </span>
             </div>
           </div>
-          
+
           @if (img.status === 'rejected') {
             <div class="rejection-inputs">
-              <input type="text" placeholder="سبب الرفض..." [(ngModel)]="img.rejectionReason">
-              <input type="text" placeholder="الحل المقترح للمضيف..." [(ngModel)]="img.suggestedSolution">
+              <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="img.rejectionReason">
+              <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="img.suggestedSolution">
             </div>
           }
         </div>
@@ -155,8 +155,8 @@
           <i-tabler name="clipboard-list"></i-tabler>
         </div>
         <div class="summary-text">
-          <h3>ملخص أسباب الرفض</h3>
-          <p>تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً</p>
+          <h3>{{ 'd3.buildReview.images.rejectionSummaryTitle' | translate }}</h3>
+          <p>{{ 'd3.buildReview.images.rejectionSummarySubtitle' | translate }}</p>
         </div>
       </div>
       
@@ -177,12 +177,12 @@
   <!-- Review Notes -->
   <div class="notes-section" *ngIf="hasRejections">
     <div class="notes-header">
-      <span class="notes-title">ملاحظات المراجعة</span>
-      <span class="notes-required">/ سبب الرفض (إلزامي في حال الرفض)</span>
+      <span class="notes-title">{{ 'd3.buildReview.images.notesTitle' | translate }}</span>
+      <span class="notes-required">{{ 'd3.buildReview.images.notesRequired' | translate }}</span>
     </div>
     <textarea
       class="notes-textarea"
-      placeholder="يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض..."
+      [placeholder]="'d3.buildReview.images.notesPlaceholder' | translate"
       rows="4"
     ></textarea>
   </div>
@@ -190,11 +190,11 @@
   <!-- Action Buttons -->
   <div class="action-buttons">
     <button class="btn btn-approve" (click)="approve.emit()">
-      <span>اعتماد الصور العقار</span>
+      <span>{{ 'd3.buildReview.images.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
     <button class="btn btn-reject" (click)="goBack()">
-      <span>رفض الطلب</span>
+      <span>{{ 'd3.buildReview.images.rejectBtn' | translate }}</span>
       <i-tabler name="circle-x"></i-tabler>
     </button>
   </div>

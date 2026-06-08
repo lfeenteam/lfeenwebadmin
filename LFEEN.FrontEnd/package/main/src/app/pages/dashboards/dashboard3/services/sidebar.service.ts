@@ -52,10 +52,11 @@ export class SidebarService {
     }
 
     const staticItems: NavItem[] = [
-      { translationKey: 'd3.sidebar.buildings', icon: 'building-skyscraper', link: '/d3/buildings' },
-      { translationKey: 'd3.sidebar.units',     icon: 'smart-home',          link: '/d3/units' },
-      { translationKey: 'd3.sidebar.bookings',  icon: 'calendar-time',       link: '/bookings' },
-      { translationKey: 'd3.sidebar.complaints',icon: 'message-exclamation', link: '/complaints' }
+      { translationKey: 'd3.sidebar.buildings',         icon: 'building-skyscraper', link: '/d3/buildings' },
+      { translationKey: 'd3.sidebar.units',             icon: 'smart-home',          link: '/d3/units' },
+      { translationKey: 'd3.sidebar.accountManagement', icon: 'users',               link: '/d3/account-management' },
+      { translationKey: 'd3.sidebar.bookings',          icon: 'calendar-time',       link: '/bookings' },
+      { translationKey: 'd3.sidebar.complaints',        icon: 'message-exclamation', link: '/complaints' }
     ];
 
     staticItems.forEach(sItem => {

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface ImageCard {
   id: number;
@@ -16,7 +17,7 @@ interface ImageCard {
 @Component({
   selector: 'app-review-image',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
   templateUrl: './review-image.component.html',
   styleUrl: './review-image.component.scss'
 })

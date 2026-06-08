@@ -1,0 +1,36 @@
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 48px;
+
+  .tab-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9E9E9A;
+    padding: 0 4px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Cairo', sans-serif;
+    position: relative;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+
+    &.active {
+      color: #111110;
+      font-weight: 900;
+      border-bottom-color: #111110;
+    }
+
+    .tab-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f97316;
+      flex-shrink: 0;
+    }
+  }
+}

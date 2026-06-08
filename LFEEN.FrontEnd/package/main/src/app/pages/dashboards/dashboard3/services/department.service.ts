@@ -9,7 +9,9 @@ import {
   PaginatedDepartmentResponse,
   Employee,
   PaginatedEmployeeResponse,
-  DepartmentRole
+  DepartmentRole,
+  RolePermission,
+  RolePermissionsResponse
 } from '../interfaces/department.model';
 
 export type {
@@ -17,7 +19,9 @@ export type {
   PaginatedDepartmentResponse,
   Employee,
   PaginatedEmployeeResponse,
-  DepartmentRole
+  DepartmentRole,
+  RolePermission,
+  RolePermissionsResponse
 } from '../interfaces/department.model';
 export type { EmployeeRole } from '../interfaces/department.model';
 
@@ -102,6 +106,12 @@ export class DepartmentService {
     return this.http.get<Employee[]>(`${this.apiUrl}/employees`);
   }
 
+  getAllDepartmentsForDropdown(): Observable<Department[]> {
+    return this.http.get<PaginatedDepartmentResponse>(`${this.apiUrl}?page=1&pageSize=100`).pipe(
+      map(res => res.data)
+    );
+  }
+
   getDepartmentRoles(id: string): Observable<DepartmentRole[]> {
     return this.http.get<{ data: DepartmentRole[] }>(`${this.apiUrl}/${id}/roles`).pipe(
       map(res => res.data)
@@ -145,5 +155,28 @@ export class DepartmentService {
 
   deleteRole(id: string): Observable<any> {
     return this.http.delete(`${this.rolesApiUrl}/${id}`);
+  }
+
+  getRolePermissions(roleId: string): Observable<RolePermission[]> {
+    return this.http.get<RolePermissionsResponse>(`${this.rolesApiUrl}/${roleId}/permissions`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  deleteRolePermission(roleId: string, permissionId: string): Observable<any> {
+    return this.http.delete(`${this.rolesApiUrl}/${roleId}/permissions/${permissionId}`);
+  }
+
+  // ── Permissions ────────────────────────────────────────────
+  private permissionsApiUrl = 'http://test-api-admin.lfeen.com/api/permissions';
+
+  getPermissions(pageSize: number = 100): Observable<RolePermission[]> {
+    return this.http.get<RolePermissionsResponse>(`${this.permissionsApiUrl}?page=1&pageSize=${pageSize}`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  bulkAssignPermissions(roleId: string, permissionIds: string[]): Observable<any> {
+    return this.http.post(`${this.rolesApiUrl}/${roleId}/permissions/bulk`, { permissionIds });
   }
 }

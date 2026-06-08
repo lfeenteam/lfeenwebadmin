@@ -1,26 +1,26 @@
 <div class="review-terms-container" dir="rtl">
   <div class="section-header">
-    <h2 class="section-title">مراجعة شروط وقوانين العقار</h2>
-    <p class="section-subtitle">يرجى مراجعة سياسات الدخول والخروج والقواعد التي وضعها المضيف لضمان توافقها مع معايير لفين.</p>
+    <h2 class="section-title">{{ 'd3.buildReview.terms.title' | translate }}</h2>
+    <p class="section-subtitle">{{ 'd3.buildReview.terms.subtitle' | translate }}</p>
   </div>
 
   <!-- Time Cards -->
   <div class="time-cards">
     <div class="time-card">
         <div class="card-icon"><i-tabler name="logout"></i-tabler></div>
-        <span class="time-label">موعد الدخول</span>
+        <span class="time-label">{{ 'd3.buildReview.terms.checkInLabel' | translate }}</span>
         <span class="time-value">{{ checkInTime }}</span>
     </div>
     <div class="time-card">
         <div class="card-icon"><i-tabler name="login"></i-tabler></div>
-        <span class="time-label">موعد الخروج</span>
+        <span class="time-label">{{ 'd3.buildReview.terms.checkOutLabel' | translate }}</span>
         <span class="time-value">{{ checkOutTime }}</span>
     </div>
     <div class="time-card flex-row">
         <div class="card-icon"><i-tabler name="clock"></i-tabler></div>
         <div class="early-info">
-            <span class="time-label">دخول مبكر</span>
-            <span class="status-badge">متاح</span>
+            <span class="time-label">{{ 'd3.buildReview.terms.earlyCheckInLabel' | translate }}</span>
+            <span class="status-badge">{{ 'd3.buildReview.terms.earlyCheckInAvailable' | translate }}</span>
         </div>
         <div class="toggle-wrap">
             <input type="checkbox" id="earlyCheckIn" [(ngModel)]="earlyCheckIn">
@@ -33,7 +33,7 @@
   <div class="rules-section">
     <div class="section-title-wrapper">
         <span class="section-indicator"></span>
-        <span class="section-title">القوانين العامة</span>
+        <span class="section-title">{{ 'd3.buildReview.terms.generalRulesTitle' | translate }}</span>
     </div>
 
     <div class="rules-grid">
@@ -54,7 +54,7 @@
   <div class="rules-section">
     <div class="section-title-wrapper">
         <span class="section-indicator"></span>
-        <span class="section-title">شروط مخصصة من المضيف</span>
+        <span class="section-title">{{ 'd3.buildReview.terms.customRulesTitle' | translate }}</span>
     </div>
 
     <div class="custom-rules-card">
@@ -70,20 +70,20 @@
   <!-- Notes -->
   <div class="notes-section">
     <div class="notes-header">
-        <span class="notes-title">ملاحظات المراجعة / سبب الرفض</span>
-        <span class="notes-required">اختياري للموافقة</span>
+        <span class="notes-title">{{ 'd3.buildReview.terms.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.terms.notesOptional' | translate }}</span>
     </div>
-    <textarea class="notes-textarea" placeholder="في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها..." rows="4"></textarea>
+    <textarea class="notes-textarea" [placeholder]="'d3.buildReview.terms.notesPlaceholder' | translate" rows="4"></textarea>
   </div>
 
   <!-- Actions -->
   <div class="action-buttons">
     <button class="btn btn-approve" (click)="approve.emit()">
-        <span>اعتماد مراجعة الشروط وقوانين العقار</span>
+        <span>{{ 'd3.buildReview.terms.approveBtn' | translate }}</span>
         <i-tabler name="circle-check"></i-tabler>
     </button>
     <button class="btn btn-reject" (click)="back.emit()">
-        <span>رفض الطلب</span>
+        <span>{{ 'd3.buildReview.terms.rejectBtn' | translate }}</span>
         <i-tabler name="circle-x"></i-tabler>
     </button>
   </div>

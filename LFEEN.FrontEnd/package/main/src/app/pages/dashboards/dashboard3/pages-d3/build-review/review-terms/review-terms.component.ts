@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Rule {
   id: number;
@@ -13,7 +14,7 @@ interface Rule {
 @Component({
   selector: 'app-review-terms',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, FormsModule],
+  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule],
   templateUrl: './review-terms.component.html',
   styleUrl: './review-terms.component.scss'
 })

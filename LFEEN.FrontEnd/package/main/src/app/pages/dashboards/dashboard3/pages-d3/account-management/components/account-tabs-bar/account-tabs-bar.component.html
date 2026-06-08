@@ -1,0 +1,14 @@
+<div class="tabs-wrapper">
+  @for (tab of tabs; track tab.key) {
+    <button
+      mat-button
+      class="tab-btn"
+      [class.active]="activeTab === tab.key"
+      (click)="tabChange.emit(tab.key)">
+      {{ tab.label }}
+      @if (tab.hasDot) {
+        <span class="tab-dot"></span>
+      }
+    </button>
+  }
+</div>
