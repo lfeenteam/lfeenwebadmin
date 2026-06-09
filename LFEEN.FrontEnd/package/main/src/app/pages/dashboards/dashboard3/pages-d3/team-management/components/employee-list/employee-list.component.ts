@@ -37,6 +37,9 @@ export class EmployeeListComponent {
       e.fullName?.toLowerCase().includes(q) ||
       e.email?.toLowerCase().includes(q) ||
       e.phoneNumber?.toLowerCase().includes(q) ||
+      e.departmentName?.toLowerCase().includes(q) ||
+      e.departmentNameAr?.toLowerCase().includes(q) ||
+      e.departmentNameEn?.toLowerCase().includes(q) ||
       e.roles?.some(r =>
         r.nameAr?.toLowerCase().includes(q) ||
         r.nameEn?.toLowerCase().includes(q) ||

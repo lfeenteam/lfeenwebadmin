@@ -87,6 +87,14 @@
             </span>
           </span>
         </a>
+        <a mat-list-item (click)="toggleLanguage()" class="d3-menu-item footer-item">
+          <span class="d-flex align-items-center gap-12 w-100">
+            <i-tabler name="world" class="icon-20"></i-tabler>
+            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+              {{ currentLang === 'ar' ? 'English' : 'العربية' }}
+            </span>
+          </span>
+        </a>
       </div>
     }
     

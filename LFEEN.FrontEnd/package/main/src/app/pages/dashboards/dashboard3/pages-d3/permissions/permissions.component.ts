@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -27,7 +28,8 @@ interface RoleRow {
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss'
 })
-export class PermissionsComponent implements OnInit {
+export class PermissionsComponent implements OnInit, OnDestroy {
+  private langSub!: Subscription;
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -49,15 +51,25 @@ export class PermissionsComponent implements OnInit {
     this.deptId = this.route.snapshot.paramMap.get('id');
   }
 
+  currentLang: string = this.translate.currentLang || 'ar';
+
   ngOnInit(): void {
+    this.langSub = this.translate.onLangChange.subscribe(e => {
+      this.currentLang = e.lang;
+      this.roles = this.roles.map(r => ({
+        ...r,
+        name: (this.currentLang === 'ar' ? r.raw.nameAr : r.raw.nameEn) ?? r.raw.name ?? '',
+        description: (this.currentLang === 'ar' ? r.raw.descriptionAr : r.raw.descriptionEn) ?? r.raw.description ?? '',
+      }));
+    });
     if (this.deptId) {
       this.loadDepartment(this.deptId);
       this.loadRoles(this.deptId);
     }
   }
 
-  get currentLang(): string {
-    return this.translate.currentLang || 'ar';
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   private loadDepartment(id: string): void {
@@ -127,10 +139,8 @@ editRole(role: RoleRow): void {
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: {
-        title: this.currentLang === 'ar' ? 'هل أنت متأكد من حذف هذا الدور؟' : 'Delete this role?',
-        message: this.currentLang === 'ar'
-          ? 'لا يمكن التراجع عن هذا الإجراء، وسيتم إزالة الدور من القسم نهائياً.'
-          : 'This action cannot be undone. The role will be permanently removed from the department.'
+        title: this.translate.instant('d3.toast.deleteRoleTitle'),
+        message: this.translate.instant('d3.toast.deleteRoleMessage')
       },
       panelClass: 'custom-confirm-dialog'
     });
@@ -142,14 +152,14 @@ editRole(role: RoleRow): void {
         next: () => {
           this.deletingId = null;
           this.toastr.success(
-            this.currentLang === 'ar' ? 'تم حذف الدور بنجاح' : 'Role deleted successfully'
+            this.translate.instant('d3.toast.deleteRoleSuccess')
           );
           if (this.deptId) this.loadRoles(this.deptId);
         },
         error: () => {
           this.deletingId = null;
           this.toastr.error(
-            this.currentLang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error deleting role'
+            this.translate.instant('d3.toast.deleteError')
           );
         }
       });

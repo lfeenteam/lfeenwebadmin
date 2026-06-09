@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -6,7 +6,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { DepartmentService, RolePermission } from '../../../services/department.service';
 
@@ -21,9 +21,11 @@ interface PermissionRow extends RolePermission {
   templateUrl: './add-role.component.html',
   styleUrl: './add-role.component.scss'
 })
-export class AddRoleComponent implements OnInit {
+export class AddRoleComponent implements OnInit, OnDestroy {
+  private langSub!: Subscription;
   deptId: string | null = null;
   deptName = '';
+  deptEnglishName = '';
   employeeCount = 0;
 
   roleForm: FormGroup;
@@ -33,6 +35,8 @@ export class AddRoleComponent implements OnInit {
   permissions: PermissionRow[] = [];
   isLoadingPerms = true;
   isSubmitting = false;
+
+  currentLang = this.translate.currentLang || 'ar';
 
   constructor(
     private fb: FormBuilder,
@@ -44,18 +48,33 @@ export class AddRoleComponent implements OnInit {
   ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
     this.roleForm = this.fb.group({
-      nameAr: ['', [Validators.required, Validators.minLength(2)]],
+      nameAr: [''],
       nameEn: [''],
       descriptionAr: [''],
       descriptionEn: ['']
     });
   }
 
-  get currentLang(): string {
-    return this.translate.currentLang || 'ar';
+  private updateValidators(): void {
+    const nameAr = this.roleForm.get('nameAr')!;
+    const nameEn = this.roleForm.get('nameEn')!;
+    if (this.currentLang === 'ar') {
+      nameAr.setValidators([Validators.required, Validators.minLength(2)]);
+      nameEn.clearValidators();
+    } else {
+      nameEn.setValidators([Validators.required, Validators.minLength(2)]);
+      nameAr.clearValidators();
+    }
+    nameAr.updateValueAndValidity();
+    nameEn.updateValueAndValidity();
   }
 
   ngOnInit(): void {
+    this.updateValidators();
+    this.langSub = this.translate.onLangChange.subscribe(e => {
+      this.currentLang = e.lang;
+      this.updateValidators();
+    });
     forkJoin({
       perms: this.departmentService.getPermissions(100),
       ...(this.deptId ? { dept: this.departmentService.getDepartmentById(this.deptId) } : {})
@@ -64,6 +83,7 @@ export class AddRoleComponent implements OnInit {
         this.permissions = (res.perms as RolePermission[]).map(p => ({ ...p, selected: false }));
         if (res.dept) {
           this.deptName = res.dept.nameAr ?? res.dept.name ?? '';
+          this.deptEnglishName = res.dept.nameEn ?? res.dept.name ?? '';
           this.employeeCount = res.dept.employeeCount;
         }
         this.isLoadingPerms = false;
@@ -84,7 +104,7 @@ export class AddRoleComponent implements OnInit {
     if (this.roleForm.invalid) {
       this.roleForm.markAllAsTouched();
       this.toastr.warning(
-        this.currentLang === 'ar' ? 'يرجى تعبئة الحقول المطلوبة' : 'Please fill required fields'
+        this.translate.instant('d3.toast.fillRequired')
       );
       return;
     }
@@ -93,9 +113,9 @@ export class AddRoleComponent implements OnInit {
     const v = this.roleForm.value;
 
     this.departmentService.createRole({
-      nameAr: v.nameAr,
+      nameAr: v.nameAr || v.nameEn,
       nameEn: v.nameEn || v.nameAr,
-      descriptionAr: v.descriptionAr,
+      descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
       departmentId: this.deptId!
     }).pipe(
@@ -110,14 +130,14 @@ export class AddRoleComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.toastr.success(
-          this.currentLang === 'ar' ? 'تم إضافة الدور بنجاح' : 'Role added successfully'
+          this.translate.instant('d3.toast.addRoleSuccess')
         );
         this.router.navigate([`/${this.currentLang}/d3/permissions/${this.deptId}`]);
       },
       error: () => {
         this.isSubmitting = false;
         this.toastr.error(
-          this.currentLang === 'ar' ? 'حدث خطأ أثناء الحفظ' : 'Error saving role'
+          this.translate.instant('d3.toast.saveError')
         );
       }
     });
@@ -125,5 +145,9 @@ export class AddRoleComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate([`/${this.currentLang}/d3/permissions/${this.deptId}`]);
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 }

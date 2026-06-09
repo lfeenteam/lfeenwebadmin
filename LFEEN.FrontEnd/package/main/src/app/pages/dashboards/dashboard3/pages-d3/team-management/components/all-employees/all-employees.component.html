@@ -15,8 +15,8 @@
                 </div>
               }
               <div>
-                <h6 class="m-0 employee-name">{{ element.fullName }}</h6>
-                <span class="f-s-12 text-muted">{{ element.email }}</span>
+                <h6 class="m-0 employee-name" dir="auto">{{ element.fullName }}</h6>
+                <span class="f-s-12 text-muted" dir="auto">{{ element.email }}</span>
               </div>
             </div>
           </td>
@@ -30,12 +30,11 @@
 
         <!-- Role Column -->
         <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.role' | translate }}</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.departmentRole' | translate }}</th>
           <td mat-cell *matCellDef="let element">
-            <div class="d-flex align-items-center gap-8">
-              <h6 class="m-0 f-s-14 f-w-600">
-                {{ (currentLang === 'ar' ? element.roles[0]?.nameAr : element.roles[0]?.nameEn) || element.roles[0]?.name || '---' }}
-              </h6>
+            <div class="department-role">
+              <span class="department-name" dir="auto">{{ getDepartmentName(element) }}</span>
+              <span class="role-name" dir="auto">{{ getRoleName(element) }}</span>
             </div>
           </td>
         </ng-container>

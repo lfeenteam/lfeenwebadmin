@@ -44,6 +44,10 @@ export interface Employee {
   phoneNumber: string | null;
   isActive: boolean;
   avatar?: string | null;
+  departmentId?: string | null;
+  departmentName?: string | null;
+  departmentNameAr?: string | null;
+  departmentNameEn?: string | null;
   roles: EmployeeRole[];
 }
 

@@ -86,7 +86,7 @@ export class AddRoleDialogComponent implements OnInit {
       this.roleForm.markAllAsTouched();
       this.cdr.detectChanges();
       this.toastr.warning(
-        this.currentLang === 'ar' ? 'يرجى تعبئة الحقول المطلوبة' : 'Please fill required fields'
+        this.translate.instant('d3.toast.fillRequired')
       );
       return;
     }
@@ -114,9 +114,7 @@ export class AddRoleDialogComponent implements OnInit {
       next: (response) => {
         this.isSubmitting = false;
         this.toastr.success(
-          this.currentLang === 'ar'
-            ? (this.data.role ? 'تم تعديل الدور بنجاح' : 'تم إضافة الدور بنجاح')
-            : (this.data.role ? 'Role updated successfully' : 'Role added successfully')
+          this.translate.instant(this.data.role ? 'd3.toast.editRoleSuccess' : 'd3.toast.addRoleSuccess')
         );
         // بعتت البيانات المحدثة للـ parent component
         const updatedData = {
@@ -130,7 +128,7 @@ export class AddRoleDialogComponent implements OnInit {
       error: (err) => {
         this.isSubmitting = false;
         this.toastr.error(
-          this.currentLang === 'ar' ? 'حدث خطأ أثناء العملية' : 'Error during operation'
+          this.translate.instant('d3.toast.errorOp')
         );
         this.cdr.detectChanges();
       }

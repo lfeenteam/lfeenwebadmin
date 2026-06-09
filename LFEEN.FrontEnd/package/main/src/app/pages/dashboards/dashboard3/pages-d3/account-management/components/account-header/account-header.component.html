@@ -1,31 +1,38 @@
-<div class="account-header d-flex align-items-center gap-12">
+<div class="account-header-box d-flex align-items-center gap-16 flex-wrap">
 
   <!-- Search -->
-  <div class="search-wrapper d-flex align-items-center gap-8 flex-grow-1">
+  <div class="search-wrapper position-relative flex-grow-1">
     <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
     <input
       type="text"
       class="search-input"
-      placeholder="ابحث باسم الحساب أو الرقم الضريبي"
+      [placeholder]="'d3.accountManagement.searchPlaceholder' | translate"
       [value]="searchQuery"
       (input)="searchQueryChange.emit($any($event.target).value)" />
   </div>
 
-  <!-- Filter chips -->
-  <div class="filter-chips d-flex align-items-center gap-8">
-    @for (f of filters; track f.key) {
-      <button
-        class="filter-chip"
-        [class.active]="activeFilter === f.key"
-        (click)="filterChange.emit(f.key)">
-        {{ f.label }}
-      </button>
+  <!-- Status filter -->
+  <mat-select
+    class="filter-select-native"
+    [value]="selectedStatus"
+    disableOptionCentering
+    panelClass="team-filter-panel"
+    (selectionChange)="onStatusChange($event.value)">
+    @for (opt of statusOptions; track opt.value) {
+      <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
     }
-  </div>
+  </mat-select>
 
-  <!-- Filter icon -->
-  <button mat-icon-button class="filter-icon-btn">
-    <i-tabler name="adjustments-horizontal" class="icon-20"></i-tabler>
-  </button>
+  <!-- Sort order -->
+  <mat-select
+    class="filter-select-native"
+    [value]="newestFirst"
+    disableOptionCentering
+    panelClass="team-filter-panel"
+    (selectionChange)="onSortChange($event.value)">
+    @for (opt of sortOptions; track opt.value) {
+      <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
+    }
+  </mat-select>
 
 </div>

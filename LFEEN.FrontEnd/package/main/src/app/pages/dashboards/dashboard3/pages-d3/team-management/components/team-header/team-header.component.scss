@@ -54,8 +54,14 @@
 }
 
 .filter-select-native {
-  height: 40px;
-  padding: 8px 20px 8px 32px;
+  width: auto !important;
+  min-width: 155px;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  flex: 0 0 auto;
+  padding: 0;
+  box-sizing: border-box;
   border-radius: 12px;
   border: 1px solid #E8E8E4;
   background: #fff;
@@ -64,18 +70,41 @@
   color: #111110;
   font-family: 'Cairo', sans-serif;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
   outline: none;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 
   &:focus {
     border-color: #E8E8E4;
     box-shadow: none;
   }
 
-  option {
+  ::ng-deep .mat-mdc-select-trigger {
+    width: 100%;
+    height: 100%;
+    padding: 8px 20px 8px 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    overflow: visible !important;
+    text-overflow: clip;
+    color: #111110;
     font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  ::ng-deep .mat-mdc-select-value-text {
+    overflow: visible !important;
+    text-overflow: clip;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: #6B6B67;
   }
 }
 

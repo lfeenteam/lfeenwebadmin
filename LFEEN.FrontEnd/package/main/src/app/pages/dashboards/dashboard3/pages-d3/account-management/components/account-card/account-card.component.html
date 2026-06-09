@@ -1,14 +1,11 @@
 <mat-card class="account-card shadow-none" [class.under-review-card]="account.status === 'under_review'">
   <mat-card-content>
 
-    <!-- ===== Layout خاص بـ under_review ===== -->
+
     @if (account.status === 'under_review') {
 
       <div class="d-flex justify-content-between align-items-start">
-        <span class="status-badge under_review">
-          <span class="dot"></span>
-          {{ statusLabel }}
-        </span>
+     
 
         @if (account.paymentBadge === 'stripe') {
           <div class="stripe-badge">stripe</div>
@@ -17,6 +14,10 @@
             {{ account.avatarInitials }}
           </div>
         }
+           <span class="status-badge under_review">
+          <span class="dot"></span>
+          {{ statusLabel }}
+        </span>
       </div>
 
       <h4 class="account-name m-t-16">{{ account.name }}</h4>
@@ -24,14 +25,14 @@
       <div class="card-divider"></div>
 
       <div class="info-rows">
-        <div class="info-row d-flex justify-content-between align-items-center">
-          <span class="info-label">تاريخ الطلب</span>
+        <div class="info-row">
+          <span class="info-label">{{ 'd3.accountManagement.card.requestDate' | translate }}</span>
           <span class="info-value">{{ account.joinDate }}</span>
         </div>
       </div>
 
-      <div class="card-actions d-flex align-items-center justify-content-start">
-        <button mat-icon-button class="icon-action-btn">
+      <div class="card-actions d-flex align-items-center justify-content-end ">
+        <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
           <i-tabler name="arrow-left" class="icon-18"></i-tabler>
         </button>
       </div>
@@ -65,11 +66,11 @@
             <span class="info-value">{{ account.idNumber }}</span>
           </div>
           <div class="info-row d-flex justify-content-between align-items-center">
-            <span class="info-label">تاريخ الانضمام</span>
+            <span class="info-label">{{ 'd3.accountManagement.card.joinDate' | translate }}</span>
             <span class="info-value">{{ account.joinDate }}</span>
           </div>
           <div class="info-row d-flex justify-content-between align-items-center">
-            <span class="info-label">عدد العقارات</span>
+            <span class="info-label">{{ 'd3.accountManagement.card.propertyCount' | translate }}</span>
             <span class="info-value">{{ account.propertyCount }} {{ account.unit }}</span>
           </div>
         </div>

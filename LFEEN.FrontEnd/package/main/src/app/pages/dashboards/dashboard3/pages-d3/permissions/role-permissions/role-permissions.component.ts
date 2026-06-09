@@ -7,14 +7,14 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService, RolePermission } from '../../../services/department.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-role-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule],
   templateUrl: './role-permissions.component.html',
   styleUrl: './role-permissions.component.scss'
 })
@@ -81,10 +81,8 @@ export class RolePermissionsComponent implements OnInit {
       width: '440px',
       panelClass: 'custom-confirm-dialog',
       data: {
-        title: this.currentLang === 'ar' ? 'إزالة الصلاحية' : 'Remove Permission',
-        message: this.currentLang === 'ar'
-          ? `هل تريد إزالة صلاحية "${perm.name}" من هذا الدور؟ لا يمكن التراجع عن هذا الإجراء.`
-          : `Remove permission "${perm.name}" from this role? This action cannot be undone.`
+        title: this.translate.instant('d3.toast.removePermTitle'),
+        message: this.translate.instant('d3.toast.removePermMessage', { permName: perm.name })
       }
     });
 
@@ -96,13 +94,13 @@ export class RolePermissionsComponent implements OnInit {
           this.permissions = this.permissions.filter(p => p.id !== perm.id);
           this.deletingId = null;
           this.toastr.success(
-            this.currentLang === 'ar' ? 'تم إزالة الصلاحية بنجاح' : 'Permission removed successfully'
+            this.translate.instant('d3.toast.removePermSuccess')
           );
         },
         error: () => {
           this.deletingId = null;
           this.toastr.error(
-            this.currentLang === 'ar' ? 'حدث خطأ أثناء إزالة الصلاحية' : 'Error removing permission'
+            this.translate.instant('d3.toast.removePermError')
           );
         }
       });

@@ -83,7 +83,7 @@ export class AddDepartmentComponent {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.toastr.warning(
-        this.currentLang === 'ar' ? 'يرجى تعبئة الحقول المطلوبة' : 'Please fill required fields'
+        this.translate.instant('d3.toast.fillRequired')
       );
       return;
     }
@@ -119,14 +119,14 @@ export class AddDepartmentComponent {
       next: () => {
         this.isSubmitting = false;
         this.toastr.success(
-          this.currentLang === 'ar' ? 'تم إضافة القسم والأدوار بنجاح' : 'Department and roles added successfully'
+          this.translate.instant('d3.toast.addDeptSuccess')
         );
         this.router.navigate(['../'], { relativeTo: this.route });
       },
       error: () => {
         this.isSubmitting = false;
         this.toastr.error(
-          this.currentLang === 'ar' ? 'حدث خطأ أثناء العملية' : 'Error during operation'
+          this.translate.instant('d3.toast.errorOp')
         );
         this.cdr.detectChanges();
       }

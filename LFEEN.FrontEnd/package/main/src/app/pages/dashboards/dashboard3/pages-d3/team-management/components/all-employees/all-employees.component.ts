@@ -33,6 +33,19 @@ export class AllEmployeesComponent {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   }
 
+  getDepartmentName(employee: Employee): string {
+    return (this.currentLang === 'ar' ? employee.departmentNameAr : employee.departmentNameEn)
+      || employee.departmentName
+      || '---';
+  }
+
+  getRoleName(employee: Employee): string {
+    const role = employee.roles?.[0];
+    return (this.currentLang === 'ar' ? role?.nameAr : role?.nameEn)
+      || role?.name
+      || '---';
+  }
+
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
   }

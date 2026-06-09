@@ -1,0 +1,570 @@
+:host {
+  display: block;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.review-account {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  direction: rtl;
+}
+
+.info-card {
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card-icon-box {
+  width: 36px;
+  height: 36px;
+  background: #F1F5F9;
+  border: 1px solid #E8E8E4;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #45556C;
+
+  ::ng-deep svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.8;
+  }
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172B;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+}
+
+// ===== Fields =====
+.fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field-row {
+  display: flex;
+  flex-direction: column;  
+  align-items: flex-start; 
+  gap: 2px;                
+
+  &.align-start {
+    align-items: flex-start;
+  }
+}
+.field-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #90A1B9;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.field-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0F172B;
+}
+
+// ===== Verified Badge =====
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #F0FDF4;
+  border: 1px solid #DCFCE7;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #15803D;
+
+  &.small {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  ::ng-deep svg {
+    width: 13px;
+    height: 13px;
+    stroke: #15803D;
+    stroke-width: 2.5;
+  }
+}
+
+// ===== Identity Card =====
+.identity-card {
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  direction: rtl;
+}
+
+.identity-body {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  direction: ltr;
+  align-items: flex-start;
+}
+
+.identity-logo-dashed {
+  flex-shrink: 0;
+  width: 400px;
+  height: 176px;
+  background: rgba(248, 250, 252, 0.5);
+  border: 2px dashed #F1F5F9;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  .logo-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9E9E9A;
+    white-space: nowrap;
+  }
+
+  .logo-initials-text {
+    font-size: 28px;
+    font-weight: 900;
+    color: #635BFF;
+    letter-spacing: 2px;
+  }
+}
+
+.fields-stacked {
+  flex: 1;
+  min-width: 0;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.stacked-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: #90A1B9;
+  }
+
+  .field-value.bold {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0F172B;
+  }
+}
+
+.stripe-text {
+  font-size: 40px;
+  font-weight: 700;
+  color: #635BFF;
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+
+// ===== File Badge =====
+.file-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 300px;
+  height: 65px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  padding: 16px;
+  background: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.file-icon-wrap {
+  width: 40px;
+  height: 40px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #64748B;
+
+  ::ng-deep svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.6;
+  }
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+
+  .file-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #111110;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .file-size {
+    font-size: 10px;
+    color: #9E9E9A;
+    font-weight: 500;
+  }
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.stretch-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .fields-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    background: #F8FAFC;
+    border: 1px solid #F8FAFC;
+    border-radius: 16px;
+    padding: 12px 16px;
+  }
+.bank-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row !important;
+}
+
+.bank-info-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bank-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bank-icon-wrap {
+  width: 36px;
+  height: 36px;
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B67;
+  flex-shrink: 0;
+}
+
+
+.verified-badgee {
+  font-weight: 500;
+  font-size: 12px;
+  text-align: right;
+  color: #00A63E;
+  width: fit-content;
+  display: inline-flex;
+  gap: 4px;
+
+  }
+
+  .contact-rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+// ===== Region Badge =====
+.region-badge {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  border-radius: 20px;
+  padding: 3px 12px;
+
+  .region-id {
+    font-size: 11px;
+    font-weight: 900;
+    color: #111110;
+  }
+
+  .region-sep {
+    color: #D0D0CC;
+    font-size: 12px;
+  }
+
+  .region-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6B6B67;
+  }
+}
+
+.fields-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 24px;
+  direction: rtl;
+
+  .field-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .field-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #9E9E9A;
+    }
+
+    .field-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111110;
+    }
+  }
+}
+// ===== Contact Rows =====
+.contact-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  padding: 12px 16px;
+}
+
+.contact-icon-wrap {
+  width: 32px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #6B6B67;
+
+  ::ng-deep svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2;
+  }
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// ===== Bank Row =====
+.bank-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+// ===== Decision Section =====
+.decision-section {
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.decision-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notes-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  .notes-label {
+    font-size: 13px;
+    font-weight: 900;
+    color: #DC2626;
+  }
+
+  .notes-required {
+    font-size: 12px;
+    font-weight: 500;
+    color: #DC2626;
+    opacity: 0.7;
+  }
+}
+
+.notes-textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid #DC26261A;
+  border-radius: 20px;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  color: #111110;
+  resize: none;
+  outline: none;
+  text-align: right;
+  direction: rtl;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &::placeholder { color: #C0C0BC; }
+  &:focus { border-color: #DC2626; }
+}
+
+// ===== Action Section =====
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 12px;
+  direction: rtl;
+}
+
+.btn-reject {
+  height: 56px;
+  background: #DC2626;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 20px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.2);
+
+  &:hover { opacity: 0.9; }
+
+  ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2.5; }
+}
+
+.btn-approve {
+  height: 56px;
+  background: #111110;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 20px;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+
+  &:hover { opacity: 0.85; }
+
+  ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2.5; }
+}
+
+.lock-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #BDBDBA;
+  text-align: center;
+
+  ::ng-deep svg { width: 13px; height: 13px; stroke: #BDBDBA; stroke-width: 2; }
+}
+
+// ===== Icon helpers =====
+.icon-14 { display: inline-flex; align-items: center; ::ng-deep svg { width: 14px; height: 14px; } }
+.icon-16 { display: inline-flex; align-items: center; ::ng-deep svg { width: 16px; height: 16px; } }
+.icon-18 { display: inline-flex; align-items: center; ::ng-deep svg { width: 18px; height: 18px; } }
+.icon-20 { display: inline-flex; align-items: center; ::ng-deep svg { width: 20px; height: 20px; } }

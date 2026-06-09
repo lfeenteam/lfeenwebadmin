@@ -129,6 +129,28 @@
       "notifications": "Notifications",
       "logout": "Logout"
     },
+    "toast": {
+      "errorOp": "Error during operation",
+      "fillRequired": "Please fill required fields",
+      "fillAllRequired": "Please fill in all required fields",
+      "deleteError": "Error deleting",
+      "saveError": "Error saving",
+      "deleteEmployeeSuccess": "Employee deleted successfully",
+      "deleteEmployeeError": "Error deleting employee",
+      "selectDeptFirst": "Please select a department first",
+      "addEmployeeSuccess": "Employee added successfully",
+      "updateEmployeeSuccess": "Employee data updated successfully",
+      "addDeptSuccess": "Department and roles added successfully",
+      "addRoleSuccess": "Role added successfully",
+      "editRoleSuccess": "Role updated successfully",
+      "deleteRoleSuccess": "Role deleted successfully",
+      "removePermTitle": "Remove Permission",
+      "removePermMessage": "Remove permission \"{{permName}}\" from this role? This action cannot be undone.",
+      "removePermSuccess": "Permission removed successfully",
+      "removePermError": "Error removing permission",
+      "deleteRoleTitle": "Delete this role?",
+      "deleteRoleMessage": "This action cannot be undone and the role will be permanently removed from the department."
+    },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
@@ -174,15 +196,6 @@
         "units": "Units",
         "occupancy": "Occupancy",
         "bookings": "Bookings"
-      },
-      "table": {
-        "buildingHost": "Building / Host",
-        "location": "Location",
-        "lastUpdate": "Last Update",
-        "units": "Units",
-        "occupancy": "Occupancy",
-        "bookings": "Bookings",
-        "status": "Status"
       },
       "table": {
         "buildingHost": "Building / Host",
@@ -373,7 +386,11 @@
         "totalEmployees": "Total Employees",
         "departmentCount": "Number of Departments",
         "activeManagers": "Active Managers",
-        "pendingActivation": "Pending Activation"
+        "pendingActivation": "Pending Activation",
+        "partialOps": "Partial Operations",
+        "rejectedOps": "Rejected Operations",
+        "successfulOps": "Successful Operations",
+        "totalOps": "Total Operations"
       },
       "tabs": {
         "structure": "Department Structure",
@@ -392,6 +409,7 @@
         "idNumber": "ID Number",
         "phone": "Phone Number",
         "role": "Job Role",
+        "departmentRole": "Department / Role",
         "status": "Status"
       },
       "deptCard": {
@@ -403,7 +421,6 @@
       },
       "deptManagerTitle": "{{name}} Manager",
       "deptEmployees": "Department Employees List",
-      "searchPlaceholder": "Search in {{name}} team...",
       "searchPlaceholderSimple": "Search in the team...",
       "addEmployeeDialog": {
         "title": "Add New Employee",
@@ -428,6 +445,24 @@
           "phoneRequired": "Phone number is required",
           "phonePattern": "Numbers and + only",
           "roleRequired": "Job role is required"
+        }
+      },
+      "pagination": {
+        "total": "employees"
+      },
+      "opsLog": {
+        "filters": {
+          "searchPlaceholder": "Search by employee name, action, or department...",
+          "actionType": "Action Type",
+          "allDepts": "All Departments",
+          "allDates": "All Dates"
+        },
+        "table": {
+          "dateTime": "Date & Time",
+          "user": "User",
+          "action": "Action Performed",
+          "department": "Affected Department",
+          "status": "Status"
         }
       }
     },
@@ -538,6 +573,8 @@
       "description": "Manage bookings, hosts, and residential units directly.",
       "employeeCount": "Employee Count",
       "manager": "Responsible Manager",
+      "activePermissionsCount": "{{count}} active permissions",
+      "noPermissions": "No permissions defined for this department",
       "table": {
         "department": "Department / Job Title",
         "description": "Permission Description",
@@ -637,6 +674,82 @@
         "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
         "approveBtn": "Approve Property Terms and Conditions Review",
         "rejectBtn": "Reject Request"
+      }
+    },
+    "accountManagement": {
+      "noResults": "No matching accounts found",
+      "searchPlaceholder": "Search by account name or tax number",
+      "tabs": {
+        "all": "All",
+        "active": "Active Accounts",
+        "rejected": "Rejected Accounts",
+        "underReview": "Accounts Under Review"
+      },
+      "filters": {
+        "all": "All Accounts",
+        "status": "All Statuses",
+        "newest": "Newest First",
+        "oldest": "Oldest First"
+      },
+      "card": {
+        "requestDate": "Request Date",
+        "joinDate": "Join Date",
+        "propertyCount": "Number of Properties",
+        "statusActive": "Active",
+        "statusUnderReview": "Under Review",
+        "statusDraft": "Draft",
+        "statusPending": "Pending Review",
+        "statusRejected": "Rejected",
+        "statusSuspended": "Suspended",
+        "idFieldCompany": "Commercial Register",
+        "idFieldIndividual": "ID Number",
+        "actionCompany": "Company Business",
+        "actionIndividual": "Individual (Freelance)"
+      }
+    },
+    "reviewAccount": {
+      "facilityInfo": {
+        "cardTitle": "Facility Information",
+        "unifiedNumber": "Unified Number",
+        "dataStatus": "Data Status",
+        "dataVerified": "Data Verified",
+        "businessCategory": "Business Category"
+      },
+      "tradeName": {
+        "cardTitle": "Trade Name",
+        "logoLabel": "Facility Logo",
+        "nameLabel": "Trade Name",
+        "documentLabel": "Brand Documentation"
+      },
+      "taxAddress": {
+        "cardTitle": "Tax and National Address",
+        "regionLabel": "Region Prince",
+        "taxNumber": "Tax Number",
+        "region": "Region",
+        "city": "City",
+        "postalCode": "Postal Code",
+        "district": "District",
+        "buildingNumber": "Building Number",
+        "streetName": "Street Name"
+      },
+      "contactInfo": {
+        "cardTitle": "Contact Information",
+        "mobile": "Mobile Number",
+        "email": "Email Address"
+      },
+      "bankInfo": {
+        "cardTitle": "Bank Account Information",
+        "iban": "IBAN Number",
+        "bankVerified": "Bank Account Verified"
+      },
+      "decision": {
+        "cardTitle": "Make Decision on Request",
+        "notesLabel": "Rejection Notes",
+        "notesRequired": "(Required if rejecting)",
+        "notesPlaceholder": "Please enter rejection reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Accept and Activate Account",
+        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility"
       }
     }
   }

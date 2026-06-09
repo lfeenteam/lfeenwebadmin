@@ -23,6 +23,11 @@
       actionLabel="d3.teamManagement.addEmployee"
       actionIcon="user-plus"
       [showFilters]="true"
+      [departments]="filterDepartments"
+      [roles]="filterRoles"
+      (search)="onEmployeeSearch($event)"
+      (filterDept)="onFilterDept($event)"
+      (filterRole)="onFilterRole($event)"
       (action)="onHeaderAction()">
     </app-team-header>
 

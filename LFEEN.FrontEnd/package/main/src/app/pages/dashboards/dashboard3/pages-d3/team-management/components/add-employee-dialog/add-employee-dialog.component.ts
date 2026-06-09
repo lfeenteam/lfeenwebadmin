@@ -153,7 +153,7 @@ export class AddEmployeeDialogComponent implements OnInit {
   saveEmployee(): void {
     if (this.data.fromAllEmployees && !this.selectedDept) {
       this.toastr.warning(
-        this.currentLang === 'ar' ? 'يرجى اختيار القسم أولاً' : 'Please select a department first'
+        this.translate.instant('d3.toast.selectDeptFirst')
       );
       return;
     }
@@ -180,9 +180,7 @@ export class AddEmployeeDialogComponent implements OnInit {
         next: () => {
           this.isSubmitting = false;
           this.toastr.success(
-            this.currentLang === 'ar'
-              ? (this.data.employee ? 'تم تحديث بيانات الموظف بنجاح' : 'تم إضافة الموظف بنجاح')
-              : (this.data.employee ? 'Employee updated successfully' : 'Employee added successfully')
+            this.translate.instant(this.data.employee ? 'd3.toast.updateEmployeeSuccess' : 'd3.toast.addEmployeeSuccess')
           );
           this.dialogRef.close(true);
         },
@@ -197,7 +195,7 @@ export class AddEmployeeDialogComponent implements OnInit {
             this.cdr.detectChanges();
           } else {
             this.toastr.error(
-              this.currentLang === 'ar' ? 'حدث خطأ أثناء العملية' : 'Error during operation'
+              this.translate.instant('d3.toast.errorOp')
             );
           }
         }
@@ -206,7 +204,7 @@ export class AddEmployeeDialogComponent implements OnInit {
       this.employeeForm.markAllAsTouched();
       this.cdr.detectChanges();
       this.toastr.warning(
-        this.currentLang === 'ar' ? 'يرجى تعبئة جميع الحقول المطلوبة' : 'Please fill in all required fields'
+        this.translate.instant('d3.toast.fillAllRequired')
       );
     }
   }

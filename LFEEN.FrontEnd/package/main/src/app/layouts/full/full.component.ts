@@ -202,6 +202,7 @@ export class FullComponent implements OnInit {
     // مراقبة تغييرات options من CoreService
     effect(() => {
       this.options = this.settings.getOptions();
+      this.htmlElement.setAttribute('dir', this.options.dir || 'ltr');
     });
     
     this.layoutChangesSubscription = this.breakpointObserver
@@ -260,6 +261,7 @@ export class FullComponent implements OnInit {
 
     this.toggleDarkTheme(options);
     this.toggleColorsTheme(options);
+    this.htmlElement.setAttribute('dir', options.dir || 'ltr');
   }
 
   toggleDarkTheme(options: AppSettings) {

@@ -245,13 +245,25 @@
 
   // ===== under_review card specific =====
   &.under-review-card {
+    height: 290px;
+    border: 1px solid #FEF08A !important;
+
     mat-card-content {
       display: flex;
       flex-direction: column;
     }
 
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
     .card-actions {
       margin-top: auto;
+      border-top: none;
+      padding-top: 0;
     }
   }
 }

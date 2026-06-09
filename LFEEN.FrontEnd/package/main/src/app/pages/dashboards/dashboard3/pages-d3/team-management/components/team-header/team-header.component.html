@@ -12,19 +12,29 @@
     </div>
 
     @if (showFilters) {
-      <select class="filter-select-native" (change)="onDeptFilterChange($any($event.target).value)">
-        <option value="">{{ 'd3.teamManagement.filters.allDepts' | translate }}</option>
-        @for (dept of departments; track dept) {
-          <option [value]="dept">{{ dept }}</option>
+      <mat-select
+        class="filter-select-native"
+        value=""
+        disableOptionCentering
+        panelClass="team-filter-panel"
+        (selectionChange)="onDeptFilterChange($event.value)">
+        <mat-option value="">{{ 'd3.teamManagement.filters.allDepts' | translate }}</mat-option>
+        @for (dept of departments; track dept.id) {
+          <mat-option [value]="dept.id">{{ getDepartmentName(dept) }}</mat-option>
         }
-      </select>
+      </mat-select>
 
-      <select class="filter-select-native" (change)="onRoleFilterChange($any($event.target).value)">
-        <option value="">{{ 'd3.teamManagement.filters.allRoles' | translate }}</option>
-        @for (role of roles; track role) {
-          <option [value]="role">{{ role }}</option>
+      <mat-select
+        class="filter-select-native"
+        value=""
+        disableOptionCentering
+        panelClass="team-filter-panel"
+        (selectionChange)="onRoleFilterChange($event.value)">
+        <mat-option value="">{{ 'd3.teamManagement.filters.allRoles' | translate }}</mat-option>
+        @for (role of roles; track role.id) {
+          <mat-option [value]="role.id">{{ getRoleName(role) }}</mat-option>
         }
-      </select>
+      </mat-select>
     }
 
     <!-- Action Button -->

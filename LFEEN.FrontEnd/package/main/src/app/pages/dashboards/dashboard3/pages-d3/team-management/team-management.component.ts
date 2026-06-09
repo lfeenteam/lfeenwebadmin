@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { DepartmentService } from '../../services/department.service';
-import { Department, Employee } from '../../interfaces/department.model';
+import { Department, DepartmentRole, Employee } from '../../interfaces/department.model';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -55,6 +55,8 @@ export class TeamManagementComponent implements OnInit {
   isLoadingDepts = false;
 
   employees: Employee[] = [];
+  filterDepartments: Department[] = [];
+  filterRoles: DepartmentRole[] = [];
   employeeTotalPages = 1;
   employeeTotalCount = 0;
   employeeCurrentPage = 1;
@@ -168,6 +170,8 @@ export class TeamManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadEmployeeFilterOptions();
+
     this.route.params.subscribe(params => {
       this.departmentId = params['id'] || null;
       if (this.departmentId) {
@@ -177,6 +181,36 @@ export class TeamManagementComponent implements OnInit {
         this.updateStats();
       }
     });
+  }
+
+  loadEmployeeFilterOptions(): void {
+    this.departmentService.getAllDepartmentsForDropdown().subscribe({
+      next: departments => {
+        this.filterDepartments = departments;
+        this.cdr.markForCheck();
+      },
+      error: err => console.error('Error loading department filters', err)
+    });
+
+    this.departmentService.getAllRolesForDropdown().subscribe({
+      next: roles => {
+        this.filterRoles = roles.filter(role => !role.isDeleted);
+        this.cdr.markForCheck();
+      },
+      error: err => console.error('Error loading role filters', err)
+    });
+  }
+
+  onEmployeeSearch(query: string): void {
+    this.departmentService.setEmployeeSearch(query);
+  }
+
+  onFilterDept(deptId: string): void {
+    this.departmentService.setEmployeeDeptFilter(deptId || null);
+  }
+
+  onFilterRole(roleId: string): void {
+    this.departmentService.setEmployeeRoleId(roleId || null);
   }
 
   loadDepartmentDetails(id: string): void {
@@ -250,7 +284,7 @@ export class TeamManagementComponent implements OnInit {
   }
 
   onEditEmployee(employee: Employee): void {
-    const deptId = this.departmentId || employee.roles?.[0]?.id || '';
+    const deptId = this.departmentId || employee.departmentId || '';
 
     const dialogRef = this.dialog.open(AddEmployeeDialogComponent, {
       width: '640px',
@@ -278,13 +312,13 @@ export class TeamManagementComponent implements OnInit {
       if (result) {
         this.departmentService.deleteEmployee(employee.userId).subscribe({
           next: () => {
-            this.toastr.success(this.currentLang === 'ar' ? 'تم حذف الموظف بنجاح' : 'Employee deleted successfully');
+            this.toastr.success(this.translate.instant('d3.toast.deleteEmployeeSuccess'));
             if (this.departmentId) this.loadDepartmentDetails(this.departmentId);
             else this.loadAllEmployees();
           },
           error: (err) => {
             console.error('Error deleting employee', err);
-            this.toastr.error(this.currentLang === 'ar' ? 'حدث خطأ أثناء الحذف' : 'Error deleting employee');
+            this.toastr.error(this.translate.instant('d3.toast.deleteEmployeeError'));
           }
         });
       }

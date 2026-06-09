@@ -58,19 +58,27 @@ export class DepartmentService {
   readonly employeeDeptId = signal<string | null>(null);
   readonly employeeCurrentPage = signal(1);
   readonly employeePageSize = signal(10);
+  readonly employeeSearch = signal('');
+  readonly employeeRoleId = signal<string | null>(null);
 
   private readonly _employeesResource = rxResource({
     request: () => ({
       deptId: this.employeeDeptId(),
       page: this.employeeCurrentPage(),
-      pageSize: this.employeePageSize()
+      pageSize: this.employeePageSize(),
+      search: this.employeeSearch(),
+      roleId: this.employeeRoleId()
     }),
     loader: ({ request }) => {
-      const base = request.deptId
-        ? `${this.apiUrl}/${request.deptId}/employees`
-        : `${this.apiUrl}/employees`;
+      const params = new URLSearchParams({
+        page: String(request.page),
+        pageSize: String(request.pageSize)
+      });
+      if (request.search) params.set('search', request.search);
+      if (request.roleId) params.set('roleId', request.roleId);
+      if (request.deptId) params.set('departmentId', request.deptId);
       return this.http.get<PaginatedEmployeeResponse>(
-        `${base}?page=${request.page}&pageSize=${request.pageSize}`
+        `${this.apiUrl}/employees?${params}`
       );
     }
   });
@@ -88,6 +96,21 @@ export class DepartmentService {
     if (sameId) {
       this._employeesResource.reload();
     }
+  }
+
+  setEmployeeSearch(search: string): void {
+    this.employeeSearch.set(search);
+    this.employeeCurrentPage.set(1);
+  }
+
+  setEmployeeRoleId(roleId: string | null): void {
+    this.employeeRoleId.set(roleId);
+    this.employeeCurrentPage.set(1);
+  }
+
+  setEmployeeDeptFilter(deptId: string | null): void {
+    this.employeeDeptId.set(deptId);
+    this.employeeCurrentPage.set(1);
   }
 
   goToEmployeePage(page: number): void {
@@ -114,6 +137,14 @@ export class DepartmentService {
 
   getDepartmentRoles(id: string): Observable<DepartmentRole[]> {
     return this.http.get<{ data: DepartmentRole[] }>(`${this.apiUrl}/${id}/roles`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  getAllRolesForDropdown(): Observable<DepartmentRole[]> {
+    return this.http.get<{ data: DepartmentRole[] }>(
+      `${this.rolesApiUrl}?page=1&pageSize=100`
+    ).pipe(
       map(res => res.data)
     );
   }

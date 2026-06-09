@@ -19,24 +19,28 @@
         <!-- Role Name -->
         <div class="field-group m-b-20">
           <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.roleNameLabel' | translate }}</label>
-          <div class="bilingual-input-wrapper" [class.is-invalid]="roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched">
-            <input class="bilingual-input" formControlName="nameAr"
+          <div class="bilingual-input-wrapper"
+            [class.is-invalid]="roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched">
+            <input class="bilingual-input"
+              [formControlName]="currentLang === 'ar' ? 'nameAr' : 'nameEn'"
               [placeholder]="'d3.addRolePage.roleNamePlaceholder' | translate">
             <button type="button" class="lang-chip" [class.active]="showNameSecondary"
               (click)="showNameSecondary = !showNameSecondary">
-              English
+              {{ currentLang === 'ar' ? 'English' : 'عربي' }}
             </button>
           </div>
-          @if (roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched) {
+          @if (roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched) {
             <p class="field-error m-t-4">
               {{ 'd3.addRolePage.validation.nameRequired' | translate }}
             </p>
           }
           @if (showNameSecondary) {
-            <div class="bilingual-input-wrapper secondary m-t-8" dir="ltr">
-              <input class="bilingual-input" formControlName="nameEn"
-                placeholder="e.g. Quality Supervisor">
-              <span class="lang-chip static">English</span>
+            <div class="bilingual-input-wrapper secondary m-t-8"
+              [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
+              <input class="bilingual-input"
+                [formControlName]="currentLang === 'ar' ? 'nameEn' : 'nameAr'"
+                [placeholder]="currentLang === 'ar' ? 'e.g. Quality Supervisor' : 'مثال: مشرف الجودة'">
+              <span class="lang-chip static">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
             </div>
           }
         </div>
@@ -45,18 +49,23 @@
         <div class="field-group">
           <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.descriptionLabel' | translate }}</label>
           <div class="bilingual-input-wrapper textarea-wrapper">
-            <textarea class="bilingual-textarea" formControlName="descriptionAr" rows="4"
+            <textarea class="bilingual-textarea"
+              [formControlName]="currentLang === 'ar' ? 'descriptionAr' : 'descriptionEn'"
+              rows="4"
               [placeholder]="'d3.addRolePage.descriptionPlaceholder' | translate"></textarea>
             <button type="button" class="lang-chip align-self-start m-t-8"
               [class.active]="showDescSecondary" (click)="showDescSecondary = !showDescSecondary">
-              English
+              {{ currentLang === 'ar' ? 'English' : 'عربي' }}
             </button>
           </div>
           @if (showDescSecondary) {
-            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8" dir="ltr">
-              <textarea class="bilingual-textarea" formControlName="descriptionEn" rows="3"
-                placeholder="Describe the tasks this role holder can perform..."></textarea>
-              <span class="lang-chip static align-self-start m-t-8">English</span>
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8"
+              [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
+              <textarea class="bilingual-textarea"
+                [formControlName]="currentLang === 'ar' ? 'descriptionEn' : 'descriptionAr'"
+                rows="3"
+                [placeholder]="currentLang === 'ar' ? 'Describe the tasks this role holder can perform...' : 'صف المهام التي يمكن لشاغل هذا الدور أداؤها...'"></textarea>
+              <span class="lang-chip static align-self-start m-t-8">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
             </div>
           }
         </div>
@@ -112,7 +121,7 @@
     <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
     <div>
       <h4 class="m-b-4">{{ 'd3.permissions.alert.title' | translate }}</h4>
-      <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: deptName } }}</p>
+      <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
     </div>
   </div>
 

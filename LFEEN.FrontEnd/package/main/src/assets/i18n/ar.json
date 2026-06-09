@@ -131,6 +131,28 @@
       "notifications": "التنبيهات",
       "logout": "تسجيل الخروج"
     },
+    "toast": {
+      "errorOp": "حدث خطأ أثناء العملية",
+      "fillRequired": "يرجى تعبئة الحقول المطلوبة",
+      "fillAllRequired": "يرجى تعبئة جميع الحقول المطلوبة",
+      "deleteError": "حدث خطأ أثناء الحذف",
+      "saveError": "حدث خطأ أثناء الحفظ",
+      "deleteEmployeeSuccess": "تم حذف الموظف بنجاح",
+      "deleteEmployeeError": "حدث خطأ أثناء حذف الموظف",
+      "selectDeptFirst": "يرجى اختيار القسم أولاً",
+      "addEmployeeSuccess": "تم إضافة الموظف بنجاح",
+      "updateEmployeeSuccess": "تم تحديث بيانات الموظف بنجاح",
+      "addDeptSuccess": "تم إضافة القسم والأدوار بنجاح",
+      "addRoleSuccess": "تم إضافة الدور بنجاح",
+      "editRoleSuccess": "تم تعديل الدور بنجاح",
+      "deleteRoleSuccess": "تم حذف الدور بنجاح",
+      "removePermTitle": "إزالة الصلاحية",
+      "removePermMessage": "هل تريد إزالة صلاحية \"{{permName}}\" من هذا الدور؟ لا يمكن التراجع عن هذا الإجراء.",
+      "removePermSuccess": "تم إزالة الصلاحية بنجاح",
+      "removePermError": "حدث خطأ أثناء إزالة الصلاحية",
+      "deleteRoleTitle": "هل أنت متأكد من حذف هذا الدور؟",
+      "deleteRoleMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم إزالة الدور من القسم نهائياً."
+    },
     "allBuilds": {
       "title": "كل المباني",
       "cards": {
@@ -389,6 +411,7 @@
         "idNumber": "رقم الهوية",
         "phone": "رقم الهاتف",
         "role": "الدور الوظيفي",
+        "departmentRole": "القسم / الدور",
         "status": "الحالة"
       },
       "deptCard": {
@@ -441,6 +464,9 @@
           "phonePattern": "أرقام و + فقط",
           "roleRequired": "الدور الوظيفي مطلوب"
         }
+      },
+      "pagination": {
+        "total": "موظف"
       }
     },
     "addDepartment": {
@@ -550,6 +576,8 @@
       "description": "إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.",
       "employeeCount": "عدد الموظفين",
       "manager": "المدير المسؤول",
+      "activePermissionsCount": "تم تفعيل {{count}} صلاحيات",
+      "noPermissions": "لا توجد صلاحيات مضافة لهذا الدور",
       "table": {
         "department": "القسم / الوظيفة",
         "description": "وصف الصلاحية",
@@ -565,6 +593,82 @@
       },
       "cancelBtn": "إلغاء التغييرات",
       "saveBtn": "حفظ وتحديث الصلاحيات"
+    },
+    "accountManagement": {
+      "noResults": "لا توجد حسابات مطابقة",
+      "searchPlaceholder": "ابحث باسم الحساب أو الرقم الضريبي",
+      "tabs": {
+        "all": "الكل",
+        "active": "الحسابات النشطة",
+        "rejected": "الحسابات المرفوضة",
+        "underReview": "حسابات تحت المراجعة"
+      },
+      "filters": {
+        "all": "كل الحسابات",
+        "status": "كل الحالات",
+        "newest": "الأحدث أولاً",
+        "oldest": "الأقدم أولاً"
+      },
+      "card": {
+        "requestDate": "تاريخ الطلب",
+        "joinDate": "تاريخ الانضمام",
+        "propertyCount": "عدد العقارات",
+        "statusActive": "نشط",
+        "statusUnderReview": "تحت المراجعة",
+        "statusDraft": "مسودة",
+        "statusPending": "قيد المراجعة",
+        "statusRejected": "مرفوض",
+        "statusSuspended": "موقوف",
+        "idFieldCompany": "السجل التجاري",
+        "idFieldIndividual": "رقم الهوية",
+        "actionCompany": "أعمال مؤسسة",
+        "actionIndividual": "أفراد (مستقل)"
+      }
+    },
+    "reviewAccount": {
+      "facilityInfo": {
+        "cardTitle": "معلومات المنشأة",
+        "unifiedNumber": "الرقم الموحد",
+        "dataStatus": "حالة البيانات",
+        "dataVerified": "تم التحقق من البيانات",
+        "businessCategory": "فئة الأعمال"
+      },
+      "tradeName": {
+        "cardTitle": "الاسم التجاري",
+        "logoLabel": "شعار المنشأة",
+        "nameLabel": "الاسم التجاري",
+        "documentLabel": "وثيقة توثيق العلامة التجارية"
+      },
+      "taxAddress": {
+        "cardTitle": "الضريبة والعنوان الوطني",
+        "regionLabel": "أمير المنطقة",
+        "taxNumber": "الرقم الضريبي",
+        "region": "المنطقة",
+        "city": "المدينة",
+        "postalCode": "الرمز البريدي",
+        "district": "الحي",
+        "buildingNumber": "رقم المبنى",
+        "streetName": "اسم الشارع"
+      },
+      "contactInfo": {
+        "cardTitle": "بيانات التواصل",
+        "mobile": "رقم الجوال",
+        "email": "البريد الإلكتروني"
+      },
+      "bankInfo": {
+        "cardTitle": "بيانات الحساب البنكي",
+        "iban": "رقم الآيبان (IBAN)",
+        "bankVerified": "تم التحقق من الحساب البنكي"
+      },
+      "decision": {
+        "cardTitle": "اتخاذ قرار بشأن الطلب",
+        "notesLabel": "ملاحظات الرفض",
+        "notesRequired": "(إلزامية في حال الرفض)",
+        "notesPlaceholder": "يرجى إدخال أسباب الرفض بالتفصيل حتى يتمكن المضيف من تصحيحها...",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "قبول وتفعيل الحساب",
+        "lockNotice": "بسبب الشروط من صدد التسهيلات المقدمة والمتعلقة بقرار التأهيل الشوامل للمنشأة"
+      }
     },
     "buildReview": {
       "buildingInfo": {

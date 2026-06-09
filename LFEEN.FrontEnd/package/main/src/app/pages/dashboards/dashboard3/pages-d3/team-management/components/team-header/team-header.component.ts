@@ -4,6 +4,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { Department, DepartmentRole } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-team-header',
@@ -17,8 +18,8 @@ export class TeamHeaderComponent {
   @Input() actionIcon: string = 'plus';
   @Input() showFilters: boolean = false;
   @Input() isBoxed: boolean = false;
-  @Input() departments: string[] = [];
-  @Input() roles: string[] = [];
+  @Input() departments: Department[] = [];
+  @Input() roles: DepartmentRole[] = [];
 
   @Output() search = new EventEmitter<string>();
   @Output() filterDept = new EventEmitter<string>();
@@ -43,6 +44,18 @@ export class TeamHeaderComponent {
 
   onRoleFilterChange(value: string) {
     this.filterRole.emit(value);
+  }
+
+  getDepartmentName(department: Department): string {
+    return (this.currentLang === 'ar' ? department.nameAr : department.nameEn)
+      || department.name
+      || '---';
+  }
+
+  getRoleName(role: DepartmentRole): string {
+    return (this.currentLang === 'ar' ? role.nameAr : role.nameEn)
+      || role.name
+      || '---';
   }
 
   onAction() {

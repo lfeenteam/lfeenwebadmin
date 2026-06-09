@@ -234,6 +234,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'account-management/review/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/account-management/components/review-account/review-account.component'
+                  ).then((m) => m.ReviewAccountComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'مراجعة الحساب',
+                  breadcrumbKey: 'إدارة الحسابات',
+                  showBack: true
+                },
+              },
+              {
                 path: 'permissions/:id',
                 canActivate: [authGuard],
                 loadComponent: () =>

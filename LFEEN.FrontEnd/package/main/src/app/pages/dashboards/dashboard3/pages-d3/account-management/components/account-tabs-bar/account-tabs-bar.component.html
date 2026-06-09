@@ -5,7 +5,7 @@
       class="tab-btn"
       [class.active]="activeTab === tab.key"
       (click)="tabChange.emit(tab.key)">
-      {{ tab.label }}
+      {{ tab.label | translate }}
       @if (tab.hasDot) {
         <span class="tab-dot"></span>
       }

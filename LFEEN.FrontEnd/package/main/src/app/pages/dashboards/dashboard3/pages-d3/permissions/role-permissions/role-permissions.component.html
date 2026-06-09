@@ -15,16 +15,16 @@
           </div>
           <div>
             <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName }} ({{ deptEnglishName }})</h2>
-            <p class="dept-desc m-0">إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.</p>
+            <p class="dept-desc m-0">{{ 'd3.permissions.description' | translate }}</p>
           </div>
         </div>
         <div class="d-flex gap-16">
           <div class="stat-item text-center">
-            <span class="stat-label d-block">المدير المسؤول</span>
+            <span class="stat-label d-block">{{ 'd3.permissions.manager' | translate }}</span>
             <span class="stat-value">{{ manager }}</span>
           </div>
           <div class="stat-item text-center">
-            <span class="stat-label d-block">عدد الموظفين</span>
+            <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
             <span class="stat-value">{{ employeeCount }}</span>
           </div>
         </div>
@@ -37,7 +37,7 @@
 
         <!-- Card Header -->
         <div class="card-header-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
-          <span class="active-count">تم تفعيل {{ permissions.length }} صلاحيات</span>
+          <span class="active-count">{{ 'd3.permissions.activePermissionsCount' | translate: { count: permissions.length } }}</span>
           <span class="role-badge">{{ roleName }}</span>
         </div>
 
@@ -46,7 +46,7 @@
         @if (permissions.length === 0) {
           <div class="empty-state text-center p-40">
             <i-tabler name="shield-off" class="icon-40 m-b-12 text-muted"></i-tabler>
-            <p class="f-s-14 m-0 text-muted">لا توجد صلاحيات مضافة لهذا الدور</p>
+            <p class="f-s-14 m-0 text-muted">{{ 'd3.permissions.noPermissions' | translate }}</p>
           </div>
         }
 
@@ -76,12 +76,12 @@
     <!-- Actions -->
     <div class="d-flex gap-16 justify-content-end">
       <button mat-stroked-button class="cancel-btn" [routerLink]="['../..']">
-        إلغاء التغييرات
+        {{ 'd3.permissions.cancelBtn' | translate }}
       </button>
-      <button mat-flat-button color="dark" class="save-btn">
-        حفظ وتحديث الصلاحيات
+      <!-- <button mat-flat-button color="dark" class="save-btn">
+        {{ 'd3.permissions.saveBtn' | translate }}
         <i-tabler name="device-floppy" class="icon-16"></i-tabler>
-      </button>
+      </button> -->
     </div>
 
   }

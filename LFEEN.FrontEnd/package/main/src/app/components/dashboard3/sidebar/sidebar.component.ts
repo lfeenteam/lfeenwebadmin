@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
 import { LoginService } from '../../../pages/dashboards/dashboard3/services/login/login.service';
+import { CoreService } from 'src/app/services/core.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -47,11 +48,16 @@ export class SidebarComponent implements OnInit {
     );
   });
 
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
+
   constructor(
     private router: Router,
     private sidebarService: SidebarService,
     private translate: TranslateService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private settings: CoreService
   ) {
     this.checkIfCeoPage();
     this.router.events.pipe(
@@ -111,6 +117,22 @@ export class SidebarComponent implements OnInit {
   toggleSidebar(): void {
     this.collapsed = !this.collapsed;
     this.collapsedChange.emit(this.collapsed);
+  }
+
+  toggleLanguage(): void {
+    const newLang = this.currentLang === 'ar' ? 'en' : 'ar';
+    const dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    this.translate.use(newLang);
+    this.settings.setOptions({ language: newLang, dir }, true);
+    localStorage.setItem('preferred_language', newLang);
+
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    if (urlSegments.length > 0 && ['ar', 'en'].includes(urlSegments[0])) {
+      urlSegments[0] = newLang;
+    } else {
+      urlSegments.unshift(newLang);
+    }
+    this.router.navigateByUrl('/' + urlSegments.join('/'));
   }
 
   logout(): void {
