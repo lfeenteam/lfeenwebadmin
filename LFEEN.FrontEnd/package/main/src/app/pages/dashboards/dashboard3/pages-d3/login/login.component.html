@@ -1,4 +1,4 @@
-<div class="login-container">
+<div class="login-container" [dir]="currentDir">
   <!-- Left Side: Illustration and Text -->
   <div class="login-sidebar">
     <div class="sidebar-content">
@@ -31,12 +31,10 @@
         <!-- Email Field -->
         <div class="field-group">
           <label class="field-label">{{ 'd3.loginPage.form.emailLabel' | translate }}</label>
-          <mat-form-field appearance="outline" class="w-100">
-            <input matInput type="email" placeholder="admin@lafin.sa" formControlName="email" />
-            <mat-icon matPrefix>
-              <i-tabler name="mail" class="icon-20"></i-tabler>
-            </mat-icon>
-          </mat-form-field>
+          <div class="input-control">
+            <i-tabler name="mail" class="icon-20"></i-tabler>
+            <input type="email" placeholder="admin@lafin.sa" formControlName="email" dir="ltr" />
+          </div>
         </div>
 
         <!-- Password Field -->
@@ -45,22 +43,29 @@
             <label class="field-label">{{ 'd3.loginPage.form.passwordLabel' | translate }}</label>
             <a href="javascript:void(0)" class="forgot-password">{{ 'd3.loginPage.form.forgotPassword' | translate }}</a>
           </div>
-          <mat-form-field appearance="outline" class="w-100">
-            <input matInput [type]="hide ? 'password' : 'text'" placeholder="........" formControlName="password" />
-            <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-              <mat-icon>
-                <i-tabler [name]="hide ? 'eye-off' : 'eye'" class="icon-20"></i-tabler>
-              </mat-icon>
+          <div class="input-control">
+            <i-tabler name="lock" class="icon-20"></i-tabler>
+            <input [type]="hide ? 'password' : 'text'" placeholder="........" formControlName="password" />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="hide = !hide"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide">
+              <i-tabler [name]="hide ? 'eye-off' : 'eye'" class="icon-20"></i-tabler>
             </button>
-            <mat-icon matPrefix>
-              <i-tabler name="lock" class="icon-20"></i-tabler>
-            </mat-icon>
-          </mat-form-field>
+          </div>
         </div>
 
         <!-- Remember Me -->
         <div class="remember-me-row">
-          <mat-checkbox color="primary" formControlName="rememberMe">{{ 'd3.loginPage.form.rememberMe' | translate }}</mat-checkbox>
+          <label class="remember-checkbox">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span class="checkmark" aria-hidden="true">
+              <i-tabler name="check" class="check-icon"></i-tabler>
+            </span>
+            <span class="remember-label">{{ 'd3.loginPage.form.rememberMe' | translate }}</span>
+          </label>
         </div>
 
         <!-- Submit Button -->
@@ -70,7 +75,7 @@
               <mat-spinner diameter="20" color="accent"></mat-spinner>
             } @else {
               <span>{{ 'd3.loginPage.form.submit' | translate }}</span>
-              <i-tabler name="arrow-left" class="icon-20"></i-tabler>
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-20"></i-tabler>
             }
           </div>
         </button>

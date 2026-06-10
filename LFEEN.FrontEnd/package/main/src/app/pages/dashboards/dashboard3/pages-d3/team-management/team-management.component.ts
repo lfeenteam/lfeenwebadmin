@@ -177,6 +177,15 @@ export class TeamManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadEmployeeFilterOptions();
 
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.loadEmployeeFilterOptions();
+        if (this.departmentId) {
+          this.loadDepartmentDetails(this.departmentId);
+        }
+      });
+
     this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.departmentId = params['id'] || null;
       if (this.departmentId) {

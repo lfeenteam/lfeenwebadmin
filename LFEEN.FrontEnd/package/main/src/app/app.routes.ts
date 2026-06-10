@@ -124,8 +124,8 @@ export const routes: Routes = [
                   ).then((m) => m.AllBuildsComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'كل المباني',
-                  breadcrumbKey: 'المنصة',
+                  titleKey: 'd3.allBuilds.title',
+                  breadcrumbKey: 'd3.header.platform',
                   showLive: true,
                   showDate: true
                 },
@@ -139,8 +139,8 @@ export const routes: Routes = [
                   ).then((m) => m.AllUnitsComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'كل الوحدات',
-                  breadcrumbKey: 'المنصة',
+                  titleKey: 'd3.allUnits.title',
+                  breadcrumbKey: 'd3.header.platform',
                   showLive: true,
                   showDate: true
                 },
@@ -167,10 +167,10 @@ export const routes: Routes = [
                   ).then((m) => m.BuildReviewComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'مراجعة برج ريتاج السكني',
-                  breadcrumbKey: 'طلبات المراجعة',
+                  titleKey: 'd3.buildReview.title',
+                  breadcrumbKey: 'd3.buildReview.reviewRequestsBC',
                   showBack: true,
-                  statusBadge: { text: 'طلب عاجل', color: '#DC2626' }
+                  statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
               },
               {
@@ -182,8 +182,8 @@ export const routes: Routes = [
                   ).then((m) => m.TeamManagementComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إدارة الفريق والمسؤولين',
-                  breadcrumbKey: 'المنصة',
+                  titleKey: 'd3.teamManagement.title',
+                  breadcrumbKey: 'd3.header.platform',
                   showLive: true,
                   showDate: true
                 },
@@ -197,8 +197,8 @@ export const routes: Routes = [
                   ).then((m) => m.AddDepartmentComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إضافة قسم جديد',
-                  breadcrumbKey: 'إدارة الفريق',
+                  titleKey: 'd3.teamManagement.addDept',
+                  breadcrumbKey: 'd3.teamManagement.title',
                   showBack: true
                 },
               },
@@ -211,8 +211,8 @@ export const routes: Routes = [
                   ).then((m) => m.TeamManagementComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إدارة الفريق',
-                  breadcrumbKey: 'إدارة الفريق',
+                  titleKey: 'd3.teamManagement.title',
+                  breadcrumbKey: 'd3.teamManagement.title',
                   showLive: true,
                   showDate: true,
                   showBack: true
@@ -227,8 +227,8 @@ export const routes: Routes = [
                   ).then((m) => m.AccountManagementComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إدارة الحسابات',
-                  breadcrumbKey: 'المنصة',
+                  titleKey: 'd3.accountManagement.title',
+                  breadcrumbKey: 'd3.header.platform',
                   showLive: true,
                   showDate: true
                 },
@@ -242,8 +242,8 @@ export const routes: Routes = [
                   ).then((m) => m.ReviewAccountComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'مراجعة الحساب',
-                  breadcrumbKey: 'إدارة الحسابات',
+                  titleKey: 'd3.accountManagement.reviewTitle',
+                  breadcrumbKey: 'd3.accountManagement.title',
                   showBack: true
                 },
               },
@@ -256,8 +256,8 @@ export const routes: Routes = [
                   ).then((m) => m.PermissionsComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'صلاحيات القسم',
-                  breadcrumbKey: 'إدارة الفريق',
+                  titleKey: 'd3.permissions.pageTitle',
+                  breadcrumbKey: 'd3.teamManagement.title',
                   showBack: true
                 },
               },
@@ -270,8 +270,8 @@ export const routes: Routes = [
                   ).then((m) => m.AddRoleComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إضافة دور وظيفي جديد',
-                  breadcrumbKey: 'إعدادات الصلاحيات والأدوار',
+                  titleKey: 'd3.addRolePage.title',
+                  breadcrumbKey: 'd3.permissions.roleSettingsTitle',
                   showBack: true
                 },
               },
@@ -284,8 +284,8 @@ export const routes: Routes = [
                   ).then((m) => m.RolePermissionsComponent),
                 data: {
                   header: 'page',
-                  titleKey: 'إعدادات الصلاحيات والأدوار',
-                  breadcrumbKey: 'صلاحيات القسم',
+                  titleKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbKey: 'd3.permissions.pageTitle',
                   showBack: true
                 },
               },

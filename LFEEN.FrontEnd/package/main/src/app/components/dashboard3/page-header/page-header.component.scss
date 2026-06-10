@@ -179,56 +179,67 @@
 @media (max-width: 992px) {
   .d3-page-header {
     min-height: auto;
-    padding: 12px 16px;
-    flex-wrap: wrap;
+    padding: 10px 16px;
 
     .d3-page-sidebar-toggle {
       display: inline-flex !important;
     }
 
     .d3-page-header-main {
-      order: 2;
       flex: 1 1 auto;
-      flex-wrap: wrap;
-      gap: 10px;
+      gap: 6px;
+      min-width: 0;
 
       .d3-page-title {
-        font-size: 17px;
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .d3-page-breadcrumb {
-        font-size: 12px;
-        white-space: normal;
+        font-size: 11px;
       }
     }
 
     .d3-page-header-meta {
-      order: 3;
-      width: 100%;
-      justify-content: flex-start;
+      flex-shrink: 0;
+
+      .d3-page-live-badge,
+      .d3-page-date-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
     }
   }
 }
 
 @media (max-width: 576px) {
   .d3-page-header {
-    padding: 10px 12px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+
+    .d3-page-header-right {
+      width: 100%;
+      flex: 1 1 auto;
+    }
 
     .d3-page-header-main {
       .d3-page-title {
-        font-size: 15px;
+        font-size: 13px;
       }
 
-      .d3-page-divider {
+      .d3-breadcrumb-arrow {
         display: none;
       }
 
       .d3-page-breadcrumb {
-        width: 100%;
+        font-size: 11px;
       }
     }
 
     .d3-page-header-meta {
+      width: 100%;
+      justify-content: flex-start;
       gap: 8px;
 
       .d3-page-live-badge,

@@ -122,9 +122,8 @@ export class SidebarComponent implements OnInit {
   toggleLanguage(): void {
     const newLang = this.currentLang === 'ar' ? 'en' : 'ar';
     const dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    this.translate.use(newLang);
     this.settings.setOptions({ language: newLang, dir }, true);
-    localStorage.setItem('preferred_language', newLang);
+    this.translate.use(newLang);
 
     const urlSegments = this.router.url.split('/').filter(Boolean);
     if (urlSegments.length > 0 && ['ar', 'en'].includes(urlSegments[0])) {

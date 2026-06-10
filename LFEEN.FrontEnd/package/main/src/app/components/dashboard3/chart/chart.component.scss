@@ -10,6 +10,7 @@
   grid-template-columns: 1.75fr 1fr;
   gap: 24px;
   width: 100%;
+  min-width: 0;
   font-family: 'Cairo', sans-serif;
 
   @media (max-width: 1200px) {
@@ -44,6 +45,7 @@
   gap: 24px;
   min-height: 450px;
   box-sizing: border-box;
+  min-width: 0;
   box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
   transition: box-shadow 0.2s ease;
 
@@ -174,6 +176,7 @@
   flex-direction: column;
   gap: 40px;
   min-height: 468px;
+  min-width: 0;
   box-sizing: border-box;
   box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
 
@@ -234,8 +237,15 @@
   .d3-chart-area {
     flex: 1 1 auto;
     width: 100%;
+    min-width: 0;
     min-height: 280px;
+    overflow: hidden;
     direction: ltr;
+
+    apx-chart {
+      display: block;
+      width: 100%;
+    }
   }
 }
 
@@ -258,6 +268,104 @@
     .d3-comparison-head,
     .d3-comparison-row {
       width: 100%;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .d3-chart-wrapper {
+    margin-top: 16px;
+    gap: 16px;
+  }
+
+  .d3-section-header {
+    min-width: 0;
+
+    .d3-section-title {
+      font-size: 18px !important;
+      line-height: 1.5 !important;
+    }
+  }
+
+  .d3-growth-card {
+    min-height: auto;
+    padding: 16px;
+    border-radius: 24px;
+    gap: 24px;
+
+    .d3-growth-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+
+    .d3-growth-title-wrap {
+      min-width: 0;
+
+      .d3-growth-subtitle {
+        padding-inline-start: 0;
+        font-size: 12px !important;
+        line-height: 1.6 !important;
+      }
+    }
+
+    .d3-growth-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: 100%;
+      box-sizing: border-box;
+
+      .d3-tab {
+        min-width: 0;
+        padding: 8px 4px;
+        font-size: 11px;
+        line-height: 1.4;
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+
+    .d3-chart-area {
+      min-height: 230px;
+    }
+  }
+
+  .d3-comparison-card {
+    padding: 16px;
+    border-radius: 24px;
+    gap: 16px;
+
+    .d3-comparison-table {
+      .d3-comparison-head,
+      .d3-comparison-row {
+        grid-template-columns: minmax(0, 1.35fr) minmax(56px, 1fr) minmax(56px, 1fr);
+        padding: 9px 0;
+        font-size: 12px;
+        column-gap: 4px;
+      }
+
+      .d3-col-label {
+        min-width: 0;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .d3-distribution {
+      .d3-distribution-legend {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        font-size: 10px;
+
+        .d3-legend-item {
+          min-width: 0;
+          justify-content: center;
+          text-align: center;
+          line-height: 1.4;
+          overflow-wrap: anywhere;
+        }
+      }
     }
   }
 }

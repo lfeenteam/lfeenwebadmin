@@ -34,6 +34,10 @@ export class LoginComponent {
   hide = true;
   loading = this.loginService.loading;
 
+  get currentDir(): 'ltr' | 'rtl' {
+    return this.translate.currentLang === 'ar' ? 'rtl' : 'ltr';
+  }
+
   constructor(
     private fb: FormBuilder,
     private loginService: LoginService,

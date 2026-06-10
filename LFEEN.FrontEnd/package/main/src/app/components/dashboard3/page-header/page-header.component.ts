@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 
 @Component({
@@ -20,6 +20,16 @@ export class PageHeaderComponent {
 
   @Output() sidebarToggle = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
+
+  constructor(private translate: TranslateService) {}
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  get isRtl(): boolean {
+    return this.dir === 'rtl';
+  }
 
   onSidebarToggle(event: Event): void {
     event.stopPropagation();

@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,6 +23,7 @@ export class ReviewAccountComponent implements OnInit {
   private service   = inject(AccountService);
   private translate = inject(TranslateService);
   private toastr    = inject(ToastrService);
+  private destroyRef = inject(DestroyRef);
 
   account: AccountDetail | null = null;
   isLoading    = true;
@@ -30,8 +32,18 @@ export class ReviewAccountComponent implements OnInit {
   rejectionReason = '';
 
   ngOnInit(): void {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadAccount());
+
+    this.loadAccount();
+  }
+
+  private loadAccount(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
+    this.isLoading = true;
+    this.isError = false;
     this.service.getAccountById(id).subscribe({
       next: data => { this.account = data; this.isLoading = false; },
       error: ()  => {
@@ -89,9 +101,11 @@ export class ReviewAccountComponent implements OnInit {
   }
 
   get tradeName(): string {
-    return this.account?.business?.tradeNameAr
-      || this.account?.business?.tradeNameEn
-      || this.account?.business?.tradeName
+    const business = this.account?.business;
+    return (this.translate.currentLang === 'ar' ? business?.tradeNameAr : business?.tradeNameEn)
+      || business?.tradeName
+      || business?.tradeNameAr
+      || business?.tradeNameEn
       || '—';
   }
 

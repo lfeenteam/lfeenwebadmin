@@ -14,7 +14,7 @@
             <i-tabler name="briefcase" class="icon-32"></i-tabler>
           </div>
           <div>
-            <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName }} ({{ deptEnglishName }})</h2>
+            <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName }}</h2>
             <p class="dept-desc m-0">{{ 'd3.permissions.description' | translate }}</p>
           </div>
         </div>
@@ -54,8 +54,8 @@
           <div class="perm-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
             <!-- Info right -->
             <div class="perm-info text-end">
-              <span class="perm-name d-block">{{ perm.name }}</span>
-              <span class="perm-desc d-block">{{ perm.description }}</span>
+              <span class="perm-name d-block">{{ 'd3.permCodes.' + perm.code + '.name' | translate }}</span>
+              <span class="perm-desc d-block">{{ 'd3.permCodes.' + perm.code + '.description' | translate }}</span>
             </div>
             <!-- Toggle far left -->
             @if (deletingId === perm.id) {

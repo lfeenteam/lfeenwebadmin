@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
@@ -10,7 +10,7 @@ import { DepartmentService } from '../../../services/department.service';
 import { RolePermission } from '../../../interfaces/department.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-role-permissions',
@@ -19,12 +19,12 @@ import { forkJoin } from 'rxjs';
   templateUrl: './role-permissions.component.html',
   styleUrl: './role-permissions.component.scss'
 })
-export class RolePermissionsComponent implements OnInit {
+export class RolePermissionsComponent implements OnInit, OnDestroy {
+  private langSub!: Subscription;
   deptId: string | null = null;
   roleId: string | null = null;
 
   deptName = '';
-  deptEnglishName = '';
   manager = '';
   employeeCount = 0;
   roleName = '';
@@ -49,24 +49,40 @@ export class RolePermissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.deptId || !this.roleId) return;
+    this.langSub = this.translate.onLangChange.subscribe(() => this.loadData());
+    this.loadData();
+  }
 
+  private loadData(): void {
+    if (!this.deptId || !this.roleId) return;
+    this.isLoading = true;
     forkJoin({
       dept: this.departmentService.getDepartmentById(this.deptId),
       role: this.departmentService.getRoleById(this.roleId),
       permissions: this.departmentService.getRolePermissions(this.roleId)
     }).subscribe({
       next: ({ dept, role, permissions }) => {
-        this.deptName = dept.nameAr ?? dept.name ?? '';
-        this.deptEnglishName = dept.nameEn ?? dept.name ?? '';
+        this.deptName = dept.name
+          ?? (this.currentLang === 'ar' ? dept.nameAr : dept.nameEn)
+          ?? dept.nameAr
+          ?? dept.nameEn
+          ?? '';
         this.manager = dept.managerFullName || '---';
         this.employeeCount = dept.employeeCount;
-        this.roleName = (this.currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name ?? '';
+        this.roleName = role.name
+          ?? (this.currentLang === 'ar' ? role.nameAr : role.nameEn)
+          ?? role.nameAr
+          ?? role.nameEn
+          ?? '';
         this.permissions = permissions;
         this.isLoading = false;
       },
       error: () => { this.isLoading = false; }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   onToggleChange(perm: RolePermission, event: MatSlideToggleChange): void {

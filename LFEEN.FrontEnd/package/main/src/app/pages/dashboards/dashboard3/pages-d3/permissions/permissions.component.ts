@@ -33,6 +33,8 @@ export class PermissionsComponent implements OnInit, OnDestroy {
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
+  deptDescAr = '';
+  deptDescEn = '';
   manager = '';
   employeeCount = 0;
   isLoading = true;
@@ -51,16 +53,16 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     this.deptId = this.route.snapshot.paramMap.get('id');
   }
 
-  currentLang: string = this.translate.currentLang || 'ar';
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
 
   ngOnInit(): void {
-    this.langSub = this.translate.onLangChange.subscribe(e => {
-      this.currentLang = e.lang;
-      this.roles = this.roles.map(r => ({
-        ...r,
-        name: (this.currentLang === 'ar' ? r.raw.nameAr : r.raw.nameEn) ?? r.raw.name ?? '',
-        description: (this.currentLang === 'ar' ? r.raw.descriptionAr : r.raw.descriptionEn) ?? r.raw.description ?? '',
-      }));
+    this.langSub = this.translate.onLangChange.subscribe(() => {
+      if (this.deptId) {
+        this.loadDepartment(this.deptId);
+        this.loadRoles(this.deptId);
+      }
     });
     if (this.deptId) {
       this.loadDepartment(this.deptId);

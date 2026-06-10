@@ -14,19 +14,21 @@ import {
   EmployeeFormData,
   UpdateEmployeePayload
 } from '../interfaces/department.model';
+import { CoreService } from 'src/app/services/core.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DepartmentService {
   private http = inject(HttpClient);
+  private coreService = inject(CoreService);
   private apiUrl = 'http://test-api-admin.lfeen.com/api/departments';
 
   readonly currentPage = signal(1);
   readonly pageSize = signal(9);
 
   private readonly _departmentsResource = rxResource({
-    request: () => ({ page: this.currentPage(), pageSize: this.pageSize() }),
+    request: () => ({ page: this.currentPage(), pageSize: this.pageSize(), lang: this.coreService.getOptionsSignal()().language }),
     loader: ({ request }) =>
       this.http.get<PaginatedDepartmentResponse>(
         `${this.apiUrl}?page=${request.page}&pageSize=${request.pageSize}`
@@ -55,7 +57,8 @@ export class DepartmentService {
       page: this.employeeCurrentPage(),
       pageSize: this.employeePageSize(),
       search: this.employeeSearch(),
-      roleId: this.employeeRoleId()
+      roleId: this.employeeRoleId(),
+      lang: this.coreService.getOptionsSignal()().language,
     }),
     loader: ({ request }) => {
       const params = new URLSearchParams({

@@ -10,10 +10,15 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { LoginService } from '../pages/dashboards/dashboard3/services/login/login.service';
+import { CoreService } from '../services/core.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private loginService: LoginService, private router: Router) {}
+  constructor(
+    private loginService: LoginService,
+    private router: Router,
+    private coreService: CoreService
+  ) {}
 
   intercept(
     req: HttpRequest<unknown>,
@@ -41,7 +46,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private addAuthorizationHeader(req: HttpRequest<unknown>): HttpRequest<unknown> {
     const token = this.loginService.getToken();
-    const lang = localStorage.getItem('preferred_language') || 'en';
+    const lang = this.coreService.getLanguage() || 'en';
 
     const headers: Record<string, string> = {
       'Accept-Language': lang,

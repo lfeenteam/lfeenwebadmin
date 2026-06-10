@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
@@ -7,10 +8,12 @@ import { StatsRowComponent } from '../team-management/components/stats-row/stats
 import { AccountHeaderComponent } from './components/account-header/account-header.component';
 import { AccountTabsBarComponent, AccountTab } from './components/account-tabs-bar/account-tabs-bar.component';
 import { AccountCardComponent } from './components/account-card/account-card.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AccountService } from '../../services/account.service';
 import { Account } from '../../interfaces/account.model';
 import { StatItem } from '../../interfaces/stats.model';
+
+export type { Account } from '../../interfaces/account.model';
 
 @Component({
   selector: 'app-account-management',
@@ -31,6 +34,8 @@ import { StatItem } from '../../interfaces/stats.model';
 export class AccountManagementComponent implements OnInit {
   private accountService = inject(AccountService);
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
+  private destroyRef = inject(DestroyRef);
 
   activeTab: AccountTab = this.accountService.activeTab();
   searchQuery = '';
@@ -62,6 +67,14 @@ export class AccountManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadStats());
+
+    this.loadStats();
+  }
+
+  private loadStats(): void {
     // Draft=0, PendingReview=1, Approved=2, Rejected=3
     forkJoin({
       total:       this.accountService.getStatusCount(null),

@@ -112,11 +112,15 @@ export class SidebarService {
           link = `/d3/team-management/${item.id}`;
         }
 
+        const lang = this.coreService.getLanguage();
+        const localizedTitle = lang === 'ar'
+          ? (item.titleAr || item.titleEn || item.title)
+          : (item.titleEn || item.titleAr || item.title);
+
         return {
           id: item.id,
           key: item.key,
-          // title comes from server in the correct language via Accept-Language
-          title: item.title || item.titleEn || item.titleAr || '',
+          title: localizedTitle || '',
           icon: iconMap[item.key] || 'point',
           link,
           children: item.children?.length ? this.mapSidebarToNavItems(item.children) : undefined

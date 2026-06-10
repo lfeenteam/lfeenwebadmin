@@ -381,7 +381,7 @@
       }
     },
     "teamManagement": {
-      "title": "Team Management",
+      "title": "Team & Administrators Management",
       "stats": {
         "totalEmployees": "Total Employees",
         "departmentCount": "Number of Departments",
@@ -575,6 +575,8 @@
       }
     },
     "permissions": {
+      "pageTitle": "Department Permissions",
+      "roleSettingsTitle": "Permissions & Roles Settings",
       "description": "Manage bookings, hosts, and residential units directly.",
       "employeeCount": "Employee Count",
       "manager": "Responsible Manager",
@@ -596,7 +598,55 @@
       "cancelBtn": "Cancel Changes",
       "saveBtn": "Save and Update Permissions"
     },
+    "permCodes": {
+      "Departments": {
+        "Delete": { "name": "Delete Departments",  "description": "Delete departments" },
+        "Update": { "name": "Update Departments",  "description": "Update existing departments" },
+        "View":   { "name": "View Departments",    "description": "View departments list" },
+        "Create": { "name": "Create Departments",  "description": "Create new departments" }
+      },
+      "CS": {
+        "View":   { "name": "View Customer Service",   "description": "Access customer service overview" },
+        "Manage": { "name": "Manage Customer Service", "description": "Manage customer service resources" }
+      },
+      "IT": {
+        "View":   { "name": "View IT",   "description": "Access IT department overview" },
+        "Manage": { "name": "Manage IT", "description": "Manage IT resources and systems" }
+      },
+      "Permissions": {
+        "View":   { "name": "View Permissions",   "description": "View permissions list" },
+        "Manage": { "name": "Manage Permissions", "description": "Create, update and delete permissions" }
+      },
+      "Roles": {
+        "View":   { "name": "View Roles",   "description": "View roles list" },
+        "Create": { "name": "Create Roles", "description": "Create new roles" },
+        "Update": { "name": "Update Roles", "description": "Update existing roles" },
+        "Delete": { "name": "Delete Roles", "description": "Delete roles" }
+      },
+      "Dashboard": {
+        "View": { "name": "View Dashboard", "description": "Access the main admin dashboard" }
+      },
+      "Accounts": {
+        "View":   { "name": "View Accounts",   "description": "View accounts list" },
+        "Manage": { "name": "Manage Accounts", "description": "Manage and review accounts" }
+      },
+      "Buildings": {
+        "View":   { "name": "View Buildings",   "description": "View buildings list" },
+        "Manage": { "name": "Manage Buildings", "description": "Manage buildings and units" }
+      },
+      "Bookings": {
+        "View":   { "name": "View Bookings",   "description": "View bookings list" },
+        "Manage": { "name": "Manage Bookings", "description": "Manage bookings and cancellations" }
+      },
+      "Employees": {
+        "View":   { "name": "View Employees",   "description": "View employees list" },
+        "Manage": { "name": "Manage Employees", "description": "Add, update and delete employees" }
+      }
+    },
     "buildReview": {
+      "title": "Building Review",
+      "reviewRequestsBC": "Review Requests",
+      "urgentRequest": "Urgent Request",
       "buildingInfo": {
         "imageAlt": "Building Image",
         "orgLabel": "Operating Organization",
@@ -682,8 +732,16 @@
       }
     },
     "accountManagement": {
+      "title": "Account Management",
+      "reviewTitle": "Review Account",
       "noResults": "No matching accounts found",
       "searchPlaceholder": "Search by account name or tax number",
+      "stats": {
+        "total": "Total Accounts",
+        "active": "Active",
+        "underReview": "Under Review",
+        "rejected": "Rejected"
+      },
       "tabs": {
         "all": "All",
         "active": "Active Accounts",

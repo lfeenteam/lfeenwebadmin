@@ -20,6 +20,9 @@ export class AppComponent implements OnInit {
         const urlLang = event.urlAfterRedirects.split('/')[1];
         if (['ar', 'en'].includes(urlLang)) {
           this.settings.setOptions({ language: urlLang, dir: urlLang === 'ar' ? 'rtl' : 'ltr' });
+          if (this.translate.currentLang !== urlLang) {
+            this.translate.use(urlLang);
+          }
         }
       }
     });

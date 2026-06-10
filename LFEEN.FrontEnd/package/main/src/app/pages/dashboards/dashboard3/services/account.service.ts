@@ -5,10 +5,12 @@ import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AccountItem, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
+import { CoreService } from 'src/app/services/core.service';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
   private http = inject(HttpClient);
+  private coreService = inject(CoreService);
   private readonly apiUrl = 'http://test-api-admin.lfeen.com/api/accounts';
 
   readonly currentPage  = signal(1);
@@ -24,6 +26,7 @@ export class AccountService {
       search:      this.searchQuery(),
       tab:         this.activeTab(),
       newestFirst: this.newestFirst(),
+      lang:        this.coreService.getOptionsSignal()().language,
     }),
     loader: ({ request }) => {
       const params = new URLSearchParams({
@@ -60,7 +63,12 @@ export class AccountService {
 
   private mapToAccount(item: AccountItem): Account {
     const isCompany = item.businessType === 'RegisteredEntity';
-    const displayName = item.tradeNameAr || item.tradeNameEn || item.tradeName || item.referenceCode;
+    const lang = this.coreService.getLanguage();
+    const displayName = (lang === 'ar' ? item.tradeNameAr : item.tradeNameEn)
+      || item.tradeName
+      || item.tradeNameAr
+      || item.tradeNameEn
+      || item.referenceCode;
     return {
       id:               item.accountId,
       name:             displayName,
@@ -68,7 +76,7 @@ export class AccountService {
       status:           this.mapStatus(item.onboardingStatus),
       onboardingStatus: item.onboardingStatus,
       idNumber:         item.referenceCode,
-      joinDate:         this.formatDate(item.createdAt),
+      joinDate:         this.formatDate(item.createdAt, lang),
       propertyCount:    item.propertyCount,
       unit:             isCompany ? 'عقار' : 'مقترات',
       avatarInitials:   this.getInitials(displayName),
@@ -92,9 +100,13 @@ export class AccountService {
     return name.substring(0, 2).toUpperCase();
   }
 
-  private formatDate(dateStr: string): string {
+  private formatDate(dateStr: string, lang: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: '2-digit' });
+    return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: '2-digit'
+    });
   }
 
   setTab(tab: AccountTab): void {

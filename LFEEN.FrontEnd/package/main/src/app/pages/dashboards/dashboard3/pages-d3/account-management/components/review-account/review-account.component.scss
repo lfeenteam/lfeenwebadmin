@@ -135,13 +135,8 @@
   display: flex;
   flex-direction: row;
   gap: 24px;
-  align-items: flex-start;
   direction: ltr;
-}
-
-[dir="rtl"] .identity-body .fields-stacked {
-  direction: rtl;
-  text-align: right;
+  align-items: flex-start;
 }
 
 .identity-logo-dashed {
@@ -180,6 +175,11 @@
   flex-direction: column;
   gap: 16px;
   justify-content: center;
+  text-align: start;
+}
+
+.review-account[dir="rtl"] .fields-stacked {
+  direction: rtl;
 }
 
 .stacked-field {
@@ -521,6 +521,7 @@
   color: #111110;
   resize: none;
   outline: none;
+  text-align: start;
   box-sizing: border-box;
   transition: border-color 0.2s;
 

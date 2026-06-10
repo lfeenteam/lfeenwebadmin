@@ -37,7 +37,9 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   isLoadingPerms = true;
   isSubmitting = false;
 
-  currentLang = this.translate.currentLang || 'ar';
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -72,16 +74,29 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateValidators();
-    this.langSub = this.translate.onLangChange.subscribe(e => {
-      this.currentLang = e.lang;
+    this.langSub = this.translate.onLangChange.subscribe(() => {
       this.updateValidators();
+      this.loadData();
     });
+
+    this.loadData();
+  }
+
+  private loadData(): void {
+    const selectedIds = new Set(
+      this.permissions.filter(permission => permission.selected).map(permission => permission.id)
+    );
+
+    this.isLoadingPerms = true;
     forkJoin({
       perms: this.departmentService.getPermissions(100),
       ...(this.deptId ? { dept: this.departmentService.getDepartmentById(this.deptId) } : {})
     }).subscribe({
       next: (res: any) => {
-        this.permissions = (res.perms as RolePermission[]).map(p => ({ ...p, selected: false }));
+        this.permissions = (res.perms as RolePermission[]).map(permission => ({
+          ...permission,
+          selected: selectedIds.has(permission.id)
+        }));
         if (res.dept) {
           this.deptName = res.dept.nameAr ?? res.dept.name ?? '';
           this.deptEnglishName = res.dept.nameEn ?? res.dept.name ?? '';

@@ -73,12 +73,11 @@ export class HeaderComponent {
   }
 
   changeLanguage(lang: AppLanguage): void {
-    this.translate.use(lang.code);
     this.selectedLanguage = lang;
 
     const dir = lang.code === 'ar' ? 'rtl' : 'ltr';
     this.settings.setOptions({ language: lang.code, dir }, true);
-    localStorage.setItem('preferred_language', lang.code);
+    this.translate.use(lang.code);
 
     const urlSegments = this.router.url.split('/').filter(Boolean);
     if (urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])) {

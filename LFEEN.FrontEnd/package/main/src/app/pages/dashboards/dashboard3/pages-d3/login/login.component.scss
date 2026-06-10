@@ -1,6 +1,6 @@
 .login-container {
   display: flex;
-  flex-direction: row-reverse; // Reverse order because of dir="rtl" to keep sidebar left and form right
+  flex-direction: row-reverse;
   min-height: 100vh;
   width: 100%;
   background-color: #fff;
@@ -108,8 +108,7 @@
 .login-form {
   .field-group {
     margin-bottom: 15px;
-    text-align: right;
-
+    text-align: start;
   }
 
   .field-label {
@@ -138,90 +137,58 @@
     }
   }
 
-  ::ng-deep {
-    .mat-mdc-form-field {
-      .mdc-notched-outline {
-        border-radius: 20px;
-            border: 1px solid #E8E8E4;
-    box-shadow: 
-      0px 1px 2px -1px #0000001A,
-      0px 1px 3px 0px #0000001A;
-      }
-      
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
-        border-color: #f1f5f9;
-        border-width: 1px;
-      }
+  .input-control {
+    width: 100%;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    background-color: #fff;
+    border: 1px solid #e8e8e4;
+    border-radius: 20px;
+    box-shadow:
+      0 1px 2px -1px #0000001a,
+      0 1px 3px 0 #0000001a;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-      &.mat-focused {
-        .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
-        .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
-        .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
-          border-color: #e2e8f0;
-          border-width: 1px;
-        }
-      }
+    &:focus-within {
+      border-color: #e2e8f0;
+      box-shadow:
+        0 1px 2px -1px #0000001a,
+        0 1px 3px 0 #0000001a;
+    }
 
-      .mat-mdc-form-field-flex {
-        background-color: #FFFFFF !important;
-        border-radius: 20px;
-        padding: 0 16px !important;
-        height: 54px;
-        align-items: center;
-        display: flex !important;
-      }
+    input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #111827;
+      font: inherit;
+      font-size: 15px;
+      text-align: start;
 
-      .mat-mdc-text-field-wrapper {
-          padding: 0 !important;
-          box-shadow: none !important;
-      }
-      
-      .mat-mdc-form-field-infix {
-          padding: 0 !important;
-          min-height: auto;
-          text-align: right;
-          display: flex;
-          align-items: center;
-          flex: 1;
-      }
-
-      .mat-mdc-input-element {
-          font-size: 15px;
-          color: #111827;
-          height: 100%;
-          &::placeholder {
-              color: #9E9E9A;
-          }
-      }
-
-      .mat-icon {
-          color: #9E9E9A;
-       
+      &::placeholder {
+        color: #9e9e9a;
       }
     }
 
-    .mat-mdc-checkbox {
-        .mdc-checkbox {
-            padding: 0;
-            margin-left: 10px;
-        }
-        .mdc-label {
-            font-size: 14px;
-            color: #6B6B67;
-            font-weight: 500;
-            padding-right: 0;
-        }
-        .mdc-checkbox__background {
-            border-color: #767676 !important; // Black border
-            border-width: 2px !important;
-            border-radius: 4px !important;
-        }
-        .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background {
-            background-color: #111827 !important;
-            border-color: #111827 !important;
-        }
+    .password-toggle {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
     }
   }
 
@@ -232,21 +199,61 @@
     align-items: center;
     padding: 0 16px;
 
-    ::ng-deep .mat-mdc-checkbox {
-        display: flex !important;
-        align-items: center !important;
-        margin: 0 !important;
-        
-        .mdc-label {
-            line-height: 1.4;
-            padding-right: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .mdc-checkbox__background {
-            top: 0 !important;
-        }
+    .remember-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #6b6b67;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.4;
+      cursor: pointer;
+
+      input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .checkmark {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 20px;
+        box-sizing: border-box;
+        border: 2px solid #767676;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #fff;
+      }
+
+      .check-icon {
+        width: 15px;
+        height: 15px;
+        opacity: 0;
+      }
+
+      input:checked + .checkmark {
+        border-color: #111827;
+        background-color: #111827;
+      }
+
+      input:checked + .checkmark .check-icon {
+        opacity: 1;
+      }
+
+      input:focus-visible + .checkmark {
+        outline: 2px solid #94a3b8;
+        outline-offset: 2px;
+      }
+
+      .remember-label {
+        display: inline-block;
+      }
     }
   }
 

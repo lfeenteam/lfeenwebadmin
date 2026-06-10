@@ -1,22 +1,22 @@
 <div class="permissions-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
   <!-- Header Card -->
   <mat-card class="m-b-24 header-card">
-    <mat-card-content class="p-24 d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center gap-24">
+    <mat-card-content class="p-24 header-content">
+      <div class="department-summary">
         <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
           <i-tabler name="briefcase" class="icon-32"></i-tabler>
         </div>
-        <div>
+        <div class="department-details">
           <h2 class="f-s-20 f-w-900 m-b-4">{{ currentLang === 'ar' ? deptName : deptEnglishName }}</h2>
           <p class="permissions-description m-0">{{ 'd3.permissions.description' | translate }}</p>
         </div>
       </div>
-      <div class="d-flex gap-16">
-        <div class="stat-item p-x-20 p-y-10 text-center">
+      <div class="header-stats">
+        <div class="stat-item">
           <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
           <span class="stat-value">{{ employeeCount }}</span>
         </div>
-        <div class="stat-item rounded border p-x-20 p-y-10 text-center">
+        <div class="stat-item">
           <span class="stat-label d-block">{{ 'd3.permissions.manager' | translate }}</span>
           <span class="stat-value">{{ manager }}</span>
         </div>
