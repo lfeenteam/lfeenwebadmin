@@ -1,0 +1,47 @@
+name: Deploy Angular Frontend
+
+on:
+  push:
+    branches:
+      - Noran
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: LFEEN.FrontEnd/package/main
+        run: npm ci
+
+      - name: Build Angular
+        working-directory: LFEEN.FrontEnd/package/main
+        run: npm run build -- --configuration production
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: LFEEN.FrontEnd/package/main/dist/Spike/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy
+        uses: actions/deploy-pages@v4
