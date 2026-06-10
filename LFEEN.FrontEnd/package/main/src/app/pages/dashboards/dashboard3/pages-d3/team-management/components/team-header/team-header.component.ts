@@ -18,6 +18,7 @@ export class TeamHeaderComponent {
   @Input() actionIcon: string = 'plus';
   @Input() showFilters: boolean = false;
   @Input() isBoxed: boolean = false;
+  @Input() showAction: boolean = true;
   @Input() departments: Department[] = [];
   @Input() roles: DepartmentRole[] = [];
 

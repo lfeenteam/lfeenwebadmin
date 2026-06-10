@@ -1,5 +1,6 @@
-import { Component, inject, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { StatsRowComponent } from '../team-management/components/stats-row/stats-row.component';
@@ -28,13 +29,12 @@ export type { Account } from '../../interfaces/account.model';
   templateUrl: './account-management.component.html',
   styleUrl: './account-management.component.scss'
 })
-export class AccountManagementComponent {
+export class AccountManagementComponent implements OnInit {
   private accountService = inject(AccountService);
   private cdr = inject(ChangeDetectorRef);
 
-  activeTab: AccountTab = 'all';
+  activeTab: AccountTab = this.accountService.activeTab();
   searchQuery = '';
-  activeFilter = 'all';
 
   accounts: Account[] = [];
   totalPages  = 1;
@@ -47,7 +47,7 @@ export class AccountManagementComponent {
     { label: 'إجمالي الحسابات', value: '—', icon: 'database',    color: 'primary', valueColor: '#000'    },
     { label: 'نشط',             value: '—', icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
     { label: 'تحت المراجعة',   value: '—', icon: 'clock',        color: 'warning', valueColor: '#d97706' },
-    { label: 'موقوف',           value: '—', icon: 'circle-x',     color: 'danger',  valueColor: '#ef4444' },
+    { label: 'مرفوض',           value: '—', icon: 'circle-x',     color: 'danger',  valueColor: '#ef4444' },
   ];
 
   constructor() {
@@ -58,12 +58,23 @@ export class AccountManagementComponent {
       this.isLoading   = this.accountService.isLoading();
       this.newestFirst = this.accountService.newestFirst();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+      this.cdr.markForCheck();
+    });
+  }
 
-      if (this.activeTab === 'all') {
-        const total = this.accountService.totalCount();
-        if (total > 0) this.stats[0].value = String(total);
-      }
-
+  ngOnInit(): void {
+    // Draft=0, PendingReview=1, Approved=2, Rejected=3
+    forkJoin({
+      total:       this.accountService.getStatusCount(null),
+      approved:    this.accountService.getStatusCount(2),
+      underReview: this.accountService.getStatusCount(0),
+      pending:     this.accountService.getStatusCount(1),
+      rejected:    this.accountService.getStatusCount(3),
+    }).subscribe(counts => {
+      this.stats[0].value = String(counts.total);
+      this.stats[1].value = String(counts.approved);
+      this.stats[2].value = String(counts.underReview + counts.pending);
+      this.stats[3].value = String(counts.rejected);
       this.cdr.markForCheck();
     });
   }

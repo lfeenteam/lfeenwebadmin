@@ -247,15 +247,11 @@ export class TeamManagementComponent implements OnInit {
       ];
     } else if (this.activeTab === 'structure') {
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalEmployees', value: 0, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.departmentCount', value: 0, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.totalEmployees', value: this.departments.reduce((sum, d) => sum + d.employeeCount, 0), icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.activeManagers', value: 12, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
         { label: 'd3.teamManagement.stats.pendingActivation', value: 5, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
-      if (this.departments.length > 0) {
-        this.stats[0].value = this.departments.reduce((sum, d) => sum + d.employeeCount, 0);
-        this.stats[1].value = this.departments.length;
-      }
     } else if (this.activeTab === 'logs') {
       this.stats = [
         { label: 'd3.teamManagement.stats.totalOps', value: '١٢,٨٤٧', icon: 'database', color: 'primary', valueColor: '#000' },
@@ -265,9 +261,9 @@ export class TeamManagementComponent implements OnInit {
       ];
     } else {
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalEmployees', value: 156, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.totalEmployees', value: this.employeeTotalCount, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.activeManagers', value: 12, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.departmentCount', value: 8, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.pendingActivation', value: 5, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
     }

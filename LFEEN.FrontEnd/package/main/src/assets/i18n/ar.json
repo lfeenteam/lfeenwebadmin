@@ -425,6 +425,11 @@
       "deptEmployees": "قائمة موظفي القسم",
       
       "searchPlaceholderSimple": "ابحث في فريق العمل...",
+      "noEmployees": {
+        "title": "لا يوجد موظفون مضافون حالياً",
+        "description": "ابدأ بناء فريق عملك وتوزيع المهام من خلال إضافة الموظفين وتحديد صلاحياتهم في النظام",
+        "addFirstBtn": "إضافة أول موظف للفريق"
+      },
       "opsLog": {
         "filters": {
           "searchPlaceholder": "بحث باسم الموظف، الإجراء، أو القسم...",
@@ -625,16 +630,28 @@
         "actionIndividual": "أفراد (مستقل)"
       }
     },
+    "businessCategories": {
+      "Hotel": "فندق",
+      "HotelVillas": "فلل فندقية",
+      "Apartments": "شقق سكنية",
+      "Villas": "فلل",
+      "Chalets": "شاليهات",
+      "Resorts": "منتجعات",
+      "Rests": "استراحات",
+      "Commercial": "برج تجاري",
+      "Compounds": "مجمعات سكنية"
+    },
     "reviewAccount": {
       "facilityInfo": {
         "cardTitle": "معلومات المنشأة",
         "unifiedNumber": "الرقم الموحد",
         "dataStatus": "حالة البيانات",
         "dataVerified": "تم التحقق من البيانات",
+        "dataNotVerified": "لم يتم التحقق",
         "businessCategory": "فئة الأعمال"
       },
       "tradeName": {
-        "cardTitle": "الاسم التجاري",
+        "cardTitle": "الهوية التجارية",
         "logoLabel": "شعار المنشأة",
         "nameLabel": "الاسم التجاري",
         "documentLabel": "وثيقة توثيق العلامة التجارية"
@@ -642,6 +659,7 @@
       "taxAddress": {
         "cardTitle": "الضريبة والعنوان الوطني",
         "regionLabel": "أمير المنطقة",
+        "shortNationalAddress": "الرمز المختصر",
         "taxNumber": "الرقم الضريبي",
         "region": "المنطقة",
         "city": "المدينة",
@@ -664,10 +682,13 @@
         "cardTitle": "اتخاذ قرار بشأن الطلب",
         "notesLabel": "ملاحظات الرفض",
         "notesRequired": "(إلزامية في حال الرفض)",
-        "notesPlaceholder": "يرجى إدخال أسباب الرفض بالتفصيل حتى يتمكن المضيف من تصحيحها...",
+        "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا ليتمكن المضيف من تعديلها...",
         "rejectBtn": "رفض الطلب",
         "approveBtn": "قبول وتفعيل الحساب",
-        "lockNotice": "بسبب الشروط من صدد التسهيلات المقدمة والمتعلقة بقرار التأهيل الشوامل للمنشأة"
+        "lockNotice": "بسبب الشروط من صدد التسهيلات المقدمة والمتعلقة بقرار التأهيل الشوامل للمنشأة",
+        "acceptSuccess": "تم قبول الحساب وتفعيله بنجاح",
+        "rejectSuccess": "تم رفض طلب الحساب بنجاح",
+        "rejectionRequired": "يرجى إدخال سبب الرفض قبل المتابعة"
       }
     },
     "buildReview": {

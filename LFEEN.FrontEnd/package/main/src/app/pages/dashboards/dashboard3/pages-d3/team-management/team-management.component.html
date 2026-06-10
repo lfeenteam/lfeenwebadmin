@@ -4,7 +4,7 @@
   <app-stats-row [stats]="stats" [isDeptView]="!!departmentId"></app-stats-row>
 
   <!-- Header row: tabs (structure) + action button -->
-  <div class="d-flex align-items-center justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
+  <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
     @if (activeTab === 'structure' && !departmentId) {
       <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" (tabChange)="setActiveTab($event)"></app-tabs-bar>
       <app-team-header
@@ -23,6 +23,7 @@
       actionLabel="d3.teamManagement.addEmployee"
       actionIcon="user-plus"
       [showFilters]="true"
+      [showAction]="employees.length > 0"
       [departments]="filterDepartments"
       [roles]="filterRoles"
       (search)="onEmployeeSearch($event)"
@@ -106,7 +107,9 @@
       [totalCount]="employeeTotalCount"
       (edit)="onEditEmployee($event)"
       (delete)="onDeleteEmployee($event)"
-      (pageChange)="changeEmployeePage($event)">
+      (pageChange)="changeEmployeePage($event)"
+      (searchChange)="onEmployeeSearch($event)"
+      (addEmployee)="onHeaderAction()">
     </app-employee-list>
   } @else if (activeTab === 'logs') {
     <app-ops-log-table [logs]="filteredLogs"></app-ops-log-table>

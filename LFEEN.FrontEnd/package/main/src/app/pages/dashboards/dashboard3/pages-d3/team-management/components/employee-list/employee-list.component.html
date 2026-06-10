@@ -4,12 +4,12 @@
       <h3 class="m-0 f-s-20 f-w-900 order-1">{{ title || ('d3.teamManagement.deptEmployees' | translate) }}</h3>
       <div class="search-wrapper order-2 position-relative">
         <i-tabler name="search" class="icon-18 search-icon position-absolute"></i-tabler>
-        <input type="text" class="form-control search-input" [(ngModel)]="searchQuery" [placeholder]="'d3.teamManagement.searchPlaceholderSimple' | translate">
+        <input type="text" class="form-control search-input" [(ngModel)]="searchQuery" (ngModelChange)="onSearch($event)" [placeholder]="'d3.teamManagement.searchPlaceholderSimple' | translate">
       </div>
     </div>
   }
 
-  <app-all-employees [employees]="filteredEmployees" (edit)="onEdit($event)" (delete)="onDelete($event)"></app-all-employees>
+  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
 
   @if (totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">

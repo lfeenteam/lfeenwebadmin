@@ -87,6 +87,12 @@
   font-size: 16px;
   font-weight: 600;
   color: #0F172B;
+
+  &.ltr {
+    direction: ltr;
+    text-align: right;
+    unicode-bidi: isolate;
+  }
 }
 
 // ===== Verified Badge =====
@@ -212,6 +218,34 @@
   padding: 16px;
   background: #FFFFFF;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: #F8FAFC; }
+}
+
+.file-actions {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+}
+
+.file-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: #64748B;
+  text-decoration: none;
+
+  &:hover {
+    background: #E2E8F0;
+    color: #0F172B;
+  }
+
+  ::ng-deep svg { width: 16px; height: 16px; stroke-width: 2; }
 }
 
 .file-icon-wrap {
@@ -320,6 +354,7 @@
   color: #00A63E;
   width: fit-content;
   display: inline-flex;
+  align-items: center;
   gap: 4px;
 
   }
@@ -331,6 +366,7 @@
     justify-content: space-between;
   }
 }
+
 // ===== Region Badge =====
 .region-badge {
   margin-inline-start: auto;
@@ -475,8 +511,8 @@
 
 .notes-textarea {
   width: 100%;
-  background: #FFFFFF;
-  border: 1.5px solid #DC26261A;
+  background: #FEF2F2;
+  border: 2px solid #FEE2E2;
   border-radius: 20px;
   padding: 16px 20px;
   font-size: 13px;
@@ -489,7 +525,7 @@
   box-sizing: border-box;
   transition: border-color 0.2s;
 
-  &::placeholder { color: #C0C0BC; }
+  &::placeholder { color: #DC262666; }
   &:focus { border-color: #DC2626; }
 }
 
@@ -502,7 +538,7 @@
 
 .action-buttons {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   direction: rtl;
 }

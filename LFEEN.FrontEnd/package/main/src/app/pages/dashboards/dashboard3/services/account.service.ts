@@ -1,7 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AccountItem, PaginatedAccountResponse, Account } from '../interfaces/account.model';
+import { AccountItem, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 
 @Injectable({ providedIn: 'root' })
@@ -37,11 +39,12 @@ export class AccountService {
     }
   });
 
+  // Draft=0 | PendingReview=1 | Approved=2 | Rejected=3
   private tabToStatusParam(tab: AccountTab): string | null {
     switch (tab) {
-      case 'active':   return 'Approved';
-      case 'rejected': return 'Rejected';
-      // under_review and all: fetch without filter, component filters client-side
+      case 'active':   return '2';
+      case 'rejected': return '3';
+      // under_review (Draft=0 + PendingReview=1) and all: fetch without filter, filter client-side
       default:         return null;
     }
   }
@@ -74,9 +77,11 @@ export class AccountService {
 
   private mapStatus(status: string): 'active' | 'suspended' | 'under_review' | 'rejected' {
     switch (status) {
-      case 'Approved': return 'active';
-      case 'Rejected': return 'rejected';
-      default:         return 'under_review';
+      case 'Approved':      return 'active';
+      case 'Rejected':      return 'rejected';
+      case 'Draft':
+      case 'PendingReview': return 'under_review';
+      default:              return 'under_review';
     }
   }
 
@@ -109,5 +114,25 @@ export class AccountService {
 
   goToPage(page: number): void {
     this.currentPage.set(page);
+  }
+
+  getStatusCount(status: number | null): Observable<number> {
+    const params = new URLSearchParams({ pageNumber: '1', pageSize: '1' });
+    if (status !== null) params.set('status', String(status));
+    return this.http.get<PaginatedAccountResponse>(`${this.apiUrl}?${params}`).pipe(
+      map(res => res.totalCount)
+    );
+  }
+
+  getAccountById(id: string): Observable<AccountDetail> {
+    return this.http.get<AccountDetail>(`${this.apiUrl}/${id}`);
+  }
+
+  acceptAccount(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/accept`, {});
+  }
+
+  rejectAccount(id: string, rejectionReason: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/reject`, { rejectionReason });
   }
 }

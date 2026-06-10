@@ -16,6 +16,7 @@ export class AllEmployeesComponent {
   @Input() employees: Employee[] = [];
   @Output() edit = new EventEmitter<Employee>();
   @Output() delete = new EventEmitter<Employee>();
+  @Output() addEmployee = new EventEmitter<void>();
   
   displayedColumns: string[] = ['employee', 'phone', 'role', 'status', 'action'];
 
@@ -27,6 +28,10 @@ export class AllEmployeesComponent {
 
   onDelete(employee: Employee): void {
     this.delete.emit(employee);
+  }
+
+  onAddEmployee(): void {
+    this.addEmployee.emit();
   }
 
   getInitials(name: string): string {

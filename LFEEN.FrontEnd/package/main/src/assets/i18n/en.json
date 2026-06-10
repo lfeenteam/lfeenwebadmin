@@ -422,6 +422,11 @@
       "deptManagerTitle": "{{name}} Manager",
       "deptEmployees": "Department Employees List",
       "searchPlaceholderSimple": "Search in the team...",
+      "noEmployees": {
+        "title": "No Employees Added Yet",
+        "description": "Start building your team by adding employees and assigning their permissions in the system",
+        "addFirstBtn": "Add First Employee to Team"
+      },
       "addEmployeeDialog": {
         "title": "Add New Employee",
         "fullName": "Full Name",
@@ -707,16 +712,28 @@
         "actionIndividual": "Individual (Freelance)"
       }
     },
+    "businessCategories": {
+      "Hotel": "Hotel",
+      "HotelVillas": "Hotel Villas",
+      "Apartments": "Apartments",
+      "Villas": "Villas",
+      "Chalets": "Chalets",
+      "Resorts": "Resorts",
+      "Rests": "Rest Houses",
+      "Commercial": "Commercial Tower",
+      "Compounds": "Residential Compounds"
+    },
     "reviewAccount": {
       "facilityInfo": {
         "cardTitle": "Facility Information",
         "unifiedNumber": "Unified Number",
         "dataStatus": "Data Status",
         "dataVerified": "Data Verified",
+        "dataNotVerified": "Not Verified",
         "businessCategory": "Business Category"
       },
       "tradeName": {
-        "cardTitle": "Trade Name",
+        "cardTitle": "Commercial Identity",
         "logoLabel": "Facility Logo",
         "nameLabel": "Trade Name",
         "documentLabel": "Brand Documentation"
@@ -724,6 +741,7 @@
       "taxAddress": {
         "cardTitle": "Tax and National Address",
         "regionLabel": "Region Prince",
+        "shortNationalAddress": "Short National Address",
         "taxNumber": "Tax Number",
         "region": "Region",
         "city": "City",
@@ -749,7 +767,10 @@
         "notesPlaceholder": "Please enter rejection reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Accept and Activate Account",
-        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility"
+        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",
+        "acceptSuccess": "Account has been accepted and activated successfully",
+        "rejectSuccess": "Account request has been rejected successfully",
+        "rejectionRequired": "Please enter a rejection reason before proceeding"
       }
     }
   }

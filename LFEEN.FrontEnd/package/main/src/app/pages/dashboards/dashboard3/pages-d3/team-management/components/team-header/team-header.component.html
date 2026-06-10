@@ -38,12 +38,14 @@
     }
 
     <!-- Action Button -->
-    <button mat-flat-button class="action-btn" (click)="onAction()">
-      <div class="d-flex align-items-center justify-content-center gap-8">
-        <i-tabler [name]="actionIcon" class="icon-18"></i-tabler>
-        {{ actionLabel | translate }}
-      </div>
-    </button>
+    @if (showAction) {
+      <button mat-flat-button class="action-btn" (click)="onAction()">
+        <div class="d-flex align-items-center justify-content-center gap-8">
+          <i-tabler [name]="actionIcon" class="icon-18"></i-tabler>
+          {{ actionLabel | translate }}
+        </div>
+      </button>
+    }
 
   </div>
 </div>

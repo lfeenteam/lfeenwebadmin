@@ -1,3 +1,10 @@
+@if (isLoading) {
+  <div class="d-flex justify-content-center align-items-center p-48">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+}
+
+@if (!isLoading && account) {
 <div class="review-account">
 
   <!-- ===== Row 1: معلومات المنشأة + الهوية التجارية ===== -->
@@ -12,31 +19,34 @@
         <span class="card-title">{{ 'd3.reviewAccount.facilityInfo.cardTitle' | translate }}</span>
       </div>
 
-    <div class="fields-list">
-  <div class="field-row">
-    <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.unifiedNumber' | translate }}</span>
-    <span class="field-value">7002394851</span>
-  </div>
-  <div class="field-row">
-    <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.dataStatus' | translate }}</span>
-    <span class="verified-badge">
-      <i-tabler name="circle-check" class="icon-14"></i-tabler>
-      {{ 'd3.reviewAccount.facilityInfo.dataVerified' | translate }}
-    </span>
-  </div>
-  <div class="field-row">
-    <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.businessCategory' | translate }}</span>
-    <span class="field-value">التطوير والاستثمار العقاري</span>
-  </div>
-</div>
+      <div class="fields-list">
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.unifiedNumber' | translate }}</span>
+          <span class="field-value">{{ account.business?.unifiedNationalNumber || '—' }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.dataStatus' | translate }}</span>
+          @if (account.business?.unifiedNumberVerified) {
+            <span class="verified-badge">
+              <i-tabler name="circle-check" class="icon-14"></i-tabler>
+              {{ 'd3.reviewAccount.facilityInfo.dataVerified' | translate }}
+            </span>
+          } @else {
+            <span class="field-value">{{ 'd3.reviewAccount.facilityInfo.dataNotVerified' | translate }}</span>
+          }
+        </div>
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.businessCategory' | translate }}</span>
+          <span class="field-value">{{ businessCategoryLabel }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- الهوية التجارية -->
     <div class="identity-card">
-
       <div class="card-title-row">
         <div class="card-icon-box">
-          <i-tabler name="id-badge-2" class="icon-20"></i-tabler>
+          <i-tabler name="certificate-2" class="icon-20"></i-tabler>
         </div>
         <span class="card-title">{{ 'd3.reviewAccount.tradeName.cardTitle' | translate }}</span>
       </div>
@@ -45,183 +55,193 @@
         <div class="identity-logo-dashed">
           <span class="logo-label">{{ 'd3.reviewAccount.tradeName.logoLabel' | translate }}</span>
           @if (hasLogo) {
-            <span class="stripe-text">stripe</span>
+            <img [src]="account.business?.logoUrl" class="logo-img" alt="logo" />
           } @else {
             <span class="logo-initials-text">{{ companyInitials }}</span>
           }
         </div>
+
         <div class="fields-stacked">
           <div class="stacked-field">
             <span class="field-label">{{ 'd3.reviewAccount.tradeName.nameLabel' | translate }}</span>
-            <span class="field-value bold">شركة إيواء العقارية</span>
+            <span class="field-value bold">{{ tradeName }}</span>
           </div>
-          <div class="stacked-field">
-            <span class="field-label">{{ 'd3.reviewAccount.tradeName.documentLabel' | translate }}</span>
-            <div class="file-badge">
-              <div class="file-icon-wrap">
-                <i-tabler name="file-description" class="icon-20"></i-tabler>
-              </div>
-              <div class="file-info">
-                <span class="file-name">TRADEMARK_CERT.pdf</span>
-                <span class="file-size">٤ ميغابايت</span>
+          @if (account.business?.trademarkDocumentUrl) {
+            <div class="stacked-field">
+              <span class="field-label">{{ 'd3.reviewAccount.tradeName.documentLabel' | translate }}</span>
+              <div class="file-badge" (click)="openDocument(account.business!.trademarkDocumentUrl!)">
+                <div class="file-icon-wrap">
+                  <i-tabler name="file-description" class="icon-20"></i-tabler>
+                </div>
+                <div class="file-info">
+                  <span class="file-name">{{ getDocumentFileName(account.business!.trademarkDocumentUrl!) }}</span>
+                </div>
+                <div class="file-actions">
+                  <a [href]="account.business!.trademarkDocumentUrl!"
+                     [download]="getDocumentFileName(account.business!.trademarkDocumentUrl!)"
+                     target="_blank"
+                     class="file-action-btn"
+                     (click)="$event.stopPropagation()">
+                    <i-tabler name="download" class="icon-16"></i-tabler>
+                  </a>
+                </div>
               </div>
             </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="detail-grid">
+
+    <!-- الضريبة والعنوان الوطني -->
+    <div class="info-card full-width">
+      <div class="card-title-row">
+        <div class="card-icon-box">
+          <i-tabler name="map-pin" class="icon-20"></i-tabler>
+        </div>
+        <span class="card-title">{{ 'd3.reviewAccount.taxAddress.cardTitle' | translate }}</span>
+        @if (account.contact?.shortNationalAddress) {
+          <div class="region-badge">
+            <span class="region-label">{{ 'd3.reviewAccount.taxAddress.shortNationalAddress' | translate }}</span>
+            <span class="region-sep">:</span>
+            <span class="region-id">{{ account.contact!.shortNationalAddress }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="fields-grid-2">
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.taxNumber' | translate }}</span>
+          <span class="field-value">{{ account.business?.taxNumber || account.tax?.vatNumber || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.region' | translate }}</span>
+          <span class="field-value">{{ account.contact?.region || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.city' | translate }}</span>
+          <span class="field-value">{{ account.contact?.city || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.postalCode' | translate }}</span>
+          <span class="field-value">{{ account.contact?.postalCode || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.district' | translate }}</span>
+          <span class="field-value">{{ account.contact?.district || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.buildingNumber' | translate }}</span>
+          <span class="field-value">{{ account.contact?.buildingNumber || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.streetName' | translate }}</span>
+          <span class="field-value">{{ account.contact?.streetName || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- بيانات التواصل -->
+    <div class="info-card stretch-card">
+      <div class="card-title-row">
+        <div class="card-icon-box">
+          <i-tabler name="phone" class="icon-20"></i-tabler>
+        </div>
+        <span class="card-title">{{ 'd3.reviewAccount.contactInfo.cardTitle' | translate }}</span>
+      </div>
+
+      <div class="contact-rows">
+        <div class="contact-row">
+          <div class="contact-icon-wrap">
+            <i-tabler name="phone" class="icon-16"></i-tabler>
+          </div>
+          <div class="contact-info">
+            <span class="field-label">{{ 'd3.reviewAccount.contactInfo.mobile' | translate }}</span>
+            <span class="field-value ltr">{{ account.contact?.phoneNumber || '—' }}</span>
           </div>
         </div>
-
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ===== Row 2: الضريبة والعنوان + التواصل والبنك ===== -->
-<div class="detail-grid">
-
-  <!-- الضريبة والعنوان الوطني -->
-  <div class="info-card full-width">
-    <div class="card-title-row">
-      <div class="card-icon-box">
-        <i-tabler name="map-pin" class="icon-20"></i-tabler>
-      </div>
-      <span class="card-title">{{ 'd3.reviewAccount.taxAddress.cardTitle' | translate }}</span>
-      <div class="region-badge">
-        <span class="region-id">KM-992</span>
-        <span class="region-sep">|</span>
-        <span class="region-label">{{ 'd3.reviewAccount.taxAddress.regionLabel' | translate }}</span>
-      </div>
-    </div>
-
-    <div class="fields-grid-2">
-      <div class="field-col">
-        <span class="field-label">{{ 'd3.reviewAccount.taxAddress.taxNumber' | translate }}</span>
-        <span class="field-value">310238495000003</span>
-      </div>
-      <div class="field-col">
-        <span class="field-label">{{ 'd3.reviewAccount.taxAddress.region' | translate }}</span>
-        <span class="field-value">منطقة الرياض</span>
-      </div>
-      <div class="field-col">
-        <span class="field-label">{{ 'd3.reviewAccount.taxAddress.city' | translate }}</span>
-        <span class="field-value">الرياض</span>
-      </div>
-      <div class="field-col">
-        <span class="field-label">{{ 'd3.reviewAccount.taxAddress.postalCode' | translate }}</span>
-        <span class="field-value">12341</span>
-      </div>
-      <div class="field-col">
-  <span class="field-label">{{ 'd3.reviewAccount.taxAddress.district' | translate }}</span>
-  <span class="field-value">حي الرحمن</span>
-</div>
-
-<div class="field-col">
-  <span class="field-label">{{ 'd3.reviewAccount.taxAddress.buildingNumber' | translate }}</span>
-  <span class="field-value">7734</span>
-</div>
-     <div class="field-col">
-  <span class="field-label">{{ 'd3.reviewAccount.taxAddress.streetName' | translate }}</span>
-  <span class="field-value">طريق الملك عبد العزيز الفرعي</span>
-</div>
-    </div>
-  </div>
-
-  <!-- بيانات التواصل -->
-  <div class="info-card stretch-card">
-    <div class="card-title-row">
-      <div class="card-icon-box">
-        <i-tabler name="phone" class="icon-20"></i-tabler>
-      </div>
-      <span class="card-title">{{ 'd3.reviewAccount.contactInfo.cardTitle' | translate }}</span>
-    </div>
-
-    <div class="contact-rows">
-      <div class="contact-row">
-        <div class="contact-icon-wrap">
-          <i-tabler name="phone" class="icon-16"></i-tabler>
-        </div>
-        <div class="contact-info">
-          <span class="field-label">{{ 'd3.reviewAccount.contactInfo.mobile' | translate }}</span>
-          <span class="field-value ltr">+966 50 123 4567</span>
-        </div>
-      </div>
-      <div class="contact-row">
-        <div class="contact-icon-wrap">
-          <i-tabler name="mail" class="icon-16"></i-tabler>
-        </div>
-        <div class="contact-info">
-          <span class="field-label">{{ 'd3.reviewAccount.contactInfo.email' | translate }}</span>
-        <span class="field-value ltr">fo&#64;ewa-realestate.sa</span>
+        <div class="contact-row">
+          <div class="contact-icon-wrap">
+            <i-tabler name="mail" class="icon-16"></i-tabler>
+          </div>
+          <div class="contact-info">
+            <span class="field-label">{{ 'd3.reviewAccount.contactInfo.email' | translate }}</span>
+            <span class="field-value ltr">{{ account.contact?.email || '—' }}</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- بيانات الحساب البنكي -->
-  <div class="info-card stretch-card stretch-card">
-    <div class="card-title-row">
-      <div class="card-icon-box">
-        <i-tabler name="building-bank" class="icon-20"></i-tabler>
+    <div class="info-card stretch-card">
+      <div class="card-title-row">
+        <div class="card-icon-box">
+          <i-tabler name="building-bank" class="icon-20"></i-tabler>
+        </div>
+        <span class="card-title">{{ 'd3.reviewAccount.bankInfo.cardTitle' | translate }}</span>
       </div>
-      <span class="card-title">{{ 'd3.reviewAccount.bankInfo.cardTitle' | translate }}</span>
-    </div>
 
-    <div class="fields-list">
-    <div class="field-row">
-  <span class="field-label">{{ 'd3.reviewAccount.bankInfo.iban' | translate }}</span>
-  <span class="field-value ltr">SA82 8000 0000 1234 5678 9012</span>
-</div>
-<div class="bank-info-content">
-  <div class="bank-icon-wrap">
-    <i-tabler name="building-bank" class="icon-20"></i-tabler>
-  </div>
-  <div class="bank-info-text">
-    <span class="field-value">مصرف الراجحي</span>
-    <span class="verified-badgee">
-      <i-tabler name="circle-check" class="icon-14"></i-tabler>
-      {{ 'd3.reviewAccount.bankInfo.bankVerified' | translate }}
-    </span>
-  </div>
-</div>
-    </div>
-  </div>
-
-</div>
-
-  <!-- ===== قرار الطلب ===== -->
-  <div class="decision-section">
-    <div class="decision-header">
-      <div class="card-icon-box">
-        <i-tabler name="checkbox" class="icon-20"></i-tabler>
+      <div class="fields-list">
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.bankInfo.iban' | translate }}</span>
+          <span class="field-value ltr">{{ account.bank?.iban || '—' }}</span>
+        </div>
+        <div class="bank-info-content">
+          <div class="bank-icon-wrap">
+            <i-tabler name="building-bank" class="icon-20"></i-tabler>
+          </div>
+          <div class="bank-info-text">
+            <span class="field-value">{{ account.bank?.bankName || '—' }}</span>
+            @if (account.bankInfoStatus === 'Approved') {
+              <span class="verified-badgee">
+                <i-tabler name="circle-check" class="icon-14"></i-tabler>
+                {{ 'd3.reviewAccount.bankInfo.bankVerified' | translate }}
+              </span>
+            }
+          </div>
+        </div>
       </div>
-      <span class="card-title">{{ 'd3.reviewAccount.decision.cardTitle' | translate }}</span>
     </div>
 
-    <div class="notes-label-row">
-      <span class="notes-label">{{ 'd3.reviewAccount.decision.notesLabel' | translate }}</span>
-      <span class="notes-required">{{ 'd3.reviewAccount.decision.notesRequired' | translate }}</span>
-    </div>
-    <textarea
-      class="notes-textarea"
-      rows="4"
-      [placeholder]="'d3.reviewAccount.decision.notesPlaceholder' | translate"
-    ></textarea>
   </div>
 
-  <!-- ===== أزرار القرار ===== -->
-  <div class="action-section">
-    <div class="action-buttons">
-      <button class="btn-reject">
-        <i-tabler name="circle-x" class="icon-18"></i-tabler>
-        {{ 'd3.reviewAccount.decision.rejectBtn' | translate }}
-      </button>
-      <button class="btn-approve">
-        <i-tabler name="circle-check" class="icon-18"></i-tabler>
-        {{ 'd3.reviewAccount.decision.approveBtn' | translate }}
-      </button>
+  @if (isPending) {
+    <div class="decision-section">
+      <div class="decision-header">
+        <div class="card-icon-box">
+          <i-tabler name="checkbox" class="icon-20"></i-tabler>
+        </div>
+        <span class="card-title">{{ 'd3.reviewAccount.decision.cardTitle' | translate }}</span>
+      </div>
+
+      <div class="notes-label-row">
+        <span class="notes-label">{{ 'd3.reviewAccount.decision.notesLabel' | translate }}</span>
+        <span class="notes-required">{{ 'd3.reviewAccount.decision.notesRequired' | translate }}</span>
+      </div>
+      <textarea
+        class="notes-textarea"
+        rows="4"
+        [(ngModel)]="rejectionReason"
+        [placeholder]="'d3.reviewAccount.decision.notesPlaceholder' | translate"></textarea>
     </div>
-    <div class="lock-notice">
-      <i-tabler name="lock" class="icon-14"></i-tabler>
-      <span>{{ 'd3.reviewAccount.decision.lockNotice' | translate }}</span>
+
+    <div class="action-section">
+      <div class="action-buttons">
+        <button class="btn-approve" (click)="accept()" [disabled]="isSubmitting">
+          <i-tabler name="circle-check" class="icon-18"></i-tabler>
+          {{ 'd3.reviewAccount.decision.approveBtn' | translate }}
+        </button>
+        <button class="btn-reject" (click)="reject()" [disabled]="isSubmitting">
+          <i-tabler name="circle-x" class="icon-18"></i-tabler>
+          {{ 'd3.reviewAccount.decision.rejectBtn' | translate }}
+        </button>
+      </div>
+      <div class="lock-notice">
+        <i-tabler name="lock" class="icon-14"></i-tabler>
+        <span>{{ 'd3.reviewAccount.decision.lockNotice' | translate }}</span>
+      </div>
     </div>
-  </div>
+  }
 
 </div>
+}

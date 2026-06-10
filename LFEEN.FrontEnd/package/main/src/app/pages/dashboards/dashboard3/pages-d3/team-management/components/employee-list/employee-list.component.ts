@@ -1,9 +1,11 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AllEmployeesComponent } from '../all-employees/all-employees.component';
 import { Employee } from '../../../../interfaces/department.model';
 
@@ -14,7 +16,7 @@ import { Employee } from '../../../../interfaces/department.model';
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss'
 })
-export class EmployeeListComponent {
+export class EmployeeListComponent implements OnDestroy {
   @Input() employees: Employee[] = [];
   @Input() title: string = '';
   @Input() showHeader: boolean = true;
@@ -25,27 +27,28 @@ export class EmployeeListComponent {
   @Output() edit = new EventEmitter<Employee>();
   @Output() delete = new EventEmitter<Employee>();
   @Output() pageChange = new EventEmitter<number>();
+  @Output() searchChange = new EventEmitter<string>();
+  @Output() addEmployee = new EventEmitter<void>();
 
   searchQuery = '';
 
-  constructor(private translate: TranslateService) {}
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
-  get filteredEmployees(): Employee[] {
-    const q = this.searchQuery.trim().toLowerCase();
-    if (!q) return this.employees;
-    return this.employees.filter(e =>
-      e.fullName?.toLowerCase().includes(q) ||
-      e.email?.toLowerCase().includes(q) ||
-      e.phoneNumber?.toLowerCase().includes(q) ||
-      e.departmentName?.toLowerCase().includes(q) ||
-      e.departmentNameAr?.toLowerCase().includes(q) ||
-      e.departmentNameEn?.toLowerCase().includes(q) ||
-      e.roles?.some(r =>
-        r.nameAr?.toLowerCase().includes(q) ||
-        r.nameEn?.toLowerCase().includes(q) ||
-        r.name?.toLowerCase().includes(q)
-      )
-    );
+  constructor(private translate: TranslateService) {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      takeUntil(this.destroy$)
+    ).subscribe(q => this.searchChange.emit(q));
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onSearch(query: string): void {
+    this.searchSubject.next(query);
   }
 
   get pageNumbers(): number[] {

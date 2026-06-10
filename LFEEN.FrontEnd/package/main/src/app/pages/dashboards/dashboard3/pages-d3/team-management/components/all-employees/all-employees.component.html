@@ -71,6 +71,20 @@
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row empty-state-row" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length" class="empty-state-cell">
+            <div class="empty-state">
+              <img src="assets/images/backgrounds/employee.jpg" alt="no employees" class="empty-state-img" />
+              <h5>{{ 'd3.teamManagement.noEmployees.title' | translate }}</h5>
+              <p>{{ 'd3.teamManagement.noEmployees.description' | translate }}</p>
+              <button class="add-first-btn" (click)="onAddEmployee()">
+                <i-tabler name="plus" class="icon-18"></i-tabler>
+                {{ 'd3.teamManagement.noEmployees.addFirstBtn' | translate }}
+              </button>
+            </div>
+          </td>
+        </tr>
       </table>
     </div>
 </div>
