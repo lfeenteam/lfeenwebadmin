@@ -4,8 +4,15 @@
   </div>
 }
 
-@if (!isLoading && account) {
-<div class="review-account">
+@if (isError) {
+  <div class="d-flex flex-column align-items-center justify-content-center p-48 gap-16">
+    <i-tabler name="alert-circle" class="icon-48 text-danger"></i-tabler>
+    <p class="f-s-14 text-muted">{{ 'd3.toast.errorOp' | translate }}</p>
+  </div>
+}
+
+@if (!isLoading && !isError && account) {
+<div class="review-account" [attr.dir]="dir">
 
   <!-- ===== Row 1: معلومات المنشأة + الهوية التجارية ===== -->
   <div class="info-grid">

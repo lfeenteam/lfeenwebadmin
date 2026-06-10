@@ -8,7 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { DepartmentService, RolePermission } from '../../../services/department.service';
+import { DepartmentService } from '../../../services/department.service';
+import { RolePermission } from '../../../interfaces/department.model';
 
 interface PermissionRow extends RolePermission {
   selected: boolean;

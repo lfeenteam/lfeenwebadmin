@@ -12,7 +12,7 @@ import {
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../../../services/department.service';
-import { Department, DepartmentRole } from '../../../../interfaces/department.model';
+import { Department, DepartmentRole, Employee } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-add-employee-dialog',
@@ -70,7 +70,7 @@ export class AddEmployeeDialogComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddEmployeeDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { departmentId: string; employee?: any; fromAllEmployees?: boolean }
+    @Inject(MAT_DIALOG_DATA) public data: { departmentId: string; employee?: Partial<Employee>; fromAllEmployees?: boolean }
   ) {
     this.employeeForm = this.fb.group({
       fullName: [this.data.employee?.fullName || '', [Validators.required, Validators.minLength(2)]],
@@ -80,7 +80,7 @@ export class AddEmployeeDialogComponent implements OnInit {
     });
 
     if (this.data.employee) {
-      this.selectedRole = this.data.employee.roles?.[0];
+      this.selectedRole = this.data.employee.roles?.[0] ?? null;
     }
   }
 
@@ -98,7 +98,7 @@ export class AddEmployeeDialogComponent implements OnInit {
         this.departments = depts;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading departments', err)
+      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
   }
 
@@ -138,7 +138,7 @@ export class AddEmployeeDialogComponent implements OnInit {
         this.roles = roles;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading roles', err)
+      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
   }
 
@@ -170,7 +170,7 @@ export class AddEmployeeDialogComponent implements OnInit {
       const deptId = this.data.fromAllEmployees ? this.selectedDept!.id : this.data.departmentId;
 
       const request = this.data.employee
-        ? this.departmentService.updateEmployee(deptId, this.data.employee.userId, submissionData)
+        ? this.departmentService.updateEmployee(deptId, this.data.employee.userId!, submissionData)
         : this.departmentService.addEmployee(deptId, submissionData);
 
       this.serverErrors = {};

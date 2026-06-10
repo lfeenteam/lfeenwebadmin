@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { CoreService } from '../../../../services/core.service';
 import {
   Department,
   PaginatedDepartmentResponse,
@@ -11,34 +10,23 @@ import {
   PaginatedEmployeeResponse,
   DepartmentRole,
   RolePermission,
-  RolePermissionsResponse
+  RolePermissionsResponse,
+  EmployeeFormData,
+  UpdateEmployeePayload
 } from '../interfaces/department.model';
-
-export type {
-  Department,
-  PaginatedDepartmentResponse,
-  Employee,
-  PaginatedEmployeeResponse,
-  DepartmentRole,
-  RolePermission,
-  RolePermissionsResponse
-} from '../interfaces/department.model';
-export type { EmployeeRole } from '../interfaces/department.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DepartmentService {
   private http = inject(HttpClient);
-  private coreService = inject(CoreService);
   private apiUrl = 'http://test-api-admin.lfeen.com/api/departments';
 
   readonly currentPage = signal(1);
   readonly pageSize = signal(9);
-  private readonly lang = this.coreService.getOptionsSignal();
 
   private readonly _departmentsResource = rxResource({
-    request: () => ({ page: this.currentPage(), pageSize: this.pageSize(), lang: this.lang().language }),
+    request: () => ({ page: this.currentPage(), pageSize: this.pageSize() }),
     loader: ({ request }) =>
       this.http.get<PaginatedDepartmentResponse>(
         `${this.apiUrl}?page=${request.page}&pageSize=${request.pageSize}`
@@ -149,20 +137,20 @@ export class DepartmentService {
     );
   }
 
-  addEmployee(id: string, employeeData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/employees`, employeeData);
+  addEmployee(id: string, employeeData: EmployeeFormData): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/employees`, employeeData);
   }
 
   getEmployeeById(userId: string): Observable<Employee> {
     return this.http.get<Employee>(`${this.apiUrl}/employees/${userId}`);
   }
 
-  updateEmployee(departmentId: string, userId: string, employee: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${departmentId}/employees/${userId}`, employee);
+  updateEmployee(departmentId: string, userId: string, employee: UpdateEmployeePayload): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${departmentId}/employees/${userId}`, employee);
   }
 
-  deleteEmployee(userId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/employees/${userId}`);
+  deleteEmployee(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/employees/${userId}`);
   }
 
   createDepartment(data: { nameAr: string; nameEn: string; code: string; descriptionAr: string; descriptionEn: string; managerId: string }): Observable<any> {

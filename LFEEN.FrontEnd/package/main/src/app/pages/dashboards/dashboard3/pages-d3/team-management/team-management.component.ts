@@ -1,10 +1,13 @@
-import { Component, OnInit, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { DepartmentService } from '../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../interfaces/department.model';
+import { StatItem } from '../../interfaces/stats.model';
+import { OpsLog } from '../../interfaces/ops-log.model';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -17,7 +20,7 @@ import { TabsBarComponent } from './components/tabs-bar/tabs-bar.component';
 import { DeptCardComponent } from './components/dept-card/dept-card.component';
 import { ManagerCardComponent } from './components/manager-card/manager-card.component';
 import { LogsFilterComponent } from './components/logs-filter/logs-filter.component';
-import { OpsLogTableComponent, OpsLog } from './components/ops-log-table/ops-log-table.component';
+import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.component';
 
 @Component({
   selector: 'app-team-management',
@@ -41,8 +44,10 @@ import { OpsLogTableComponent, OpsLog } from './components/ops-log-table/ops-log
   styleUrl: './team-management.component.scss'
 })
 export class TeamManagementComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   activeTab: 'structure' | 'employees' | 'logs' = 'structure';
-  stats: any[] = [];
+  stats: StatItem[] = [];
   departmentId: string | null = null;
   selectedDepartment: Department | null = null;
 
@@ -172,7 +177,7 @@ export class TeamManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadEmployeeFilterOptions();
 
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.departmentId = params['id'] || null;
       if (this.departmentId) {
         this.activeTab = 'employees';
@@ -189,7 +194,7 @@ export class TeamManagementComponent implements OnInit {
         this.filterDepartments = departments;
         this.cdr.markForCheck();
       },
-      error: err => console.error('Error loading department filters', err)
+      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
 
     this.departmentService.getAllRolesForDropdown().subscribe({
@@ -197,7 +202,7 @@ export class TeamManagementComponent implements OnInit {
         this.filterRoles = roles.filter(role => !role.isDeleted);
         this.cdr.markForCheck();
       },
-      error: err => console.error('Error loading role filters', err)
+      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
   }
 
@@ -249,8 +254,8 @@ export class TeamManagementComponent implements OnInit {
       this.stats = [
         { label: 'd3.teamManagement.stats.totalEmployees', value: this.departments.reduce((sum, d) => sum + d.employeeCount, 0), icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.activeManagers', value: 12, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.pendingActivation', value: 5, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
+        { label: 'd3.teamManagement.stats.activeManagers', value: this.departments.reduce((sum, d) => sum + (d.activeManagersCount || 0), 0), icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
+        { label: 'd3.teamManagement.stats.pendingActivation', value: this.departments.reduce((sum, d) => sum + (d.pendingActivationCount || 0), 0), icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
     } else if (this.activeTab === 'logs') {
       this.stats = [
@@ -262,9 +267,9 @@ export class TeamManagementComponent implements OnInit {
     } else {
       this.stats = [
         { label: 'd3.teamManagement.stats.totalEmployees', value: this.employeeTotalCount, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.activeManagers', value: 12, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
+        { label: 'd3.teamManagement.stats.activeManagers', value: this.departments.reduce((sum, d) => sum + (d.activeManagersCount || 0), 0), icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
         { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.pendingActivation', value: 5, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
+        { label: 'd3.teamManagement.stats.pendingActivation', value: this.departments.reduce((sum, d) => sum + (d.pendingActivationCount || 0), 0), icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
     }
   }

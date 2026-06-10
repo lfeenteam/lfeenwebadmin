@@ -10,8 +10,7 @@ import { AccountCardComponent } from './components/account-card/account-card.com
 import { TranslateModule } from '@ngx-translate/core';
 import { AccountService } from '../../services/account.service';
 import { Account } from '../../interfaces/account.model';
-
-export type { Account } from '../../interfaces/account.model';
+import { StatItem } from '../../interfaces/stats.model';
 
 @Component({
   selector: 'app-account-management',
@@ -43,11 +42,11 @@ export class AccountManagementComponent implements OnInit {
   isLoading   = false;
   newestFirst = true;
 
-  stats = [
-    { label: 'إجمالي الحسابات', value: '—', icon: 'database',    color: 'primary', valueColor: '#000'    },
-    { label: 'نشط',             value: '—', icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
-    { label: 'تحت المراجعة',   value: '—', icon: 'clock',        color: 'warning', valueColor: '#d97706' },
-    { label: 'مرفوض',           value: '—', icon: 'circle-x',     color: 'danger',  valueColor: '#ef4444' },
+  stats: StatItem[] = [
+    { label: 'd3.accountManagement.stats.total',       value: '—', icon: 'database',    color: 'primary', valueColor: '#000'    },
+    { label: 'd3.accountManagement.stats.active',      value: '—', icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
+    { label: 'd3.accountManagement.stats.underReview', value: '—', icon: 'clock',        color: 'warning', valueColor: '#d97706' },
+    { label: 'd3.accountManagement.stats.rejected',    value: '—', icon: 'circle-x',     color: 'danger',  valueColor: '#ef4444' },
   ];
 
   constructor() {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
+import { StatItem } from '../../../../interfaces/stats.model';
 
 @Component({
   selector: 'app-stats-row',
@@ -12,6 +13,6 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './stats-row.component.scss'
 })
 export class StatsRowComponent {
-  @Input() stats: any[] = [];
+  @Input() stats: StatItem[] = [];
   @Input() isDeptView = false;
 }

@@ -109,7 +109,8 @@ openAddRoleDialog(): void {
 }
 
 viewPermissions(role: RoleRow): void {
-  this.router.navigate([`/ar/d3/permissions/${this.deptId}/role/${role.id}`]);
+  const lang = this.translate.currentLang || 'ar';
+  this.router.navigate([lang, 'd3', 'permissions', this.deptId, 'role', role.id]);
 }
 
 editRole(role: RoleRow): void {

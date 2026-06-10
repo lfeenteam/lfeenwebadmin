@@ -4,7 +4,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { Account } from '../../account-management.component';
+import { Account } from '../../../../interfaces/account.model';
 
 @Component({
   selector: 'app-account-card',

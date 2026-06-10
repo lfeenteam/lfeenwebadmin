@@ -25,6 +25,7 @@ export class ReviewAccountComponent implements OnInit {
 
   account: AccountDetail | null = null;
   isLoading    = true;
+  isError      = false;
   isSubmitting = false;
   rejectionReason = '';
 
@@ -33,7 +34,11 @@ export class ReviewAccountComponent implements OnInit {
     if (!id) return;
     this.service.getAccountById(id).subscribe({
       next: data => { this.account = data; this.isLoading = false; },
-      error: ()   => { this.isLoading = false; }
+      error: ()  => {
+        this.isLoading = false;
+        this.isError   = true;
+        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+      }
     });
   }
 
@@ -44,7 +49,7 @@ export class ReviewAccountComponent implements OnInit {
       next: () => {
         this.toastr.success(this.translate.instant('d3.reviewAccount.decision.acceptSuccess'));
         this.service.setTab('active');
-        this.router.navigate([this.router.url.split('/')[1], 'd3', 'account-management']);
+        this.navigateBack();
       },
       error: () => {
         this.toastr.error(this.translate.instant('d3.toast.errorOp'));
@@ -64,13 +69,18 @@ export class ReviewAccountComponent implements OnInit {
       next: () => {
         this.toastr.success(this.translate.instant('d3.reviewAccount.decision.rejectSuccess'));
         this.service.setTab('rejected');
-        this.router.navigate([this.router.url.split('/')[1], 'd3', 'account-management']);
+        this.navigateBack();
       },
       error: () => {
         this.toastr.error(this.translate.instant('d3.toast.errorOp'));
         this.isSubmitting = false;
       }
     });
+  }
+
+  private navigateBack(): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.router.navigate([lang, 'd3', 'account-management']);
   }
 
   get isPending(): boolean {
@@ -100,6 +110,10 @@ export class ReviewAccountComponent implements OnInit {
   getDocumentFileName(url: string): string {
     const name = url.split('/').pop()?.split('?')[0] || 'document.pdf';
     return name;
+  }
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'ar' ? 'rtl' : 'ltr';
   }
 
   get businessCategoryLabel(): string {

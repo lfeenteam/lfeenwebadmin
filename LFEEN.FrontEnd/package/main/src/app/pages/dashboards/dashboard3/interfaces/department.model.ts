@@ -95,3 +95,12 @@ export interface RolePermissionsResponse {
   nextpage: number | null;
   totalPages: number;
 }
+
+export interface EmployeeFormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  roleIds: string[];
+}
+
+export type UpdateEmployeePayload = EmployeeFormData;

@@ -3,18 +3,9 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
+import { OpsLog } from '../../../../interfaces/ops-log.model';
 
-export interface OpsLog {
-  id: string;
-  date: string;
-  time: string;
-  user: { name: string; role: string; avatar: string | null; isCrown: boolean };
-  actionText: string;
-  actionIcon: string;
-  department: string;
-  status: 'completed' | 'failed' | 'pending';
-  statusLabel: string;
-}
+export type { OpsLog } from '../../../../interfaces/ops-log.model';
 
 @Component({
   selector: 'app-ops-log-table',
