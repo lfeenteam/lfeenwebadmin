@@ -11,7 +11,7 @@ import { CoreService } from 'src/app/services/core.service';
 export class AccountService {
   private http = inject(HttpClient);
   private coreService = inject(CoreService);
-  private readonly apiUrl = 'http://test-api-admin.lfeen.com/api/accounts';
+  private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/accounts';
 
   readonly currentPage  = signal(1);
   readonly pageSize     = signal(20);
