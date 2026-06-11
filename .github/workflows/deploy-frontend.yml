@@ -29,6 +29,9 @@ jobs:
         working-directory: LFEEN.FrontEnd/package/main
         run: npm run build -- --configuration production
 
+      - name: Add CNAME
+        run: echo "myadminlf.roydigi.com" > LFEEN.FrontEnd/package/main/dist/Spike/browser/CNAME
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
