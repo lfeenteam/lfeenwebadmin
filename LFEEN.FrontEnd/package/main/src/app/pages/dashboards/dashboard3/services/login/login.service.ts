@@ -9,8 +9,8 @@ import { LoginRequest, LoginResponse } from '../../interfaces/login.model';
   providedIn: 'root'
 })
 export class LoginService {
-  private apiUrl = 'http://test-api-admin.lfeen.com/api/auth/Login';
-  private refreshUrl = 'http://test-api-admin.lfeen.com/api/auth/refresh-token';
+  private apiUrl = 'https://test-api-admin.lfeen.com/api/auth/Login';
+  private refreshUrl = 'https://test-api-admin.lfeen.com/api/auth/refresh-token';
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';
