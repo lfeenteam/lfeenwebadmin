@@ -31,6 +31,7 @@
   flex-direction: column;
   gap: 6px;
   order: 2;
+  min-width: 0;
 }
 
 .metric-title {
@@ -39,6 +40,7 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .metric-value {
@@ -156,7 +158,7 @@
   display: flex;
   justify-content: flex-end;
   margin-top: -48px;
-  margin-right: 12px;
+  margin-inline-end: 12px;
   position: relative;
   z-index: 3;
   pointer-events: none; /* يمنع الحاوية من حجب ما تحتها */
@@ -212,5 +214,60 @@
 @media (max-width: 576px) {
   .sub-header-metrics {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .metric-card {
+    min-height: unset;
+    padding: 12px 16px;
+    gap: 12px;
+    border-radius: 16px;
+    min-width: 0;
+  }
+
+  .metric-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+
+    ::ng-deep svg { width: 22px; height: 22px; }
+  }
+
+  .metric-title { font-size: 12px; }
+  .metric-value { font-size: 20px; }
+}
+
+// ════════════════════════════════════════
+// Mobile
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  // tabs-filter internal margin-top is removed on mobile (set to 0 in its own SCSS),
+  // so we compensate here to keep the same visual gap from the metrics above.
+  .tabs-filter-container {
+    margin-top: 40px;
+    position: relative;
+  }
+
+  // Leave room in the filters-row for the view toggle on the inline-end (left in RTL)
+  app-tabs-filter {
+    ::ng-deep .filters-row {
+      padding-inline-end: 74px;
+    }
+  }
+
+  // Align view toggle with Row 1 (search + filter icon), not with the tabs
+  .view-toggle-row {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    width: 66px;
+    height: 42px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 2;
   }
 }

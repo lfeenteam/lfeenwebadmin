@@ -3,9 +3,13 @@
   <!-- ══ GRID VIEW ══ -->
   @if (viewMode === 'grid') {
     <div class="card-top">
-      <span class="new-badge">
+      <span class="new-badge" [class.under-review]="building.tab === 'underReview'">
         <span class="new-dot"></span>
-        {{ 'd3.allBuilds.underReview.newBadge' | translate }}
+        {{
+          (building.tab === 'new'
+            ? 'd3.allBuilds.underReview.newBadge'
+            : 'd3.allBuilds.underReview.statusLabel') | translate
+        }}
       </span>
       <span class="building-icon review-icon">
         <i-tabler name="clock-hour-3"></i-tabler>
@@ -34,7 +38,7 @@
     <div class="card-footer">
       <span class="type-tag">{{ building.typeLabel | translate }}</span>
       <button type="button" class="action-btn back-btn" aria-label="View build review" (click)="goToBuildReview()">
-        <i-tabler name="arrow-left"></i-tabler>
+        <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
       </button>
     </div>
   }

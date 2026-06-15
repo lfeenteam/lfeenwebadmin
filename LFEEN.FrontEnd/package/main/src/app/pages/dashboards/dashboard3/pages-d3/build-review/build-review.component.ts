@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -7,7 +7,12 @@ import { ReviewTermsComponent } from './review-terms/review-terms.component';
 import { ReviewLicenseComponent } from './review-license/review-license.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BuildingReviewService } from '../../services/building-review.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AdminReviewStatus, SectionReviewResponse } from '../../interfaces/building-card.model';
+import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { ReviewConfirmDialogComponent } from './review-confirm-dialog/review-confirm-dialog.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-build-review',
@@ -17,66 +22,112 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrl: './build-review.component.scss'
 })
 export class BuildReviewComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   currentView: 'list' | 'images' | 'terms' | 'license' | 'final' = 'list';
   buildingId: string | null = null;
+  imageError = false;
 
   building = {
-    id: 'H0042',
-    name: 'برج ريتاج السكني',
-    location: 'جدة حي الشاطئ، شارع الكورنيش',
-    organization: 'مجموعة ريادة القلدقية',
-    totalUnits: '٢٤',
+    id: '',
+    name: '',
+    location: '',
+    organization: '',
+    totalUnits: '0',
     imageUrl: 'assets/images/building.jpg'
   };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private buildingService: BuildingReviewService
+    private buildingService: BuildingReviewService,
+    private toastr: ToastrService,
+    private translate: TranslateService,
+    private dialog: MatDialog
   ) {}
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadProperty());
+
+    this.loadProperty();
+  }
+
+  private loadProperty(): void {
     if (this.buildingId) {
-      const data = this.buildingService.getBuildingById(this.buildingId);
-      if (data) {
+      this.imageError = false;
+      this.buildingService.getPropertyById(this.buildingId).subscribe(data => {
         this.building = {
-          id: data.id,
-          name: data.title, // Note: using title key as name for simulation
-          location: data.location,
-          organization: 'مجموعة ريادة القلدقية',
-          totalUnits: data.units.toString(),
-          imageUrl: 'assets/images/building.jpg'
+          id:           data.externalId,
+          name:         data.name,
+          location:     data.formattedAddress || [data.city, data.district].filter(Boolean).join(' - '),
+          organization: data.accountName ?? '',
+          totalUnits:   String(data.totalUnits),
+          imageUrl:     data.mainPhotoUrl ?? 'assets/images/building.jpg'
         };
-      }
+
+        this.reviewSections[0].completed = data.photosSection.decision !== 'Pending';
+        this.reviewSections[0].status    = this.mapDecision(data.photosSection.decision);
+        if (data.photosSection.rejectionReason) {
+          this.reviewSections[0].notes = data.photosSection.rejectionReason;
+        }
+
+        this.reviewSections[1].completed = data.termsSection.decision !== 'Pending';
+        this.reviewSections[1].status    = this.mapDecision(data.termsSection.decision);
+        if (data.termsSection.rejectionReason) {
+          this.reviewSections[1].notes = data.termsSection.rejectionReason;
+        }
+
+        this.reviewSections[2].completed = data.licenseSection.decision !== 'Pending';
+        this.reviewSections[2].status    = this.mapDecision(data.licenseSection.decision);
+        if (data.licenseSection.rejectionReason) {
+          this.reviewSections[2].notes = data.licenseSection.rejectionReason;
+        }
+      });
+    }
+  }
+
+  private mapDecision(decision: AdminReviewStatus): 'pending' | 'accepted' | 'rejected' {
+    switch (decision) {
+      case 'Approved': return 'accepted';
+      case 'Rejected': return 'rejected';
+      default:         return 'pending';
     }
   }
 
   reviewSections = [
-    { 
-        iconUrl: 'assets/images/svgs/SVG.svg',  
-        title: 'صور المبنى',   
-        completed: false, 
-        status: 'pending',
-        notes: 'يوجد ٣ صور مرفوضة لعدم وضوح المعالم، صورة المدخل مشوشة وصور المرافق غير مطابقة للواقع الجغرافي للمبنى.'
+    {
+      iconUrl:   'assets/images/svgs/SVG.svg',
+      titleKey:  'd3.buildReview.sections.photosTitle',
+      completed: false,
+      status:    'pending',
+      notes:     ''
     },
-    { 
-        iconUrl: 'assets/images/svgs/SVG (1).svg',   
-        title: 'شروط المبنى',  
-        completed: false, 
-        status: 'pending',
-        notes: 'مواعيد تسجيل الدخول والخروج متأخرة جداً وغير متوافقة مع سياسة المنصة العامة، يرجى تعديلها لأوقات معيارية.'
+    {
+      iconUrl:   'assets/images/svgs/SVG (1).svg',
+      titleKey:  'd3.buildReview.sections.termsTitle',
+      completed: false,
+      status:    'pending',
+      notes:     ''
     },
-    { 
-        iconUrl: 'assets/images/svgs/SVG (2).svg', 
-        title: 'ترخيص المبنى', 
-        completed: false, 
-        status: 'pending',
-        notes: 'صورة الترخيص المرفوعة غير واضحة المعالم، يرجى إرفاق نسخة رقمية واضحة ومقروءة من ترخيص وزارة السياحة.'
+    {
+      iconUrl:   'assets/images/svgs/SVG (2).svg',
+      titleKey:  'd3.buildReview.sections.licenseTitle',
+      completed: false,
+      status:    'pending',
+      notes:     ''
     }
   ];
 
   finalRejectionNotes = '';
+  finalNotes = '';
+  isFinalSubmitting = false;
   showSuccessModal = false;
 
   get completedCount(): number {
@@ -92,7 +143,7 @@ export class BuildReviewComponent implements OnInit {
   }
 
   get canReject(): boolean {
-    return this.allSectionsComplete && this.finalRejectionNotes.trim().length > 0;
+    return this.allSectionsComplete;
   }
 
   get canApprove(): boolean {
@@ -101,7 +152,6 @@ export class BuildReviewComponent implements OnInit {
 
   openSection(index: number): void {
     const views: ('images' | 'terms' | 'license')[] = ['images', 'terms', 'license'];
-    
     if (index === 0 || this.reviewSections[index - 1].completed) {
       this.currentView = views[index];
     }
@@ -109,21 +159,17 @@ export class BuildReviewComponent implements OnInit {
 
   onBack(): void {
     if (this.currentView === 'list') {
-        this.router.navigate(['../../buildings'], { relativeTo: this.route });
+      this.router.navigate(['../../buildings'], { relativeTo: this.route });
     } else {
-        this.currentView = 'list';
+      this.currentView = 'list';
     }
   }
 
-  onSectionApproved(index: number, hasRejection: boolean = false): void {
+  onSectionApproved(index: number, result?: SectionReviewResponse): void {
+    const hasRejection = result?.decision === 'Rejected';
     this.reviewSections[index].completed = true;
-    this.reviewSections[index].status = hasRejection ? 'rejected' : 'accepted';
-    
-    if (this.allSectionsComplete) {
-        this.currentView = 'final';
-    } else {
-        this.onBack();
-    }
+    this.reviewSections[index].status    = hasRejection ? 'rejected' : 'accepted';
+    this.currentView = 'list';
   }
 
   get isFinalSuccess(): boolean {
@@ -135,21 +181,73 @@ export class BuildReviewComponent implements OnInit {
   }
 
   onReject(): void {
-    if (!this.canReject) return;
-    console.log('Rejecting with notes:', this.finalRejectionNotes);
+    if (!this.canReject || !this.buildingId || this.isFinalSubmitting) return;
+    this.confirmFinalDecision('Rejected');
   }
 
   onApprove(): void {
-    if (!this.canApprove) return;
-    if (this.buildingId) {
-      this.buildingService.approveBuilding(this.buildingId);
-    }
-    this.showSuccessModal = true;
-    console.log('Approving building:', this.building.name);
+    if (!this.canApprove || !this.isFinalSuccess || !this.buildingId || this.isFinalSubmitting) return;
+    this.confirmFinalDecision('Approved');
+  }
+
+  private confirmFinalDecision(decision: 'Approved' | 'Rejected'): void {
+    const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey: decision === 'Approved'
+          ? 'd3.buildReview.confirm.finalApproveTitle'
+          : 'd3.buildReview.confirm.finalRejectTitle',
+        messageKey: decision === 'Approved'
+          ? 'd3.buildReview.confirm.finalApproveMessage'
+          : 'd3.buildReview.confirm.finalRejectMessage',
+        confirmKey: decision === 'Approved'
+          ? 'd3.buildReview.confirm.approveAction'
+          : 'd3.buildReview.confirm.rejectAction',
+        tone: decision === 'Approved' ? 'approve' : 'reject'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) this.submitFinalDecision(decision);
+    });
+  }
+
+  private submitFinalDecision(decision: 'Approved' | 'Rejected'): void {
+    if (!this.buildingId) return;
+
+    const payload = { finalNotes: this.finalNotes.trim() || null };
+    const request = decision === 'Approved'
+      ? this.buildingService.approveBuilding(this.buildingId, payload)
+      : this.buildingService.rejectBuilding(this.buildingId, payload);
+
+    this.isFinalSubmitting = true;
+    request.subscribe({
+      next: () => {
+        this.isFinalSubmitting = false;
+        if (decision === 'Approved') {
+          this.showSuccessModal = true;
+        } else {
+          this.toastr.success(this.translate.instant('d3.buildReview.finalDecision.rejectSuccess'));
+          this.router.navigate(['../../buildings'], { relativeTo: this.route });
+        }
+      },
+      error: (err) => {
+        this.isFinalSubmitting = false;
+        const errorCode = err?.error?.code ?? err?.error?.errorCode;
+        const keyByCode: Record<string, string> = {
+          ALREADY_APPROVED: 'd3.buildReview.finalDecision.errors.alreadyApproved',
+          ACCOUNT_NOT_APPROVED: 'd3.buildReview.finalDecision.errors.accountNotApproved',
+          SECTIONS_NOT_ALL_APPROVED: 'd3.buildReview.finalDecision.errors.sectionsNotApproved',
+          ALREADY_REJECTED: 'd3.buildReview.finalDecision.errors.alreadyRejected'
+        };
+        this.toastr.error(this.translate.instant(keyByCode[errorCode] ?? 'd3.toast.errorOp'));
+      }
+    });
   }
 
   goToUnits(): void {
-    console.log('Navigating back to buildings list...');
     this.router.navigate(['../../buildings'], { relativeTo: this.route });
     this.showSuccessModal = false;
   }

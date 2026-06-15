@@ -335,6 +335,40 @@ export class TeamManagementComponent implements OnInit {
     });
   }
 
+  onToggleStatusEmployee(employee: Employee): void {
+    const isActivating = !employee.isActive;
+    const titleKey = isActivating ? 'common.activateConfirmTitle' : 'common.deactivateConfirmTitle';
+    const messageKey = isActivating ? 'common.activateConfirmMessage' : 'common.deactivateConfirmMessage';
+
+    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+      width: '440px',
+      data: { title: titleKey, message: messageKey },
+      panelClass: 'custom-confirm-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const call$ = isActivating
+          ? this.departmentService.activateEmployee(employee.userId)
+          : this.departmentService.deactivateEmployee(employee.userId);
+
+        call$.subscribe({
+          next: () => {
+            const successKey = isActivating ? 'd3.toast.activateEmployeeSuccess' : 'd3.toast.deactivateEmployeeSuccess';
+            this.toastr.success(this.translate.instant(successKey));
+            if (this.departmentId) this.loadDepartmentDetails(this.departmentId);
+            else this.loadAllEmployees();
+          },
+          error: (err) => {
+            console.error('Error toggling employee status', err);
+            const errorKey = isActivating ? 'd3.toast.activateEmployeeError' : 'd3.toast.deactivateEmployeeError';
+            this.toastr.error(this.translate.instant(errorKey));
+          }
+        });
+      }
+    });
+  }
+
   onHeaderAction(): void {
     if (this.activeTab === 'structure') {
       this.router.navigate(['add'], { relativeTo: this.route });

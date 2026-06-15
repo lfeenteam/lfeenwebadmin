@@ -62,7 +62,7 @@ table {
   width: 100% !important;
   margin: 0 !important;
   border: none !important;
-  
+
   th.mat-mdc-header-cell {
     background-color: #FCFCFB;
     color: #9E9E9A;
@@ -80,21 +80,33 @@ table {
   td.mat-mdc-cell {
     text-align: start;
   }
-  
+
   td.mat-mdc-cell {
     padding: 12px 32px;
     font-weight: 500;
   }
+
+  tr.mat-mdc-row {
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #FAFAF9;
+    }
+  }
 }
 
-::ng-deep {
-  .mat-mdc-menu-panel {
-    border-radius: 12px !important;
-    .mat-mdc-menu-item {
-      font-family: 'Cairo', sans-serif !important;
-      font-size: 14px;
-      font-weight: 500;
-    }
+// زرار الأكشن - بدون دايرة hover كبيرة
+.action-btn.mat-mdc-icon-button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+
+  .mat-mdc-button-persistent-ripple,
+  .mat-ripple { border-radius: 8px !important; }
+
+  &:hover {
+    background-color: #F0F0EE !important;
   }
 }
 
@@ -135,6 +147,141 @@ table {
   background: #F8FAFC;
   opacity: 1;
   object-fit: cover;
+}
+
+@media (max-width: 767.98px) {
+  .table-responsive {
+    background: #F5F5F3;
+    padding: 12px;
+  }
+
+  table {
+    display: block;
+    background: transparent !important;
+  }
+
+  // thead و tbody بيتعملوا من Angular Material داخليًا فنحتاج ::ng-deep
+  ::ng-deep thead {
+    display: none !important;
+  }
+
+  ::ng-deep tbody {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  // tr و td في template الكومبوننت فبيشتغلوا بدون ::ng-deep
+  tr.mat-mdc-row {
+    display: block !important;
+    height: auto !important;
+    border-radius: 16px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  td.mat-mdc-cell {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 16px !important;
+    border-bottom: 1px solid #F0F0EE !important;
+    font-size: 13px;
+    min-height: 36px;
+    box-sizing: border-box;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 11px;
+      color: #9E9E9A;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      padding-inline-end: 12px;
+      max-width: 50%;
+    }
+  }
+
+  td.mat-column-employee {
+    background: #FCFCFB;
+    padding: 10px 16px !important;
+    border-bottom: 1px solid #E8E8E4 !important;
+    min-height: auto;
+    justify-content: flex-start;
+
+    &::before {
+      display: none;
+    }
+
+    .employee-name {
+      font-size: 13px;
+    }
+
+    span.text-muted {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: block;
+    }
+  }
+
+  td.mat-column-action {
+    justify-content: flex-end;
+    border-bottom: none !important;
+    padding: 2px 8px !important;
+    min-height: 32px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  td.mat-column-role {
+    align-items: flex-start;
+    padding-block: 10px !important;
+
+    .department-role {
+      min-width: 0;
+
+      .department-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+    }
+  }
+
+  .initials-avatar,
+  .employee-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  tr.mat-mdc-row.empty-state-row {
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+:host-context([dir="rtl"]) {
+  @media (max-width: 767.98px) {
+    td.mat-mdc-cell::before {
+      letter-spacing: 0;
+    }
+  }
 }
 
 .bg-light-primary { background-color: #eff6ff; }

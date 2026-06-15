@@ -107,6 +107,7 @@
       [totalCount]="employeeTotalCount"
       (edit)="onEditEmployee($event)"
       (delete)="onDeleteEmployee($event)"
+      (toggleStatus)="onToggleStatusEmployee($event)"
       (pageChange)="changeEmployeePage($event)"
       (searchChange)="onEmployeeSearch($event)"
       (addEmployee)="onHeaderAction()">

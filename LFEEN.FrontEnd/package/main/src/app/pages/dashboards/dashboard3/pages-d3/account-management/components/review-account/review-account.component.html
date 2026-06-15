@@ -55,7 +55,8 @@
         <div class="identity-logo-dashed">
           <span class="logo-label">{{ 'd3.reviewAccount.tradeName.logoLabel' | translate }}</span>
           @if (hasLogo) {
-            <img [src]="account.business?.logoUrl" class="logo-img" alt="logo" />
+            <img [src]="account.business?.logoUrl" class="logo-img" alt="logo"
+                 style="max-width:100%;max-height:110px;width:auto;height:auto;object-fit:contain;display:block;border-radius:8px;" />
           } @else {
             <span class="logo-initials-text">{{ companyInitials }}</span>
           }

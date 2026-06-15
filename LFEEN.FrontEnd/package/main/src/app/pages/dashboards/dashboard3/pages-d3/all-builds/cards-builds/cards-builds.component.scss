@@ -61,7 +61,7 @@
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    direction: rtl;
+    direction: inherit;
     margin-bottom: 20px;
   }
 
@@ -132,7 +132,7 @@
     border-bottom: 1px solid #FEF08A;
     border-radius: 24px 24px 0 0;
     align-items: center;
-    direction: rtl;
+    direction: inherit;
   }
 }
 
@@ -199,5 +199,60 @@
       height: 44px;
       border-radius: 16px 16px 0 0;
     }
+  }
+}
+
+// ════════════════════════════════════════
+// Mobile: force card layout for list view
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  .buildings-grid:not(.list-view) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+    padding: 0 16px;
+  }
+
+  .buildings-grid.list-view {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    margin-top: 16px;
+    padding: 0 16px;
+  }
+
+  .table-header { display: none; }
+
+  .review-section {
+    margin-top: 32px;
+    padding: 0 16px;
+
+    &__title {
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+
+    &__text {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .review-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .review-table {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &__header { display: none; }
   }
 }

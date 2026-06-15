@@ -80,6 +80,7 @@ export class AccountService {
       propertyCount:    item.propertyCount,
       unit:             isCompany ? 'عقار' : 'مقترات',
       avatarInitials:   this.getInitials(displayName),
+      logoUrl:          item.logoUrl,
     };
   }
 

@@ -102,10 +102,16 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
     "save": "Save",
     "confirm": "Confirm",
     "deleteConfirmTitle": "Confirm Delete",
-    "deleteConfirmMessage": "Are you sure you want to delete this employee? This action cannot be undone."
+    "deleteConfirmMessage": "Are you sure you want to delete this employee? This action cannot be undone.",
+    "deactivateConfirmTitle": "Confirm Deactivate",
+    "deactivateConfirmMessage": "Are you sure you want to deactivate this employee?",
+    "activateConfirmTitle": "Confirm Activate",
+    "activateConfirmMessage": "Are you sure you want to activate this employee?"
   },
   "d3": {
     "header": {
@@ -137,6 +143,10 @@
       "saveError": "Error saving",
       "deleteEmployeeSuccess": "Employee deleted successfully",
       "deleteEmployeeError": "Error deleting employee",
+      "activateEmployeeSuccess": "Employee activated successfully",
+      "activateEmployeeError": "Error activating employee",
+      "deactivateEmployeeSuccess": "Employee deactivated successfully",
+      "deactivateEmployeeError": "Error deactivating employee",
       "selectDeptFirst": "Please select a department first",
       "addEmployeeSuccess": "Employee added successfully",
       "updateEmployeeSuccess": "Employee data updated successfully",
@@ -161,11 +171,17 @@
       },
       "tabs": {
         "published": "Published Buildings",
-        "underReview": "Under Review"
+        "new": "New",
+        "underReview": "Under Review",
+        "rejected": "Rejected"
+      },
+      "pagination": {
+        "total": "property"
       },
       "underReview": {
         "statusLabel": "Under Review",
         "sectionTitle": "Under Review",
+        "newSectionTitle": "New Buildings",
         "newBadge": "New"
       },
       "filters": {
@@ -191,6 +207,7 @@
         "label": "View mode"
       },
       "buildingCard": {
+        "statusRejected": "Rejected",
         "statusActive": "Active",
         "statusStopped": "Stopped",
         "units": "Units",
@@ -657,7 +674,12 @@
         "statusLabel": "Review Status: {{completed}} of {{total}} sections completed"
       },
       "sections": {
-        "statusAccepted": "Accepted"
+        "photosTitle": "Property Photos",
+        "termsTitle": "Property Terms",
+        "licenseTitle": "Property License",
+        "statusAccepted": "Accepted",
+        "statusRejected": "Rejected",
+        "statusPending": "Pending review"
       },
       "actions": {
         "approve": "Final Approval",
@@ -672,7 +694,36 @@
         "rejectionSummarySubtitle": "Notes summary for the three sections",
         "sectionNotesPrefix": "Notes for",
         "finalNotesLabel": "Final Notes (for Host)",
-        "finalNotesPlaceholder": "Write a final summary to be sent to the host clarifying the steps needed to correct the request..."
+        "finalNotesPlaceholder": "Write a final summary to be sent to the host clarifying the steps needed to correct the request...",
+        "finalNotesOptionalLabel": "Final notes (optional)",
+        "finalNotesOptionalPlaceholder": "Add any final notes for the host...",
+        "rejectSuccess": "The property was rejected successfully.",
+        "errors": {
+          "alreadyApproved": "This property has already been approved.",
+          "accountNotApproved": "The property account must be approved first.",
+          "sectionsNotApproved": "All three review sections must be approved before final approval.",
+          "alreadyRejected": "This property has already been rejected."
+        }
+      },
+      "confirm": {
+        "imagesApproveTitle": "Approve property images?",
+        "imagesApproveMessage": "Are you sure you want to approve all property images?",
+        "imagesRejectTitle": "Reject property images?",
+        "imagesRejectMessage": "Are you sure you want to reject the property images with the entered reasons?",
+        "termsApproveTitle": "Approve property terms?",
+        "termsApproveMessage": "Are you sure you want to approve the property terms and conditions?",
+        "termsRejectTitle": "Reject property terms?",
+        "termsRejectMessage": "Are you sure you want to reject the property terms with the entered reason?",
+        "licenseApproveTitle": "Approve property license?",
+        "licenseApproveMessage": "Are you sure you want to approve the property license?",
+        "licenseRejectTitle": "Reject property license?",
+        "licenseRejectMessage": "Are you sure you want to reject the property license with the entered reason?",
+        "finalApproveTitle": "Approve this property?",
+        "finalApproveMessage": "All sections are approved. Are you sure you want to give final approval to this property?",
+        "finalRejectTitle": "Reject this property?",
+        "finalRejectMessage": "Are you sure you want to make the final decision to reject this property?",
+        "approveAction": "Yes, approve",
+        "rejectAction": "Yes, reject"
       },
       "successModal": {
         "title": "Building Approved Successfully",
@@ -695,6 +746,19 @@
         "notesTitle": "Review Notes",
         "notesRequired": "/ Rejection Reason (Mandatory if rejected)",
         "notesPlaceholder": "Please write the rejection reasons in detail here to enable the reject option...",
+        "pendingDecisionRequired": "Please review every photo before submitting.",
+        "approveAllRequired": "All photos must be approved before approving the images section.",
+        "rejectedPhotoRequired": "Reject at least one photo before rejecting the images section.",
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo.",
+        "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
+        "approveSuccess": "The photos section was approved successfully. Property status: {{status}}.",
+        "rejectSuccess": "The photos section was rejected successfully. Property status: {{status}}.",
+        "overallStatus": {
+          "Pending": "Pending",
+          "UnderReview": "Under Review",
+          "Approved": "Approved",
+          "Rejected": "Rejected"
+        },
         "approveBtn": "Approve Property Images",
         "rejectBtn": "Reject Request"
       },
@@ -709,9 +773,14 @@
         "expiryDateLabel": "License Expiry Date",
         "businessTypeLabel": "Facility Activity Type",
         "verificationStatus": "Automated Verification: Matches Ministry of Commerce data",
+        "emptyTitle": "No license data available",
+        "emptyDescription": "The host has not provided license information or an attachment for this property.",
         "notesTitle": "Review Notes / Rejection Reason",
         "notesOptional": "Optional for Approval",
         "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the license.",
+        "approveSuccess": "The property license was approved successfully.",
+        "rejectSuccess": "The property license was rejected successfully.",
         "approveBtn": "Approve Tourism Ministry License Review",
         "rejectBtn": "Reject Request"
       },
@@ -722,11 +791,15 @@
         "checkOutLabel": "Check-out Time",
         "earlyCheckInLabel": "Early Check-in",
         "earlyCheckInAvailable": "Available",
+        "earlyCheckInUnavailable": "Not available",
         "generalRulesTitle": "General Rules",
         "customRulesTitle": "Custom Host Rules",
         "notesTitle": "Review Notes / Rejection Reason",
         "notesOptional": "Optional for Approval",
         "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the terms.",
+        "approveSuccess": "The property terms were approved successfully.",
+        "rejectSuccess": "The property terms were rejected successfully.",
         "approveBtn": "Approve Property Terms and Conditions Review",
         "rejectBtn": "Reject Request"
       }

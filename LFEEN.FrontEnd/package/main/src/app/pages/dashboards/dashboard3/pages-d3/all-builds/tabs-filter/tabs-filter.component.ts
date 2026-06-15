@@ -77,6 +77,16 @@ export class TabsFilterComponent {
     sort: 'newest'
   };
 
+  mobileFilterOpen = false;
+
+  toggleMobileFilter(): void {
+    this.mobileFilterOpen = !this.mobileFilterOpen;
+  }
+
+  closeMobileFilter(): void {
+    this.mobileFilterOpen = false;
+  }
+
   selectTab(tab: string): void {
     if (this.activeTab === tab) {
       return;

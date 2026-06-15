@@ -9,6 +9,8 @@
 
         @if (account.paymentBadge === 'stripe') {
           <div class="stripe-badge">stripe</div>
+        } @else if (account.logoUrl) {
+          <img class="avatar-logo" [src]="account.logoUrl" alt="logo" />
         } @else {
           <div class="avatar-initials" [class]="'avatar-color-' + avatarColor">
             {{ account.avatarInitials }}
@@ -41,9 +43,13 @@
     <!-- ===== Layout الافتراضي ===== -->
 
       <div class="d-flex justify-content-between align-items-start m-b-16">
-        <div class="avatar-initials" [class]="'avatar-color-' + avatarColor">
-          {{ account.avatarInitials }}
-        </div>
+        @if (account.logoUrl) {
+          <img class="avatar-logo" [src]="account.logoUrl" alt="logo" />
+        } @else {
+          <div class="avatar-initials" [class]="'avatar-color-' + avatarColor">
+            {{ account.avatarInitials }}
+          </div>
+        }
         <span class="status-badge" [ngClass]="account.status">
           @if (account.status === 'active') {
             <span class="dot"></span>

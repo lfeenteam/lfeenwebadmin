@@ -1,18 +1,25 @@
 <article class="building-card">
   <div class="card-top">
-    <span class="building-icon" [class.stopped]="building.status === 'stopped'">
-      <i-tabler [name]="building.status === 'stopped' ? 'player-pause' : 'building'"></i-tabler>
+    <span class="building-icon building-photo">
+      @if (building.mainPhotoUrl && !imageError) {
+        <img
+          [src]="building.mainPhotoUrl"
+          [alt]="building.title"
+          (error)="onImageError()"
+        />
+      } @else {
+        <span class="building-initials">{{ initials }}</span>
+      }
     </span>
     <span
       class="status-badge"
-      [class.active]="building.status === 'active'"
-      [class.stopped]="building.status === 'stopped'">
+      [class.active]="building.tab !== 'rejected'"
+      [class.rejected]="building.tab === 'rejected'">
       <span class="status-dot"></span>
       {{
-        (building.status === 'active'
-          ? 'd3.allBuilds.buildingCard.statusActive'
-          : 'd3.allBuilds.buildingCard.statusStopped'
-        ) | translate
+        (building.tab === 'rejected'
+          ? 'd3.allBuilds.buildingCard.statusRejected'
+          : 'd3.allBuilds.buildingCard.statusActive') | translate
       }}
     </span>
   </div>
@@ -57,14 +64,13 @@
   <div class="card-status-col" *ngIf="viewMode === 'list'">
     <span
       class="status-badge"
-      [class.active]="building.status === 'active'"
-      [class.stopped]="building.status === 'stopped'">
+      [class.active]="building.tab !== 'rejected'"
+      [class.rejected]="building.tab === 'rejected'">
       <span class="status-dot"></span>
       {{
-        (building.status === 'active'
-          ? 'd3.allBuilds.buildingCard.statusActive'
-          : 'd3.allBuilds.buildingCard.statusStopped'
-        ) | translate
+        (building.tab === 'rejected'
+          ? 'd3.allBuilds.buildingCard.statusRejected'
+          : 'd3.allBuilds.buildingCard.statusActive') | translate
       }}
     </span>
   </div>
