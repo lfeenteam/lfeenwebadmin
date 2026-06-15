@@ -126,3 +126,39 @@ html .cdk-overlay-container .team-filter-panel.mat-mdc-select-panel {
     }
   }
 }
+
+// ── Menu direction fix ──────────────────────────────────────────────────────
+// الـ mat-menu overlay بيتفتح خارج شجرة الكومبوننت فمش بيورث الـ dir تلقائيًا
+html[dir="ltr"] .cdk-overlay-container .mat-mdc-menu-panel {
+  direction: ltr;
+}
+
+html[dir="rtl"] .cdk-overlay-container .mat-mdc-menu-panel {
+  direction: rtl;
+}
+
+// ── Menu global styles ──────────────────────────────────────────────────────
+.cdk-overlay-container .mat-mdc-menu-panel {
+  border-radius: 12px !important;
+
+  .mat-mdc-menu-item {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+
+    i-tabler {
+      margin-inline-end: 8px;
+      margin-inline-start: 0;
+    }
+
+    &.text-danger {
+      color: #dc2626 !important;
+      i-tabler { color: #dc2626 !important; }
+    }
+
+    &.text-success {
+      color: #16a34a !important;
+      i-tabler { color: #16a34a !important; }
+    }
+  }
+}

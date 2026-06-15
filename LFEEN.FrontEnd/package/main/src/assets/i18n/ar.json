@@ -104,10 +104,16 @@
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
     "save": "حفظ",
     "confirm": "تأكيد",
     "deleteConfirmTitle": "تأكيد الحذف",
-    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء."
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deactivateConfirmTitle": "تأكيد التعطيل",
+    "deactivateConfirmMessage": "هل أنت متأكد من تعطيل هذا الموظف؟",
+    "activateConfirmTitle": "تأكيد التفعيل",
+    "activateConfirmMessage": "هل أنت متأكد من تفعيل هذا الموظف؟"
   },
   "d3": {
     "header": {
@@ -139,6 +145,10 @@
       "saveError": "حدث خطأ أثناء الحفظ",
       "deleteEmployeeSuccess": "تم حذف الموظف بنجاح",
       "deleteEmployeeError": "حدث خطأ أثناء حذف الموظف",
+      "activateEmployeeSuccess": "تم تفعيل الموظف بنجاح",
+      "activateEmployeeError": "حدث خطأ أثناء تفعيل الموظف",
+      "deactivateEmployeeSuccess": "تم تعطيل الموظف بنجاح",
+      "deactivateEmployeeError": "حدث خطأ أثناء تعطيل الموظف",
       "selectDeptFirst": "يرجى اختيار القسم أولاً",
       "addEmployeeSuccess": "تم إضافة الموظف بنجاح",
       "updateEmployeeSuccess": "تم تحديث بيانات الموظف بنجاح",
@@ -163,11 +173,17 @@
       },
       "tabs": {
         "published": "مباني منشورة",
-        "underReview": "تحت المراجعة"
+        "new": "جديد",
+        "underReview": "تحت المراجعة",
+        "rejected": "مرفوض"
+      },
+      "pagination": {
+        "total": "مبنى"
       },
       "underReview": {
         "statusLabel": "تحت المراجعة",
         "sectionTitle": "تحت المراجعة",
+        "newSectionTitle": "مباني جديدة",
         "newBadge": "جديد"
       },
       "filters": {
@@ -193,6 +209,7 @@
         "label": "طريقة العرض"
       },
       "buildingCard": {
+        "statusRejected": "مرفوض",
         "statusActive": "نشط",
         "statusStopped": "متوقف",
         "units": "وحدات",
@@ -760,7 +777,12 @@
         "statusLabel": "حالة المراجعة: {{completed}} من {{total}} أقسام مكتملة"
       },
       "sections": {
-        "statusAccepted": "مقبولة"
+        "photosTitle": "صور المبنى",
+        "termsTitle": "شروط المبنى",
+        "licenseTitle": "ترخيص المبنى",
+        "statusAccepted": "تم القبول",
+        "statusRejected": "تم الرفض",
+        "statusPending": "قيد المراجعة"
       },
       "actions": {
         "approve": "اعتماد الموافقة النهائية",
@@ -775,7 +797,36 @@
         "rejectionSummarySubtitle": "موجز الملاحظات للأقسام الثلاثة",
         "sectionNotesPrefix": "ملاحظات",
         "finalNotesLabel": "الملاحظات النهائية (للمضيف)",
-        "finalNotesPlaceholder": "اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب..."
+        "finalNotesPlaceholder": "اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب...",
+        "finalNotesOptionalLabel": "الملاحظات النهائية (اختياري)",
+        "finalNotesOptionalPlaceholder": "أضف أي ملاحظات نهائية للمضيف...",
+        "rejectSuccess": "تم رفض العقار بنجاح.",
+        "errors": {
+          "alreadyApproved": "تم اعتماد هذا العقار مسبقًا.",
+          "accountNotApproved": "يجب اعتماد حساب العقار أولًا.",
+          "sectionsNotApproved": "يجب قبول أقسام المراجعة الثلاثة قبل الاعتماد النهائي.",
+          "alreadyRejected": "تم رفض هذا العقار مسبقًا."
+        }
+      },
+      "confirm": {
+        "imagesApproveTitle": "اعتماد صور العقار؟",
+        "imagesApproveMessage": "هل أنت متأكد من اعتماد جميع صور العقار؟",
+        "imagesRejectTitle": "رفض صور العقار؟",
+        "imagesRejectMessage": "هل أنت متأكد من رفض صور العقار بالأسباب المكتوبة؟",
+        "termsApproveTitle": "اعتماد شروط العقار؟",
+        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين العقار؟",
+        "termsRejectTitle": "رفض شروط العقار؟",
+        "termsRejectMessage": "هل أنت متأكد من رفض شروط العقار بالسبب المكتوب؟",
+        "licenseApproveTitle": "اعتماد ترخيص العقار؟",
+        "licenseApproveMessage": "هل أنت متأكد من اعتماد ترخيص العقار؟",
+        "licenseRejectTitle": "رفض ترخيص العقار؟",
+        "licenseRejectMessage": "هل أنت متأكد من رفض ترخيص العقار بالسبب المكتوب؟",
+        "finalApproveTitle": "اعتماد العقار نهائيًا؟",
+        "finalApproveMessage": "تم قبول جميع الأقسام. هل أنت متأكد من الاعتماد النهائي لهذا العقار؟",
+        "finalRejectTitle": "رفض العقار نهائيًا؟",
+        "finalRejectMessage": "هل أنت متأكد من اتخاذ قرار الرفض النهائي لهذا العقار؟",
+        "approveAction": "نعم، اعتماد",
+        "rejectAction": "نعم، رفض"
       },
       "successModal": {
         "title": "تم اعتماد المبنى بنجاح",
@@ -798,6 +849,19 @@
         "notesTitle": "ملاحظات المراجعة",
         "notesRequired": "/ سبب الرفض (إلزامي في حال الرفض)",
         "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض...",
+        "pendingDecisionRequired": "يرجى مراجعة واتخاذ قرار لكل صورة قبل الإرسال.",
+        "approveAllRequired": "يجب قبول جميع الصور قبل اعتماد قسم الصور.",
+        "rejectedPhotoRequired": "يجب رفض صورة واحدة على الأقل قبل رفض قسم الصور.",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة.",
+        "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
+        "approveSuccess": "تم قبول قسم الصور بنجاح. حالة العقار الآن: {{status}}.",
+        "rejectSuccess": "تم رفض قسم الصور بنجاح. حالة العقار الآن: {{status}}.",
+        "overallStatus": {
+          "Pending": "قيد الانتظار",
+          "UnderReview": "تحت المراجعة",
+          "Approved": "مقبول",
+          "Rejected": "مرفوض"
+        },
         "approveBtn": "اعتماد الصور العقار",
         "rejectBtn": "رفض الطلب"
       },
@@ -812,9 +876,14 @@
         "expiryDateLabel": "تاريخ انتهاء الترخيص",
         "businessTypeLabel": "نوع نشاط المنشأة",
         "verificationStatus": "نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة",
+        "emptyTitle": "لا توجد بيانات للترخيص",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الترخيص أو إرفاق مستند لهذا العقار.",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",
         "notesOptional": "اختياري للموافقة",
         "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الترخيص.",
+        "approveSuccess": "تم قبول ترخيص العقار بنجاح.",
+        "rejectSuccess": "تم رفض ترخيص العقار بنجاح.",
         "approveBtn": "اعتماد مراجعة ترخيص وزارة السياحة",
         "rejectBtn": "رفض الطلب"
       },
@@ -825,11 +894,15 @@
         "checkOutLabel": "موعد الخروج",
         "earlyCheckInLabel": "دخول مبكر",
         "earlyCheckInAvailable": "متاح",
+        "earlyCheckInUnavailable": "غير متاح",
         "generalRulesTitle": "القوانين العامة",
         "customRulesTitle": "شروط مخصصة من المضيف",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",
         "notesOptional": "اختياري للموافقة",
         "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الشروط.",
+        "approveSuccess": "تم قبول شروط العقار بنجاح.",
+        "rejectSuccess": "تم رفض شروط العقار بنجاح.",
         "approveBtn": "اعتماد مراجعة الشروط وقوانين العقار",
         "rejectBtn": "رفض الطلب"
       }

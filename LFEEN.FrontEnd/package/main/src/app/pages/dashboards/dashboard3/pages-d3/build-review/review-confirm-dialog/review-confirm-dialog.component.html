@@ -1,0 +1,17 @@
+<div class="review-confirm-dialog" [class.reject]="data.tone === 'reject'">
+  <div class="confirm-icon">
+    <i-tabler [name]="data.tone === 'reject' ? 'alert-circle' : 'circle-check'"></i-tabler>
+  </div>
+
+  <h2>{{ data.titleKey | translate }}</h2>
+  <p>{{ data.messageKey | translate }}</p>
+
+  <div class="confirm-actions">
+    <button mat-button class="cancel-button" (click)="dialogRef.close(false)">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-flat-button class="confirm-button" (click)="dialogRef.close(true)">
+      {{ data.confirmKey | translate }}
+    </button>
+  </div>
+</div>

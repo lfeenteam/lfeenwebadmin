@@ -1,10 +1,18 @@
-<div class="build-review">
+<div class="build-review" [dir]="currentDir">
 
 
   <!-- Building Info Card -->
 <div class="building-card">
   <div class="building-image">
-    <img src="assets/images/products/review_image.png" [alt]="'d3.buildReview.buildingInfo.imageAlt' | translate" />
+    @if (building.imageUrl && !imageError) {
+      <img
+        [src]="building.imageUrl"
+        [alt]="'d3.buildReview.buildingInfo.imageAlt' | translate"
+        (error)="imageError = true"
+      />
+    } @else {
+      <div class="building-initials">{{ building.name | slice:0:2 }}</div>
+    }
   </div>
 
   <div class="building-info">
@@ -25,7 +33,7 @@
     <span class="org-dot">
     <img   src="assets/images/logos/Group 4.svg" alt="company" />
    </span>
-    <span>{{ 'd3.buildReview.buildingInfo.orgName' | translate }}</span>
+    <span>{{ building.organization }}</span>
   </span>
 </div>
   </div>
@@ -53,25 +61,45 @@
   <!-- Review Sections or Image Review -->
   @if (currentView === 'list') {
     <div class="review-sections">
-      @for (section of reviewSections; track section.title; let i = $index) {
-        <div class="review-card" [class.completed]="section.completed" (click)="openSection(i)">
+      @for (section of reviewSections; track section.titleKey; let i = $index) {
+        <div
+          class="review-card"
+          [class.accepted]="section.status === 'accepted'"
+          [class.rejected]="section.status === 'rejected'"
+          [class.pending]="section.status === 'pending'"
+          (click)="openSection(i)"
+        >
          <div class="review-card-inner">
-          <span class="review-icon-box" [class.success]="section.status === 'accepted'">
-            <img
-              *ngIf="section.status !== 'accepted'"
-              class="review-icon"
-              [src]="section.iconUrl"
-              [alt]="section.title"
-            />
-            <i-tabler *ngIf="section.status === 'accepted'" name="circle-check" class="success-icon"></i-tabler>
+          <span
+            class="review-icon-box"
+            [class.success]="section.status === 'accepted'"
+            [class.danger]="section.status === 'rejected'"
+          >
+            @if (section.status === 'accepted') {
+              <i-tabler name="circle-check" class="status-icon"></i-tabler>
+            } @else if (section.status === 'rejected') {
+              <i-tabler name="circle-x" class="status-icon"></i-tabler>
+            } @else {
+              <img class="review-icon" [src]="section.iconUrl" [alt]="section.titleKey | translate" />
+            }
           </span>
         
           <div class="title-stack">
-            <span class="review-title">{{ section.title }}</span>
-            <span class="review-status-text" *ngIf="section.status === 'accepted'">{{ 'd3.buildReview.sections.statusAccepted' | translate }}</span>
+            <span class="review-title">{{ section.titleKey | translate }}</span>
+            <span class="review-status-text" [ngClass]="section.status">
+              {{
+                (section.status === 'accepted'
+                  ? 'd3.buildReview.sections.statusAccepted'
+                  : section.status === 'rejected'
+                    ? 'd3.buildReview.sections.statusRejected'
+                    : 'd3.buildReview.sections.statusPending') | translate
+              }}
+            </span>
           </div>
         
-          <button class="review-arrow"><i-tabler name="arrow-left"></i-tabler></button>
+          <button class="review-arrow">
+            <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
+          </button>
         </div>
         </div>
       }
@@ -90,31 +118,59 @@
       ></textarea>
     </div>
   
+    @if (allSectionsComplete && isFinalSuccess) {
+      <div class="success-final-card inline-final-card">
+        <div class="celebrate-icon">
+          <i-tabler name="confetti"></i-tabler>
+        </div>
+        <h3>{{ 'd3.buildReview.finalDecision.readyTitle' | translate }}</h3>
+        <p>{{ 'd3.buildReview.finalDecision.readyDesc' | translate }}</p>
+      </div>
+    }
+
+    @if (allSectionsComplete) {
+      <div class="final-notes-inline">
+        <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
+        <textarea
+          [(ngModel)]="finalNotes"
+          [placeholder]="'d3.buildReview.finalDecision.finalNotesOptionalPlaceholder' | translate"
+          rows="3"
+        ></textarea>
+      </div>
+    }
+
     <!-- Action Buttons -->
     <div class="action-wrapper">
       <div class="action-buttons">
-        <button class="btn btn-approve" [disabled]="true">
+        <button
+          class="btn btn-approve"
+          [class.active]="allSectionsComplete && isFinalSuccess"
+          [disabled]="!allSectionsComplete || !isFinalSuccess || isFinalSubmitting"
+          (click)="onApprove()"
+        >
           <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
         </button>
 
-        <button class="btn btn-reject" [disabled]="true">
+        <button class="btn btn-reject" [disabled]="!allSectionsComplete || isFinalSubmitting" (click)="onReject()">
           <span>{{ 'd3.buildReview.actions.reject' | translate }}</span>
           <i-tabler name="circle-x" class="btn-icon"></i-tabler>
         </button>
       </div>
     
+      @if (!allSectionsComplete) {
       <div class="lock-notice">
         <i-tabler name="lock" class="lock-icon"></i-tabler>
         <span>{{ 'd3.buildReview.actions.lockNotice' | translate }}</span>
       </div>
+      }
     </div>
   } @else if (currentView === 'images') {
-    <app-review-image (back)="onBack()" (approve)="onSectionApproved(0)"></app-review-image>
+    <app-review-image [propertyId]="buildingId || ''" [readOnly]="reviewSections[0].completed" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-image>
   } @else if (currentView === 'terms') {
-    <app-review-terms (back)="onBack()" (approve)="onSectionApproved(1)"></app-review-terms>
+    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="reviewSections[1].completed" (back)="onBack()" (approve)="onSectionApproved(1, $event)"></app-review-terms>
   } @else if (currentView === 'license') {
-    <app-review-license (back)="onBack()" (approve)="onSectionApproved(2)"></app-review-license>
+    <app-review-license [propertyId]="buildingId || ''" [readOnly]="reviewSections[2].completed" (back)="onBack()" (approve)="onSectionApproved(2, $event)"></app-review-license>
   } @else if (currentView === 'final') {
     <div class="final-decision-container">
         
@@ -143,11 +199,11 @@
                 </div>
 
                 <div class="rejection-list">
-                    @for (section of rejectedSectionsSummary; track section.title; let i = $index) {
+                    @for (section of rejectedSectionsSummary; track section.titleKey; let i = $index) {
                         <div class="rejection-item">
                             <div class="item-icon">{{ i + 1 }}</div>
                             <div class="item-content">
-                                <span class="item-title">{{ 'd3.buildReview.finalDecision.sectionNotesPrefix' | translate }} {{ section.title }}</span>
+                                <span class="item-title">{{ 'd3.buildReview.finalDecision.sectionNotesPrefix' | translate }} {{ section.titleKey | translate }}</span>
                                 <p class="item-reason">{{ section.notes }}</p>
                             </div>
                         </div>

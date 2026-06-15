@@ -156,6 +156,14 @@ export class DepartmentService {
     return this.http.delete<void>(`${this.apiUrl}/employees/${userId}`);
   }
 
+  activateEmployee(userId: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/employees/${userId}/activate`, {});
+  }
+
+  deactivateEmployee(userId: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/employees/${userId}/deactivate`, {});
+  }
+
   createDepartment(data: { nameAr: string; nameEn: string; code: string; descriptionAr: string; descriptionEn: string; managerId: string }): Observable<any> {
     return this.http.post(this.apiUrl, data);
   }

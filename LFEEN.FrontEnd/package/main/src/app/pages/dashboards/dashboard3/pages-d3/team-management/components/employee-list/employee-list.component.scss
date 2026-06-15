@@ -5,12 +5,20 @@
   overflow: hidden;
   font-family: 'Cairo', sans-serif !important;
 
+  @media (max-width: 767.98px) {
+    border-radius: 24px !important;
+  }
+
   h3, h2, h5, span, p, button, input {
     font-family: 'Cairo', sans-serif !important;
   }
 
   .table-header-section {
     padding: 32px 32px 0 32px;
+
+    @media (max-width: 767.98px) {
+      padding: 16px 16px 0 16px;
+    }
   }
 
   .search-wrapper {
@@ -21,6 +29,10 @@
     position: relative !important;
     display: flex !important;
     overflow: hidden;
+
+    @media (max-width: 767.98px) {
+      width: 100% !important;
+    }
   }
 
   .search-input {
@@ -54,6 +66,13 @@
   .pagination-wrapper {
     border-top: 1px solid #E8E8E4;
 
+    @media (max-width: 767.98px) {
+      padding: 12px 16px !important;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center !important;
+    }
+
     .page-nav-btn {
       width: 36px;
       height: 36px;
@@ -67,6 +86,11 @@
       cursor: pointer;
 
       &:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      @media (max-width: 767.98px) {
+        width: 32px;
+        height: 32px;
+      }
     }
 
     .page-number-btn {
@@ -84,6 +108,12 @@
 
       &:hover { background: #f5f5f5; }
       &.active { background: #1B2559; color: #fff; border-color: #1B2559; }
+
+      @media (max-width: 767.98px) {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+      }
     }
   }
 }

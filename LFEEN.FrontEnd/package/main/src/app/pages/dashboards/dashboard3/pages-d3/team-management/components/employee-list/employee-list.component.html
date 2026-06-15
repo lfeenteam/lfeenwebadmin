@@ -9,7 +9,7 @@
     </div>
   }
 
-  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
+  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
 
   @if (totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">

@@ -10,6 +10,7 @@
     width: 52px;
     height: 52px;
     border-radius: 14px;
+    flex-shrink: 0;
   }
 
   .stat-label {
@@ -27,6 +28,47 @@
     font-size: 20px;
     line-height: 1.2;
     text-align: start;
+  }
+
+  .stat-card-content {
+    padding: 24px;
+  }
+
+  @media (max-width: 575.98px) {
+    border-radius: 16px;
+    margin-bottom: 8px;
+
+    .stat-card-content {
+      padding: 12px;
+      gap: 8px;
+    }
+
+    .stat-icon-wrapper {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+
+      ::ng-deep img,
+      ::ng-deep svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+
+    .stat-label {
+      font-size: 9px;
+      line-height: 13px;
+    }
+
+    .stat-value {
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .row {
+    --bs-gutter-x: 0.5rem;
   }
 }
 

@@ -1,151 +1,127 @@
 <div class="review-image-container">
-  <!-- Section Header -->
-  <div class="section-group">
-    <div class="section-title-wrapper">
-      <span class="section-indicator"></span>
-      <span class="section-title">{{ 'd3.buildReview.images.mainImageTitle' | translate }}</span>
-    </div>
-    
-    <div class="main-image-card" [class.rejected]="mainImage.status === 'rejected'" [class.accepted]="mainImage.status === 'accepted'">
-      <div class="image-wrapper">
-        <img [src]="mainImage.url" alt="Main Building Image">
-        <div class="image-actions">
-              <button class="btn-action btn-accept" [class.active]="mainImage.status === 'accepted'" (click)="setStatus(mainImage, 'accepted')">
-            <i-tabler name="check"></i-tabler>
-          </button>
-          <button class="btn-action btn-reject" [class.active]="mainImage.status === 'rejected'" (click)="setStatus(mainImage, 'rejected')">
-            <i-tabler name="x"></i-tabler>
-          </button>
-      
-        </div>
+
+  <!-- Main Image Section -->
+  @if (mainPhoto) {
+    <div class="section-group">
+      <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">{{ 'd3.buildReview.images.mainImageTitle' | translate }}</span>
       </div>
-      <div class="card-footer-main">
+
+      <div class="main-image-card"
+           [class.rejected]="mainPhoto.decision === 'Rejected'"
+           [class.accepted]="mainPhoto.decision === 'Approved'">
+        <div class="image-wrapper">
+          <img [src]="mainPhoto.url" [alt]="mainPhoto.fileName">
+          @if (!readOnly) {
+          <div class="image-actions">
+            <button class="btn-action btn-accept"
+                    [class.active]="mainPhoto.decision === 'Approved'"
+                    (click)="setDecision(mainPhoto, 'Approved')">
+              <i-tabler name="check"></i-tabler>
+            </button>
+            <button class="btn-action btn-reject"
+                    [class.active]="mainPhoto.decision === 'Rejected'"
+                    (click)="setDecision(mainPhoto, 'Rejected')">
+              <i-tabler name="x"></i-tabler>
+            </button>
+          </div>
+          }
+        </div>
+        <div class="card-footer-main">
           <div class="text-info">
-          <span class="image-name">{{ mainImage.name }}</span>
-          <span class="image-category">{{ mainImage.category }}</span>
+            <span class="image-name">{{ mainPhoto.fileName }}</span>
+            <span class="image-category">{{ mainPhoto.classification }}</span>
+          </div>
+          <div class="status-info">
+            <span class="status-label" [ngClass]="{
+              'text-danger': mainPhoto.decision === 'Rejected',
+              'text-success': mainPhoto.decision === 'Approved',
+              'text-muted':   mainPhoto.decision === 'Pending'
+            }">
+              {{ (mainPhoto.decision === 'Rejected'
+                    ? 'd3.buildReview.images.statusRejected'
+                    : (mainPhoto.decision === 'Approved'
+                        ? 'd3.buildReview.images.statusAccepted'
+                        : 'd3.buildReview.images.statusPending')) | translate }}
+            </span>
+          </div>
         </div>
-        <div class="status-info">
-          <span class="status-label" [ngClass]="{
-            'text-danger': mainImage.status === 'rejected',
-            'text-success': mainImage.status === 'accepted',
-            'text-muted': mainImage.status === 'pending'
-          }">
-            {{ (mainImage.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (mainImage.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
-          </span>
-        </div>
-      
+
+        @if (mainPhoto.decision === 'Rejected' && !readOnly) {
+          <div class="rejection-inputs">
+            <input type="text"
+                   [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate"
+                   [(ngModel)]="mainPhoto.rejectionReason">
+          </div>
+        }
       </div>
-      
-      @if (mainImage.status === 'rejected') {
-        <div class="rejection-inputs">
-          <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="mainImage.rejectionReason">
-          <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="mainImage.suggestedSolution">
-        </div>
-      }
     </div>
-  </div>
+  }
 
-  <!-- Exterior Images -->
-  <div class="section-group">
-    <div class="section-title-wrapper">
-      <span class="section-indicator"></span>
-      <span class="section-title">{{ 'd3.buildReview.images.exteriorTitle' | translate }}</span>
-      <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: exteriorImages.length } }}</span>
-    </div>
-    
-    <div class="image-grid">
-      @for (img of exteriorImages; track img.id) {
-        <div class="image-card" [class.rejected]="img.status === 'rejected'" [class.accepted]="img.status === 'accepted'">
-          <div class="image-wrapper">
-            <img [src]="img.url" [alt]="img.name">
-            <div class="image-actions">
-                <button class="btn-action btn-accept" [class.active]="img.status === 'accepted'" (click)="setStatus(img, 'accepted')">
-                <i-tabler name="check"></i-tabler>
-              </button>
-              <button class="btn-action btn-reject" [class.active]="img.status === 'rejected'" (click)="setStatus(img, 'rejected')">
-                <i-tabler name="x"></i-tabler>
-              </button>
-            
+  <!-- Dynamic Photo Groups -->
+  @for (group of photoGroups; track group.groupKey) {
+    <div class="section-group">
+      <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">{{ group.groupKey }}</span>
+        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: group.photos.length } }}</span>
+      </div>
+
+      <div class="image-grid">
+        @for (img of group.photos; track img.mediaId) {
+          <div class="image-card"
+               [class.rejected]="img.decision === 'Rejected'"
+               [class.accepted]="img.decision === 'Approved'">
+            <div class="image-wrapper">
+              <img [src]="img.url" [alt]="img.fileName">
+              @if (!readOnly) {
+              <div class="image-actions">
+                <button class="btn-action btn-accept"
+                        [class.active]="img.decision === 'Approved'"
+                        (click)="setDecision(img, 'Approved')">
+                  <i-tabler name="check"></i-tabler>
+                </button>
+                <button class="btn-action btn-reject"
+                        [class.active]="img.decision === 'Rejected'"
+                        (click)="setDecision(img, 'Rejected')">
+                  <i-tabler name="x"></i-tabler>
+                </button>
+              </div>
+              }
             </div>
-          </div>
-          <div class="card-footer">
-          
-            <div class="text-info">
-              <span class="image-name">{{ img.name }}</span>
-              <span class="image-category">{{ img.category }}</span>
-            </div>
+            <div class="card-footer">
+              <div class="text-info">
+                <span class="image-name">{{ img.fileName }}</span>
+                <span class="image-category">{{ img.classification }}</span>
+              </div>
               <div class="status-info">
-              <span class="status-label" [ngClass]="{
-                'text-danger': img.status === 'rejected',
-                'text-success': img.status === 'accepted',
-                'text-muted': img.status === 'pending'
-              }">
-                {{ (img.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (img.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
-              </span>
+                <span class="status-label" [ngClass]="{
+                  'text-danger': img.decision === 'Rejected',
+                  'text-success': img.decision === 'Approved',
+                  'text-muted':   img.decision === 'Pending'
+                }">
+                  {{ (img.decision === 'Rejected'
+                        ? 'd3.buildReview.images.statusRejected'
+                        : (img.decision === 'Approved'
+                            ? 'd3.buildReview.images.statusAccepted'
+                            : 'd3.buildReview.images.statusPending')) | translate }}
+                </span>
+              </div>
             </div>
-          </div>
 
-          @if (img.status === 'rejected') {
-            <div class="rejection-inputs">
-              <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="img.rejectionReason">
-              <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="img.suggestedSolution">
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Interior Images -->
-  <div class="section-group">
-    <div class="section-title-wrapper">
-      <span class="section-indicator"></span>
-      <span class="section-title">{{ 'd3.buildReview.images.interiorTitle' | translate }}</span>
-      <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: interiorImages.length } }}</span>
-    </div>
-    
-    <div class="image-grid">
-      @for (img of interiorImages; track img.id) {
-        <div class="image-card" [class.rejected]="img.status === 'rejected'" [class.accepted]="img.status === 'accepted'">
-          <div class="image-wrapper">
-            <img [src]="img.url" [alt]="img.name">
-            <div class="image-actions">
-           
-              <button class="btn-action btn-accept" [class.active]="img.status === 'accepted'" (click)="setStatus(img, 'accepted')">
-                <i-tabler name="check"></i-tabler>
-              </button>
-                 <button class="btn-action btn-reject" [class.active]="img.status === 'rejected'" (click)="setStatus(img, 'rejected')">
-                <i-tabler name="x"></i-tabler>
-              </button>
-            </div>
+            @if (img.decision === 'Rejected' && !readOnly) {
+              <div class="rejection-inputs">
+                <input type="text"
+                       [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate"
+                       [(ngModel)]="img.rejectionReason">
+              </div>
+            }
           </div>
-          <div class="card-footer">
-            
-            <div class="text-info">
-              <span class="image-name">{{ img.name }}</span>
-              <span class="image-category">{{ img.category }}</span>
-            </div>
-            <div class="status-info">
-              <span class="status-label" [ngClass]="{
-                'text-danger': img.status === 'rejected',
-                'text-success': img.status === 'accepted',
-                'text-muted': img.status === 'pending'
-              }">
-                {{ (img.status === 'rejected' ? 'd3.buildReview.images.statusRejected' : (img.status === 'accepted' ? 'd3.buildReview.images.statusAccepted' : 'd3.buildReview.images.statusPending')) | translate }}
-              </span>
-            </div>
-          </div>
-
-          @if (img.status === 'rejected') {
-            <div class="rejection-inputs">
-              <input type="text" [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate" [(ngModel)]="img.rejectionReason">
-              <input type="text" [placeholder]="'d3.buildReview.images.suggestedSolutionPlaceholder' | translate" [(ngModel)]="img.suggestedSolution">
-            </div>
-          }
-        </div>
-      }
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Rejection Summary -->
   @if (hasRejections) {
@@ -159,9 +135,9 @@
           <p>{{ 'd3.buildReview.images.rejectionSummarySubtitle' | translate }}</p>
         </div>
       </div>
-      
+
       <div class="rejection-list">
-        @for (item of rejectedSections; track item.title) {
+        @for (item of rejectedGroups; track item.title) {
           <div class="rejection-item">
             <div class="item-icon">!</div>
             <div class="item-content">
@@ -175,27 +151,32 @@
   }
 
   <!-- Review Notes -->
-  <div class="notes-section" *ngIf="hasRejections">
-    <div class="notes-header">
-      <span class="notes-title">{{ 'd3.buildReview.images.notesTitle' | translate }}</span>
-      <span class="notes-required">{{ 'd3.buildReview.images.notesRequired' | translate }}</span>
+  @if (hasRejections && !readOnly) {
+    <div class="notes-section">
+      <div class="notes-header">
+        <span class="notes-title">{{ 'd3.buildReview.images.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.images.notesRequired' | translate }}</span>
+      </div>
+      <textarea
+        class="notes-textarea"
+        [placeholder]="'d3.buildReview.images.notesPlaceholder' | translate"
+        [(ngModel)]="sectionRejectionReason"
+        rows="4"
+      ></textarea>
     </div>
-    <textarea
-      class="notes-textarea"
-      [placeholder]="'d3.buildReview.images.notesPlaceholder' | translate"
-      rows="4"
-    ></textarea>
-  </div>
+  }
 
   <!-- Action Buttons -->
+  @if (!readOnly) {
   <div class="action-buttons">
-    <button class="btn btn-approve" (click)="approve.emit()">
+    <button class="btn btn-approve" [disabled]="isSubmitting" (click)="confirmSubmit('Approved')">
       <span>{{ 'd3.buildReview.images.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
-    <button class="btn btn-reject" (click)="goBack()">
+    <button class="btn btn-reject" [disabled]="isSubmitting" (click)="confirmSubmit('Rejected')">
       <span>{{ 'd3.buildReview.images.rejectBtn' | translate }}</span>
       <i-tabler name="circle-x"></i-tabler>
     </button>
   </div>
+  }
 </div>

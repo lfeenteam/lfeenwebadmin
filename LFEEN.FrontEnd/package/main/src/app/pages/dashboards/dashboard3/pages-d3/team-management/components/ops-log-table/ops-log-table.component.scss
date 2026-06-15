@@ -146,3 +146,136 @@
 .text-danger {
   color: #ef4444 !important;
 }
+
+@media (max-width: 767.98px) {
+  .ops-log-wrapper {
+    border: none;
+    border-radius: 12px;
+    background: #F5F5F3;
+    padding: 12px;
+  }
+
+  .ops-log-table {
+    display: block;
+    background: transparent !important;
+
+    ::ng-deep thead {
+      display: none !important;
+    }
+
+    ::ng-deep tbody {
+      display: flex !important;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  tr.mat-mdc-row.log-row {
+    display: block !important;
+    height: auto !important;
+    border-radius: 16px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  td.mat-mdc-cell {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 16px !important;
+    border-bottom: 1px solid #F0F0EE !important;
+    font-size: 13px;
+    min-height: 36px;
+    box-sizing: border-box;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 11px;
+      color: #9E9E9A;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      padding-inline-end: 12px;
+      max-width: 50%;
+    }
+  }
+
+  // User column = card header (avatar + name), like employee in all-employees
+  td.mat-column-user {
+    background: #FCFCFB;
+    padding: 10px 16px !important;
+    border-bottom: 1px solid #E8E8E4 !important;
+    min-height: auto;
+    justify-content: flex-start;
+
+    &::before {
+      display: none;
+    }
+
+    .f-s-16 {
+      font-size: 13px !important;
+    }
+
+    .text-role {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: block;
+    }
+  }
+
+  // Expand button = bottom of card, no label
+  td.mat-column-expand {
+    justify-content: flex-end;
+    border-bottom: none !important;
+    padding: 2px 8px !important;
+    min-height: 32px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  // Action column - prevent long text from overflowing
+  td.mat-column-action {
+    align-items: center;
+
+    .d-flex {
+      min-width: 0;
+    }
+
+    .f-s-14 {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  // DateTime value aligned to end
+  .log-date-cell {
+    text-align: end;
+  }
+
+  .expand-row-btn.mat-mdc-icon-button {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+  }
+}
+
+:host-context([dir="rtl"]) {
+  @media (max-width: 767.98px) {
+    td.mat-mdc-cell::before {
+      letter-spacing: 0;
+    }
+  }
+}

@@ -98,4 +98,5 @@ export interface Account {
   avatarInitials?: string;
   paymentBadge?: string;
   tradeName?: string;
+  logoUrl?: string | null;
 }

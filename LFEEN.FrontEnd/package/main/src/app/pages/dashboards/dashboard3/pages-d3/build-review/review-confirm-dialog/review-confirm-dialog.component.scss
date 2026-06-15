@@ -1,0 +1,77 @@
+.review-confirm-dialog {
+  width: 100%;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: 'Cairo', sans-serif;
+
+  .confirm-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: #ECFDF5;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    i-tabler,
+    ::ng-deep svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  h2 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 900;
+    color: #111110;
+  }
+
+  p {
+    margin: 0 0 28px;
+    color: #6B6B67;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .confirm-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .cancel-button,
+  .confirm-button {
+    height: 52px;
+    border-radius: 16px;
+    font-family: inherit;
+    font-weight: 800;
+  }
+
+  .cancel-button {
+    background: #F7F7F5;
+    color: #111110;
+  }
+
+  .confirm-button {
+    background: #059669;
+    color: #FFFFFF;
+  }
+
+  &.reject {
+    .confirm-icon {
+      background: #FEF2F2;
+      color: #DC2626;
+    }
+
+    .confirm-button {
+      background: #DC2626;
+    }
+  }
+}

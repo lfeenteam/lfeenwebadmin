@@ -26,6 +26,7 @@ export class EmployeeListComponent implements OnDestroy {
 
   @Output() edit = new EventEmitter<Employee>();
   @Output() delete = new EventEmitter<Employee>();
+  @Output() toggleStatus = new EventEmitter<Employee>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() addEmployee = new EventEmitter<void>();
@@ -61,6 +62,10 @@ export class EmployeeListComponent implements OnDestroy {
 
   onDelete(employee: Employee): void {
     this.delete.emit(employee);
+  }
+
+  onToggleStatus(employee: Employee): void {
+    this.toggleStatus.emit(employee);
   }
 
   changePage(page: number): void {

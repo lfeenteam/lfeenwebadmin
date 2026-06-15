@@ -6,7 +6,7 @@
 }
 
 .section-header {
-    text-align: right;
+    text-align: start;
     .section-title { font-size: 20px; font-weight: 900; color: #111110; margin: 0; }
     .section-subtitle { font-size: 13px; color: #9E9E9A; margin: 8px 0 0; }
 }
@@ -96,7 +96,7 @@
     align-items: center;
     gap: 12px;
 
-    .rule-title { font-size: 14px; font-weight: 700; color: #111110; flex: 1; text-align: right; }
+    .rule-title { font-size: 14px; font-weight: 700; color: #111110; flex: 1; text-align: start; }
     .rule-icon { width: 20px; height: 20px; color: #111110; ::ng-deep svg { width: 20px; height: 20px; } }
 }
 
@@ -113,7 +113,7 @@
         display: flex;
         align-items: flex-start;
         gap: 12px;
-        direction: rtl;
+        direction: inherit;
 
         .rule-index {
             width: 20px;
@@ -158,7 +158,7 @@
         color: #111110;
         resize: none;
         outline: none;
-        text-align: right;
+        text-align: start;
 
         &::placeholder { color: #9E9E9A; }
     }

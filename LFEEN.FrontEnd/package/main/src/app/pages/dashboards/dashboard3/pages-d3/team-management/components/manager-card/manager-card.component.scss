@@ -3,6 +3,14 @@
   background-color: #FCFCFB;
   border: 1px solid #E8E8E4 !important;
 
+  @media (max-width: 767.98px) {
+    border-radius: 24px;
+
+    ::ng-deep mat-card-content {
+      padding: 16px !important;
+    }
+  }
+
   .manager-avatar-wrapper {
     img {
       border: 1px solid #E8E8E4;

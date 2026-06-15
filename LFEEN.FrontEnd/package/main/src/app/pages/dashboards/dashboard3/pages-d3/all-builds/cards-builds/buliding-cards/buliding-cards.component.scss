@@ -50,6 +50,13 @@
     .status-dot { background: #16A34A; }
   }
 
+  &.rejected {
+    color: #DC2626;
+    background: #FEF2F2;
+
+    .status-dot { background: #DC2626; }
+  }
+
   &.stopped .status-dot { background: #9e9e9a; }
 }
 
@@ -293,7 +300,7 @@
         font-weight: 700;
         font-size: 14px;
         line-height: 14px;
-        text-align: right;
+        text-align: start;
       }
 
       .building-host {
@@ -301,7 +308,7 @@
         color: #9E9E9A;
         font-weight: 600;
         line-height: 14px;
-        text-align: right;
+        text-align: start;
       }
     }
 
@@ -385,6 +392,12 @@
         text-transform: uppercase;
 
         &.stopped { background: #F7F7F5; }
+        &.rejected {
+          color: #DC2626;
+          background: #FEF2F2;
+
+          .status-dot { background: #DC2626; }
+        }
       }
     }
 
@@ -440,5 +453,201 @@
       .building-title { font-size: 13px; }
       .stat-value { font-size: 11px; }
     }
+  }
+}
+
+// ════════════════════════════════════════
+// Mobile: reset list-view grid back to card
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  // ── Grid-view card (compact) ─────────────────────────────
+  .building-card {
+    border-radius: 20px;
+    padding: 14px;
+    gap: 12px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+
+    .building-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+
+      ::ng-deep svg { width: 20px; height: 20px; }
+    }
+
+    .building-title  { font-size: 15px; }
+    .building-host   { font-size: 12px; }
+
+    .building-title,
+    .building-host,
+    .building-location,
+    .card-location {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card-stats {
+      padding: 10px 0;
+
+      .stat-col { gap: 4px; }
+      .stat-label { font-size: 10px; }
+      .stat-value { font-size: 13px; }
+    }
+
+    .action-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+
+      ::ng-deep svg { width: 16px; height: 16px; }
+    }
+
+    .type-tag {
+      min-width: 0;
+      max-width: calc(100% - 84px);
+      font-size: 11px;
+      padding: 3px 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // ── List-view card (reset to card layout, also compact) ──
+  :host-context(.list-view) {
+    .building-card {
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      min-width: 0;
+      max-width: 100%;
+      padding: 14px;
+      border: 1px solid #e8e8e4;
+      border-radius: 20px;
+      box-shadow: 0px 1px 2px -1px #0000001A;
+      background: #FFFFFF;
+      gap: 12px;
+
+      &:last-child { border-bottom: 1px solid #e8e8e4; }
+      &:hover { background: #fff; box-shadow: 0 8px 24px rgba(17, 17, 16, 0.06); }
+
+      .card-top {
+        .status-badge { display: inline-flex; }
+
+        .building-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+
+          ::ng-deep svg { width: 20px; height: 20px; }
+        }
+      }
+
+      .card-main {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+        margin-inline-start: 0;
+        gap: 3px;
+
+        .building-title { font-size: 15px; font-weight: 900; }
+        .building-host  { font-size: 12px; }
+        .building-location { display: inline-flex; }
+      }
+
+      .card-location,
+      .card-update,
+      .card-status-col { display: none; }
+
+      .card-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-width: 1px 0;
+        border-style: solid;
+        border-color: #E8E8E4;
+        padding: 10px 0;
+
+        .stat-col {
+          height: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          border: none !important;
+
+          &:not(:first-child) { border-inline-start: 1px solid #ececea !important; }
+
+          &.col-units     { order: unset; }
+          &.col-occupancy { order: unset; }
+          &.col-bookings  { order: unset; }
+
+          .stat-label { display: flex; font-size: 10px; }
+          .stat-value { font-size: 13px; }
+        }
+      }
+
+      .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: auto;
+
+        .type-tag {
+          display: block;
+          font-size: 11px;
+          padding: 3px 10px;
+          max-width: calc(100% - 84px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .action-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          background: #ffffff;
+          border: 1px solid #e8e8e4;
+          color: #6b6b67;
+
+          ::ng-deep svg { width: 16px; height: 16px; }
+
+          &.view-btn {
+            background: #111110;
+            border-color: #111110;
+            color: #ffffff;
+          }
+
+          &.menu-btn { background: #F7F7F5; }
+        }
+      }
+    }
+  }
+}
+
+.building-photo {
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .building-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F0FDF4;
+    color: #15803D;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 1px;
   }
 }
