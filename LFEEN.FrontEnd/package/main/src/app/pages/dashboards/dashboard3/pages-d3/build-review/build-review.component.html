@@ -31,8 +31,12 @@
 
   <span class="org-badge">
     <span class="org-dot">
-    <img   src="assets/images/logos/Group 4.svg" alt="company" />
-   </span>
+      @if (building.organizationLogoUrl && !orgLogoError) {
+        <img [src]="building.organizationLogoUrl" alt="company" (error)="orgLogoError = true" />
+      } @else {
+        <span class="org-initials">{{ building.organization | slice:0:2 }}</span>
+      }
+    </span>
     <span>{{ building.organization }}</span>
   </span>
 </div>
@@ -118,7 +122,7 @@
       ></textarea>
     </div>
   
-    @if (allSectionsComplete && isFinalSuccess) {
+    @if (allSectionsComplete && isFinalSuccess && !viewOnly) {
       <div class="success-final-card inline-final-card">
         <div class="celebrate-icon">
           <i-tabler name="confetti"></i-tabler>
@@ -128,7 +132,7 @@
       </div>
     }
 
-    @if (allSectionsComplete) {
+    @if (allSectionsComplete && !viewOnly) {
       <div class="final-notes-inline">
         <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
         <textarea
@@ -140,6 +144,7 @@
     }
 
     <!-- Action Buttons -->
+    @if (!viewOnly) {
     <div class="action-wrapper">
       <div class="action-buttons">
         <button
@@ -157,7 +162,7 @@
           <i-tabler name="circle-x" class="btn-icon"></i-tabler>
         </button>
       </div>
-    
+
       @if (!allSectionsComplete) {
       <div class="lock-notice">
         <i-tabler name="lock" class="lock-icon"></i-tabler>
@@ -165,6 +170,7 @@
       </div>
       }
     </div>
+    }
   } @else if (currentView === 'images') {
     <app-review-image [propertyId]="buildingId || ''" [readOnly]="reviewSections[0].completed" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-image>
   } @else if (currentView === 'terms') {
@@ -218,16 +224,18 @@
         }
 
         <!-- Final Action Buttons -->
+        @if (!viewOnly) {
         <div class="action-buttons-final">
-            <button class="btn-approve-final" [disabled]="!isFinalSuccess" (click)="onApprove()">
+            <button class="btn-approve-final" [disabled]="!isFinalSuccess || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
                 <i-tabler name="circle-check"></i-tabler>
             </button>
-            <button class="btn-reject-final" [class.active]="!isFinalSuccess" (click)="onReject()">
+            <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isFinalSubmitting" (click)="onReject()">
                 <span>{{ 'd3.buildReview.actions.rejectFinal' | translate }}</span>
                 <i-tabler name="circle-x"></i-tabler>
             </button>
         </div>
+        }
     </div>
   }
 

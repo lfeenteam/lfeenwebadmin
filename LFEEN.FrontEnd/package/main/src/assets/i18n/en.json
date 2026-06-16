@@ -299,7 +299,11 @@
         "awaitingReviewMeta": "Awaiting property review first",
         "reviewPropertyBtn": "Review Property First",
         "publishedUnits": "{{count}} published units",
-        "approvedBadge": "Approved"
+        "approvedBadge": "Approved",
+        "activationNotice": {
+          "title": "Activation System Notice",
+          "description": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until final approval is received on the main property's data."
+        }
       }
     },
     "sections": {
@@ -802,6 +806,144 @@
         "rejectSuccess": "The property terms were rejected successfully.",
         "approveBtn": "Approve Property Terms and Conditions Review",
         "rejectBtn": "Reject Request"
+      }
+    },
+    "unitReview": {
+      "title": "Unit Review",
+      "reviewRequestsBC": "Review Requests",
+      "unitInfo": {
+        "unitNumberLabel": "Unit Number"
+      },
+      "status": {
+        "adminReviewLabel": "Pending Administrative Review",
+        "progressLabel": "Review status",
+        "progressCount": "{{completed}} of {{total}}",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "sections": {
+        "basicInfo": {
+          "title": "1. Basic Information",
+          "desc": "Includes area, floor, occupancy and unit contents",
+          "btn": "Review Basic Information"
+        },
+        "photos": {
+          "title": "2. Unit Photos",
+          "desc": "Contains 8 high-quality photos covering bedrooms, living room and amenities",
+          "btn": "Review Photos"
+        },
+        "terms": {
+          "title": "3. Unit Terms",
+          "desc": "House rules for guests, booking/cancellation and general tenant obligations",
+          "btn": "Review Terms"
+        },
+        "pricing": {
+          "title": "4. Unit Pricing",
+          "desc": "Base price: 450 SAR/night, special weekend and seasonal pricing",
+          "btn": "Review Pricing"
+        },
+        "smartLock": {
+          "title": "5. Smart Lock",
+          "desc": "The approved entry system for this unit uses codes via the smart device/phone",
+          "infoBadge": "Informational",
+          "activeBadge": "Activated via system"
+        },
+        "access": {
+          "title": "6. Access Method",
+          "desc": "Location guidance, elevator code, and dedicated full-time staff number",
+          "btn": "Review Access"
+        },
+        "cancelPolicy": {
+          "title": "7. Cancellation Policy",
+          "desc": "Selected policy: Flexible (full refund before 24h of check-in)",
+          "btn": "Review Policy"
+        },
+        "deposit": {
+          "title": "8. Security Deposit",
+          "desc": "Required deposit: 500 SAR, charged at booking and refunded 24h after checkout",
+          "btn": "Review Deposit"
+        },
+        "services": {
+          "title": "9. Service Customization",
+          "desc": "Additional services: daily cleaning, home breakfast (50 SAR), airport pickup",
+          "btn": "Review Services"
+        },
+        "license": {
+          "title": "10. Unit License",
+          "desc": "Ministry of Tourism license No: B-9928374-UC, valid until 2026/12/31",
+          "btn": "Preview License"
+        }
+      },
+      "basicInfoView": {
+        "pageTitle": "Unit Basic Information",
+        "backLabel": "Back to review list",
+        "heading": "Unit Contents & Facilities",
+        "subtitle": "Please review each section separately",
+        "smartSystemTitle": "Smart Lock System",
+        "smartBanner": "Smart AC system enabled in the unit",
+        "contentsLabel": "Contents",
+        "servicesLabel": "Services",
+        "privateFacilitiesLabel": "Private Facilities",
+        "stats": {
+          "capacity": "Guest Capacity",
+          "area": "Area",
+          "floor": "Floor Number",
+          "type": "Unit Type"
+        },
+        "badges": {
+          "new": "New",
+          "kingBed": "King Bed",
+          "singleBed": "Single Bed"
+        },
+        "rooms": {
+          "mainHall": {
+            "title": "1. Main Hall",
+            "desc": "Elegant seating area with private balcony"
+          },
+          "masterBedroom": {
+            "title": "2. Master Bedroom",
+            "desc": "King bed, fully en-suite bathroom"
+          },
+          "secondaryBedroom": {
+            "title": "3. Secondary Bedroom (Single Bed)",
+            "desc": "Cozy room, bathroom shared with hallway"
+          }
+        },
+        "subAreas": {
+          "balcony": "Outdoor Balcony"
+        },
+        "amenities": {
+          "smartAc": "Remote-controlled smart AC system",
+          "fiberInternet": "500 Mbps fiber internet",
+          "diningTable": "Wooden dining table for 4",
+          "smartTv": "65\" smart TV + Netflix",
+          "smartTvSmall": "43\" smart TV",
+          "kingBed": "Hotel-grade king bed",
+          "singleBed": "Hotel-grade single bed",
+          "outdoorSeating": "Outdoor seating set (rattan)",
+          "nightLighting": "Soft night lighting",
+          "noExtraSystem": "No additional system in those details"
+        },
+        "facilitiesSummary": {
+          "title": "4. General Unit Facilities & Equipment",
+          "desc": "Essential safety and comfort equipment",
+          "location": "Location",
+          "locationValue": "Beachfront",
+          "internet": "Internet",
+          "internetValue": "500 Mbps fiber",
+          "security": "Security",
+          "securityValue": "Smoke detector - fire alarm",
+          "cleaning": "Cleaning & Setup",
+          "cleaningValue": "Smart central cleaning"
+        }
+      },
+      "finalNotes": {
+        "label": "Final Notes Added",
+        "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
+      },
+      "actions": {
+        "reject": "Reject Request Permanently",
+        "approve": "Approve Final Decision"
       }
     },
     "accountManagement": {

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BuildingCardItem, BuildingViewMode } from '../../../../interfaces/building-card.model';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -16,6 +17,8 @@ export class BulidingCardsComponent {
 
   imageError = false;
 
+  constructor(private router: Router, private route: ActivatedRoute) {}
+
   occupancyTone(occupancy: number, status: string): string {
     if (status === 'stopped') return 'stopped';
     if (occupancy >= 75) return 'high';
@@ -29,5 +32,12 @@ export class BulidingCardsComponent {
 
   onImageError(): void {
     this.imageError = true;
+  }
+
+  goToViewReview(): void {
+    this.router.navigate(['../build-review', this.building.id], {
+      relativeTo: this.route,
+      queryParams: { mode: 'view' }
+    });
   }
 }

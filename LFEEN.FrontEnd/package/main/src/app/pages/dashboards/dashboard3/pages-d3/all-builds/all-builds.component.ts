@@ -168,13 +168,6 @@ export class AllBuildsComponent implements OnInit {
       buildings = buildings.filter(building => building.status === 'stopped');
     }
 
-    const propertyType = this.selectedFilters['type'];
-    if (propertyType && propertyType !== 'all') {
-      buildings = buildings.filter(
-        building => building.typeLabel.includes(`.${propertyType}.`)
-      );
-    }
-
     if (this.selectedFilters['sort'] === 'occupancy') {
       buildings = [...buildings].sort((a, b) => b.occupancy - a.occupancy);
     }
@@ -196,6 +189,7 @@ export class AllBuildsComponent implements OnInit {
     this.selectedFilters = filters;
     this.buildingService.setFilters({
       city: filters['city'] === 'all' ? '' : filters['city'],
+      propertyTypeId: filters['type'] === 'all' ? '' : filters['type'],
       newestFirst: filters['sort'] !== 'oldest'
     });
   }

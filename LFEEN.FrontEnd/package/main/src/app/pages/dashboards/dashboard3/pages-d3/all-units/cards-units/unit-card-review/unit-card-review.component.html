@@ -1,10 +1,10 @@
-<article class="unit-card" [class.stopped]="unit.status === 'stopped'" [class.under-review]="unit.status === 'underReview'">
+<article class="unit-card" [class.stopped]="isLockedDisplay" [class.under-review]="!isLockedDisplay" (click)="!isLockedDisplay && goToReview()">
   <div class="unit-card__top">
     <div class="unit-card__id">{{ unit.unitNumber }}</div>
-    <div class="unit-card__status" *ngIf="unit.status === 'underReview'">
+    <div class="unit-card__status" *ngIf="!isLockedDisplay">
       <span class="status-text">{{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}</span>
     </div>
-    <div class="unit-card__status" *ngIf="unit.status === 'stopped'">
+    <div class="unit-card__status" *ngIf="isLockedDisplay">
       <span class="status-text">{{ 'd3.allUnits.unitCard.statusStopped' | translate }}</span>
     </div>
   </div>
@@ -13,7 +13,7 @@
     <h3 class="unit-card__title">{{ unit.title }}</h3>
     <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
 
-    <div class="unit-card__info-container" *ngIf="unit.status !== 'stopped'">
+    <div class="unit-card__info-container" *ngIf="!isLockedDisplay">
       <div class="info-row">
         <div class="info-right">
           <i-tabler name="info-circle" class="info-icon"></i-tabler>
@@ -32,10 +32,10 @@
   </div>
 
   <div class="unit-card__footer">
-    <button class="footer-btn arrow-btn" *ngIf="unit.status !== 'stopped'">
+    <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
       <i-tabler name="arrow-left"></i-tabler>
     </button>
-    <div class="stopped-lock" *ngIf="unit.status === 'stopped'">
+    <div class="stopped-lock" *ngIf="isLockedDisplay">
       <i-tabler name="lock"></i-tabler>
     </div>
   </div>

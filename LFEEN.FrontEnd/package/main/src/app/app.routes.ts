@@ -174,6 +174,34 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'unit-review/:buildingId/:unitId/basic-info',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/basic-info-review/basic-info-review.component'
+                  ).then((m) => m.BasicInfoReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.basicInfoView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/unit-review.component'
+                  ).then((m) => m.UnitReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.title',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  showBack: true,
+                },
+              },
+              {
                 path: 'team-management',
                 canActivate: [authGuard],
                 loadComponent: () =>

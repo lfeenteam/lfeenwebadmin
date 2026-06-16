@@ -157,8 +157,23 @@ font-weight: 700;
     object-fit: cover;
     display: block;
   }
+
+  .org-initials {
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    background: #f0f4ff;
+    color: #4361ee;
+    font-size: 8px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    line-height: 1;
+  }
 }
-  
+
 }
   }
 
@@ -742,6 +757,7 @@ background: #FFFFFF;
     .btn-reject-final {
         width: 320px; background: #F7F7F5; color: #9E9E9A; border: 1px solid #E8E8E4;
         &.active { background: #DC2626; color: #FFFFFF; border: none; box-shadow: 0 8px 16px rgba(220, 38, 38, 0.2); }
+        &:disabled { cursor: not-allowed; opacity: 0.6; }
     }
 }
 

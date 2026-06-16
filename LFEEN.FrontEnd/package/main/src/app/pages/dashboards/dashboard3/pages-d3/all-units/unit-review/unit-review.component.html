@@ -1,0 +1,99 @@
+<div class="unit-review" [dir]="currentDir">
+
+  <div class="review-header">
+    <div class="title-block">
+      <h1 class="unit-title">{{ unit?.title }}</h1>
+      <p class="unit-meta">
+        {{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}: {{ unit?.unitNumber }}
+        <span class="meta-sep">·</span>
+        {{ building?.location }}
+      </p>
+    </div>
+
+    <div class="status-progress-row">
+      <span class="status-badge">
+        <i-tabler name="clock" class="status-icon"></i-tabler>
+        {{ 'd3.unitReview.status.adminReviewLabel' | translate }}
+      </span>
+
+      <div class="progress-section">
+        <span class="progress-title">{{ 'd3.unitReview.status.progressLabel' | translate }}</span>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" [style.width.%]="progressPercent"></div>
+        </div>
+        <span class="progress-count">{{ 'd3.unitReview.status.progressCount' | translate: { completed: completedCount, total: totalCount } }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-sections-grid">
+    @for (section of reviewSections; track section.titleKey) {
+      <div
+        class="unit-review-card"
+        [class.unit-review-card--decided]="getSectionDecision(section.key)"
+        [class.unit-review-card--approved]="getSectionDecision(section.key) === 'approved'"
+        [class.unit-review-card--rejected]="getSectionDecision(section.key) === 'rejected'">
+        <div class="card-top-row">
+          <span class="icon-box">
+            <i-tabler [name]="getSectionDecision(section.key) ? 'help' : section.icon"></i-tabler>
+          </span>
+          @if (section.isSmartLockBadge) {
+            <span class="info-tag">{{ 'd3.unitReview.sections.smartLock.infoBadge' | translate }}</span>
+          } @else if (getSectionDecision(section.key) === 'approved') {
+            <span class="decision-badge decision-badge--approved">
+              <i-tabler name="circle-check" class="decision-icon"></i-tabler>
+              {{ 'd3.unitReview.status.approved' | translate }}
+            </span>
+          } @else if (getSectionDecision(section.key) === 'rejected') {
+            <span class="decision-badge decision-badge--rejected">
+              <i-tabler name="circle-x" class="decision-icon"></i-tabler>
+              {{ 'd3.unitReview.status.rejected' | translate }}
+            </span>
+          } @else {
+            <span class="checkbox-circle"></span>
+          }
+        </div>
+
+        <div class="title-stack">
+          <span class="title">{{ section.titleKey | translate }}</span>
+          <p class="desc">{{ section.descKey | translate }}</p>
+        </div>
+
+        @if (section.isSmartLockBadge) {
+          <span class="active-badge">
+            <i-tabler name="check" class="active-icon"></i-tabler>
+            {{ 'd3.unitReview.sections.smartLock.activeBadge' | translate }}
+          </span>
+        } @else {
+          <button class="review-btn" [class.review-btn--icon]="getSectionDecision(section.key)" type="button" (click)="onReviewSection(section)">
+            @if (!getSectionDecision(section.key)) {
+              {{ (section.reviewBtnKey ?? '') | translate }}
+            }
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="review-btn-icon"></i-tabler>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="final-notes-section">
+    <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+    <textarea
+      [(ngModel)]="finalNotes"
+      [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+      rows="3">
+    </textarea>
+  </div>
+
+  <div class="action-buttons">
+    <button class="btn btn-approve" type="button" disabled>
+      <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+      <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+    </button>
+    <button class="btn btn-reject" type="button">
+      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+      <i-tabler name="x" class="btn-icon"></i-tabler>
+    </button>
+  </div>
+
+</div>

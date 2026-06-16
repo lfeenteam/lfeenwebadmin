@@ -27,12 +27,15 @@ export class BuildReviewComponent implements OnInit {
   currentView: 'list' | 'images' | 'terms' | 'license' | 'final' = 'list';
   buildingId: string | null = null;
   imageError = false;
+  orgLogoError = false;
+  viewOnly = false;
 
   building = {
     id: '',
     name: '',
     location: '',
     organization: '',
+    organizationLogoUrl: null as string | null,
     totalUnits: '0',
     imageUrl: 'assets/images/building.jpg'
   };
@@ -52,6 +55,7 @@ export class BuildReviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
+    this.viewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadProperty());
@@ -62,14 +66,16 @@ export class BuildReviewComponent implements OnInit {
   private loadProperty(): void {
     if (this.buildingId) {
       this.imageError = false;
+      this.orgLogoError = false;
       this.buildingService.getPropertyById(this.buildingId).subscribe(data => {
         this.building = {
-          id:           data.externalId,
-          name:         data.name,
-          location:     data.formattedAddress || [data.city, data.district].filter(Boolean).join(' - '),
-          organization: data.accountName ?? '',
-          totalUnits:   String(data.totalUnits),
-          imageUrl:     data.mainPhotoUrl ?? 'assets/images/building.jpg'
+          id:                  data.externalId,
+          name:                data.name,
+          location:            data.formattedAddress || [data.city, data.district].filter(Boolean).join(' - '),
+          organization:        data.accountName ?? '',
+          organizationLogoUrl: data.accountLogoUrl,
+          totalUnits:          String(data.totalUnits),
+          imageUrl:            data.mainPhotoUrl ?? 'assets/images/building.jpg'
         };
 
         this.reviewSections[0].completed = data.photosSection.decision !== 'Pending';
@@ -143,11 +149,11 @@ export class BuildReviewComponent implements OnInit {
   }
 
   get canReject(): boolean {
-    return this.allSectionsComplete;
+    return !this.viewOnly && this.allSectionsComplete;
   }
 
   get canApprove(): boolean {
-    return this.allSectionsComplete;
+    return !this.viewOnly && this.allSectionsComplete;
   }
 
   openSection(index: number): void {

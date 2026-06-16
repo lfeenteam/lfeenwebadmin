@@ -612,3 +612,165 @@
 .icon-16 { display: inline-flex; align-items: center; ::ng-deep svg { width: 16px; height: 16px; } }
 .icon-18 { display: inline-flex; align-items: center; ::ng-deep svg { width: 18px; height: 18px; } }
 .icon-20 { display: inline-flex; align-items: center; ::ng-deep svg { width: 20px; height: 20px; } }
+
+@media (max-width: 1199px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-logo-dashed {
+    width: min(320px, 42vw);
+  }
+
+  .fields-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .review-account {
+    padding: 8px;
+    gap: 12px;
+    overflow-x: hidden;
+  }
+
+  .info-card,
+  .identity-card,
+  .decision-section {
+    border-radius: 20px;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .card-title-row {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .card-title {
+    min-width: 0;
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .field-label {
+    white-space: normal;
+  }
+
+  .field-value {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+
+    &.ltr {
+      text-align: start;
+    }
+  }
+
+  .identity-body {
+    flex-direction: column;
+    gap: 16px;
+    direction: inherit;
+  }
+
+  .identity-logo-dashed {
+    width: 100%;
+    height: 148px;
+    padding: 18px;
+  }
+
+  .fields-stacked {
+    width: 100%;
+  }
+
+  .file-badge {
+    width: 100%;
+    height: auto;
+    min-height: 58px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .detail-grid,
+  .fields-grid-2,
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .region-badge {
+    width: 100%;
+    margin-inline-start: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+
+  .contact-row {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .stretch-card {
+    .fields-list {
+      padding: 12px;
+    }
+  }
+
+  .bank-info-content {
+    align-items: flex-start;
+  }
+
+  .notes-label-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .notes-textarea {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .btn-approve,
+  .btn-reject {
+    height: 52px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .info-card,
+  .identity-card,
+  .decision-section {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .card-icon-box {
+    width: 32px;
+    height: 32px;
+  }
+
+  .identity-logo-dashed {
+    height: 132px;
+
+    .logo-initials-text {
+      font-size: 24px;
+    }
+  }
+
+  .file-icon-wrap,
+  .bank-icon-wrap {
+    width: 34px;
+    height: 34px;
+  }
+
+  .file-name {
+    max-width: 100%;
+  }
+
+  .contact-row {
+    gap: 10px;
+  }
+}

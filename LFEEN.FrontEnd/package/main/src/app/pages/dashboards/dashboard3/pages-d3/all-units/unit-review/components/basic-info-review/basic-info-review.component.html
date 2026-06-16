@@ -1,0 +1,174 @@
+<div class="basic-info-review" [dir]="currentDir">
+
+  <section class="unit-hero">
+    <div class="unit-title-block">
+      <h2>{{ unit?.title }}</h2>
+      <p>{{ building?.location }}</p>
+    </div>
+
+    <div class="unit-stats-row">
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}</span>
+        <strong>{{ unit?.unitNumber }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.type' | translate }}</span>
+        <strong>{{ unit?.type }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.floor' | translate }}</span>
+        <strong>{{ unit?.floor }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.area' | translate }}</span>
+        <strong>{{ unit?.area }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.capacity' | translate }}</span>
+        <strong>{{ unit?.capacity }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="smart-system-card">
+    <span class="smart-system-toggle" aria-hidden="true"></span>
+    <div>
+      <strong>{{ 'd3.unitReview.basicInfoView.smartSystemTitle' | translate }}</strong>
+      <span>{{ 'd3.unitReview.basicInfoView.smartBanner' | translate }}</span>
+    </div>
+    <i-tabler name="check" class="smart-system-check"></i-tabler>
+  </section>
+
+  <section class="section-title-row">
+    <h2>{{ 'd3.unitReview.basicInfoView.heading' | translate }}</h2>
+ 
+  </section>
+
+  <div class="rooms-list">
+    @for (room of rooms; track room.title) {
+      <article class="room-card" [class.room-card--closed]="!room.isOpen">
+        <button class="room-toggle" type="button" (click)="toggleRoom(room)">
+          <i-tabler [name]="room.isOpen ? 'chevron-up' : 'chevron-down'"></i-tabler>
+        </button>
+
+        <div class="room-content">
+          <header class="room-header">
+            <span class="room-icon">
+              <i-tabler [name]="room.icon"></i-tabler>
+            </span>
+            <div>
+              <h3>
+                {{ room.title | translate }}
+                @if (room.badge) {
+                  <span class="room-badge">{{ room.badge | translate }}</span>
+                }
+              </h3>
+              <p>{{ room.desc | translate }}</p>
+            </div>
+          </header>
+
+          @if (room.isOpen) {
+            <div class="room-body">
+              <div class="detail-group">
+                <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
+                <div class="amenity-chips">
+                  @for (item of room.amenities; track item.label) {
+                    <span class="amenity-chip">
+                      <i-tabler [name]="item.icon"></i-tabler>
+                      {{ item.label | translate }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="detail-group">
+                <span class="group-label">{{ 'd3.unitReview.basicInfoView.servicesLabel' | translate }}</span>
+                <div class="amenity-chips">
+                  @for (item of room.services; track item.label) {
+                    <span class="amenity-chip">
+                      <i-tabler [name]="item.icon"></i-tabler>
+                      {{ item.label | translate }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              @for (sub of room.subAreas ?? []; track sub.label) {
+                <div class="private-title">
+                  <span>{{ 'd3.unitReview.basicInfoView.privateFacilitiesLabel' | translate }}</span>
+                  <strong>{{ sub.label | translate }}</strong>
+                </div>
+
+                <div class="detail-group detail-group--inline">
+                  <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
+                  <div class="amenity-chips amenity-chips--compact">
+                    @for (item of sub.amenities; track item.label) {
+                      <span class="plain-feature">
+                        <i-tabler [name]="item.icon"></i-tabler>
+                        {{ item.label | translate }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="detail-group detail-group--inline">
+                  <span class="group-label">{{ 'd3.unitReview.basicInfoView.servicesLabel' | translate }}</span>
+                  <div class="amenity-chips amenity-chips--compact">
+                    @for (item of sub.services; track item.label) {
+                      <span class="plain-feature">
+                        <i-tabler [name]="item.icon"></i-tabler>
+                        {{ item.label | translate }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </article>
+    }
+
+    <article class="summary-card">
+      <header class="room-header">
+        <span class="room-icon">
+          <i-tabler name="shield-check"></i-tabler>
+        </span>
+        <div>
+          <h3>{{ 'd3.unitReview.basicInfoView.facilitiesSummary.title' | translate }}</h3>
+          <p>{{ 'd3.unitReview.basicInfoView.facilitiesSummary.desc' | translate }}</p>
+        </div>
+      </header>
+
+      <div class="facility-stats-grid">
+        @for (stat of facilityStats; track stat.label) {
+          <div class="facility-stat">
+            <span>{{ stat.label | translate }}</span>
+            <strong>{{ stat.value | translate }}</strong>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
+  <section class="final-notes-section">
+    <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+    <textarea
+      [(ngModel)]="finalNotes"
+      [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+      rows="3">
+    </textarea>
+  </section>
+
+  <footer class="action-buttons">
+      <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
+      <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+      <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+    </button>
+    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
+      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+      <i-tabler name="x" class="btn-icon"></i-tabler>
+    </button>
+  
+  </footer>
+</div>

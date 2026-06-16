@@ -67,23 +67,20 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   }
 
   private applyRouteHeaderData(): void {
-    const data = this.getActiveChildRouteData();
+    let child = this.route.firstChild;
+    while (child?.firstChild) {
+      child = child.firstChild;
+    }
+    const data = (child?.snapshot.data ?? {}) as D3RouteHeaderData;
+    const isViewOnly = child?.snapshot.queryParamMap.get('mode') === 'view';
+
     this.headerType = data.header ?? 'page';
     this.pageTitleKey = data.titleKey ?? '';
     this.pageBreadcrumbKey = data.breadcrumbKey ?? 'd3.header.platform';
     this.pageShowLive = data.showLive ?? true;
     this.pageShowDate = data.showDate ?? true;
     this.pageShowBack = data.showBack ?? false;
-    this.pageStatusBadge = data.statusBadge ?? null;
-
-  }
-
-  private getActiveChildRouteData(): D3RouteHeaderData {
-    let child = this.route.firstChild;
-    while (child?.firstChild) {
-      child = child.firstChild;
-    }
-    return (child?.snapshot.data ?? {}) as D3RouteHeaderData;
+    this.pageStatusBadge = isViewOnly ? null : (data.statusBadge ?? null);
   }
 
   get currentDir(): 'rtl' | 'ltr' {

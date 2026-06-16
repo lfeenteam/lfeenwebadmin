@@ -199,6 +199,7 @@ export interface PropertyDetailResponse {
   name: string;
   accountId: string;
   accountName: string | null;
+  accountLogoUrl: string | null;
   businessType: string;
   propertyTypeName: string;
   mainPhotoUrl: string | null;
