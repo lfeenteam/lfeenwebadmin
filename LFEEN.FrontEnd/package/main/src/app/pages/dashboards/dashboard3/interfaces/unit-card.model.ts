@@ -11,6 +11,34 @@ export interface UnitCardItem {
   description: string;
   rooms: number;
   hasPool: boolean;
+  area?: string;
+}
+
+export interface UnitAmenityItem {
+  icon: string;
+  label: string;
+}
+
+export interface UnitSubArea {
+  label: string;
+  amenities: UnitAmenityItem[];
+  services: UnitAmenityItem[];
+}
+
+export interface UnitRoomSection {
+  icon: string;
+  title: string;
+  desc: string;
+  badge?: string;
+  amenities: UnitAmenityItem[];
+  services: UnitAmenityItem[];
+  subAreas?: UnitSubArea[];
+  isOpen: boolean;
+}
+
+export interface UnitFacilityStat {
+  label: string;
+  value: string;
 }
 
 export interface BuildingWithUnits {

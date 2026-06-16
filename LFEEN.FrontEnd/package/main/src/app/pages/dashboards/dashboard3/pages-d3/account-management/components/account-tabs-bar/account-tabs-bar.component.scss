@@ -34,3 +34,31 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .tabs-wrapper {
+    width: max-content;
+    min-width: 100%;
+    gap: 18px;
+    height: 44px;
+    padding-inline: 2px;
+
+    .tab-btn {
+      height: 44px;
+      flex: 0 0 auto;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .tabs-wrapper {
+    gap: 14px;
+
+    .tab-btn {
+      font-size: 12px;
+      padding: 0 2px;
+    }
+  }
+}

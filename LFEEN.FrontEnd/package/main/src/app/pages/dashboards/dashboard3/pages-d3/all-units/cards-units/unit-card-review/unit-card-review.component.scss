@@ -184,6 +184,8 @@
   }
 
   &.under-review {
+    cursor: pointer;
+
     .unit-card__status {
       background: #FFFBEB;
       color: #B45309;

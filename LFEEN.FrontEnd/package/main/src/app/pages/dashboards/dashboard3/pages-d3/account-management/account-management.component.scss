@@ -32,3 +32,39 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .account-management-container {
+    padding: 8px;
+    overflow-x: hidden;
+
+    .border-bottom-gray {
+      margin-bottom: 16px !important;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .empty-state {
+      min-height: 160px;
+      padding: 28px 16px !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .account-management-container {
+    padding: 6px;
+
+    .page-btn {
+      min-width: 32px;
+      width: 32px;
+      height: 32px;
+      font-size: 12px;
+    }
+  }
+}

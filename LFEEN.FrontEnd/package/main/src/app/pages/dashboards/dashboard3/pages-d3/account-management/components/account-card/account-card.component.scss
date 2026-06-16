@@ -275,3 +275,90 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .account-card {
+    height: auto;
+    min-height: 320px;
+    border-radius: 24px !important;
+
+    mat-card-content {
+      padding: 16px !important;
+      gap: 8px;
+    }
+
+    .avatar-logo,
+    .avatar-initials {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+    }
+
+    .status-badge {
+      max-width: 48%;
+      height: auto;
+      min-height: 24px;
+      padding: 4px 10px;
+      line-height: 1.35;
+      text-align: center;
+      white-space: normal;
+    }
+
+    .account-name {
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .card-divider {
+      margin: 14px 0;
+    }
+
+    .info-rows-wrapper {
+      align-items: flex-start;
+    }
+
+    .info-rows {
+      gap: 8px;
+
+      .info-row {
+        gap: 6px;
+      }
+
+      .info-label,
+      .info-value {
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .card-actions {
+      margin-top: 14px;
+      padding-top: 14px;
+
+      .action-type-badge {
+        max-width: calc(100% - 96px);
+        white-space: normal;
+        line-height: 1.35;
+      }
+    }
+
+    &.under-review-card {
+      height: auto;
+      min-height: 245px;
+    }
+  }
+}
+
+@media (max-width: 420px) {
+  .account-card {
+    min-height: 0;
+
+    .card-actions {
+      align-items: stretch !important;
+
+      .action-type-badge {
+        max-width: 100%;
+        align-self: center;
+      }
+    }
+  }
+}

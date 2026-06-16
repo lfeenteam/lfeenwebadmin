@@ -50,11 +50,25 @@
     <div class="units-grid" *ngIf="building.units.length > 0">
       @for (unit of building.units; track unit.id) {
         @if (isReviewTab) {
-          <app-unit-card-review [unit]="unit"></app-unit-card-review>
+          <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id"></app-unit-card-review>
         } @else {
           <app-unit-card [unit]="unit"></app-unit-card>
         }
       }
     </div>
+
+    @if (isReviewTab && building.needsPropertyReview) {
+      <div class="activation-notice">
+        <div class="activation-notice__icon">
+          <i-tabler name="alert-triangle"></i-tabler>
+        </div>
+        <div class="activation-notice__content">
+          <h4 class="activation-notice__title">{{ 'd3.allUnits.cardsUnits.activationNotice.title' | translate }}</h4>
+          <p class="activation-notice__desc">
+            {{ 'd3.allUnits.cardsUnits.activationNotice.description' | translate: { buildingName: building.name } }}
+          </p>
+        </div>
+      </div>
+    }
   </section>
 }

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { BuildingWithUnits } from '../interfaces/unit-card.model';
 
+export type UnitReviewDecision = 'approved' | 'rejected';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,6 +26,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -36,6 +39,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -48,6 +52,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -60,6 +65,7 @@ export class UnitsService {
           type: 'شقة سكنية',
           description: '٣ غرف - صالة',
           rooms: 3,
+          area: '١٢٠ م²',
           hasPool: false
         }
       ]
@@ -81,6 +87,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -93,6 +100,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -105,6 +113,7 @@ export class UnitsService {
           type: 'دوبلكس',
           description: '٥ غرف - مسبح',
           rooms: 5,
+          area: '٢٢٠ م²',
           hasPool: true
         },
         {
@@ -117,6 +126,7 @@ export class UnitsService {
           type: 'شقة سكنية',
           description: '٣ غرف - صالة',
           rooms: 3,
+          area: '١٢٠ م²',
           hasPool: false
         }
       ]
@@ -138,6 +148,7 @@ export class UnitsService {
           type: 'شقة سكنية',
           description: '٣ غرف - صالة',
           rooms: 3,
+          area: '١٢٠ م²',
           hasPool: false
         },
         {
@@ -150,6 +161,7 @@ export class UnitsService {
           type: 'شقة سكنية',
           description: '٣ غرف - صالة',
           rooms: 3,
+          area: '١٢٠ م²',
           hasPool: false
         }
       ]
@@ -172,6 +184,7 @@ export class UnitsService {
           type: 'جناح',
           description: 'غرفتين - صالة',
           rooms: 2,
+          area: '٩٥ م²',
           hasPool: false
         }
       ]
@@ -179,8 +192,29 @@ export class UnitsService {
   ];
 
   private buildingsSubject = new BehaviorSubject<BuildingWithUnits[]>(this.buildingsWithUnits);
+  private reviewDecisionsSubject = new BehaviorSubject<Record<string, UnitReviewDecision>>({});
 
   getBuildingsWithUnits(): Observable<BuildingWithUnits[]> {
     return this.buildingsSubject.asObservable();
+  }
+
+  getReviewDecisions(): Observable<Record<string, UnitReviewDecision>> {
+    return this.reviewDecisionsSubject.asObservable();
+  }
+
+  setReviewDecision(buildingId: string, unitId: string, sectionKey: string, decision: UnitReviewDecision): void {
+    const key = this.getReviewDecisionKey(buildingId, unitId, sectionKey);
+    this.reviewDecisionsSubject.next({
+      ...this.reviewDecisionsSubject.value,
+      [key]: decision
+    });
+  }
+
+  getReviewDecision(buildingId: string, unitId: string, sectionKey: string): UnitReviewDecision | undefined {
+    return this.reviewDecisionsSubject.value[this.getReviewDecisionKey(buildingId, unitId, sectionKey)];
+  }
+
+  private getReviewDecisionKey(buildingId: string, unitId: string, sectionKey: string): string {
+    return `${buildingId}:${unitId}:${sectionKey}`;
   }
 }
