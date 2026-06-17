@@ -21,6 +21,11 @@ import {
   PropertyStatistics,
   PropertyAdminReviewStatusValue
 } from '../interfaces/building-card.model';
+
+export interface PropertyTypeItem {
+  id: number;
+  name: string;
+}
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { CoreService } from 'src/app/services/core.service';
 
@@ -228,5 +233,13 @@ export class BuildingReviewService {
 
   rejectBuilding(id: string, payload: PropertyFinalDecisionPayload): Observable<PropertyFinalDecisionResult> {
     return this.http.post<PropertyFinalDecisionResult>(`${this.apiUrl}/${id}/reject`, payload);
+  }
+
+  getCities(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/cities`);
+  }
+
+  getPropertyTypes(): Observable<PropertyTypeItem[]> {
+    return this.http.get<PropertyTypeItem[]>(`${this.apiUrl}/types`);
   }
 }

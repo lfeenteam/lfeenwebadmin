@@ -1,4 +1,4 @@
-<article class="unit-card" [class.stopped]="isLockedDisplay" [class.under-review]="!isLockedDisplay" (click)="!isLockedDisplay && goToReview()">
+<article class="unit-card" [dir]="currentDir" [class.stopped]="isLockedDisplay" [class.under-review]="!isLockedDisplay" (click)="!isLockedDisplay && goToReview()">
   <div class="unit-card__top">
     <div class="unit-card__id">{{ unit.unitNumber }}</div>
     <div class="unit-card__status" *ngIf="!isLockedDisplay">
@@ -33,7 +33,7 @@
 
   <div class="unit-card__footer">
     <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
-      <i-tabler name="arrow-left"></i-tabler>
+      <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
     </button>
     <div class="stopped-lock" *ngIf="isLockedDisplay">
       <i-tabler name="lock"></i-tabler>

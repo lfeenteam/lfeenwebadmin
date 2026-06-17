@@ -9,6 +9,7 @@ import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interf
 import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-all-builds',
@@ -74,29 +75,23 @@ export class AllBuildsComponent implements OnInit {
       id: 'city',
       labelKey: 'd3.allBuilds.filters.allCities',
       items: [
-        { value: 'all',     labelKey: 'd3.allBuilds.filters.options.all'    },
-        { value: 'الرياض',  labelKey: 'd3.allBuilds.filters.options.riyadh' },
-        { value: 'جدة',     labelKey: 'd3.allBuilds.filters.options.jeddah' },
-        { value: 'الدمام',  labelKey: 'd3.allBuilds.filters.options.dammam' }
+        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' }
       ]
     },
     {
       id: 'type',
       labelKey: 'd3.allBuilds.filters.allTypes',
       items: [
-        { value: 'all',        labelKey: 'd3.allBuilds.filters.options.all'        },
-        { value: 'Hotel',          labelKey: 'd3.allBuilds.filters.options.hotel'       },
-        { value: 'HotelAppartments', labelKey: 'd3.allBuilds.filters.options.apartments' },
-        { value: 'Villa',          labelKey: 'd3.allBuilds.filters.options.villas'      }
+        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' }
       ]
     },
     {
       id: 'sort',
       labelKey: 'd3.allBuilds.filters.newest',
       items: [
-        { value: 'newest',    labelKey: 'd3.allBuilds.filters.newest'                 },
-        { value: 'oldest',    labelKey: 'd3.allBuilds.filters.options.oldest'          },
-        { value: 'occupancy', labelKey: 'd3.allBuilds.filters.options.occupancyHigh'   }
+        { value: 'newest',    labelKey: 'd3.allBuilds.filters.newest'               },
+        { value: 'oldest',    labelKey: 'd3.allBuilds.filters.options.oldest'        },
+        { value: 'occupancy', labelKey: 'd3.allBuilds.filters.options.occupancyHigh' }
       ]
     }
   ];
@@ -121,6 +116,39 @@ export class AllBuildsComponent implements OnInit {
       .subscribe(() => this.loadStatistics());
 
     this.loadStatistics();
+    this.loadFilterOptions();
+  }
+
+  private loadFilterOptions(): void {
+    forkJoin({
+      cities: this.buildingService.getCities(),
+      types:  this.buildingService.getPropertyTypes()
+    }).subscribe({
+      next: ({ cities, types }) => {
+        this.filterOptions = this.filterOptions.map(filter => {
+          if (filter.id === 'city') {
+            return {
+              ...filter,
+              items: [
+                { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
+                ...cities.map(city => ({ value: city, labelKey: city }))
+              ]
+            };
+          }
+          if (filter.id === 'type') {
+            return {
+              ...filter,
+              items: [
+                { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
+                ...types.map(t => ({ value: String(t.id), labelKey: t.name }))
+              ]
+            };
+          }
+          return filter;
+        });
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private loadStatistics(): void {

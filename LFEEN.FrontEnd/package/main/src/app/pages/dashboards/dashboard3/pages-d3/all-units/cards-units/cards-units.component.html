@@ -1,3 +1,4 @@
+<div class="cards-units" [dir]="currentDir">
 @for (building of buildings; track building.id) {
   <section class="building-units-group">
     @if (isReviewTab && building.needsPropertyReview) {
@@ -17,7 +18,7 @@
         <div class="banner-left">
           <button class="review-btn">
             {{ 'd3.allUnits.cardsUnits.reviewPropertyBtn' | translate }}
-            <i-tabler name="arrow-left" class="btn-icon"></i-tabler>
+            <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="btn-icon"></i-tabler>
           </button>
         </div>
       </div>
@@ -72,3 +73,4 @@
     }
   </section>
 }
+</div>

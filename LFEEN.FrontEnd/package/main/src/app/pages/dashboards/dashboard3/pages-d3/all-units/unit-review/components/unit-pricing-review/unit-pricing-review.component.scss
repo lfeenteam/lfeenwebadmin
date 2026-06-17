@@ -1,0 +1,505 @@
+.unit-pricing-review {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  padding: 16px 30px;
+  margin: 0 auto;
+  color: #111110;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.pricing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  direction: ltr;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #E8E8E4;
+
+  .header-text {
+    direction: rtl;
+    text-align: right;
+
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #111110;
+      margin: 0 0 3px;
+    }
+    p {
+      font-size: 13px;
+      color: #6B6B67;
+      margin: 0;
+    }
+  }
+
+  .price-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FAFAFA;
+    border: 1px solid #E8E8E4;
+    border-radius: 8px;
+    padding: 8px 10px;
+    white-space: nowrap;
+    direction: rtl;
+
+    .badge-icon {
+      width: 26px;
+      height: 26px;
+      color: #111110;
+      flex-shrink: 0;
+    }
+
+    .badge-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .price-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9E9E9A;
+      line-height: 1.1;
+    }
+
+    .price-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111110;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+
+      .riyal-icon {
+        width: 18px;
+        height: 18px;
+        object-fit: contain;
+
+        &.is-text-currency {
+          width: 26px;
+          height: auto;
+        }
+      }
+    }
+  }
+}
+
+// ─── Seasonal Periods ─────────────────────────────────────────────────────────
+.seasons-section {
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111110;
+    text-align: right;
+  }
+}
+
+.seasons-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  direction: rtl;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.season-card {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-right: 6px solid #10B981;
+  border-radius: 16px;
+  min-height: 116px;
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+
+  .season-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .sun-icon {
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      border-radius: 12px;
+      background: #F7F7F5;
+      color: #111110;
+      flex-shrink: 0;
+    }
+
+    .period-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: #6B6B67;
+      background: #F7F7F5;
+      border-radius: 20px;
+      padding: 5px 11px;
+    }
+  }
+
+  .season-name {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111110;
+    text-align: right;
+    line-height: 1.25;
+  }
+
+  .season-dates {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6B6B67;
+    text-align: right;
+  }
+}
+
+.unit-pricing-review[dir="ltr"] {
+  .pricing-header {
+    .header-text {
+      order: -1;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .price-badge {
+      order: 1;
+      direction: ltr;
+
+      .badge-text {
+        align-items: flex-start;
+      }
+    }
+  }
+
+  .seasons-section .section-title,
+  .season-name,
+  .season-dates {
+    text-align: left;
+  }
+
+  .seasons-grid {
+    direction: ltr;
+  }
+
+  .season-card {
+    border-right-width: 1px;
+    border-left: 6px solid #10B981;
+  }
+
+  .calendar-header-row {
+    direction: ltr;
+
+    .calendar-title-block {
+      text-align: left;
+    }
+  }
+
+  .calendar-grid {
+    direction: ltr;
+  }
+
+  .notes-input-wrap {
+    direction: ltr;
+    flex-direction: row;
+
+    textarea {
+      direction: ltr;
+      text-align: left;
+    }
+  }
+
+  .action-buttons {
+    .btn {
+      direction: ltr;
+    }
+  }
+}
+
+// ─── Calendar ─────────────────────────────────────────────────────────────────
+.calendar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calendar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  .calendar-title-block {
+    text-align: end;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111110;
+      margin: 0 0 3px;
+    }
+    p {
+      font-size: 13px;
+      color: #6B6B67;
+      margin: 0;
+    }
+  }
+}
+
+.calendar-box {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  overflow: hidden;
+
+  .month-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111110;
+    padding: 0 14px;
+    white-space: nowrap;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #111110;
+    transition: background 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #EDEDEB;
+    }
+
+    i-tabler {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.calendar-grid {
+  direction: rtl;
+}
+
+.day-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+
+  .day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    padding: 8px 4px;
+  }
+}
+
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.day-cell {
+  min-height: 100px;
+  border: 1px solid #F0F0EE;
+  border-radius: 12px;
+  padding: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+
+  &--empty {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  &--available {
+    background: #F7F7F5;
+    border-color: #E8E8E4;
+  }
+
+  .day-number {
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111110;
+    line-height: 1;
+  }
+
+  .day-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111110;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .price-riyal {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+
+      &.is-text-currency {
+        width: 22px;
+        height: auto;
+      }
+    }
+  }
+}
+
+// ─── Notes ────────────────────────────────────────────────────────────────────
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.notes-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  .notes-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #9E9E9A;
+  }
+
+  .notes-hint {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #D1FAE5;
+    color: #059669;
+    font-size: 11px;
+    font-weight: 900;
+  }
+}
+
+.notes-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  direction: rtl;
+  min-height: 70px;
+  border: 1px solid #E8E8E4;
+  border-radius: 28px;
+  background: #FCFCFB;
+  overflow: hidden;
+  padding: 18px 22px;
+  gap: 14px;
+
+  i-tabler {
+    margin: 0;
+    color: #C9C9C6;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    color: #333;
+    padding: 0;
+    background: transparent;
+    font-family: inherit;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.8;
+
+    &::placeholder {
+      color: #AFAFAC;
+    }
+  }
+}
+
+// ─── Action Buttons ───────────────────────────────────────────────────────────
+.action-buttons {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  direction: ltr;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 0 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+    direction: rtl;
+
+    i-tabler {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+
+  .btn-approve {
+    background: #111110;
+    color: #fff;
+    border: none;
+  }
+
+  .btn-reject {
+    background: #fff;
+    color: #F43F5E;
+    border: 1px solid #FFD6DE;
+  }
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+}

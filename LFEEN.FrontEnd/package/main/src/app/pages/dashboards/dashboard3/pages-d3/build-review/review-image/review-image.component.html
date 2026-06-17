@@ -11,8 +11,9 @@
       <div class="main-image-card"
            [class.rejected]="mainPhoto.decision === 'Rejected'"
            [class.accepted]="mainPhoto.decision === 'Approved'">
-        <div class="image-wrapper">
-          <img [src]="mainPhoto.url" [alt]="mainPhoto.fileName">
+        <div class="image-wrapper image-wrapper--main">
+          <img class="image-bg" [src]="mainPhoto.url" alt="" aria-hidden="true">
+          <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName">
           @if (!readOnly) {
           <div class="image-actions">
             <button class="btn-action btn-accept"
@@ -74,7 +75,7 @@
                [class.rejected]="img.decision === 'Rejected'"
                [class.accepted]="img.decision === 'Approved'">
             <div class="image-wrapper">
-              <img [src]="img.url" [alt]="img.fileName">
+              <img class="image-main" [src]="img.url" [alt]="img.fileName">
               @if (!readOnly) {
               <div class="image-actions">
                 <button class="btn-action btn-accept"

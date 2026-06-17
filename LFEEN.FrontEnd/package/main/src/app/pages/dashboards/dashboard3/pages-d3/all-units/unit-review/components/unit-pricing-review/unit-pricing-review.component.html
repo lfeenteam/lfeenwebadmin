@@ -1,0 +1,119 @@
+<div class="unit-pricing-review" [dir]="currentDir">
+
+  <!-- Header -->
+  <div class="pricing-header">
+    <div class="price-badge">
+      <i-tabler name="credit-card" class="badge-icon"></i-tabler>
+      <div class="badge-text">
+        <span class="price-label">{{ 'd3.unitReview.pricingView.basePrice' | translate }}</span>
+        <span class="price-value">
+          {{ basePrice }}
+          <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+          {{ 'd3.unitReview.pricingView.perNight' | translate }}
+        </span>
+      </div>
+    </div>
+    <div class="header-text">
+      <h2>{{ 'd3.unitReview.pricingView.title' | translate }}</h2>
+      <p>{{ 'd3.unitReview.pricingView.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Seasonal Periods -->
+  <section class="seasons-section">
+    <h3 class="section-title">{{ 'd3.unitReview.pricingView.seasonalTitle' | translate }}</h3>
+    <div class="seasons-grid">
+      @for (period of seasonalPeriods; track period.labelKey) {
+        <article class="season-card">
+          <div class="season-card-top">
+            <i-tabler name="sun" class="sun-icon"></i-tabler>
+            <span class="period-badge">{{ period.labelKey | translate }}</span>
+          </div>
+          <strong class="season-name">{{ period.nameKey | translate }}</strong>
+          <span class="season-dates">{{ period.datesKey | translate }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Calendar -->
+  <section class="calendar-section">
+
+    <!-- Row above the box: title (right) + navigation (left) -->
+    <div class="calendar-header-row">
+    
+      <div class="calendar-title-block">
+        <h3>{{ 'd3.unitReview.pricingView.calendarTitle' | translate }}</h3>
+        <p>{{ 'd3.unitReview.pricingView.calendarSubtitle' | translate }}</p>
+      </div>
+        <div class="month-nav">
+        <button class="nav-btn" type="button" (click)="prevMonth()">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler>
+        </button>
+        <span class="month-label">{{ currentMonthLabel }}</span>
+        <button class="nav-btn" type="button" (click)="nextMonth()">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler>
+        </button>
+      </div>
+    </div>
+
+    <!-- White box: day headers + grid -->
+    <div class="calendar-box">
+      <div class="calendar-grid">
+        <div class="day-header-row">
+          @for (dayKey of dayHeaders; track dayKey) {
+            <div class="day-header">{{ dayKey | translate }}</div>
+          }
+        </div>
+
+        @for (week of calendarWeeks; track $index) {
+          <div class="week-row">
+            @for (cell of week; track $index) {
+              <div class="day-cell" [class.day-cell--empty]="!cell.day" [class.day-cell--available]="cell.available">
+                @if (cell.day) {
+                  <span class="day-number">{{ cell.day }}</span>
+                  @if (cell.price) {
+                    <span class="day-price">
+                      {{ cell.price }}
+                      <img [src]="currencyIconSrc" alt="ريال" class="price-riyal" [class.is-text-currency]="currentLang === 'en'">
+                    </span>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Notes -->
+  <section class="notes-section">
+    <div class="notes-label-row">
+      <span class="notes-title">{{ 'd3.unitReview.pricingView.notesTitle' | translate }}</span>
+      <small class="notes-hint">{{ 'd3.unitReview.pricingView.notesHint' | translate }}</small>
+    </div>
+    <div class="notes-input-wrap">
+      <i-tabler name="message-2"></i-tabler>
+      <textarea
+        [(ngModel)]="rejectionNote"
+        [placeholder]="'d3.unitReview.pricingView.notesPlaceholder' | translate"
+        rows="3">
+      </textarea>
+    </div>
+  </section>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
+      <span>{{ 'd3.unitReview.pricingView.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
+      <span>{{ 'd3.unitReview.pricingView.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+  </div>
+
+</div>

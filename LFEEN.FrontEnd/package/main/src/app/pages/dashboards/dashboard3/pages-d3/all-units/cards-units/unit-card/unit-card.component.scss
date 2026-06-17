@@ -197,3 +197,32 @@
     }
   }
 }
+
+.unit-card[dir="ltr"] {
+  direction: ltr;
+
+  .unit-card__status,
+  .info-row,
+  .unit-card__title,
+  .unit-card__details {
+    direction: ltr;
+  }
+
+  .unit-card__status .status-dot {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
+  .unit-card__body {
+    text-align: left;
+  }
+
+  .info-right {
+    order: 1;
+  }
+
+  .info-value {
+    order: 2;
+    text-align: right;
+  }
+}
