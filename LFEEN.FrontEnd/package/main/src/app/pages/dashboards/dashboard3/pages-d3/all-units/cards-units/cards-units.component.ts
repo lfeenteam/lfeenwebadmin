@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BuildingWithUnits } from '../../../interfaces/unit-card.model';
 import { UnitCardComponent } from './unit-card/unit-card.component';
 import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.component';
@@ -16,4 +16,10 @@ import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.com
 export class CardsUnitsComponent {
   @Input() buildings: BuildingWithUnits[] = [];
   @Input() isReviewTab: boolean = false;
+
+  constructor(private translate: TranslateService) {}
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
 }

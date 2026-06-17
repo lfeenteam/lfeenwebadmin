@@ -1,0 +1,572 @@
+:host {
+  display: block;
+  font-family: 'Cairo', sans-serif;
+}
+
+.unit-terms-review {
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  color: #111110;
+  text-align: start;
+}
+
+.terms-heading {
+  padding-top: 6px;
+
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #111110;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: #6B6B67;
+    font-size: 16px;
+    font-weight: 400;
+  }
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.time-card,
+.early-arrival-card,
+.rule-card,
+.host-rule-card,
+.notes-input-wrap {
+  border: 1px solid #E8E8E4;
+  background: #FFFFFF;
+}
+
+.time-card {
+  min-height: 98px;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.unit-terms-review[dir="rtl"] {
+  // time-card keeps ltr so icon stays physically RIGHT (start of RTL reading)
+  .time-card,
+  .rule-card,
+  .action-buttons {
+    direction: ltr;
+  }
+
+  // Text elements inside the ltr-forced containers need explicit rtl for Arabic
+  .standard-chip,
+  .time-content,
+  .rule-label,
+  .btn {
+    direction: rtl;
+  }
+
+  .time-content {
+    align-items: flex-start;
+  }
+
+  // early-arrival-card inherits rtl → col-1 starts from RIGHT.
+  // Use order to place: icon(right) | content(1fr) | time | switch(left)
+  .early-arrival-card {
+    .time-icon             { order: -3; }
+    .early-arrival-content { order: -2; }
+    .early-arrival-time    { order: -1; }
+    // .switch keeps default order: 0 → lands on physical LEFT
+  }
+
+  .section-title-row {
+    justify-content: flex-start;
+
+    span {
+      order: 0;
+    }
+  }
+
+  .rule-card {
+    .decision-icon {
+      order: 1;
+    }
+
+    .rule-label {
+      order: 2;
+      margin-left: auto;
+
+      i-tabler { order: -1; } // icon RIGHT in RTL flex (before text)
+    }
+  }
+
+  .host-rule-card {
+    flex-direction: row;
+    text-align: start;
+  }
+
+  .notes-input-wrap {
+    flex-direction: row-reverse;
+    align-items: flex-end;
+  }
+}
+
+.unit-terms-review[dir="ltr"] {
+  .time-card {
+    .time-icon {
+      order: -3;
+    }
+
+    .time-content {
+      order: -2;
+    }
+
+    .standard-chip {
+      order: -1;
+    }
+  }
+
+  .time-content {
+    align-items: flex-start;
+  }
+
+  .early-arrival-card {
+    .time-icon             { order: -4; }
+    .early-arrival-content { order: -3; }
+    .early-arrival-time    { order: -2; }
+    .switch                { order: -1; }
+  }
+
+  .section-title-row {
+    justify-content: flex-start;
+
+    span {
+      order: 0;
+    }
+  }
+
+  .rule-card {
+    justify-content: flex-start;
+
+    .decision-icon {
+      order: 2;
+      margin-left: auto;
+    }
+  }
+
+  .rule-label {
+    order: 1;
+
+    i-tabler {
+      order: -1;
+    }
+  }
+
+  .host-rule-card {
+    text-align: start;
+  }
+}
+
+.standard-chip {
+  justify-self: start;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #F7F7F5;
+  color: #8A8A86;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.time-content,
+.early-arrival-content,
+.early-arrival-time {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: start;
+}
+
+.time-content {
+  align-items: flex-end;
+}
+
+.time-content span,
+.early-arrival-content p,
+.early-arrival-time span {
+  color: #9E9E9A;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.time-content strong,
+.early-arrival-time strong {
+  color: #111110;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.time-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  background: #F7F7F5;
+  color: #111110;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ::ng-deep svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.4;
+  }
+}
+
+.early-arrival-card {
+  min-height: 98px;
+  border-radius: 18px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.early-arrival-content {
+  strong {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.early-arrival-time strong {
+  color: #D97706;
+}
+
+.switch {
+  width: 44px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    display: none;
+  }
+
+  span {
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: #111110;
+    position: relative;
+    transition: background 0.2s ease;
+
+    &::after {
+      content: '';
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      position: absolute;
+      top: 2px;
+      inset-inline-start: 2px;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  input:checked + span::after {
+    transform: translateX(20px);
+  }
+}
+
+.unit-terms-review[dir="rtl"] .switch input:checked + span::after {
+  transform: translateX(-20px);
+}
+
+.rules-section {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  span {
+    width: 5px;
+    height: 25px;
+    border-radius: 99px;
+    background: #111110;
+    order: 2;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+  }
+}
+
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.rule-card {
+  min-height: 54px;
+  border-radius: 10px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.rule-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  i-tabler {
+    color: #6B6B67;
+    flex-shrink: 0;
+  }
+
+  ::ng-deep svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.decision-icon {
+  width: 22px;
+  height: 22px;
+  color: #10B981;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ::ng-deep svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+}
+
+.rule-card--rejected .decision-icon {
+  color: #F43F5E;
+}
+
+.host-rule-card {
+  min-height: 104px;
+border: 1px solid #D5D5D1;
+  border-radius: 18px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  background: #F7F7F5;
+  gap: 16px;
+
+  p {
+    margin: 0;
+    color: #111110;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.8;
+  }
+}
+
+.host-rule-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  color: #111110;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.final-notes-section {
+  margin-top: 4px;
+  padding-top: 28px;
+  border-top: 1px solid #E8E8E4;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notes-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  span {
+    color: #9E9E9A;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  small {
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #D1FAE5;
+    color: #059669;
+    font-size: 11px;
+    font-weight: 900;
+  }
+}
+
+.notes-input-wrap {
+  min-height: 98px;
+  border-radius: 30px;
+  background: #FCFCFB;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 28px;
+
+  i-tabler {
+    color: #C9C9C6;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    resize: none;
+    background: transparent;
+    color: #111110;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    text-align: start;
+
+    &::placeholder {
+      color: #AFAFAC;
+    }
+  }
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+}
+
+.btn {
+  height: 72px;
+  border-radius: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+
+  ::ng-deep svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.4;
+  }
+}
+
+.btn-approve {
+  border: 0;
+  background: #111110;
+  color: #FFFFFF;
+}
+
+.btn-reject {
+  border: 1px solid #FFD6DE;
+  background: #FFFFFF;
+  color: #F43F5E;
+}
+
+@media (max-width: 1100px) {
+  .rules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .unit-terms-review {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .terms-heading {
+    text-align: start;
+
+    h2 {
+      font-size: 22px;
+    }
+  }
+
+  .time-grid,
+  .rules-grid,
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .time-card,
+  .early-arrival-card {
+    grid-template-columns: 1fr auto;
+  }
+
+  .standard-chip,
+  .switch,
+  .early-arrival-time {
+    grid-column: 1 / -1;
+  }
+
+  .time-content {
+    align-items: flex-start;
+  }
+
+  .section-title-row {
+    justify-content: flex-start;
+  }
+
+  .host-rule-card,
+  .notes-input-wrap {
+    align-items: flex-start;
+  }
+
+  .btn {
+    height: 60px;
+    font-size: 15px;
+  }
+}

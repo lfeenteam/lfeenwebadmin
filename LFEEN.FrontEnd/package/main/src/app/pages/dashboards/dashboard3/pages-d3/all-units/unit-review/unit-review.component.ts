@@ -91,6 +91,26 @@ export class UnitReviewComponent implements OnInit {
   onReviewSection(section: UnitReviewSection): void {
     if (section.key === 'basicInfo') {
       this.router.navigate(['basic-info'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'photos') {
+      this.router.navigate(['photos'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'terms') {
+      this.router.navigate(['terms'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'pricing') {
+      this.router.navigate(['pricing'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'access') {
+      this.router.navigate(['access'], { relativeTo: this.route });
     }
   }
 

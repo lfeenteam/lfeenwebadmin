@@ -188,6 +188,62 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'unit-review/:buildingId/:unitId/photos',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-images-review/unit-images-review.component'
+                  ).then((m) => m.UnitImagesReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.imagesView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/terms',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-terms-review/unit-terms-review.component'
+                  ).then((m) => m.UnitTermsReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.termsView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/pricing',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-pricing-review/unit-pricing-review.component'
+                  ).then((m) => m.UnitPricingReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.pricingView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/access',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-access-review/unit-access-review.component'
+                  ).then((m) => m.UnitAccessReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.accessView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
                 path: 'unit-review/:buildingId/:unitId',
                 canActivate: [authGuard],
                 loadComponent: () =>

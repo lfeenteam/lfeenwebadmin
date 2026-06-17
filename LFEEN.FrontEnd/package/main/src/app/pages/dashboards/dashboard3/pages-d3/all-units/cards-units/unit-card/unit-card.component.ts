@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 
 @Component({
@@ -13,4 +13,10 @@ import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 })
 export class UnitCardComponent {
   @Input() unit!: UnitCardItem;
+
+  constructor(private translate: TranslateService) {}
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
 }

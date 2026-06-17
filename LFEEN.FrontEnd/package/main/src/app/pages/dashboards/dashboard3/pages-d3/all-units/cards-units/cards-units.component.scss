@@ -8,6 +8,32 @@
   }
 }
 
+.cards-units[dir="ltr"] {
+  .property-review-banner,
+  .activation-notice {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .review-btn {
+    direction: ltr;
+  }
+
+  .building-info {
+    text-align: left;
+  }
+
+  .building-header__right,
+  .building-meta,
+  .building-badge {
+    direction: ltr;
+  }
+
+  .units-grid {
+    direction: ltr;
+  }
+}
+
 .property-review-banner {
   background: #FFFBEB;
   border-radius: 30px;

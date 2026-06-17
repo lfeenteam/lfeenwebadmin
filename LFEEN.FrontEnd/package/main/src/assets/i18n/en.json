@@ -937,12 +937,134 @@
           "cleaningValue": "Smart central cleaning"
         }
       },
+      "termsView": {
+        "pageTitle": "Unit Terms Review",
+        "heading": "Review Housing Rules and Policies",
+        "subtitle": "Please review all dates and rules set by the host to ensure they match platform standards.",
+        "standardBadge": "Standard",
+        "checkInLabel": "Check-in time",
+        "checkInTime": "04:00 PM",
+        "checkOutLabel": "Check-out time",
+        "checkOutTime": "11:00 AM",
+        "earlyArrivalTitle": "Early Arrival Registration",
+        "earlyArrivalDesc": "Allow guests to arrive before the official time",
+        "availableLabel": "Available",
+        "earlyArrivalTime": "07:00 AM",
+        "generalRulesTitle": "General Flexible Unit Rules",
+        "customRulesTitle": "Additional Host Conditions",
+        "generalRules": {
+          "children": "Suitable for children",
+          "parties": "Hosting parties"
+        },
+        "hostRuleText": "Please note that the residential compound applies a quiet-hours policy after 10:00 PM. Shared pool access is not allowed after this time. Please make sure the smart access card is returned at checkout to the allocated box beside the main elevator.",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "approveBtn": "Approve Unit Terms"
+      },
+      "accessView": {
+        "pageTitle": "Access Method Review",
+        "unitAlt": "Unit photo",
+        "unitNumber": "Unit Number",
+        "floor": "Floor",
+        "photosTitle": "Access Route Photos",
+        "photosHint": "Please verify photo quality and that each image matches the actual access route.",
+        "tags": {
+          "external": "External",
+          "inside": "Inside",
+          "floor": "Floor",
+          "unit": "Unit"
+        },
+        "photos": {
+          "street": "Building from outside / street",
+          "mainEntrance": "Main building entrance",
+          "corridor": "Rooms and floor corridor",
+          "unitDoor": "Residential unit door"
+        },
+        "hostGuideTitle": "Uploaded Host Explanation",
+        "hostGuideText": "Please enter from the main gate of Retaj Tower, then head to the elevators on the right. Go up to the fourth floor; the unit is at the end of the corridor on the left. The unit key is inside the smart box beside the door, and the passcode is 4455.",
+        "hostGuideMeta": "Explanation written by the host (Mohammed Al-Harthi)",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesHint": "Optional for approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "approveBtn": "Approve Access Method"
+      },
+      "pricingView": {
+        "pageTitle": "Pricing Policy Review",
+        "title": "Pricing Policy Review",
+        "subtitle": "Please review the daily prices and seasonal periods set by the host",
+        "basePrice": "Base Price",
+        "perNight": "/ night",
+        "seasonalTitle": "Seasonal Pricing Periods",
+        "seasons": {
+          "period1": "Pricing Period 1",
+          "period2": "Pricing Period 2",
+          "period3": "Pricing Period 3",
+          "summerName": "Summer Season",
+          "summerDates": "Jun 15 - Aug 15"
+        },
+        "calendarTitle": "Availability & Daily Prices Calendar",
+        "calendarSubtitle": "Review available prices for each day independently",
+        "days": {
+          "sun": "Sun",
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat"
+        },
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesHint": "Optional for approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Unit Price"
+      },
+      "imagesView": {
+        "pageTitle": "Unit Photos Review",
+        "heading": "Review Unit Photos",
+        "reviewState": "Review status: 10 photos uploaded",
+        "mainPhoto": {
+          "badge": "Main Unit Photo",
+          "name": "Main unit photo",
+          "category": "Living room and bedroom preview"
+        },
+        "groups": {
+          "living": "Living Room Photos",
+          "kitchen": "Kitchen Photos",
+          "bedrooms": "Bedroom Photos"
+        },
+        "photos": {
+          "livingDining": "Dining table",
+          "livingCorridor": "Main corridor cleanliness",
+          "livingMain": "Main living area",
+          "kitchenFull": "Full kitchen photo",
+          "secondaryBedroom": "Secondary bedroom",
+          "masterBedroom": "Master bedroom"
+        },
+        "categories": {
+          "livingDiningCategory": "Section 1 - Dining area",
+          "livingCorridorCategory": "Second floor - internal corridor",
+          "livingMainCategory": "Second floor - living area",
+          "kitchenCategory": "Kitchen equipment and appliances",
+          "secondaryBedroomCategory": "Single bed - secondary room",
+          "masterBedroomCategory": "King bed - master room"
+        },
+        "rejectionReasonPlaceholder": "Rejection reason...",
+        "suggestedSolutionPlaceholder": "Suggested correction for host...",
+        "rejectionSummaryTitle": "Rejection Reasons Summary",
+        "rejectionSummarySubtitle": "Notes found in the uploaded photos. Please review before approval.",
+        "defaultRejectionReason": "Photo needs to be replaced or clarified.",
+        "requiredOnReject": "Required on rejection",
+        "optionalOnApprove": "Optional on approval",
+        "approveBtn": "Approve Unit Photos"
+      },
       "finalNotes": {
         "label": "Final Notes Added",
         "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
       },
       "actions": {
-        "reject": "Reject Request Permanently",
+        "reject": "Reject Request",
         "approve": "Approve Final Decision"
       }
     },
