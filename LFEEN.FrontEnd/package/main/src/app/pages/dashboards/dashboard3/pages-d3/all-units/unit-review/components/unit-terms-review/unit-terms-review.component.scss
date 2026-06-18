@@ -531,42 +531,152 @@ border: 1px solid #D5D5D1;
     text-align: start;
 
     h2 {
-      font-size: 22px;
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 13px;
+      margin-top: 4px;
     }
   }
 
-  .time-grid,
+  .time-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
   .rules-grid,
   .action-buttons {
     grid-template-columns: 1fr;
   }
 
-  .time-card,
-  .early-arrival-card {
-    grid-template-columns: 1fr auto;
+  .action-buttons {
+    align-items: stretch;
+    gap: 12px;
   }
 
-  .standard-chip,
-  .switch,
+  .time-card {
+    grid-template-columns: 1fr auto;
+    padding: 14px 16px;
+    gap: 12px;
+    min-height: 76px;
+  }
+
+  .early-arrival-card {
+    grid-template-columns: auto 1fr auto;
+    padding: 14px 16px;
+    gap: 12px;
+    min-height: 76px;
+    align-items: start;
+  }
+
+  .standard-chip {
+    grid-column: 1 / -1;
+  }
+
   .early-arrival-time {
     grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    gap: 0;
   }
 
   .time-content {
     align-items: flex-start;
   }
 
-  .section-title-row {
-    justify-content: flex-start;
+  .time-content span,
+  .early-arrival-content p,
+  .early-arrival-time span {
+    font-size: 12px;
   }
 
-  .host-rule-card,
+  .time-content strong,
+  .early-arrival-time strong {
+    font-size: 16px;
+  }
+
+  .section-title-row {
+    justify-content: flex-start;
+
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .rules-section {
+    gap: 16px;
+  }
+
+  .host-rule-card {
+    align-items: flex-start;
+    padding: 16px;
+    min-height: unset;
+
+    p {
+      font-size: 13px;
+    }
+  }
+
   .notes-input-wrap {
     align-items: flex-start;
+    padding: 12px 16px;
+    border-radius: 20px;
+  }
+
+  .final-notes-section {
+    padding-top: 20px;
   }
 
   .btn {
-    height: 60px;
+    height: 56px;
+    min-height: 56px;
+    width: 100%;
+    box-sizing: border-box;
     font-size: 15px;
+  }
+}
+
+@media (max-width: 460px) {
+  .terms-heading h2 {
+    font-size: 16px;
+  }
+
+  .time-content strong,
+  .early-arrival-time strong {
+    font-size: 14px;
+  }
+
+  .time-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rule-card {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+
+  .rule-label {
+    font-size: 12px;
+  }
+
+  .btn {
+    height: 50px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .unit-terms-review {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .time-card,
+  .early-arrival-card {
+    padding: 12px;
   }
 }

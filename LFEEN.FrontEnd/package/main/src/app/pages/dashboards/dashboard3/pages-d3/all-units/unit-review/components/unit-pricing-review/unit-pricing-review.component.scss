@@ -499,7 +499,149 @@
 }
 
 @media (max-width: 768px) {
+  .unit-pricing-review {
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .pricing-header {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 14px;
+
+    .header-text {
+      h2 { font-size: 18px; }
+      p  { font-size: 12px; }
+    }
+
+    .price-badge {
+      .price-value { font-size: 16px; }
+    }
+  }
+
+  .seasons-section .section-title {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .seasons-grid {
+    gap: 12px;
+  }
+
+  .season-card {
+    min-height: unset;
+    padding: 8px 12px;
+    gap: 2px;
+
+    .season-card-top {
+      .sun-icon {
+        width: 28px;
+        height: 28px;
+        padding: 3px;
+        border-radius: 8px;
+      }
+      .period-badge {
+        font-size: 10px;
+        padding: 2px 7px;
+      }
+    }
+
+    .season-name  { font-size: 13px; margin-top: 2px; }
+    .season-dates { font-size: 10px; }
+  }
+
+  .calendar-header-row {
+    .calendar-title-block {
+      h3 { font-size: 15px; }
+      p  { font-size: 11px; }
+    }
+  }
+
+  .calendar-box {
+    padding: 10px 8px;
+    border-radius: 12px;
+  }
+
+  .week-row {
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .day-cell {
+    min-height: 54px;
+    border-radius: 8px;
+    padding: 4px;
+
+    .day-number {
+      font-size: 10px;
+      top: 4px;
+      inset-inline-end: 4px;
+    }
+
+    .day-price {
+      font-size: 10px;
+      gap: 2px;
+
+      .price-riyal {
+        width: 10px;
+        height: 10px;
+
+        &.is-text-currency {
+          width: 16px;
+        }
+      }
+    }
+  }
+
+  .day-header-row .day-header {
+    font-size: 10px;
+    padding: 4px 2px;
+  }
+
+  .month-nav .month-label {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+
+  .notes-input-wrap {
+    padding: 14px 16px;
+    border-radius: 20px;
+  }
+
   .action-buttons {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .day-cell {
+    min-height: 44px;
+
+    .day-price {
+      font-size: 9px;
+    }
+  }
+
+  .pricing-header .price-badge {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 360px) {
+  .unit-pricing-review {
+    padding: 12px;
+  }
+
+  .calendar-box {
+    padding: 8px 4px;
+  }
+
+  .day-cell {
+    min-height: 38px;
+    border-radius: 6px;
+
+    .day-price { display: none; }
   }
 }

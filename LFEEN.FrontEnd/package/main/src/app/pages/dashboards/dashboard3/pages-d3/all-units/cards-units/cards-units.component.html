@@ -48,15 +48,37 @@
       </header>
     }
 
-    <div class="units-grid" *ngIf="building.units.length > 0">
-      @for (unit of building.units; track unit.id) {
-        @if (isReviewTab) {
-          <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id"></app-unit-card-review>
-        } @else {
-          <app-unit-card [unit]="unit"></app-unit-card>
-        }
+    @if (building.units.length > 0) {
+      @if (viewMode === 'list') {
+        <div class="units-list-table" [class.units-list-table--published]="!isReviewTab">
+          <header class="units-list-table__header">
+            <div class="uh-col uh-num">{{ 'd3.allUnits.table.unitNumber' | translate }}</div>
+            <div class="uh-col uh-info">{{ 'd3.allUnits.table.unitInfo' | translate }}</div>
+            <div class="uh-col uh-type">{{ 'd3.allUnits.table.type' | translate }}</div>
+            <div class="uh-col uh-desc">{{ 'd3.allUnits.table.description' | translate }}</div>
+            <div class="uh-col uh-status">{{ 'd3.allUnits.table.status' | translate }}</div>
+            <div class="uh-col uh-actions"></div>
+          </header>
+          @for (unit of building.units; track unit.id) {
+            @if (isReviewTab) {
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
+            } @else {
+              <app-unit-card [unit]="unit" [viewMode]="viewMode"></app-unit-card>
+            }
+          }
+        </div>
+      } @else {
+        <div class="units-grid">
+          @for (unit of building.units; track unit.id) {
+            @if (isReviewTab) {
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
+            } @else {
+              <app-unit-card [unit]="unit" [viewMode]="viewMode"></app-unit-card>
+            }
+          }
+        </div>
       }
-    </div>
+    }
 
     @if (isReviewTab && building.needsPropertyReview) {
       <div class="activation-notice">

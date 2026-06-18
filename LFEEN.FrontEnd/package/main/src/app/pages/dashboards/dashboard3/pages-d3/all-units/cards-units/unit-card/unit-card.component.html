@@ -1,41 +1,83 @@
-<article class="unit-card" [dir]="currentDir" [class.stopped]="unit.status === 'stopped'">
-  <div class="unit-card__top">
- 
-    <div class="unit-card__id">{{ unit.unitNumber }}</div>
-       <div class="unit-card__status">
-      <span class="status-dot"></span>
-      <span class="status-text">{{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}</span>
-    </div>
-  </div>
+<article class="unit-card" [dir]="currentDir"
+  [class.unit-card--list]="viewMode === 'list'"
+  [class.stopped]="unit.status === 'stopped'">
 
-  <div class="unit-card__body">
-    <h3 class="unit-card__title">{{ unit.title }}</h3>
-    <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
-
-    <div class="unit-card__info-container">
-      <div class="info-row">
-        <div class="info-right">
-          <i-tabler name="info-circle" class="info-icon"></i-tabler>
-          <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
-        </div>
-        <span class="info-value">{{ unit.type }}</span>
-      </div>
-      <div class="info-row">
-        <div class="info-right">
-          <i-tabler name="layout-list" class="info-icon"></i-tabler>
-          <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
-        </div>
-        <span class="info-value">{{ unit.description }}</span>
+  @if (viewMode === 'grid') {
+    <div class="unit-card__top">
+      <div class="unit-card__id">{{ unit.unitNumber }}</div>
+      <div class="unit-card__status">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}</span>
       </div>
     </div>
-  </div>
 
-  <div class="unit-card__footer">
-    <button class="footer-btn eye-btn">
-      <i-tabler name="eye"></i-tabler>
-    </button>
-    <button class="footer-btn menu-btn">
-      <i-tabler name="dots-vertical"></i-tabler>
-    </button>
-  </div>
+    <div class="unit-card__body">
+      <h3 class="unit-card__title">{{ unit.title }}</h3>
+      <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
+
+      <div class="unit-card__info-container">
+        <div class="info-row">
+          <div class="info-right">
+            <i-tabler name="info-circle" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
+          </div>
+          <span class="info-value">{{ unit.type }}</span>
+        </div>
+        <div class="info-row">
+          <div class="info-right">
+            <i-tabler name="layout-list" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
+          </div>
+          <span class="info-value">{{ unit.description }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit-card__footer">
+      <button class="footer-btn eye-btn">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+      <button class="footer-btn menu-btn">
+        <i-tabler name="dots-vertical"></i-tabler>
+      </button>
+    </div>
+  }
+
+  @if (viewMode === 'list') {
+    <!-- col 1: unit number -->
+    <div class="list-num-col">
+      <span class="unit-num-badge">{{ unit.unitNumber }}</span>
+    </div>
+
+    <!-- col 2: title + floor/capacity -->
+    <div class="list-info-col">
+      <span class="list-title">{{ unit.title }}</span>
+      <span class="list-sub">{{ unit.floor }} · {{ unit.capacity }}</span>
+    </div>
+
+    <!-- col 3: type -->
+    <div class="list-type-col">{{ unit.type }}</div>
+
+    <!-- col 4: description -->
+    <div class="list-desc-col">{{ unit.description }}</div>
+
+    <!-- col 5: status -->
+    <div class="list-status-col">
+      <span class="status-badge" [class.status-badge--stopped]="unit.status === 'stopped'">
+        <span class="status-dot"></span>
+        {{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}
+      </span>
+    </div>
+
+    <!-- col 6: actions -->
+    <div class="list-actions-col">
+      <button class="view-btn" type="button" aria-label="View unit">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+      <button class="menu-btn" type="button" aria-label="More options">
+        <i-tabler name="dots-vertical"></i-tabler>
+      </button>
+    </div>
+  }
+
 </article>

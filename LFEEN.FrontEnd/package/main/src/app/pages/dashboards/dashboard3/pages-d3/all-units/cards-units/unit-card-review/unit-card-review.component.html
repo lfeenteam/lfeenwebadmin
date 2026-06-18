@@ -1,42 +1,102 @@
-<article class="unit-card" [dir]="currentDir" [class.stopped]="isLockedDisplay" [class.under-review]="!isLockedDisplay" (click)="!isLockedDisplay && goToReview()">
-  <div class="unit-card__top">
-    <div class="unit-card__id">{{ unit.unitNumber }}</div>
-    <div class="unit-card__status" *ngIf="!isLockedDisplay">
-      <span class="status-text">{{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}</span>
-    </div>
-    <div class="unit-card__status" *ngIf="isLockedDisplay">
-      <span class="status-text">{{ 'd3.allUnits.unitCard.statusStopped' | translate }}</span>
-    </div>
-  </div>
+<article class="unit-card" [dir]="currentDir"
+  [class.unit-card--list]="viewMode === 'list'"
+  [class.stopped]="isLockedDisplay"
+  [class.under-review]="!isLockedDisplay"
+  (click)="!isLockedDisplay && goToReview()">
 
-  <div class="unit-card__body">
-    <h3 class="unit-card__title">{{ unit.title }}</h3>
-    <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
-
-    <div class="unit-card__info-container" *ngIf="!isLockedDisplay">
-      <div class="info-row">
-        <div class="info-right">
-          <i-tabler name="info-circle" class="info-icon"></i-tabler>
-          <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
-        </div>
-        <span class="info-value">{{ unit.type }}</span>
+  @if (viewMode === 'grid') {
+    <div class="unit-card__top">
+      <div class="unit-card__id">{{ unit.unitNumber }}</div>
+      <div class="unit-card__status" *ngIf="!isLockedDisplay">
+        <span class="status-text">{{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}</span>
       </div>
-      <div class="info-row">
-        <div class="info-right">
-          <i-tabler name="layout-list" class="info-icon"></i-tabler>
-          <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
-        </div>
-        <span class="info-value">{{ unit.description }}</span>
+      <div class="unit-card__status" *ngIf="isLockedDisplay">
+        <span class="status-text">{{ 'd3.allUnits.unitCard.statusStopped' | translate }}</span>
       </div>
     </div>
-  </div>
 
-  <div class="unit-card__footer">
-    <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
-      <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
-    </button>
-    <div class="stopped-lock" *ngIf="isLockedDisplay">
-      <i-tabler name="lock"></i-tabler>
+    <div class="unit-card__body">
+      <h3 class="unit-card__title">{{ unit.title }}</h3>
+      <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
+
+      <div class="unit-card__info-container" *ngIf="!isLockedDisplay">
+        <div class="info-row">
+          <div class="info-right">
+            <i-tabler name="info-circle" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
+          </div>
+          <span class="info-value">{{ unit.type }}</span>
+        </div>
+        <div class="info-row">
+          <div class="info-right">
+            <i-tabler name="layout-list" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
+          </div>
+          <span class="info-value">{{ unit.description }}</span>
+        </div>
+        <div class="info-row" *ngIf="unit.servicesPricingType">
+          <div class="info-right">
+            <i-tabler name="settings" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.servicesPricing' | translate }}</span>
+          </div>
+          <span class="info-value service-type" [class.service-type--free]="isFreeServices">{{ servicesPricingKey | translate }}</span>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <div class="unit-card__footer">
+      <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
+        <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
+      </button>
+      <div class="stopped-lock" *ngIf="isLockedDisplay">
+        <i-tabler name="lock"></i-tabler>
+      </div>
+    </div>
+  }
+
+  @if (viewMode === 'list') {
+    <!-- col 1: unit number -->
+    <div class="list-num-col">
+      <span class="unit-num-badge">{{ unit.unitNumber }}</span>
+    </div>
+
+    <!-- col 2: title + floor/capacity -->
+    <div class="list-info-col">
+      <span class="list-title">{{ unit.title }}</span>
+      <span class="list-sub">{{ unit.floor }} · {{ unit.capacity }}</span>
+    </div>
+
+    <!-- col 3: type -->
+    <div class="list-type-col">
+      {{ unit.type }}
+    </div>
+
+    <!-- col 4: description -->
+    <div class="list-desc-col">
+      {{ unit.description }}
+    </div>
+
+    <!-- col 5: status badge -->
+    <div class="list-status-col">
+      @if (!isLockedDisplay) {
+        <span class="status-badge">
+          <span class="status-dot"></span>
+          {{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}
+        </span>
+      } @else {
+        <span class="status-badge status-badge--stopped">
+          <i-tabler name="lock" class="lock-icon"></i-tabler>
+          {{ 'd3.allUnits.unitCard.statusStopped' | translate }}
+        </span>
+      }
+    </div>
+
+    <!-- col 6: actions -->
+    <div class="list-actions-col">
+      <button type="button" class="view-btn" *ngIf="!isLockedDisplay" aria-label="View unit review">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+    </div>
+  }
+
 </article>

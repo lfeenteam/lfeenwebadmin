@@ -1,0 +1,194 @@
+<div class="cancel-policy-review" [dir]="currentDir">
+
+  <section class="policy-heading">
+    <h2>{{ 'd3.unitReview.cancelPolicyView.heading' | translate }}</h2>
+    <p>{{ 'd3.unitReview.cancelPolicyView.subtitle' | translate }}</p>
+  </section>
+
+  <!-- ── Non-refundable ── -->
+  @if (policyType === 'non_refundable') {
+    <div class="policy-card policy-card--non-refundable">
+      <div class="policy-title-row">
+        <div class="policy-title-text">
+          <h3>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.title' | translate }}</h3>
+          <p>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.desc' | translate }}</p>
+        </div>
+        <i-tabler name="refresh" class="policy-type-icon"></i-tabler>
+      </div>
+
+      <div class="info-grid info-grid--2">
+             <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.refundRateLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.nonRefundable.refundRateValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.nonRefundable.refundRateValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.nonRefundable.refundRateValue' | translate) }}</span>
+          </span>
+          <i-tabler name="link" class="info-icon-abs"></i-tabler>
+        </div>
+        <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.activationLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.nonRefundable.activationValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.nonRefundable.activationValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.nonRefundable.activationValue' | translate) }}</span>
+          </span>
+          <i-tabler name="bolt" class="info-icon-abs"></i-tabler>
+        </div>
+   
+      </div>
+
+      <div class="warning-card">
+        <p>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.warning' | translate }}</p>
+        <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
+      </div>
+    </div>
+  }
+
+  <!-- ── Flexible ── -->
+  @if (policyType === 'flexible') {
+    <div class="policy-card">
+      <div class="policy-title-row">
+        <div class="policy-title-text">
+          <h3>{{ 'd3.unitReview.cancelPolicyView.flexible.title' | translate }}</h3>
+          <p>{{ 'd3.unitReview.cancelPolicyView.flexible.desc' | translate }}</p>
+        </div>
+        <i-tabler name="refresh" class="policy-type-icon"></i-tabler>
+      </div>
+
+      <div class="info-grid info-grid--4">
+             <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.periodLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.flexible.periodValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.flexible.periodValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.flexible.periodValue' | translate) }}</span>
+          </span>
+          <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.periodDesc' | translate }}</p>
+          <i-tabler name="clock" class="info-icon-abs"></i-tabler>
+        </div>
+           <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.fullLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.flexible.fullValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.flexible.fullValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.flexible.fullValue' | translate) }}</span>
+          </span>
+          <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.fullDesc' | translate }}</p>
+          <i-tabler name="shield-check" class="info-icon-abs"></i-tabler>
+        </div>
+           <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.partialLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.flexible.partialValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.flexible.partialValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.flexible.partialValue' | translate) }}</span>
+          </span>
+          <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.partialDesc' | translate }}</p>
+          <i-tabler name="percentage" class="info-icon-abs"></i-tabler>
+        </div>
+        <div class="info-card info-card--rate">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.refundRateLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.flexible.refundRateValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.flexible.refundRateValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.flexible.refundRateValue' | translate) }}</span>
+          </span>
+          <div class="rate-bar-wrap">
+            <div class="rate-bar" style="width: 50%"></div>
+          </div>
+          <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
+        </div>
+     
+     
+   
+      </div>
+    </div>
+  }
+
+  <!-- ── Partial Refund ── -->
+  @if (policyType === 'partial_refund') {
+    <div class="policy-card">
+      <div class="policy-title-row">
+        <div class="policy-title-text">
+          <h3>{{ 'd3.unitReview.cancelPolicyView.partialRefund.title' | translate }}</h3>
+          <p>{{ 'd3.unitReview.cancelPolicyView.partialRefund.desc' | translate }}</p>
+        </div>
+        <i-tabler name="link" class="policy-type-icon"></i-tabler>
+      </div>
+
+      <div class="info-grid info-grid--3">
+            <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.fullLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.fullValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.fullValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.partialRefund.fullValue' | translate) }}</span>
+          </span>
+          <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.partialRefund.fullDesc' | translate }}</p>
+          <i-tabler name="shield-check" class="info-icon-abs"></i-tabler>
+        </div>
+       
+        <div class="info-card">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.partialLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.partialValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.partialValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.partialRefund.partialValue' | translate) }}</span>
+          </span>
+          <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.partialRefund.partialDesc' | translate }}</p>
+          <i-tabler name="percentage" class="info-icon-abs"></i-tabler>
+        </div>
+     <div class="info-card info-card--rate">
+          <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.refundRateLabel' | translate }}</span>
+          <span class="info-value-line">
+            @if (getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.refundRateValue' | translate)) {
+              <strong class="info-value">{{ getValueNumber('d3.unitReview.cancelPolicyView.partialRefund.refundRateValue' | translate) }}</strong>
+            }
+            <span class="info-value-text">{{ getValueText('d3.unitReview.cancelPolicyView.partialRefund.refundRateValue' | translate) }}</span>
+          </span>
+          <div class="rate-bar-wrap">
+            <div class="rate-bar" style="width: 50%"></div>
+          </div>
+          <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Notes -->
+  <section class="notes-section">
+    <div class="notes-label-row">
+      <span class="notes-title">{{ 'd3.unitReview.cancelPolicyView.notesLabel' | translate }}</span>
+    </div>
+    <div class="notes-input-wrap">
+      <i-tabler name="message-2"></i-tabler>
+      <textarea
+        [(ngModel)]="rejectionNote"
+        [placeholder]="'d3.unitReview.cancelPolicyView.notesPlaceholder' | translate"
+        rows="3">
+      </textarea>
+    </div>
+  </section>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
+      <span>{{ 'd3.unitReview.cancelPolicyView.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
+      <span>{{ 'd3.unitReview.cancelPolicyView.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+  </div>
+
+</div>
