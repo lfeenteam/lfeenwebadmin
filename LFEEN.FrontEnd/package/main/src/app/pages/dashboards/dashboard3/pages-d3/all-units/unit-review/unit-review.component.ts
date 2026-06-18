@@ -111,6 +111,26 @@ export class UnitReviewComponent implements OnInit {
 
     if (section.key === 'access') {
       this.router.navigate(['access'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'cancelPolicy') {
+      this.router.navigate(['cancel-policy'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'deposit') {
+      this.router.navigate(['deposit'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'services') {
+      this.router.navigate(['services'], { relativeTo: this.route });
+      return;
+    }
+
+    if (section.key === 'license') {
+      this.router.navigate(['license'], { relativeTo: this.route });
     }
   }
 

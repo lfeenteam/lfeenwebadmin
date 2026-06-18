@@ -27,7 +27,8 @@ export class UnitsService {
           description: '٥ غرف - مسبح',
           rooms: 5,
           area: '٢٢٠ م²',
-          hasPool: true
+          hasPool: true,
+          cancelPolicyType: 'partial_refund'
         },
         {
           id: 'u2',
@@ -149,7 +150,9 @@ export class UnitsService {
           description: '٣ غرف - صالة',
           rooms: 3,
           area: '١٢٠ م²',
-          hasPool: false
+          hasPool: false,
+          cancelPolicyType: 'non_refundable',
+          servicesPricingType: 'paid'
         },
         {
           id: 'ur2',
@@ -162,7 +165,24 @@ export class UnitsService {
           description: '٣ غرف - صالة',
           rooms: 3,
           area: '١٢٠ م²',
-          hasPool: false
+          hasPool: false,
+          cancelPolicyType: 'flexible',
+          servicesPricingType: 'free'
+        },
+        {
+          id: 'ur3',
+          unitNumber: '302',
+          title: 'شقة ديلوكس مطلة',
+          floor: 'الدور ٣',
+          capacity: 'سعة ٤ أفراد',
+          status: 'underReview',
+          type: 'شقة سكنية',
+          description: '٣ غرف - صالة',
+          rooms: 3,
+          area: '١٢٠ م²',
+          hasPool: false,
+          cancelPolicyType: 'partial_refund',
+          servicesPricingType: 'paid'
         }
       ]
     },

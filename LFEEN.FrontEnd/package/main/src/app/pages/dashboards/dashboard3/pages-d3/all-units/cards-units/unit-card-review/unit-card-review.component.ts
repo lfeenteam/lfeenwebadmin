@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitCardItem } from '../../../../interfaces/unit-card.model';
+import { ViewMode } from '../../../../interfaces/dashboard-sub-header.model';
 
 @Component({
   selector: 'app-unit-card-review',
@@ -16,6 +17,7 @@ export class UnitCardReviewComponent {
   @Input() unit!: UnitCardItem;
   @Input() forceUnderReviewStyle: boolean = false;
   @Input() buildingId!: string;
+  @Input() viewMode: ViewMode = 'grid';
 
   constructor(
     private router: Router,
@@ -29,6 +31,16 @@ export class UnitCardReviewComponent {
 
   get isLockedDisplay(): boolean {
     return this.unit.status === 'stopped' && !this.forceUnderReviewStyle;
+  }
+
+  get servicesPricingKey(): string {
+    return this.unit.servicesPricingType === 'free'
+      ? 'd3.allUnits.unitCard.servicesFree'
+      : 'd3.allUnits.unitCard.servicesPaid';
+  }
+
+  get isFreeServices(): boolean {
+    return this.unit.servicesPricingType === 'free';
   }
 
   goToReview(): void {

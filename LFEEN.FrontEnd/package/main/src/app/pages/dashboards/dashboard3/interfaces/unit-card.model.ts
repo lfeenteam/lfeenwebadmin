@@ -1,4 +1,6 @@
 export type UnitStatus = 'active' | 'stopped' | 'underReview';
+export type CancelPolicyType = 'non_refundable' | 'flexible' | 'partial_refund';
+export type UnitServicesPricingType = 'paid' | 'free';
 
 export interface UnitCardItem {
   id: string;
@@ -12,6 +14,8 @@ export interface UnitCardItem {
   rooms: number;
   hasPool: boolean;
   area?: string;
+  cancelPolicyType?: CancelPolicyType;
+  servicesPricingType?: UnitServicesPricingType;
 }
 
 export interface UnitAmenityItem {

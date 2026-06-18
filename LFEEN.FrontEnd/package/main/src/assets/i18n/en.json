@@ -293,7 +293,10 @@
         "type": "Type",
         "description": "Description",
         "statusUnderReview": "Under Review",
-        "statusStopped": "Disabled"
+        "statusStopped": "Disabled",
+        "servicesPricing": "Services",
+        "servicesPaid": "Paid",
+        "servicesFree": "Free"
       },
       "cardsUnits": {
         "awaitingReviewMeta": "Awaiting property review first",
@@ -304,6 +307,13 @@
           "title": "Activation System Notice",
           "description": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until final approval is received on the main property's data."
         }
+      },
+      "table": {
+        "unitNumber": "No.",
+        "unitInfo": "Unit",
+        "type": "Type",
+        "description": "Description",
+        "status": "Status"
       }
     },
     "sections": {
@@ -621,47 +631,116 @@
     },
     "permCodes": {
       "Departments": {
-        "Delete": { "name": "Delete Departments",  "description": "Delete departments" },
-        "Update": { "name": "Update Departments",  "description": "Update existing departments" },
-        "View":   { "name": "View Departments",    "description": "View departments list" },
-        "Create": { "name": "Create Departments",  "description": "Create new departments" }
+        "Delete": {
+          "name": "Delete Departments",
+          "description": "Delete departments"
+        },
+        "Update": {
+          "name": "Update Departments",
+          "description": "Update existing departments"
+        },
+        "View": {
+          "name": "View Departments",
+          "description": "View departments list"
+        },
+        "Create": {
+          "name": "Create Departments",
+          "description": "Create new departments"
+        }
       },
       "CS": {
-        "View":   { "name": "View Customer Service",   "description": "Access customer service overview" },
-        "Manage": { "name": "Manage Customer Service", "description": "Manage customer service resources" }
+        "View": {
+          "name": "View Customer Service",
+          "description": "Access customer service overview"
+        },
+        "Manage": {
+          "name": "Manage Customer Service",
+          "description": "Manage customer service resources"
+        }
       },
       "IT": {
-        "View":   { "name": "View IT",   "description": "Access IT department overview" },
-        "Manage": { "name": "Manage IT", "description": "Manage IT resources and systems" }
+        "View": {
+          "name": "View IT",
+          "description": "Access IT department overview"
+        },
+        "Manage": {
+          "name": "Manage IT",
+          "description": "Manage IT resources and systems"
+        }
       },
       "Permissions": {
-        "View":   { "name": "View Permissions",   "description": "View permissions list" },
-        "Manage": { "name": "Manage Permissions", "description": "Create, update and delete permissions" }
+        "View": {
+          "name": "View Permissions",
+          "description": "View permissions list"
+        },
+        "Manage": {
+          "name": "Manage Permissions",
+          "description": "Create, update and delete permissions"
+        }
       },
       "Roles": {
-        "View":   { "name": "View Roles",   "description": "View roles list" },
-        "Create": { "name": "Create Roles", "description": "Create new roles" },
-        "Update": { "name": "Update Roles", "description": "Update existing roles" },
-        "Delete": { "name": "Delete Roles", "description": "Delete roles" }
+        "View": {
+          "name": "View Roles",
+          "description": "View roles list"
+        },
+        "Create": {
+          "name": "Create Roles",
+          "description": "Create new roles"
+        },
+        "Update": {
+          "name": "Update Roles",
+          "description": "Update existing roles"
+        },
+        "Delete": {
+          "name": "Delete Roles",
+          "description": "Delete roles"
+        }
       },
       "Dashboard": {
-        "View": { "name": "View Dashboard", "description": "Access the main admin dashboard" }
+        "View": {
+          "name": "View Dashboard",
+          "description": "Access the main admin dashboard"
+        }
       },
       "Accounts": {
-        "View":   { "name": "View Accounts",   "description": "View accounts list" },
-        "Manage": { "name": "Manage Accounts", "description": "Manage and review accounts" }
+        "View": {
+          "name": "View Accounts",
+          "description": "View accounts list"
+        },
+        "Manage": {
+          "name": "Manage Accounts",
+          "description": "Manage and review accounts"
+        }
       },
       "Buildings": {
-        "View":   { "name": "View Buildings",   "description": "View buildings list" },
-        "Manage": { "name": "Manage Buildings", "description": "Manage buildings and units" }
+        "View": {
+          "name": "View Buildings",
+          "description": "View buildings list"
+        },
+        "Manage": {
+          "name": "Manage Buildings",
+          "description": "Manage buildings and units"
+        }
       },
       "Bookings": {
-        "View":   { "name": "View Bookings",   "description": "View bookings list" },
-        "Manage": { "name": "Manage Bookings", "description": "Manage bookings and cancellations" }
+        "View": {
+          "name": "View Bookings",
+          "description": "View bookings list"
+        },
+        "Manage": {
+          "name": "Manage Bookings",
+          "description": "Manage bookings and cancellations"
+        }
       },
       "Employees": {
-        "View":   { "name": "View Employees",   "description": "View employees list" },
-        "Manage": { "name": "Manage Employees", "description": "Add, update and delete employees" }
+        "View": {
+          "name": "View Employees",
+          "description": "View employees list"
+        },
+        "Manage": {
+          "name": "Manage Employees",
+          "description": "Add, update and delete employees"
+        }
       }
     },
     "buildReview": {
@@ -1059,13 +1138,152 @@
         "optionalOnApprove": "Optional on approval",
         "approveBtn": "Approve Unit Photos"
       },
+      "cancelPolicyView": {
+        "pageTitle": "Cancellation Policy Review",
+        "heading": "Host-Selected Policy",
+        "subtitle": "Please review the rules and time limits set for refunds before approval.",
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Cancellation Policy",
+        "nonRefundable": {
+          "title": "Non-refundable",
+          "desc": "This strict policy was chosen by the host. Under this option, guests are not entitled to a refund of any portion of the booking amount once confirmed, regardless of cancellation time.",
+          "activationLabel": "Activation Status",
+          "activationValue": "Immediately after booking",
+          "refundRateLabel": "Refund Rate",
+          "refundRateValue": "0% of total amount",
+          "warning": "Warning: This policy may affect the unit's booking rate due to its strictness. Please confirm the host's intent to apply it before approval."
+        },
+        "flexible": {
+          "title": "Flexible Policy",
+          "desc": "This policy allows the host to cancel for free up to a specified time before arrival, providing high booking flexibility.",
+          "refundRateLabel": "Refund Rate",
+          "refundRateValue": "50% of booking value",
+          "partialLabel": "Partial Refund",
+          "partialValue": "24 hours before arrival",
+          "partialDesc": "Cancellation allowed with a set percentage deducted.",
+          "fullLabel": "Full Refund",
+          "fullValue": "48 hours before arrival",
+          "fullDesc": "Full amount returned to the guest.",
+          "periodLabel": "Full Refund Period",
+          "periodValue": "72 hours before arrival",
+          "periodDesc": "Full refund for cancellations 72 hours before arrival."
+        },
+        "partialRefund": {
+          "title": "Partial Refund",
+          "desc": "This policy allows full or partial refund based on cancellation timing.",
+          "refundRateLabel": "Refund Rate",
+          "refundRateValue": "50% of booking value",
+          "partialLabel": "Partial Refund",
+          "partialValue": "24 hours before arrival",
+          "partialDesc": "Cancellation allowed with a set percentage deducted.",
+          "fullLabel": "Full Refund",
+          "fullValue": "48 hours before arrival",
+          "fullDesc": "Full amount returned to the guest."
+        }
+      },
       "finalNotes": {
         "label": "Final Notes Added",
         "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
       },
+      "depositView": {
+        "pageTitle": "Security Deposit Review",
+        "amountLabel": "Selected security deposit for the unit",
+        "notice": "This amount is collected before the guest is allowed to check in. If no damage or issues are reported, the amount is automatically refunded 24 hours after checkout.",
+        "systemCheck": "The amount is verified by the platform's financial system",
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Security Deposit"
+      },
       "actions": {
         "reject": "Reject Request",
         "approve": "Approve Final Decision"
+      },
+      "servicesView": {
+        "pageTitle": "Additional Services Review",
+        "subtitle": "Review the services selected by the host and their pricing before final unit approval",
+        "parking": {
+          "title": "Parking",
+          "desc": "Parking policy for the unit",
+          "itemTitle": "Service Type",
+          "itemDesc": "Dedicated guest parking inside the property"
+        },
+        "food": {
+          "title": "Food Services",
+          "desc": "Available meals and prices",
+          "breakfastTitle": "Breakfast Meal",
+          "breakfastDesc": "Traditional breakfast (fava beans, falafel) or western breakfast (eggs, pancakes)",
+          "dinnerTitle": "Dinner with Family",
+          "dinnerDesc": "Dinner Meal (Not Available)",
+          "lunchTitle": "Lunch with Family",
+          "lunchDesc": "Lunch Meal (Not Available)"
+        },
+        "room": {
+          "title": "Room Services",
+          "desc": "Cleaning and room setup services",
+          "cleaningTitle": "Weekly Room Cleaning",
+          "cleaningDesc": "Includes room tidying, floor cleaning and bathroom cleaning",
+          "beddingTitle": "Bed Sheet Replacement",
+          "beddingDesc": "Provides clean washed sheets and towels"
+        },
+        "wifi": {
+          "title": "Wi-Fi Connection",
+          "desc": "Network details for the unit",
+          "passwordTitle": "Password",
+          "passwordValue": "royal12345",
+          "networkTitle": "Network Name (SSID)",
+          "networkValue": "NazilSoft_Guest_101"
+        },
+        "badges": {
+          "enabled": "Enabled",
+          "free": "Free",
+          "paid": "Paid"
+        },
+        "price": {
+          "paidLabel": "Daily Price",
+          "freeLabel": "Service"
+        },
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Additional Services"
+      },
+      "licenseView": {
+        "pageTitle": "Unit License Document Review",
+        "subtitle": "Please review the data and verify it matches the document below.",
+        "fullScreenBtn": "View full size",
+        "documentTitle": "Attached License Document",
+        "documentAlt": "Unit license document",
+        "owner": {
+          "title": "Property Owner Details",
+          "name": "Rehla Hotel Group",
+          "subtitle": "Commercial registry system",
+          "id": "430029387",
+          "profileBtn": "View profile and financial file"
+        },
+        "details": {
+          "title": "License Details",
+          "numberLabel": "Unified License Number",
+          "numberValue": "LIC-2024-00874",
+          "verifiedBadge": "Verified",
+          "statusLabel": "Document Status",
+          "statusValue": "",
+          "statusBadge": "Valid and Correct",
+          "issueDateLabel": "Issue Date",
+          "issueDateValue": "May 12, 2023",
+          "expiryDateLabel": "Expiry Date",
+          "expiryDateValue": "Dec 31, 2026",
+          "sourceLabel": "Issuing Authority",
+          "sourceValue": "Ministry of Tourism - Kingdom of Saudi Arabia",
+          "categoryLabel": "License Category",
+          "categoryValue": "Management and operation of tourist hospitality facilities"
+        },
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve License"
       }
     },
     "accountManagement": {

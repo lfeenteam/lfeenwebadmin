@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BuildingWithUnits } from '../../../interfaces/unit-card.model';
+import { ViewMode } from '../../../interfaces/dashboard-sub-header.model';
 import { UnitCardComponent } from './unit-card/unit-card.component';
 import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.component';
 
@@ -16,6 +17,7 @@ import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.com
 export class CardsUnitsComponent {
   @Input() buildings: BuildingWithUnits[] = [];
   @Input() isReviewTab: boolean = false;
+  @Input() viewMode: ViewMode = 'grid';
 
   constructor(private translate: TranslateService) {}
 

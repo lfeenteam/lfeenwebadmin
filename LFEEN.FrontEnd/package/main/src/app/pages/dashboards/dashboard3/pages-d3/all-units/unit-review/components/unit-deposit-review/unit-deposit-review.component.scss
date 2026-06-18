@@ -1,0 +1,249 @@
+.unit-deposit-review,
+.unit-deposit-review * {
+  font-family: 'Cairo', sans-serif;
+}
+
+.unit-deposit-review {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 16px 30px;
+  margin: 0 auto;
+  color: #111110;
+}
+
+.deposit-card {
+  min-height: 306px;
+  border: 1px solid #E8E8E4;
+  border-radius: 20px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.deposit-icon-box {
+  width: 55px;
+  height: 55px;
+  border-radius: 16px;
+  background: #F7F7F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111110;
+
+  i-tabler {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.deposit-label {
+  color: #6B6B67;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.deposit-amount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #111110;
+
+  strong {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+  }
+}
+
+.riyal-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+
+  &.is-text-currency {
+    width: 48px;
+  }
+}
+
+.deposit-notice {
+  width: min(100%, 400px);
+  min-height: 78px;
+  border: 1px solid #E8E8E499;
+  border-radius: 16px;
+  background: #F7F7F5;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px;
+  text-align: start;
+
+  i-tabler {
+    width: 17px;
+    height: 17px;
+    color: #9E9E9A;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    color: #6B6B67;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.7;
+  }
+}
+
+.deposit-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #9E9E9A;
+  font-size: 11px;
+  font-weight: 700;
+
+  i-tabler {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notes-label-row {
+  display: flex;
+  justify-content: flex-start;
+
+  .notes-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #9E9E9A;
+  }
+}
+
+.notes-input-wrap {
+  display: flex;
+  align-items: flex-start;
+  direction: rtl;
+  position: relative;
+  min-height: 70px;
+  border: 1px solid #E8E8E4;
+  border-radius: 28px;
+  background: #FCFCFB;
+  padding: 18px 22px;
+  gap: 14px;
+
+  i-tabler {
+    position: absolute;
+    left: 22px;
+    bottom: 18px;
+    color: #C9C9C6;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    color: #333;
+    padding: 0;
+    background: transparent;
+    font-family: inherit;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.8;
+
+    &::placeholder {
+      color: #AFAFAC;
+    }
+  }
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  direction: ltr;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 0 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+    direction: rtl;
+
+    i-tabler {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+
+  .btn-approve {
+    background: #111110;
+    color: #fff;
+    border: none;
+  }
+
+  .btn-reject {
+    background: #fff;
+    color: #F43F5E;
+    border: 1px solid #FFD6DE;
+  }
+}
+
+.unit-deposit-review[dir="ltr"] {
+  .notes-input-wrap {
+    direction: ltr;
+
+    textarea {
+      direction: ltr;
+      text-align: left;
+    }
+  }
+
+  .notes-input-wrap i-tabler {
+    left: auto;
+    right: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .unit-deposit-review {
+    padding: 12px 16px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+}

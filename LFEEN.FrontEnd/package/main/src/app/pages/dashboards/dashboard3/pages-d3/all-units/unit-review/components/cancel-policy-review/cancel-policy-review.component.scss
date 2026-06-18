@@ -1,0 +1,484 @@
+.cancel-policy-review,
+.cancel-policy-review * {
+  font-family: 'Cairo', sans-serif;
+}
+
+.cancel-policy-review {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 16px 30px;
+  margin: 0 auto;
+  color: #111110;
+  
+}
+
+// ─── Heading ──────────────────────────────────────────────────────────────────
+.policy-heading {
+  text-align: start;
+  padding-bottom: 18px;
+ 
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #111110;
+  }
+
+  p {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6B6B67;
+    margin: 0;
+  }
+}
+
+// ─── Policy Card ──────────────────────────────────────────────────────────────
+.policy-card {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.policy-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  background: #111110;
+  opacity: 1;
+}
+
+.policy-card--non-refundable {
+  .info-card {
+    min-height: 64px;
+    background: #F7F7F5;
+    border-color: transparent;
+    border-radius: 10px;
+    padding: 13px 18px;
+    padding-inline-end: 58px;
+    justify-content: center;
+  }
+
+  .info-icon-abs {
+    top: 50%;
+    transform: translateY(-50%);
+    inset-inline-end: 18px;
+    width: 38px;
+    height: 38px;
+    padding: 6px;
+    border: 1px solid #E8E8E4;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #111110;
+  }
+
+  .warning-card {
+    min-height: 54px;
+    align-items: center;
+    background: #FFFBEB;
+    border-color: #FDE68A;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+}
+
+.policy-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  .policy-title-text {
+    flex: 1;
+    text-align: start;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111110;
+    }
+
+    p {
+      font-weight: 400;
+      font-size: 14px;
+      color: #6B6B67;
+      margin: 0;
+      line-height: 1.7;
+    }
+  }
+
+  .policy-type-icon {
+    order: -1;
+    width: 50px;
+    height: 50px;
+    padding: 7px;
+    border-radius: 16px;
+    background: #F7F7F5;
+    color: #111110;
+    flex-shrink: 0;
+  }
+}
+
+// ─── Info Grid ────────────────────────────────────────────────────────────────
+.info-grid {
+  display: grid;
+  gap: 16px;
+
+  &--2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  &--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    &--2, &--3, &--4 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    &--2, &--3, &--4 {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.info-card {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  min-height: 110px;
+  padding: 22px;
+  padding-inline-end: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: start;
+  position: relative;
+}
+
+.info-icon-abs {
+  position: absolute;
+  top: 18px;
+  transform: none;
+  inset-inline-end: 18px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #C9C9C6;
+
+  .info-card--rate & {
+    top: 18px;
+  }
+}
+
+.info-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9E9E9A;
+  line-height: 1.2;
+}
+
+.info-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111110;
+  line-height: 1.2;
+}
+
+.info-value-line {
+  display: inline-flex;
+  align-items: baseline;
+
+  gap: 6px;
+  margin-top: 8px;
+  text-align: right;
+}
+
+.info-value-text {
+  color: #6B6B67;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.info-desc {
+  font-size: 11px;
+  color: #9E9E9A;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ─── Rate Bar ─────────────────────────────────────────────────────────────────
+.rate-bar-wrap {
+  width: 100%;
+  height: 4px;
+  background: #E8E8E4;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.rate-bar {
+  height: 100%;
+  background: #111110;
+  border-radius: 999px;
+}
+
+// ─── Warning Card ─────────────────────────────────────────────────────────────
+.warning-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 14px;
+  padding: 14px 16px;
+
+  p {
+    flex: 1;
+    font-size: 12px;
+    color: #92400E;
+    margin: 0;
+    line-height: 1.7;
+    text-align: start;
+  }
+
+  .warning-icon {
+    order: -1;
+    width: 20px;
+    height: 20px;
+    color: #D97706;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ─── Notes ────────────────────────────────────────────────────────────────────
+.notes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notes-label-row {
+  display: flex;
+  justify-content: flex-start;
+
+  .notes-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #9E9E9A;
+  }
+}
+
+.notes-input-wrap {
+  display: flex;
+  align-items: flex-start;
+  direction: rtl;
+  position: relative;
+  min-height: 70px;
+  border: 1px solid #E8E8E4;
+  border-radius: 28px;
+  background: #FCFCFB;
+  padding: 18px 22px;
+  gap: 14px;
+
+  i-tabler {
+    position: absolute;
+    left: 22px;
+    bottom: 18px;
+    color: #C9C9C6;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    color: #333;
+    padding: 0;
+    background: transparent;
+    font-family: inherit;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.8;
+
+    &::placeholder {
+      color: #AFAFAC;
+    }
+  }
+}
+
+// ─── Action Buttons ───────────────────────────────────────────────────────────
+.action-buttons {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  direction: ltr;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 0 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    font-family: inherit;
+    direction: rtl;
+
+    i-tabler {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+
+  .btn-approve {
+    background: #111110;
+    color: #fff;
+    border: none;
+  }
+
+  .btn-reject {
+    background: #fff;
+    color: #F43F5E;
+    border: 1px solid #FFD6DE;
+  }
+}
+
+// ─── LTR overrides ────────────────────────────────────────────────────────────
+.cancel-policy-review[dir="ltr"] {
+  .notes-input-wrap {
+    direction: ltr;
+
+    textarea {
+      direction: ltr;
+      text-align: left;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .cancel-policy-review {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .policy-heading {
+    padding-bottom: 12px;
+
+    h2 { font-size: 18px; }
+    p  { font-size: 13px; }
+  }
+
+  .policy-card {
+    padding: 16px;
+    gap: 18px;
+    border-radius: 16px;
+  }
+
+  .policy-title-row {
+    gap: 10px;
+
+    .policy-type-icon {
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .policy-title-text {
+      h3 { font-size: 16px; }
+      p  { font-size: 13px; }
+    }
+  }
+
+  .info-card {
+    min-height: unset;
+    padding: 14px 16px;
+    padding-inline-end: 42px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  .info-value {
+    font-size: 18px;
+  }
+
+  .info-value-text {
+    font-size: 13px;
+  }
+
+  .notes-input-wrap {
+    padding: 14px 16px;
+    border-radius: 20px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+
+    .btn {
+      min-height: 48px;
+      font-size: 13px;
+      border-radius: 20px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .cancel-policy-review {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .policy-card {
+    padding: 12px;
+    gap: 14px;
+    border-radius: 14px;
+  }
+
+  .info-value {
+    font-size: 16px;
+  }
+
+  .policy-title-row .policy-title-text h3 {
+    font-size: 15px;
+  }
+}

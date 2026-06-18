@@ -86,15 +86,16 @@
 
 .main-photo-badge {
   position: absolute;
-  top: 24px;
-  inset-inline-end: 24px;
-  padding: 8px 14px;
+  top: 14px;
+  left: 14px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: #FFFFFF;
   color: #111110;
-  font-size: 12px;
-  font-weight: 900;
-  box-shadow: 0 10px 24px rgba(17, 17, 16, 0.12);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(17, 17, 16, 0.12);
 }
 
 .photo-section {
@@ -137,7 +138,7 @@
 .photo-actions {
   position: absolute;
   top: 14px;
-  inset-inline-start: 14px;
+  right: 14px;
   display: flex;
   gap: 8px;
   z-index: 2;
@@ -393,28 +394,138 @@ textarea {
 @media (max-width: 768px) {
   .unit-images-review {
     padding: 16px;
+    gap: 20px;
   }
 
-  .review-context,
+  .review-context {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    h2 {
+      font-size: 18px;
+    }
+  }
+
   .notes-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
   .main-photo-frame {
-    height: 280px;
+    height: 240px;
   }
 
   .photos-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
-  .action-buttons {
-    flex-direction: column;
+  .photo-frame {
+    height: 220px;
   }
 
   .photo-meta {
     align-items: flex-start;
+    min-height: unset;
+    padding: 10px 14px;
+  }
+
+  .section-heading h3 {
+    font-size: 15px;
+  }
+
+  .rejection-summary {
+    padding: 16px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .summary-header h3 {
+    font-size: 15px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .btn,
+    .btn-reject {
+      flex: none;
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .unit-images-review {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .review-context {
+    flex-direction: column;
+    gap: 10px;
+
+    h2 {
+      font-size: 16px;
+    }
+  }
+
+  .review-state {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .main-photo-frame {
+    height: 200px;
+  }
+
+  .photos-grid {
+    gap: 10px;
+  }
+
+  .photo-frame {
+    height: 200px;
+  }
+
+  .photo-actions {
+    top: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+
+  .photo-action {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+
+    i-tabler {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .photo-meta {
+    padding: 8px 12px;
+
+    strong {
+      font-size: 12px;
+    }
+
+    span {
+      font-size: 11px;
+    }
+  }
+
+  .btn {
+    height: 48px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .photo-frame {
+    height: 190px;
   }
 }
 

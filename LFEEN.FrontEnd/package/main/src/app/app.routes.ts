@@ -244,6 +244,62 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'unit-review/:buildingId/:unitId/cancel-policy',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/cancel-policy-review/cancel-policy-review.component'
+                  ).then((m) => m.CancelPolicyReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.cancelPolicyView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/deposit',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-deposit-review/unit-deposit-review.component'
+                  ).then((m) => m.UnitDepositReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.depositView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/services',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-services-review/unit-services-review.component'
+                  ).then((m) => m.UnitServicesReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.servicesView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/license',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-license-review/unit-license-review.component'
+                  ).then((m) => m.UnitLicenseReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.licenseView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.title',
+                  showBack: true,
+                },
+              },
+              {
                 path: 'unit-review/:buildingId/:unitId',
                 canActivate: [authGuard],
                 loadComponent: () =>

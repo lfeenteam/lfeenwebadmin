@@ -450,15 +450,118 @@
 }
 
 @media (max-width: 768px) {
+  .status-progress-row {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-badge {
+    gap: 4px;
+    padding: 5px 9px;
+    border-radius: 9px;
+    font-size: 10px;
+
+    .status-icon {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  .progress-section {
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .progress-title,
+  .progress-count {
+    font-size: 10px;
+  }
+
+  .progress-bar-wrap {
+    width: 60px;
+    height: 7px;
+  }
+
   .review-sections-grid {
     grid-template-columns: 1fr;
   }
 
   .action-buttons {
     flex-direction: column;
+    align-items: stretch;
   }
 
+  .btn,
   .btn-reject {
+    width: 100%;
     min-width: 0;
+    flex: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .unit-review {
+    padding: 16px;
+    gap: 18px;
+  }
+
+  .unit-title {
+    font-size: 20px;
+  }
+
+  .title-block {
+    width: 100%;
+  }
+
+  .unit-review-card {
+    padding: 14px;
+    border-radius: 20px;
+    gap: 12px;
+  }
+
+  .unit-review-card--decided {
+    min-height: unset;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .unit-review {
+    padding: 14px;
+    gap: 16px;
+  }
+
+  .unit-title {
+    font-size: 18px;
+  }
+
+  .status-progress-row {
+    gap: 8px;
+  }
+
+  .progress-title {
+    display: none;
+  }
+
+  .progress-bar-wrap {
+    width: 50px;
+  }
+
+  .unit-review-card {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .review-btn {
+    font-size: 10px;
+    padding: 8px 12px;
+  }
+
+  .btn {
+    height: 46px;
+    font-size: 13px;
   }
 }

@@ -543,29 +543,46 @@
 
 @media (max-width: 768px) {
   .basic-info-review {
-    padding: 10px;
-    gap: 6px;
-  }
-
-  .breadcrumbs {
-    display: none;
+    padding: 0 4px;
+    gap: 16px;
   }
 
   .unit-title-block {
+    min-width: 0;
     text-align: start;
 
     h2 {
-      font-size: 22px;
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 12px;
     }
   }
 
+  .section-title-row h2 {
+    font-size: 15px;
+  }
+
+  .room-header h3 {
+    font-size: 14px;
+  }
+
   .unit-stats-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .unit-stat-chip {
+    flex: 0 0 calc(50% - 6px);
     min-width: 0;
+    box-sizing: border-box;
+
+    &:last-child:nth-child(odd) {
+      flex: 0 0 100%;
+    }
   }
 
   .smart-system-card {
@@ -585,21 +602,32 @@
 
   .room-card {
     min-height: 0;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: flex-start;
     padding: 16px;
+    gap: 8px;
   }
 
-  .room-toggle,
   .room-content {
-    order: initial;
+    order: 1;
+    flex: 1;
+    min-width: 0;
+    gap: 18px;
   }
 
   .room-toggle {
+    order: 2;
+    flex-shrink: 0;
     margin-inline-start: 0;
+    align-self: flex-start;
   }
 
-  .room-toggle {
-    justify-self: start;
+  .room-card--closed {
+    align-items: center;
+
+    .room-content {
+      gap: 0;
+    }
   }
 
   .room-header {
@@ -613,10 +641,17 @@
 
   .amenity-chips {
     justify-content: flex-start;
+    gap: 10px;
   }
 
   .amenity-chip {
     white-space: normal;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .facility-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .action-buttons {
@@ -627,12 +662,68 @@
   .btn-reject {
     width: 100%;
     min-width: 0;
+    flex: none;
   }
 }
 
 @media (max-width: 460px) {
-  .unit-stats-row,
-  .facility-stats-grid {
-    grid-template-columns: 1fr;
+  .basic-info-review {
+    gap: 14px;
+  }
+
+  .unit-hero {
+    padding: 12px 0 4px;
+  }
+
+  .unit-stat-chip {
+    min-height: 48px;
+    padding: 8px 12px;
+
+    strong {
+      font-size: 14px;
+    }
+  }
+
+  .room-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .basic-info-review {
+    padding: 0;
+    gap: 12px;
+  }
+
+  .unit-title-block h2 {
+    font-size: 16px;
+  }
+
+  .section-title-row h2 {
+    font-size: 14px;
+  }
+
+  .room-header h3 {
+    font-size: 13px;
+  }
+
+  .unit-stats-row {
+    gap: 8px;
+  }
+
+  .amenity-chip {
+    font-size: 12px;
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .group-label {
+    font-size: 13px;
+  }
+
+  .btn {
+    height: 48px;
+    font-size: 14px;
   }
 }

@@ -454,7 +454,7 @@
 @media (max-width: 768px) {
   .unit-access-review {
     padding: 16px;
-    gap: 24px;
+    gap: 20px;
   }
 
   .unit-summary-card,
@@ -462,24 +462,141 @@
     direction: inherit;
     flex-direction: column;
     align-items: stretch;
+    gap: 14px;
+    padding: 14px 16px;
   }
 
   .summary-unit,
   .unit-access-review[dir="rtl"] .summary-unit {
     flex-direction: row;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+
+    h2 { font-size: 17px; }
+    p  { font-size: 12px; }
   }
 
   .summary-stats,
   .unit-access-review[dir="rtl"] .summary-stats {
     justify-content: space-between;
+    gap: 12px;
+
+    strong { font-size: 15px; }
+    span   { font-size: 11px; }
   }
 
-  .access-photos-grid,
+  .section-heading {
+    margin-bottom: 12px;
+
+    h3 { font-size: 16px; }
+
+    i-tabler {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .section-hint {
+    font-size: 12px;
+    margin-bottom: 14px;
+  }
+
+  .access-photos-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
   .action-buttons {
     grid-template-columns: 1fr;
   }
 
   .photo-frame {
-    height: 210px;
+    height: 180px;
+  }
+
+  .photo-tag {
+    font-size: 10px;
+    padding: 4px 8px;
+    top: 8px;
+  }
+
+  .photo-actions {
+    top: 8px;
+    gap: 6px;
+  }
+
+  .photo-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    i-tabler {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .access-photo-card strong {
+    font-size: 13px;
+    min-height: 40px;
+    padding: 0 14px;
+  }
+
+  .host-guide-card {
+    padding: 14px 16px;
+
+    p { font-size: 13px; }
+  }
+
+  .host-guide-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    font-size: 11px;
+  }
+
+  .notes-input-wrap {
+    padding: 0 16px;
+    border-radius: 20px;
+  }
+
+  .btn {
+    min-height: 48px;
+    font-size: 13px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .unit-access-review {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .photo-frame {
+    height: 160px;
+  }
+
+  .summary-unit img {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .unit-access-review {
+    padding: 10px;
+    gap: 14px;
+  }
+
+  .unit-summary-card {
+    padding: 12px;
+  }
+
+  .photo-frame {
+    height: 140px;
   }
 }
