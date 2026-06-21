@@ -94,6 +94,16 @@
       font-weight: 500;
       color: #9E9E9A;
       white-space: nowrap;
+
+      &--link {
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.15s ease;
+
+        &:hover {
+          color: #111110;
+        }
+      }
     }
 
     .d3-breadcrumb-arrow {
@@ -216,36 +226,55 @@
 @media (max-width: 576px) {
   .d3-page-header {
     padding: 8px 12px;
-    flex-wrap: wrap;
+    min-height: 52px;
+    flex-wrap: nowrap;
+    gap: 8px;
 
     .d3-page-header-right {
-      width: 100%;
       flex: 1 1 auto;
+      min-width: 0;
+      gap: 10px;
+    }
+
+    .d3-page-back-btn,
+    .d3-page-sidebar-toggle {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
     }
 
     .d3-page-header-main {
+      min-width: 0;
+      gap: 4px;
+
+      // hide breadcrumb on small screens — not enough space
+      .d3-page-breadcrumb,
+      .d3-breadcrumb-arrow { display: none; }
+
       .d3-page-title {
-        font-size: 13px;
-      }
-
-      .d3-breadcrumb-arrow {
-        display: none;
-      }
-
-      .d3-page-breadcrumb {
-        font-size: 11px;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
 
     .d3-page-header-meta {
-      width: 100%;
-      justify-content: flex-start;
-      gap: 8px;
+      flex-shrink: 0;
+      gap: 6px;
 
-      .d3-page-live-badge,
-      .d3-page-date-badge {
-        font-size: 11px;
+      // hide date on small screens, keep status/live only
+      .d3-page-date-badge { display: none; }
+
+      .d3-page-live-badge {
         padding: 4px 10px;
+        .d3-page-live-text { font-size: 11px; }
+      }
+
+      .d3-page-status-badge {
+        padding: 4px 10px;
+        font-size: 11px;
+        border-radius: 10px;
       }
     }
   }

@@ -14,6 +14,35 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     overflow: hidden !important;
   }
 }
+
+@media (max-width: 576px) {
+  .custom-dialog-container .mdc-dialog__surface { border-radius: 28px !important; }
+}
+
+@media (max-width: 360px) {
+  .custom-dialog-container .mdc-dialog__surface { border-radius: 22px !important; }
+}
+
+@media (max-width: 576px) {
+  .cdk-overlay-pane.role-dialog-panel {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+
+  .role-dialog-panel {
+    .mat-mdc-dialog-container,
+    .mdc-dialog__surface {
+      border-radius: 28px !important;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .cdk-overlay-pane.role-dialog-panel {
+    max-width: 98vw !important;
+    width: 98vw !important;
+  }
+}
 .custom-dialog-container {
   .mdc-dialog__surface {
     border-radius: 40px !important;

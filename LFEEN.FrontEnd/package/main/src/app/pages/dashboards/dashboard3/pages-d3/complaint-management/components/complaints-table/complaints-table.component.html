@@ -1,0 +1,84 @@
+<div class="table-wrapper">
+
+  <!-- Search + Filter bar -->
+  <div class="table-toolbar">
+    <div class="search-box">
+      <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        [placeholder]="'d3.complaints.table.searchPlaceholder' | translate"
+        class="search-input" />
+    </div>
+    <button class="status-filter-btn">
+      {{ 'd3.complaints.table.allStatuses' | translate }}
+    </button>
+    <button class="filter-btn">
+      <i-tabler name="adjustments-horizontal" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="complaints-table">
+    <!-- Header -->
+    <div class="table-head">
+      <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
+      <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
+      <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
+      <div class="col-check"></div>
+    </div>
+
+    <!-- Rows -->
+    @for (c of filtered; track c.id) {
+      <div
+        class="table-row"
+        [class.selected]="selectedId === c.id"
+        (click)="rowSelect.emit(c)">
+
+        <div class="col-client">
+          <div class="client-avatar" [attr.data-color]="c.clientInitials.charCodeAt(0) % 5">
+            {{ c.clientInitials }}
+          </div>
+          <div class="client-info">
+            <span class="client-name">{{ displayClientName(c) }}</span>
+            <span class="client-code">{{ c.clientCode }}</span>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="col-status">
+          <span class="status-badge" [class]="'status-' + c.status">
+            {{ statusLabelKey(c.status) | translate }}
+          </span>
+        </div>
+
+        <!-- Date -->
+        <div class="col-date">{{ displayDate(c) }}</div>
+
+        <!-- Resolve button -->
+        <div class="col-check">
+          @if (!c.resolved) {
+            <button
+              class="resolve-btn"
+              [title]="'d3.complaints.table.resolveBtn' | translate"
+              (click)="onResolve($event, c)">
+              <i-tabler name="circle-check" class="icon-20"></i-tabler>
+            </button>
+          } @else {
+            <span class="resolved-icon">
+              <i-tabler name="circle-check-filled" class="icon-20"></i-tabler>
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    @empty {
+      <div class="empty-state">
+        <i-tabler name="inbox" class="icon-40"></i-tabler>
+        <span>{{ 'd3.complaints.table.empty' | translate }}</span>
+      </div>
+    }
+  </div>
+
+</div>

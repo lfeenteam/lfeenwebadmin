@@ -12,7 +12,11 @@
 
     <div class="d3-page-header-main">
       @if (breadcrumbKey) {
-        <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+        @if (breadcrumbRoute) {
+          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="breadcrumbRoute">{{ breadcrumbKey | translate }}</a>
+        } @else {
+          <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+        }
         <i-tabler [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
       }
       <h1 class="d3-page-title">{{ titleKey | translate }}</h1>

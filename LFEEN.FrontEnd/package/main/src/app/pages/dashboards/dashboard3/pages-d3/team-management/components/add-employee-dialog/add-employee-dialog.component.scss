@@ -226,4 +226,89 @@
   ::ng-deep .field-invalid .mat-mdc-text-field-wrapper {
     border-color: #e53935 !important;
   }
+
+  // ════════════════════════════════════════
+  // Mobile (576px)
+  // ════════════════════════════════════════
+  @media (max-width: 576px) {
+    border-radius: 28px !important;
+    padding: 4px;
+
+    .dialog-header {
+      padding: 14px 18px;
+      .dialog-title { font-size: 17px; }
+    }
+
+    ::ng-deep .custom-form-field {
+      .mat-mdc-text-field-wrapper {
+        height: 50px !important;
+        border-radius: 12px !important;
+        padding: 0 14px !important;
+      }
+      .mat-mdc-form-field-infix { min-height: 50px !important; }
+      input { font-size: 13px !important; }
+    }
+
+    .custom-dropdown-container {
+      .custom-dropdown-trigger {
+        height: 50px;
+        border-radius: 12px;
+        font-size: 13px;
+      }
+      .dropdown-option { font-size: 13px; padding: 10px 14px; }
+    }
+
+    .field-error-msg { font-size: 11px; }
+
+    .password-hint { font-size: 10px; }
+
+    .submit-btn {
+      min-width: 140px;
+      height: 52px;
+      border-radius: 16px;
+      font-size: 15px;
+    }
+
+    .cancel-btn-text { height: 44px; font-size: 14px; }
+  }
+
+  // ════════════════════════════════════════
+  // Extra Small (360px)
+  // ════════════════════════════════════════
+  @media (max-width: 360px) {
+    border-radius: 22px !important;
+
+    .dialog-header {
+      padding: 12px 14px;
+      .dialog-title { font-size: 15px; }
+    }
+
+    ::ng-deep .custom-form-field {
+      .mat-mdc-text-field-wrapper {
+        height: 46px !important;
+        border-radius: 10px !important;
+        padding: 0 12px !important;
+      }
+      .mat-mdc-form-field-infix { min-height: 46px !important; }
+      input { font-size: 12px !important; }
+    }
+
+    .custom-dropdown-container {
+      .custom-dropdown-trigger {
+        height: 46px;
+        border-radius: 10px;
+        font-size: 12px;
+      }
+      .dropdown-option { font-size: 12px; padding: 9px 12px; }
+    }
+
+    .submit-btn {
+      min-width: 120px;
+      height: 48px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .cancel-btn-text { height: 40px; font-size: 13px; }
+  }
 }

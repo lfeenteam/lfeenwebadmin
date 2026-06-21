@@ -1286,6 +1286,38 @@
         "approveBtn": "Approve License"
       }
     },
+    "complaints": {
+      "title": "Complaint Management",
+      "tabs": {
+        "customers": "Customer Support",
+        "hosts":     "Host Support",
+        "resolved":  "Resolved"
+      },
+      "table": {
+        "searchPlaceholder": "Search by name, complaint ID...",
+        "client":       "Client",
+        "status":       "Status",
+        "date":         "Date",
+        "allStatuses":  "All statuses",
+        "resolveBtn":   "Mark as resolved",
+        "empty":        "No complaints found",
+        "totalPrefix":  "Showing 1 of",
+        "totalSuffix":  "complaints"
+      },
+      "status": {
+        "new":        "New",
+        "inProgress": "In Progress",
+        "closed":     "Closed",
+        "pending":    "Pending"
+      },
+      "chat": {
+        "supportName":  "Support",
+        "attachmentLabel": "Attachment",
+        "online":      "Online now",
+        "noMessages":  "No messages yet",
+        "placeholder": "Type here..."
+      }
+    },
     "accountManagement": {
       "title": "Account Management",
       "reviewTitle": "Review Account",
@@ -1323,6 +1355,9 @@
         "idFieldIndividual": "ID Number",
         "actionCompany": "Company Business",
         "actionIndividual": "Individual (Freelance)"
+      },
+      "pagination": {
+        "total": "account"
       }
     },
     "businessCategories": {

@@ -14,7 +14,7 @@ export class AccountService {
   private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/accounts';
 
   readonly currentPage  = signal(1);
-  readonly pageSize     = signal(20);
+  readonly pageSize     = signal(15);
   readonly searchQuery  = signal('');
   readonly activeTab    = signal<AccountTab>('all');
   readonly newestFirst  = signal(true);

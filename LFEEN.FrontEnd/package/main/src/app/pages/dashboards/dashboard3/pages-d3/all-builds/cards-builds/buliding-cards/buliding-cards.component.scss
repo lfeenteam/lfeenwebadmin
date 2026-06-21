@@ -434,27 +434,6 @@
   }
 }
 
-@media (max-width: 576px) {
-  :host-context(.list-view) {
-    .building-card {
-      min-width: max-content;
-      height: 70px;
-      padding: 0 16px;
-      gap: 0 12px;
-
-      .card-top .building-icon {
-        width: 35px;
-        height: 35px;
-        border-radius: 10px;
-
-        ::ng-deep svg { width: 18px; height: 18px; }
-      }
-
-      .building-title { font-size: 13px; }
-      .stat-value { font-size: 11px; }
-    }
-  }
-}
 
 // ════════════════════════════════════════
 // Mobile: reset list-view grid back to card
@@ -464,7 +443,7 @@
   .building-card {
     border-radius: 20px;
     padding: 14px;
-    gap: 12px;
+    gap: 14px;
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
@@ -477,21 +456,43 @@
       ::ng-deep svg { width: 20px; height: 20px; }
     }
 
-    .building-title  { font-size: 15px; }
-    .building-host   { font-size: 12px; }
+    .building-title {
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-    .building-title,
-    .building-host,
-    .building-location,
-    .card-location {
+    .building-host {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .building-location {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .card-top {
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-main {
+      gap: 3px;
       min-width: 0;
-      overflow-wrap: anywhere;
     }
 
     .card-stats {
       padding: 10px 0;
 
-      .stat-col { gap: 4px; }
+      .stat-col { gap: 3px; }
       .stat-label { font-size: 10px; }
       .stat-value { font-size: 13px; }
     }
@@ -515,95 +516,84 @@
     }
   }
 
-  // ── List-view card (reset to card layout, also compact) ──
+  // ── List-view card (same grid layout as unit-card mobile) ──
   :host-context(.list-view) {
     .building-card {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "icon  status"
+        "info  info"
+        "acts  acts";
       height: auto;
       min-width: 0;
       max-width: 100%;
-      padding: 14px;
-      border: 1px solid #e8e8e4;
+      padding: 18px 20px;
+      border: 1px solid #E8E8E4;
       border-radius: 20px;
-      box-shadow: 0px 1px 2px -1px #0000001A;
+      box-shadow: 0px 1px 3px 0px #0000000D;
       background: #FFFFFF;
-      gap: 12px;
+      gap: 0;
+      column-gap: 8px;
+      flex-direction: unset;
 
       &:last-child { border-bottom: 1px solid #e8e8e4; }
-      &:hover { background: #fff; box-shadow: 0 8px 24px rgba(17, 17, 16, 0.06); }
+      &:hover { background: #FAFAFA; box-shadow: none; }
 
       .card-top {
-        .status-badge { display: inline-flex; }
+        grid-area: icon;
+        align-self: center;
+        justify-content: flex-start;
+
+        .status-badge { display: none; }
 
         .building-icon {
-          width: 44px;
-          height: 44px;
-          border-radius: 14px;
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
 
           ::ng-deep svg { width: 20px; height: 20px; }
         }
       }
 
+      .card-status-col {
+        grid-area: status;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        align-self: center;
+      }
+
       .card-main {
+        grid-area: info;
         flex-direction: column;
         align-items: flex-start;
         height: auto;
+        margin-top: 12px;
         margin-inline-start: 0;
         gap: 3px;
 
-        .building-title { font-size: 15px; font-weight: 900; }
-        .building-host  { font-size: 12px; }
-        .building-location { display: inline-flex; }
+        .building-title    { font-size: 15px; font-weight: 900; }
+        .building-host     { font-size: 12px; }
+        .building-location { display: none; }
       }
 
       .card-location,
       .card-update,
-      .card-status-col { display: none; }
-
-      .card-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        border-width: 1px 0;
-        border-style: solid;
-        border-color: #E8E8E4;
-        padding: 10px 0;
-
-        .stat-col {
-          height: auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          border: none !important;
-
-          &:not(:first-child) { border-inline-start: 1px solid #ececea !important; }
-
-          &.col-units     { order: unset; }
-          &.col-occupancy { order: unset; }
-          &.col-bookings  { order: unset; }
-
-          .stat-label { display: flex; font-size: 10px; }
-          .stat-value { font-size: 13px; }
-        }
-      }
+      .card-stats { display: none; }
 
       .card-footer {
+        grid-area: acts;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
         height: auto;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #F0F0EE;
 
-        .type-tag {
-          display: block;
-          font-size: 11px;
-          padding: 3px 10px;
-          max-width: calc(100% - 84px);
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
+        .type-tag { display: none; }
 
         .action-btn {
           width: 34px;

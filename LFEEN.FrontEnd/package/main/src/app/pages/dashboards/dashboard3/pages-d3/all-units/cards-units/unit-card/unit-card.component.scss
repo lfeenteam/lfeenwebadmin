@@ -372,10 +372,11 @@
   .unit-card--list {
     display: grid;
     grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     grid-template-areas:
       "num   status"
       "info  info"
+      "type  desc"
       "acts  acts";
     height: auto;
     padding: 18px 20px;
@@ -397,8 +398,29 @@
       .list-title { font-size: 15px; }
     }
 
-    .list-type-col,
-    .list-desc-col { display: none; }
+    .list-type-col {
+      grid-area: type;
+      display: flex;
+      align-items: center;
+      padding-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #111110;
+      white-space: nowrap;
+    }
+
+    .list-desc-col {
+      grid-area: desc;
+      display: flex;
+      align-items: center;
+      padding-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #9E9E9A;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .list-actions-col {
       grid-area: acts;

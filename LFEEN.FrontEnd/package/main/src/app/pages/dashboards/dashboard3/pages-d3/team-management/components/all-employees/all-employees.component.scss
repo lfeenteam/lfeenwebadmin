@@ -284,6 +284,90 @@ table {
   }
 }
 
+// ════════════════════════════════════════
+// Small Mobile (576px)
+// ════════════════════════════════════════
+@media (max-width: 576px) {
+  .table-responsive { padding: 10px; gap: 8px; }
+
+  tr.mat-mdc-row { border-radius: 14px; }
+
+  td.mat-mdc-cell {
+    padding: 7px 14px !important;
+    font-size: 12px;
+
+    &::before { font-size: 10px; }
+  }
+
+  td.mat-column-employee {
+    padding: 10px 14px !important;
+
+    span.text-muted { max-width: 160px; font-size: 11px; }
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 3px 9px;
+  }
+
+  .empty-state {
+    padding: 40px 16px;
+    min-height: 280px;
+
+    .empty-state-img { width: 120px; height: 120px; margin-bottom: 16px; }
+    h5 { font-size: 15px; }
+    p  { font-size: 12px; margin-bottom: 16px; }
+    .add-first-btn { padding: 10px 20px; font-size: 13px; }
+  }
+}
+
+// ════════════════════════════════════════
+// Extra Small (360px)
+// ════════════════════════════════════════
+@media (max-width: 360px) {
+  .table-responsive { padding: 8px; }
+
+  tr.mat-mdc-row { border-radius: 12px; }
+
+  td.mat-mdc-cell {
+    padding: 6px 12px !important;
+    min-height: 32px;
+    font-size: 12px;
+
+    &::before { font-size: 10px; max-width: 45%; }
+  }
+
+  td.mat-column-employee {
+    padding: 8px 12px !important;
+
+    .employee-name { font-size: 12px; }
+    span.text-muted { max-width: 130px; font-size: 10px; }
+  }
+
+  .initials-avatar,
+  .employee-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .empty-state {
+    padding: 28px 12px;
+    min-height: 240px;
+
+    .empty-state-img { width: 100px; height: 100px; margin-bottom: 12px; }
+    h5 { font-size: 14px; margin-bottom: 6px; }
+    p  { font-size: 12px; margin-bottom: 14px; }
+    .add-first-btn { padding: 9px 18px; font-size: 12px; }
+  }
+}
+
 .bg-light-primary { background-color: #eff6ff; }
 .text-primary { color: #3b82f6; }
 .bg-light-success { background-color: #f0fdf4; }
