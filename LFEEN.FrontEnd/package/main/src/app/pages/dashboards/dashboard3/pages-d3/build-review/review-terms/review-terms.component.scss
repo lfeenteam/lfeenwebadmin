@@ -189,6 +189,193 @@
     }
 }
 
+// ════════════════════════════════════════
+// Tablet (768px)
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  .review-terms-container {
+    gap: 24px;
+  }
+
+  .section-header {
+    .section-title  { font-size: 18px; }
+    .section-subtitle { font-size: 12px; }
+  }
+
+  .time-cards {
+    gap: 14px;
+  }
+
+  .time-card {
+    padding: 18px 16px;
+    gap: 8px;
+    border-radius: 20px;
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      i-tabler { width: 20px; height: 20px; ::ng-deep svg { width: 20px; height: 20px; } }
+    }
+
+    .time-value { font-size: 18px; }
+    .time-label  { font-size: 10px; }
+  }
+
+  .section-title-wrapper .section-title { font-size: 16px; }
+
+  .rules-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .custom-rules-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .notes-section .notes-textarea {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr 160px;
+    gap: 10px;
+
+    .btn {
+      height: 52px;
+      font-size: 15px;
+      border-radius: 16px;
+    }
+  }
+}
+
+// ════════════════════════════════════════
+// Mobile (576px)
+// ════════════════════════════════════════
+@media (max-width: 576px) {
+  .review-terms-container {
+    gap: 20px;
+  }
+
+  .section-header {
+    .section-title  { font-size: 16px; }
+    .section-subtitle { font-size: 11px; }
+  }
+
+  .time-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .time-card {
+    padding: 14px 12px;
+    gap: 6px;
+    border-radius: 16px;
+
+    &.flex-row {
+      grid-column: 1 / -1;
+    }
+
+    .card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      i-tabler { width: 18px; height: 18px; ::ng-deep svg { width: 18px; height: 18px; } }
+    }
+
+    .time-value { font-size: 16px; }
+    .time-label  { font-size: 10px; }
+
+    .early-info .status-badge { font-size: 9px; }
+  }
+
+  .section-title-wrapper {
+    gap: 8px;
+    .section-indicator { width: 5px; height: 20px; }
+    .section-title { font-size: 15px; }
+  }
+
+  .rules-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .rule-card {
+    padding: 12px 16px;
+    border-radius: 14px;
+    .rule-title { font-size: 13px; }
+  }
+
+  .custom-rules-card {
+    padding: 14px;
+    border-radius: 18px;
+    gap: 12px;
+
+    .rule-text-wrap .rule-text { font-size: 13px; }
+  }
+
+  .notes-section {
+    .notes-textarea {
+      padding: 14px;
+      font-size: 13px;
+      border-radius: 16px;
+    }
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    .btn-approve { order: 1; }
+    .btn-reject  { order: 2; }
+
+    .btn { height: 48px; font-size: 14px; border-radius: 14px; }
+  }
+}
+
+// ════════════════════════════════════════
+// Small Mobile (360px)
+// ════════════════════════════════════════
+@media (max-width: 360px) {
+  .review-terms-container {
+    gap: 16px;
+  }
+
+  .time-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    .time-card.flex-row { grid-column: unset; }
+  }
+
+  .time-card {
+    padding: 12px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+
+    &:not(.flex-row) {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-value { font-size: 15px; }
+  }
+
+  .rule-card {
+    padding: 10px 14px;
+    .rule-title { font-size: 12px; }
+  }
+
+  .action-buttons .btn {
+    height: 44px;
+    font-size: 13px;
+  }
+}
+
 // Toggle Switch Style
 .toggle-wrap {
     position: relative;

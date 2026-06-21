@@ -33,7 +33,7 @@
     <div class="row">
       @for (account of filteredAccounts; track account.id) {
         <div class="col-md-6 col-lg-4 m-b-8">
-          <app-account-card [account]="account"></app-account-card>
+          <app-account-card [account]="account" [compact]="activeTab === 'under_review'"></app-account-card>
         </div>
       }
       @empty {
@@ -45,22 +45,33 @@
 
     <!-- Pagination -->
     @if (totalPages > 1) {
-      <div class="d-flex justify-content-center align-items-center gap-8 m-t-16">
-        <button mat-icon-button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
-          <i-tabler name="chevron-right" class="icon-18"></i-tabler>
-        </button>
-        @for (page of pageNumbers; track page) {
-          <button
-            mat-button
-            class="page-btn"
-            [class.active-page]="currentPage === page"
-            (click)="changePage(page)">
-            {{ page }}
+      <div class="pagination-wrapper">
+        <span class="pagination-total">
+          {{ totalCount }} {{ 'd3.accountManagement.pagination.total' | translate }}
+        </span>
+        <div class="pagination-controls">
+          <button class="page-nav-btn"
+            [disabled]="currentPage === 1"
+            (click)="changePage(currentPage - 1)">
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
           </button>
-        }
-        <button mat-icon-button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
-          <i-tabler name="chevron-left" class="icon-18"></i-tabler>
-        </button>
+          @for (item of visiblePages; track $index) {
+            @if (item === '...') {
+              <span class="page-ellipsis">...</span>
+            } @else {
+              <button class="page-number-btn"
+                [class.active]="currentPage === item"
+                (click)="changePage($any(item))">
+                {{ item }}
+              </button>
+            }
+          }
+          <button class="page-nav-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="changePage(currentPage + 1)">
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+          </button>
+        </div>
       </div>
     }
   }

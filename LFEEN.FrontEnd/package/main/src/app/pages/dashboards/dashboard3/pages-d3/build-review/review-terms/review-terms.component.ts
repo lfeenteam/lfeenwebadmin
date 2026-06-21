@@ -144,12 +144,8 @@ export class ReviewTermsComponent implements OnInit {
       id: condition.id,
       title: condition.name,
       icon: this.getConditionIcon(condition.conditionKey),
-      enabled: this.toBoolean(condition.defaultValue)
+      enabled: condition.isSelected
     };
-  }
-
-  private toBoolean(value: PropertyTermCondition['defaultValue']): boolean {
-    return value === true || value === 1 || String(value).toLowerCase() === 'true';
   }
 
   private getConditionIcon(conditionKey: string): string {

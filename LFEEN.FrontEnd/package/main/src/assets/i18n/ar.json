@@ -745,6 +745,38 @@
         }
       }
     },
+    "complaints": {
+      "title": "إدارة الشكاوى",
+      "tabs": {
+        "customers": "دعم العملاء",
+        "hosts":     "دعم المضيفين",
+        "resolved":  "تم الحل"
+      },
+      "table": {
+        "searchPlaceholder": "ابحث بإسم المشتكي، رقم الشكوى...",
+        "client":       "العميل",
+        "status":       "الحالة",
+        "date":         "التاريخ",
+        "allStatuses":  "كل الحالات",
+        "resolveBtn":   "تمييز كمحلولة",
+        "empty":        "لا توجد شكاوى",
+        "totalPrefix":  "عرض 1 من",
+        "totalSuffix":  "شكوى"
+      },
+      "status": {
+        "new":        "جديدة",
+        "inProgress": "قيد المعالجة",
+        "closed":     "مغلقة",
+        "pending":    "قيد الانتظار"
+      },
+      "chat": {
+        "supportName":  "فريق الدعم",
+        "attachmentLabel": "مرفق",
+        "online":      "متصل الآن",
+        "noMessages":  "لا توجد رسائل بعد",
+        "placeholder": "اكتب هنا..."
+      }
+    },
     "accountManagement": {
       "title": "إدارة الحسابات",
       "reviewTitle": "مراجعة الحساب",
@@ -782,6 +814,9 @@
         "idFieldIndividual": "رقم الهوية",
         "actionCompany": "أعمال مؤسسة",
         "actionIndividual": "أفراد (مستقل)"
+      },
+      "pagination": {
+        "total": "حساب"
       }
     },
     "businessCategories": {

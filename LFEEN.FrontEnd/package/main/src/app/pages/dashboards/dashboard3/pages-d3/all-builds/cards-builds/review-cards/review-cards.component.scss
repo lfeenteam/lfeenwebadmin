@@ -425,53 +425,69 @@
   }
 
   .review-card--list {
-    display: flex;
-    flex-direction: column;
-    grid-template-columns: unset;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "icon  status"
+      "info  info"
+      "acts  acts";
     height: auto;
     min-width: unset;
-    padding: 18px;
-    border-radius: 24px;
+    padding: 18px 20px;
+    border-radius: 20px;
     border: 1px solid #FEF08A;
     background: #FFFFFF;
-    box-shadow: 0px 1px 2px -1px #0000001A;
-    gap: 12px;
+    box-shadow: 0px 1px 3px 0px #0000000D;
+    gap: 0;
+    column-gap: 8px;
+    flex-direction: unset;
 
     &:last-child { border-bottom: none; }
-    &:hover { background: #FFFBEB; box-shadow: 0 8px 24px rgba(17, 17, 16, 0.06); }
+    &:hover { background: #FFFBEB; box-shadow: none; }
 
-    .list-icon-col { display: none; }
-
-    .list-info-col {
+    .list-icon-col {
+      grid-area: icon;
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .list-location-col {
-      display: inline-flex;
       align-items: center;
-      gap: 4px;
-    }
-
-    .list-date-col {
-      display: flex;
       justify-content: flex-start;
-    }
+      align-self: center;
 
-    .list-units-col {
-      display: flex;
-      justify-content: flex-start;
+      .building-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
     }
 
     .list-status-col {
+      grid-area: status;
       display: flex;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: flex-end;
+      align-self: center;
     }
 
-    .list-actions-col {
+    .list-info-col {
+      grid-area: info;
       display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 12px;
+    }
+
+    .list-location-col,
+    .list-date-col,
+    .list-units-col { display: none; }
+
+    .list-actions-col {
+      grid-area: acts;
+      display: flex;
+      align-items: center;
       justify-content: flex-end;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #FEF08A;
     }
   }
 }

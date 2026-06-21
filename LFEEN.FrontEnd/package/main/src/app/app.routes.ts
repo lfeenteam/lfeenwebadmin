@@ -169,6 +169,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.buildReview.title',
                   breadcrumbKey: 'd3.buildReview.reviewRequestsBC',
+                  breadcrumbRoute: 'buildings',
                   showBack: true,
                   statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
@@ -184,6 +185,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.basicInfoView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -198,6 +200,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.imagesView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -212,6 +215,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.termsView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -226,6 +230,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.pricingView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -240,6 +245,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.accessView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -254,6 +260,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.cancelPolicyView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -268,6 +275,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.depositView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -282,6 +290,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.servicesView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -296,6 +305,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.licenseView.pageTitle',
                   breadcrumbKey: 'd3.unitReview.title',
+                  breadcrumbRoute: 'unit-review/:buildingId/:unitId',
                   showBack: true,
                 },
               },
@@ -310,6 +320,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.unitReview.title',
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
                   showBack: true,
                 },
               },
@@ -339,6 +350,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.teamManagement.addDept',
                   breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management',
                   showBack: true
                 },
               },
@@ -353,6 +365,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.teamManagement.title',
                   breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management',
                   showLive: true,
                   showDate: true,
                   showBack: true
@@ -384,6 +397,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.accountManagement.reviewTitle',
                   breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
                   showBack: true
                 },
               },
@@ -398,6 +412,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.permissions.pageTitle',
                   breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management/:id',
                   showBack: true
                 },
               },
@@ -412,6 +427,7 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.addRolePage.title',
                   breadcrumbKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbRoute: 'permissions/:id',
                   showBack: true
                 },
               },
@@ -426,7 +442,23 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.permissions.roleSettingsTitle',
                   breadcrumbKey: 'd3.permissions.pageTitle',
+                  breadcrumbRoute: 'permissions/:id',
                   showBack: true
+                },
+              },
+              {
+                path: 'complaints',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/complaint-management.component'
+                  ).then((m) => m.ComplaintManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
                 },
               },
             ],

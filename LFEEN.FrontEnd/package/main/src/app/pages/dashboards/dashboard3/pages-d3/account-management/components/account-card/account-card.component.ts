@@ -15,6 +15,7 @@ import { Account } from '../../account-management.component';
 })
 export class AccountCardComponent {
   @Input() account!: Account;
+  @Input() compact = false;
 
   private router = inject(Router);
   private translate = inject(TranslateService);
@@ -60,7 +61,7 @@ export class AccountCardComponent {
   }
 
   get avatarColor(): string {
-    const colors = ['orange', 'blue', 'green', 'purple', 'red'];
+    const colors = ['orange', 'blue', 'green', 'purple', 'red'] as const;
     const code = (this.account?.avatarInitials ?? 'A').charCodeAt(0);
     return colors[code % colors.length];
   }

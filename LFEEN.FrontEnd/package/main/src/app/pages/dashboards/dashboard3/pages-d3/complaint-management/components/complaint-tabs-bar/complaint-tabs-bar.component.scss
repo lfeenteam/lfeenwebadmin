@@ -1,0 +1,41 @@
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
+  height: 56px;
+
+  .tab-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: #9E9E9A;
+    padding: 0 4px;
+    height: 56px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Cairo', sans-serif;
+    position: relative;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    min-width: unset;
+
+    &.active {
+      color: #111110;
+      font-weight: 800;
+      border-bottom-color: #111110;
+    }
+  }
+}
+
+:host-context([dir='rtl']) {
+  .tabs-wrapper {
+    direction: rtl;
+  }
+}
+
+:host-context([dir='ltr']) {
+  .tabs-wrapper {
+    direction: ltr;
+  }
+}

@@ -1,0 +1,95 @@
+<div class="chat-panel">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="avatar" [class]="'avatar-' + avatarColor">
+        {{ complaint.clientInitials }}
+      </div>
+      <div class="header-info">
+        <span class="client-name">{{ displayClientName }}</span>
+        <span class="client-status">
+          <span class="status-dot"></span>
+          {{ 'd3.complaints.chat.online' | translate }}
+        </span>
+      </div>
+    </div>
+    <button class="close-btn" (click)="close.emit()">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages">
+    @if (complaint.messages.length === 0) {
+      <div class="no-messages">
+        <i-tabler name="message-2" class="icon-32"></i-tabler>
+        <span>{{ 'd3.complaints.chat.noMessages' | translate }}</span>
+      </div>
+    }
+
+    @for (msg of complaint.messages; track msg.id) {
+      <div
+        class="msg-row"
+        [class.msg-client]="msg.senderRole === 'client'"
+        [class.msg-support]="msg.senderRole !== 'client'">
+
+        @if (msg.senderRole !== 'client') {
+          <div class="msg-avatar avatar-support">
+            <i-tabler name="headset" class="icon-16"></i-tabler>
+          </div>
+        }
+
+        <div class="msg-content">
+          @if (msg.senderRole !== 'client') {
+            <span class="msg-sender">{{ 'd3.complaints.chat.supportName' | translate }}</span>
+          }
+          <div class="msg-bubble" [class.bubble-support]="msg.senderRole !== 'client'">
+            <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+          </div>
+          <span class="msg-time">{{ displayMessageTime(msg) }}</span>
+        </div>
+
+      </div>
+    }
+
+    <div #messagesEnd></div>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-composer">
+    @if (selectedAttachments.length) {
+      <div class="attachments-preview">
+        @for (file of selectedAttachments; track file.name + file.size) {
+          <button class="attachment-chip" type="button" (click)="removeAttachment($index)">
+            <i-tabler name="file" class="icon-14"></i-tabler>
+            <span>{{ file.name }}</span>
+            <i-tabler name="x" class="icon-12"></i-tabler>
+          </button>
+        }
+      </div>
+    }
+
+    <div class="chat-footer">
+      <button class="attach-btn" type="button" (click)="openAttachmentPicker()">
+        <i-tabler name="paperclip" class="icon-18"></i-tabler>
+      </button>
+      <input
+        #fileInput
+        type="file"
+        class="file-input"
+        multiple
+        (change)="onAttachmentChange($event)" />
+      <input
+        type="text"
+        class="msg-input"
+        [(ngModel)]="messageText"
+        [placeholder]="'d3.complaints.chat.placeholder' | translate"
+        (keydown)="onKeydown($event)" />
+      <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
+        <i-tabler name="send-2" class="icon-18"></i-tabler>
+      </button>
+    </div>
+  </div>
+
+</div>

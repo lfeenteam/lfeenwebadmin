@@ -213,6 +213,115 @@
   }
 }
 
+// ════════════════════════════════════════
+// Tablet (768px)
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  .add-role-container {
+    // page title
+    .page-title-block h1 { font-size: 20px !important; }
+
+    // info card
+    .info-card mat-card-content { padding: 20px !important; }
+
+    // perms card
+    .perms-card {
+      .perms-card-header { padding: 14px 16px !important; }
+      .perm-row { padding: 12px 16px !important; }
+    }
+
+    // alert
+    .alert-box { padding: 14px !important; gap: 10px !important; }
+
+    // buttons
+    > div:last-child { justify-content: stretch !important; }
+
+    .save-btn, .cancel-btn {
+      width: 100%;
+      padding: 12px 16px;
+      justify-content: center;
+    }
+  }
+}
+
+// ════════════════════════════════════════
+// Mobile (576px)
+// ════════════════════════════════════════
+@media (max-width: 576px) {
+  .add-role-container {
+    .page-title-block {
+      h1 { font-size: 18px !important; }
+      .page-subtitle { font-size: 12px; }
+    }
+
+    .info-card {
+      border-radius: 16px !important;
+
+      mat-card-content { padding: 16px !important; }
+
+      .section-title { font-size: 15px; }
+
+      .bilingual-input-wrapper {
+        border-radius: 10px;
+
+        .bilingual-input  { font-size: 13px; padding: 10px 0; }
+        .bilingual-textarea { font-size: 13px; }
+        .lang-chip { font-size: 10px; padding: 3px 8px; }
+      }
+    }
+
+    .perms-card {
+      border-radius: 20px !important;
+
+      .perms-card-header {
+        padding: 12px 14px !important;
+        .section-title  { font-size: 14px; }
+        .selected-badge { font-size: 11px; padding: 3px 10px; }
+      }
+
+      .perm-row {
+        padding: 10px 14px !important;
+
+        .perm-info {
+          padding-inline-end: 10px;
+          .perm-name { font-size: 13px; }
+          .perm-desc { font-size: 11px; }
+        }
+      }
+    }
+
+    .alert-box {
+      padding: 12px !important;
+      gap: 8px !important;
+      border-radius: 14px;
+
+      h4 { font-size: 12px; }
+      p  { font-size: 11px; }
+    }
+
+    > div:last-child { flex-direction: column !important; }
+
+    .save-btn, .cancel-btn {
+      width: 100%;
+      padding: 12px 16px;
+      justify-content: center;
+    }
+  }
+}
+
+// ════════════════════════════════════════
+// Small Mobile (360px)
+// ════════════════════════════════════════
+@media (max-width: 360px) {
+  .add-role-container {
+    .page-title-block h1 { font-size: 16px !important; }
+
+    .info-card mat-card-content { padding: 12px !important; }
+
+    .perms-card .perm-row { padding: 9px 12px !important; }
+  }
+}
+
 // ── Slide Toggle colors ─────────────────────
 ::ng-deep .add-role-container {
   .mat-mdc-slide-toggle.mat-primary {
@@ -228,6 +337,16 @@
     .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
       background-color: #EDEDEB !important;
       border: 1px solid #E8E8E4;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  ::ng-deep .add-role-container {
+    .mat-mdc-slide-toggle {
+      transform: scale(0.78);
+      transform-origin: left center;
+      flex-shrink: 0;
     }
   }
 }

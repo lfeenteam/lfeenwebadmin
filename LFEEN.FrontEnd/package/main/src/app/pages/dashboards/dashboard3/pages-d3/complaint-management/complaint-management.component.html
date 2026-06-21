@@ -1,0 +1,48 @@
+<div class="complaint-page">
+
+  <!-- Tabs -->
+  <div class="tabs-row border-bottom-gray">
+    <app-complaint-tabs-bar
+      [activeTab]="activeTab()"
+      (tabChange)="setTab($event)">
+    </app-complaint-tabs-bar>
+  </div>
+
+  <div class="content-area" [class.chat-open]="chatOpen">
+
+    <div class="table-column">
+      <app-complaints-table
+        [complaints]="visibleComplaints()"
+        [selectedId]="selectedComplaint()?.id ?? null"
+        (rowSelect)="onRowSelect($event)"
+        (resolveRow)="onResolve($event)">
+      </app-complaints-table>
+
+      <!-- Pagination placeholder -->
+      <div class="pagination-wrapper">
+        <span class="pagination-total">
+          {{ 'd3.complaints.table.totalPrefix' | translate }}
+          {{ visibleComplaints().length }}
+          {{ 'd3.complaints.table.totalSuffix' | translate }}
+        </span>
+        <div class="pagination-controls">
+          <button class="page-nav-btn" disabled>‹</button>
+          <button class="page-number-btn active">1</button>
+          <button class="page-number-btn">2</button>
+          <button class="page-nav-btn">›</button>
+        </div>
+      </div>
+    </div>
+
+    @if (chatOpen) {
+      <div class="chat-column">
+        <app-complaint-chat
+          [complaint]="selectedComplaint()!"
+          (close)="closeChat()">
+        </app-complaint-chat>
+      </div>
+    }
+
+  </div>
+
+</div>

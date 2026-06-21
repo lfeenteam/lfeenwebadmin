@@ -112,6 +112,7 @@ export interface PropertyTermCondition {
   id: number;
   name: string;
   conditionKey: string;
+  isSelected: boolean;
   defaultValue: boolean | string | number | null;
   type: string;
 }

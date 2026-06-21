@@ -251,7 +251,7 @@
     }
   }
 
-  // ===== under_review card specific =====
+  // ===== under_review card specific (تاب تحت المراجعة فقط) =====
   &.under-review-card {
     height: 290px;
     border: 1px solid #FEF08A !important;
@@ -345,6 +345,7 @@
       height: auto;
       min-height: 245px;
     }
+
   }
 }
 

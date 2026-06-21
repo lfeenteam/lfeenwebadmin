@@ -254,7 +254,7 @@ export class BuildReviewComponent implements OnInit {
   }
 
   goToUnits(): void {
-    this.router.navigate(['../../buildings'], { relativeTo: this.route });
+    this.router.navigate(['../../units'], { relativeTo: this.route });
     this.showSuccessModal = false;
   }
 

@@ -1,18 +1,20 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 
 @Component({
   selector: 'app-dashboard3-page-header',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, RouterModule, TranslateModule, TablerIconsModule],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
 })
 export class PageHeaderComponent {
   @Input({ required: true }) titleKey!: string;
   @Input() breadcrumbKey = 'd3.header.platform';
+  @Input() breadcrumbRoute: string[] | null = null;
   @Input() showLive = true;
   @Input() showDate = true;
   @Input() showBack = false;

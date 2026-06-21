@@ -43,6 +43,7 @@ export class AccountManagementComponent implements OnInit {
   accounts: Account[] = [];
   totalPages  = 1;
   currentPage = 1;
+  totalCount  = 0;
   pageNumbers: number[] = [];
   isLoading   = false;
   newestFirst = true;
@@ -59,6 +60,7 @@ export class AccountManagementComponent implements OnInit {
       this.accounts    = this.accountService.accounts();
       this.totalPages  = this.accountService.totalPages();
       this.currentPage = this.accountService.currentPage();
+      this.totalCount  = this.accountService.totalCount();
       this.isLoading   = this.accountService.isLoading();
       this.newestFirst = this.accountService.newestFirst();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
@@ -93,7 +95,7 @@ export class AccountManagementComponent implements OnInit {
 
   get filteredAccounts(): Account[] {
     switch (this.activeTab) {
-      case 'all':          return this.accounts.filter(a => a.status !== 'under_review');
+      case 'all':          return this.accounts;
       case 'under_review': return this.accounts.filter(a => a.status === 'under_review');
       default:             return this.accounts;
     }
@@ -116,5 +118,18 @@ export class AccountManagementComponent implements OnInit {
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.accountService.goToPage(page);
+  }
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  get visiblePages(): (number | '...')[] {
+    const n = this.totalPages;
+    const c = this.currentPage;
+    if (n <= 7) return Array.from({ length: n }, (_, i) => i + 1);
+    if (c <= 4)     return [1, 2, 3, 4, '...', n - 2, n - 1, n];
+    if (c >= n - 3) return [1, 2, 3, '...', n - 3, n - 2, n - 1, n];
+    return [1, 2, 3, '...', c, '...', n - 2, n - 1, n];
   }
 }

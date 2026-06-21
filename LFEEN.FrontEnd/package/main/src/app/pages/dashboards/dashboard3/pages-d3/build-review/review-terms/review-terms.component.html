@@ -28,7 +28,7 @@
             </span>
         </div>
         <div class="toggle-wrap">
-            <input type="checkbox" id="earlyCheckIn" [(ngModel)]="earlyCheckIn" [disabled]="readOnly">
+            <input type="checkbox" id="earlyCheckIn" [checked]="earlyCheckIn" disabled>
             <label for="earlyCheckIn"></label>
         </div>
     </div>
@@ -48,7 +48,7 @@
                   <i-tabler [name]="rule.icon" class="rule-icon"></i-tabler>
                   <span class="rule-title">{{ rule.title }}</span>
                   <div class="toggle-wrap">
-                      <input type="checkbox" [id]="'rule-' + rule.id" [(ngModel)]="rule.enabled" [disabled]="readOnly">
+                      <input type="checkbox" [id]="'rule-' + rule.id" [checked]="rule.enabled" disabled>
                       <label [for]="'rule-' + rule.id"></label>
                   </div>
               </div>

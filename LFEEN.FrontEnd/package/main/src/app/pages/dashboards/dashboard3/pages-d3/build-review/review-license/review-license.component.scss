@@ -244,3 +244,159 @@
 }
 
 .text-danger { color: #DC2626 !important; }
+
+// ════════════════════════════════════════
+// Tablet (768px)
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  .review-license-container {
+    gap: 24px;
+  }
+
+  .section-header {
+    .section-title  { font-size: 18px; }
+    .section-subtitle { font-size: 12px; }
+
+    .header-main {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .license-badge {
+      padding: 6px 12px;
+      border-radius: 12px;
+    }
+  }
+
+  .section-title-wrapper .section-title { font-size: 16px; }
+
+  .empty-license-state {
+    min-height: 220px;
+    padding: 28px 20px;
+    border-radius: 24px;
+
+    .empty-icon { width: 52px; height: 52px; margin-bottom: 14px; }
+    h3 { font-size: 16px; }
+  }
+
+  .document-preview {
+    min-height: 280px;
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .license-meta-grid {
+    gap: 14px;
+
+    .meta-item {
+      padding: 14px 16px;
+      border-radius: 14px;
+      .meta-value { font-size: 13px; }
+    }
+  }
+
+  .notes-section .notes-textarea {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr 160px;
+    gap: 10px;
+
+    .btn { height: 52px; font-size: 15px; border-radius: 16px; }
+  }
+}
+
+// ════════════════════════════════════════
+// Mobile (576px)
+// ════════════════════════════════════════
+@media (max-width: 576px) {
+  .review-license-container {
+    gap: 20px;
+  }
+
+  .section-header {
+    .section-title  { font-size: 16px; }
+    .section-subtitle { font-size: 11px; }
+  }
+
+  .section-title-wrapper {
+    gap: 8px;
+    .section-indicator { width: 5px; height: 20px; }
+    .section-title { font-size: 15px; }
+  }
+
+  .empty-license-state {
+    min-height: 180px;
+    padding: 20px 16px;
+    border-radius: 20px;
+
+    .empty-icon { width: 44px; height: 44px; }
+    h3 { font-size: 15px; }
+    p  { font-size: 12px; }
+  }
+
+  .document-preview {
+    min-height: 200px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .license-meta-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+
+    .meta-item {
+      padding: 12px 14px;
+      border-radius: 12px;
+
+      &.full-width { grid-column: unset; }
+    }
+  }
+
+  .notes-section {
+    .notes-textarea {
+      padding: 14px;
+      font-size: 13px;
+      border-radius: 16px;
+    }
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    .btn-approve { order: 1; }
+    .btn-reject  { order: 2; }
+
+    .btn { height: 48px; font-size: 14px; border-radius: 14px; }
+  }
+}
+
+// ════════════════════════════════════════
+// Small Mobile (360px)
+// ════════════════════════════════════════
+@media (max-width: 360px) {
+  .review-license-container {
+    gap: 16px;
+  }
+
+  .section-header .section-title { font-size: 15px; }
+
+  .document-preview {
+    min-height: 160px;
+    padding: 10px;
+  }
+
+  .license-meta-grid .meta-item {
+    padding: 10px 12px;
+    .meta-label { font-size: 10px; }
+    .meta-value  { font-size: 12px; }
+  }
+
+  .action-buttons .btn {
+    height: 44px;
+    font-size: 13px;
+  }
+}

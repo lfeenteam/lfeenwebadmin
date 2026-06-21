@@ -32,6 +32,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   headerType: D3HeaderType = 'ceo';
   pageTitleKey = '';
   pageBreadcrumbKey = 'd3.header.platform';
+  pageBreadcrumbRoute: string[] | null = null;
   pageShowLive = true;
   pageShowDate = true;
   pageShowBack = false;
@@ -81,6 +82,15 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.pageShowDate = data.showDate ?? true;
     this.pageShowBack = data.showBack ?? false;
     this.pageStatusBadge = isViewOnly ? null : (data.statusBadge ?? null);
+
+    if (data.breadcrumbRoute) {
+      const lang = this.route.snapshot.parent?.params['lang'] ?? 'ar';
+      const params = child?.snapshot.paramMap;
+      const resolved = data.breadcrumbRoute.replace(/:(\w+)/g, (_, key) => params?.get(key) ?? key);
+      this.pageBreadcrumbRoute = ['/', lang, 'd3', ...resolved.split('/')];
+    } else {
+      this.pageBreadcrumbRoute = null;
+    }
   }
 
   get currentDir(): 'rtl' | 'ltr' {
