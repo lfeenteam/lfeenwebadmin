@@ -1,9 +1,11 @@
 .tabs-wrapper {
+  
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 24px;
   height: 56px;
+  direction: rtl;
 
   .tab-btn {
     font-size: 14px;
@@ -28,14 +30,20 @@
   }
 }
 
-:host-context([dir='rtl']) {
-  .tabs-wrapper {
-    direction: rtl;
-  }
-}
-
 :host-context([dir='ltr']) {
   .tabs-wrapper {
     direction: ltr;
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs-wrapper {
+    gap: 16px;
+    height: 48px;
+
+    .tab-btn {
+      font-size: 13px;
+      height: 48px;
+    }
   }
 }
