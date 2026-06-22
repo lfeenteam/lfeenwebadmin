@@ -314,6 +314,15 @@
         "type": "Type",
         "description": "Description",
         "status": "Status"
+      },
+      "tabs": {
+        "published": "Published Units",
+        "new": "New",
+        "underReview": "Under Review",
+        "rejected": "Rejected"
+      },
+      "pagination": {
+        "total": "unit"
       }
     },
     "sections": {
@@ -1290,32 +1299,56 @@
       "title": "Complaint Management",
       "tabs": {
         "customers": "Customer Support",
-        "hosts":     "Host Support",
-        "resolved":  "Resolved"
+        "hosts": "Host Support",
+        "resolved": "Resolved"
       },
       "table": {
         "searchPlaceholder": "Search by name, complaint ID...",
-        "client":       "Client",
-        "status":       "Status",
-        "date":         "Date",
-        "allStatuses":  "All statuses",
-        "resolveBtn":   "Mark as resolved",
-        "empty":        "No complaints found",
-        "totalPrefix":  "Showing 1 of",
-        "totalSuffix":  "complaints"
+        "ticket": "Ticket #",
+        "client": "Host",
+        "status": "Status",
+        "date": "Date",
+        "allStatuses": "All statuses",
+        "resolveBtn": "Mark as resolved",
+        "empty": "No complaints found",
+        "totalPrefix": "Showing 1 of",
+        "totalSuffix": "complaints"
       },
       "status": {
-        "new":        "New",
+        "new": "New",
         "inProgress": "In Progress",
-        "closed":     "Closed",
-        "pending":    "Pending"
+        "closed": "Closed",
+        "pending": "Pending",
+        "replied": "Replied"
       },
       "chat": {
-        "supportName":  "Support",
+        "supportName": "Support",
         "attachmentLabel": "Attachment",
-        "online":      "Online now",
-        "noMessages":  "No messages yet",
-        "placeholder": "Type here..."
+        "online": "Online now",
+        "noMessages": "No messages yet",
+        "placeholder": "Type here...",
+        "resolveBtn": "Close & Resolve"
+      },
+      "hostDetail": {
+        "submittedAt": "Submitted at",
+        "submittedDate": "14 November 2023",
+        "lastUpdate": "Last update",
+        "lastUpdateValue": "15 minutes ago",
+        "followedBy": "Followed by employee",
+        "followedByValue": "14 November 2023 - 9:45 AM",
+        "issueType": "Issue type",
+        "issueTypeValue": "Payout issue",
+        "hostName": "Fahad Al-Sayf",
+        "hostSubtitle": "Host - Bab Al-Bahr Residential Hotel",
+        "problemTitle": "Issue subject: Price synchronization with calendar",
+        "problemBody": "Hello LFEEN team, I have an issue updating November prices. I changed the price in the host app, but the update does not appear in search results. Please help urgently as this affects upcoming bookings.",
+        "problemAttachmentNote": "I attached a screenshot showing the issue from my dashboard.",
+        "attachmentsTitle": "Attached files (1)",
+        "attachmentMeta": "Word Document - 1.2 MB",
+        "replyTitle": "Official technical support reply",
+        "replyPlaceholder": "Write the official reply to the host here...",
+        "sendReply": "Send official reply",
+        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
       }
     },
     "accountManagement": {

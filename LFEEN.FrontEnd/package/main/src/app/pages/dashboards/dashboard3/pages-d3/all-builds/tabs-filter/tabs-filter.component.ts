@@ -18,7 +18,7 @@ export interface BuildFilterOption {
   styleUrl: './tabs-filter.component.scss'
 })
 export class TabsFilterComponent {
-  @Input() activeTab: string = 'published';
+  @Input() activeTab: string = '';
   @Input() searchQuery = '';
   @Input() tabs: { id: string; labelKey: string }[] = [
     { id: 'published', labelKey: 'd3.allBuilds.tabs.published' },

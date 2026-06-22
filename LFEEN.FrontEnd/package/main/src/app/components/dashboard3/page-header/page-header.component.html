@@ -24,7 +24,18 @@
   </div>
 
   <div class="d3-page-header-meta">
-    @if (statusBadge) {
+    @if (actionButton) {
+      <button
+        class="d3-page-action-btn"
+        type="button"
+        [style.background-color]="actionButton.color || '#16803A'"
+        (click)="onAction($event)">
+        @if (actionButton.icon) {
+          <i-tabler [name]="actionButton.icon" class="d3-page-action-icon"></i-tabler>
+        }
+        <span>{{ actionButton.text | translate }}</span>
+      </button>
+    } @else if (statusBadge) {
       <div class="d3-page-status-badge" [style.background-color]="statusBadge.color + '1A'">
         <span class="d3-page-status-dot" [style.background-color]="statusBadge.color"></span>
         <span class="d3-page-status-text" [style.color]="statusBadge.color">{{ statusBadge.text | translate }}</span>

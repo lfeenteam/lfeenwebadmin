@@ -9,4 +9,5 @@ export interface D3RouteHeaderData {
   showDate?: boolean;
   showBack?: boolean;
   statusBadge?: { text: string; color: string };
+  actionButton?: { text: string; icon?: string; color?: string; action: string };
 }

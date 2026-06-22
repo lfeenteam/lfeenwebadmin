@@ -7,69 +7,101 @@
       <input
         type="text"
         [(ngModel)]="searchQuery"
+        (ngModelChange)="currentPage = 1"
         [placeholder]="'d3.complaints.table.searchPlaceholder' | translate"
         class="search-input" />
     </div>
     <button class="status-filter-btn">
       {{ 'd3.complaints.table.allStatuses' | translate }}
     </button>
-    <button class="filter-btn">
-      <i-tabler name="adjustments-horizontal" class="icon-18"></i-tabler>
-    </button>
   </div>
 
   <!-- Table -->
-  <div class="complaints-table">
+  <div class="complaints-table" [class.host-support-table]="hostSupportMode">
     <!-- Header -->
-    <div class="table-head">
-      <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
-      <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
-      <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
-      <div class="col-check"></div>
-    </div>
+    @if (hostSupportMode) {
+      <div class="table-head host-head">
+        <div class="col-host-client">المضيف</div>
+        <div class="col-subject">موضوع المشكلة</div>
+        <div class="col-status">الحالة</div>
+        <div class="col-date">التاريخ</div>
+        <div class="col-action">الإجراء</div>
+      </div>
+    } @else {
+      <div class="table-head">
+        <div class="col-ticket">{{ 'd3.complaints.table.ticket' | translate }}</div>
+        <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
+        <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
+        <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
+      </div>
+    }
 
     <!-- Rows -->
-    @for (c of filtered; track c.id) {
+    @for (c of pagedComplaints; track c.id) {
       <div
         class="table-row"
+        [class.host-row]="hostSupportMode"
         [class.selected]="selectedId === c.id"
         (click)="rowSelect.emit(c)">
 
-        <div class="col-client">
-          <div class="client-avatar" [attr.data-color]="c.clientInitials.charCodeAt(0) % 5">
-            {{ c.clientInitials }}
+        @if (hostSupportMode) {
+          <div class="col-host-client">
+            <div
+              class="host-avatar"
+              [attr.data-initials]="c.clientInitials">
+              {{ c.clientInitials }}
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ displayClientName(c) }}</span>
+              <span class="client-code">{{ c.ticketId }}</span>
+            </div>
           </div>
-          <div class="client-info">
-            <span class="client-name">{{ displayClientName(c) }}</span>
-            <span class="client-code">{{ c.clientCode }}</span>
-          </div>
-        </div>
 
-        <!-- Status -->
-        <div class="col-status">
-          <span class="status-badge" [class]="'status-' + c.status">
-            {{ statusLabelKey(c.status) | translate }}
-          </span>
-        </div>
+          <div class="col-subject">{{ displaySubject(c) }}</div>
 
-        <!-- Date -->
-        <div class="col-date">{{ displayDate(c) }}</div>
-
-        <!-- Resolve button -->
-        <div class="col-check">
-          @if (!c.resolved) {
-            <button
-              class="resolve-btn"
-              [title]="'d3.complaints.table.resolveBtn' | translate"
-              (click)="onResolve($event, c)">
-              <i-tabler name="circle-check" class="icon-20"></i-tabler>
-            </button>
-          } @else {
-            <span class="resolved-icon">
-              <i-tabler name="circle-check-filled" class="icon-20"></i-tabler>
+          <div class="col-status">
+            <span class="status-badge" [class]="'status-' + c.status">
+              {{ statusLabelKey(c.status) | translate }}
             </span>
-          }
-        </div>
+          </div>
+
+          <div class="col-date">{{ displayDate(c) }}</div>
+
+          <div class="col-action">
+            <button class="row-action-btn" type="button" (click)="$event.stopPropagation(); detailSelect.emit(c)">
+              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        } @else {
+          <!-- Ticket ID -->
+          <div class="col-ticket">
+            <span class="ticket-id">{{ c.ticketId }}</span>
+          </div>
+
+          <div class="col-client">
+            <div
+              class="client-avatar"
+              [attr.data-color]="c.clientInitials.charCodeAt(0) % 5"
+              [class.avatar-active]="selectedId === c.id">
+              {{ c.clientInitials }}
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ displayClientName(c) }}</span>
+              <span class="client-code">{{ c.clientCode }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="col-status">
+            <span class="status-badge" [class]="'status-' + c.status">
+              {{ statusLabelKey(c.status) | translate }}
+            </span>
+          </div>
+
+          <!-- Date -->
+          <div class="col-date">{{ displayDate(c) }}</div>
+        }
+
       </div>
     }
 
@@ -79,6 +111,35 @@
         <span>{{ 'd3.complaints.table.empty' | translate }}</span>
       </div>
     }
+  </div>
+
+  <div class="table-footer">
+    <div class="pagination-controls">
+      <button
+        class="page-nav-btn"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)">
+        <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+      </button>
+
+      @for (page of visiblePages; track page) {
+        <button
+          class="page-number-btn"
+          [class.active]="currentPage === page"
+          (click)="changePage(page)">
+          {{ displayPage(page) }}
+        </button>
+      }
+
+      <button
+        class="page-nav-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)">
+        <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+      </button>
+    </div>
+
+    <span class="pagination-total">{{ paginationSummary }}</span>
   </div>
 
 </div>

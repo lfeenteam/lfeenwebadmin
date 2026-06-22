@@ -17,6 +17,7 @@ import { ComplaintService } from '../../services/complaint.service';
 export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
   @Input() complaint!: Complaint;
   @Output() close = new EventEmitter<void>();
+  @Output() resolve = new EventEmitter<void>();
 
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef;
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
@@ -37,6 +38,10 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
       this.scrollToBottom();
       this.shouldScroll = false;
     }
+  }
+
+  onResolve(): void {
+    this.resolve.emit();
   }
 
   send(): void {
@@ -77,6 +82,18 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
     return this.translate.currentLang === 'en'
       ? this.complaint.clientNameEn ?? this.complaint.clientName
       : this.complaint.clientName;
+  }
+
+  get dateSeparatorLabel(): string {
+    return this.translate.currentLang === 'en' ? 'Today - 9:10 AM' : 'اليوم - ٩:١٠ ص';
+  }
+
+  get resolveButtonLabel(): string {
+    return this.translate.currentLang === 'en' ? 'Close and resolve complaint' : 'إغلاق وحل الشكوى';
+  }
+
+  get composerPlaceholder(): string {
+    return this.translate.currentLang === 'en' ? 'Write to him here...' : 'اكتب له هنا...';
   }
 
   get canSend(): boolean {

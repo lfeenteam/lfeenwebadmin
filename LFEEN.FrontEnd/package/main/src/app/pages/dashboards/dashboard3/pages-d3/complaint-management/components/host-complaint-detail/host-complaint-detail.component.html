@@ -1,0 +1,87 @@
+<div class="host-detail-page" [dir]="currentDir">
+  <section class="summary-strip">
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="calendar" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.submittedAt' | translate }}</span>
+      </span>
+      <strong>{{ 'd3.complaints.hostDetail.submittedDate' | translate }}</strong>
+    </div>
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="clock" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.lastUpdate' | translate }}</span>
+      </span>
+      <strong>{{ 'd3.complaints.hostDetail.lastUpdateValue' | translate }}</strong>
+    </div>
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="user-check" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.followedBy' | translate }}</span>
+      </span>
+      <strong>{{ 'd3.complaints.hostDetail.followedByValue' | translate }}</strong>
+    </div>
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="tag" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.issueType' | translate }}</span>
+      </span>
+      <strong>{{ 'd3.complaints.hostDetail.issueTypeValue' | translate }}</strong>
+    </div>
+  </section>
+
+  <section class="host-profile">
+    <div class="host-avatar">{{ hostInitials }}</div>
+    <div>
+      <h2>{{ 'd3.complaints.hostDetail.hostName' | translate }}</h2>
+      <p>{{ 'd3.complaints.hostDetail.hostSubtitle' | translate }}</p>
+    </div>
+  </section>
+
+  <section class="message-card">
+    <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}</h3>
+    <p>{{ 'd3.complaints.hostDetail.problemBody' | translate }}</p>
+    <p>{{ 'd3.complaints.hostDetail.problemAttachmentNote' | translate }}</p>
+  </section>
+
+  <section class="attachment-section">
+    <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate }}</h3>
+    <div class="attachment-card">
+   
+      
+    <i-tabler name="file-text" class="icon-24"></i-tabler>
+      <div class="attachment-meta">
+        <strong>screen_error_sync.docx</strong>
+        <span>{{ 'd3.complaints.hostDetail.attachmentMeta' | translate }}</span>
+      </div>
+    <button class="download-btn" type="button">
+        <i-tabler name="download" class="icon-16"></i-tabler>
+      </button>
+     
+    </div>
+  </section>
+
+  <section class="reply-section">
+    <h3>
+      <i-tabler name="corner-up-left" class="icon-16"></i-tabler>
+      {{ 'd3.complaints.hostDetail.replyTitle' | translate }}
+    </h3>
+    <textarea
+      [(ngModel)]="replyText"
+      [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
+    <div class="reply-footer">
+      <button class="send-reply-btn" type="button" (click)="sendReply()">
+        <i-tabler name="send-2" class="icon-16"></i-tabler>
+        {{ 'd3.complaints.hostDetail.sendReply' | translate }}
+      </button>
+      <button class="attach-reply-btn" type="button">
+        <i-tabler name="paperclip" class="icon-18"></i-tabler>
+      </button>
+    </div>
+  </section>
+
+  <div class="notice-bar">
+    <i-tabler name="info-circle" class="icon-14"></i-tabler>
+    {{ 'd3.complaints.hostDetail.notice' | translate }}
+  </div>
+</div>

@@ -447,6 +447,29 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'complaints/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/host-complaint-detail/host-complaint-detail.component'
+                  ).then((m) => m.HostComplaintDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: true,
+                  actionButton: {
+                    text: 'd3.complaints.chat.resolveBtn',
+                    icon: 'circle-check',
+                    color: '#16803A',
+                    action: 'resolveComplaint'
+                  }
+                },
+              },
+              {
                 path: 'complaints',
                 canActivate: [authGuard],
                 loadComponent: () =>

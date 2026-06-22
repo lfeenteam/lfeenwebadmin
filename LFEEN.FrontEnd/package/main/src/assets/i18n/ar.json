@@ -316,6 +316,15 @@
         "type": "النوع",
         "description": "الوصف",
         "status": "الحالة"
+      },
+      "tabs": {
+        "published": "وحدات منشورة",
+        "new": "جديد",
+        "underReview": "تحت المراجعة",
+        "rejected": "مرفوض"
+      },
+      "pagination": {
+        "total": "وحدة"
       }
     },
     "sections": {
@@ -749,32 +758,56 @@
       "title": "إدارة الشكاوى",
       "tabs": {
         "customers": "دعم العملاء",
-        "hosts":     "دعم المضيفين",
-        "resolved":  "تم الحل"
+        "hosts": "دعم المضيفين",
+        "resolved": "تم الحل"
       },
       "table": {
         "searchPlaceholder": "ابحث بإسم المشتكي، رقم الشكوى...",
-        "client":       "العميل",
-        "status":       "الحالة",
-        "date":         "التاريخ",
-        "allStatuses":  "كل الحالات",
-        "resolveBtn":   "تمييز كمحلولة",
-        "empty":        "لا توجد شكاوى",
-        "totalPrefix":  "عرض 1 من",
-        "totalSuffix":  "شكوى"
+        "ticket": "رقم التذكرة",
+        "client": "المضيف",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "allStatuses": "كل الحالات",
+        "resolveBtn": "تمييز كمحلولة",
+        "empty": "لا توجد شكاوى",
+        "totalPrefix": "عرض 1 من",
+        "totalSuffix": "شكوى"
       },
       "status": {
-        "new":        "جديدة",
+        "new": "جديدة",
         "inProgress": "قيد المعالجة",
-        "closed":     "مغلقة",
-        "pending":    "قيد الانتظار"
+        "closed": "مغلقة",
+        "pending": "قيد الانتظار",
+        "replied": "تم الرد"
       },
       "chat": {
-        "supportName":  "فريق الدعم",
+        "supportName": "فريق الدعم",
         "attachmentLabel": "مرفق",
-        "online":      "متصل الآن",
-        "noMessages":  "لا توجد رسائل بعد",
-        "placeholder": "اكتب هنا..."
+        "online": "متصل الآن",
+        "noMessages": "لا توجد رسائل بعد",
+        "placeholder": "اكتب هنا...",
+        "resolveBtn": "إغلاق وحل الشكوى"
+      },
+      "hostDetail": {
+        "submittedAt": "تاريخ التقديم",
+        "submittedDate": "١٤ نوفمبر ٢٠٢٣",
+        "lastUpdate": "آخر تحديث",
+        "lastUpdateValue": "منذ ١٥ دقيقة",
+        "followedBy": "تحت المتابعة بواسطة الموظف",
+        "followedByValue": "١٤ نوفمبر ٢٠٢٣ - ٩:٤٥ ص",
+        "issueType": "نوع المشكلة",
+        "issueTypeValue": "مشكلة دفعات",
+        "hostName": "فهد السيف",
+        "hostSubtitle": "مضيف - فندق باب البحر السكني",
+        "problemTitle": "موضوع المشكلة: مشكلتي مزامنة الأسعار مع التقويم",
+        "problemBody": "السلام عليكم فريق لفيين، عندي مشكلة في تحديث الأسعار لشهر نوفمبر. قمت بتغيير السعر في تطبيق المضيفين، ولكن لا يظهر التغيير في نتائج البحث. أرجو المساعدة فوراً لأن هذا يؤثر على الحجوزات القادمة.",
+        "problemAttachmentNote": "مرفق لكم لقطة شاشة توضح المشكلة من لوحة التحكم الخاصة بي.",
+        "attachmentsTitle": "الملفات المرفقة (1)",
+        "attachmentMeta": "Word Document - 1.2 MB",
+        "replyTitle": "الرد الرسمي للدعم الفني",
+        "replyPlaceholder": "اكتب الرد الرسمي للمضيف هنا...",
+        "sendReply": "إرسال الرد الرسمي",
+        "notice": "سيتم إرسال الرد النهائي إلى المضيف، وإغلاق التذكرة عند إرسال الرد."
       }
     },
     "accountManagement": {
