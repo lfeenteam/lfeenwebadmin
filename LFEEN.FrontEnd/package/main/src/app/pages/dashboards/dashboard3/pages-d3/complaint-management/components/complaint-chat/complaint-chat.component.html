@@ -2,25 +2,37 @@
 
   <!-- Header -->
   <div class="chat-header">
-    <div class="chat-header-left">
-      <div class="avatar" [class]="'avatar-' + avatarColor">
-        {{ complaint.clientInitials }}
-      </div>
-      <div class="header-info">
+    <div class="chat-header-top">
+      <button class="menu-btn" type="button">
+        <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+      </button>
+      <button class="close-mobile-btn" type="button" (click)="close.emit()">
+        <i-tabler name="x" class="icon-20"></i-tabler>
+      </button>
+
+      <div class="client-summary">
+             <div class="avatar" [class]="'avatar-' + avatarColor">
+          {{ complaint.clientInitials }}
+        </div>
         <span class="client-name">{{ displayClientName }}</span>
-        <span class="client-status">
-          <span class="status-dot"></span>
-          {{ 'd3.complaints.chat.online' | translate }}
-        </span>
+   
       </div>
     </div>
-    <button class="close-btn" (click)="close.emit()">
-      <i-tabler name="x" class="icon-18"></i-tabler>
+
+    <button class="resolve-chat-btn" type="button" (click)="onResolve()">
+      <i-tabler name="circle-check" class="icon-18"></i-tabler>
+      {{ resolveButtonLabel }}
     </button>
   </div>
 
   <!-- Messages -->
   <div class="chat-messages">
+    @if (complaint.messages.length > 0) {
+      <div class="date-separator">
+        {{ dateSeparatorLabel }}
+      </div>
+    }
+
     @if (complaint.messages.length === 0) {
       <div class="no-messages">
         <i-tabler name="message-2" class="icon-32"></i-tabler>
@@ -71,8 +83,11 @@
     }
 
     <div class="chat-footer">
+      <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
+        <i-tabler name="send-2" class="icon-22"></i-tabler>
+      </button>
       <button class="attach-btn" type="button" (click)="openAttachmentPicker()">
-        <i-tabler name="paperclip" class="icon-18"></i-tabler>
+        <i-tabler name="paperclip" class="icon-22"></i-tabler>
       </button>
       <input
         #fileInput
@@ -84,11 +99,8 @@
         type="text"
         class="msg-input"
         [(ngModel)]="messageText"
-        [placeholder]="'d3.complaints.chat.placeholder' | translate"
+        [placeholder]="composerPlaceholder"
         (keydown)="onKeydown($event)" />
-      <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
-        <i-tabler name="send-2" class="icon-18"></i-tabler>
-      </button>
     </div>
   </div>
 

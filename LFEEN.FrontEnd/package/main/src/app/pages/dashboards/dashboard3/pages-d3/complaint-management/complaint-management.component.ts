@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
@@ -22,11 +23,21 @@ import { Complaint, ComplaintTab } from './interfaces/complaint.model';
 })
 export class ComplaintManagementComponent {
   private service = inject(ComplaintService);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   activeTab    = signal<ComplaintTab>('customers');
   selectedComplaint = signal<Complaint | null>(null);
 
   private allComplaints = this.service.complaints;
+
+  constructor() {
+    const tab = this.route.snapshot.queryParamMap.get('tab') as ComplaintTab | null;
+    if (tab === 'customers' || tab === 'hosts' || tab === 'resolved') {
+      this.activeTab.set(tab);
+    }
+  }
 
   visibleComplaints = computed(() => {
     const tab = this.activeTab();
@@ -43,8 +54,14 @@ export class ComplaintManagementComponent {
   }
 
   onRowSelect(complaint: Complaint): void {
+    if (this.activeTab() === 'hosts') return;
+
     const current = this.selectedComplaint();
     this.selectedComplaint.set(current?.id === complaint.id ? null : complaint);
+  }
+
+  openHostComplaint(complaint: Complaint): void {
+    this.router.navigate([this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id]);
   }
 
   onResolve(complaint: Complaint): void {
@@ -60,5 +77,9 @@ export class ComplaintManagementComponent {
 
   get chatOpen(): boolean {
     return this.selectedComplaint() !== null;
+  }
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 }

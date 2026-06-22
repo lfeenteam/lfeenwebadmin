@@ -1,4 +1,4 @@
-export type ComplaintStatus = 'new' | 'in_progress' | 'closed' | 'pending';
+export type ComplaintStatus = 'new' | 'in_progress' | 'closed' | 'pending' | 'replied';
 export type ComplaintTab    = 'customers' | 'hosts' | 'resolved';
 
 export interface ChatMessage {
@@ -14,6 +14,7 @@ export interface ChatMessage {
 
 export interface Complaint {
   id: string;
+  ticketId: string;
   clientName: string;
   clientNameEn?: string;
   clientInitials: string;

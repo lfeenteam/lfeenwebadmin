@@ -140,6 +140,35 @@
     }
   }
 
+  .d3-page-action-btn {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 7px;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(17, 17, 16, 0.08);
+
+    &:hover {
+      filter: brightness(0.96);
+    }
+
+    .d3-page-action-icon {
+      width: 15px;
+      height: 15px;
+      ::ng-deep svg { width: 15px; height: 15px; }
+    }
+  }
+
   .d3-page-header-meta {
     display: flex;
     align-items: center;
@@ -275,6 +304,12 @@
         padding: 4px 10px;
         font-size: 11px;
         border-radius: 10px;
+      }
+
+      .d3-page-action-btn {
+        min-height: 32px;
+        padding: 0 10px;
+        font-size: 11px;
       }
     }
   }

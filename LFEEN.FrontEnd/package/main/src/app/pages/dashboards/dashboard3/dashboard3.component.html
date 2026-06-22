@@ -30,8 +30,10 @@
           [showDate]="pageShowDate"
           [showBack]="pageShowBack"
           [statusBadge]="pageStatusBadge"
+          [actionButton]="pageActionButton"
           (sidebarToggle)="toggleMobileSidebar()"
-          (back)="onPageBack()">
+          (back)="onPageBack()"
+          (action)="onPageAction($event)">
         </app-dashboard3-page-header>
       }
     }

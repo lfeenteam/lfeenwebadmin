@@ -19,9 +19,11 @@ export class PageHeaderComponent {
   @Input() showDate = true;
   @Input() showBack = false;
   @Input() statusBadge: { text: string; color: string } | null = null;
+  @Input() actionButton: { text: string; icon?: string; color?: string; action: string } | null = null;
 
   @Output() sidebarToggle = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
+  @Output() action = new EventEmitter<string>();
 
   constructor(private translate: TranslateService) {}
 
@@ -41,5 +43,12 @@ export class PageHeaderComponent {
   onBack(event: Event): void {
     event.stopPropagation();
     this.back.emit();
+  }
+
+  onAction(event: Event): void {
+    event.stopPropagation();
+    if (this.actionButton?.action) {
+      this.action.emit(this.actionButton.action);
+    }
   }
 }

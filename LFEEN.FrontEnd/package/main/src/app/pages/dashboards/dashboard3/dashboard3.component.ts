@@ -9,6 +9,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, Subscription } from 'rxjs';
 import { D3HeaderType, D3RouteHeaderData } from './interfaces/dashboard3-header.model';
+import { ComplaintService } from './pages-d3/complaint-management/services/complaint.service';
 
 @Component({
   selector: 'app-dashboard3',
@@ -37,6 +38,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   pageShowDate = true;
   pageShowBack = false;
   pageStatusBadge: { text: string; color: string } | null = null;
+  pageActionButton: { text: string; icon?: string; color?: string; action: string } | null = null;
 
   isLoginRoute = false;
 
@@ -45,7 +47,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   constructor(
     private translate: TranslateService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private complaintService: ComplaintService
   ) {}
 
   ngOnInit(): void {
@@ -82,6 +85,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.pageShowDate = data.showDate ?? true;
     this.pageShowBack = data.showBack ?? false;
     this.pageStatusBadge = isViewOnly ? null : (data.statusBadge ?? null);
+    this.pageActionButton = isViewOnly ? null : (data.actionButton ?? null);
 
     if (data.breadcrumbRoute) {
       const lang = this.route.snapshot.parent?.params['lang'] ?? 'ar';
@@ -107,5 +111,22 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
 
   onPageBack(): void {
     window.history.back();
+  }
+
+  onPageAction(action: string): void {
+    if (action !== 'resolveComplaint') return;
+
+    let child = this.route.firstChild;
+    while (child?.firstChild) {
+      child = child.firstChild;
+    }
+
+    const id = child?.snapshot.paramMap.get('id');
+    const lang = this.route.snapshot.parent?.params['lang'] ?? this.translate.currentLang ?? 'ar';
+    if (!id) return;
+
+    this.complaintService.resolveComplaint(id).subscribe({
+      next: () => this.router.navigate(['/', lang, 'd3', 'complaints'], { queryParams: { tab: 'resolved' } })
+    });
   }
 }
