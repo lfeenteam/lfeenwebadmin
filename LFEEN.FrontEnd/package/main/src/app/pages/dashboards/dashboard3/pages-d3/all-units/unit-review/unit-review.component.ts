@@ -108,41 +108,23 @@ export class UnitReviewComponent implements OnInit {
   }
 
   onReviewSection(section: UnitReviewSection): void {
-    if (section.key === 'basicInfo') {
-      this.router.navigate(['basic-info'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'photos') {
-      this.router.navigate(['photos'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'terms') {
-      this.router.navigate(['terms'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'pricing') {
-      this.router.navigate(['pricing'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'access') {
-      this.router.navigate(['access'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'cancelPolicy') {
-      this.router.navigate(['cancel-policy'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'deposit') {
-      this.router.navigate(['deposit'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'services') {
-      this.router.navigate(['services'], { relativeTo: this.route });
-      return;
-    }
-    if (section.key === 'license') {
-      this.router.navigate(['license'], { relativeTo: this.route });
-    }
+    const isApproved = this.getSectionDecision(section.key) === 'approved';
+    const extras = { relativeTo: this.route, ...(isApproved ? { queryParams: { mode: 'view' } } : {}) };
+
+    const routeMap: Record<string, string> = {
+      basicInfo:    'basic-info',
+      photos:       'photos',
+      terms:        'terms',
+      pricing:      'pricing',
+      access:       'access',
+      cancelPolicy: 'cancel-policy',
+      deposit:      'deposit',
+      services:     'services',
+      license:      'license',
+    };
+
+    const path = routeMap[section.key];
+    if (path) this.router.navigate([path], extras);
   }
 
   getSectionDecision(sectionKey: string): UnitReviewDecision | undefined {
@@ -166,6 +148,23 @@ export class UnitReviewComponent implements OnInit {
       case 'services':     return d.servicesSection.decision;
       case 'license':      return d.licenseSection.decision;
       default:             return 'Pending';
+    }
+  }
+
+  getSectionDescription(sectionKey: string): string {
+    if (!this.unitDetail) return '';
+    const d = this.unitDetail;
+    switch (sectionKey) {
+      case 'basicInfo':    return d.basicDataSection.description ?? '';
+      case 'photos':       return d.photosSection.description ?? '';
+      case 'terms':        return d.termsSection.description ?? '';
+      case 'pricing':      return d.pricingSection.description ?? '';
+      case 'access':       return d.accessSection.description ?? '';
+      case 'cancelPolicy': return d.cancellationPolicySection.description ?? '';
+      case 'deposit':      return d.depositSection.description ?? '';
+      case 'services':     return d.servicesSection.description ?? '';
+      case 'license':      return d.licenseSection.description ?? '';
+      default:             return '';
     }
   }
 

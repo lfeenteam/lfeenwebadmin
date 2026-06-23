@@ -60,8 +60,10 @@ export interface UnitApiItem {
   unitId: number;
   externalId: string;
   name: string | null;
+  description: string | null;
   propertyId: number;
   propertyName: string;
+  propertyAdminReviewStatus: string | null;
   accountId: string;
   accountName: string | null;
   accountLogoUrl: string | null;
@@ -95,6 +97,7 @@ export interface PaginatedUnitResponse {
 
 export interface UnitApiSection {
   decision: string;
+  description: string | null;
   rejectionReason: string | null;
   reviewedAt: string | null;
 }
@@ -135,4 +138,233 @@ export interface UnitApiDetailItem {
   totalSections: number;
   progressPercentage: number;
   canFinalApprove: boolean;
+}
+
+// ── Access endpoint (/units/{id}/access) ─────────────────────────────────────
+
+export interface UnitAccessPhotoItem {
+  category: string;
+  imageUrl: string;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+}
+
+export interface UnitAccessResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  accessDescription: string | null;
+  buildingExteriorImageUrl: string | null;
+  buildingEntranceImageUrl: string | null;
+  hallwayImageUrl: string | null;
+  unitDoorImageUrl: string | null;
+  allowSelfCheckIn: boolean | null;
+  pendingData: unknown;
+  photosDecision: string;
+  photosRejectionReason: string | null;
+  photosReviewedAt: string | null;
+  photos: UnitAccessPhotoItem[];
+}
+
+// ── Terms endpoint (/units/{id}/terms) ───────────────────────────────────────
+
+export interface UnitTermsCondition {
+  id: number;
+  name: string;
+  conditionKey: string;
+  isSelected: boolean;
+}
+
+export interface UnitTermsCustomRule {
+  description: string;
+}
+
+export interface UnitTermsResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  checkInTime: string;
+  checkOutTime: string;
+  isEarlyCheckInAllowed: boolean;
+  earlyCheckInFrom: string;
+  conditions: UnitTermsCondition[];
+  customRules: UnitTermsCustomRule[];
+  pendingData: unknown;
+}
+
+// ── Photos endpoint (/units/{id}/photos) ─────────────────────────────────────
+
+export interface UnitPhotoItem {
+  mediaId: number;
+  url: string;
+  isMainPhoto: boolean;
+  isPendingDeletion: boolean;
+  pendingIsMain: boolean | null;
+  classification: string;
+  classificationCategory: string;
+  classificationConfidence: number;
+  displayOrder: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+}
+
+export interface UnitPhotoGroupItem {
+  groupKey: string;
+  totalCount: number;
+  photos: UnitPhotoItem[];
+}
+
+export interface UnitPhotosResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  approvedCount: number;
+  minRequired: number;
+  groups: UnitPhotoGroupItem[];
+}
+
+// ── Basic-data endpoint (/units/{id}/basic-data) ──────────────────────────────
+
+export interface UnitBasicDataBed {
+  bedTypeName: string;
+  quantity: number;
+}
+
+export interface UnitBasicDataFacility {
+  facilityId: number;
+  facilityTypeName: string;
+}
+
+export interface UnitBasicDataService {
+  serviceId: number;
+  serviceExternalId: string;
+  serviceTypeId: number;
+  serviceTypeNameKey: string;
+  displayNameAr: string | null;
+  displayNameEn: string | null;
+  uiType: string;
+  isFree: boolean;
+  cost: number | null;
+  costType: string;
+  wifiSsid: string | null;
+  wifiPassword: string | null;
+  isWifiConfigured: boolean;
+  hasPersonAvailable: boolean | null;
+  hasWifiCredentials: boolean;
+  hasPersonOption: boolean;
+  allowedCostTypes: string[];
+}
+
+export interface UnitBasicDataSubRoom {
+  subRoomId: number;
+  subRoomTypeName: string;
+  sizeM: number;
+  services: UnitBasicDataService[];
+  facilities: UnitBasicDataFacility[];
+}
+
+export interface UnitBasicDataRoom {
+  roomId: number;
+  roomTypeName: string;
+  beds: UnitBasicDataBed[];
+  services: UnitBasicDataService[];
+  facilities: UnitBasicDataFacility[];
+  subRooms: UnitBasicDataSubRoom[];
+}
+
+export interface UnitBasicDataResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  isActive: boolean;
+  unitUniqueCode: string | null;
+  title: string | null;
+  description: string | null;
+  unitTypeName: string;
+  propertyName: string;
+  district: string | null;
+  floorNumber: number;
+  apartmentNumberInFloor: number;
+  maxGuests: number;
+  sizeM: number;
+  hasLock: boolean;
+  rooms: UnitBasicDataRoom[];
+  services: UnitBasicDataService[];
+  facilities: UnitBasicDataFacility[];
+  pendingData: unknown;
+}
+
+// ── Pricing endpoint (/units/{id}/pricing) ───────────────────────────────────
+
+export interface UnitPricingDayPartition {
+  partitionKey: string;
+  discountPercent: number;
+  isActive: boolean;
+}
+
+export interface UnitPricingLongStayRule {
+  minimumNights: number;
+  discountPercent: number;
+  isActive: boolean;
+}
+
+export interface UnitPricingDayRule {
+  dayOfWeek: string;
+  isEnabled: boolean;
+  changeMode: string;
+  changePercent: number;
+  basePrice: number;
+  finalPrice: number;
+}
+
+export interface UnitPricingCustomPeriod {
+  name: string;
+  startDate: string;
+  repeatMode: string;
+  endDate: string | null;
+  repeatCount: number | null;
+  repeatInterval: string;
+  dayRules: UnitPricingDayRule[];
+}
+
+export interface UnitPricingResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  basePricePerNight: number;
+  minimumPricePerNight: number;
+  currencyCode: string;
+  enableDayPartitioning: boolean;
+  dayPartitions: UnitPricingDayPartition[];
+  enableLongStayDiscount: boolean;
+  longStayRules: UnitPricingLongStayRule[];
+  enableChannelPricing: boolean;
+  channels: unknown[];
+  customPeriods: UnitPricingCustomPeriod[];
+  pendingData: unknown;
+}
+
+// ── Pricing Calendar endpoint (/units/{id}/pricing/calendar) ─────────────────
+
+export interface UnitPricingCalendarDay {
+  date: string;
+  dayNumber: number;
+  price: number;
+  periodName: string | null;
+  isEnabled: boolean;
+}
+
+export interface UnitPricingCalendarResponse {
+  viewYear: number;
+  viewMonth: number;
+  monthLabel: string;
+  currencyCode: string;
+  days: UnitPricingCalendarDay[];
 }

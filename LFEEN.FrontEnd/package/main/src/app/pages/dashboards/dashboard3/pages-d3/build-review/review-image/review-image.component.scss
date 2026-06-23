@@ -162,6 +162,21 @@
   }
 }
 
+.main-photo-badge {
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  color: #111110;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(17, 17, 16, 0.12);
+  z-index: 2;
+}
+
 .main-image-card {
   width: 100%;
   margin-inline: auto;
@@ -169,29 +184,18 @@
   .image-wrapper--main {
     height: 400px;
     overflow: hidden;
-    background: #F7F7F5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 24px;
 
-    .image-bg {
-      position: absolute;
-      inset: 0;
+    .image-main {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: blur(22px);
-      transform: scale(1.12);
-      opacity: 0.45;
-      z-index: 0;
     }
 
-    .image-main {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    .image-actions {
+      top: 14px;
+      inset-inline-start: unset;
+      inset-inline-end: 14px;
     }
   }
 }
@@ -413,7 +417,7 @@
   }
 
   .main-image-card .image-wrapper--main {
-    height: 300px;
+    height: 280px;
   }
 
   .image-grid {
@@ -446,11 +450,11 @@
     border-radius: 24px;
 
     .image-wrapper--main {
-      height: 240px;
+      height: 220px;
 
       .image-actions {
-        top: 12px;
-        inset-inline-start: 12px;
+        top: 10px;
+        inset-inline-end: 10px;
         gap: 6px;
       }
     }
@@ -551,7 +555,7 @@
   }
 
   .main-image-card .image-wrapper--main {
-    height: 190px;
+    height: 180px;
   }
 
   .image-grid {

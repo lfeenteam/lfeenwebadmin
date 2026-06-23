@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="banner-left">
-          <button class="review-btn">
+          <button class="review-btn" type="button" (click)="goToBuildReview(building.id)">
             {{ 'd3.allUnits.cardsUnits.reviewPropertyBtn' | translate }}
             <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="btn-icon"></i-tabler>
           </button>

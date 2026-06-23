@@ -27,12 +27,12 @@
           </div>
           <span class="info-value">{{ unit.type }}</span>
         </div>
-        <div class="info-row">
+        <div class="info-row info-row--desc">
           <div class="info-right">
             <i-tabler name="layout-list" class="info-icon"></i-tabler>
             <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
           </div>
-          <span class="info-value">{{ unit.description }}</span>
+          <span class="info-value info-value--clamp">{{ unit.description || '—' }}</span>
         </div>
         <div class="info-row" *ngIf="unit.servicesPricingType">
           <div class="info-right">

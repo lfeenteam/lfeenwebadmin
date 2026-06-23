@@ -284,6 +284,7 @@
       },
       "filters": {
         "searchPlaceholder": "Search by unit name, number, or property...",
+        "allAccounts": "All Accounts",
         "allProperties": "All Properties",
         "allStatuses": "All Statuses",
         "unitType": "Unit Type",
@@ -825,6 +826,7 @@
       },
       "images": {
         "mainImageTitle": "Main Image (Exterior)",
+        "mainPhotoBadge": "Main Building Photo",
         "exteriorTitle": "Exterior Building Images",
         "interiorTitle": "Interior Property Images",
         "imagesCount": "{{count}} images",
@@ -969,6 +971,7 @@
         "subtitle": "Please review each section separately",
         "smartSystemTitle": "Smart Lock System",
         "smartBanner": "Smart AC system enabled in the unit",
+        "selfAccessBanner": "Self check-in is available through the Lfeen app",
         "contentsLabel": "Contents",
         "servicesLabel": "Services",
         "privateFacilitiesLabel": "Private Facilities",
@@ -1044,6 +1047,13 @@
           "children": "Suitable for children",
           "parties": "Hosting parties"
         },
+        "conditions": {
+          "SmokingForbidden": "Smoking Forbidden inside the Unit",
+          "PetsNotAllowed": "Pets Not Allowed",
+          "PartiesForbidden": "Parties or Events Forbidden",
+          "RequiresIdIdentification": "National ID identification is mandatory",
+          "AllowChildren": "Children Allowed"
+        },
         "hostRuleText": "Please note that the residential compound applies a quiet-hours policy after 10:00 PM. Shared pool access is not allowed after this time. Please make sure the smart access card is returned at checkout to the allocated box beside the main elevator.",
         "notesTitle": "Review Notes / Rejection Reason",
         "notesOptional": "Optional for approval",
@@ -1111,7 +1121,7 @@
       "imagesView": {
         "pageTitle": "Unit Photos Review",
         "heading": "Review Unit Photos",
-        "reviewState": "Review status: 10 photos uploaded",
+        "reviewState": "Review status: {{count}} photos uploaded",
         "mainPhoto": {
           "badge": "Main Unit Photo",
           "name": "Main unit photo",
@@ -1145,7 +1155,8 @@
         "defaultRejectionReason": "Photo needs to be replaced or clarified.",
         "requiredOnReject": "Required on rejection",
         "optionalOnApprove": "Optional on approval",
-        "approveBtn": "Approve Unit Photos"
+        "approveBtn": "Approve Unit Photos",
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting."
       },
       "cancelPolicyView": {
         "pageTitle": "Cancellation Policy Review",
@@ -1209,6 +1220,22 @@
       "actions": {
         "reject": "Reject Request",
         "approve": "Approve Final Decision"
+      },
+      "confirm": {
+        "basicInfoApproveTitle": "Approve Basic Info?",
+        "basicInfoApproveMessage": "Are you sure you want to approve the basic information for this unit?",
+        "basicInfoRejectTitle": "Reject Basic Info?",
+        "basicInfoRejectMessage": "Are you sure you want to reject the basic information with the entered notes?",
+        "photosApproveTitle": "Approve Unit Photos?",
+        "photosApproveMessage": "Are you sure you want to approve all unit photos?",
+        "photosRejectTitle": "Reject Unit Photos?",
+        "photosRejectMessage": "Are you sure you want to reject the unit photos with the entered reasons?",
+        "termsApproveTitle": "Approve Unit Terms?",
+        "termsApproveMessage": "Are you sure you want to approve the terms and conditions of this unit?",
+        "termsRejectTitle": "Reject Unit Terms?",
+        "termsRejectMessage": "Are you sure you want to reject the unit terms with the entered reason?",
+        "approveAction": "Yes, approve",
+        "rejectAction": "Yes, reject"
       },
       "servicesView": {
         "pageTitle": "Additional Services Review",

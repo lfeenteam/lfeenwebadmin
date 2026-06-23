@@ -25,8 +25,17 @@
               <span>{{ getFilterLabelKey(filter) | translate }}</span>
             </button>
 
-            <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow">
-              @for (item of filter.items; track item.value) {
+            <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+              @if (filter.items.length > 6) {
+                <div class="filter-search-wrapper" (click)="stopPropagation($event)">
+                  <input
+                    type="text"
+                    class="filter-search-input"
+                    placeholder="بحث..."
+                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                </div>
+              }
+              @for (item of getFilteredItems(filter); track item.value) {
                 <button
                   mat-menu-item
                   type="button"
@@ -82,8 +91,17 @@
               <span>{{ getFilterLabelKey(filter) | translate }}</span>
               <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
             </button>
-            <mat-menu #mobileMenu="matMenu" class="d3-builds-filter-menu cardWithShadow">
-              @for (item of filter.items; track item.value) {
+            <mat-menu #mobileMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+              @if (filter.items.length > 6) {
+                <div class="filter-search-wrapper" (click)="stopPropagation($event)">
+                  <input
+                    type="text"
+                    class="filter-search-input"
+                    placeholder="بحث..."
+                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                </div>
+              }
+              @for (item of getFilteredItems(filter); track item.value) {
                 <button
                   mat-menu-item
                   type="button"

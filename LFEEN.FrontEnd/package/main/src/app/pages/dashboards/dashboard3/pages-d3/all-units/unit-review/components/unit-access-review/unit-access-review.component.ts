@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { BuildingWithUnits, UnitCardItem } from '../../../../../interfaces/unit-card.model';
+import { BuildingWithUnits, UnitAccessResponse, UnitCardItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 
 type AccessPhotoDecision = 'approved' | 'rejected';
@@ -17,6 +17,25 @@ interface AccessPhoto {
   rejectionReason: string;
   suggestedSolution: string;
 }
+
+const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
+  BuildingExterior: {
+    titleKey: 'd3.unitReview.accessView.photos.street',
+    tagKey:   'd3.unitReview.accessView.tags.external',
+  },
+  BuildingEntrance: {
+    titleKey: 'd3.unitReview.accessView.photos.mainEntrance',
+    tagKey:   'd3.unitReview.accessView.tags.inside',
+  },
+  Hallway: {
+    titleKey: 'd3.unitReview.accessView.photos.corridor',
+    tagKey:   'd3.unitReview.accessView.tags.floor',
+  },
+  UnitDoor: {
+    titleKey: 'd3.unitReview.accessView.photos.unitDoor',
+    tagKey:   'd3.unitReview.accessView.tags.unit',
+  },
+};
 
 @Component({
   selector: 'app-unit-access-review',
@@ -31,41 +50,9 @@ export class UnitAccessReviewComponent implements OnInit {
   buildingId = '';
   unitId = '';
   note = '';
-
-  readonly accessPhotos: AccessPhoto[] = [
-    {
-      image: 'assets/images/products/Screenshot_1.png',
-      titleKey: 'd3.unitReview.accessView.photos.street',
-      tagKey: 'd3.unitReview.accessView.tags.external',
-      decision: 'approved',
-      rejectionReason: '',
-      suggestedSolution: ''
-    },
-    {
-      image: 'assets/images/products/review_image1.jpg',
-      titleKey: 'd3.unitReview.accessView.photos.mainEntrance',
-      tagKey: 'd3.unitReview.accessView.tags.inside',
-      decision: 'approved',
-      rejectionReason: '',
-      suggestedSolution: ''
-    },
-    {
-      image: 'assets/images/products/s2.jpg',
-      titleKey: 'd3.unitReview.accessView.photos.corridor',
-      tagKey: 'd3.unitReview.accessView.tags.floor',
-      decision: 'approved',
-      rejectionReason: '',
-      suggestedSolution: ''
-    },
-    {
-      image: 'assets/images/products/s10.jpg',
-      titleKey: 'd3.unitReview.accessView.photos.unitDoor',
-      tagKey: 'd3.unitReview.accessView.tags.unit',
-      decision: 'approved',
-      rejectionReason: '',
-      suggestedSolution: ''
-    }
-  ];
+  isLoading = false;
+  accessData: UnitAccessResponse | null = null;
+  accessPhotos: AccessPhoto[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -80,27 +67,43 @@ export class UnitAccessReviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
-    this.unitId = this.route.snapshot.paramMap.get('unitId') ?? '';
+    this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
 
     this.unitsService.getBuildingsWithUnits().subscribe(buildings => {
-      this.building = buildings.find(building => building.id === this.buildingId);
-      this.unit = this.building?.units.find(unit => unit.id === this.unitId);
+      this.building = buildings.find(b => b.id === this.buildingId);
+      this.unit     = this.building?.units.find(u => u.id === this.unitId);
     });
+
+    if (this.unitId) {
+      this.isLoading = true;
+      this.unitsService.getUnitAccess(this.unitId).subscribe({
+        next: (data) => {
+          this.accessData   = data;
+          this.accessPhotos = data.photos.map(p => ({
+            image:             p.imageUrl,
+            titleKey:          CATEGORY_MAP[p.category]?.titleKey ?? p.category,
+            tagKey:            CATEGORY_MAP[p.category]?.tagKey   ?? '',
+            decision:          'approved' as AccessPhotoDecision,
+            rejectionReason:   '',
+            suggestedSolution: '',
+          }));
+          this.isLoading = false;
+        },
+        error: () => { this.isLoading = false; }
+      });
+    }
   }
 
   setPhotoDecision(photo: AccessPhoto, decision: AccessPhotoDecision): void {
     photo.decision = decision;
     if (decision === 'approved') {
-      photo.rejectionReason = '';
+      photo.rejectionReason   = '';
       photo.suggestedSolution = '';
     }
   }
 
   submitDecision(decision: UnitReviewDecision): void {
-    if (!this.buildingId || !this.unitId) {
-      return;
-    }
-
+    if (!this.buildingId || !this.unitId) return;
     this.unitsService.setReviewDecision(this.buildingId, this.unitId, 'access', decision);
     this.onBack();
   }
