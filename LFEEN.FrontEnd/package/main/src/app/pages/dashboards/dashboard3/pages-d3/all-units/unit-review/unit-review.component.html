@@ -56,7 +56,7 @@
 
         <div class="title-stack">
           <span class="title">{{ section.titleKey | translate }}</span>
-          <p class="desc">{{ section.descKey | translate }}</p>
+          <p class="desc">{{ getSectionDescription(section.key) || (section.descKey | translate) }}</p>
         </div>
 
         @if (section.isSmartLockBadge) {

@@ -1,8 +1,15 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .unit-card {
   background: #ffffff;
   border-radius: 40px;
   border: 1px solid #E8E8E4;
   padding: 24px;
+  height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -127,6 +134,22 @@
     font-size: 14px;
     color: #111110;
     font-weight: 800;
+
+    &--clamp {
+      max-width: 55%;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-align: start;
+      word-break: break-word;
+    }
+  }
+
+  .info-row--desc {
+    align-items: flex-start;
+    padding-top: 2px;
+    min-height: 48px;
   }
 
   &__footer {

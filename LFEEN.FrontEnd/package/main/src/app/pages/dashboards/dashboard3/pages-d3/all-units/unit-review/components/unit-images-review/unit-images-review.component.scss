@@ -3,6 +3,26 @@
   font-family: 'Cairo', sans-serif;
 }
 
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+  color: #9E9E9A;
+
+  i-tabler {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
 .unit-images-review {
   margin: 0 auto;
   padding: 24px;
@@ -48,6 +68,25 @@
   font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.validation-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: 14px;
+  padding: 12px 18px;
+  color: #C2410C;
+  font-size: 13px;
+  font-weight: 700;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
 }
 
 .main-photo-card,
@@ -375,6 +414,14 @@ textarea {
   background: #111110;
   color: #FFFFFF;
   border-color: #111110;
+
+  &:disabled {
+    background: #D4D4D0;
+    border-color: #D4D4D0;
+    color: #FFFFFF;
+    cursor: not-allowed;
+    opacity: 1;
+  }
 }
 
 .btn-reject {
@@ -383,6 +430,13 @@ textarea {
   background: #FFFFFF;
   color: #E11D48;
   border: 2px solid #FFE4E6;
+
+  &:disabled {
+    color: #D4D4D0;
+    border-color: #F4F4F0;
+    cursor: not-allowed;
+    opacity: 1;
+  }
 }
 
 @media (max-width: 992px) {

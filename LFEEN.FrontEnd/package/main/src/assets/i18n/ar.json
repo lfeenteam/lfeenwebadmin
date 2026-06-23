@@ -286,6 +286,7 @@
       },
       "filters": {
         "searchPlaceholder": "بحث باسم الوحدة، رقمها، أو العقار...",
+        "allAccounts": "كل الحسابات",
         "allProperties": "كل العقارات",
         "allStatuses": "كل الحالات",
         "unitType": "نوع الوحدة",
@@ -986,6 +987,7 @@
       },
       "images": {
         "mainImageTitle": "الصورة الرئيسية (الخارجية)",
+        "mainPhotoBadge": "الصورة الرئيسية للمبنى",
         "exteriorTitle": "الصور الخارجية للمبنى",
         "interiorTitle": "الصور الداخلية للعقار",
         "imagesCount": "{{count}} صور",
@@ -1130,6 +1132,7 @@
         "subtitle": "يرجى مراجعة كل قسم على حدة",
         "smartSystemTitle": "نظام القفل الذكي",
         "smartBanner": "نظام تكييف ذكي مفعّل بالوحدة",
+        "selfAccessBanner": "إتاحة الدخول الذاتي عبر تطبيق لفين",
         "contentsLabel": "المحتويات",
         "servicesLabel": "الخدمات",
         "privateFacilitiesLabel": "المرافق الخاصة",
@@ -1205,6 +1208,13 @@
           "children": "مناسب للأطفال",
           "parties": "إقامة الحفلات"
         },
+        "conditions": {
+          "SmokingForbidden": "ممنوع التدخين داخل الوحدة",
+          "PetsNotAllowed": "الحيوانات الأليفة غير مسموح بها",
+          "PartiesForbidden": "ممنوع إقامة الحفلات أو الفعاليات",
+          "RequiresIdIdentification": "بطاقة الهوية الوطنية إلزامية",
+          "AllowChildren": "الأطفال مسموح بهم"
+        },
         "hostRuleText": "يرجى العلم أن مجمع ريتاج السكني يتبع نظام هدوء صارم بعد الساعة ١٠ مساءً. يمنع استخدام المسبح المشترك بعد هذا الوقت. كما يرجى التأكد من تسليم بطاقة الدخول الذكية عند المغادرة في الصندوق المخصص بجانب المصعد الرئيسي.",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",
         "notesOptional": "اختياري للموافقة",
@@ -1272,7 +1282,7 @@
       "imagesView": {
         "pageTitle": "مراجعة صور الوحدة",
         "heading": "مراجعة صور الوحدة",
-        "reviewState": "حالة المراجعة: ١٠ صور مرفوعة",
+        "reviewState": "حالة المراجعة: {{count}} صورة مرفوعة",
         "mainPhoto": {
           "badge": "الصورة الرئيسية للوحدة",
           "name": "الصورة الرئيسية للوحدة",
@@ -1306,7 +1316,8 @@
         "defaultRejectionReason": "الصورة تحتاج إلى استبدال أو توضيح.",
         "requiredOnReject": "إلزامي عند الرفض",
         "optionalOnApprove": "اختياري عند الموافقة",
-        "approveBtn": "اعتماد صور الوحدة"
+        "approveBtn": "اعتماد صور الوحدة",
+        "pendingPhotosWarning": "تبقّى {{count}} صورة لم تتم مراجعتها، يرجى مراجعة جميع الصور قبل الإرسال."
       },
       "cancelPolicyView": {
         "pageTitle": "مراجعة سياسة الاسترجاع",
@@ -1360,6 +1371,22 @@
       "actions": {
         "reject": "رفض الطلب",
         "approve": "اعتماد الموافقة النهائية"
+      },
+      "confirm": {
+        "basicInfoApproveTitle": "اعتماد البيانات الأساسية؟",
+        "basicInfoApproveMessage": "هل أنت متأكد من اعتماد البيانات الأساسية لهذه الوحدة؟",
+        "basicInfoRejectTitle": "رفض البيانات الأساسية؟",
+        "basicInfoRejectMessage": "هل أنت متأكد من رفض البيانات الأساسية مع الملاحظات المكتوبة؟",
+        "photosApproveTitle": "اعتماد صور الوحدة؟",
+        "photosApproveMessage": "هل أنت متأكد من اعتماد جميع صور الوحدة؟",
+        "photosRejectTitle": "رفض صور الوحدة؟",
+        "photosRejectMessage": "هل أنت متأكد من رفض صور الوحدة بالأسباب المكتوبة؟",
+        "termsApproveTitle": "اعتماد شروط الوحدة؟",
+        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين هذه الوحدة؟",
+        "termsRejectTitle": "رفض شروط الوحدة؟",
+        "termsRejectMessage": "هل أنت متأكد من رفض شروط الوحدة بالسبب المكتوب؟",
+        "approveAction": "نعم، اعتماد",
+        "rejectAction": "نعم، رفض"
       },
       "depositView": {
         "pageTitle": "مراجعة مبلغ التأمين",

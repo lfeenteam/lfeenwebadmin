@@ -520,8 +520,14 @@
 
 .btn-approve {
   flex: 1;
-  background: #F0F0EE;
-  color: #C9C9C6;
+  background: #111110;
+  color: #FFFFFF;
+  transition: opacity 0.2s;
+
+  &:disabled {
+    background: #F0F0EE;
+    color: #C9C9C6;
+  }
 }
 
 .btn-reject {
@@ -529,6 +535,14 @@
   background: #E11D48;
   color: #FFFFFF;
   box-shadow: 0 10px 24px rgba(225, 29, 72, 0.22);
+  transition: opacity 0.2s;
+
+  &:disabled {
+    background: #F0F0EE;
+    color: #C9C9C6;
+    box-shadow: none;
+    opacity: 1;
+  }
 }
 
 @media (max-width: 992px) {

@@ -36,7 +36,7 @@ export class BuildingReviewService {
   private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/properties';
 
   readonly currentPage = signal(1);
-  readonly pageSize    = signal(15);
+  readonly pageSize    = signal(18);
   readonly searchQuery = signal('');
   readonly activeTab   = signal<BuildingTab>('published');
   readonly city        = signal('');

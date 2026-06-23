@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
-import { BuildingWithUnits, UnitCardItem } from '../../../../../interfaces/unit-card.model';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 
@@ -17,9 +16,9 @@ interface CalendarDay {
 }
 
 interface SeasonalPeriod {
-  labelKey: string;
-  nameKey: string;
-  datesKey: string;
+  label: string;
+  name: string;
+  dates: string;
 }
 
 @Component({
@@ -32,14 +31,16 @@ interface SeasonalPeriod {
 export class UnitPricingReviewComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
-  building: BuildingWithUnits | undefined;
-  unit: UnitCardItem | undefined;
   buildingId = '';
   unitId = '';
   rejectionNote = '';
   currentMonth = new Date();
-  basePrice = 500;
+  basePrice: number | null = null;
   currentLang = 'ar';
+
+  seasonalPeriods: SeasonalPeriod[] = [];
+
+  private calendarDaysMap = new Map<number, { price: number | null; isEnabled: boolean }>();
 
   get currencyIconSrc(): string {
     return this.currentLang === 'en'
@@ -57,28 +58,6 @@ export class UnitPricingReviewComponent implements OnInit {
     'd3.unitReview.pricingView.days.sat',
   ];
 
-  readonly seasonalPeriods: SeasonalPeriod[] = [
-    {
-      labelKey: 'd3.unitReview.pricingView.seasons.period1',
-      nameKey: 'd3.unitReview.pricingView.seasons.summerName',
-      datesKey: 'd3.unitReview.pricingView.seasons.summerDates',
-    },
-    {
-      labelKey: 'd3.unitReview.pricingView.seasons.period2',
-      nameKey: 'd3.unitReview.pricingView.seasons.summerName',
-      datesKey: 'd3.unitReview.pricingView.seasons.summerDates',
-    },
-    {
-      labelKey: 'd3.unitReview.pricingView.seasons.period3',
-      nameKey: 'd3.unitReview.pricingView.seasons.summerName',
-      datesKey: 'd3.unitReview.pricingView.seasons.summerDates',
-    },
-  ];
-
-  private readonly pricedDays: Record<number, number> = {
-    5: 500, 6: 500, 7: 500, 13: 500, 16: 500, 26: 500, 27: 500, 28: 500,
-  };
-
   get currentMonthLabel(): string {
     return format(this.currentMonth, 'MMMM yyyy', {
       locale: this.currentLang === 'en' ? enUS : ar
@@ -95,10 +74,11 @@ export class UnitPricingReviewComponent implements OnInit {
       cells.push({ day: null, price: null, available: false });
     }
     for (let d = 1; d <= totalDays; d++) {
+      const dayData = this.calendarDaysMap.get(d);
       cells.push({
         day: d,
-        price: this.pricedDays[d] ?? null,
-        available: d in this.pricedDays,
+        price: dayData?.price ?? null,
+        available: dayData?.isEnabled ?? false,
       });
     }
     while (cells.length % 7 !== 0) {
@@ -132,18 +112,53 @@ export class UnitPricingReviewComponent implements OnInit {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId = this.route.snapshot.paramMap.get('unitId') ?? '';
 
-    this.unitsService.getBuildingsWithUnits().subscribe(buildings => {
-      this.building = buildings.find(b => b.id === this.buildingId);
-      this.unit = this.building?.units.find(u => u.id === this.unitId);
-    });
+    if (this.unitId) {
+      this.loadPricing();
+      this.loadCalendar();
+    }
+  }
+
+  private loadPricing(): void {
+    this.unitsService.getUnitPricing(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        this.basePrice = data.basePricePerNight;
+        const locale = this.currentLang === 'en' ? enUS : ar;
+        this.seasonalPeriods = data.customPeriods.map((p, i) => {
+          const start = p.startDate
+            ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
+            : '-';
+          const end = p.endDate
+            ? format(new Date(p.endDate), 'd MMMM yyyy', { locale })
+            : '-';
+          return {
+            label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
+            name: p.name,
+            dates: `${start} - ${end}`,
+          };
+        });
+      });
+  }
+
+  private loadCalendar(): void {
+    const date = format(this.currentMonth, 'yyyy-MM-dd');
+    this.unitsService.getUnitPricingCalendar(this.unitId, date)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        this.calendarDaysMap = new Map(
+          data.days.map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
+        );
+      });
   }
 
   prevMonth(): void {
     this.currentMonth = subMonths(this.currentMonth, 1);
+    this.loadCalendar();
   }
 
   nextMonth(): void {
     this.currentMonth = addMonths(this.currentMonth, 1);
+    this.loadCalendar();
   }
 
   submitDecision(decision: UnitReviewDecision): void {

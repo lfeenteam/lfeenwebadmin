@@ -7,7 +7,7 @@
       <div class="badge-text">
         <span class="price-label">{{ 'd3.unitReview.pricingView.basePrice' | translate }}</span>
         <span class="price-value">
-          {{ basePrice }}
+          {{ basePrice ?? '-' }}
           <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
           {{ 'd3.unitReview.pricingView.perNight' | translate }}
         </span>
@@ -23,14 +23,14 @@
   <section class="seasons-section">
     <h3 class="section-title">{{ 'd3.unitReview.pricingView.seasonalTitle' | translate }}</h3>
     <div class="seasons-grid">
-      @for (period of seasonalPeriods; track period.labelKey) {
+      @for (period of seasonalPeriods; track period.label) {
         <article class="season-card">
           <div class="season-card-top">
             <i-tabler name="sun" class="sun-icon"></i-tabler>
-            <span class="period-badge">{{ period.labelKey | translate }}</span>
+            <span class="period-badge">{{ period.label }}</span>
           </div>
-          <strong class="season-name">{{ period.nameKey | translate }}</strong>
-          <span class="season-dates">{{ period.datesKey | translate }}</span>
+          <strong class="season-name">{{ period.name }}</strong>
+          <span class="season-dates">{{ period.dates }}</span>
         </article>
       }
     </div>

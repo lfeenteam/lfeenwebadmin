@@ -12,19 +12,19 @@
            [class.rejected]="mainPhoto.decision === 'Rejected'"
            [class.accepted]="mainPhoto.decision === 'Approved'">
         <div class="image-wrapper image-wrapper--main">
-          <img class="image-bg" [src]="mainPhoto.url" alt="" aria-hidden="true">
           <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName">
+          <span class="main-photo-badge">{{ 'd3.buildReview.images.mainPhotoBadge' | translate }}</span>
           @if (!readOnly) {
           <div class="image-actions">
-            <button class="btn-action btn-accept"
-                    [class.active]="mainPhoto.decision === 'Approved'"
-                    (click)="setDecision(mainPhoto, 'Approved')">
-              <i-tabler name="check"></i-tabler>
-            </button>
             <button class="btn-action btn-reject"
                     [class.active]="mainPhoto.decision === 'Rejected'"
                     (click)="setDecision(mainPhoto, 'Rejected')">
               <i-tabler name="x"></i-tabler>
+            </button>
+            <button class="btn-action btn-accept"
+                    [class.active]="mainPhoto.decision === 'Approved'"
+                    (click)="setDecision(mainPhoto, 'Approved')">
+              <i-tabler name="check"></i-tabler>
             </button>
           </div>
           }

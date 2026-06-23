@@ -1,4 +1,11 @@
 <div class="unit-terms-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <div style="display:flex; justify-content:center; align-items:center; padding:4rem;">
+      <i-tabler name="loader-2" style="animation:spin 1s linear infinite;"></i-tabler>
+    </div>
+  } @else {
+
   <section class="terms-heading">
     <h2>{{ 'd3.unitReview.termsView.heading' | translate }}</h2>
     <p>{{ 'd3.unitReview.termsView.subtitle' | translate }}</p>
@@ -9,7 +16,7 @@
       <span class="standard-chip">{{ 'd3.unitReview.termsView.standardBadge' | translate }}</span>
       <div class="time-content">
         <span>{{ 'd3.unitReview.termsView.checkInLabel' | translate }}</span>
-        <strong>{{ 'd3.unitReview.termsView.checkInTime' | translate }}</strong>
+        <strong>{{ formatTime(termsData?.checkInTime) }}</strong>
       </div>
       <span class="time-icon">
         <i-tabler name="tent"></i-tabler>
@@ -19,19 +26,17 @@
       <span class="standard-chip">{{ 'd3.unitReview.termsView.standardBadge' | translate }}</span>
       <div class="time-content">
         <span>{{ 'd3.unitReview.termsView.checkOutLabel' | translate }}</span>
-        <strong>{{ 'd3.unitReview.termsView.checkOutTime' | translate }}</strong>
+        <strong>{{ formatTime(termsData?.checkOutTime) }}</strong>
       </div>
       <span class="time-icon">
         <i-tabler name="login"></i-tabler>
       </span>
     </article>
-
-  
   </section>
 
   <article class="early-arrival-card">
     <label class="switch" for="earlyCheckIn">
-      <input id="earlyCheckIn" type="checkbox" [(ngModel)]="earlyCheckInEnabled">
+      <input id="earlyCheckIn" type="checkbox" [ngModel]="earlyCheckInEnabled" disabled>
       <span></span>
     </label>
 
@@ -42,7 +47,7 @@
 
     <div class="early-arrival-time">
       <span>{{ 'd3.unitReview.termsView.availableLabel' | translate }}</span>
-      <strong>{{ 'd3.unitReview.termsView.earlyArrivalTime' | translate }}</strong>
+      <strong>{{ formatTime(termsData?.earlyCheckInFrom) }}</strong>
     </div>
 
     <span class="time-icon">
@@ -57,13 +62,13 @@
     </div>
 
     <div class="rules-grid mt-3">
-      @for (rule of generalRules; track $index) {
+      @for (rule of mappedConditions; track $index) {
         <article class="rule-card" [class.rule-card--rejected]="!rule.approved">
           <span class="decision-icon">
             <i-tabler [name]="rule.approved ? 'check' : 'x'"></i-tabler>
           </span>
           <div class="rule-label">
-            <span>{{ rule.labelKey | translate }}</span>
+            <span>{{ rule.translationKey | translate }}</span>
             <i-tabler [name]="rule.icon"></i-tabler>
           </div>
         </article>
@@ -71,45 +76,50 @@
     </div>
   </section>
 
-  <section class="rules-section">
-    <div class="section-title-row">
-      <span></span>
-      <h3>{{ 'd3.unitReview.termsView.customRulesTitle' | translate }}</h3>
-    </div>
+  @if (termsData?.customRules?.length) {
+    <section class="rules-section">
+      <div class="section-title-row">
+        <span></span>
+        <h3>{{ 'd3.unitReview.termsView.customRulesTitle' | translate }}</h3>
+      </div>
 
-    <article class="host-rule-card">
-      <span class="host-rule-icon">
-        <i-tabler name="file"></i-tabler>
-      </span>
-      <p>{{ 'd3.unitReview.termsView.hostRuleText' | translate }}</p>
-    </article>
-  </section>
+      @for (rule of termsData!.customRules; track $index) {
+        <article class="host-rule-card">
+          <span class="host-rule-icon">
+            <i-tabler name="file"></i-tabler>
+          </span>
+          <p>{{ rule.description }}</p>
+        </article>
+      }
+    </section>
+  }
 
-  <section class="final-notes-section">
-    <div class="notes-label-row">
-      <span>{{ 'd3.unitReview.termsView.notesTitle' | translate }}</span>
-      <small>{{ 'd3.unitReview.termsView.notesOptional' | translate }}</small>
-    </div>
-    <div class="notes-input-wrap">
-      <i-tabler name="message-2"></i-tabler>
-      <textarea
-        [(ngModel)]="finalNotes"
-        [placeholder]="'d3.unitReview.termsView.notesPlaceholder' | translate"
-        rows="3">
-      </textarea>
-    </div>
-  </section>
+  @if (!isReadOnly) {
+    <section class="final-notes-section">
+      <div class="notes-label-row">
+        <span>{{ 'd3.unitReview.termsView.notesTitle' | translate }}</span>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="finalNotes"
+          [placeholder]="'d3.unitReview.termsView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
 
-  <div class="action-buttons">
-    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
-     
-      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
-       <i-tabler name="circle-x"></i-tabler>
-    </button>
-    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
-     
-      <span>{{ 'd3.unitReview.termsView.approveBtn' | translate }}</span>
-       <i-tabler name="circle-check"></i-tabler>
-    </button>
-  </div>
+    <div class="action-buttons">
+      <button class="btn btn-reject" type="button" [disabled]="!finalNotes.trim()" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button" [disabled]="!!finalNotes.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.termsView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </div>
+  }
+
+  } <!-- end @else -->
 </div>

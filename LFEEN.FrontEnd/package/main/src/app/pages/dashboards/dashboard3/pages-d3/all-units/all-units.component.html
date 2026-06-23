@@ -9,7 +9,8 @@
     [viewMode]="viewMode"
     (activeTabChange)="onTabChange($event)"
     (searchQueryChange)="onSearch($event)"
-    (viewModeChange)="setViewMode($event)">
+    (viewModeChange)="setViewMode($event)"
+    (filtersChange)="onFiltersChange($event)">
   </app-dashboard-sub-header>
 
   <app-cards-units
@@ -18,36 +19,39 @@
     [viewMode]="viewMode">
   </app-cards-units>
 
-  @if (totalPages > 1 && buildingsWithUnits.length > 0) {
+  @if (totalCount > 0) {
     <div class="pagination-wrapper">
       <span class="pagination-total">
         {{ totalCount }} {{ 'd3.allUnits.pagination.total' | translate }}
       </span>
-      <div class="pagination-controls">
-        <button class="page-nav-btn"
-          [disabled]="currentPage === 1"
-          (click)="changePage(currentPage - 1)">
-          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
-        </button>
 
-        @for (item of visiblePages; track $index) {
-          @if (item === '...') {
-            <span class="page-ellipsis">...</span>
-          } @else {
-            <button class="page-number-btn"
-              [class.active]="currentPage === item"
-              (click)="changePage($any(item))">
-              {{ item }}
-            </button>
+      @if (totalPages > 1) {
+        <div class="pagination-controls">
+          <button class="page-nav-btn"
+            [disabled]="currentPage === 1"
+            (click)="changePage(currentPage - 1)">
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+          </button>
+
+          @for (item of visiblePages; track $index) {
+            @if (item === '...') {
+              <span class="page-ellipsis">...</span>
+            } @else {
+              <button class="page-number-btn"
+                [class.active]="currentPage === item"
+                (click)="changePage($any(item))">
+                {{ item }}
+              </button>
+            }
           }
-        }
 
-        <button class="page-nav-btn"
-          [disabled]="currentPage === totalPages"
-          (click)="changePage(currentPage + 1)">
-          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
-        </button>
-      </div>
+          <button class="page-nav-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="changePage(currentPage + 1)">
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+          </button>
+        </div>
+      }
     </div>
   }
 </div>

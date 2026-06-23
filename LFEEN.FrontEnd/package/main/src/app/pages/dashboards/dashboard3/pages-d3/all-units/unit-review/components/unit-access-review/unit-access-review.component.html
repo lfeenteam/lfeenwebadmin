@@ -60,20 +60,22 @@
     </div>
   </section>
 
-  <section class="host-guide-section">
-    <header class="section-heading">
-      <i-tabler name="info-circle"></i-tabler>
-      <h3>{{ 'd3.unitReview.accessView.hostGuideTitle' | translate }}</h3>
-    </header>
+  @if (accessData?.accessDescription) {
+    <section class="host-guide-section">
+      <header class="section-heading">
+        <i-tabler name="info-circle"></i-tabler>
+        <h3>{{ 'd3.unitReview.accessView.hostGuideTitle' | translate }}</h3>
+      </header>
 
-    <article class="host-guide-card">
-      <p>{{ 'd3.unitReview.accessView.hostGuideText' | translate }}</p>
-      <div class="host-guide-footer">
-        <i-tabler name="pencil"></i-tabler>
-        <span>{{ 'd3.unitReview.accessView.hostGuideMeta' | translate }}</span>
-      </div>
-    </article>
-  </section>
+      <article class="host-guide-card">
+        <p>{{ accessData!.accessDescription }}</p>
+        <div class="host-guide-footer">
+          <i-tabler name="pencil"></i-tabler>
+          <span>{{ 'd3.unitReview.accessView.hostGuideMeta' | translate }}</span>
+        </div>
+      </article>
+    </section>
+  }
 
   <section class="notes-section">
     <div class="notes-label-row">

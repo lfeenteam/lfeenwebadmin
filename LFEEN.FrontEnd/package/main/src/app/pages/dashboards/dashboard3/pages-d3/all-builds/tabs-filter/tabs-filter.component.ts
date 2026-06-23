@@ -77,7 +77,21 @@ export class TabsFilterComponent {
     sort: 'newest'
   };
 
+  filterSearchTerms: Record<string, string> = {};
+
   mobileFilterOpen = false;
+
+  getFilteredItems(filter: BuildFilterOption): { value: string; labelKey: string }[] {
+    const term = (this.filterSearchTerms[filter.id] ?? '').toLowerCase().trim();
+    if (!term) return filter.items;
+    return filter.items.filter(item =>
+      item.value === 'all' || item.labelKey.toLowerCase().includes(term)
+    );
+  }
+
+  stopPropagation(e: Event): void {
+    e.stopPropagation();
+  }
 
   toggleMobileFilter(): void {
     this.mobileFilterOpen = !this.mobileFilterOpen;

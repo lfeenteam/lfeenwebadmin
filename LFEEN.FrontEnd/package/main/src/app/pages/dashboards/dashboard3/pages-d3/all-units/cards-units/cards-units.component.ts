@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BuildingWithUnits } from '../../../interfaces/unit-card.model';
@@ -19,9 +20,17 @@ export class CardsUnitsComponent {
   @Input() isReviewTab: boolean = false;
   @Input() viewMode: ViewMode = 'grid';
 
-  constructor(private translate: TranslateService) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private translate: TranslateService
+  ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  goToBuildReview(buildingId: string): void {
+    this.router.navigate(['../build-review', buildingId], { relativeTo: this.route });
   }
 }
