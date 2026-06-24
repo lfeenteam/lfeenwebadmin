@@ -16,7 +16,7 @@
 
   <!-- ══ Published / Rejected cards ══ -->
   @for (building of buildings; track building.id) {
-    @if (building.tab !== 'underReview' && building.tab !== 'new') {
+    @if (building.tab !== 'underReview' && building.tab !== 'new' && building.tab !== 'pendingChanges') {
       <app-buliding-cards [building]="building" [viewMode]="viewMode" />
     }
   }
@@ -24,7 +24,7 @@
 </section>
 
 <!-- ══ Review section (New + UnderReview) — sits OUTSIDE the main grid ══ -->
-@if ((activeTab === 'new' || activeTab === 'underReview') && buildings.length > 0) {
+@if ((activeTab === 'new' || activeTab === 'underReview' || activeTab === 'pendingChanges') && buildings.length > 0) {
   <div class="review-section" [class.review-section--list]="viewMode === 'list'">
 
     <!-- Title row (always visible, above the table) -->
@@ -34,13 +34,15 @@
         {{
           (activeTab === 'new'
             ? 'd3.allBuilds.underReview.newSectionTitle'
-            : 'd3.allBuilds.underReview.sectionTitle') | translate
+            : activeTab === 'pendingChanges'
+              ? 'd3.allBuilds.underReview.pendingChangesSectionTitle'
+              : 'd3.allBuilds.underReview.sectionTitle') | translate
         }}
       </h2>
-      @if (activeTab === 'new') {
+      @if (activeTab === 'new' || activeTab === 'pendingChanges') {
         <span class="review-section__badge">
           <span class="review-section__dot"></span>
-          {{ 'd3.allBuilds.underReview.newBadge' | translate }}
+          {{ (activeTab === 'new' ? 'd3.allBuilds.underReview.newBadge' : 'd3.allBuilds.underReview.pendingChangesBadge') | translate }}
         </span>
       }
     </div>
@@ -58,7 +60,7 @@
         </header>
 
         @for (building of buildings; track building.id) {
-          @if (building.tab === 'underReview' || building.tab === 'new') {
+          @if (building.tab === 'underReview' || building.tab === 'new' || building.tab === 'pendingChanges') {
             <app-review-cards [building]="building" [viewMode]="viewMode" />
           }
         }
@@ -69,7 +71,7 @@
     @if (viewMode === 'grid') {
       <div class="review-grid">
         @for (building of buildings; track building.id) {
-          @if (building.tab === 'underReview' || building.tab === 'new') {
+          @if (building.tab === 'underReview' || building.tab === 'new' || building.tab === 'pendingChanges') {
             <app-review-cards [building]="building" [viewMode]="viewMode" />
           }
         }

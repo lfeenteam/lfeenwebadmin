@@ -18,11 +18,13 @@
           <div class="image-actions">
             <button class="btn-action btn-reject"
                     [class.active]="mainPhoto.decision === 'Rejected'"
+                    [disabled]="!mainPhoto.canReview"
                     (click)="setDecision(mainPhoto, 'Rejected')">
               <i-tabler name="x"></i-tabler>
             </button>
             <button class="btn-action btn-accept"
                     [class.active]="mainPhoto.decision === 'Approved'"
+                    [disabled]="!mainPhoto.canReview"
                     (click)="setDecision(mainPhoto, 'Approved')">
               <i-tabler name="check"></i-tabler>
             </button>
@@ -33,6 +35,11 @@
           <div class="text-info">
             <span class="image-name">{{ mainPhoto.fileName }}</span>
             <span class="image-category">{{ mainPhoto.classification }}</span>
+            @if (mainPhoto.isPendingDeletion) {
+              <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
+            } @else if (mainPhoto.pendingIsMain !== null) {
+              <span class="pending-change-label">{{ 'd3.buildReview.images.pendingMainPhotoReview' | translate }}</span>
+            }
           </div>
           <div class="status-info">
             <span class="status-label" [ngClass]="{
@@ -80,11 +87,13 @@
               <div class="image-actions">
                 <button class="btn-action btn-accept"
                         [class.active]="img.decision === 'Approved'"
+                        [disabled]="!img.canReview"
                         (click)="setDecision(img, 'Approved')">
                   <i-tabler name="check"></i-tabler>
                 </button>
                 <button class="btn-action btn-reject"
                         [class.active]="img.decision === 'Rejected'"
+                        [disabled]="!img.canReview"
                         (click)="setDecision(img, 'Rejected')">
                   <i-tabler name="x"></i-tabler>
                 </button>
@@ -95,6 +104,11 @@
               <div class="text-info">
                 <span class="image-name">{{ img.fileName }}</span>
                 <span class="image-category">{{ img.classification }}</span>
+                @if (img.isPendingDeletion) {
+                  <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
+                } @else if (img.pendingIsMain !== null) {
+                  <span class="pending-change-label">{{ 'd3.buildReview.images.pendingMainPhotoReview' | translate }}</span>
+                }
               </div>
               <div class="status-info">
                 <span class="status-label" [ngClass]="{

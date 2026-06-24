@@ -31,7 +31,7 @@ export class AllBuildsComponent implements OnInit {
   private translate       = inject(TranslateService);
   private destroyRef      = inject(DestroyRef);
 
-  activeTab: string          = 'published';
+  activeTab: string          = this.buildingService.activeTab();
   searchQuery                = '';
   selectedFilters: Record<string, string> = {
     status: 'all',
@@ -58,6 +58,7 @@ export class AllBuildsComponent implements OnInit {
     { id: 'published',   labelKey: 'd3.allBuilds.tabs.published'   },
     { id: 'new',         labelKey: 'd3.allBuilds.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' },
+    { id: 'pendingChanges', labelKey: 'd3.allBuilds.tabs.pendingChanges' },
     { id: 'rejected',    labelKey: 'd3.allBuilds.tabs.rejected'    }
   ];
 
@@ -100,6 +101,7 @@ export class AllBuildsComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      this.activeTab   = this.buildingService.activeTab();
       this.allBuildings = this.buildingService.buildings();
       this.isLoading    = this.buildingService.isLoading();
       this.totalPages   = this.buildingService.totalPages();

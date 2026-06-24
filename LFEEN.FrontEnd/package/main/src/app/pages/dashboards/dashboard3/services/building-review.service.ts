@@ -76,6 +76,7 @@ export class BuildingReviewService {
       case 'new':         return PropertyAdminReviewStatusValue.Pending;
       case 'underReview': return PropertyAdminReviewStatusValue.UnderReview;
       case 'rejected':    return PropertyAdminReviewStatusValue.Rejected;
+      case 'pendingChanges': return PropertyAdminReviewStatusValue.HasPendingChanges;
     }
   }
 
@@ -133,6 +134,7 @@ export class BuildingReviewService {
     const tab: BuildingTab =
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved)    ? 'published'    :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected)    ? 'rejected'     :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges) ? 'pendingChanges' :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview) ? 'underReview'  : 'new';
     const location         = [p.city, p.district].filter(Boolean).join(' - ');
 

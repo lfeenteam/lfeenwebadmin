@@ -172,7 +172,7 @@
     </div>
     }
   } @else if (currentView === 'images') {
-    <app-review-image [propertyId]="buildingId || ''" [readOnly]="reviewSections[0].completed" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-image>
+    <app-review-image [propertyId]="buildingId || ''" [readOnly]="isImagesReadOnly" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-image>
   } @else if (currentView === 'terms') {
     <app-review-terms [propertyId]="buildingId || ''" [readOnly]="reviewSections[1].completed" (back)="onBack()" (approve)="onSectionApproved(1, $event)"></app-review-terms>
   } @else if (currentView === 'license') {

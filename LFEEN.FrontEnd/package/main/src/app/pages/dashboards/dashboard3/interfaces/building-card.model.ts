@@ -1,14 +1,15 @@
-export type BuildingTab = 'published' | 'new' | 'underReview' | 'rejected';
+export type BuildingTab = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
 export type BuildingViewMode = 'grid' | 'list';
 export type BuildingStatus = 'active' | 'stopped';
-export type PropertyAdminReviewStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected';
+export type PropertyAdminReviewStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges';
 export type AdminReviewStatus = 'Pending' | 'Approved' | 'Rejected';
 
 export enum PropertyAdminReviewStatusValue {
   Pending = 0,
   UnderReview = 1,
   Approved = 2,
-  Rejected = 3
+  Rejected = 3,
+  HasPendingChanges = 4
 }
 
 export interface BuildingCardItem {
@@ -70,6 +71,8 @@ export interface PhotoItem {
   url: string;
   fileName: string;
   isMainPhoto: boolean;
+  isPendingDeletion: boolean;
+  pendingIsMain: boolean | null;
   classification: string;
   decision: AdminReviewStatus;
   rejectionReason: string | null;

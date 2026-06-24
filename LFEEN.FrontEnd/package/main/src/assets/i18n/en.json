@@ -173,6 +173,7 @@
         "published": "Published Buildings",
         "new": "New",
         "underReview": "Under Review",
+        "pendingChanges": "Pending Changes",
         "rejected": "Rejected"
       },
       "pagination": {
@@ -182,7 +183,9 @@
         "statusLabel": "Under Review",
         "sectionTitle": "Under Review",
         "newSectionTitle": "New Buildings",
-        "newBadge": "New"
+        "newBadge": "New",
+        "pendingChangesSectionTitle": "Pending Changes",
+        "pendingChangesBadge": "Pending Changes"
       },
       "filters": {
         "searchPlaceholder": "Search by building name or city...",
@@ -835,6 +838,8 @@
         "statusAccepted": "Accepted",
         "statusPending": "Awaiting Decision",
         "rejectionReasonPlaceholder": "Rejection reason...",
+        "pendingDeleteReview": "Pending delete review",
+        "pendingMainPhotoReview": "Pending main photo review",
         "suggestedSolutionPlaceholder": "Suggested solution for host...",
         "rejectionSummaryTitle": "Rejection Summary",
         "rejectionSummarySubtitle": "Issues noted in the uploaded images. Please review.",
