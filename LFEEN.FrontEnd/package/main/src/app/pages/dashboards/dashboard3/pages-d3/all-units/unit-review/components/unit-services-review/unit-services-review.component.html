@@ -1,12 +1,18 @@
 <div class="unit-services-review" [dir]="currentDir" [class.is-free-mode]="isFreeMode">
 
+  @if (isLoading) {
+    <div class="loading-wrap">
+      <i-tabler name="loader-2" class="spin-icon"></i-tabler>
+    </div>
+  } @else {
+
   <section class="services-heading">
     <h2>{{ 'd3.unitReview.servicesView.pageTitle' | translate }}</h2>
     <p>{{ 'd3.unitReview.servicesView.subtitle' | translate }}</p>
   </section>
 
   <div class="services-list">
-    @for (group of serviceGroups; track group.titleKey) {
+    @for (group of serviceGroups; track group.id) {
       <section
         class="service-panel"
         [class.service-panel--compact]="group.compact"
@@ -15,13 +21,15 @@
         <div class="panel-head">
           <span class="panel-icon"><i-tabler [name]="group.icon"></i-tabler></span>
           <div>
-            <h3>{{ group.titleKey | translate }}</h3>
-            <p>{{ group.descKey | translate }}</p>
+            <h3>{{ groupTitle(group) }}</h3>
+            @if (groupDesc(group)) {
+              <p>{{ groupDesc(group) }}</p>
+            }
           </div>
         </div>
 
         <div class="panel-body" [class.panel-body--grid]="group.grid">
-          @for (item of group.items; track item.titleKey) {
+          @for (item of group.items; track item.id) {
             <article
               class="service-row"
               [class.service-row--summary]="group.compact"
@@ -29,17 +37,15 @@
               [class.service-row--muted]="item.muted">
               @if (group.compact) {
                 <div class="summary-field summary-field--right">
-                  <span>{{ item.titleKey | translate }}</span>
+                  <span>{{ itemTitle(item) }}</span>
                   <strong>{{ isFreeItem(item) ? ('d3.unitReview.servicesView.badges.free' | translate) : ('d3.unitReview.servicesView.badges.paid' | translate) }}</strong>
                 </div>
 
                 <div class="summary-field summary-field--left">
                   <span>{{ 'd3.unitReview.servicesView.price.paidLabel' | translate }}</span>
                   <strong>
-                    @if (isFreeItem(item)) {
-                      {{ 'd3.unitReview.servicesView.badges.free' | translate }}
-                    } @else {
-                      {{ itemPrice(item) }}
+                    {{ priceDisplay(item) }}
+                    @if (showCurrency(item)) {
                       <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
                     }
                   </strong>
@@ -49,34 +55,40 @@
                   <span class="item-icon"><i-tabler [name]="item.icon"></i-tabler></span>
                   <div>
                     <div class="title-row">
-                      <h4>{{ item.titleKey | translate }}</h4>
+                      <h4>{{ itemTitle(item) }}</h4>
                       <span class="tag-list">
-                        @if (item.enabled) {
+                        @if (group.grid && item.enabled) {
                           <span class="tag">{{ 'd3.unitReview.servicesView.badges.enabled' | translate }}</span>
                         }
                         @if (isFreeItem(item)) {
                           <span class="tag tag--free">{{ 'd3.unitReview.servicesView.badges.free' | translate }}</span>
-                        } @else if (!item.muted && group.type !== 'wifi') {
+                        } @else if (!group.grid && group.type !== 'wifi' && !item.muted) {
                           <span class="tag tag--paid">{{ 'd3.unitReview.servicesView.badges.paid' | translate }}</span>
-                          @if (group.type === 'room' && itemPrice(item) !== undefined) {
+                          @if (showInlinePrice(group)) {
                             <strong class="tag-price">
-                              {{ itemPrice(item) }}
-                              <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
+                              {{ priceDisplay(item) }}
+                              @if (showCurrency(item)) {
+                                <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
+                              }
                             </strong>
                           }
                         }
                       </span>
                     </div>
-                    @if (itemPrice(item) !== undefined) {
+                    @if (group.grid && group.type !== 'wifi') {
                       <div class="price-block">
                         <span>{{ 'd3.unitReview.servicesView.price.paidLabel' | translate }}</span>
                         <strong>
-                          {{ itemPrice(item) }}
-                          <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
+                          {{ priceDisplay(item) }}
+                          @if (showCurrency(item)) {
+                            <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
+                          }
                         </strong>
                       </div>
                     }
-                    <p>{{ item.descKey | translate }}</p>
+                    @if (itemDesc(item)) {
+                      <p>{{ itemDesc(item) }}</p>
+                    }
                   </div>
                 </div>
               }
@@ -87,6 +99,7 @@
     }
   </div>
 
+  @if (!isReadOnly) {
   <section class="notes-section">
     <div class="notes-label-row">
       <span class="notes-title">{{ 'd3.unitReview.servicesView.notesLabel' | translate }}</span>
@@ -102,14 +115,17 @@
   </section>
 
   <div class="action-buttons">
-    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
+    <button class="btn btn-reject" type="button" [disabled]="!hasRejectionNote" (click)="submitDecision('rejected')">
       <span>{{ 'd3.unitReview.servicesView.rejectBtn' | translate }}</span>
       <i-tabler name="circle-x"></i-tabler>
     </button>
-    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
+    <button class="btn btn-approve" type="button" [disabled]="hasRejectionNote" (click)="submitDecision('approved')">
       <span>{{ 'd3.unitReview.servicesView.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
   </div>
+  }
+
+  }
 
 </div>

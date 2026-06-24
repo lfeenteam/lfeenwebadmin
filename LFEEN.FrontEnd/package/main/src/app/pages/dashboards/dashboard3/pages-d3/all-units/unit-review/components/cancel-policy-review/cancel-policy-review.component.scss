@@ -13,6 +13,26 @@
   
 }
 
+// ─── Loading ──────────────────────────────────────────────────────────────────
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+
+  .spin-icon {
+    width: 32px;
+    height: 32px;
+    color: #9E9E9A;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 // ─── Heading ──────────────────────────────────────────────────────────────────
 .policy-heading {
   text-align: start;
@@ -247,6 +267,35 @@
   border-radius: 999px;
 }
 
+// ─── Policy Summary ───────────────────────────────────────────────────────────
+.policy-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  border-radius: 14px;
+  padding: 14px 18px;
+
+  p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #444441;
+    margin: 0;
+    line-height: 1.7;
+    text-align: start;
+
+    i-tabler {
+      width: 16px;
+      height: 16px;
+      color: #9E9E9A;
+      flex-shrink: 0;
+    }
+  }
+}
+
 // ─── Warning Card ─────────────────────────────────────────────────────────────
 .warning-card {
   display: flex;
@@ -374,12 +423,26 @@
     background: #111110;
     color: #fff;
     border: none;
+
+    &:disabled {
+      background: #E8E8E4;
+      color: #AFAFAC;
+      cursor: not-allowed;
+      opacity: 1;
+    }
   }
 
   .btn-reject {
     background: #fff;
     color: #F43F5E;
     border: 1px solid #FFD6DE;
+
+    &:disabled {
+      color: #AFAFAC;
+      border-color: #E8E8E4;
+      cursor: not-allowed;
+      opacity: 1;
+    }
   }
 }
 

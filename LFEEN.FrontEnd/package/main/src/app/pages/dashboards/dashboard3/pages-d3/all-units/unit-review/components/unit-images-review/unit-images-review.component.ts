@@ -19,6 +19,10 @@ interface UnitReviewPhoto {
   category: string;
   decision: UnitPhotoDecision;
   rejectionReason: string;
+  canReview: boolean;
+  isMainPhoto: boolean;
+  isPendingDeletion: boolean;
+  pendingIsMain: boolean | null;
 }
 
 interface UnitPhotoGroup {
@@ -78,7 +82,12 @@ export class UnitImagesReviewComponent implements OnInit {
     return this.allPhotos.some(p => p.decision === 'rejected');
   }
 
+  get hasNoPhotos(): boolean {
+    return !this.isLoading && this.totalPhotoCount === 0;
+  }
+
   get allReviewed(): boolean {
+    if (this.hasNoPhotos) return true;
     return this.allPhotos.length > 0 && this.allPhotos.every(p => p.decision !== 'pending');
   }
 
@@ -133,6 +142,7 @@ export class UnitImagesReviewComponent implements OnInit {
 
   submitDecision(decision: UnitReviewDecision): void {
     if (!this.unitId || !this.allReviewed) return;
+    if (decision === 'rejected' && !this.hasNoPhotos && !this.hasRejections) return;
 
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
@@ -182,13 +192,25 @@ export class UnitImagesReviewComponent implements OnInit {
   }
 
   private mapPhoto(apiPhoto: UnitPhotoItem): UnitReviewPhoto {
+    const normalizedDecision = apiPhoto.decision?.trim().toLowerCase() ?? 'pending';
+    const isApproved = normalizedDecision === 'approved';
+    const hasPendingPhotoChange =
+      apiPhoto.isPendingDeletion
+      || apiPhoto.pendingIsMain !== null;
+
     return {
       id: apiPhoto.mediaId,
       url: apiPhoto.url,
       title: apiPhoto.classification ?? '',
       category: apiPhoto.classificationCategory ?? '',
-      decision: (apiPhoto.decision?.toLowerCase() ?? 'pending') as UnitPhotoDecision,
-      rejectionReason: apiPhoto.rejectionReason ?? ''
+      decision: hasPendingPhotoChange
+        ? 'pending'
+        : (apiPhoto.decision?.toLowerCase() ?? 'pending') as UnitPhotoDecision,
+      rejectionReason: hasPendingPhotoChange ? '' : (apiPhoto.rejectionReason ?? ''),
+      canReview: hasPendingPhotoChange || !isApproved,
+      isMainPhoto: apiPhoto.isMainPhoto,
+      isPendingDeletion: apiPhoto.isPendingDeletion,
+      pendingIsMain: apiPhoto.pendingIsMain,
     };
   }
 }

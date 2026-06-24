@@ -108,6 +108,19 @@
   }
 }
 
+.doc-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #C9C9C6;
+
+  i-tabler {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .license-info-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -338,12 +351,23 @@
     background: #111110;
     color: #FFFFFF;
     border: none;
+
+    &:disabled {
+      background: #D0D0CE;
+      cursor: not-allowed;
+    }
   }
 
   .btn-reject {
     background: #FFFFFF;
     color: #F43F5E;
     border: 1px solid #FFD6DE;
+
+    &:disabled {
+      color: #CFCFCC;
+      border-color: #EFEFEC;
+      cursor: not-allowed;
+    }
   }
 }
 

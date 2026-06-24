@@ -320,6 +320,7 @@
         "published": "Published Units",
         "new": "New",
         "underReview": "Under Review",
+        "pendingChanges": "Pending Changes",
         "rejected": "Rejected"
       },
       "pagination": {
@@ -1085,7 +1086,8 @@
         "notesTitle": "Review Notes / Rejection Reason",
         "notesHint": "Optional for approval",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
-        "approveBtn": "Approve Access Method"
+        "approveBtn": "Approve Access Method",
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting."
       },
       "pricingView": {
         "pageTitle": "Pricing Policy Review",
@@ -1166,9 +1168,11 @@
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Cancellation Policy",
+        "hoursSuffix": "hours before arrival",
+        "percentSuffix": "% of booking value",
         "nonRefundable": {
           "title": "Non-refundable",
-          "desc": "This strict policy was chosen by the host. Under this option, guests are not entitled to a refund of any portion of the booking amount once confirmed, regardless of cancellation time.",
+          "desc": "This strict policy was chosen by the host. Guests are not entitled to any refund once the booking is confirmed, regardless of cancellation time.",
           "activationLabel": "Activation Status",
           "activationValue": "Immediately after booking",
           "refundRateLabel": "Refund Rate",
@@ -1177,30 +1181,23 @@
         },
         "flexible": {
           "title": "Flexible Policy",
-          "desc": "This policy allows the host to cancel for free up to a specified time before arrival, providing high booking flexibility.",
-          "refundRateLabel": "Refund Rate",
-          "refundRateValue": "50% of booking value",
-          "partialLabel": "Partial Refund",
-          "partialValue": "24 hours before arrival",
-          "partialDesc": "Cancellation allowed with a set percentage deducted.",
+          "desc": "This policy allows full refund up to a specified time before arrival, with a partial refund within a shorter window.",
           "fullLabel": "Full Refund",
-          "fullValue": "48 hours before arrival",
           "fullDesc": "Full amount returned to the guest.",
-          "periodLabel": "Full Refund Period",
-          "periodValue": "72 hours before arrival",
-          "periodDesc": "Full refund for cancellations 72 hours before arrival."
+          "partialLabel": "Partial Refund Window",
+          "partialDesc": "Cancellation allowed with a percentage deducted.",
+          "refundRateLabel": "Partial Refund Rate",
+          "noRefundLabel": "No Refund",
+          "noRefundDesc": "Last-minute cancellations are non-refundable."
         },
         "partialRefund": {
-          "title": "Partial Refund",
-          "desc": "This policy allows full or partial refund based on cancellation timing.",
-          "refundRateLabel": "Refund Rate",
-          "refundRateValue": "50% of booking value",
-          "partialLabel": "Partial Refund",
-          "partialValue": "24 hours before arrival",
-          "partialDesc": "Cancellation allowed with a set percentage deducted.",
-          "fullLabel": "Full Refund",
-          "fullValue": "48 hours before arrival",
-          "fullDesc": "Full amount returned to the guest."
+          "title": "Partial Refund Only",
+          "desc": "This policy allows a partial refund if cancelled within the specified window. No refund for last-minute cancellations.",
+          "windowLabel": "Cancellation Window",
+          "windowDesc": "Cancellations within this period qualify for a partial refund.",
+          "refundRateLabel": "Partial Refund Rate",
+          "noRefundLabel": "No Refund",
+          "noRefundDesc": "Cancellations after the deadline are non-refundable."
         }
       },
       "finalNotes": {
@@ -1216,6 +1213,14 @@
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Security Deposit"
+      },
+      "finalReview": {
+        "title": "Final Review",
+        "approvedStat": "Approved sections",
+        "rejectedStat": "Rejected sections",
+        "pendingStat": "Pending sections",
+        "hasRejectionWarning": "There are rejected sections — the unit cannot be approved until they are resolved",
+        "readyToApprove": "All sections reviewed — the unit is ready for final approval"
       },
       "actions": {
         "reject": "Reject Request",
@@ -1234,6 +1239,34 @@
         "termsApproveMessage": "Are you sure you want to approve the terms and conditions of this unit?",
         "termsRejectTitle": "Reject Unit Terms?",
         "termsRejectMessage": "Are you sure you want to reject the unit terms with the entered reason?",
+        "pricingApproveTitle": "Approve Unit Pricing?",
+        "pricingApproveMessage": "Are you sure you want to approve the pricing for this unit?",
+        "pricingRejectTitle": "Reject Unit Pricing?",
+        "pricingRejectMessage": "Are you sure you want to reject the unit pricing with the entered notes?",
+        "accessApproveTitle": "Approve Access Method?",
+        "accessApproveMessage": "Are you sure you want to approve the access method and all attached photos for this unit?",
+        "accessRejectTitle": "Reject Access Method?",
+        "accessRejectMessage": "Are you sure you want to reject the access method based on the photo-level reasons provided?",
+        "cancelPolicyApproveTitle": "Approve Cancellation Policy?",
+        "cancelPolicyApproveMessage": "Are you sure you want to approve the cancellation policy selected by the host?",
+        "cancelPolicyRejectTitle": "Reject Cancellation Policy?",
+        "cancelPolicyRejectMessage": "Are you sure you want to reject this cancellation policy? Please make sure you have added your notes.",
+        "depositApproveTitle": "Approve Security Deposit?",
+        "depositApproveMessage": "Are you sure you want to approve the security deposit amount set for this unit?",
+        "depositRejectTitle": "Reject Security Deposit?",
+        "depositRejectMessage": "Are you sure you want to reject this security deposit? Please make sure you have added your notes.",
+        "servicesApproveTitle": "Approve Additional Services?",
+        "servicesApproveMessage": "Are you sure you want to approve the additional services set for this unit?",
+        "servicesRejectTitle": "Reject Additional Services?",
+        "servicesRejectMessage": "Are you sure you want to reject these additional services? Please make sure you have added your notes.",
+        "licenseApproveTitle": "Approve unit license?",
+        "licenseApproveMessage": "Are you sure you want to approve the license for this unit?",
+        "licenseRejectTitle": "Reject unit license?",
+        "licenseRejectMessage": "Are you sure you want to reject the unit license? Please make sure you have added a rejection reason.",
+        "finalApproveTitle": "Approve Unit Finally?",
+        "finalApproveMessage": "Are you sure you want to give final approval for this unit? The unit will be published for bookings.",
+        "finalRejectTitle": "Reject Unit Finally?",
+        "finalRejectMessage": "Are you sure you want to reject this unit? The host will be notified with the written notes.",
         "approveAction": "Yes, approve",
         "rejectAction": "Yes, reject"
       },
@@ -1275,7 +1308,8 @@
         "badges": {
           "enabled": "Enabled",
           "free": "Free",
-          "paid": "Paid"
+          "paid": "Paid",
+          "unavailable": "Not available"
         },
         "price": {
           "paidLabel": "Daily Price",

@@ -11,6 +11,25 @@
   color: #111110;
 }
 
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+
+  .spin-icon {
+    width: 32px;
+    height: 32px;
+    color: #6B6B67;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .services-heading {
   padding: 4px 8px 0;
 
@@ -555,6 +574,12 @@
       width: 18px;
       height: 18px;
     }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      pointer-events: none;
+    }
   }
 
   .btn-approve {
@@ -601,8 +626,9 @@
   }
 
   .title-row {
-    justify-content: flex-start;
+    justify-content: space-between;
     flex-direction: row;
+    width: 100%;
 
     h4 { order: 1; }
     .tag-list { order: 2; }

@@ -4,6 +4,7 @@ import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { expand, reduce } from 'rxjs/operators';
 import { AccountItem, PaginatedAccountResponse } from '../interfaces/account.model';
+import { PaginatedPropertyResponse } from '../interfaces/building-card.model';
 import {
   BuildingWithUnits,
   UnitCardItem,
@@ -18,6 +19,11 @@ import {
   UnitTab,
   UnitPricingResponse,
   UnitPricingCalendarResponse,
+  UnitCancellationPolicyResponse,
+  UnitDepositResponse,
+  UnitServicesResponse,
+  UnitLicenseResponse,
+  UnitReviewStatusCode,
 } from '../interfaces/unit-card.model';
 import { CoreService } from 'src/app/services/core.service';
 
@@ -34,6 +40,8 @@ export class UnitsService {
   private coreService = inject(CoreService);
   private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/units';
   private readonly accountsApiUrl = 'https://test-api-admin.lfeen.com/api/accounts';
+  private readonly propertiesApiUrl = 'https://test-api-admin.lfeen.com/api/properties';
+  private readonly defaultBuildingImage = '';
 
   readonly searchQuery  = signal('');
   readonly activeTab    = signal<UnitTab>('new');
@@ -61,36 +69,69 @@ export class UnitsService {
     request: () => true,
     loader: () => this.getAllAccountPages()
   });
+  private readonly _propertiesFilterResource = rxResource({
+    request: () => true,
+    loader: () => this.getAllPropertyPages()
+  });
 
-  readonly rawUnits   = computed(() => this._unitsResource.value()?.data ?? []);
+  readonly rawUnits   = computed(() =>
+    this.filterUnitsByTab(this._unitsResource.value()?.data ?? [], this.activeTab())
+  );
   readonly filterUnits = computed(() => this._filterUnitsResource.value()?.data ?? []);
   readonly rawAccounts = computed(() => this._accountsFilterResource.value()?.data ?? []);
+  readonly rawProperties = computed(() => this._propertiesFilterResource.value()?.data ?? []);
+  readonly propertyMainPhotoMap = computed(() => {
+    const mapByPropertyId = new Map<number, string>();
+    for (const property of this.rawProperties()) {
+      if (property.mainPhotoUrl) {
+        mapByPropertyId.set(property.propertyId, property.mainPhotoUrl);
+      }
+    }
+    return mapByPropertyId;
+  });
   readonly totalPages = computed(() => this._unitsResource.value()?.totalPages ?? 1);
-  readonly totalCount = computed(() => this._unitsResource.value()?.totalCount ?? 0);
+  readonly totalCount = computed(() => this.rawUnits().length);
   readonly isLoading  = this._unitsResource.isLoading;
 
   readonly buildingsWithUnitsSignal = computed<BuildingWithUnits[]>(() => {
-    const tab = this.activeTab();
-    const filtered = this.rawUnits().filter(u => this.matchesTab(u.reviewStatus, tab));
     const groups = new Map<number, BuildingWithUnits>();
-    for (const u of filtered) {
+    for (const u of this.rawUnits()) {
       if (!groups.has(u.propertyId)) {
         groups.set(u.propertyId, {
           id:                  String(u.propertyId),
           name:                u.propertyName,
           location:            '',
           publishedUnits:      0,
-          image:               u.mainPhotoUrl ?? 'assets/images/products/review_image.png',
+          image:               this.getBuildingImage(u),
           units:               [],
           needsPropertyReview: u.propertyAdminReviewStatus !== 'Approved',
         });
       }
       const g = groups.get(u.propertyId)!;
+      const currentPriority = this.getImagePriority(g.image);
+      const candidateImage = this.getBuildingImage(u);
+      const candidatePriority = this.getImagePriority(candidateImage);
+      if (candidatePriority > currentPriority) {
+        g.image = candidateImage;
+      }
       g.units.push(this.mapToUnitCard(u));
       g.publishedUnits = g.units.length;
     }
     return Array.from(groups.values());
   });
+
+  private getBuildingImage(unit: UnitApiItem): string {
+    return this.propertyMainPhotoMap().get(unit.propertyId)
+      ?? unit.mainPhotoUrl
+      ?? unit.accountLogoUrl
+      ?? this.defaultBuildingImage;
+  }
+
+  private getImagePriority(image: string): number {
+    if (!image || image === this.defaultBuildingImage) return 0;
+    if (image.includes('/account-logos/')) return 1;
+    return 2;
+  }
 
   readonly totalBuildingsCount = computed(() => this.buildingsWithUnitsSignal().length);
 
@@ -127,19 +168,11 @@ export class UnitsService {
     return this.buildingsWithUnitsSignal().slice(start, start + this.BUILDINGS_PER_PAGE);
   });
 
-  private matchesTab(reviewStatus: string, tab: UnitTab): boolean {
-    switch (tab) {
-      case 'published':   return reviewStatus === 'Approved';
-      case 'new':         return reviewStatus === 'Pending';
-      case 'underReview': return reviewStatus === 'UnderReview';
-      case 'rejected':    return reviewStatus === 'Rejected';
-    }
-  }
-
   private getAllUnitPages(filters: {
     search?: string;
     accountId?: string;
     propertyId?: string;
+    status?: number | string;
   }): Observable<PaginatedUnitResponse> {
     const fetchPage = (page: number): Observable<PaginatedUnitResponse> => {
       const params = new URLSearchParams({
@@ -147,9 +180,10 @@ export class UnitsService {
         pageSize:    '20',
         newestFirst: 'true',
       });
-      if (filters.search)     params.set('search',     filters.search);
-      if (filters.accountId)  params.set('accountId',  filters.accountId);
-      if (filters.propertyId) params.set('propertyId', filters.propertyId);
+      if (filters.search)              params.set('search',     filters.search);
+      if (filters.accountId)           params.set('accountId',  filters.accountId);
+      if (filters.propertyId)          params.set('propertyId', filters.propertyId);
+      if (filters.status !== undefined) params.set('status',    String(filters.status));
       return this.http.get<PaginatedUnitResponse>(`${this.apiUrl}?${params}`);
     };
 
@@ -185,12 +219,62 @@ export class UnitsService {
     );
   }
 
+  private getAllPropertyPages(): Observable<PaginatedPropertyResponse> {
+    const fetchPage = (page: number): Observable<PaginatedPropertyResponse> => {
+      const params = new URLSearchParams({
+        pageNumber:  String(page),
+        pageSize:    '50',
+        newestFirst: 'true',
+      });
+      return this.http.get<PaginatedPropertyResponse>(`${this.propertiesApiUrl}?${params}`);
+    };
+
+    return fetchPage(1).pipe(
+      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+      reduce((acc, res) => ({
+        ...res,
+        data: [...acc.data, ...res.data],
+        totalPages: 1,
+        page: 1,
+      }))
+    );
+  }
+
   private getAccountDisplayName(account: AccountItem, lang: string): string {
     return (lang === 'ar' ? account.tradeNameAr : account.tradeNameEn)
       || account.tradeName
       || account.tradeNameAr
       || account.tradeNameEn
       || account.referenceCode;
+  }
+
+  private filterUnitsByTab(units: UnitApiItem[], tab: UnitTab): UnitApiItem[] {
+    return units.filter(unit => this.statusToTab(unit.reviewStatus) === tab);
+  }
+
+  private statusToTab(reviewStatus: UnitReviewStatusCode): UnitTab {
+    switch (this.normalizeReviewStatus(reviewStatus)) {
+      case 'Approved':          return 'published';
+      case 'Pending':           return 'new';
+      case 'UnderReview':       return 'underReview';
+      case 'Rejected':          return 'rejected';
+      case 'HasPendingChanges': return 'pendingChanges';
+      default:                  return 'underReview';
+    }
+  }
+
+  private normalizeReviewStatus(reviewStatus: UnitReviewStatusCode): string {
+    if (typeof reviewStatus === 'number') {
+      switch (reviewStatus) {
+        case 0:  return 'Pending';
+        case 1:  return 'UnderReview';
+        case 2:  return 'Approved';
+        case 3:  return 'Rejected';
+        case 4:  return 'HasPendingChanges';
+      }
+    }
+
+    return reviewStatus?.trim() ?? '';
   }
 
   private readonly _buildingsObs$: Observable<BuildingWithUnits[]>;
@@ -241,8 +325,59 @@ export class UnitsService {
     return this.http.post<void>(`${this.apiUrl}/${unitId}/basic-data/review`, { decision, rejectionReason });
   }
 
+  getUnitCancellationPolicy(unitId: string): Observable<UnitCancellationPolicyResponse> {
+    return this.http.get<UnitCancellationPolicyResponse>(`${this.apiUrl}/${unitId}/cancellation-policy`);
+  }
+
+  reviewUnitCancellationPolicy(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/cancellation-policy/review`, { decision, rejectionReason });
+  }
+
+  getUnitDeposit(unitId: string): Observable<UnitDepositResponse> {
+    return this.http.get<UnitDepositResponse>(`${this.apiUrl}/${unitId}/deposit`);
+  }
+
+  reviewUnitDeposit(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/deposit/review`, { decision, rejectionReason });
+  }
+
   reviewUnitTerms(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${unitId}/terms/review`, { decision, rejectionReason });
+  }
+
+  getUnitServices(unitId: string): Observable<UnitServicesResponse> {
+    return this.http.get<UnitServicesResponse>(`${this.apiUrl}/${unitId}/services`);
+  }
+
+  reviewUnitServices(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/services/review`, { decision, rejectionReason });
+  }
+
+  getUnitLicense(unitId: string): Observable<UnitLicenseResponse> {
+    return this.http.get<UnitLicenseResponse>(`${this.apiUrl}/${unitId}/license`);
+  }
+
+  reviewUnitLicense(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/license/review`, { decision, rejectionReason });
+  }
+
+  approveUnit(unitId: string, finalNotes: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/approve`, { finalNotes });
+  }
+
+  rejectUnit(unitId: string, finalNotes: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/reject`, { finalNotes });
+  }
+
+  reviewUnitAccess(
+    unitId: string,
+    body: {
+      decision: string;
+      rejectionReason: string | null;
+      photos: { category: string; decision: string; rejectionReason: string | null }[];
+    }
+  ): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${unitId}/access/review`, body);
   }
 
   reviewUnitPhotos(
@@ -263,7 +398,7 @@ export class UnitsService {
       unitNumber:  String(u.apartmentNumberInFloor),
       title:       u.name ?? `${u.unitTypeName} ${u.apartmentNumberInFloor}`,
       floor:       lang === 'ar' ? `الدور ${u.floorNumber}` : `Floor ${u.floorNumber}`,
-      capacity:    '-',
+      capacity:    u.maxGuests != null ? String(u.maxGuests) : '—',
       status:      this.reviewStatusToUnitStatus(u.reviewStatus),
       type:        u.unitTypeName,
       description: u.description ?? '',
@@ -272,12 +407,11 @@ export class UnitsService {
     };
   }
 
-  private reviewStatusToUnitStatus(reviewStatus: string): UnitStatus {
-    switch (reviewStatus) {
-      case 'Approved':    return 'active';
-      case 'Rejected':    return 'stopped';
-      case 'UnderReview': return 'underReview';
-      default:            return 'underReview';
+  private reviewStatusToUnitStatus(reviewStatus: UnitReviewStatusCode): UnitStatus {
+    switch (this.normalizeReviewStatus(reviewStatus)) {
+      case 'Approved':  return 'active';
+      case 'Rejected':  return 'stopped';
+      default:          return 'underReview';
     }
   }
 

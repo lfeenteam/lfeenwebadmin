@@ -227,9 +227,9 @@
 }
 
 .info-tag {
-  background: #EFF6FF;
-  color: #2563EB;
-  border: 1px solid #DBEAFE;
+  background: #F0FDF4;
+  color: #22C55E;
+  border: 1px solid #22C55E;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 11px;
@@ -358,6 +358,138 @@
   }
 }
 
+.final-review-section {
+  background: #FFFFFF;
+  border: 1px solid #E8E8E4;
+  border-radius: 24px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.final-review-header {
+  display: flex;
+  align-items: center;
+}
+
+.final-review-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: #111110;
+}
+
+.final-review-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  flex: 1;
+  min-width: 110px;
+  border: 1px solid transparent;
+
+  .stat-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+
+    ::ng-deep svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-count {
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &--approved {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #059669;
+  }
+
+  &--pending {
+    background: #F7F7F5;
+    border-color: #E8E8E4;
+    color: #6B6B67;
+
+    &.review-stat--zero {
+      opacity: 0.45;
+    }
+  }
+
+  &--rejected {
+    background: #FFF1F2;
+    border-color: #FFE4E6;
+    color: #E11D48;
+
+    &.review-stat--zero {
+      background: #F7F7F5;
+      border-color: #E8E8E4;
+      color: #BDBDBA;
+    }
+  }
+}
+
+.final-review-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+
+  .alert-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+
+    ::ng-deep svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &--warning {
+    background: #FFF7ED;
+    color: #C2410C;
+    border: 1px solid #FED7AA;
+  }
+
+  &--success {
+    background: #ECFDF5;
+    color: #059669;
+    border: 1px solid #A7F3D0;
+  }
+}
+
 .final-notes-section {
   display: flex;
   flex-direction: column;
@@ -373,6 +505,7 @@
     width: 100%;
     box-sizing: border-box;
     border: 1px solid #E8E8E4;
+    resize:none !important;
     border-radius: 16px;
     padding: 14px;
     font-family: 'Cairo', sans-serif;
@@ -425,9 +558,20 @@
   flex: 1;
   background: #1111100D;
   color: #C9C9C6;
+  transition: background 0.2s, color 0.2s;
 
   ::ng-deep svg {
     stroke: #C9C9C6;
+    transition: stroke 0.2s;
+  }
+
+  &:not(:disabled) {
+    background: #111110;
+    color: #FFFFFF;
+
+    ::ng-deep svg {
+      stroke: #FFFFFF;
+    }
   }
 }
 

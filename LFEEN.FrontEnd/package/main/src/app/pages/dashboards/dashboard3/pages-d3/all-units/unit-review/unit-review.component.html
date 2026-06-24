@@ -30,21 +30,21 @@
     @for (section of reviewSections; track section.titleKey) {
       <div
         class="unit-review-card"
-        [class.unit-review-card--decided]="getSectionDecision(section.key)"
-        [class.unit-review-card--approved]="getSectionDecision(section.key) === 'approved'"
-        [class.unit-review-card--rejected]="getSectionDecision(section.key) === 'rejected'">
+        [class.unit-review-card--decided]="isSectionDecided(section.key)"
+        [class.unit-review-card--approved]="isSectionApproved(section.key)"
+        [class.unit-review-card--rejected]="isSectionRejected(section.key)">
         <div class="card-top-row">
           <span class="icon-box">
-            <i-tabler [name]="getSectionDecision(section.key) ? 'help' : section.icon"></i-tabler>
+            <i-tabler [name]="isSectionDecided(section.key) ? 'help' : section.icon"></i-tabler>
           </span>
           @if (section.isSmartLockBadge) {
             <span class="info-tag">{{ 'd3.unitReview.sections.smartLock.infoBadge' | translate }}</span>
-          } @else if (getSectionDecision(section.key) === 'approved') {
+          } @else if (isSectionApproved(section.key)) {
             <span class="decision-badge decision-badge--approved">
               <i-tabler name="circle-check" class="decision-icon"></i-tabler>
               {{ 'd3.unitReview.status.approved' | translate }}
             </span>
-          } @else if (getSectionDecision(section.key) === 'rejected') {
+          } @else if (isSectionRejected(section.key)) {
             <span class="decision-badge decision-badge--rejected">
               <i-tabler name="circle-x" class="decision-icon"></i-tabler>
               {{ 'd3.unitReview.status.rejected' | translate }}
@@ -65,8 +65,8 @@
             {{ 'd3.unitReview.sections.smartLock.activeBadge' | translate }}
           </span>
         } @else {
-          <button class="review-btn" [class.review-btn--icon]="getSectionDecision(section.key)" type="button" (click)="onReviewSection(section)">
-            @if (!getSectionDecision(section.key)) {
+          <button class="review-btn" [class.review-btn--icon]="isSectionDecided(section.key)" type="button" (click)="onReviewSection(section)">
+            @if (shouldShowReviewButtonLabel(section.key)) {
               {{ (section.reviewBtnKey ?? '') | translate }}
             }
             <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="review-btn-icon"></i-tabler>
@@ -76,24 +76,74 @@
     }
   </div>
 
-  <div class="final-notes-section">
-    <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
-    <textarea
-      [(ngModel)]="finalNotes"
-      [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
-      rows="3">
-    </textarea>
-  </div>
+  @if (!isViewMode) {
+  <div class="final-review-section">
+    <div class="final-review-header">
+      <span class="final-review-title">{{ 'd3.unitReview.finalReview.title' | translate }}</span>
+    </div>
 
-  <div class="action-buttons">
-    <button class="btn btn-approve" type="button" disabled>
-      <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
-      <i-tabler name="circle-check" class="btn-icon"></i-tabler>
-    </button>
-    <button class="btn btn-reject" type="button">
-      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
-      <i-tabler name="x" class="btn-icon"></i-tabler>
-    </button>
+    <div class="final-review-stats">
+      <div class="review-stat review-stat--approved">
+        <i-tabler name="circle-check" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ approvedCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.approvedStat' | translate }}</span>
+        </div>
+      </div>
+      <div class="review-stat review-stat--pending" [class.review-stat--zero]="pendingCount === 0">
+        <i-tabler name="clock" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ pendingCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.pendingStat' | translate }}</span>
+        </div>
+      </div>
+      <div class="review-stat review-stat--rejected" [class.review-stat--zero]="rejectedCount === 0">
+        <i-tabler name="circle-x" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ rejectedCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.rejectedStat' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    @if (hasAnyRejectedSection) {
+      <div class="final-review-alert final-review-alert--warning">
+        <i-tabler name="alert-circle" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.hasRejectionWarning' | translate }}</span>
+      </div>
+    } @else if (allSectionsDecided) {
+      <div class="final-review-alert final-review-alert--success">
+        <i-tabler name="circle-check" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.readyToApprove' | translate }}</span>
+      </div>
+    }
   </div>
+  }
+
+  @if (!isViewMode) {
+    <div class="final-notes-section">
+      <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+      <textarea
+        [(ngModel)]="finalNotes"
+        [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+        rows="3">
+      </textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button
+        class="btn btn-approve"
+        type="button"
+        [disabled]="hasAnyRejectedSection"
+        (click)="onApprove()">
+        <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+        <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+      </button>
+      <button class="btn btn-reject" type="button" (click)="onReject()">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="x" class="btn-icon"></i-tabler>
+      </button>
+    </div>
+  }
 
 </div>

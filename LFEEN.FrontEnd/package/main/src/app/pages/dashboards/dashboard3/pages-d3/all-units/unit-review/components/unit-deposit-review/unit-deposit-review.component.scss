@@ -12,6 +12,25 @@
   color: #111110;
 }
 
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+
+  .spin-icon {
+    width: 32px;
+    height: 32px;
+    color: #9E9E9A;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .deposit-card {
   min-height: 306px;
   border: 1px solid #E8E8E4;
@@ -213,12 +232,26 @@
     background: #111110;
     color: #fff;
     border: none;
+
+    &:disabled {
+      background: #E8E8E4;
+      color: #AFAFAC;
+      cursor: not-allowed;
+      opacity: 1;
+    }
   }
 
   .btn-reject {
     background: #fff;
     color: #F43F5E;
     border: 1px solid #FFD6DE;
+
+    &:disabled {
+      color: #AFAFAC;
+      border-color: #E8E8E4;
+      cursor: not-allowed;
+      opacity: 1;
+    }
   }
 }
 

@@ -5,7 +5,11 @@
       <div class="property-review-banner">
         <div class="banner-right">
           <div class="building-image">
-            <img [src]="building.image" [alt]="building.name">
+            @if (building.image) {
+              <img [src]="building.image" [alt]="building.name">
+            } @else {
+              <i-tabler name="photo" class="icon-20"></i-tabler>
+            }
           </div>
           <div class="building-info">
             <h2 class="building-name">{{ building.name }}</h2>
@@ -26,7 +30,11 @@
       <header class="building-header">
         <div class="building-header__right">
           <div class="building-image">
-            <img [src]="building.image" [alt]="building.name">
+            @if (building.image) {
+              <img [src]="building.image" [alt]="building.name">
+            } @else {
+              <i-tabler name="photo" class="icon-20"></i-tabler>
+            }
           </div>
           <div class="building-info">
             <h2 class="building-name">{{ building.name }}</h2>
@@ -63,7 +71,7 @@
             @if (isReviewTab) {
               <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
             } @else {
-              <app-unit-card [unit]="unit" [viewMode]="viewMode"></app-unit-card>
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id"></app-unit-card>
             }
           }
         </div>
@@ -73,7 +81,7 @@
             @if (isReviewTab) {
               <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
             } @else {
-              <app-unit-card [unit]="unit" [viewMode]="viewMode"></app-unit-card>
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id"></app-unit-card>
             }
           }
         </div>
