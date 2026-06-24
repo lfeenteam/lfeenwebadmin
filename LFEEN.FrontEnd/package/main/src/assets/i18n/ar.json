@@ -175,6 +175,7 @@
         "published": "مباني منشورة",
         "new": "جديد",
         "underReview": "تحت المراجعة",
+        "pendingChanges": "تعديلات قيد المراجعة",
         "rejected": "مرفوض"
       },
       "pagination": {
@@ -184,7 +185,9 @@
         "statusLabel": "تحت المراجعة",
         "sectionTitle": "تحت المراجعة",
         "newSectionTitle": "مباني جديدة",
-        "newBadge": "جديد"
+        "newBadge": "جديد",
+        "pendingChangesSectionTitle": "تعديلات قيد المراجعة",
+        "pendingChangesBadge": "تعديلات قيد المراجعة"
       },
       "filters": {
         "searchPlaceholder": "بحث باسم المبنى أو المدينة...",
@@ -996,6 +999,8 @@
         "statusAccepted": "مقبولة",
         "statusPending": "بانتظار القرار",
         "rejectionReasonPlaceholder": "سبب الرفض...",
+        "pendingDeleteReview": "مراجعة حذف الصورة",
+        "pendingMainPhotoReview": "مراجعة تغيير الصورة الرئيسية",
         "suggestedSolutionPlaceholder": "الحل المقترح للمضيف...",
         "rejectionSummaryTitle": "ملخص أسباب الرفض",
         "rejectionSummarySubtitle": "تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً",

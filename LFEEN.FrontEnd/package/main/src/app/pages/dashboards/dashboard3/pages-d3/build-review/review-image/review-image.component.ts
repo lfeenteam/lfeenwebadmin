@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { BuildingReviewService } from '../../../services/building-review.service';
-import { PhotoReviewPayload, PhotoReviewResponse } from '../../../interfaces/building-card.model';
+import { PhotoItem, PhotoReviewPayload, PhotoReviewResponse } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -17,8 +17,11 @@ interface LocalPhoto {
   fileName: string;
   classification: string;
   isMainPhoto: boolean;
+  isPendingDeletion: boolean;
+  pendingIsMain: boolean | null;
   decision: 'Pending' | 'Approved' | 'Rejected';
   rejectionReason: string;
+  canReview: boolean;
 }
 
 interface LocalGroup {
@@ -70,15 +73,7 @@ export class ReviewImageComponent implements OnInit {
         this.photoGroups = [];
         this.minRequired = data.minRequired;
         for (const g of data.groups) {
-          const localPhotos: LocalPhoto[] = g.photos.map(p => ({
-            mediaId:        p.mediaId,
-            url:            p.url,
-            fileName:       p.fileName,
-            classification: p.classification,
-            isMainPhoto:    p.isMainPhoto,
-            decision:       p.decision,
-            rejectionReason: p.rejectionReason ?? ''
-          }));
+          const localPhotos: LocalPhoto[] = g.photos.map(p => this.mapPhoto(p));
           if (g.groupKey === 'MainPhoto') {
             this.mainPhoto = localPhotos[0] ?? null;
           } else {
@@ -119,9 +114,28 @@ export class ReviewImageComponent implements OnInit {
   }
 
   setDecision(photo: LocalPhoto, decision: 'Approved' | 'Rejected'): void {
-    if (this.readOnly) return;
+    if (this.readOnly || !photo.canReview) return;
     photo.decision = decision;
     if (decision === 'Approved') photo.rejectionReason = '';
+  }
+
+  private mapPhoto(photo: PhotoItem): LocalPhoto {
+    const hasPendingPhotoChange =
+      photo.isPendingDeletion
+      || photo.pendingIsMain !== null;
+
+    return {
+      mediaId:        photo.mediaId,
+      url:            photo.url,
+      fileName:       photo.fileName,
+      classification: photo.classification,
+      isMainPhoto:    photo.isMainPhoto,
+      isPendingDeletion: photo.isPendingDeletion,
+      pendingIsMain: photo.pendingIsMain,
+      decision:       hasPendingPhotoChange ? 'Pending' : photo.decision,
+      rejectionReason: hasPendingPhotoChange ? '' : (photo.rejectionReason ?? ''),
+      canReview:      hasPendingPhotoChange || photo.decision !== 'Approved'
+    };
   }
 
   confirmSubmit(decision: 'Approved' | 'Rejected'): void {

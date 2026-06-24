@@ -29,6 +29,7 @@ export class BuildReviewComponent implements OnInit {
   imageError = false;
   orgLogoError = false;
   viewOnly = false;
+  overallStatus = '';
 
   building = {
     id: '',
@@ -77,6 +78,7 @@ export class BuildReviewComponent implements OnInit {
           totalUnits:          String(data.totalUnits),
           imageUrl:            data.mainPhotoUrl ?? 'assets/images/building.jpg'
         };
+        this.overallStatus = data.overallStatus?.trim() ?? '';
 
         this.reviewSections[0].completed = data.photosSection.decision !== 'Pending';
         this.reviewSections[0].status    = this.mapDecision(data.photosSection.decision);
@@ -146,6 +148,15 @@ export class BuildReviewComponent implements OnInit {
 
   get allSectionsComplete(): boolean {
     return this.reviewSections.every(s => s.completed);
+  }
+
+  get hasPendingChanges(): boolean {
+    return this.overallStatus === 'HasPendingChanges';
+  }
+
+  get isImagesReadOnly(): boolean {
+    if (this.hasPendingChanges) return false;
+    return this.reviewSections[0].completed;
   }
 
   get canReject(): boolean {

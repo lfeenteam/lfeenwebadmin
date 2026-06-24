@@ -33,7 +33,7 @@ export class CardsBuildsComponent {
   }
 
   get isReviewTab(): boolean {
-    return this.activeTab === 'underReview';
+    return this.activeTab === 'underReview' || this.activeTab === 'pendingChanges';
   }
 
   get hasUnderReview(): boolean {
