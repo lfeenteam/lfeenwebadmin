@@ -1,12 +1,16 @@
 <div class="unit-access-review" [dir]="currentDir">
   <section class="unit-summary-card">
     <div class="summary-unit">
-      <img [src]="building?.image || 'assets/images/products/review_image1.jpg'" [alt]="unit?.title || ('d3.unitReview.accessView.unitAlt' | translate)">
+      @if (accessData?.mainPhotoUrl) {
+        <img [src]="accessData!.mainPhotoUrl" [alt]="unit?.title || ('d3.unitReview.accessView.unitAlt' | translate)">
+      } @else {
+        <div class="unit-avatar">{{ unitInitials }}</div>
+      }
       <div>
-        <h2>{{ unit?.title }}</h2>
+        <h2>{{ unit?.title || unitDetail?.name || unitDetail?.propertyName }}</h2>
         <p>
           <i-tabler name="map-pin"></i-tabler>
-          {{ building?.location }}
+          {{ building?.location || unitDetail?.propertyName }}
         </p>
       </div>
     </div>
@@ -14,11 +18,11 @@
     <div class="summary-stats">
       <div>
         <span>{{ 'd3.unitReview.accessView.unitNumber' | translate }}</span>
-        <strong>{{ unit?.unitNumber }}</strong>
+        <strong>{{ accessData?.unitNumber ?? '-' }}</strong>
       </div>
       <div>
         <span>{{ 'd3.unitReview.accessView.floor' | translate }}</span>
-        <strong>{{ unit?.floor }}</strong>
+        <strong>{{ accessData?.floorNumber ?? '-' }}</strong>
       </div>
     </div>
   </section>
@@ -31,6 +35,13 @@
 
     <p class="section-hint">{{ 'd3.unitReview.accessView.photosHint' | translate }}</p>
 
+    @if (hasStartedReview && pendingCount > 0) {
+      <div class="validation-banner">
+        <i-tabler name="alert-triangle"></i-tabler>
+        <span>{{ 'd3.unitReview.accessView.pendingPhotosWarning' | translate: { count: pendingCount } }}</span>
+      </div>
+    }
+
     <div class="access-photos-grid">
       @for (photo of accessPhotos; track photo.titleKey) {
         <article class="access-photo-card" [class.is-rejected]="photo.decision === 'rejected'">
@@ -38,10 +49,10 @@
             <img [src]="photo.image" [alt]="photo.titleKey | translate">
             <span class="photo-tag">{{ photo.tagKey | translate }}</span>
             <div class="photo-actions">
-              <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" (click)="setPhotoDecision(photo, 'rejected')">
+              <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setPhotoDecision(photo, 'rejected')">
                 <i-tabler name="x"></i-tabler>
               </button>
-              <button class="photo-action photo-action--approve" type="button" [class.active]="photo.decision === 'approved'" (click)="setPhotoDecision(photo, 'approved')">
+              <button class="photo-action photo-action--approve" type="button" [class.active]="photo.decision === 'approved'" [disabled]="isReadOnly || !photo.canReview" (click)="setPhotoDecision(photo, 'approved')">
                 <i-tabler name="check"></i-tabler>
               </button>
             </div>
@@ -51,8 +62,7 @@
 
           @if (photo.decision === 'rejected') {
             <div class="rejection-fields">
-              <input type="text" [(ngModel)]="photo.rejectionReason" [placeholder]="'d3.unitReview.imagesView.rejectionReasonPlaceholder' | translate">
-              <input type="text" [(ngModel)]="photo.suggestedSolution" [placeholder]="'d3.unitReview.imagesView.suggestedSolutionPlaceholder' | translate">
+              <input type="text" [(ngModel)]="photo.rejectionReason" [readonly]="isReadOnly || !photo.canReview" [placeholder]="'d3.unitReview.imagesView.rejectionReasonPlaceholder' | translate">
             </div>
           }
         </article>
@@ -77,29 +87,30 @@
     </section>
   }
 
-  <section class="notes-section">
-    <div class="notes-label-row">
-      <span class="notes-title">{{ 'd3.unitReview.accessView.notesTitle' | translate }}</span>
-      <small class="notes-hint">{{ 'd3.unitReview.accessView.notesHint' | translate }}</small>
-    </div>
-    <div class="notes-input-wrap">
-      <i-tabler name="message-2"></i-tabler>
-      <textarea
-        [(ngModel)]="note"
-        [placeholder]="'d3.unitReview.accessView.notesPlaceholder' | translate"
-        rows="3">
-      </textarea>
-    </div>
-  </section>
+  @if (!isReadOnly) {
+    <section class="notes-section">
+      <div class="notes-label-row">
+        <span class="notes-title">{{ 'd3.unitReview.accessView.notesTitle' | translate }}</span>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="rejectionNote"
+          [placeholder]="'d3.unitReview.accessView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
 
-  <footer class="action-buttons">
-    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
-      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
-      <i-tabler name="circle-x"></i-tabler>
-    </button>
-    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
-      <span>{{ 'd3.unitReview.accessView.approveBtn' | translate }}</span>
-      <i-tabler name="circle-check"></i-tabler>
-    </button>
-  </footer>
+    <footer class="action-buttons">
+      <button class="btn btn-reject" type="button" [disabled]="!allReviewed || (!hasRejectedPhoto && !rejectionNote.trim())" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || !!rejectionNote.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.accessView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </footer>
+  }
 </div>

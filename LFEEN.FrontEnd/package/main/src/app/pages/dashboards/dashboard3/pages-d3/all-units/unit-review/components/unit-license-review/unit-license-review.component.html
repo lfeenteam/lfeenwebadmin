@@ -8,36 +8,46 @@
         </div>
         <div class="document-toolbar__text">
           <span class="document-toolbar__title">{{ 'd3.unitReview.licenseView.documentTitle' | translate }}</span>
-          <span class="document-toolbar__subtitle">{{ 'd3.unitReview.licenseView.subtitle' | translate }}</span>
+          <span class="document-toolbar__subtitle">
+            {{ license?.licenseAttachmentFileName || ('d3.unitReview.licenseView.subtitle' | translate) }}
+          </span>
         </div>
       </div>
-      <button class="toolbar-btn" type="button" (click)="openDocument()">
+      <button class="toolbar-btn" type="button" (click)="openDocument()" [disabled]="!license?.licenseAttachmentUrl">
         <i-tabler name="external-link"></i-tabler>
         <span>{{ 'd3.unitReview.licenseView.fullScreenBtn' | translate }}</span>
       </button>
     </div>
 
     <div class="document-preview">
-      <img [src]="documentSrc" [alt]="'d3.unitReview.licenseView.documentAlt' | translate">
+      @if (isLoading) {
+        <div class="doc-placeholder">
+          <i-tabler name="loader-2"></i-tabler>
+        </div>
+      } @else if (safeDocumentUrl) {
+        <iframe [src]="safeDocumentUrl" width="100%" height="600" style="border:none;display:block;"></iframe>
+      } @else {
+        <div class="doc-placeholder">
+          <i-tabler name="file-off"></i-tabler>
+        </div>
+      }
     </div>
   </section>
 
   <section class="license-info-grid">
-  
 
     <article class="details-card">
       <div class="card-title-row">
-         <i-tabler name="info-circle"></i-tabler>
+        <i-tabler name="info-circle"></i-tabler>
         <h3>{{ 'd3.unitReview.licenseView.details.title' | translate }}</h3>
-       
       </div>
 
       <div class="details-grid">
         @for (item of licenseDetails; track item.labelKey) {
           <div class="detail-item" [class.detail-item--wide]="item.wide">
             <span class="detail-label">{{ item.labelKey | translate }}</span>
-            <strong>{{ item.valueKey | translate }}</strong>
-            @if (item.badgeKey) {
+            <strong>{{ item.value || '-' }}</strong>
+            @if (item.badgeKey && item.showBadge) {
               <span class="verified-badge">
                 <i-tabler name="circle-check"></i-tabler>
                 {{ item.badgeKey | translate }}
@@ -47,50 +57,58 @@
         }
       </div>
     </article>
-      <article class="owner-card">
+
+    <article class="owner-card">
       <div class="card-title-row">
-         <i-tabler name="building"></i-tabler>
+        <i-tabler name="building"></i-tabler>
         <h3>{{ 'd3.unitReview.licenseView.owner.title' | translate }}</h3>
-       
       </div>
 
       <div class="owner-logo">
-        <span>H</span>
+        @if (license?.accountLogoUrl) {
+          <img [src]="license!.accountLogoUrl!" [alt]="license?.accountName ?? ''"
+               style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+        } @else {
+          <span>{{ ownerInitial }}</span>
+        }
       </div>
 
-      <strong>{{ 'd3.unitReview.licenseView.owner.name' | translate }}</strong>
-      <span class="owner-subtitle">{{ 'd3.unitReview.licenseView.owner.subtitle' | translate }}</span>
-      <span class="owner-id">{{ 'd3.unitReview.licenseView.owner.id' | translate }}</span>
-
-      <button class="owner-link" type="button">
-        {{ 'd3.unitReview.licenseView.owner.profileBtn' | translate }}
-      </button>
+      <strong>{{ license?.accountName || '-' }}</strong>
+      <span class="owner-subtitle">{{ license?.commercialName || '-' }}</span>
+      <span class="owner-id">{{ license?.companyNumber || '-' }}</span>
     </article>
+
   </section>
 
-  <section class="notes-section">
-    <div class="notes-label-row">
-      <span class="notes-title">{{ 'd3.unitReview.licenseView.notesLabel' | translate }}</span>
-    </div>
-    <div class="notes-input-wrap">
-      <i-tabler name="message-2"></i-tabler>
-      <textarea
-        [(ngModel)]="rejectionNote"
-        [placeholder]="'d3.unitReview.licenseView.notesPlaceholder' | translate"
-        rows="3">
-      </textarea>
-    </div>
-  </section>
+  @if (!isReadOnly) {
+    <section class="notes-section">
+      <div class="notes-label-row">
+        <span class="notes-title">{{ 'd3.unitReview.licenseView.notesLabel' | translate }}</span>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="rejectionNote"
+          [placeholder]="'d3.unitReview.licenseView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
 
-  <div class="action-buttons">
-    <button class="btn btn-reject" type="button" (click)="submitDecision('rejected')">
-      <span>{{ 'd3.unitReview.licenseView.rejectBtn' | translate }}</span>
-      <i-tabler name="circle-x"></i-tabler>
-    </button>
-    <button class="btn btn-approve" type="button" (click)="submitDecision('approved')">
-      <span>{{ 'd3.unitReview.licenseView.approveBtn' | translate }}</span>
-      <i-tabler name="circle-check"></i-tabler>
-    </button>
-  </div>
+    <div class="action-buttons">
+      <button class="btn btn-reject" type="button"
+              [disabled]="!rejectionNote.trim()"
+              (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.licenseView.rejectBtn' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button"
+              [disabled]="!!rejectionNote.trim()"
+              (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.licenseView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </div>
+  }
 
 </div>

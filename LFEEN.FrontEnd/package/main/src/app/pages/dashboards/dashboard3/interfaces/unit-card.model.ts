@@ -1,6 +1,6 @@
 export type UnitStatus = 'active' | 'stopped' | 'underReview';
-export type UnitTab    = 'published' | 'new' | 'underReview' | 'rejected';
-export type CancelPolicyType = 'non_refundable' | 'flexible' | 'partial_refund';
+export type UnitTab    = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
 export type UnitServicesPricingType = 'paid' | 'free';
 
 export interface UnitCardItem {
@@ -56,6 +56,21 @@ export interface BuildingWithUnits {
   needsPropertyReview?: boolean;
 }
 
+// 0=Pending, 1=UnderReview, 2=Approved, 3=Rejected, 4=HasPendingChanges, null/empty=not reviewed
+export type UnitReviewStatusCode =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 'Pending'
+  | 'UnderReview'
+  | 'Approved'
+  | 'Rejected'
+  | 'HasPendingChanges'
+  | ''
+  | null;
+
 export interface UnitApiItem {
   unitId: number;
   externalId: string;
@@ -71,8 +86,9 @@ export interface UnitApiItem {
   floorNumber: number;
   apartmentNumberInFloor: number;
   mainPhotoUrl: string | null;
+  maxGuests: number | null;
   hasLock: boolean;
-  reviewStatus: string;
+  reviewStatus: UnitReviewStatusCode;
   basicDataDecision: string;
   photosDecision: string;
   termsDecision: string;
@@ -144,6 +160,7 @@ export interface UnitApiDetailItem {
 
 export interface UnitAccessPhotoItem {
   category: string;
+  categoryName: string | null;
   imageUrl: string;
   decision: string;
   rejectionReason: string | null;
@@ -152,14 +169,13 @@ export interface UnitAccessPhotoItem {
 
 export interface UnitAccessResponse {
   unitId: number;
+  unitNumber: number | null;
+  floorNumber: number | null;
+  mainPhotoUrl: string | null;
   decision: string;
   rejectionReason: string | null;
   reviewedAt: string | null;
   accessDescription: string | null;
-  buildingExteriorImageUrl: string | null;
-  buildingEntranceImageUrl: string | null;
-  hallwayImageUrl: string | null;
-  unitDoorImageUrl: string | null;
   allowSelfCheckIn: boolean | null;
   pendingData: unknown;
   photosDecision: string;
@@ -367,4 +383,99 @@ export interface UnitPricingCalendarResponse {
   monthLabel: string;
   currencyCode: string;
   days: UnitPricingCalendarDay[];
+}
+
+// ── Deposit endpoint (/units/{id}/deposit) ────────────────────────────────────
+
+export interface UnitDepositResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  hasDeposit: boolean;
+  amount: number;
+  pendingData: unknown;
+}
+
+// ── Services endpoint (/units/{id}/services) ─────────────────────────────────
+
+export interface UnitServicesServiceItem {
+  serviceId: number;
+  serviceExternalId: string;
+  serviceTypeId: number;
+  serviceTypeNameKey: string;
+  displayNameAr: string | null;
+  displayNameEn: string | null;
+  uiType: string;
+  isFree: boolean;
+  cost: number | null;
+  costType: string | null;
+  wifiSsid: string | null;
+  wifiPassword: string | null;
+  isWifiConfigured: boolean;
+  hasPersonAvailable: boolean | null;
+  hasWifiCredentials: boolean;
+  hasPersonOption: boolean;
+  allowedCostTypes: string[];
+}
+
+export interface UnitServicesGroup {
+  groupKey: string;
+  groupNameAr: string;
+  groupNameEn: string;
+  services: UnitServicesServiceItem[];
+}
+
+export interface UnitServicesResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  groups: UnitServicesGroup[];
+  facilities: UnitBasicDataFacility[];
+  pendingData: unknown;
+}
+
+// ── License endpoint (/units/{id}/license) ───────────────────────────────────
+
+export interface UnitLicenseResponse {
+  unitId: number;
+  accountName: string | null;
+  accountLogoUrl: string | null;
+  companyNumber: string | null;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  licenseId: number;
+  licenseNumber: string | null;
+  licenseType: string | null;
+  licenseTypeName: string | null;
+  licenseAttachmentUrl: string | null;
+  licenseAttachmentFileName: string | null;
+  facilityName: string | null;
+  commercialName: string | null;
+  classification: string | null;
+  facilityLocation: string | null;
+  issueDate: string | null;
+  expiryDate: string | null;
+  licenseStatusName: string | null;
+  documentStatus: string | null;
+  documentStatusName: string | null;
+  uploadedAt: string | null;
+}
+
+// ── Cancellation Policy endpoint (/units/{id}/cancellation-policy) ────────────
+
+export interface UnitCancellationPolicyResponse {
+  unitId: number;
+  decision: string;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  policyType: CancelPolicyType;
+  noRefundBeforeHours: number | null;
+  partialRefundPercentage: number | null;
+  partialRefundBeforeHours: number | null;
+  fullRefundBeforeHours: number | null;
+  policySummary: string[];
+  pendingData: unknown;
 }

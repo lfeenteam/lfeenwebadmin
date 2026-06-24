@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { MatDialog } from '@angular/material/dialog';
+import { MaterialModule } from 'src/app/material.module';
+import { ReviewConfirmDialogComponent } from '../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../services/units.service';
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
 
@@ -19,11 +23,12 @@ interface UnitReviewSection {
 @Component({
   selector: 'app-unit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
 export class UnitReviewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   unitDetail: UnitApiDetailItem | undefined;
@@ -32,6 +37,7 @@ export class UnitReviewComponent implements OnInit {
   buildingId = '';
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
+  viewModeFromParam = false;
 
   readonly reviewSections: UnitReviewSection[] = [
     { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',             isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
@@ -58,20 +64,34 @@ export class UnitReviewComponent implements OnInit {
     return this.unitDetail?.progressPercentage ?? 0;
   }
 
+  get needsReReview(): boolean {
+    const status = this.unitDetail?.overallStatus?.trim();
+    return status === 'PendingUpdate' || status === 'HasPendingChanges';
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private unitsService: UnitsService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private dialog: MatDialog
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
+  get isViewMode(): boolean {
+    const status = this.unitDetail?.overallStatus?.trim();
+    if (status === 'HasPendingChanges') return false;
+    if (this.viewModeFromParam) return true;
+    return status === 'Approved' || status === 'Rejected';
+  }
+
   ngOnInit(): void {
-    this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
-    this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
+    this.buildingId       = this.route.snapshot.paramMap.get('buildingId') ?? '';
+    this.unitId           = this.route.snapshot.paramMap.get('unitId') ?? '';
+    this.viewModeFromParam = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
     this.unitsService.getUnitById(this.unitId).subscribe(data => {
       this.unitDetail = data;
@@ -103,13 +123,84 @@ export class UnitReviewComponent implements OnInit {
     });
   }
 
+  get reviewableSections(): UnitReviewSection[] {
+    return this.reviewSections.filter(s => !s.isSmartLockBadge);
+  }
+
+  get approvedCount(): number {
+    return this.reviewableSections.filter(s => this.isSectionApproved(s.key)).length;
+  }
+
+  get rejectedCount(): number {
+    return this.reviewableSections.filter(s => this.isSectionRejected(s.key)).length;
+  }
+
+  get pendingCount(): number {
+    return this.reviewableSections.filter(s => !this.isSectionApproved(s.key) && !this.isSectionRejected(s.key)).length;
+  }
+
+  get hasAnyRejectedSection(): boolean {
+    return this.rejectedCount > 0;
+  }
+
+  get allSectionsDecided(): boolean {
+    return this.pendingCount === 0;
+  }
+
   onBack(): void {
     this.router.navigate(['../../../units'], { relativeTo: this.route });
   }
 
+  onApprove(): void {
+    if (this.hasAnyRejectedSection) return;
+    const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey:   'd3.unitReview.confirm.finalApproveTitle',
+        messageKey: 'd3.unitReview.confirm.finalApproveMessage',
+        confirmKey: 'd3.unitReview.confirm.approveAction',
+        tone: 'approve'
+      }
+    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+        this.unitsService.approveUnit(this.unitId, this.finalNotes)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({ next: () => this.onBack() });
+      });
+  }
+
+  onReject(): void {
+    const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey:   'd3.unitReview.confirm.finalRejectTitle',
+        messageKey: 'd3.unitReview.confirm.finalRejectMessage',
+        confirmKey: 'd3.unitReview.confirm.rejectAction',
+        tone: 'reject'
+      }
+    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (!confirmed) return;
+        this.unitsService.rejectUnit(this.unitId, this.finalNotes)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({ next: () => this.onBack() });
+      });
+  }
+
   onReviewSection(section: UnitReviewSection): void {
-    const isApproved = this.getSectionDecision(section.key) === 'approved';
-    const extras = { relativeTo: this.route, ...(isApproved ? { queryParams: { mode: 'view' } } : {}) };
+    const extras = {
+      relativeTo: this.route,
+      ...(this.shouldOpenSectionInViewMode(section.key) ? { queryParams: { mode: 'view' } } : {})
+    };
 
     const routeMap: Record<string, string> = {
       basicInfo:    'basic-info',
@@ -133,6 +224,26 @@ export class UnitReviewComponent implements OnInit {
     }
     if (!this.buildingId || !this.unitId) return undefined;
     return this.unitsService.getReviewDecision(this.buildingId, this.unitId, sectionKey);
+  }
+
+  isSectionApproved(sectionKey: string): boolean {
+    return this.getSectionDecision(sectionKey) === 'approved';
+  }
+
+  isSectionRejected(sectionKey: string): boolean {
+    return this.getSectionDecision(sectionKey) === 'rejected';
+  }
+
+  isSectionDecided(sectionKey: string): boolean {
+    return !this.needsReReview && !!this.getSectionDecision(sectionKey);
+  }
+
+  shouldShowReviewButtonLabel(sectionKey: string): boolean {
+    return !this.isSectionDecided(sectionKey);
+  }
+
+  shouldOpenSectionInViewMode(sectionKey: string): boolean {
+    return this.isSectionApproved(sectionKey) && !this.needsReReview;
   }
 
   private getApiSectionDecision(sectionKey: string): string {

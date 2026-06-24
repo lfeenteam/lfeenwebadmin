@@ -33,10 +33,10 @@
             <img [src]="mainPhoto.url" [alt]="mainPhoto.title">
             <span class="main-photo-badge">{{ 'd3.unitReview.imagesView.mainPhoto.badge' | translate }}</span>
               <div class="photo-actions">
-                <button class="photo-action photo-action--reject" type="button" [class.active]="mainPhoto.decision === 'rejected'" [disabled]="isReadOnly" (click)="setDecision(mainPhoto, 'rejected')">
+                <button class="photo-action photo-action--reject" type="button" [class.active]="mainPhoto.decision === 'rejected'" [disabled]="isReadOnly || !mainPhoto.canReview" (click)="setDecision(mainPhoto, 'rejected')">
                   <i-tabler name="x"></i-tabler>
                 </button>
-                <button class="photo-action photo-action--approve" type="button" [class.active]="mainPhoto.decision === 'approved'" [disabled]="isReadOnly" (click)="setDecision(mainPhoto, 'approved')">
+                <button class="photo-action photo-action--approve" type="button" [class.active]="mainPhoto.decision === 'approved'" [disabled]="isReadOnly || !mainPhoto.canReview" (click)="setDecision(mainPhoto, 'approved')">
                   <i-tabler name="check"></i-tabler>
                 </button>
               </div>
@@ -45,6 +45,11 @@
           <div class="photo-meta photo-meta--main">
             <strong>{{ mainPhoto.title }}</strong>
             <span>{{ mainPhoto.category }}</span>
+            @if (mainPhoto.isPendingDeletion) {
+              <span>{{ 'Pending delete review' }}</span>
+            } @else if (mainPhoto.pendingIsMain !== null) {
+              <span>{{ 'Pending main photo review' }}</span>
+            }
           </div>
 
           @if (mainPhoto.decision === 'rejected') {
@@ -69,10 +74,10 @@
               <div class="photo-frame">
                 <img [src]="photo.url" [alt]="photo.title">
                   <div class="photo-actions">
-                    <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly" (click)="setDecision(photo, 'rejected')">
+                    <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setDecision(photo, 'rejected')">
                       <i-tabler name="x"></i-tabler>
                     </button>
-                    <button class="photo-action photo-action--approve" type="button" [class.active]="photo.decision === 'approved'" [disabled]="isReadOnly" (click)="setDecision(photo, 'approved')">
+                    <button class="photo-action photo-action--approve" type="button" [class.active]="photo.decision === 'approved'" [disabled]="isReadOnly || !photo.canReview" (click)="setDecision(photo, 'approved')">
                       <i-tabler name="check"></i-tabler>
                     </button>
                   </div>
@@ -81,6 +86,11 @@
               <div class="photo-meta">
                 <strong>{{ photo.title }}</strong>
                 <span>{{ photo.category }}</span>
+                @if (photo.isPendingDeletion) {
+                  <span>{{ 'Pending delete review' }}</span>
+                } @else if (photo.pendingIsMain !== null) {
+                  <span>{{ 'Pending main photo review' }}</span>
+                }
               </div>
 
               @if (photo.decision === 'rejected') {
@@ -131,7 +141,7 @@
         <button
           class="btn btn-approve"
           type="button"
-          [disabled]="!allReviewed || hasRejections || isSubmitting"
+          [disabled]="!allReviewed || hasRejections || hasNoPhotos || isSubmitting"
           (click)="submitDecision('approved')">
           <span>{{ 'd3.unitReview.imagesView.approveBtn' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
@@ -139,7 +149,7 @@
         <button
           class="btn btn-reject"
           type="button"
-          [disabled]="!allReviewed || !hasRejections || isSubmitting"
+          [disabled]="!allReviewed || (!hasRejections && !hasNoPhotos) || isSubmitting"
           (click)="submitDecision('rejected')">
           <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
           <i-tabler name="circle-x" class="btn-icon"></i-tabler>

@@ -483,6 +483,11 @@
     &:hover {
       opacity: 0.88;
     }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
   }
 
   .btn-approve {

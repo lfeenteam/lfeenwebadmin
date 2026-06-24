@@ -5,7 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { UnitsService } from '../../services/units.service';
-import { BuildingWithUnits, UnitApiItem, UnitTab } from '../../interfaces/unit-card.model';
+import { BuildingWithUnits, UnitApiItem, UnitReviewStatusCode, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
 
 @Component({
@@ -26,7 +26,7 @@ export class AllUnitsComponent {
   private cdr          = inject(ChangeDetectorRef);
   private translate    = inject(TranslateService);
 
-  activeTab: string = 'new';
+  activeTab: string = this.unitsService.activeTab();
   searchQuery       = '';
   viewMode: ViewMode = 'grid';
   buildingsWithUnits: BuildingWithUnits[] = [];
@@ -46,6 +46,7 @@ export class AllUnitsComponent {
     { id: 'published',   labelKey: 'd3.allUnits.tabs.published'   },
     { id: 'new',         labelKey: 'd3.allUnits.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allUnits.tabs.underReview' },
+    { id: 'pendingChanges', labelKey: 'd3.allUnits.tabs.pendingChanges' },
     { id: 'rejected',    labelKey: 'd3.allUnits.tabs.rejected'    }
   ];
 
@@ -120,10 +121,13 @@ export class AllUnitsComponent {
         .filter(unit => unit.propertyAdminReviewStatus === 'Approved')
         .map(unit => unit.propertyId)
     );
-    const activeUnits = units.filter(unit => unit.reviewStatus === 'Approved').length;
-    const stoppedUnits = units.filter(unit => unit.reviewStatus === 'Rejected').length;
+    const activeUnits = units.filter(unit =>
+      this.normalizeReviewStatus(unit.reviewStatus) === 'Approved'
+      || this.normalizeReviewStatus(unit.reviewStatus) === 'HasPendingChanges'
+    ).length;
+    const stoppedUnits = units.filter(unit => this.normalizeReviewStatus(unit.reviewStatus) === 'Rejected').length;
     const underReviewUnits = units.filter(unit =>
-      unit.reviewStatus === 'Pending' || unit.reviewStatus === 'UnderReview'
+      ['Pending', 'UnderReview', ''].includes(this.normalizeReviewStatus(unit.reviewStatus))
     ).length;
 
     this.metrics = [
@@ -138,6 +142,20 @@ export class AllUnitsComponent {
     return new Intl.NumberFormat().format(value);
   }
 
+  private normalizeReviewStatus(reviewStatus: UnitReviewStatusCode): string {
+    if (typeof reviewStatus === 'number') {
+      switch (reviewStatus) {
+        case 0:  return 'Pending';
+        case 1:  return 'UnderReview';
+        case 2:  return 'Approved';
+        case 3:  return 'Rejected';
+        case 4:  return 'HasPendingChanges';
+      }
+    }
+
+    return reviewStatus?.trim() ?? '';
+  }
+
   get visiblePages(): (number | '...')[] {
     const n = this.totalPages;
     const c = this.currentPage;
@@ -148,7 +166,7 @@ export class AllUnitsComponent {
   }
 
   get isReviewTab(): boolean {
-    return this.activeTab === 'new' || this.activeTab === 'underReview';
+    return this.activeTab === 'new' || this.activeTab === 'underReview' || this.activeTab === 'pendingChanges' || this.activeTab === 'rejected';
   }
 
   onTabChange(tab: string): void {
