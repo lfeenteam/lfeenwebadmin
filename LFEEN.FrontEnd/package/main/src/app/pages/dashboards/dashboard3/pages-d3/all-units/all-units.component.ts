@@ -3,8 +3,9 @@ import { Component, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
-import { UnitsService } from '../../services/units.service';
+import { UnitsService, UnitSortOrder } from '../../services/units.service';
 import { BuildingWithUnits, UnitApiItem, UnitReviewStatusCode, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
 
@@ -16,6 +17,7 @@ import { CardsUnitsComponent } from './cards-units/cards-units.component';
     TablerIconsModule,
     TranslateModule,
     DashboardSubHeaderComponent,
+    DashboardLoadingComponent,
     CardsUnitsComponent
   ],
   templateUrl: './all-units.component.html',
@@ -64,7 +66,11 @@ export class AllUnitsComponent {
     {
       id: 'sort',
       labelKey: 'd3.allUnits.filters.sortNewest',
-      items: [{ value: 'newest', labelKey: 'd3.allUnits.filters.sortNewest' }]
+      items: [
+        { value: 'newest',           labelKey: 'd3.allUnits.filters.sortNewest'           },
+        { value: 'oldest',           labelKey: 'd3.allUnits.filters.sortOldest'           },
+        { value: 'highestOccupancy', labelKey: 'd3.allUnits.filters.sortHighestOccupancy' },
+      ]
     }
   ];
 
@@ -182,8 +188,10 @@ export class AllUnitsComponent {
   onFiltersChange(filters: Record<string, string>): void {
     const accountId  = filters['account']  === 'all' ? '' : (filters['account']  ?? '');
     const propertyId = filters['property'] === 'all' ? '' : (filters['property'] ?? '');
+    const sort       = (filters['sort'] ?? 'newest') as UnitSortOrder;
     this.unitsService.setAccountFilter(accountId);
     this.unitsService.setPropertyFilter(propertyId);
+    this.unitsService.setSortOrder(sort);
   }
 
   setViewMode(mode: ViewMode): void {

@@ -78,7 +78,7 @@ export class AccountService {
       idNumber:         item.referenceCode,
       joinDate:         this.formatDate(item.createdAt, lang),
       propertyCount:    item.propertyCount,
-      unit:             isCompany ? 'عقار' : 'مقترات',
+      unit:             'عقار',
       avatarInitials:   this.getInitials(displayName),
       logoUrl:          item.logoUrl,
     };

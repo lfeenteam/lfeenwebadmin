@@ -1,58 +1,121 @@
+// ── D3 Design Tokens ──────────────────────────────────────────────────────
+$d3-red:      #FB2C36;
+$d3-red-light: rgba(251, 44, 54, 0.10);
+$d3-text:     #0F172B;
+$d3-muted:    #62748E;
+$d3-surface:  #F8FAFC;
+
+// ── Keyframes ─────────────────────────────────────────────────────────────
+@keyframes d3IconBounce {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  80%  { transform: scale(0.94); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes d3FadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+// ── Dialog container radius ────────────────────────────────────────────────
+:host ::ng-deep .mat-mdc-dialog-container {
+  border-radius: 32px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+// ── Root ──────────────────────────────────────────────────────────────────
 .delete-confirm-container {
   width: 100%;
+  padding: 36px 32px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-family: 'Cairo', sans-serif !important;
+  text-align: center;
+  font-family: 'Cairo', sans-serif;
+  background: #fff;
 
   h2, h3, p, button, span, div {
     font-family: 'Cairo', sans-serif !important;
     text-align: center !important;
   }
-  
+
+  // ── Icon wrapper ────────────────────────────────────────
   .icon-wrapper {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    margin: 0 auto 24px auto;
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
+    background: $d3-red-light !important;
+    color: $d3-red !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    background-color: #F7F7F5;
-    color: #111110;
+    margin: 0 auto 20px auto;
+    flex-shrink: 0;
+    animation: d3IconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
+  // ── Title ───────────────────────────────────────────────
+  h2 {
+    margin: 0 0 10px !important;
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    color: $d3-text !important;
+    animation: d3FadeUp 0.35s 0.18s both;
+  }
+
+  // ── Message ─────────────────────────────────────────────
+  p {
+    margin: 0 0 28px !important;
+    color: $d3-muted !important;
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+    animation: d3FadeUp 0.35s 0.25s both;
+  }
+
+  // ── Actions ─────────────────────────────────────────────
+  .d-flex.align-items-center {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    animation: d3FadeUp 0.35s 0.32s both;
+  }
+
+  // ── Cancel button ───────────────────────────────────────
   .cancel-btn {
-    height: 56px;
-    border-radius: 16px;
-    font-weight: 700;
-    color: #111110;
-    background-color: #E8F1F9 !important;
-    min-width: 120px;
-    
-    &:hover {
-      background-color: #D1E3F3 !important;
-    }
+    height: 52px !important;
+    border-radius: 16px !important;
+    font-weight: 800 !important;
+    font-size: 15px !important;
+    background: $d3-surface !important;
+    color: $d3-text !important;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
+
+    &:hover { filter: brightness(0.96); }
+    &:active { transform: scale(0.97); }
   }
 
+  // ── Confirm button ──────────────────────────────────────
   .confirm-btn {
-    height: 56px;
-    border-radius: 16px;
-    font-weight: 700;
-    background-color: #F14D4D !important;
+    height: 52px !important;
+    border-radius: 16px !important;
+    font-weight: 800 !important;
+    font-size: 15px !important;
+    background: $d3-red !important;
     color: #fff !important;
-    min-width: 120px;
-    
-    &:hover {
-      background-color: #D43F3F !important;
-    }
-  }
-}
+    border: none;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
 
-:host ::ng-deep {
-  .mat-mdc-dialog-container {
-    border-radius: 32px !important;
-    padding: 0 !important;
+    &:hover { filter: brightness(0.91); }
+    &:active { transform: scale(0.97); }
   }
 }

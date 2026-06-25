@@ -21,6 +21,7 @@ import { DeptCardComponent } from './components/dept-card/dept-card.component';
 import { ManagerCardComponent } from './components/manager-card/manager-card.component';
 import { LogsFilterComponent } from './components/logs-filter/logs-filter.component';
 import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 
 @Component({
   selector: 'app-team-management',
@@ -38,7 +39,8 @@ import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.c
     DeptCardComponent,
     ManagerCardComponent,
     LogsFilterComponent,
-    OpsLogTableComponent
+    OpsLogTableComponent,
+    DashboardLoadingComponent
   ],
   templateUrl: './team-management.component.html',
   styleUrl: './team-management.component.scss'

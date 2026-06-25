@@ -1,4 +1,4 @@
-export type UnitStatus = 'active' | 'stopped' | 'underReview';
+export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges';
 export type UnitTab    = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
 export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
 export type UnitServicesPricingType = 'paid' | 'free';
@@ -12,6 +12,7 @@ export interface UnitCardItem {
   status: UnitStatus;
   type: string;
   description: string;
+  district: string | null;
   rooms: number;
   hasPool: boolean;
   area?: string;
@@ -87,6 +88,7 @@ export interface UnitApiItem {
   apartmentNumberInFloor: number;
   mainPhotoUrl: string | null;
   maxGuests: number | null;
+  district: string | null;
   hasLock: boolean;
   reviewStatus: UnitReviewStatusCode;
   basicDataDecision: string;
@@ -124,6 +126,7 @@ export interface UnitApiDetailItem {
   name: string | null;
   propertyId: number;
   propertyExternalId: string;
+  district: string | null;
   propertyName: string;
   accountId: string;
   accountName: string | null;

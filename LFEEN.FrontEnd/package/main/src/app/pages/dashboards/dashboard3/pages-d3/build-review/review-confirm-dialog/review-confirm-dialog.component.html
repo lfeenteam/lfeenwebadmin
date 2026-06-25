@@ -1,17 +1,55 @@
-<div class="review-confirm-dialog" [class.reject]="data.tone === 'reject'">
-  <div class="confirm-icon">
-    <i-tabler [name]="data.tone === 'reject' ? 'alert-circle' : 'circle-check'"></i-tabler>
-  </div>
+<div class="d3-confirm-dialog"
+     [class.reject]="data.tone === 'reject'"
+     [class.is-success]="isSuccess">
 
-  <h2>{{ data.titleKey | translate }}</h2>
-  <p>{{ data.messageKey | translate }}</p>
+  <!-- ── Idle / Loading / Error ────────────────────────────────── -->
+  @if (!isSuccess) {
+    <div class="d3-icon-wrap" [class.is-loading]="isLoading">
+      @if (isLoading) {
+        <span class="ring-spinner"></span>
+      } @else {
+        <i-tabler [name]="data.tone === 'reject' ? 'alert-circle' : 'circle-check'"></i-tabler>
+      }
+    </div>
 
-  <div class="confirm-actions">
-    <button mat-button class="cancel-button" (click)="dialogRef.close(false)">
-      {{ 'common.cancel' | translate }}
-    </button>
-    <button mat-flat-button class="confirm-button" (click)="dialogRef.close(true)">
-      {{ data.confirmKey | translate }}
-    </button>
-  </div>
+    <h2 class="d3-title">{{ data.titleKey | translate }}</h2>
+    <p  class="d3-message">{{ data.messageKey | translate }}</p>
+
+    @if (isError) {
+      <p class="d3-error-msg">{{ 'common.errorOccurred' | translate }}</p>
+    }
+
+    <div class="d3-actions">
+      <button class="d3-btn d3-btn-cancel"
+              [disabled]="isLoading"
+              (click)="dialogRef.close(false)">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button class="d3-btn d3-btn-confirm"
+              [disabled]="isLoading"
+              (click)="confirm()">
+        @if (isLoading) {
+          <span class="btn-spin"></span>
+        } @else {
+          {{ data.confirmKey | translate }}
+        }
+      </button>
+    </div>
+  }
+
+  <!-- ── Success ────────────────────────────────────────────────── -->
+  @if (isSuccess) {
+    <div class="d3-icon-wrap success">
+      <svg class="check-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="check-circle" cx="26" cy="26" r="22"/>
+        <polyline class="check-mark" points="14,27 22,35 38,18"/>
+      </svg>
+    </div>
+
+    <h2 class="d3-title">{{ (data.successTitleKey || 'common.done') | translate }}</h2>
+    @if (data.successMessageKey) {
+      <p class="d3-message no-margin">{{ data.successMessageKey | translate }}</p>
+    }
+  }
+
 </div>

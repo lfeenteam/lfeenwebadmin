@@ -115,7 +115,9 @@ export class BuildingReviewService {
           activeProperties: properties.filter(
             property => property.isActive === true
           ).length,
-          totalUnits: properties.reduce((sum, property) => sum + property.unitCount, 0),
+          inactiveProperties: properties.filter(
+            property => property.isActive === false
+          ).length,
           underReviewProperties: properties.filter(
             property =>
               this.hasReviewStatus(property, PropertyAdminReviewStatusValue.Pending) ||

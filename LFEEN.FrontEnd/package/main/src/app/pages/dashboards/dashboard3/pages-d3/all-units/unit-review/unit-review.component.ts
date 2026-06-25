@@ -10,6 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../services/units.service';
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 
 interface UnitReviewSection {
   key: string;
@@ -23,7 +24,7 @@ interface UnitReviewSection {
 @Component({
   selector: 'app-unit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent],
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
@@ -38,6 +39,7 @@ export class UnitReviewComponent implements OnInit {
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
   viewModeFromParam = false;
+  isLoading = false;
 
   readonly reviewSections: UnitReviewSection[] = [
     { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',             isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
@@ -89,33 +91,41 @@ export class UnitReviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.buildingId       = this.route.snapshot.paramMap.get('buildingId') ?? '';
-    this.unitId           = this.route.snapshot.paramMap.get('unitId') ?? '';
+    this.buildingId        = this.route.snapshot.paramMap.get('buildingId') ?? '';
+    this.unitId            = this.route.snapshot.paramMap.get('unitId') ?? '';
     this.viewModeFromParam = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
-    this.unitsService.getUnitById(this.unitId).subscribe(data => {
-      this.unitDetail = data;
-      this.finalNotes = data.finalNotes ?? '';
-      this.unit = {
-        id:          String(data.unitId),
-        unitNumber:  String(data.apartmentNumberInFloor),
-        title:       data.name ?? `${data.unitTypeName} ${data.apartmentNumberInFloor}`,
-        floor:       String(data.floorNumber),
-        capacity:    String(data.maxGuests),
-        status:      'underReview',
-        type:        data.unitTypeName,
-        description: '',
-        rooms:       0,
-        hasPool:     false
-      };
-      this.building = {
-        id:             String(data.propertyId),
-        name:           data.propertyName,
-        location:       data.propertyName,
-        publishedUnits: 0,
-        image:          data.mainPhotoUrl ?? 'assets/images/products/review_image.png',
-        units:          []
-      };
+    this.isLoading = true;
+    this.unitsService.getUnitById(this.unitId).subscribe({
+      next: data => {
+        this.unitDetail = data;
+        this.finalNotes = data.finalNotes ?? '';
+        this.unit = {
+          id:          String(data.unitId),
+          unitNumber:  String(data.apartmentNumberInFloor),
+          title:       data.name ?? `${data.unitTypeName} ${data.apartmentNumberInFloor}`,
+          floor:       String(data.floorNumber),
+          capacity:    String(data.maxGuests),
+          status:      'underReview',
+          type:        data.unitTypeName,
+          description: '',
+          district:    data.district,
+          rooms:       0,
+          hasPool:     false
+        };
+        this.building = {
+          id:             String(data.propertyId),
+          name:           data.propertyName,
+          location:       data.propertyName,
+          publishedUnits: 0,
+          image:          data.mainPhotoUrl ?? 'assets/images/products/review_image.png',
+          units:          []
+        };
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
     });
 
     this.unitsService.getReviewDecisions().subscribe(decisions => {
@@ -147,12 +157,19 @@ export class UnitReviewComponent implements OnInit {
     return this.pendingCount === 0;
   }
 
+  get isApproveDisabled(): boolean {
+    if (!this.allSectionsDecided) return true;
+    if (this.hasAnyRejectedSection) return true;
+    if (this.isViewMode) return !this.finalNotes?.trim();
+    return !this.finalNotes?.trim();
+  }
+
   onBack(): void {
     this.router.navigate(['../../../units'], { relativeTo: this.route });
   }
 
   onApprove(): void {
-    if (this.hasAnyRejectedSection) return;
+    if (this.isApproveDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -175,6 +192,7 @@ export class UnitReviewComponent implements OnInit {
   }
 
   onReject(): void {
+    if (this.isViewMode) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',

@@ -5,14 +5,18 @@
   @if (viewMode === 'grid') {
     <div class="unit-card__top">
       <div class="unit-card__id">{{ unit.unitNumber }}</div>
-      <div class="unit-card__status">
+      <div class="unit-card__status" [ngClass]="'unit-card__status--' + badgeConfig.mod">
         <span class="status-dot"></span>
-        <span class="status-text">{{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}</span>
+        <span class="status-text">{{ badgeConfig.labelKey | translate }}</span>
       </div>
     </div>
 
     <div class="unit-card__body">
       <h3 class="unit-card__title">{{ unit.title }}</h3>
+      <!-- <p class="unit-card__location">
+        <i-tabler name="map-pin" class="location-icon"></i-tabler>
+        <span>{{ unit.district || '—' }}</span>
+      </p> -->
       <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
 
       <div class="unit-card__info-container">
@@ -63,9 +67,9 @@
 
     <!-- col 5: status -->
     <div class="list-status-col">
-      <span class="status-badge" [class.status-badge--stopped]="unit.status === 'stopped'">
+      <span class="status-badge" [ngClass]="'status-badge--' + badgeConfig.mod">
         <span class="status-dot"></span>
-        {{ (unit.status === 'active' ? 'd3.allBuilds.buildingCard.statusActive' : 'd3.allBuilds.buildingCard.statusStopped') | translate }}
+        {{ badgeConfig.labelKey | translate }}
       </span>
     </div>
 

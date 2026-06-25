@@ -21,6 +21,13 @@
     }
   }
 
+  <!-- ══ Empty state for published / rejected tabs ══ -->
+  @if ((activeTab === 'published' || activeTab === 'rejected') && buildings.length === 0) {
+    <div class="empty-state-span">
+      <app-dashboard-empty [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+    </div>
+  }
+
 </section>
 
 <!-- ══ Review section (New + UnderReview) — sits OUTSIDE the main grid ══ -->
@@ -79,4 +86,12 @@
     }
 
   </div>
+}
+
+<!-- ══ Empty state for review tabs ══ -->
+@if ((activeTab === 'new' || activeTab === 'underReview' || activeTab === 'pendingChanges') && buildings.length === 0) {
+  <app-dashboard-empty
+    [titleKey]="emptyTitleKey"
+    [descKey]="emptyDescKey">
+  </app-dashboard-empty>
 }

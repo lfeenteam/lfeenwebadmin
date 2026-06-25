@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BuildingCardItem, BuildingTab } from '../../interfaces/building-card.model';
 import { CardsBuildsComponent } from './cards-builds/cards-builds.component';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
@@ -20,6 +21,7 @@ import { forkJoin } from 'rxjs';
     TranslateModule,
     MaterialModule,
     DashboardSubHeaderComponent,
+    DashboardLoadingComponent,
     CardsBuildsComponent
   ],
   templateUrl: './all-builds.component.html',
@@ -48,10 +50,10 @@ export class AllBuildsComponent implements OnInit {
   pageNumbers: number[]      = [];
 
   metrics: MetricCard[] = [
-    { titleKey: 'd3.allBuilds.cards.buildingsAvailable', value: '—', icon: 'circle-check', tone: 'green'  },
-    { titleKey: 'd3.allBuilds.cards.activeBuildings',    value: '—', icon: 'player-pause', tone: 'gray'   },
-    { titleKey: 'd3.allBuilds.cards.totalUnits',         value: '—', icon: 'building',     tone: 'black'  },
-    { titleKey: 'd3.allBuilds.cards.monthlyUnits',       value: '—', icon: 'clock-hour-3', tone: 'orange' }
+    { titleKey: 'd3.allBuilds.cards.buildingsAvailable',   value: '—', icon: 'building',     tone: 'black'  },
+    { titleKey: 'd3.allBuilds.cards.activeBuildings',      value: '—', icon: 'circle-check', tone: 'green'  },
+    { titleKey: 'd3.allBuilds.cards.inactiveBuildings',    value: '—', icon: 'player-pause', tone: 'gray'   },
+    { titleKey: 'd3.allBuilds.cards.underReviewBuildings', value: '—', icon: 'clock-hour-3', tone: 'orange' }
   ];
 
   tabs: TabOption[] = [
@@ -159,7 +161,7 @@ export class AllBuildsComponent implements OnInit {
         this.metrics = [
           { ...this.metrics[0], value: this.formatNumber(stats.totalProperties) },
           { ...this.metrics[1], value: this.formatNumber(stats.activeProperties) },
-          { ...this.metrics[2], value: this.formatNumber(stats.totalUnits) },
+          { ...this.metrics[2], value: this.formatNumber(stats.inactiveProperties) },
           { ...this.metrics[3], value: this.formatNumber(stats.underReviewProperties) }
         ];
         this.cdr.markForCheck();

@@ -3,6 +3,11 @@
   width: 100%;
   font-family: 'Cairo', sans-serif;
 }
+.empty-state-span {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .buildings-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

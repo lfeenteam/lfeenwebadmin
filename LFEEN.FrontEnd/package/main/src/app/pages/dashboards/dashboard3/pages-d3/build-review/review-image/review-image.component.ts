@@ -10,6 +10,7 @@ import { BuildingReviewService } from '../../../services/building-review.service
 import { PhotoItem, PhotoReviewPayload, PhotoReviewResponse } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 
 interface LocalPhoto {
   mediaId: number;
@@ -32,7 +33,7 @@ interface LocalGroup {
 @Component({
   selector: 'app-review-image',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent],
   templateUrl: './review-image.component.html',
   styleUrl: './review-image.component.scss'
 })

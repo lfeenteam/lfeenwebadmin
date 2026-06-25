@@ -111,7 +111,9 @@
     "deactivateConfirmTitle": "Confirm Deactivate",
     "deactivateConfirmMessage": "Are you sure you want to deactivate this employee?",
     "activateConfirmTitle": "Confirm Activate",
-    "activateConfirmMessage": "Are you sure you want to activate this employee?"
+    "activateConfirmMessage": "Are you sure you want to activate this employee?",
+    "done": "Done",
+    "errorOccurred": "Something went wrong, please try again"
   },
   "d3": {
     "header": {
@@ -161,13 +163,35 @@
       "deleteRoleTitle": "Delete this role?",
       "deleteRoleMessage": "This action cannot be undone and the role will be permanently removed from the department."
     },
+    "emptyState": {
+      "builds": {
+        "published":      { "title": "No published buildings",          "desc": "No buildings have been published yet, or no results match your search." },
+        "new":            { "title": "No new building requests",         "desc": "There are no new building addition requests at this time." },
+        "underReview":    { "title": "No buildings under review",        "desc": "All requests have been processed. No buildings are awaiting review." },
+        "pendingChanges": { "title": "No buildings awaiting edits",      "desc": "No buildings are currently waiting for change review." },
+        "rejected":       { "title": "No rejected buildings",            "desc": "No buildings have been rejected yet, or no results match your search." }
+      },
+      "units": {
+        "published":      { "title": "No published units",               "desc": "No units have been published yet, or no results match your search." },
+        "new":            { "title": "No new units awaiting review",      "desc": "There are no new unit submissions at this time." },
+        "underReview":    { "title": "No units under review",             "desc": "All units have been processed. No units are awaiting review." },
+        "pendingChanges": { "title": "No units awaiting edits",           "desc": "No units are currently waiting for change review." },
+        "rejected":       { "title": "No rejected units",                 "desc": "No units have been rejected yet, or no results match your search." }
+      },
+      "accounts": {
+        "all":          { "title": "No accounts found",               "desc": "No accounts have been registered yet, or no results match your search." },
+        "active":       { "title": "No active accounts",              "desc": "There are no active accounts at this time." },
+        "under_review": { "title": "No accounts under review",        "desc": "All accounts have been processed. None are awaiting review." },
+        "rejected":     { "title": "No rejected accounts",            "desc": "No accounts have been rejected yet." }
+      }
+    },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
         "buildingsAvailable": "Available Buildings",
         "activeBuildings": "Active Buildings",
-        "totalUnits": "Total Units",
-        "monthlyUnits": "Monthly Units"
+        "inactiveBuildings": "Inactive Buildings",
+        "underReviewBuildings": "Under Review Buildings"
       },
       "tabs": {
         "published": "Published Buildings",
@@ -291,13 +315,18 @@
         "allProperties": "All Properties",
         "allStatuses": "All Statuses",
         "unitType": "Unit Type",
-        "sortNewest": "Sort: Newest"
+        "sortNewest": "Newest",
+        "sortOldest": "Oldest",
+        "sortHighestOccupancy": "Highest Occupancy"
       },
       "unitCard": {
         "type": "Type",
         "description": "Description",
+        "statusApproved": "Active",
+        "statusPending": "New",
         "statusUnderReview": "Under Review",
-        "statusStopped": "Disabled",
+        "statusPendingChanges": "Pending Changes",
+        "statusStopped": "Rejected",
         "servicesPricing": "Services",
         "servicesPaid": "Paid",
         "servicesFree": "Free"
@@ -1517,7 +1546,15 @@
         "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",
         "acceptSuccess": "Account has been accepted and activated successfully",
         "rejectSuccess": "Account request has been rejected successfully",
-        "rejectionRequired": "Please enter a rejection reason before proceeding"
+        "rejectionRequired": "Please enter a rejection reason before proceeding",
+        "confirm": {
+          "approveTitle": "Confirm Account Approval",
+          "approveMessage": "Are you sure you want to accept and activate this account?",
+          "approveAction": "Yes, Accept & Activate",
+          "rejectTitle": "Confirm Account Rejection",
+          "rejectMessage": "Are you sure you want to reject this request?",
+          "rejectAction": "Yes, Reject Request"
+        }
       }
     }
   }

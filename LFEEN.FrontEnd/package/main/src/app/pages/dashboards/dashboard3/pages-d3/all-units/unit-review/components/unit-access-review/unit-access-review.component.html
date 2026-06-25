@@ -10,7 +10,7 @@
         <h2>{{ unit?.title || unitDetail?.name || unitDetail?.propertyName }}</h2>
         <p>
           <i-tabler name="map-pin"></i-tabler>
-          {{ building?.location || unitDetail?.propertyName }}
+          {{unit?.district || '-' }}
         </p>
       </div>
     </div>

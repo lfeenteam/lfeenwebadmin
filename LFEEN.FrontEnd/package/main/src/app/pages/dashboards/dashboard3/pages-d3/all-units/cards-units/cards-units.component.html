@@ -1,22 +1,30 @@
 <div class="cards-units" [dir]="currentDir">
+
+@if (buildings.length === 0) {
+  <app-dashboard-empty
+    [titleKey]="emptyTitleKey"
+    [descKey]="emptyDescKey">
+  </app-dashboard-empty>
+}
+
 @for (building of buildings; track building.id) {
   <section class="building-units-group">
-    @if (isReviewTab && building.needsPropertyReview) {
+    @if (building.needsPropertyReview) {
       <div class="property-review-banner">
         <div class="banner-right">
           <div class="building-image">
             @if (building.image) {
               <img [src]="building.image" [alt]="building.name">
             } @else {
-              <i-tabler name="photo" class="icon-20"></i-tabler>
+              <span class="building-initials">{{ building.name | slice:0:2 }}</span>
             }
           </div>
           <div class="building-info">
             <h2 class="building-name">{{ building.name }}</h2>
-            <p class="building-meta">
-              <i-tabler name="map-pin" class="meta-icon"></i-tabler>
-              {{ building.location }} · {{ 'd3.allUnits.cardsUnits.awaitingReviewMeta' | translate }}
-            </p>
+     <p class="building-meta">
+  <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+  {{ getLocationLabel(building) }} · {{ 'd3.allUnits.cardsUnits.awaitingReviewMeta' | translate }}
+</p>
           </div>
         </div>
         <div class="banner-left">
@@ -33,15 +41,16 @@
             @if (building.image) {
               <img [src]="building.image" [alt]="building.name">
             } @else {
-              <i-tabler name="photo" class="icon-20"></i-tabler>
+              <span class="building-initials">{{ building.name | slice:0:2 }}</span>
             }
           </div>
           <div class="building-info">
             <h2 class="building-name">{{ building.name }}</h2>
-            <p class="building-meta">
-              <i-tabler name="map-pin" class="meta-icon"></i-tabler>
-              {{ building.location }} · {{ 'd3.allUnits.cardsUnits.publishedUnits' | translate: { count: building.publishedUnits } }}
-            </p>
+         <p class="building-meta">
+  <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+  {{ getLocationLabel(building) }} · 
+  {{ 'd3.allUnits.cardsUnits.publishedUnits' | translate: { count: building.publishedUnits } }}
+</p>
           </div>
         </div>
         <div class="building-header__left">
@@ -88,7 +97,7 @@
       }
     }
 
-    @if (isReviewTab && building.needsPropertyReview) {
+    @if (building.needsPropertyReview) {
       <div class="activation-notice">
         <div class="activation-notice__icon">
           <i-tabler name="alert-triangle"></i-tabler>

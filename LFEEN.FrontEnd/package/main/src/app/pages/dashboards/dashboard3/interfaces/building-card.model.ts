@@ -62,7 +62,7 @@ export interface PaginatedPropertyResponse {
 export interface PropertyStatistics {
   totalProperties: number;
   activeProperties: number;
-  totalUnits: number;
+  inactiveProperties: number;
   underReviewProperties: number;
 }
 
