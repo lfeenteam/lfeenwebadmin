@@ -8,7 +8,7 @@
         type="text"
         [(ngModel)]="searchQuery"
         (ngModelChange)="currentPage = 1"
-        [placeholder]="'d3.complaints.table.searchPlaceholder' | translate"
+        [placeholder]="searchPlaceholder"
         class="search-input" />
     </div>
     <button class="status-filter-btn">
@@ -17,9 +17,21 @@
   </div>
 
   <!-- Table -->
-  <div class="complaints-table" [class.host-support-table]="hostSupportMode">
+  <div class="complaints-table" [class.host-support-table]="hostSupportMode" [class.resolved-table]="resolvedMode" [class.compact-mode]="compact && resolvedMode">
     <!-- Header -->
-    @if (hostSupportMode) {
+    @if (resolvedMode) {
+      <div class="table-head resolved-head">
+        <div class="col-r-user">المستخدم</div>
+        <div class="col-r-type">النوع</div>
+        <div class="col-r-ticket">رقم التذكرة</div>
+        <div class="col-r-subject">الموضوع</div>
+        <div class="col-r-status">الحالة</div>
+        @if (!compact) {
+          <div class="col-r-date">تاريخ الرد</div>
+        }
+        <div class="col-r-action">الإجراء</div>
+      </div>
+    } @else if (hostSupportMode) {
       <div class="table-head host-head">
         <div class="col-host-client">المضيف</div>
         <div class="col-subject">موضوع المشكلة</div>
@@ -41,10 +53,60 @@
       <div
         class="table-row"
         [class.host-row]="hostSupportMode"
+        [class.resolved-row]="resolvedMode"
         [class.selected]="selectedId === c.id"
-        (click)="rowSelect.emit(c)">
+        (click)="resolvedMode ? null : rowSelect.emit(c)">
 
-        @if (hostSupportMode) {
+        @if (resolvedMode) {
+          <!-- User col -->
+          <div class="col-r-user">
+            <div class="client-avatar" [attr.data-color]="c.clientInitials.charCodeAt(0) % 5">
+              {{ c.clientInitials }}
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ displayClientName(c) }}</span>
+            </div>
+          </div>
+
+          <!-- Type badge -->
+          <div class="col-r-type">
+            <span class="type-badge" [class.type-customer]="c.type === 'customer'" [class.type-host]="c.type === 'host'">
+              {{ c.type === 'customer' ? 'عميل' : 'مضيف' }}
+            </span>
+          </div>
+
+          <!-- Ticket number -->
+          <div class="col-r-ticket">
+            <span class="ticket-id">#{{ c.clientCode }}</span>
+          </div>
+
+          <!-- Subject -->
+          <div class="col-r-subject">{{ displayResolvedSubject(c) }}</div>
+
+          <!-- Status -->
+          <div class="col-r-status">
+            <span class="resolved-badge">
+              <i-tabler name="circle-check" class="icon-14"></i-tabler>
+              تم الرد والحل
+            </span>
+          </div>
+
+          <!-- Reply date -->
+          @if (!compact) {
+            <div class="col-r-date">{{ displayReplyDate(c) }}</div>
+          }
+
+          <!-- Action -->
+          <div class="col-r-action">
+            <button
+              class="row-action-btn"
+              type="button"
+              (click)="$event.stopPropagation(); onResolvedAction(c)">
+              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+            </button>
+          </div>
+
+        } @else if (hostSupportMode) {
           <div class="col-host-client">
             <div
               class="host-avatar"

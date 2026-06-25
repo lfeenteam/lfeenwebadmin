@@ -61,27 +61,58 @@
     </div>
   </section>
 
-  <section class="reply-section">
-    <h3>
-      <i-tabler name="corner-up-left" class="icon-16"></i-tabler>
-      {{ 'd3.complaints.hostDetail.replyTitle' | translate }}
-    </h3>
-    <textarea
-      [(ngModel)]="replyText"
-      [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
-    <div class="reply-footer">
-      <button class="send-reply-btn" type="button" (click)="sendReply()">
-        <i-tabler name="send-2" class="icon-16"></i-tabler>
-        {{ 'd3.complaints.hostDetail.sendReply' | translate }}
-      </button>
-      <button class="attach-reply-btn" type="button">
-        <i-tabler name="paperclip" class="icon-18"></i-tabler>
-      </button>
+  <section class="support-reply-card">
+    <div class="support-reply-header">
+      <div class="support-reply-agent">
+        <span class="support-avatar">
+          <i-tabler name="headset" class="icon-22"></i-tabler>
+        </span>
+        <div>
+          <h3>{{ 'd3.complaints.hostDetail.supportReplyTitle' | translate }}</h3>
+          <span>{{ 'd3.complaints.hostDetail.supportReplyStatus' | translate }}</span>
+        </div>
+      </div>
+      <time>{{ 'd3.complaints.hostDetail.supportReplyTime' | translate }}</time>
+    </div>
+
+    <p>{{ 'd3.complaints.hostDetail.supportReplyBody' | translate }}</p>
+
+    <div class="support-reply-footer">
+      <i-tabler name="circle-check" class="icon-14"></i-tabler>
+      {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
     </div>
   </section>
 
-  <div class="notice-bar">
-    <i-tabler name="info-circle" class="icon-14"></i-tabler>
-    {{ 'd3.complaints.hostDetail.notice' | translate }}
-  </div>
+  @if (!viewOnly) {
+    <section class="reply-section">
+      <h3>
+        <i-tabler name="corner-up-left" class="icon-16"></i-tabler>
+        {{ 'd3.complaints.hostDetail.replyTitle' | translate }}
+      </h3>
+      <textarea
+        [(ngModel)]="replyText"
+        [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
+      <div class="reply-footer">
+        <button class="send-reply-btn" type="button" (click)="sendReply()">
+          <i-tabler name="send-2" class="icon-16"></i-tabler>
+          {{ 'd3.complaints.hostDetail.sendReply' | translate }}
+        </button>
+        <button class="attach-reply-btn" type="button">
+          <i-tabler name="paperclip" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (viewOnly) {
+    <div class="resolved-notice-bar">
+      <i-tabler name="circle-check" class="icon-16"></i-tabler>
+      تم الرد على هذه الشكوى وإغلاقها بنجاح
+    </div>
+  } @else {
+    <div class="notice-bar">
+      <i-tabler name="info-circle" class="icon-14"></i-tabler>
+      {{ 'd3.complaints.hostDetail.notice' | translate }}
+    </div>
+  }
 </div>

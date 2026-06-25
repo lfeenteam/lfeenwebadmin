@@ -25,4 +25,8 @@ export interface Complaint {
   type: 'customer' | 'host';
   resolved: boolean;
   messages: ChatMessage[];
+  subject?: string;
+  subjectEn?: string;
+  replyDate?: string;
+  replyDateEn?: string;
 }

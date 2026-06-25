@@ -58,8 +58,44 @@
     }
   }
 
-  .close-mobile-btn {
-    display: none;
+  .close-btn {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: #6B6B67;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #F7F7F5;
+      color: #111110;
+    }
+
+    &.mobile-only {
+      display: none;
+    }
+  }
+
+  .resolved-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 14px;
+    border: 1px solid #BBF7D0;
+    background: #F0FDF4;
+    color: #16A34A;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
   }
 
   .resolve-chat-btn {
@@ -473,7 +509,7 @@
       display: none;
     }
 
-    .close-mobile-btn {
+    .close-btn {
       all: unset;
       box-sizing: border-box;
       cursor: pointer;
@@ -490,6 +526,11 @@
 
       &:hover {
         background: #F7F7F5;
+      }
+
+      // mobile-only class shows on mobile regardless
+      &.mobile-only {
+        display: inline-flex;
       }
     }
   }

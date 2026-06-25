@@ -4,13 +4,14 @@ import { Observable, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
 import { LoginRequest, LoginResponse } from '../../interfaces/login.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private apiUrl = 'https://test-api-admin.lfeen.com/api/auth/Login';
-  private refreshUrl = 'https://test-api-admin.lfeen.com/api/auth/refresh-token';
+  private apiUrl = `${environment.apiBaseUrl}/api/auth/Login`;
+  private refreshUrl = `${environment.apiBaseUrl}/api/auth/refresh-token`;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';

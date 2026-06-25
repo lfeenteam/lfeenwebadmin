@@ -1,0 +1,665 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+}
+
+// ── Metric Cards ─────────────────────────────────────────────────────────────
+.sub-header-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  width: 100%;
+  min-height: 110px;
+  border-radius: 40px;
+  border: 1px solid #e8e8e4;
+  background: #ffffff;
+  box-shadow: 0px 1px 3px 0px #0000001a;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 22px;
+  gap: 18px;
+}
+
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  order: 2;
+  min-width: 0;
+}
+
+.metric-title {
+  margin: 0;
+  color: #6b6b67;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.metric-value {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #111110;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  direction: ltr;
+
+  &.green  { color: #16a34a; }
+  &.gray   { color: #9e9e9a; }
+  &.black  { color: #111110; }
+  &.orange { color: #b45309; }
+}
+
+.metric-riyal-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+
+  &.is-text-currency {
+    width: 36px;
+    height: 18px;
+  }
+}
+
+.metric-icon {
+  order: 1;
+  box-sizing: border-box;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: #f3f3ef;
+  color: #74746f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ::ng-deep svg {
+    display: block;
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+  }
+
+  &.green  { color: #16a34a; background: #f0fdf4; }
+  &.gray   { color: #9e9e9a; background: #f7f7f5; }
+  &.black  { color: #111110; background: #f7f7f5; }
+  &.orange { color: #b45309; background: #fffbeb; }
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+.bookings-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0 14px;
+  border-bottom: 1px solid #e8e8e4;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 200px;
+  min-width: 200px;
+  height: 42px;
+  background: #f7f7f5;
+  border: 1px solid #e8e8e4;
+  border-radius: 10px;
+  padding: 0 14px;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:focus-within {
+    background: #fff;
+    border-color: #c0c0bb;
+  }
+
+  .search-icon {
+    color: #9e9e9a;
+    flex-shrink: 0;
+
+    ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2; }
+  }
+
+  .search-input {
+    all: unset;
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-family: 'Cairo', sans-serif;
+    color: #111110;
+    text-align: right;
+
+    &::placeholder { color: #9e9e9a; }
+  }
+}
+
+.date-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #e8e8e4;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    background: #f7f7f5;
+    border-color: #c0c0bb;
+  }
+
+  .date-icon {
+    color: #6b6b67;
+    ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2; }
+  }
+
+  .date-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111110;
+    font-family: 'Cairo', sans-serif;
+    white-space: nowrap;
+  }
+
+  .date-input-hidden {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border: none;
+    font-size: 0;
+  }
+}
+
+.status-filter-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 42px;
+  min-width: 130px;
+  padding: 0 14px;
+  border: 1px solid #e8e8e4;
+  border-radius: 10px;
+  background: #fff;
+  color: #111110;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #f7f7f5;
+    border-color: #c0c0bb;
+  }
+
+  ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2; color: #6b6b67; }
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+.bookings-table-wrapper {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+table {
+  width: 100% !important;
+  margin: 0 !important;
+  border: none !important;
+
+  th.mat-mdc-header-cell {
+    background-color: #fcfcfb;
+    color: #9e9e9a;
+    font-weight: 900;
+    font-size: 10px;
+    line-height: 100%;
+    letter-spacing: 1px;
+    text-align: start;
+    vertical-align: middle;
+    text-transform: uppercase;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8e8e4;
+    font-family: 'Cairo', sans-serif;
+    white-space: nowrap;
+  }
+
+  td.mat-mdc-cell {
+    padding: 10px 20px;
+    font-family: 'Cairo', sans-serif;
+    border-bottom-color: #e8e8e4;
+  }
+
+  tr.mat-mdc-row {
+    transition: background-color 0.15s;
+    &:hover { background-color: #fafaf9; }
+    &:last-child td.mat-mdc-cell { border-bottom: none; }
+  }
+}
+
+// ── Action dots button ────────────────────────────────────────────────────────
+.action-dots-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  color: #6b6b67;
+
+  .mat-mdc-button-persistent-ripple,
+  .mat-ripple { border-radius: 8px !important; }
+
+  &:hover { background-color: #f0f0ec !important; color: #111110; }
+
+  ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2; }
+}
+
+// ── Booking ID ────────────────────────────────────────────────────────────────
+.booking-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  direction: ltr;
+  letter-spacing: 0.2px;
+}
+
+// ── Client ────────────────────────────────────────────────────────────────────
+.client-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex-shrink: 0;
+  border: 1px solid #e8e8e4;
+
+  &[data-color="0"] { background: #EFF6FF; color: #1D4ED8; border-color: #CFE0FF; }
+  &[data-color="1"] { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+  &[data-color="2"] { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+  &[data-color="3"] { background: #FAF5FF; color: #7E22CE; border-color: #E9D5FF; }
+  &[data-color="4"] { background: #FFF1F2; color: #BE123C; border-color: #FECDD3; }
+}
+
+.client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  .client-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111110;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .client-phone {
+    font-size: 11px;
+    color: #777772;
+    direction: ltr;
+    text-align: right;
+    line-height: 1.25;
+  }
+}
+
+// ── Unit ──────────────────────────────────────────────────────────────────────
+.unit-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.unit-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.unit-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #777772;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  ::ng-deep svg { width: 12px; height: 12px; stroke-width: 2; flex-shrink: 0; }
+}
+
+// ── Dates ─────────────────────────────────────────────────────────────────────
+.dates-range {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3d3d39;
+  white-space: nowrap;
+}
+
+// ── Amount ────────────────────────────────────────────────────────────────────
+.amount-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #111110;
+  direction: ltr;
+  white-space: nowrap;
+}
+
+.amount-riyal-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+
+  &.is-text-currency {
+    width: 32px;
+    height: 16px;
+  }
+}
+
+// ── Status badges ─────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    order: 2;
+    flex-shrink: 0;
+  }
+
+  &.status-confirmed {
+    color: #16a34a;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    &::before { background: #22c55e; }
+  }
+
+  &.status-checked_in {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    &::before { background: #3b82f6; }
+  }
+
+  &.status-awaiting_checkin {
+    color: #b45309;
+    background: #fffbeb;
+    border-color: #fde68a;
+    &::before { background: #f59e0b; }
+  }
+
+  &.status-awaiting_checkout {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+    &::before { background: #ef4444; }
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: #9e9e9a;
+  font-size: 13px;
+
+  ::ng-deep svg { width: 40px; height: 40px; stroke-width: 1.5; }
+}
+
+// ── Footer / Pagination ───────────────────────────────────────────────────────
+.table-footer {
+  min-height: 48px;
+  padding: 10px 16px;
+  border-top: 1px solid #e8e8e4;
+  background: #fdfdfb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  direction: ltr;
+  margin-top: 4px;
+  border-radius: 12px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  direction: rtl;
+}
+
+.pagination-total {
+  color: #a2a29c;
+  font-size: 11px;
+  font-weight: 500;
+  direction: rtl;
+  white-space: nowrap;
+}
+
+.page-nav-btn,
+.page-number-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #e8e8e4;
+  border-radius: 6px;
+  background: #fff;
+  color: #111110;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background 0.12s;
+
+  &:disabled { color: #c8c8c3; cursor: not-allowed; }
+  &:not(:disabled):hover { background: #f7f7f5; }
+
+  ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2; }
+}
+
+.page-number-btn.active {
+  background: #111110;
+  color: #fff;
+  border-color: #111110;
+}
+
+.page-ellipsis {
+  font-size: 11px;
+  color: #9e9e9a;
+  padding: 0 4px;
+}
+
+// ── Danger menu item ──────────────────────────────────────────────────────────
+::ng-deep .danger-item {
+  color: #dc2626 !important;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 900px) {
+  .sub-header-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-card { border-radius: 28px; }
+
+  .bookings-toolbar {
+    flex-wrap: wrap;
+    .search-box { flex-basis: 100%; order: -1; }
+  }
+
+  table {
+    th.mat-mdc-header-cell,
+    td.mat-mdc-cell { padding-inline: 12px; }
+
+    .mat-column-unit,
+    .mat-column-dates { display: none; }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .bookings-table-wrapper {
+    background: #f5f5f3;
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  table {
+    display: block;
+    background: transparent !important;
+
+    ::ng-deep thead { display: none !important; }
+
+    ::ng-deep tbody {
+      display: flex !important;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  tr.mat-mdc-row {
+    display: block !important;
+    height: auto !important;
+    border-radius: 16px;
+    border: 1px solid #e8e8e4;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  td.mat-mdc-cell {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 16px !important;
+    border-bottom: 1px solid #f0f0ee !important;
+    font-size: 13px;
+    min-height: 38px;
+    box-sizing: border-box;
+
+    &:last-child { border-bottom: none !important; }
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 11px;
+      color: #9e9e9a;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      padding-inline-end: 12px;
+      max-width: 50%;
+    }
+  }
+
+  // Client column = card header (avatar + name, no label)
+  td.mat-column-client {
+    background: #fcfcfb;
+    padding: 10px 16px !important;
+    border-bottom: 1px solid #e8e8e4 !important;
+    min-height: auto;
+    justify-content: flex-start;
+
+    &::before { display: none; }
+
+    .client-name { font-size: 13px; }
+  }
+
+  // Action column = no label, small
+  td.mat-column-action {
+    justify-content: flex-end;
+    border-bottom: none !important;
+    padding: 2px 8px !important;
+    min-height: 32px;
+    &::before { display: none; }
+  }
+
+  // Re-show hidden columns on mobile cards
+  td.mat-column-unit,
+  td.mat-column-dates { display: flex !important; }
+}
+
+@media (max-width: 640px) {
+  .sub-header-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .metric-card {
+    min-height: unset;
+    padding: 14px 16px;
+    gap: 12px;
+    border-radius: 20px;
+  }
+
+  .metric-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    ::ng-deep svg { width: 22px; height: 22px; }
+  }
+
+  .metric-title { font-size: 12px; }
+  .metric-value { font-size: 20px; }
+}
+
+:host-context([dir='rtl']) {
+  @media (max-width: 767.98px) {
+    td.mat-mdc-cell::before { letter-spacing: 0; }
+  }
+}

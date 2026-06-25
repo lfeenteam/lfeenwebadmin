@@ -1443,7 +1443,47 @@
         "replyTitle": "Official technical support reply",
         "replyPlaceholder": "Write the official reply to the host here...",
         "sendReply": "Send official reply",
+        "supportReplyTitle": "Technical support team (Ahmed)",
+        "supportReplyStatus": "Received",
+        "supportReplyTime": "09:40 PM",
+        "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
+        "supportReplySentNotice": "This reply was sent by email and app notifications",
         "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
+      }
+    },
+    "bookings": {
+      "title": "Bookings Record",
+      "cards": {
+        "totalBookings":  "Total Bookings",
+        "confirmed":      "Confirmed Bookings",
+        "awaitingArrival":"Awaiting Arrival",
+        "todayRevenue":   "Today's Revenue"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by booking #, client name...",
+        "checkIn":  "Check-in Date",
+        "checkOut": "Check-out Date"
+      },
+      "status": {
+        "all":              "All Statuses",
+        "confirmed":        "Confirmed",
+        "checkedIn":        "Checked In",
+        "awaitingCheckin":  "Awaiting Check-in",
+        "awaitingCheckout": "Awaiting Check-out"
+      },
+      "table": {
+        "bookingNum": "Booking #",
+        "client":     "Client",
+        "unit":       "Unit / Property",
+        "dates":      "Check-in / Check-out",
+        "amount":     "Amount",
+        "status":     "Status",
+        "empty":      "No bookings found"
+      },
+      "actions": {
+        "view":   "View Details",
+        "edit":   "Edit",
+        "cancel": "Cancel Booking"
       }
     },
     "accountManagement": {

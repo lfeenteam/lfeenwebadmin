@@ -6,12 +6,13 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { AccountItem, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
   private http = inject(HttpClient);
   private coreService = inject(CoreService);
-  private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/accounts';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/accounts`;
 
   readonly currentPage  = signal(1);
   readonly pageSize     = signal(15);

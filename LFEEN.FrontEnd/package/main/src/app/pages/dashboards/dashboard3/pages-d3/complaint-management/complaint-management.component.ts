@@ -56,12 +56,22 @@ export class ComplaintManagementComponent {
   onRowSelect(complaint: Complaint): void {
     if (this.activeTab() === 'hosts') return;
 
+    // Resolved host complaints go to the detail page as view
+    if (this.activeTab() === 'resolved' && complaint.type === 'host') {
+      this.openHostComplaint(complaint);
+      return;
+    }
+
     const current = this.selectedComplaint();
     this.selectedComplaint.set(current?.id === complaint.id ? null : complaint);
   }
 
   openHostComplaint(complaint: Complaint): void {
-    this.router.navigate([this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id]);
+    const queryParams = this.activeTab() === 'resolved' ? { mode: 'view' } : {};
+    this.router.navigate(
+      [this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id],
+      { queryParams }
+    );
   }
 
   onResolve(complaint: Complaint): void {

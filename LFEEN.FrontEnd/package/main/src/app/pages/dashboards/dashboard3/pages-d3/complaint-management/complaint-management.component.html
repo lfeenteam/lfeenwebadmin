@@ -8,22 +8,24 @@
     </app-complaint-tabs-bar>
   </div>
 
-  <div class="content-area" [class.chat-open]="chatOpen && activeTab() !== 'resolved'">
+  <div class="content-area" [class.chat-open]="chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')">
 
     <div class="table-column">
       <app-complaints-table
         [activeTab]="activeTab()"
         [complaints]="visibleComplaints()"
         [selectedId]="selectedComplaint()?.id ?? null"
+        [compact]="chatOpen"
         (rowSelect)="onRowSelect($event)"
         (detailSelect)="openHostComplaint($event)">
       </app-complaints-table>
     </div>
 
-    @if (chatOpen && activeTab() !== 'resolved') {
+    @if (chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')) {
       <div class="chat-column">
         <app-complaint-chat
           [complaint]="selectedComplaint()!"
+          [viewOnly]="activeTab() === 'resolved'"
           (close)="closeChat()"
           (resolve)="onResolve(selectedComplaint()!)">
         </app-complaint-chat>

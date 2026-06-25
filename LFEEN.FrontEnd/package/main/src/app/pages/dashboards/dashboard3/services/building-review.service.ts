@@ -28,12 +28,13 @@ export interface PropertyTypeItem {
 }
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { CoreService } from 'src/app/services/core.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BuildingReviewService {
   private http        = inject(HttpClient);
   private coreService = inject(CoreService);
-  private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/properties';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/properties`;
 
   readonly currentPage = signal(1);
   readonly pageSize    = signal(18);
