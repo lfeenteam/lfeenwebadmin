@@ -484,6 +484,21 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
+              {
+                path: 'bookings',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-bookings/all-bookings.component'
+                  ).then((m) => m.AllBookingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.bookings.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
             ],
           },
           {

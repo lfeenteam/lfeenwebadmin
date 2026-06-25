@@ -16,6 +16,7 @@ import { ComplaintService } from '../../services/complaint.service';
 })
 export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
   @Input() complaint!: Complaint;
+  @Input() viewOnly = false;
   @Output() close = new EventEmitter<void>();
   @Output() resolve = new EventEmitter<void>();
 

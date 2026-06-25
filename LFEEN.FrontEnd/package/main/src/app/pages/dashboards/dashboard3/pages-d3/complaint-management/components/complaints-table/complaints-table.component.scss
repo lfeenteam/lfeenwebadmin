@@ -1,8 +1,16 @@
+:host {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
 .table-wrapper {
   display: flex;
   flex-direction: column;
   font-family: 'Cairo', sans-serif;
   background: #fff;
+  min-width: 0;
+  width: 100%;
 }
 
 .table-toolbar {
@@ -89,6 +97,8 @@
   background: #fff;
   direction: rtl;
   overflow-x: auto;
+  min-width: 0;
+  width: 100%;
 }
 
 .table-footer {
@@ -452,6 +462,146 @@
   }
 }
 
+// ── Resolved table ────────────────────────────────────────────────────────────
+
+.resolved-table {
+  .table-head,
+  .table-row {
+    column-gap: 16px;
+    padding: 0 24px;
+    grid-template-columns:
+      minmax(110px, 1.3fr)
+      minmax(55px, 0.5fr)
+      minmax(85px, 0.8fr)
+      minmax(120px, 1.5fr)
+      minmax(110px, 1fr)
+      minmax(100px, 1fr)
+      52px;
+  }
+
+  &.compact-mode {
+    .table-head,
+    .table-row {
+      column-gap: 16px;
+      padding: 0 24px;
+      grid-template-columns:
+        minmax(110px, 1.3fr)
+        minmax(55px, 0.5fr)
+        minmax(85px, 0.8fr)
+        minmax(120px, 1.5fr)
+        minmax(110px, 1fr)
+        52px;
+    }
+  }
+}
+
+.resolved-head {
+  .col-r-user,
+  .col-r-type,
+  .col-r-ticket,
+  .col-r-subject,
+  .col-r-status,
+  .col-r-date,
+  .col-r-action {
+    display: flex;
+    align-items: center;
+  }
+
+  .col-r-type,
+  .col-r-status,
+  .col-r-action { justify-content: center; }
+
+  .col-r-ticket,
+  .col-r-subject,
+  .col-r-date { justify-content: flex-start; }
+}
+
+.resolved-row {
+  cursor: default;
+}
+
+.col-r-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.col-r-type,
+.col-r-ticket,
+.col-r-subject,
+.col-r-status,
+.col-r-date,
+.col-r-action {
+  display: flex;
+  align-items: center;
+}
+
+.col-r-type,
+.col-r-status,
+.col-r-action { justify-content: center; }
+
+.col-r-ticket { justify-content: flex-start; }
+
+.col-r-subject {
+  color: #111110;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.col-r-date {
+  color: #8D8D88;
+  font-size: 12px;
+  font-weight: 500;
+  justify-content: flex-start;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &.type-customer {
+    color: #2563EB;
+    background: #EFF6FF;
+    border-color: #CFE0FF;
+  }
+
+  &.type-host {
+    color: #D97706;
+    background: #FFFBEB;
+    border-color: #FDE68A;
+  }
+}
+
+.resolved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #16A34A;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  white-space: nowrap;
+}
+
+// ── End Resolved table ────────────────────────────────────────────────────────
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -488,6 +638,22 @@
     }
   }
 
+  .resolved-table {
+    .table-head,
+    .table-row {
+      column-gap: 10px;
+      padding-inline: 14px;
+      grid-template-columns:
+        minmax(100px, 1.3fr)
+        minmax(50px, 0.45fr)
+        minmax(75px, 0.7fr)
+        minmax(100px, 1.3fr)
+        minmax(100px, 0.9fr)
+        minmax(90px, 0.85fr)
+        44px;
+    }
+  }
+
   .table-footer {
     padding-inline: 12px;
   }
@@ -499,6 +665,21 @@
   .table-head,
   .table-row {
     grid-template-columns: 80px minmax(140px, 1fr) 100px;
+  }
+
+  .resolved-table {
+    .col-r-date,
+    .col-r-ticket { display: none; }
+
+    .table-head,
+    .table-row {
+      grid-template-columns:
+        minmax(100px, 1.3fr)
+        minmax(50px, 0.45fr)
+        minmax(100px, 1.3fr)
+        minmax(100px, 0.9fr)
+        44px;
+    }
   }
 
   .host-support-table {
@@ -640,6 +821,75 @@
       grid-area: haction;
       justify-content: flex-end;
       align-self: start;
+    }
+  }
+
+  .resolved-table {
+    .table-head {
+      display: none;
+    }
+
+    .table-row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "ruser   raction"
+        "rsubj   rtype"
+        "rdate   rstatus";
+    }
+
+    .col-r-user {
+      grid-area: ruser;
+      align-self: center;
+      justify-content: flex-start;
+    }
+
+    .col-r-action {
+      grid-area: raction;
+      justify-content: flex-end;
+      align-self: start;
+    }
+
+    .col-r-subject {
+      grid-area: rsubj;
+      align-self: start;
+      padding-top: 6px;
+      white-space: normal;
+      font-size: 12px;
+    }
+
+    .col-r-type {
+      grid-area: rtype;
+      justify-content: flex-end;
+      align-self: start;
+      padding-top: 6px;
+    }
+
+    .col-r-date {
+      grid-area: rdate;
+      justify-content: flex-start;
+      padding-top: 8px;
+      margin-top: 8px;
+      border-top: 1px solid #F0F0EC;
+      font-size: 11px;
+      color: #9E9E9A;
+    }
+
+    .col-r-status {
+      grid-area: rstatus;
+      justify-content: flex-end;
+      align-self: center;
+      padding-top: 8px;
+      margin-top: 8px;
+      border-top: 1px solid #F0F0EC;
+    }
+
+    .col-r-ticket {
+      display: none;
+    }
+
+    .resolved-badge {
+      font-size: 11px;
+      padding: 2px 8px;
     }
   }
 }

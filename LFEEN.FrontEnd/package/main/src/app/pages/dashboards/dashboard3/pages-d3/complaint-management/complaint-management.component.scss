@@ -63,7 +63,9 @@
   overflow-y: auto;
 
   app-complaints-table {
-    flex: none;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
   }
 }
 

@@ -25,6 +25,7 @@ import {
   UnitLicenseResponse,
 } from '../interfaces/unit-card.model';
 import { CoreService } from 'src/app/services/core.service';
+import { environment } from 'src/environments/environment';
 
 export type UnitReviewDecision = 'approved' | 'rejected';
 export type UnitSortOrder = 'newest' | 'oldest' | 'highestOccupancy';
@@ -38,9 +39,9 @@ export interface FilterItem {
 export class UnitsService {
   private http = inject(HttpClient);
   private coreService = inject(CoreService);
-  private readonly apiUrl = 'https://test-api-admin.lfeen.com/api/units';
-  private readonly accountsApiUrl = 'https://test-api-admin.lfeen.com/api/accounts';
-  private readonly propertiesApiUrl = 'https://test-api-admin.lfeen.com/api/properties';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/units`;
+  private readonly accountsApiUrl = `${environment.apiBaseUrl}/api/accounts`;
+  private readonly propertiesApiUrl = `${environment.apiBaseUrl}/api/properties`;
   private readonly defaultBuildingImage = '';
 
   readonly searchQuery  = signal('');

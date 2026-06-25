@@ -17,6 +17,7 @@ export class ComplaintsTableComponent implements OnChanges {
   @Input() complaints: Complaint[] = [];
   @Input() selectedId: string | null = null;
   @Input() activeTab: 'customers' | 'hosts' | 'resolved' = 'customers';
+  @Input() compact = false;
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
@@ -39,7 +40,9 @@ export class ComplaintsTableComponent implements OnChanges {
     return this.complaints.filter(c =>
       c.clientName.toLowerCase().includes(q) ||
       (c.clientNameEn ?? '').toLowerCase().includes(q) ||
-      c.clientCode.toLowerCase().includes(q)
+      c.clientCode.toLowerCase().includes(q) ||
+      (c.subject ?? '').toLowerCase().includes(q) ||
+      (c.subjectEn ?? '').toLowerCase().includes(q)
     );
   }
 
@@ -50,6 +53,10 @@ export class ComplaintsTableComponent implements OnChanges {
 
   get hostSupportMode(): boolean {
     return this.activeTab === 'hosts';
+  }
+
+  get resolvedMode(): boolean {
+    return this.activeTab === 'resolved';
   }
 
   get totalPages(): number {
@@ -117,5 +124,41 @@ export class ComplaintsTableComponent implements OnChanges {
       : firstMessage.content;
 
     return content.length > 68 ? `${content.slice(0, 68)}...` : content;
+  }
+
+  displayResolvedSubject(complaint: Complaint): string {
+    if (complaint.subject) {
+      const text = this.translate.currentLang === 'en'
+        ? complaint.subjectEn ?? complaint.subject
+        : complaint.subject;
+      return text.length > 50 ? `${text.slice(0, 50)}...` : text;
+    }
+    return this.displaySubject(complaint);
+  }
+
+  displayReplyDate(complaint: Complaint): string {
+    if (complaint.replyDate) {
+      return this.translate.currentLang === 'en'
+        ? complaint.replyDateEn ?? complaint.replyDate
+        : complaint.replyDate;
+    }
+    return this.displayDate(complaint);
+  }
+
+  get searchPlaceholder(): string {
+    if (this.resolvedMode) {
+      return this.currentDir === 'rtl'
+        ? 'بحث باسم المستخدم، رقم التذكرة، أو الموضوع...'
+        : 'Search by user, ticket number, or subject...';
+    }
+    return this.translate.instant('d3.complaints.table.searchPlaceholder');
+  }
+
+  onResolvedAction(complaint: Complaint): void {
+    if (complaint.type === 'customer') {
+      this.rowSelect.emit(complaint);
+    } else {
+      this.detailSelect.emit(complaint);
+    }
   }
 }

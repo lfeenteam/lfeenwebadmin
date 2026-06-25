@@ -15,6 +15,7 @@ import {
   UpdateEmployeePayload
 } from '../interfaces/department.model';
 import { CoreService } from 'src/app/services/core.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ import { CoreService } from 'src/app/services/core.service';
 export class DepartmentService {
   private http = inject(HttpClient);
   private coreService = inject(CoreService);
-  private apiUrl = 'https://test-api-admin.lfeen.com/api/departments';
+  private apiUrl = `${environment.apiBaseUrl}/api/departments`;
 
   readonly currentPage = signal(1);
   readonly pageSize = signal(9);
@@ -169,7 +170,7 @@ export class DepartmentService {
   }
 
   // ── Roles ──────────────────────────────────────────────────
-  private rolesApiUrl = 'https://test-api-admin.lfeen.com/api/roles';
+  private rolesApiUrl = `${environment.apiBaseUrl}/api/roles`;
 
   createRole(data: { nameAr: string; nameEn: string; descriptionAr: string; descriptionEn: string; departmentId: string }): Observable<any> {
     return this.http.post(this.rolesApiUrl, data);
@@ -198,7 +199,7 @@ export class DepartmentService {
   }
 
   // ── Permissions ────────────────────────────────────────────
-  private permissionsApiUrl = 'https://test-api-admin.lfeen.com/api/permissions';
+  private permissionsApiUrl = `${environment.apiBaseUrl}/api/permissions`;
 
   getPermissions(pageSize: number = 100): Observable<RolePermission[]> {
     return this.http.get<RolePermissionsResponse>(`${this.permissionsApiUrl}?page=1&pageSize=${pageSize}`).pipe(

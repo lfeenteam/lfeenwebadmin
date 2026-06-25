@@ -1,0 +1,223 @@
+<div class="bookings-page" [dir]="currentDir">
+
+  <!-- Metric Cards -->
+  <section class="sub-header-metrics">
+    @for (card of metrics; track card.titleKey) {
+      <article class="metric-card">
+        <div class="metric-content">
+          <p class="metric-title">{{ card.titleKey | translate }}</p>
+          <h3 class="metric-value" [ngClass]="card.tone">
+            @if (card.isCurrency) {
+              <img [src]="currencyIconSrc" alt="" class="metric-riyal-icon" [class.is-text-currency]="currencyIconEn" />
+            }
+            {{ card.value }}
+          </h3>
+        </div>
+        <span class="metric-icon" [ngClass]="card.tone">
+          <i-tabler [name]="card.icon"></i-tabler>
+        </span>
+      </article>
+    }
+  </section>
+
+  <!-- Filter Toolbar -->
+  <div class="bookings-toolbar">
+
+    <!-- Search -->
+    <div class="search-box">
+      <i-tabler name="search" class="search-icon"></i-tabler>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="{{ 'd3.bookings.filters.searchPlaceholder' | translate }}"
+        [ngModel]="searchQuery"
+        (ngModelChange)="onSearch($event)" />
+    </div>
+
+    <!-- Check-in Date -->
+    <label class="date-pill">
+      <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <span class="date-label">{{ checkInDate || ('d3.bookings.filters.checkIn' | translate) }}</span>
+      <input
+        type="date"
+        class="date-input-hidden"
+        [(ngModel)]="checkInDate"
+        (ngModelChange)="onDateChange()" />
+    </label>
+
+    <!-- Check-out Date -->
+    <label class="date-pill">
+      <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <span class="date-label">{{ checkOutDate || ('d3.bookings.filters.checkOut' | translate) }}</span>
+      <input
+        type="date"
+        class="date-input-hidden"
+        [(ngModel)]="checkOutDate"
+        (ngModelChange)="onDateChange()" />
+    </label>
+
+    <!-- Status Filter -->
+    <button type="button" class="status-filter-btn" [matMenuTriggerFor]="statusMenu">
+      <span>{{ selectedStatusLabel() }}</span>
+      <i-tabler name="chevron-down" class="icon-14"></i-tabler>
+    </button>
+
+    <mat-menu #statusMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+      @for (opt of statusOptions; track opt.value) {
+        <button
+          mat-menu-item
+          type="button"
+          [class.selected]="selectedStatus === opt.value"
+          (click)="onStatusChange(opt.value)">
+          {{ opt.labelKey | translate }}
+        </button>
+      }
+    </mat-menu>
+
+  </div>
+
+  <!-- Table -->
+  <div class="bookings-table-wrapper">
+    <table mat-table [dataSource]="pagedBookings" class="w-100">
+
+      <!-- Booking Number Column -->
+      <ng-container matColumnDef="bookingNumber">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.bookingNum' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.bookingNum' | translate">
+          <span class="booking-id">{{ booking.bookingNumber }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Client Column -->
+      <ng-container matColumnDef="client">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.client' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.client' | translate">
+          <div class="d-flex align-items-center gap-10 p-y-8">
+            <div class="client-avatar" [attr.data-color]="booking.client.colorIndex">
+              {{ booking.client.initials }}
+            </div>
+            <div class="client-info">
+              <span class="client-name">{{ booking.client.name }}</span>
+              <span class="client-phone">{{ booking.client.phone }}</span>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Unit Column -->
+      <ng-container matColumnDef="unit">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.unit' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.unit' | translate">
+          <div class="unit-cell">
+            <span class="unit-name">{{ booking.unit.name }}</span>
+            <span class="unit-location">
+              <i-tabler name="map-pin" class="icon-12"></i-tabler>
+              {{ booking.unit.property }}
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Dates Column -->
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.dates' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.dates' | translate">
+          <span class="dates-range">{{ formatDate(booking.checkIn) }} - {{ formatDate(booking.checkOut) }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Amount Column -->
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.amount' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.amount' | translate">
+          <span class="amount-value">
+            <img [src]="currencyIconSrc" alt="" class="amount-riyal-icon" [class.is-text-currency]="currencyIconEn" />
+            <span>{{ formatAmountNumber(booking.amount) }}</span>
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.status' | translate }}</th>
+        <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.status' | translate">
+          <span class="status-badge" [class]="'status-' + booking.status">
+            {{ statusLabel(booking.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Action Column -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let booking">
+          <button mat-icon-button class="action-dots-btn" [matMenuTriggerFor]="rowMenu">
+            <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+          </button>
+          <mat-menu #rowMenu="matMenu" class="cardWithShadow" yPosition="below">
+            <button mat-menu-item type="button">
+              <i-tabler name="eye" class="icon-16"></i-tabler>
+              <span>{{ 'd3.bookings.actions.view' | translate }}</span>
+            </button>
+            <button mat-menu-item type="button">
+              <i-tabler name="edit" class="icon-16"></i-tabler>
+              <span>{{ 'd3.bookings.actions.edit' | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" class="danger-item">
+              <i-tabler name="trash" class="icon-16"></i-tabler>
+              <span>{{ 'd3.bookings.actions.cancel' | translate }}</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="empty-state-cell">
+          <div class="empty-state">
+            <i-tabler name="calendar-off" class="icon-40"></i-tabler>
+            <span>{{ 'd3.bookings.table.empty' | translate }}</span>
+          </div>
+        </td>
+      </tr>
+
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="table-footer">
+    <div class="pagination-controls">
+      <button
+        class="page-nav-btn"
+        [disabled]="currentPage === 1"
+        (click)="changePage(currentPage - 1)">
+        <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+      </button>
+
+      @for (page of visiblePages; track $index) {
+        @if (page === '...') {
+          <span class="page-ellipsis">...</span>
+        } @else {
+          <button
+            class="page-number-btn"
+            [class.active]="currentPage === page"
+            (click)="changePage($any(page))">
+            {{ displayPage(page) }}
+          </button>
+        }
+      }
+
+      <button
+        class="page-nav-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="changePage(currentPage + 1)">
+        <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+      </button>
+    </div>
+
+    <span class="pagination-total">{{ paginationSummary }}</span>
+  </div>
+
+</div>

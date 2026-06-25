@@ -6,7 +6,7 @@
       <button class="menu-btn" type="button">
         <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
       </button>
-      <button class="close-mobile-btn" type="button" (click)="close.emit()">
+      <button class="close-btn" [class.mobile-only]="!viewOnly" type="button" (click)="close.emit()">
         <i-tabler name="x" class="icon-20"></i-tabler>
       </button>
 
@@ -19,10 +19,17 @@
       </div>
     </div>
 
-    <button class="resolve-chat-btn" type="button" (click)="onResolve()">
-      <i-tabler name="circle-check" class="icon-18"></i-tabler>
-      {{ resolveButtonLabel }}
-    </button>
+    @if (!viewOnly) {
+      <button class="resolve-chat-btn" type="button" (click)="onResolve()">
+        <i-tabler name="circle-check" class="icon-18"></i-tabler>
+        {{ resolveButtonLabel }}
+      </button>
+    } @else {
+      <span class="resolved-label">
+        <i-tabler name="circle-check" class="icon-16"></i-tabler>
+        تم الرد والحل
+      </span>
+    }
   </div>
 
   <!-- Messages -->
@@ -69,6 +76,7 @@
   </div>
 
   <!-- Input -->
+  @if (!viewOnly) {
   <div class="chat-composer">
     @if (selectedAttachments.length) {
       <div class="attachments-preview">
@@ -103,5 +111,6 @@
         (keydown)="onKeydown($event)" />
     </div>
   </div>
+  }
 
 </div>
