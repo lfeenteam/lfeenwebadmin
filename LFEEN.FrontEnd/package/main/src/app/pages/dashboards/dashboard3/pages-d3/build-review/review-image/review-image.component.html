@@ -1,4 +1,7 @@
 <div class="review-image-container">
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
+  } @else {
 
   <!-- Main Image Section -->
   @if (mainPhoto) {
@@ -193,5 +196,6 @@
       <i-tabler name="circle-x"></i-tabler>
     </button>
   </div>
+  }
   }
 </div>

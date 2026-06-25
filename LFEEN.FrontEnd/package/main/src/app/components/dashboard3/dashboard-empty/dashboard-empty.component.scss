@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.d3-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  font-family: 'Cairo', sans-serif;
+  width: 100%;
+
+  &__art {
+    margin-bottom: 28px;
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.08)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.05));
+    transition: filter 0.2s ease;
+
+    &:hover {
+      filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.11)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.06));
+    }
+  }
+
+  &__svg {
+    width: 200px;
+    height: 176px;
+    display: block;
+  }
+
+  &__img {
+    width: 200px;
+    height: 176px;
+    object-fit: contain;
+    display: block;
+  }
+
+  &__title {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #121212;
+    line-height: 1.5;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #9E9E9A;
+    line-height: 1.9;
+    max-width: 320px;
+  }
+}

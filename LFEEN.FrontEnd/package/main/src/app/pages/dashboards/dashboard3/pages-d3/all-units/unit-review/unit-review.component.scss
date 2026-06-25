@@ -578,12 +578,23 @@
 .btn-reject {
   flex: 0 0 auto;
   min-width: 220px;
-  background: #E11D48;
+  background: #1111100D;
   border-color: transparent;
-  color: #FFFFFF;
+  color: #C9C9C6;
+  transition: background 0.2s, color 0.2s;
 
   ::ng-deep svg {
-    stroke: #FFFFFF;
+    stroke: #C9C9C6;
+    transition: stroke 0.2s;
+  }
+
+  &:not(:disabled) {
+    background: #E11D48;
+    color: #FFFFFF;
+
+    ::ng-deep svg {
+      stroke: #FFFFFF;
+    }
   }
 }
 

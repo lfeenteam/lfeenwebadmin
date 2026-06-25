@@ -7,8 +7,10 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
 import { AccountService } from '../../../../services/account.service';
 import { AccountDetail } from '../../../../interfaces/account.model';
+import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 
 @Component({
   selector: 'app-review-account',
@@ -18,11 +20,12 @@ import { AccountDetail } from '../../../../interfaces/account.model';
   styleUrl: './review-account.component.scss'
 })
 export class ReviewAccountComponent implements OnInit {
-  private route     = inject(ActivatedRoute);
-  private router    = inject(Router);
-  private service   = inject(AccountService);
-  private translate = inject(TranslateService);
-  private toastr    = inject(ToastrService);
+  private route      = inject(ActivatedRoute);
+  private router     = inject(Router);
+  private service    = inject(AccountService);
+  private translate  = inject(TranslateService);
+  private toastr     = inject(ToastrService);
+  private dialog     = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   account: AccountDetail | null = null;
@@ -56,17 +59,25 @@ export class ReviewAccountComponent implements OnInit {
 
   accept(): void {
     if (!this.account || this.isSubmitting) return;
-    this.isSubmitting = true;
-    this.service.acceptAccount(this.account.accountId).subscribe({
-      next: () => {
-        this.toastr.success(this.translate.instant('d3.reviewAccount.decision.acceptSuccess'));
-        this.service.setTab('active');
-        this.navigateBack();
-      },
-      error: () => {
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-        this.isSubmitting = false;
+    const accountId = this.account.accountId;
+    const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey:          'd3.reviewAccount.decision.confirm.approveTitle',
+        messageKey:        'd3.reviewAccount.decision.confirm.approveMessage',
+        confirmKey:        'd3.reviewAccount.decision.confirm.approveAction',
+        tone:              'approve',
+        successTitleKey:   'common.done',
+        successMessageKey: 'd3.reviewAccount.decision.acceptSuccess',
+        onConfirm: () => this.service.acceptAccount(accountId)
       }
+    });
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.service.setTab('active');
+      this.navigateBack();
     });
   }
 
@@ -76,17 +87,31 @@ export class ReviewAccountComponent implements OnInit {
       this.toastr.warning(this.translate.instant('d3.reviewAccount.decision.rejectionRequired'));
       return;
     }
-    this.isSubmitting = true;
-    this.service.rejectAccount(this.account.accountId, this.rejectionReason.trim()).subscribe({
-      next: () => {
-        this.toastr.success(this.translate.instant('d3.reviewAccount.decision.rejectSuccess'));
-        this.service.setTab('rejected');
-        this.navigateBack();
-      },
-      error: () => {
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-        this.isSubmitting = false;
+    const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey:   'd3.reviewAccount.decision.confirm.rejectTitle',
+        messageKey: 'd3.reviewAccount.decision.confirm.rejectMessage',
+        confirmKey: 'd3.reviewAccount.decision.confirm.rejectAction',
+        tone:       'reject'
       }
+    });
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.isSubmitting = true;
+      this.service.rejectAccount(this.account!.accountId, this.rejectionReason.trim()).subscribe({
+        next: () => {
+          this.toastr.success(this.translate.instant('d3.reviewAccount.decision.rejectSuccess'));
+          this.service.setTab('rejected');
+          this.navigateBack();
+        },
+        error: () => {
+          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          this.isSubmitting = false;
+        }
+      });
     });
   }
 

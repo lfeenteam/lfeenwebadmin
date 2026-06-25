@@ -1,4 +1,7 @@
 <div class="unit-review" [dir]="currentDir">
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="4"></app-dashboard-loading>
+  } @else {
 
   <div class="review-header">
     <div class="title-block">
@@ -6,7 +9,7 @@
       <p class="unit-meta">
         {{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}: {{ unit?.unitNumber }}
         <span class="meta-sep">·</span>
-        {{ building?.location }}
+        {{unit?.district || '-' }}
       </p>
     </div>
 
@@ -76,7 +79,6 @@
     }
   </div>
 
-  @if (!isViewMode) {
   <div class="final-review-section">
     <div class="final-review-header">
       <span class="final-review-title">{{ 'd3.unitReview.finalReview.title' | translate }}</span>
@@ -118,32 +120,35 @@
       </div>
     }
   </div>
+
+  <div class="final-notes-section">
+    <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+    <textarea
+      [(ngModel)]="finalNotes"
+      [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+     
+      rows="3">
+    </textarea>
+  </div>
+
+  <div class="action-buttons">
+    <button
+      class="btn btn-approve"
+      type="button"
+      [disabled]="isApproveDisabled"
+      (click)="onApprove()">
+      <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+      <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+    </button>
+    <button
+      class="btn btn-reject"
+      type="button"
+     [disabled]="isViewMode || !allSectionsDecided"
+      (click)="onReject()">
+      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+      <i-tabler name="x" class="btn-icon"></i-tabler>
+    </button>
+  </div>
+
   }
-
-  @if (!isViewMode) {
-    <div class="final-notes-section">
-      <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
-      <textarea
-        [(ngModel)]="finalNotes"
-        [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
-        rows="3">
-      </textarea>
-    </div>
-
-    <div class="action-buttons">
-      <button
-        class="btn btn-approve"
-        type="button"
-        [disabled]="hasAnyRejectedSection"
-        (click)="onApprove()">
-        <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
-        <i-tabler name="circle-check" class="btn-icon"></i-tabler>
-      </button>
-      <button class="btn btn-reject" type="button" (click)="onReject()">
-        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
-        <i-tabler name="x" class="btn-icon"></i-tabler>
-      </button>
-    </div>
-  }
-
 </div>

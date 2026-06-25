@@ -23,11 +23,11 @@ import {
   UnitDepositResponse,
   UnitServicesResponse,
   UnitLicenseResponse,
-  UnitReviewStatusCode,
 } from '../interfaces/unit-card.model';
 import { CoreService } from 'src/app/services/core.service';
 
 export type UnitReviewDecision = 'approved' | 'rejected';
+export type UnitSortOrder = 'newest' | 'oldest' | 'highestOccupancy';
 
 export interface FilterItem {
   value: string;
@@ -47,6 +47,7 @@ export class UnitsService {
   readonly activeTab    = signal<UnitTab>('new');
   readonly accountId    = signal('');
   readonly propertyId   = signal('');
+  readonly sortOrder    = signal<UnitSortOrder>('newest');
   readonly buildingsPage = signal(1);
 
   private readonly BUILDINGS_PER_PAGE = 6;
@@ -56,8 +57,14 @@ export class UnitsService {
       search:     this.searchQuery(),
       accountId:  this.accountId(),
       propertyId: this.propertyId(),
+      tab:        this.activeTab(),
+      sort:       this.sortOrder(),
     }),
-    loader: ({ request }) => this.getAllUnitPages(request)
+    loader: ({ request }) => this.getAllUnitPages({
+      ...request,
+      status:      this.tabToStatus(request.tab),
+      newestFirst: request.sort !== 'oldest',
+    })
   });
 
   private readonly _filterUnitsResource = rxResource({
@@ -74,9 +81,13 @@ export class UnitsService {
     loader: () => this.getAllPropertyPages()
   });
 
-  readonly rawUnits   = computed(() =>
-    this.filterUnitsByTab(this._unitsResource.value()?.data ?? [], this.activeTab())
-  );
+  readonly rawUnits = computed(() => {
+    const data = this._unitsResource.value()?.data ?? [];
+    if (this.sortOrder() === 'highestOccupancy') {
+      return [...data].sort((a, b) => (b.maxGuests ?? 0) - (a.maxGuests ?? 0));
+    }
+    return data;
+  });
   readonly filterUnits = computed(() => this._filterUnitsResource.value()?.data ?? []);
   readonly rawAccounts = computed(() => this._accountsFilterResource.value()?.data ?? []);
   readonly rawProperties = computed(() => this._propertiesFilterResource.value()?.data ?? []);
@@ -104,7 +115,7 @@ export class UnitsService {
           publishedUnits:      0,
           image:               this.getBuildingImage(u),
           units:               [],
-          needsPropertyReview: u.propertyAdminReviewStatus !== 'Approved',
+    needsPropertyReview: !['Approved'].includes(u.propertyAdminReviewStatus ?? ''),
         });
       }
       const g = groups.get(u.propertyId)!;
@@ -173,12 +184,13 @@ export class UnitsService {
     accountId?: string;
     propertyId?: string;
     status?: number | string;
+    newestFirst?: boolean;
   }): Observable<PaginatedUnitResponse> {
     const fetchPage = (page: number): Observable<PaginatedUnitResponse> => {
       const params = new URLSearchParams({
         pageNumber:  String(page),
         pageSize:    '20',
-        newestFirst: 'true',
+        newestFirst: filters.newestFirst === false ? 'false' : 'true',
       });
       if (filters.search)              params.set('search',     filters.search);
       if (filters.accountId)           params.set('accountId',  filters.accountId);
@@ -248,33 +260,14 @@ export class UnitsService {
       || account.referenceCode;
   }
 
-  private filterUnitsByTab(units: UnitApiItem[], tab: UnitTab): UnitApiItem[] {
-    return units.filter(unit => this.statusToTab(unit.reviewStatus) === tab);
-  }
-
-  private statusToTab(reviewStatus: UnitReviewStatusCode): UnitTab {
-    switch (this.normalizeReviewStatus(reviewStatus)) {
-      case 'Approved':          return 'published';
-      case 'Pending':           return 'new';
-      case 'UnderReview':       return 'underReview';
-      case 'Rejected':          return 'rejected';
-      case 'HasPendingChanges': return 'pendingChanges';
-      default:                  return 'underReview';
+  private tabToStatus(tab: UnitTab): number | undefined {
+    switch (tab) {
+      case 'published':      return 2;
+      case 'new':            return 0;
+      case 'underReview':    return 1;
+      case 'rejected':       return 3;
+      case 'pendingChanges': return 4;
     }
-  }
-
-  private normalizeReviewStatus(reviewStatus: UnitReviewStatusCode): string {
-    if (typeof reviewStatus === 'number') {
-      switch (reviewStatus) {
-        case 0:  return 'Pending';
-        case 1:  return 'UnderReview';
-        case 2:  return 'Approved';
-        case 3:  return 'Rejected';
-        case 4:  return 'HasPendingChanges';
-      }
-    }
-
-    return reviewStatus?.trim() ?? '';
   }
 
   private readonly _buildingsObs$: Observable<BuildingWithUnits[]>;
@@ -398,20 +391,25 @@ export class UnitsService {
       unitNumber:  String(u.apartmentNumberInFloor),
       title:       u.name ?? `${u.unitTypeName} ${u.apartmentNumberInFloor}`,
       floor:       lang === 'ar' ? `الدور ${u.floorNumber}` : `Floor ${u.floorNumber}`,
-      capacity:    u.maxGuests != null ? String(u.maxGuests) : '—',
-      status:      this.reviewStatusToUnitStatus(u.reviewStatus),
+      capacity:    u.maxGuests != null
+        ? (lang === 'ar' ? `سعة ${u.maxGuests} أفراد` : `${u.maxGuests} guests`)
+        : '—',
+      status:      this.tabToUnitStatus(this.activeTab()),
       type:        u.unitTypeName,
       description: u.description ?? '',
+      district:    u.district ?? null,
       rooms:       0,
       hasPool:     false,
     };
   }
 
-  private reviewStatusToUnitStatus(reviewStatus: UnitReviewStatusCode): UnitStatus {
-    switch (this.normalizeReviewStatus(reviewStatus)) {
-      case 'Approved':  return 'active';
-      case 'Rejected':  return 'stopped';
-      default:          return 'underReview';
+  private tabToUnitStatus(tab: UnitTab): UnitStatus {
+    switch (tab) {
+      case 'published':      return 'active';
+      case 'new':            return 'pending';
+      case 'underReview':    return 'underReview';
+      case 'rejected':       return 'stopped';
+      case 'pendingChanges': return 'pendingChanges';
     }
   }
 
@@ -437,6 +435,11 @@ export class UnitsService {
 
   setSearch(query: string): void {
     this.searchQuery.set(query);
+    this.buildingsPage.set(1);
+  }
+
+  setSortOrder(order: UnitSortOrder): void {
+    this.sortOrder.set(order);
     this.buildingsPage.set(1);
   }
 

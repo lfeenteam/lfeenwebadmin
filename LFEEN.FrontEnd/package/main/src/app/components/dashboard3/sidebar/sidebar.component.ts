@@ -1,4 +1,4 @@
-import { Component, computed, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, ElementRef, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -57,7 +57,8 @@ export class SidebarComponent implements OnInit {
     private sidebarService: SidebarService,
     private translate: TranslateService,
     private loginService: LoginService,
-    private settings: CoreService
+    private settings: CoreService,
+    private el: ElementRef
   ) {
     this.checkIfCeoPage();
     this.router.events.pipe(
@@ -80,6 +81,13 @@ export class SidebarComponent implements OnInit {
     event.stopPropagation();
     const key = item.id || item.translationKey || '';
     this.expandedItems[key] = !this.expandedItems[key];
+
+    if (this.expandedItems[key]) {
+      setTimeout(() => {
+        const expanded = this.el.nativeElement.querySelector('.d3-submenu-container.is-expanded');
+        expanded?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
   }
 
   isExpanded(item: NavItem): boolean {

@@ -23,9 +23,7 @@
 
   <!-- Loading -->
   @if (isLoading) {
-    <div class="d-flex justify-content-center align-items-center p-48">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
+    <app-dashboard-loading [rows]="6"></app-dashboard-loading>
   }
 
   <!-- Cards grid -->
@@ -37,8 +35,11 @@
         </div>
       }
       @empty {
-        <div class="col-12 empty-state d-flex flex-column align-items-center justify-content-center p-48">
-          <span class="f-s-14 text-muted">{{ 'd3.accountManagement.noResults' | translate }}</span>
+        <div class="col-12">
+          <app-dashboard-empty
+            [titleKey]="emptyTitleKey"
+            [descKey]="emptyDescKey">
+          </app-dashboard-empty>
         </div>
       }
     </div>

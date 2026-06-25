@@ -8,6 +8,8 @@ import { StatsRowComponent } from '../team-management/components/stats-row/stats
 import { AccountHeaderComponent } from './components/account-header/account-header.component';
 import { AccountTabsBarComponent, AccountTab } from './components/account-tabs-bar/account-tabs-bar.component';
 import { AccountCardComponent } from './components/account-card/account-card.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AccountService } from '../../services/account.service';
 import { Account } from '../../interfaces/account.model';
@@ -26,6 +28,8 @@ export type { Account } from '../../interfaces/account.model';
     AccountHeaderComponent,
     AccountTabsBarComponent,
     AccountCardComponent,
+    DashboardLoadingComponent,
+    DashboardEmptyComponent,
     TranslateModule,
   ],
   templateUrl: './account-management.component.html',
@@ -99,6 +103,14 @@ export class AccountManagementComponent implements OnInit {
       case 'under_review': return this.accounts.filter(a => a.status === 'under_review');
       default:             return this.accounts;
     }
+  }
+
+  get emptyTitleKey(): string {
+    return `d3.emptyState.accounts.${this.activeTab}.title`;
+  }
+
+  get emptyDescKey(): string {
+    return `d3.emptyState.accounts.${this.activeTab}.desc`;
   }
 
   setActiveTab(tab: AccountTab): void {

@@ -7,11 +7,8 @@
   @if (viewMode === 'grid') {
     <div class="unit-card__top">
       <div class="unit-card__id">{{ unit.unitNumber }}</div>
-      <div class="unit-card__status" *ngIf="!isLockedDisplay">
-        <span class="status-text">{{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}</span>
-      </div>
-      <div class="unit-card__status" *ngIf="isLockedDisplay">
-        <span class="status-text">{{ 'd3.allUnits.unitCard.statusStopped' | translate }}</span>
+      <div class="unit-card__status" [ngClass]="'unit-card__status--' + badgeConfig.mod">
+        <span class="status-text">{{ badgeConfig.labelKey | translate }}</span>
       </div>
     </div>
 
@@ -78,17 +75,10 @@
 
     <!-- col 5: status badge -->
     <div class="list-status-col">
-      @if (!isLockedDisplay) {
-        <span class="status-badge">
-          <span class="status-dot"></span>
-          {{ 'd3.allUnits.unitCard.statusUnderReview' | translate }}
-        </span>
-      } @else {
-        <span class="status-badge status-badge--stopped">
-          <i-tabler name="lock" class="lock-icon"></i-tabler>
-          {{ 'd3.allUnits.unitCard.statusStopped' | translate }}
-        </span>
-      }
+      <span class="status-badge" [ngClass]="'status-badge--' + badgeConfig.mod">
+        <span class="status-dot"></span>
+        {{ badgeConfig.labelKey | translate }}
+      </span>
     </div>
 
     <!-- col 6: actions -->

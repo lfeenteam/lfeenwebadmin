@@ -13,13 +13,18 @@
     (filtersChange)="onFiltersChange($event)">
   </app-dashboard-sub-header>
 
-  <app-cards-units
-    [buildings]="buildingsWithUnits"
-    [isReviewTab]="isReviewTab"
-    [viewMode]="viewMode">
-  </app-cards-units>
+  @if (isLoading) {
+    <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+  } @else {
+    <app-cards-units
+      [buildings]="buildingsWithUnits"
+      [isReviewTab]="isReviewTab"
+      [viewMode]="viewMode"
+      [activeTab]="activeTab">
+    </app-cards-units>
+  }
 
-  @if (totalCount > 0) {
+  @if (!isLoading && totalCount > 0) {
     <div class="pagination-wrapper">
       <span class="pagination-total">
         {{ totalCount }} {{ 'd3.allUnits.pagination.total' | translate }}

@@ -31,15 +31,40 @@
   &__status {
     display: inline-flex;
     align-items: center;
-    background: #F0FDF4;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
     direction: rtl;
 
     .status-text {
       font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
+    }
+
+    &--active {
+      background: #F0FDF4;
+      .status-text { color: #16A34A; }
+    }
+
+    &--pending {
+      background: #FFFBEB;
+      .status-text { color: #B45309; }
+    }
+
+    &--underReview {
+      background: #EFF6FF;
+      .status-text { color: #2563EB; }
+    }
+
+    &--pendingChanges {
+      background: #FFF7ED;
+      .status-text { color: #EA580C; }
+    }
+
+    &--stopped {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      .status-text { color: #DC2626; }
     }
   }
 
@@ -221,24 +246,13 @@
 
   &.under-review {
     cursor: pointer;
-
-    .unit-card__status {
-      background: #FFFBEB;
-      color: #B45309;
-      padding: 4px 8px;
-      border-radius: 4px;
-
-      .status-text {
-        color: #B45309;
-      }
-    }
   }
 
   &.stopped {
     background: #FCFCFB;
     border-color: #F0F0EE;
     box-shadow: none;
-    
+
     .unit-card__title, .unit-card__details {
       color: #E8E8E4;
     }
@@ -247,19 +261,6 @@
       background: #FFFFFF;
       border-color: #F7F7F5;
       color: #E8E8E4;
-    }
-
-    .unit-card__status {
-      background: #FFFFFF;
-      color: #E8E8E4;
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid #F7F7F5;
-
-      .status-text {
-        color: #E8E8E4;
-        font-size: 8px;
-      }
     }
   }
 }
@@ -386,11 +387,8 @@
   height: 25px;
   border-radius: 8px;
   padding: 4px 10px;
-  background: #FFFBEB;
-  border: 1px solid #FDE68A;
   font-weight: 900;
   font-size: 10px;
-  color: #B45309;
   text-transform: uppercase;
   white-space: nowrap;
 
@@ -398,20 +396,42 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #B45309;
     flex-shrink: 0;
   }
 
-  &--stopped {
-    background: #F7F7F5;
-    border-color: #E8E8E4;
-    color: #9E9E9A;
+  &--active {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    color: #16A34A;
+    .status-dot { background: #16A34A; }
+  }
 
-    .lock-icon {
-      width: 12px;
-      height: 12px;
-      ::ng-deep svg { width: 12px; height: 12px; }
-    }
+  &--pending {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    color: #B45309;
+    .status-dot { background: #B45309; }
+  }
+
+  &--underReview {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    color: #2563EB;
+    .status-dot { background: #2563EB; }
+  }
+
+  &--pendingChanges {
+    background: #FFF7ED;
+    border: 1px solid #FED7AA;
+    color: #EA580C;
+    .status-dot { background: #EA580C; }
+  }
+
+  &--stopped {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #DC2626;
+    .status-dot { background: #DC2626; }
   }
 }
 

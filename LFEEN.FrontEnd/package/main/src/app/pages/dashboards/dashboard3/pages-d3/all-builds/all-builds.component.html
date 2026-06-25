@@ -13,9 +13,13 @@
   (viewModeChange)="setViewMode($event)">
 </app-dashboard-sub-header>
 
-<app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"></app-cards-builds>
+@if (isLoading) {
+  <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+} @else {
+  <app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"></app-cards-builds>
+}
 
-@if (totalPages > 1) {
+@if (!isLoading && totalPages > 1) {
   <div class="pagination-wrapper">
     <span class="pagination-total">
       {{ totalCount }} {{ 'd3.allBuilds.pagination.total' | translate }}

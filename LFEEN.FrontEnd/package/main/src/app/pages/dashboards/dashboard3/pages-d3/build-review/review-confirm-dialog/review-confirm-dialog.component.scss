@@ -1,77 +1,220 @@
-.review-confirm-dialog {
+// ── D3 Design Tokens ──────────────────────────────────────────────────────
+$d3-green:       #00BC7D;
+$d3-green-light: rgba(0, 188, 125, 0.12);
+$d3-red:         #FB2C36;
+$d3-red-light:   rgba(251, 44, 54, 0.10);
+$d3-text:        #0F172B;
+$d3-muted:       #62748E;
+$d3-surface:     #F8FAFC;
+
+// ── Keyframes ─────────────────────────────────────────────────────────────
+@keyframes d3IconBounce {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  80%  { transform: scale(0.94); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes d3SuccessPop {
+  0%   { transform: scale(0.5);  opacity: 0; }
+  65%  { transform: scale(1.18); opacity: 1; }
+  82%  { transform: scale(0.93); }
+  100% { transform: scale(1); }
+}
+
+@keyframes d3FadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes drawCircle {
+  from { stroke-dashoffset: 140; }
+  to   { stroke-dashoffset: 0;   }
+}
+
+@keyframes drawCheck {
+  from { stroke-dashoffset: 80; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+// ── Dialog container radius ────────────────────────────────────────────────
+:host ::ng-deep .mat-mdc-dialog-container {
+  border-radius: 32px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+// ── Root ──────────────────────────────────────────────────────────────────
+.d3-confirm-dialog {
   width: 100%;
-  padding: 32px;
+  min-height: 260px;
+  padding: 36px 32px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   font-family: 'Cairo', sans-serif;
+  background: #fff;
 
-  .confirm-icon {
-    width: 64px;
-    height: 64px;
+  // ── Icon wrapper ────────────────────────────────────────
+  .d3-icon-wrap {
+    width: 68px;
+    height: 68px;
     border-radius: 18px;
-    background: #ECFDF5;
-    color: #059669;
+    background: $d3-green-light;
+    color: $d3-green;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 20px;
+    flex-shrink: 0;
+    animation: d3IconBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 
-    i-tabler,
-    ::ng-deep svg {
-      width: 32px;
-      height: 32px;
+    i-tabler, ::ng-deep svg { width: 34px; height: 34px; }
+
+    &.success {
+      animation: d3SuccessPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
   }
 
-  h2 {
+  // ── Spinner (inside icon when loading) ─────────────────
+  .ring-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(0, 188, 125, 0.2);
+    border-top-color: $d3-green;
+    border-radius: 50%;
+    animation: spinRing 0.75s linear infinite;
+    display: block;
+  }
+
+  // ── SVG success checkmark ───────────────────────────────
+  .check-svg {
+    width: 42px;
+    height: 42px;
+    overflow: visible;
+
+    .check-circle {
+      stroke: $d3-green;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-dasharray: 140;
+      stroke-dashoffset: 140;
+      animation: drawCircle 0.45s 0.1s ease forwards;
+    }
+
+    .check-mark {
+      stroke: $d3-green;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 80;
+      stroke-dashoffset: 80;
+      animation: drawCheck 0.35s 0.42s ease forwards;
+    }
+  }
+
+  // ── Title ───────────────────────────────────────────────
+  .d3-title {
     margin: 0 0 10px;
     font-size: 22px;
     font-weight: 900;
-    color: #111110;
+    color: $d3-text;
+    animation: d3FadeUp 0.35s 0.18s both;
   }
 
-  p {
+  // ── Message ─────────────────────────────────────────────
+  .d3-message {
     margin: 0 0 28px;
-    color: #6B6B67;
+    color: $d3-muted;
     font-size: 14px;
     line-height: 1.8;
+    animation: d3FadeUp 0.35s 0.25s both;
+
+    &.no-margin { margin-bottom: 0; }
   }
 
-  .confirm-actions {
+  // ── Inline error ────────────────────────────────────────
+  .d3-error-msg {
+    margin: -16px 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $d3-red;
+    animation: d3FadeUp 0.25s both;
+  }
+
+  // ── Actions ─────────────────────────────────────────────
+  .d3-actions {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+    animation: d3FadeUp 0.35s 0.32s both;
   }
 
-  .cancel-button,
-  .confirm-button {
+  .d3-btn {
     height: 52px;
     border-radius: 16px;
-    font-family: inherit;
+    border: none;
+    font-family: 'Cairo', sans-serif;
     font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
+
+    &:disabled { opacity: 0.55; cursor: not-allowed; }
+    &:not(:disabled):active { transform: scale(0.97); }
   }
 
-  .cancel-button {
-    background: #F7F7F5;
-    color: #111110;
+  .d3-btn-cancel {
+    background: $d3-surface;
+    color: $d3-text;
+    &:not(:disabled):hover { filter: brightness(0.96); }
   }
 
-  .confirm-button {
-    background: #059669;
-    color: #FFFFFF;
+  .d3-btn-confirm {
+    background: $d3-green;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:not(:disabled):hover { filter: brightness(0.91); }
   }
 
+  // ── Spinner inside confirm button ───────────────────────
+  .btn-spin {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spinRing 0.7s linear infinite;
+  }
+
+  // ── Reject tone ─────────────────────────────────────────
   &.reject {
-    .confirm-icon {
-      background: #FEF2F2;
-      color: #DC2626;
+    .d3-icon-wrap {
+      background: $d3-red-light;
+      color: $d3-red;
     }
 
-    .confirm-button {
-      background: #DC2626;
+    .ring-spinner {
+      border-color: rgba(251, 44, 54, 0.2);
+      border-top-color: $d3-red;
     }
+
+    .d3-btn-confirm { background: $d3-red; }
+  }
+
+  // ── Success state title/message animation delay ─────────
+  &.is-success {
+    .d3-title   { animation: d3FadeUp 0.35s 0.35s both; }
+    .d3-message { animation: d3FadeUp 0.35s 0.45s both; }
   }
 }
