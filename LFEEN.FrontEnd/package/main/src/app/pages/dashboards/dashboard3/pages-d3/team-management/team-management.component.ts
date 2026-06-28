@@ -262,11 +262,11 @@ export class TeamManagementComponent implements OnInit {
         { label: 'd3.teamManagement.stats.pendingActivation', value: this.selectedDepartment.pendingActivationCount || 0, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
     } else if (this.activeTab === 'structure') {
+      const s = this.departmentService.departmentStats();
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalEmployees', value: this.departments.reduce((sum, d) => sum + d.employeeCount, 0), icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.activeManagers', value: this.departments.reduce((sum, d) => sum + (d.activeManagersCount || 0), 0), icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.pendingActivation', value: this.departments.reduce((sum, d) => sum + (d.pendingActivationCount || 0), 0), icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
+        { label: 'd3.teamManagement.stats.totalEmployees',  value: s?.totalEmployees  ?? '—', icon: 'assets/images/svgs/Group.svg',     color: 'primary', valueColor: '#000'    },
+        { label: 'd3.teamManagement.stats.departmentCount', value: s?.totalDepartments ?? '—', icon: 'assets/images/svgs/Group (1).svg', color: 'accent',  valueColor: '#000'    },
+        { label: 'd3.teamManagement.stats.activeManagers',  value: s?.activeManagers   ?? '—', icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
       ];
     } else if (this.activeTab === 'logs') {
       this.stats = [
@@ -276,11 +276,10 @@ export class TeamManagementComponent implements OnInit {
         { label: 'd3.teamManagement.stats.rejectedOps', value: '٤٧', icon: 'circle-x', color: 'danger', valueColor: '#ef4444' }
       ];
     } else {
+      const s = this.departmentService.departmentStats();
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalEmployees', value: this.employeeTotalCount, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.activeManagers', value: this.departments.reduce((sum, d) => sum + (d.activeManagersCount || 0), 0), icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.departmentCount', value: this.totalCount, icon: 'assets/images/svgs/Group (1).svg', color: 'accent', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.pendingActivation', value: this.departments.reduce((sum, d) => sum + (d.pendingActivationCount || 0), 0), icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
+        { label: 'd3.teamManagement.stats.totalEmployees',  value: s?.totalEmployees   ?? '—', icon: 'assets/images/svgs/Group.svg',     color: 'primary', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.departmentCount', value: s?.totalDepartments ?? '—', icon: 'assets/images/svgs/Group (1).svg', color: 'accent',  valueColor: '#000' },
       ];
     }
   }

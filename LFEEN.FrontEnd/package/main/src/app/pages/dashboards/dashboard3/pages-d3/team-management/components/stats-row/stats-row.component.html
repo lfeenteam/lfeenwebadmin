@@ -1,6 +1,9 @@
 <div class="row m-b-24">
   @for(stat of stats; track stat.label) {
-  <div class="col-sm-6" [class.col-lg-3]="!isDeptView" [class.col-lg-4]="isDeptView">
+  <div class="col-sm-6"
+    [class.col-lg-6]="stats.length === 2"
+    [class.col-lg-4]="isDeptView || stats.length === 3"
+    [class.col-lg-3]="!isDeptView && stats.length === 4">
     <mat-card class="border stat-card">
       <mat-card-content class="stat-card-content d-flex align-items-center gap-12">
         <div class="stat-icon-wrapper d-flex align-items-center justify-content-center bg-light-{{stat.color}} text-{{stat.color}}">
