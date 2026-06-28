@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api-admin.lfeen.com'
+  apiBaseUrl: 'https://test-api-admin.lfeen.com'
 };
