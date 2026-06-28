@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, effect, ChangeDetectorRef, DestroyRef, OnInit } from '@angular/core';
+import { Component, inject, effect, ChangeDetectorRef, OnInit } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BuildingCardItem, BuildingTab } from '../../interfaces/building-card.model';
@@ -9,7 +9,6 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -31,7 +30,6 @@ export class AllBuildsComponent implements OnInit {
   private buildingService = inject(BuildingReviewService);
   private cdr             = inject(ChangeDetectorRef);
   private translate       = inject(TranslateService);
-  private destroyRef      = inject(DestroyRef);
 
   activeTab: string          = this.buildingService.activeTab();
   searchQuery                = '';
@@ -50,10 +48,10 @@ export class AllBuildsComponent implements OnInit {
   pageNumbers: number[]      = [];
 
   metrics: MetricCard[] = [
-    { titleKey: 'd3.allBuilds.cards.buildingsAvailable',   value: '—', icon: 'building',     tone: 'black'  },
+    { titleKey: 'd3.allBuilds.cards.totalBuildings',        value: '—', icon: 'building',     tone: 'black'  },
     { titleKey: 'd3.allBuilds.cards.activeBuildings',      value: '—', icon: 'circle-check', tone: 'green'  },
     { titleKey: 'd3.allBuilds.cards.inactiveBuildings',    value: '—', icon: 'player-pause', tone: 'gray'   },
-    { titleKey: 'd3.allBuilds.cards.underReviewBuildings', value: '—', icon: 'clock-hour-3', tone: 'orange' }
+    { titleKey: 'd3.allBuilds.cards.unpublishedBuildings', value: '—', icon: 'clock-hour-3', tone: 'orange' }
   ];
 
   tabs: TabOption[] = [
@@ -110,16 +108,22 @@ export class AllBuildsComponent implements OnInit {
       this.currentPage  = this.buildingService.currentPage();
       this.totalCount   = this.buildingService.totalCount();
       this.pageNumbers  = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+      const s = this.buildingService.propertyStats();
+      if (s) {
+        this.metrics = [
+          { ...this.metrics[0], value: this.formatNumber(s.total)              },
+          { ...this.metrics[1], value: this.formatNumber(s.activeOrPublished)  },
+          { ...this.metrics[2], value: this.formatNumber(s.underReview)        },
+          { ...this.metrics[3], value: this.formatNumber(s.pendingOrRejected)  },
+        ];
+      }
+
       this.cdr.markForCheck();
     });
   }
 
   ngOnInit(): void {
-    this.translate.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadStatistics());
-
-    this.loadStatistics();
     this.loadFilterOptions();
   }
 
@@ -152,21 +156,6 @@ export class AllBuildsComponent implements OnInit {
         });
         this.cdr.markForCheck();
       }
-    });
-  }
-
-  private loadStatistics(): void {
-    this.buildingService.getPropertyStatistics().subscribe({
-      next: stats => {
-        this.metrics = [
-          { ...this.metrics[0], value: this.formatNumber(stats.totalProperties) },
-          { ...this.metrics[1], value: this.formatNumber(stats.activeProperties) },
-          { ...this.metrics[2], value: this.formatNumber(stats.inactiveProperties) },
-          { ...this.metrics[3], value: this.formatNumber(stats.underReviewProperties) }
-        ];
-        this.cdr.markForCheck();
-      },
-      error: () => this.cdr.markForCheck()
     });
   }
 

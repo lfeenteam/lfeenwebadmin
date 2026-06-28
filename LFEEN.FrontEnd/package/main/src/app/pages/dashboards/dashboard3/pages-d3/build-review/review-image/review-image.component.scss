@@ -417,6 +417,11 @@
       background: #111110;
       color: #FFFFFF;
       &:hover { opacity: 0.9; }
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
     }
 
     &.btn-reject {
