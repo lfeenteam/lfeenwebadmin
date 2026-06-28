@@ -51,12 +51,20 @@ export interface PropertyApiItem {
   isActive: boolean;
 }
 
+export interface PropertyApiStats {
+  total: number;
+  activeOrPublished: number;
+  pendingOrRejected: number;
+  underReview: number;
+}
+
 export interface PaginatedPropertyResponse {
   data: PropertyApiItem[];
   totalCount: number;
   page: number;
   nextpage: number | null;
   totalPages: number;
+  stats: PropertyApiStats;
 }
 
 export interface PropertyStatistics {

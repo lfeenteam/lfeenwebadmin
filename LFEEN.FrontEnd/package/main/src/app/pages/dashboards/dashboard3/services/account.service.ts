@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AccountItem, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
+import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -57,6 +57,7 @@ export class AccountService {
   readonly totalPages   = computed(() => this._accountsResource.value()?.totalPages ?? 1);
   readonly totalCount   = computed(() => this._accountsResource.value()?.totalCount ?? 0);
   readonly isLoading    = this._accountsResource.isLoading;
+  readonly accountStats = computed<AccountStats | null>(() => this._accountsResource.value()?.stats ?? null);
 
   readonly accounts = computed<Account[]>(() =>
     this.rawAccounts().map(item => this.mapToAccount(item))

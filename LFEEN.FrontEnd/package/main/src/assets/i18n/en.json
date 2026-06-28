@@ -165,33 +165,77 @@
     },
     "emptyState": {
       "builds": {
-        "published":      { "title": "No published buildings",          "desc": "No buildings have been published yet, or no results match your search." },
-        "new":            { "title": "No new building requests",         "desc": "There are no new building addition requests at this time." },
-        "underReview":    { "title": "No buildings under review",        "desc": "All requests have been processed. No buildings are awaiting review." },
-        "pendingChanges": { "title": "No buildings awaiting edits",      "desc": "No buildings are currently waiting for change review." },
-        "rejected":       { "title": "No rejected buildings",            "desc": "No buildings have been rejected yet, or no results match your search." }
+        "published": {
+          "title": "No published buildings",
+          "desc": "No buildings have been published yet, or no results match your search."
+        },
+        "new": {
+          "title": "No new building requests",
+          "desc": "There are no new building addition requests at this time."
+        },
+        "underReview": {
+          "title": "No buildings under review",
+          "desc": "All requests have been processed. No buildings are awaiting review."
+        },
+        "pendingChanges": {
+          "title": "No buildings awaiting edits",
+          "desc": "No buildings are currently waiting for change review."
+        },
+        "rejected": {
+          "title": "No rejected buildings",
+          "desc": "No buildings have been rejected yet, or no results match your search."
+        }
       },
       "units": {
-        "published":      { "title": "No published units",               "desc": "No units have been published yet, or no results match your search." },
-        "new":            { "title": "No new units awaiting review",      "desc": "There are no new unit submissions at this time." },
-        "underReview":    { "title": "No units under review",             "desc": "All units have been processed. No units are awaiting review." },
-        "pendingChanges": { "title": "No units awaiting edits",           "desc": "No units are currently waiting for change review." },
-        "rejected":       { "title": "No rejected units",                 "desc": "No units have been rejected yet, or no results match your search." }
+        "published": {
+          "title": "No published units",
+          "desc": "No units have been published yet, or no results match your search."
+        },
+        "new": {
+          "title": "No new units awaiting review",
+          "desc": "There are no new unit submissions at this time."
+        },
+        "underReview": {
+          "title": "No units under review",
+          "desc": "All units have been processed. No units are awaiting review."
+        },
+        "pendingChanges": {
+          "title": "No units awaiting edits",
+          "desc": "No units are currently waiting for change review."
+        },
+        "rejected": {
+          "title": "No rejected units",
+          "desc": "No units have been rejected yet, or no results match your search."
+        }
       },
       "accounts": {
-        "all":          { "title": "No accounts found",               "desc": "No accounts have been registered yet, or no results match your search." },
-        "active":       { "title": "No active accounts",              "desc": "There are no active accounts at this time." },
-        "under_review": { "title": "No accounts under review",        "desc": "All accounts have been processed. None are awaiting review." },
-        "rejected":     { "title": "No rejected accounts",            "desc": "No accounts have been rejected yet." }
+        "all": {
+          "title": "No accounts found",
+          "desc": "No accounts have been registered yet, or no results match your search."
+        },
+        "active": {
+          "title": "No active accounts",
+          "desc": "There are no active accounts at this time."
+        },
+        "under_review": {
+          "title": "No accounts under review",
+          "desc": "All accounts have been processed. None are awaiting review."
+        },
+        "rejected": {
+          "title": "No rejected accounts",
+          "desc": "No accounts have been rejected yet."
+        }
       }
     },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
+        "totalBuildings": "Total Buildings",
         "buildingsAvailable": "Available Buildings",
         "activeBuildings": "Active Buildings",
         "inactiveBuildings": "Inactive Buildings",
-        "underReviewBuildings": "Under Review Buildings"
+        "underReviewBuildings": "Under Review Buildings",
+        "unpublishedBuildings": "Unpublished"
       },
       "tabs": {
         "published": "Published Buildings",
@@ -304,6 +348,7 @@
       "title": "All Units",
       "placeholder": "Units content under development...",
       "cards": {
+        "totalUnits": "Total Units",
         "publishedUnits": "Published Properties",
         "activeUnits": "Active Units",
         "stoppedUnits": "Stopped Units",
@@ -1454,35 +1499,35 @@
     "bookings": {
       "title": "Bookings Record",
       "cards": {
-        "totalBookings":  "Total Bookings",
-        "confirmed":      "Confirmed Bookings",
-        "awaitingArrival":"Awaiting Arrival",
-        "todayRevenue":   "Today's Revenue"
+        "totalBookings": "Total Bookings",
+        "confirmed": "Confirmed Bookings",
+        "awaitingArrival": "Awaiting Arrival",
+        "todayRevenue": "Today's Revenue"
       },
       "filters": {
         "searchPlaceholder": "Search by booking #, client name...",
-        "checkIn":  "Check-in Date",
+        "checkIn": "Check-in Date",
         "checkOut": "Check-out Date"
       },
       "status": {
-        "all":              "All Statuses",
-        "confirmed":        "Confirmed",
-        "checkedIn":        "Checked In",
-        "awaitingCheckin":  "Awaiting Check-in",
+        "all": "All Statuses",
+        "confirmed": "Confirmed",
+        "checkedIn": "Checked In",
+        "awaitingCheckin": "Awaiting Check-in",
         "awaitingCheckout": "Awaiting Check-out"
       },
       "table": {
         "bookingNum": "Booking #",
-        "client":     "Client",
-        "unit":       "Unit / Property",
-        "dates":      "Check-in / Check-out",
-        "amount":     "Amount",
-        "status":     "Status",
-        "empty":      "No bookings found"
+        "client": "Client",
+        "unit": "Unit / Property",
+        "dates": "Check-in / Check-out",
+        "amount": "Amount",
+        "status": "Status",
+        "empty": "No bookings found"
       },
       "actions": {
-        "view":   "View Details",
-        "edit":   "Edit",
+        "view": "View Details",
+        "edit": "Edit",
         "cancel": "Cancel Booking"
       }
     },
@@ -1596,6 +1641,55 @@
           "rejectAction": "Yes, Reject Request"
         }
       }
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "subtitle": "Manage platform details, account preferences, security settings and integrations",
+      "saveBtn": "Save Changes",
+      "tabs": {
+        "sysInfo": "System Information",
+        "security": "Security & Privacy"
+      },
+      "sysInfo": {
+        "sectionTitle": "Basic System Information",
+        "platformName": "Platform Name",
+        "platformUrl": "Official Platform URL",
+        "supportEmail": "Support Email",
+        "timezone": "Timezone",
+        "notifSection": "Notification Preferences",
+        "notifSectionSub": "Automatic notifications from the platform",
+        "emailNotif": "Email Notifications",
+        "emailNotifDesc": "Send notifications for new service applications",
+        "urgentBookings": "Urgent Booking Alerts",
+        "urgentBookingsDesc": "Send an SMS when an upcoming booking is within 2 hours",
+        "monthlyReports": "Monthly Performance Reports",
+        "monthlyReportsDesc": "Download and send a comprehensive PDF report at the end of each calendar month",
+        "apiSection": "Access Keys (API)",
+        "apiSectionLink": "Developers only",
+        "secretKey": "Secret Access Key",
+        "webhookUrl": "Webhook URL",
+        "webhookDesc": "Use this URL to receive real-time notifications in your system when any booking or cancellation occurs",
+        "generateNew": "Generate New",
+        "copy": "Copy"
+      },
+      "security": {
+        "sectionTitle": "Security & Privacy",
+        "sectionSub": "Control access settings and protect your admin account data",
+        "twoFa": "Two-Factor Authentication (2FA)",
+        "twoFaDesc": "Add an extra layer of security when logging in. You will need to enter a code sent to your phone or authentication app",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "activeSessions": "Active Sessions",
+        "logoutAll": "Logout from all sessions",
+        "currentSession": "Current",
+        "sessionNow": "Just now",
+        "loginLog": "Login Activity Log",
+        "logEvent": "Event",
+        "logDateTime": "Date & Time",
+        "logIp": "IP Address",
+        "logLocation": "Location"
+      },
+      "heroTitle": "Platform Settings"
     }
   }
 }

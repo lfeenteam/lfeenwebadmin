@@ -16,12 +16,20 @@ export interface AccountItem {
   logoUrl: string | null;
 }
 
+export interface AccountStats {
+  total: number;
+  activeOrPublished: number;
+  pendingOrRejected: number;
+  underReview: number;
+}
+
 export interface PaginatedAccountResponse {
   data: AccountItem[];
   totalCount: number;
   page: number;
   nextpage: number | null;
   totalPages: number;
+  stats: AccountStats;
 }
 
 export interface AccountDetail {

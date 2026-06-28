@@ -169,7 +169,7 @@
   }
 
   <!-- Review Notes -->
-  @if (hasRejections && !readOnly) {
+  @if (!readOnly) {
     <div class="notes-section">
       <div class="notes-header">
         <span class="notes-title">{{ 'd3.buildReview.images.notesTitle' | translate }}</span>
@@ -187,7 +187,7 @@
   <!-- Action Buttons -->
   @if (!readOnly) {
   <div class="action-buttons">
-    <button class="btn btn-approve" [disabled]="isSubmitting" (click)="confirmSubmit('Approved')">
+    <button class="btn btn-approve" [disabled]="isSubmitting || hasPendingPhotos || allPhotos.length === 0" (click)="confirmSubmit('Approved')">
       <span>{{ 'd3.buildReview.images.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
