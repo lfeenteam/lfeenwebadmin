@@ -118,6 +118,10 @@ export class SidebarComponent implements OnInit {
     return this.router.url === built || this.router.url.startsWith(built + '/');
   }
 
+  get isOnSettingsPage(): boolean {
+    return this.router.url.includes('/d3/settings');
+  }
+
   isChildActive(item: NavItem): boolean {
     return !!item.children?.some(child => this.isActive(child));
   }

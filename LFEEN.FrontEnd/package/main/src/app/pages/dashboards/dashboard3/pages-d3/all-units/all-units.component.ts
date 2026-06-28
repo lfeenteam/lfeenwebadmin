@@ -6,7 +6,7 @@ import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashb
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { UnitsService, UnitSortOrder } from '../../services/units.service';
-import { BuildingWithUnits, UnitApiItem, UnitReviewStatusCode, UnitTab } from '../../interfaces/unit-card.model';
+import { BuildingWithUnits, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
 
 @Component({
@@ -38,9 +38,9 @@ export class AllUnitsComponent {
   currentPage  = 1;
 
   metrics: MetricCard[] = [
-    { titleKey: 'd3.allUnits.cards.publishedUnits',   value: '—', icon: 'building',     tone: 'black'  },
+    { titleKey: 'd3.allUnits.cards.totalUnits',        value: '—', icon: 'building',     tone: 'black'  },
     { titleKey: 'd3.allUnits.cards.activeUnits',      value: '—', icon: 'circle-check', tone: 'green'  },
-    { titleKey: 'd3.allUnits.cards.stoppedUnits',     value: '—', icon: 'player-pause', tone: 'gray'   },
+    { titleKey: 'd3.allUnits.cards.unpublishedUnits',  value: '—', icon: 'player-pause', tone: 'gray'   },
     { titleKey: 'd3.allUnits.cards.underReviewUnits', value: '—', icon: 'clock-hour-3', tone: 'orange' }
   ];
 
@@ -84,7 +84,17 @@ export class AllUnitsComponent {
       this.totalCount  = this.unitsService.totalCount();
       this.totalPages  = this.unitsService.totalBuildingPages();
       this.currentPage = this.unitsService.buildingsPage();
-      this.updateMetrics(this.unitsService.filterUnits());
+
+      const s = this.unitsService.unitStats();
+      if (s) {
+        this.metrics = [
+          { ...this.metrics[0], value: this.formatNumber(s.total)             },
+          { ...this.metrics[1], value: this.formatNumber(s.activeOrPublished) },
+          { ...this.metrics[2], value: this.formatNumber(s.pendingOrRejected) },
+          { ...this.metrics[3], value: this.formatNumber(s.underReview)       },
+        ];
+      }
+
       this.cdr.markForCheck();
     });
 
@@ -121,45 +131,8 @@ export class AllUnitsComponent {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
-  private updateMetrics(units: UnitApiItem[]): void {
-    const publishedPropertyIds = new Set(
-      units
-        .filter(unit => unit.propertyAdminReviewStatus === 'Approved')
-        .map(unit => unit.propertyId)
-    );
-    const activeUnits = units.filter(unit =>
-      this.normalizeReviewStatus(unit.reviewStatus) === 'Approved'
-      || this.normalizeReviewStatus(unit.reviewStatus) === 'HasPendingChanges'
-    ).length;
-    const stoppedUnits = units.filter(unit => this.normalizeReviewStatus(unit.reviewStatus) === 'Rejected').length;
-    const underReviewUnits = units.filter(unit =>
-      ['Pending', 'UnderReview', ''].includes(this.normalizeReviewStatus(unit.reviewStatus))
-    ).length;
-
-    this.metrics = [
-      { ...this.metrics[0], value: this.formatNumber(publishedPropertyIds.size) },
-      { ...this.metrics[1], value: this.formatNumber(activeUnits) },
-      { ...this.metrics[2], value: this.formatNumber(stoppedUnits) },
-      { ...this.metrics[3], value: this.formatNumber(underReviewUnits) }
-    ];
-  }
-
   private formatNumber(value: number): string {
     return new Intl.NumberFormat().format(value);
-  }
-
-  private normalizeReviewStatus(reviewStatus: UnitReviewStatusCode): string {
-    if (typeof reviewStatus === 'number') {
-      switch (reviewStatus) {
-        case 0:  return 'Pending';
-        case 1:  return 'UnderReview';
-        case 2:  return 'Approved';
-        case 3:  return 'Rejected';
-        case 4:  return 'HasPendingChanges';
-      }
-    }
-
-    return reviewStatus?.trim() ?? '';
   }
 
   get visiblePages(): (number | '...')[] {

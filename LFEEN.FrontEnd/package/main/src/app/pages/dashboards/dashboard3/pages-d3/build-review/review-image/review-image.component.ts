@@ -97,6 +97,10 @@ export class ReviewImageComponent implements OnInit {
     return this.allPhotos.some(p => p.decision === 'Rejected');
   }
 
+  get hasPendingPhotos(): boolean {
+    return this.allPhotos.some(p => p.decision === 'Pending');
+  }
+
   get rejectedGroups(): { title: string; reason: string }[] {
     const result: { title: string; reason: string }[] = [];
     if (this.mainPhoto?.decision === 'Rejected') {
@@ -152,15 +156,22 @@ export class ReviewImageComponent implements OnInit {
       return;
     }
 
-    if (decision === 'Rejected' && !this.hasRejections) {
+    const noPhotos = this.allPhotos.length === 0;
+
+    if (decision === 'Rejected' && !noPhotos && !this.hasRejections) {
       this.toastr.warning(this.translate.instant('d3.buildReview.images.rejectedPhotoRequired'));
+      return;
+    }
+
+    if (decision === 'Rejected' && noPhotos && !this.sectionRejectionReason.trim()) {
+      this.toastr.warning(this.translate.instant('d3.buildReview.images.rejectionReasonRequired'));
       return;
     }
 
     const rejectedWithoutReason = this.allPhotos.some(
       p => p.decision === 'Rejected' && !p.rejectionReason.trim()
     );
-    if (decision === 'Rejected' && rejectedWithoutReason) {
+    if (decision === 'Rejected' && !noPhotos && rejectedWithoutReason) {
       this.toastr.warning(this.translate.instant('d3.buildReview.images.rejectionReasonRequired'));
       return;
     }

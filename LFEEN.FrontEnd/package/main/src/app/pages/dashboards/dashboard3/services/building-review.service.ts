@@ -5,6 +5,7 @@ import {
   BuildingCardItem,
   BuildingTab,
   PropertyApiItem,
+  PropertyApiStats,
   PaginatedPropertyResponse,
   PropertyDetailResponse,
   PropertyPhotosResponse,
@@ -18,7 +19,6 @@ import {
   LicenseReviewResponse,
   PropertyFinalDecisionPayload,
   PropertyFinalDecisionResult,
-  PropertyStatistics,
   PropertyAdminReviewStatusValue
 } from '../interfaces/building-card.model';
 
@@ -26,7 +26,7 @@ export interface PropertyTypeItem {
   id: number;
   name: string;
 }
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
 
@@ -85,55 +85,15 @@ export class BuildingReviewService {
   readonly totalPages    = computed(() => this._propertiesResource.value()?.totalPages ?? 1);
   readonly totalCount    = computed(() => this._propertiesResource.value()?.totalCount ?? 0);
   readonly isLoading     = this._propertiesResource.isLoading;
+  readonly propertyStats = computed<PropertyApiStats | null>(() => this._propertiesResource.value()?.stats ?? null);
 
   readonly buildings = computed<BuildingCardItem[]>(() =>
     this.rawProperties().map(p => this.mapToBuilding(p))
   );
 
-  getPropertyStatistics(): Observable<PropertyStatistics> {
-    const pageSize = 50;
-    const getPage = (pageNumber: number) =>
-      this.http.get<PaginatedPropertyResponse>(
-        `${this.apiUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}&newestFirst=true`
-      );
-
-    return getPage(1).pipe(
-      switchMap(firstPage => {
-        const remainingPages = Array.from(
-          { length: Math.max(firstPage.totalPages - 1, 0) },
-          (_, index) => getPage(index + 2)
-        );
-        return remainingPages.length
-          ? forkJoin(remainingPages).pipe(
-              map(pages => [firstPage, ...pages])
-            )
-          : of([firstPage]);
-      }),
-      map(pages => {
-        const properties = pages.flatMap(page => page.data);
-        return {
-          totalProperties: pages[0]?.totalCount ?? properties.length,
-          activeProperties: properties.filter(
-            property => property.isActive === true
-          ).length,
-          inactiveProperties: properties.filter(
-            property => property.isActive === false
-          ).length,
-          underReviewProperties: properties.filter(
-            property =>
-              this.hasReviewStatus(property, PropertyAdminReviewStatusValue.Pending) ||
-              this.hasReviewStatus(property, PropertyAdminReviewStatusValue.UnderReview)
-          ).length
-        };
-      })
-    );
-  }
-
   private mapToBuilding(p: PropertyApiItem): BuildingCardItem {
     const lang             = this.coreService.getLanguage();
-    const occupancyPercent = p.unitCount > 0
-      ? Math.round((p.occupancyCount / p.unitCount) * 100)
-      : 0;
+    const occupancyPercent = p.occupancyCount ?? 0;
     const tab: BuildingTab =
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved)    ? 'published'    :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected)    ? 'rejected'     :

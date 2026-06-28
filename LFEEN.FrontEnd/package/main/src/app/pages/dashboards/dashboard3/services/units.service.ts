@@ -9,6 +9,7 @@ import {
   BuildingWithUnits,
   UnitCardItem,
   UnitApiItem,
+  UnitApiStats,
   UnitApiDetailItem,
   UnitBasicDataResponse,
   UnitTermsResponse,
@@ -73,6 +74,11 @@ export class UnitsService {
     loader: () => this.getAllUnitPages({})
   });
 
+  private readonly _statsResource = rxResource({
+    request: () => true,
+    loader: () => this.http.get<PaginatedUnitResponse>(`${this.apiUrl}?pageNumber=1&pageSize=1&newestFirst=true`)
+  });
+
   private readonly _accountsFilterResource = rxResource({
     request: () => true,
     loader: () => this.getAllAccountPages()
@@ -104,6 +110,7 @@ export class UnitsService {
   readonly totalPages = computed(() => this._unitsResource.value()?.totalPages ?? 1);
   readonly totalCount = computed(() => this.rawUnits().length);
   readonly isLoading  = this._unitsResource.isLoading;
+  readonly unitStats  = computed<UnitApiStats | null>(() => this._statsResource.value()?.stats ?? null);
 
   readonly buildingsWithUnitsSignal = computed<BuildingWithUnits[]>(() => {
     const groups = new Map<number, BuildingWithUnits>();

@@ -105,12 +105,20 @@ export interface UnitApiItem {
   updatedAt: string;
 }
 
+export interface UnitApiStats {
+  total: number;
+  activeOrPublished: number;
+  pendingOrRejected: number;
+  underReview: number;
+}
+
 export interface PaginatedUnitResponse {
   data: UnitApiItem[];
   totalCount: number;
   page: number;
   nextpage: number | null;
   totalPages: number;
+  stats: UnitApiStats;
 }
 
 export interface UnitApiSection {

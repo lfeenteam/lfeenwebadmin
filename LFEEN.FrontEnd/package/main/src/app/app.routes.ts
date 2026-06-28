@@ -499,6 +499,21 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
+              {
+                path: 'settings',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-settings/platform-settings.component'
+                  ).then((m) => m.PlatformSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.settings.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
             ],
           },
           {

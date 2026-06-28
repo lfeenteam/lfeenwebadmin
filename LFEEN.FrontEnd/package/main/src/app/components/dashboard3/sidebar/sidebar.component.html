@@ -79,7 +79,9 @@
             </span>
           </span>
         </a>
-        <a mat-list-item (click)="navigateTo({link: '/settings'}, $event)" class="d3-menu-item footer-item">
+        <a mat-list-item (click)="navigateTo({link: '/d3/settings'}, $event)"
+          [class.active-link]="isOnSettingsPage"
+          class="d3-menu-item footer-item">
           <span class="d-flex align-items-center gap-12 w-100">
             <i-tabler name="settings" class="icon-20"></i-tabler>
             <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
