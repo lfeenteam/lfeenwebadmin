@@ -1,7 +1,5 @@
-import { Component, OnInit, inject, effect, ChangeDetectorRef, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { StatsRowComponent } from '../team-management/components/stats-row/stats-row.component';
@@ -39,7 +37,6 @@ export class AccountManagementComponent implements OnInit {
   private accountService = inject(AccountService);
   private cdr = inject(ChangeDetectorRef);
   private translate = inject(TranslateService);
-  private destroyRef = inject(DestroyRef);
 
   activeTab: AccountTab = this.accountService.activeTab();
   searchQuery = '';
@@ -68,34 +65,20 @@ export class AccountManagementComponent implements OnInit {
       this.isLoading   = this.accountService.isLoading();
       this.newestFirst = this.accountService.newestFirst();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+      const s = this.accountService.accountStats();
+      if (s) {
+        this.stats[0].value = String(s.total);
+        this.stats[1].value = String(s.activeOrPublished);
+        this.stats[2].value = String(s.underReview);
+        this.stats[3].value = String(s.pendingOrRejected);
+      }
+
       this.cdr.markForCheck();
     });
   }
 
-  ngOnInit(): void {
-    this.translate.onLangChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadStats());
-
-    this.loadStats();
-  }
-
-  private loadStats(): void {
-    // Draft=0, PendingReview=1, Approved=2, Rejected=3
-    forkJoin({
-      total:       this.accountService.getStatusCount(null),
-      approved:    this.accountService.getStatusCount(2),
-      underReview: this.accountService.getStatusCount(0),
-      pending:     this.accountService.getStatusCount(1),
-      rejected:    this.accountService.getStatusCount(3),
-    }).subscribe(counts => {
-      this.stats[0].value = String(counts.total);
-      this.stats[1].value = String(counts.approved);
-      this.stats[2].value = String(counts.underReview + counts.pending);
-      this.stats[3].value = String(counts.rejected);
-      this.cdr.markForCheck();
-    });
-  }
+  ngOnInit(): void {}
 
   get filteredAccounts(): Account[] {
     switch (this.activeTab) {

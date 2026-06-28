@@ -70,9 +70,9 @@ export class SidebarService {
       }
     });
 
-    if (!items.find(i => i.link === '/settings')) {
+    if (!items.find(i => i.link === '/d3/settings')) {
       items.push({ divider: true });
-      items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/settings' });
+      items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
 
     this.sidebarItems.set(items);
@@ -100,6 +100,7 @@ export class SidebarService {
     const exactRouteMap: { [key: string]: string } = {
       'dashboard':       '/d3/ceo',
       'departments-all': '/d3/team-management',
+      'settings':        '/d3/settings',
     };
 
     return items
