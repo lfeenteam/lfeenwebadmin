@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
   Department,
+  DepartmentStats,
   PaginatedDepartmentResponse,
   Employee,
   PaginatedEmployeeResponse,
@@ -36,10 +37,11 @@ export class DepartmentService {
       )
   });
 
-  readonly departments = computed(() => this._departmentsResource.value()?.data ?? []);
-  readonly totalPages = computed(() => this._departmentsResource.value()?.totalPages ?? 1);
-  readonly totalCount = computed(() => this._departmentsResource.value()?.totalCount ?? 0);
-  readonly isLoading = this._departmentsResource.isLoading;
+  readonly departments      = computed(() => this._departmentsResource.value()?.data ?? []);
+  readonly totalPages       = computed(() => this._departmentsResource.value()?.totalPages ?? 1);
+  readonly totalCount       = computed(() => this._departmentsResource.value()?.totalCount ?? 0);
+  readonly isLoading        = this._departmentsResource.isLoading;
+  readonly departmentStats  = computed<DepartmentStats | null>(() => this._departmentsResource.value()?.stats ?? null);
 
   goToPage(page: number): void {
     this.currentPage.set(page);

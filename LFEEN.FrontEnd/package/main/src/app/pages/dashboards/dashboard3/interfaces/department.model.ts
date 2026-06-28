@@ -18,12 +18,19 @@ export interface Department {
   updatedAt: string | null;
 }
 
+export interface DepartmentStats {
+  totalDepartments: number;
+  totalEmployees: number;
+  activeManagers: number;
+}
+
 export interface PaginatedDepartmentResponse {
   data: Department[];
   totalCount: number;
   page: number;
   nextpage: number | null;
   totalPages: number;
+  stats: DepartmentStats;
 }
 
 export interface EmployeeRole {
