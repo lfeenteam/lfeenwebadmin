@@ -7,7 +7,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../../services/department.service';
-import { RolePermission } from '../../../interfaces/department.model';
+import { DepartmentManager, RolePermission } from '../../../interfaces/department.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { forkJoin, Subscription } from 'rxjs';
@@ -25,7 +25,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   roleId: string | null = null;
 
   deptName = '';
-  manager = '';
+  managers: DepartmentManager[] = [];
   employeeCount = 0;
   roleName = '';
 
@@ -67,7 +67,9 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
           ?? dept.nameAr
           ?? dept.nameEn
           ?? '';
-        this.manager = dept.managerFullName || '---';
+        this.managers = dept.managers?.length
+          ? dept.managers
+          : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
         this.employeeCount = dept.employeeCount;
         this.roleName = role.name
           ?? (this.currentLang === 'ar' ? role.nameAr : role.nameEn)

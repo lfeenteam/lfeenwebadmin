@@ -50,7 +50,8 @@ export class AddRoleDialogComponent implements OnInit {
       nameAr: [r?.nameAr || (lang === 'ar' ? r?.name : '') || '', [Validators.required, Validators.minLength(2)]],
       nameEn: [r?.nameEn || (lang === 'en' ? r?.name : '') || ''],
       descriptionAr: [r?.descriptionAr || (lang === 'ar' ? r?.description : '') || ''],
-      descriptionEn: [r?.descriptionEn || (lang === 'en' ? r?.description : '') || '']
+      descriptionEn: [r?.descriptionEn || (lang === 'en' ? r?.description : '') || ''],
+      isManagerRole: [r?.isManagerRole ?? false]
     });
 
     this.showNameSecondary = this.hasSecondaryName;
@@ -66,7 +67,8 @@ export class AddRoleDialogComponent implements OnInit {
             nameAr: role.nameAr || (lang === 'ar' ? role.name : '') || '',
             nameEn: role.nameEn || (lang === 'en' ? role.name : '') || '',
             descriptionAr: role.descriptionAr || (lang === 'ar' ? role.description : '') || '',
-            descriptionEn: role.descriptionEn || (lang === 'en' ? role.description : '') || ''
+            descriptionEn: role.descriptionEn || (lang === 'en' ? role.description : '') || '',
+            isManagerRole: role.isManagerRole
           });
           this.showNameSecondary = !!(role.nameEn && role.nameAr && role.nameEn !== role.nameAr);
           this.showDescSecondary = !!(role.descriptionEn && role.descriptionAr && role.descriptionEn !== role.descriptionAr);
@@ -100,14 +102,16 @@ export class AddRoleDialogComponent implements OnInit {
           nameEn: v.nameEn,
           descriptionAr: v.descriptionAr,
           descriptionEn: v.descriptionEn,
-          departmentId: this.data.departmentId
+          departmentId: this.data.departmentId,
+          isManagerRole: v.isManagerRole
         })
       : this.departmentService.createRole({
           nameAr: v.nameAr,
           nameEn: v.nameEn || v.nameAr,
           descriptionAr: v.descriptionAr,
           descriptionEn: v.descriptionEn || v.descriptionAr,
-          departmentId: this.data.departmentId
+          departmentId: this.data.departmentId,
+          isManagerRole: v.isManagerRole
         });
 
     request.subscribe({

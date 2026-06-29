@@ -2,23 +2,63 @@
   <mat-card-content class="p-32 p-y-24">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-24 position-relative">
 
-      <!-- Manager Info -->
-      <div class="d-flex align-items-center flex-grow-1 manager-info-gap">
-        <div class="manager-avatar-wrapper">
-          <img [src]="department.managerAvatar || 'assets/images/profile/user-1.jpg'" class="rounded-12" width="80" height="80" />
-        </div>
-        <div class="manager-details text-start">
-          <div class="d-flex align-items-center gap-8 m-b-4">
-            <h3 class="m-0 f-s-22 f-w-900">{{ department.managerFullName }}</h3>
-            <i-tabler name="crown" class="crown-icon"></i-tabler>
+      <!-- Managers Info -->
+      <div class="d-flex flex-wrap gap-24 flex-grow-1">
+        @if (department.managers.length) {
+          @for (mgr of department.managers; track mgr.id) {
+            <div class="d-flex align-items-center manager-info-gap">
+              <div class="manager-avatar-wrapper">
+                @if (mgr.avatar) {
+                  <img [src]="mgr.avatar" class="rounded-12" width="80" height="80" />
+                } @else {
+                  <div class="manager-initials-avatar rounded-12 d-flex align-items-center justify-content-center">
+                    {{ getInitials(mgr.fullName) }}
+                  </div>
+                }
+              </div>
+              <div class="manager-details text-start">
+                <div class="d-flex align-items-center gap-8 m-b-4">
+                  <h3 class="m-0 f-s-22 f-w-900">{{ mgr.fullName }}</h3>
+                  <i-tabler name="crown" class="crown-icon"></i-tabler>
+                </div>
+                <p class="m-0 text-dark f-s-14 f-w-700">
+                  {{ 'd3.teamManagement.deptManagerTitle' | translate : { name: (currentLang === 'ar' ? department.nameAr : department.nameEn) } }}
+                </p>
+                @if ($first) {
+                  <p class="m-0 manager-desc max-width-400">
+                    {{ currentLang === 'ar' ? department.descriptionAr : department.descriptionEn }}
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="d-flex align-items-center manager-info-gap">
+            <div class="manager-avatar-wrapper">
+              @if (department.managerAvatar) {
+                <img [src]="department.managerAvatar" class="rounded-12" width="80" height="80" />
+              } @else {
+                <div class="manager-initials-avatar rounded-12 d-flex align-items-center justify-content-center">
+                  {{ getInitials(department.managerFullName || '?') }}
+                </div>
+              }
+            </div>
+            <div class="manager-details text-start">
+              <div class="d-flex align-items-center gap-8 m-b-4">
+                <h3 class="m-0 f-s-22 f-w-900">{{ department.managerFullName || '---' }}</h3>
+                @if (department.managerFullName) {
+                  <i-tabler name="crown" class="crown-icon"></i-tabler>
+                }
+              </div>
+              <p class="m-0 text-dark f-s-14 f-w-700">
+                {{ 'd3.teamManagement.deptManagerTitle' | translate : { name: (currentLang === 'ar' ? department.nameAr : department.nameEn) } }}
+              </p>
+              <p class="m-0 manager-desc max-width-400">
+                {{ currentLang === 'ar' ? department.descriptionAr : department.descriptionEn }}
+              </p>
+            </div>
           </div>
-          <p class="m-0 text-dark f-s-14 f-w-700">
-            {{ 'd3.teamManagement.deptManagerTitle' | translate : { name: (currentLang === 'ar' ? department.nameAr : department.nameEn) } }}
-          </p>
-          <p class="m-0 manager-desc max-width-400">
-            {{ currentLang === 'ar' ? department.descriptionAr : department.descriptionEn }}
-          </p>
-        </div>
+        }
       </div>
 
       <!-- Add Employee Button -->

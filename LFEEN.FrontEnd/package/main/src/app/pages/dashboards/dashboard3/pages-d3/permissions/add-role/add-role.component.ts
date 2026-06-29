@@ -54,7 +54,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       nameAr: [''],
       nameEn: [''],
       descriptionAr: [''],
-      descriptionEn: ['']
+      descriptionEn: [''],
+      isManagerRole: [false]
     });
   }
 
@@ -133,7 +134,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       nameEn: v.nameEn || v.nameAr,
       descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
-      departmentId: this.deptId!
+      departmentId: this.deptId!,
+      isManagerRole: v.isManagerRole
     }).pipe(
       switchMap((newRole: any) => {
         const selectedIds = this.permissions.filter(p => p.selected).map(p => p.id);

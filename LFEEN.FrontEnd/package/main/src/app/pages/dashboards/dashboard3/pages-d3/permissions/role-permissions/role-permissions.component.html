@@ -19,9 +19,21 @@
           </div>
         </div>
         <div class="d-flex gap-16">
-          <div class="stat-item text-center">
-            <span class="stat-label d-block">{{ 'd3.permissions.manager' | translate }}</span>
-            <span class="stat-value">{{ manager }}</span>
+          <div class="stat-item managers-stat">
+            <span class="stat-label d-block m-b-8">{{ 'd3.permissions.manager' | translate }}</span>
+            <div class="d-flex flex-wrap gap-8">
+              @for (mgr of managers; track mgr.id) {
+                <div class="manager-chip d-flex align-items-center gap-6">
+                  <div class="manager-chip-avatar d-flex align-items-center justify-content-center">
+                    {{ mgr.fullName.charAt(0) }}
+                  </div>
+                  <span class="manager-chip-name f-s-13 f-w-600">{{ mgr.fullName }}</span>
+                </div>
+              }
+              @empty {
+                <span class="stat-value">---</span>
+              }
+            </div>
           </div>
           <div class="stat-item text-center">
             <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>

@@ -520,6 +520,7 @@
         "opsLog": "سجل العمليات"
       },
       "searchPlaceholder": "بحث باسم الموظف، رقم الهوية أو الهاتف...",
+      "managerBadge": "مدير",
       "addDept": "إضافة قسم جديد",
       "addEmployee": "إضافة موظف جديد",
       "filters": {
@@ -673,6 +674,8 @@
       "descriptionPlaceholder": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
       "permissionsTitle": "تحديد صلاحيات الدور",
       "selectedCount": "تم تفعيل {{count}} صلاحيات",
+      "isManagerRoleLabel": "دور مدير",
+      "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
       "saveBtn": "حفظ الدور الوظيفي",
       "cancelBtn": "إلغاء",
       "validation": {
@@ -688,6 +691,8 @@
       "namePlaceholderAr": "مثال: مدقق حجوزات، مشرف جودة...",
       "descriptionLabel": "وصف الصلاحية",
       "descriptionPlaceholderAr": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
+      "isManagerRoleLabel": "دور مدير",
+      "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
       "cancelBtn": "إلغاء",
       "saveBtn": "حفظ التعديلات",
       "addBtn": "إضافة الدور للنظام",
@@ -711,7 +716,8 @@
         "viewTooltip": "عرض",
         "editBtn": "تعديل",
         "deleteBtn": "حذف",
-        "addRoleBtn": "إضافة دور (Role) أو صلاحية جديدة للقسم"
+        "addRoleBtn": "إضافة دور (Role) أو صلاحية جديدة للقسم",
+        "managerRoleTooltip": "دور مدير"
       },
       "alert": {
         "title": "تنبيه تشغيلي هام",

@@ -23,7 +23,16 @@
           <i-tabler name="user-cog" class="icon-16"></i-tabler>
           {{ 'd3.teamManagement.deptCard.manager' | translate }}
         </div>
-        <span class="f-s-12 f-w-700">{{ dept.managerFullName || '---' }}</span>
+        <span class="f-s-12 f-w-700">
+          @if (dept.managers.length) {
+            {{ dept.managers[0].fullName }}
+            @if (dept.managers.length > 1) {
+              <span class="text-muted"> +{{ dept.managers.length - 1 }}</span>
+            }
+          } @else {
+            {{ dept.managerFullName || '---' }}
+          }
+        </span>
       </div>
       <div class="d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-8 label-text f-s-12">

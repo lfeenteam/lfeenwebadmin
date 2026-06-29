@@ -112,7 +112,7 @@
 
       @if (!isCeoPage()) {
         <div class="user-profile-wrapper">
-          <div class="user-profile">
+          <div class="user-profile" (click)="navigateTo({link: '/d3/profile'}, $event)" style="cursor: pointer;">
             <img [src]="user()?.image || './assets/images/profile/user-1.jpg'" alt="user" class="profile-img" />
             <div class="user-info" *ngIf="!collapsed || mobileMode">
               <span class="user-name">{{ user()?.fullName }}</span>

@@ -120,8 +120,11 @@
           @if (isDropdownOpen) {
             <div class="custom-dropdown-list shadow-lg">
               @for (role of roles; track role.id) {
-                <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectRole(role)">
+                <div class="dropdown-option d-flex align-items-center justify-content-center gap-6" (click)="$event.stopPropagation(); selectRole(role)">
                   {{ (currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name }}
+                  @if (role.isManagerRole) {
+                    <i-tabler name="crown" class="icon-14" style="color:#B45309"></i-tabler>
+                  }
                 </div>
               }
             </div>

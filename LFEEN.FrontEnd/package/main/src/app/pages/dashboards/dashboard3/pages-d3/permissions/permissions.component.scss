@@ -305,6 +305,40 @@
     }
   }
 
+  .perm-crown-icon {
+    color: #B45309;
+    flex-shrink: 0;
+  }
+
+  .managers-stat {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  .manager-chip {
+    background: #F7F7F5;
+    border: 1px solid #E8E8E4;
+    border-radius: 20px;
+    padding: 4px 10px 4px 4px;
+
+    .manager-chip-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #111110;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .manager-chip-name {
+      color: #111110;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+  }
+
   .alert-box {
     background: #b4530909;
     border: 1px solid #E8E8E4;

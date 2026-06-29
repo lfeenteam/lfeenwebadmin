@@ -8,7 +8,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../services/department.service';
-import { DepartmentRole } from '../../interfaces/department.model';
+import { DepartmentManager, DepartmentRole } from '../../interfaces/department.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
@@ -18,6 +18,7 @@ interface RoleRow {
   name: string;
   description: string;
   icon: string;
+  isManagerRole: boolean;
   raw: DepartmentRole;
 }
 
@@ -35,7 +36,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
   deptEnglishName = '';
   deptDescAr = '';
   deptDescEn = '';
-  manager = '';
+  managers: DepartmentManager[] = [];
   employeeCount = 0;
   isLoading = true;
   deletingId: string | null = null;
@@ -79,7 +80,9 @@ export class PermissionsComponent implements OnInit, OnDestroy {
       next: (dept) => {
         this.deptName = dept.nameAr ?? dept.name ?? '';
         this.deptEnglishName = dept.nameEn ?? dept.name ?? '';
-        this.manager = dept.managerFullName || '---';
+        this.managers = dept.managers?.length
+          ? dept.managers
+          : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
         this.employeeCount = dept.employeeCount;
       },
       error: (err) => console.error('Error loading department', err)
@@ -95,6 +98,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           name: (this.currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name ?? '',
           description: (this.currentLang === 'ar' ? role.descriptionAr : role.descriptionEn) ?? role.description ?? '',
           icon: 'user-circle',
+          isManagerRole: role.isManagerRole,
           raw: role
         }));
         this.isLoading = false;
@@ -131,6 +135,7 @@ editRole(role: RoleRow): void {
       if (roleIndex !== -1) {
         this.roles[roleIndex].name = (this.currentLang === 'ar' ? result.nameAr : result.nameEn) ?? result.name ?? '';
         this.roles[roleIndex].description = (this.currentLang === 'ar' ? result.descriptionAr : result.descriptionEn) ?? result.description ?? '';
+        this.roles[roleIndex].isManagerRole = result.isManagerRole ?? false;
         this.roles[roleIndex].raw = result;
       }
     }

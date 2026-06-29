@@ -1,0 +1,97 @@
+<div class="profile-page" [dir]="currentDir">
+
+  <!-- Hero: title/subtitle on right, photo on left -->
+  <div class="profile-hero">
+    <div class="hero-text">
+      <h2 class="profile-hero-title">الملف الشخصي</h2>
+      <p class="profile-subtitle">إدارة معلوماتك الشخصية وتفضيلات الأمان بحسابك</p>
+    </div>
+    <div class="avatar-wrapper">
+      <img src="/assets/images/profile/user-1.jpg" alt="user" class="profile-avatar" />
+      <button class="avatar-camera-btn" type="button">
+        <i-tabler name="camera" class="icon-16"></i-tabler>
+      </button>
+    </div>
+  </div>
+
+  <!-- Basic Info Card -->
+  <div class="profile-card">
+    <div class="card-head">
+      <div class="card-head-title">
+        <span class="card-icon-box">
+          <i-tabler name="user" class="icon-18"></i-tabler>
+        </span>
+        <h3>المعلومات الأساسية</h3>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-field">
+        <label>الاسم الكامل</label>
+        <div class="info-val-box">سلطان العليق</div>
+      </div>
+      <div class="info-field">
+        <label>البريد الإلكتروني</label>
+        <div class="info-val-box">ceo&#64;lafin.sa</div>
+      </div>
+      <div class="info-field">
+        <label>رقم الهاتف</label>
+        <div class="info-val-box phone-val">
+          <span class="phone-number">0501234567</span>
+          <span class="phone-prefix">+966</span>
+        </div>
+      </div>
+      <div class="info-field">
+        <label>لغة الواجهة</label>
+        <div class="info-val-box">العربية (Arabic)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Card -->
+  <div class="profile-card">
+    <div class="security-row">
+      <div class="security-info">
+        <span class="card-icon-box">
+          <i-tabler name="lock" class="icon-18"></i-tabler>
+        </span>
+        <div class="security-text">
+          <h3 class="security-title">الأمان وكلمة المرور</h3>
+          <p class="security-desc">قم بتحديث كلمة المرور الخاصة بك بانتظام للحفاظ على أمان حسابك</p>
+        </div>
+      </div>
+      <button class="change-pass-btn" type="button" (click)="openChangePassword()">
+        تعديل كلمة المرور
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications Card -->
+  <div class="profile-card">
+    <div class="card-head">
+      <div class="card-head-title">
+        <span class="card-icon-box">
+          <i-tabler name="bell" class="icon-18"></i-tabler>
+        </span>
+        <h3>تفضيلات الإشعارات</h3>
+      </div>
+    </div>
+    <div class="notif-list">
+      <div class="notif-row">
+        <mat-slide-toggle [(ngModel)]="notifEmail" class="profile-toggle"></mat-slide-toggle>
+        <div class="notif-info">
+          <span class="notif-title">إشعارات البريد</span>
+          <span class="notif-desc">استلام ملخص العمليات اليومي عبر البريد</span>
+        </div>
+      </div>
+      <div class="notif-row">
+        <mat-slide-toggle [(ngModel)]="notifBrowser" class="profile-toggle"></mat-slide-toggle>
+        <div class="notif-info">
+          <span class="notif-title">إشعارات المتصفح</span>
+          <span class="notif-desc">استلام تنبيهات فورية عند وجود حجز جديد</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

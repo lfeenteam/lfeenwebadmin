@@ -43,6 +43,26 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     width: 98vw !important;
   }
 }
+.change-password-dialog-panel {
+  .mdc-dialog__surface {
+    border-radius: 20px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    background-color: #fff !important;
+    overflow: hidden !important;
+  }
+
+  .mat-mdc-dialog-content {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .cdk-overlay-pane.change-password-dialog-panel {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+}
+
 .custom-dialog-container {
   .mdc-dialog__surface {
     border-radius: 40px !important;
