@@ -518,6 +518,7 @@
         "opsLog": "Operations Log"
       },
       "searchPlaceholder": "Search by employee name, ID or phone...",
+      "managerBadge": "Manager",
       "addDept": "Add New Department",
       "addEmployee": "Add New Employee",
       "filters": {
@@ -671,6 +672,8 @@
       "descriptionPlaceholder": "Write a summary of tasks this role holder can perform...",
       "permissionsTitle": "Set Role Permissions",
       "selectedCount": "{{count}} permissions enabled",
+      "isManagerRoleLabel": "Manager Role",
+      "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
       "saveBtn": "Save Job Role",
       "cancelBtn": "Cancel",
       "validation": {
@@ -686,6 +689,8 @@
       "namePlaceholderAr": "e.g. Booking Auditor, Quality Supervisor...",
       "descriptionLabel": "Permission Description",
       "descriptionPlaceholderAr": "Write a summary of tasks this role holder can perform...",
+      "isManagerRoleLabel": "Manager Role",
+      "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
       "cancelBtn": "Cancel",
       "saveBtn": "Save Changes",
       "addBtn": "Add Role to System",
@@ -709,7 +714,8 @@
         "viewTooltip": "View",
         "editBtn": "Edit",
         "deleteBtn": "Delete",
-        "addRoleBtn": "Add a Role or new permission to the department"
+        "addRoleBtn": "Add a Role or new permission to the department",
+        "managerRoleTooltip": "Manager Role"
       },
       "alert": {
         "title": "Important Operational Alert",

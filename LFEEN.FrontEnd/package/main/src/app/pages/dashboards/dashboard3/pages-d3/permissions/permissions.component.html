@@ -16,9 +16,21 @@
           <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
           <span class="stat-value">{{ employeeCount }}</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label d-block">{{ 'd3.permissions.manager' | translate }}</span>
-          <span class="stat-value">{{ manager }}</span>
+        <div class="stat-item managers-stat">
+          <span class="stat-label d-block m-b-8">{{ 'd3.permissions.manager' | translate }}</span>
+          <div class="d-flex flex-wrap gap-8">
+            @for (mgr of managers; track mgr.id) {
+              <div class="manager-chip d-flex align-items-center gap-6">
+                <div class="manager-chip-avatar d-flex align-items-center justify-content-center">
+                  {{ mgr.fullName.charAt(0) }}
+                </div>
+                <span class="manager-chip-name f-s-13 f-w-600">{{ mgr.fullName }}</span>
+              </div>
+            }
+            @empty {
+              <span class="stat-value">---</span>
+            }
+          </div>
         </div>
       </div>
     </mat-card-content>
@@ -51,7 +63,12 @@
                       <div class="permission-icon-wrapper">
                         <i-tabler [name]="role.icon" class="permission-icon"></i-tabler>
                       </div>
-                      <span class="f-s-14 f-w-900">{{ role.name }}</span>
+                      <div class="d-flex align-items-start gap-6">
+                        <span class="f-s-14 f-w-900">{{ role.name }}</span>
+                        @if (role.isManagerRole) {
+                          <i-tabler name="crown" class="icon-14 perm-crown-icon m-t-2" [matTooltip]="'d3.permissions.table.managerRoleTooltip' | translate"></i-tabler>
+                        }
+                      </div>
                     </div>
                   </td>
                   <td class="p-24">

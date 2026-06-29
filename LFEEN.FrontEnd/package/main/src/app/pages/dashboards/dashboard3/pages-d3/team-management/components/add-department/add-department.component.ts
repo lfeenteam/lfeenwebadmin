@@ -110,7 +110,8 @@ export class AddDepartmentComponent {
               nameEn: perm.nameEn,
               descriptionAr: '',
               descriptionEn: '',
-              departmentId: dept.id
+              departmentId: dept.id,
+              isManagerRole: false
             })
           )
         );

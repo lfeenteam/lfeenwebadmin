@@ -16,6 +16,18 @@
       border: 1px solid #E8E8E4;
       object-fit: cover;
     }
+
+    .manager-initials-avatar {
+      width: 80px;
+      height: 80px;
+      background-color: #F7F7F5;
+      border: 1px solid #E8E8E4;
+      color: #111110;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
   }
 
   .manager-info-gap {

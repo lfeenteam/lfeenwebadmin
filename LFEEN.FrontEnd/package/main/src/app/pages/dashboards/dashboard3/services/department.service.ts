@@ -12,6 +12,7 @@ import {
   DepartmentRole,
   RolePermission,
   RolePermissionsResponse,
+  RolePayload,
   EmployeeFormData,
   UpdateEmployeePayload
 } from '../interfaces/department.model';
@@ -174,7 +175,7 @@ export class DepartmentService {
   // ── Roles ──────────────────────────────────────────────────
   private rolesApiUrl = `${environment.apiBaseUrl}/api/roles`;
 
-  createRole(data: { nameAr: string; nameEn: string; descriptionAr: string; descriptionEn: string; departmentId: string }): Observable<any> {
+  createRole(data: RolePayload): Observable<any> {
     return this.http.post(this.rolesApiUrl, data);
   }
 
@@ -182,7 +183,7 @@ export class DepartmentService {
     return this.http.get<DepartmentRole>(`${this.rolesApiUrl}/${id}`);
   }
 
-  updateRole(id: string, data: { nameAr: string; nameEn: string; descriptionAr: string; descriptionEn: string; departmentId: string }): Observable<any> {
+  updateRole(id: string, data: RolePayload): Observable<any> {
     return this.http.put(`${this.rolesApiUrl}/${id}`, data);
   }
 

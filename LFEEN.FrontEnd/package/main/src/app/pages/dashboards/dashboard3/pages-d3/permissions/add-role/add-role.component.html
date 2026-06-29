@@ -45,6 +45,17 @@
           }
         </div>
 
+        <!-- Manager Role Toggle -->
+        <div class="field-group m-b-20">
+          <div class="manager-toggle-row d-flex align-items-center justify-content-between p-16 rounded-8 bg-light-primary">
+            <div>
+              <label class="field-label d-block">{{ 'd3.addRolePage.isManagerRoleLabel' | translate }}</label>
+              <p class="f-s-12 text-muted m-0">{{ 'd3.addRolePage.isManagerRoleHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle formControlName="isManagerRole" color="primary"></mat-slide-toggle>
+          </div>
+        </div>
+
         <!-- Description -->
         <div class="field-group">
           <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.descriptionLabel' | translate }}</label>

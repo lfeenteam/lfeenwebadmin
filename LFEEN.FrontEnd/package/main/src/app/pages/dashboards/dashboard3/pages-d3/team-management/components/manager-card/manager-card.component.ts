@@ -16,4 +16,8 @@ export class ManagerCardComponent {
   @Input() department!: Department;
   @Input() currentLang = 'ar';
   @Output() addEmployee = new EventEmitter<void>();
+
+  getInitials(name: string): string {
+    return name.trim().split(/\s+/).map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  }
 }

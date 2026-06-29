@@ -514,6 +514,21 @@ export const routes: Routes = [
                   showDate: false
                 },
               },
+              {
+                path: 'profile',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/profile/profile.component'
+                  ).then((m) => m.ProfileComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.profile.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
             ],
           },
           {

@@ -1,3 +1,9 @@
+export interface DepartmentManager {
+  id: string;
+  fullName: string;
+  avatar?: string | null;
+}
+
 export interface Department {
   id: string;
   name?: string;
@@ -8,8 +14,9 @@ export interface Department {
   description?: string;
   descriptionAr?: string;
   descriptionEn?: string;
-  managerId: string | null;
-  managerFullName: string | null;
+  managers: DepartmentManager[];
+  managerId?: string | null;
+  managerFullName?: string | null;
   managerAvatar?: string | null;
   employeeCount: number;
   activeManagersCount?: number;
@@ -42,6 +49,7 @@ export interface EmployeeRole {
   description?: string;
   descriptionAr?: string;
   descriptionEn?: string;
+  isManagerRole?: boolean;
 }
 
 export interface Employee {
@@ -77,6 +85,7 @@ export interface DepartmentRole {
   departmentId: string | null;
   departmentNameAr?: string | null;
   departmentNameEn?: string | null;
+  isManagerRole: boolean;
   isDeleted?: boolean;
   createdAt: string;
   updatedAt: string | null;
@@ -101,6 +110,15 @@ export interface RolePermissionsResponse {
   page: number;
   nextpage: number | null;
   totalPages: number;
+}
+
+export interface RolePayload {
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  departmentId: string;
+  isManagerRole: boolean;
 }
 
 export interface EmployeeFormData {

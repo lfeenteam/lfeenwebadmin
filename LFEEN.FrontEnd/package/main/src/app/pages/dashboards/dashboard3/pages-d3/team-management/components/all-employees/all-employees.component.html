@@ -15,7 +15,12 @@
                 </div>
               }
               <div>
-                <h6 class="m-0 employee-name" dir="auto">{{ element.fullName }}</h6>
+                <div class="d-flex align-items-center gap-6">
+                  <h6 class="m-0 employee-name" dir="auto">{{ element.fullName }}</h6>
+                  @if (element.roles?.[0]?.isManagerRole) {
+                    <i-tabler name="crown" class="crown-icon"></i-tabler>
+                  }
+                </div>
                 <span class="f-s-12 text-muted" dir="auto">{{ element.email }}</span>
               </div>
             </div>

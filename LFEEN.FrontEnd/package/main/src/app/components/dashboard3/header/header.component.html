@@ -50,7 +50,7 @@
 
     <span class="d3-vertical-divider"></span>
 
-    <div class="d3-user-profile">
+    <div class="d3-user-profile" (click)="navigateToProfile()" style="cursor: pointer;">
       <img src="/assets/images/profile/user-1.jpg" alt="user" class="d3-user-avatar" />
         <div class="d3-user-info">
           <h4 class="d3-user-name">{{ loginService.getUser()?.fullName || ('d3.header.userName' | translate) }}</h4>
