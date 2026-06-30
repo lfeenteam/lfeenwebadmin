@@ -71,7 +71,7 @@ export class AccountManagementComponent implements OnInit {
         this.stats[0].value = String(s.total);
         this.stats[1].value = String(s.activeOrPublished);
         this.stats[2].value = String(s.underReview);
-        this.stats[3].value = String(s.pendingOrRejected);
+        this.stats[3].value = String(s.rejected);
       }
 
       this.cdr.markForCheck();

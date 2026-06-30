@@ -51,8 +51,8 @@
           <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.status' | translate }}</th>
           <td mat-cell *matCellDef="let element"
               [attr.data-label]="'d3.teamManagement.table.status' | translate">
-            <span class="status-badge" [class.active]="element.isActive" [class.pending]="!element.isActive">
-              <span class="dot"></span> {{ (element.isActive ? 'd3.teamManagement.deptCard.active' : 'd3.teamManagement.deptCard.pending') | translate }}
+            <span class="status-badge" [class.active]="element.isActive" [class.inactive]="!element.isActive">
+              <span class="dot"></span> {{ (element.isActive ? 'd3.teamManagement.deptCard.active' : 'd3.teamManagement.deptCard.inactive') | translate }}
             </span>
           </td>
         </ng-container>

@@ -6,6 +6,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import {
   Department,
   DepartmentStats,
+  DeptEmployeeStats,
   PaginatedDepartmentResponse,
   Employee,
   PaginatedEmployeeResponse,
@@ -71,10 +72,12 @@ export class DepartmentService {
       });
       if (request.search) params.set('search', request.search);
       if (request.roleId) params.set('roleId', request.roleId);
-      if (request.deptId) params.set('departmentId', request.deptId);
-      return this.http.get<PaginatedEmployeeResponse>(
-        `${this.apiUrl}/employees?${params}`
-      );
+
+      const url = request.deptId
+        ? `${this.apiUrl}/${request.deptId}/employees?${params}`
+        : `${this.apiUrl}/employees?${params}`;
+
+      return this.http.get<PaginatedEmployeeResponse>(url);
     }
   });
 
@@ -82,15 +85,15 @@ export class DepartmentService {
   readonly employeeTotalPages = computed(() => this._employeesResource.value()?.totalPages ?? 1);
   readonly employeeTotalCount = computed(() => this._employeesResource.value()?.totalCount ?? 0);
   readonly isLoadingEmployees = this._employeesResource.isLoading;
+  readonly employeesError = this._employeesResource.error;
+  readonly deptEmployeeStats = computed<DeptEmployeeStats | null>(() => this._employeesResource.value()?.stats ?? null);
 
   loadEmployeesForDept(deptId: string | null): void {
-    const sameId = this.employeeDeptId() === deptId;
     this.employeeDeptId.set(deptId);
     this.employeeCurrentPage.set(1);
-    // rxResource only reacts to signal changes — force reload when dept didn't change
-    if (sameId) {
-      this._employeesResource.reload();
-    }
+    // Always force-reload: on first page load the resource may be in an error/stale
+    // state from the initial null-dept request, so we can't rely solely on signal reactivity
+    this._employeesResource.reload();
   }
 
   setEmployeeSearch(search: string): void {
