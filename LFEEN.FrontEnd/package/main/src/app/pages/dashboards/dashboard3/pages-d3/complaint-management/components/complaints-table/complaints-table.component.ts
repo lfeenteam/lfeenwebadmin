@@ -114,6 +114,13 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   displaySubject(complaint: Complaint): string {
+    if (complaint.subject) {
+      const text = this.translate.currentLang === 'en'
+        ? complaint.subjectEn ?? complaint.subject
+        : complaint.subject;
+      return text.length > 68 ? `${text.slice(0, 68)}...` : text;
+    }
+
     const firstMessage = complaint.messages[0];
     if (!firstMessage) {
       return this.currentDir === 'rtl' ? 'تأخري في تسوية دفعات شهر سبتمبر' : 'Delay in September payout settlement';

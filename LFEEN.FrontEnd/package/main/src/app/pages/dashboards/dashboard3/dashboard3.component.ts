@@ -115,18 +115,6 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
 
   onPageAction(action: string): void {
     if (action !== 'resolveComplaint') return;
-
-    let child = this.route.firstChild;
-    while (child?.firstChild) {
-      child = child.firstChild;
-    }
-
-    const id = child?.snapshot.paramMap.get('id');
-    const lang = this.route.snapshot.parent?.params['lang'] ?? this.translate.currentLang ?? 'ar';
-    if (!id) return;
-
-    this.complaintService.resolveComplaint(id).subscribe({
-      next: () => this.router.navigate(['/', lang, 'd3', 'complaints'], { queryParams: { tab: 'resolved' } })
-    });
+    this.complaintService.emitCloseDialog();
   }
 }

@@ -27,30 +27,42 @@ export class ComplaintManagementComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  activeTab    = signal<ComplaintTab>('customers');
+  activeTab         = signal<ComplaintTab>('customers');
   selectedComplaint = signal<Complaint | null>(null);
 
-  private allComplaints = this.service.complaints;
+  private allComplaints  = this.service.complaints;
+  private hostTickets    = signal<Complaint[]>([]);
+  private resolvedTickets = signal<Complaint[]>([]);
 
   constructor() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as ComplaintTab | null;
     if (tab === 'customers' || tab === 'hosts' || tab === 'resolved') {
       this.activeTab.set(tab);
     }
+    this.loadTabData(this.activeTab());
   }
 
   visibleComplaints = computed(() => {
     const tab = this.activeTab();
-    return this.allComplaints().filter(c => {
-      if (tab === 'customers') return c.type === 'customer' && !c.resolved;
-      if (tab === 'hosts')     return c.type === 'host'     && !c.resolved;
-      return c.resolved;
-    });
+    if (tab === 'hosts')    return this.hostTickets();
+    if (tab === 'resolved') return this.resolvedTickets();
+    return this.allComplaints().filter(c => c.type === 'customer' && !c.resolved);
   });
+
+  private loadTabData(tab: ComplaintTab): void {
+    if (tab === 'hosts') {
+      this.service.getTickets().subscribe(tickets =>
+        this.hostTickets.set(tickets.filter(t => t.status !== 'closed'))
+      );
+    } else if (tab === 'resolved') {
+      this.service.getTickets(5).subscribe(tickets => this.resolvedTickets.set(tickets));
+    }
+  }
 
   setTab(tab: ComplaintTab): void {
     this.activeTab.set(tab);
     this.selectedComplaint.set(null);
+    this.loadTabData(tab);
   }
 
   onRowSelect(complaint: Complaint): void {

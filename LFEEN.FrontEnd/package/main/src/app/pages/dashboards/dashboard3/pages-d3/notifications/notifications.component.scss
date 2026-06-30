@@ -1,0 +1,243 @@
+.notifications-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 80px);
+  margin: -24px -16px;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+.tabs-row {
+  display: flex;
+  padding: 0 28px;
+  border-bottom: 1px solid #E8E8E4;
+  background: #fff;
+  flex-shrink: 0;
+  margin-top: 24px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  font-family: 'Cairo', sans-serif;
+
+  &.active {
+    color: #111827;
+    border-bottom-color: #111827;
+    font-weight: 600;
+  }
+
+  &:hover:not(.active) {
+    color: #374151;
+  }
+}
+
+// ── List ────────────────────────────────────────────────────────────────────
+.notifications-list {
+  flex: 1;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ── Card ────────────────────────────────────────────────────────────────────
+.notification-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: box-shadow 0.15s, background 0.15s;
+
+  &:hover {
+    background: #FAFAFA;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+// ── Icon circle (far right in RTL — first in DOM) ───────────────────────────
+.icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.icon-complaint { background: #DC2626; }
+  &.icon-property  { background: #2563EB; }
+  &.icon-inquiry   { background: #6B7280; }
+
+  .icon-inner {
+    width: 22px;
+    height: 22px;
+    color: #fff;
+  }
+}
+
+// ── Content (middle) ─────────────────────────────────────────────────────────
+.item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.item-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-category {
+  font-size: 12px;
+  font-weight: 600;
+
+  &.icon-complaint { color: #DC2626; }
+  &.icon-property  { color: #2563EB; }
+  &.icon-inquiry   { color: #6B7280; }
+}
+
+.item-ref-id {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.item-subtitle {
+  font-size: 12px;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── End: time + chevron (far left in RTL — last in DOM) ─────────────────────
+.item-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.item-time {
+  font-size: 11px;
+  color: #9CA3AF;
+  white-space: nowrap;
+}
+
+.chevron-icon {
+  width: 18px;
+  height: 18px;
+  color: #9CA3AF;
+}
+
+// ── Load more ───────────────────────────────────────────────────────────────
+.load-more-row {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 32px;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: #F3F4F6;
+    color: #374151;
+  }
+
+  .icon-16 {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ── Empty state ─────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  gap: 12px;
+  color: #9CA3AF;
+
+  .empty-icon {
+    width: 48px;
+    height: 48px;
+    color: #D1D5DB;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+// ── LTR: flip chevron ───────────────────────────────────────────────────────
+:host-context([dir='ltr']) {
+  .chevron-icon {
+    transform: rotate(180deg);
+  }
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 767px) {
+  .notifications-page {
+    margin: -16px -12px;
+    min-height: calc(100vh - 72px);
+  }
+
+  .tabs-row {
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .notifications-list {
+    padding: 16px;
+  }
+
+  .item-subtitle {
+    white-space: normal;
+  }
+}

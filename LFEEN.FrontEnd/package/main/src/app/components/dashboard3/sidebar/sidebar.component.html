@@ -68,7 +68,9 @@
   <div class="d3-sidebar-footer">
     @if (!isCeoPage()) {
       <div class="footer-items">
-        <a mat-list-item class="d3-menu-item footer-item">
+        <a mat-list-item class="d3-menu-item footer-item"
+           [class.active-link]="isOnNotificationsPage"
+           (click)="navigateTo({link: '/d3/notifications'}, $event)">
           <span class="d-flex align-items-center gap-12 w-100">
             <span class="icon-wrapper">
               <i-tabler name="bell" class="icon-20"></i-tabler>

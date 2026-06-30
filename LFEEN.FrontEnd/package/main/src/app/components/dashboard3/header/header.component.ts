@@ -96,6 +96,14 @@ export class HeaderComponent {
     this.router.navigateByUrl(`/${lang}/d3/profile`);
   }
 
+  navigateToNotifications(): void {
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
+      ? urlSegments[0]
+      : (this.selectedLanguage.code || 'ar');
+    this.router.navigateByUrl(`/${lang}/d3/notifications`);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.menuOpen && !this.eRef.nativeElement.contains(event.target)) {

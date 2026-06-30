@@ -1,6 +1,8 @@
-import { Injectable, signal } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
-import { ChatMessage, Complaint } from '../interfaces/complaint.model';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, delay, map, of } from 'rxjs';
+import { ChatMessage, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { environment } from 'src/environments/environment';
 
 const MOCK_DATA: Complaint[] = [
   {
@@ -286,6 +288,7 @@ const MOCK_DATA: Complaint[] = [
 
 @Injectable({ providedIn: 'root' })
 export class ComplaintService {
+  private http = inject(HttpClient);
   private _complaints = signal<Complaint[]>(MOCK_DATA);
 
   readonly complaints = this._complaints.asReadonly();
@@ -318,5 +321,79 @@ export class ComplaintService {
       )
     );
     return of(undefined).pipe(delay(200));
+  }
+
+  getTicketById(externalId: string): Observable<TicketDetail> {
+    return this.http.get<TicketDetail>(`${environment.apiBaseUrl}/api/tickets/${externalId}`);
+  }
+
+  readonly closeDialogTrigger = signal(0);
+
+  emitCloseDialog(): void {
+    this.closeDialogTrigger.update(n => n + 1);
+  }
+
+  updateTicketStatus(ticketId: string, status: string, note?: string): Observable<void> {
+    const payload: UpdateStatusRequest = { status, ...(note ? { note } : {}) };
+    return this.http.patch<void>(`${environment.apiBaseUrl}/api/tickets/${ticketId}/status`, payload);
+  }
+
+  sendTicketReply(ticketId: string, body: string): Observable<TicketActionResult> {
+    const payload: ReplyRequest = { body, isInternalNote: false };
+    return this.http.post<TicketActionResult>(
+      `${environment.apiBaseUrl}/api/tickets/${ticketId}/replies`,
+      payload
+    );
+  }
+
+  getTickets(status?: number): Observable<Complaint[]> {
+    let params = new HttpParams();
+    if (status !== undefined) {
+      params = params.set('status', status.toString());
+    }
+    return this.http
+      .get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params })
+      .pipe(map(res => res.data.map(t => this.mapTicketToComplaint(t))));
+  }
+
+  private mapTicketToComplaint(t: Ticket): Complaint {
+    return {
+      id: t.externalId,
+      ticketId: t.ticketNumber,
+      clientName: t.accountName,
+      clientInitials: this.getInitials(t.accountName),
+      clientCode: t.propertyName,
+      status: this.mapTicketStatus(t.status),
+      date: new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      dateEn: new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+      type: 'host',
+      resolved: t.status === 5 || t.status === 'Closed' || t.status === 'Resolved',
+      messages: [],
+      subject: t.subject,
+    };
+  }
+
+  private mapTicketStatus(status: string | number): ComplaintStatus {
+    const byName: Record<string, ComplaintStatus> = {
+      'New':                'new',
+      'PendingAdminReply':  'pending',
+      'WaitingMerchant':    'in_progress',
+      'Resolved':           'replied',
+      'Closed':             'closed',
+    };
+    const byNum: Record<number, ComplaintStatus> = {
+      1: 'new', 2: 'pending', 3: 'in_progress', 4: 'replied', 5: 'closed',
+    };
+    if (typeof status === 'number') return byNum[status] ?? 'new';
+    return byName[status] ?? byNum[+status] ?? 'new';
+  }
+
+  private getInitials(name: string): string {
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(w => w[0] ?? '')
+      .join('')
+      .toUpperCase();
   }
 }

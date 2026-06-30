@@ -1,0 +1,64 @@
+<div class="notifications-page" [dir]="currentDir">
+
+  <!-- Tabs -->
+  <div class="tabs-row">
+    @for (tab of tabs; track tab.key) {
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === tab.key"
+        (click)="setTab(tab.key)">
+        {{ tab.labelKey | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- List -->
+  <div class="notifications-list">
+    @if (visibleNotifications().length === 0) {
+      <div class="empty-state">
+        <i-tabler name="bell-off" class="empty-icon"></i-tabler>
+        <p>{{ 'd3.notifications.empty' | translate }}</p>
+      </div>
+    } @else {
+      @for (item of visibleNotifications(); track item.id) {
+        <div class="notification-item">
+
+          <!-- Icon circle (far right in RTL) -->
+          <div class="icon-circle" [ngClass]="getIconClass(item.type)">
+            <i-tabler [name]="getIconName(item.type)" class="icon-inner"></i-tabler>
+          </div>
+
+          <!-- Content (middle) -->
+          <div class="item-content">
+            <div class="item-header-row">
+              <span class="item-category" [ngClass]="getIconClass(item.type)">
+                {{ item.categoryLabel | translate }}
+              </span>
+              <span class="item-ref-id">{{ item.refId }}</span>
+            </div>
+            <h4 class="item-title">{{ item.title | translate }}</h4>
+            <p class="item-subtitle">{{ item.subtitle | translate }}</p>
+          </div>
+
+          <!-- Time + chevron (far left in RTL) -->
+          <div class="item-end">
+            <span class="item-time">{{ item.time | translate }}</span>
+            <i-tabler name="chevron-left" class="chevron-icon"></i-tabler>
+          </div>
+
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Load more -->
+  @if (visibleNotifications().length > 0) {
+    <div class="load-more-row">
+      <button class="load-more-btn" type="button">
+        <i-tabler name="chevron-down" class="icon-16"></i-tabler>
+        {{ 'd3.notifications.loadMore' | translate }}
+      </button>
+    </div>
+  }
+
+</div>

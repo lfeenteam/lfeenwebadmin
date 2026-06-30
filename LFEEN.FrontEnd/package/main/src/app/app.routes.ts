@@ -529,6 +529,22 @@ export const routes: Routes = [
                   showDate: false
                 },
               },
+              {
+                path: 'notifications',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/notifications/notifications.component'
+                  ).then((m) => m.NotificationsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.notifications.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true,
+                },
+              },
             ],
           },
           {

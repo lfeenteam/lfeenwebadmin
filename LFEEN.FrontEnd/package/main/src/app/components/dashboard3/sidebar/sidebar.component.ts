@@ -122,6 +122,10 @@ export class SidebarComponent implements OnInit {
     return this.router.url.includes('/d3/settings');
   }
 
+  get isOnNotificationsPage(): boolean {
+    return this.router.url.includes('/d3/notifications');
+  }
+
   isChildActive(item: NavItem): boolean {
     return !!item.children?.some(child => this.isActive(child));
   }
