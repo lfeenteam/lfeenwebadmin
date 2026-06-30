@@ -365,6 +365,223 @@
   }
 }
 
+/* ── Close ticket button ── */
+.close-ticket-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: 10px;
+  background: #F0FDF4;
+  border: 1.5px solid #BBF7D0;
+  color: #16A34A;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+
+  &:hover {
+    background: #DCFCE7;
+    border-color: #86EFAC;
+  }
+}
+
+/* ── Close dialog ── */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-dialog {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: min(460px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 24px 64px rgba(17, 17, 16, 0.18);
+}
+
+.close-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111110;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: #6B6B67;
+    line-height: 1.7;
+  }
+}
+
+.close-dialog-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #FEF2F2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  color: #EF4444;
+}
+
+.close-dialog-note {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+
+    span {
+      font-weight: 400;
+      color: #9E9E9A;
+    }
+  }
+
+  textarea {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 96px;
+    padding: 10px 12px;
+    border: 1px solid #E8E8E4;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Cairo', sans-serif;
+    color: #111110;
+    resize: none;
+
+    &::placeholder { color: #B2B2AC; }
+    &:focus { outline: none; border-color: #111110; }
+  }
+}
+
+.close-error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.close-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dialog-cancel-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid #E8E8E4;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+
+  &:hover { background: #F7F7F5; }
+}
+
+.dialog-confirm-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: #EF4444;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+
+  &:hover:not(:disabled) { background: #DC2626; }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
+.send-reply-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.reply-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex: 0 0 14px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skel {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e0 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.skel-text  { height: 14px; }
+.skel-sm    { width: 90px; }
+.skel-md    { width: 160px; }
+.skel-lg    { width: 220px; }
+.skel-icon  { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 6px; }
+
+.skel-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e0 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  flex: 0 0 44px;
+}
+
+.skel-profile-lines {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (max-width: 560px) {
   .host-detail-page {
     padding: 12px;

@@ -1487,7 +1487,7 @@
         "issueTypeValue": "Payout issue",
         "hostName": "Fahad Al-Sayf",
         "hostSubtitle": "Host - Bab Al-Bahr Residential Hotel",
-        "problemTitle": "Issue subject: Price synchronization with calendar",
+        "problemTitle": "Issue Subject",
         "problemBody": "Hello LFEEN team, I have an issue updating November prices. I changed the price in the host app, but the update does not appear in search results. Please help urgently as this affects upcoming bookings.",
         "problemAttachmentNote": "I attached a screenshot showing the issue from my dashboard.",
         "attachmentsTitle": "Attached files (1)",
@@ -1697,6 +1697,44 @@
         "logLocation": "Location"
       },
       "heroTitle": "Platform Settings"
+    },
+    "notifications": {
+      "pageTitle": "Notifications & Alerts",
+      "empty": "No notifications",
+      "loadMore": "Show older tickets",
+      "tabs": {
+        "all": "All",
+        "complaints": "Complaints",
+        "propertyReview": "Property Review",
+        "inquiries": "Inquiries"
+      },
+      "types": {
+        "complaint": "Complaint",
+        "propertyReview": "Property Review",
+        "inquiry": "Inquiry"
+      },
+      "mock": {
+        "complaint1": {
+          "title": "Complaint - with Host #358",
+          "subtitle": "Guest: Summer Hotel · Prices not updated for 24 hours",
+          "time": "2 hours ago"
+        },
+        "propertyReview1": {
+          "title": "Property Review #354",
+          "subtitle": "New building approval request: Laqtadar Complex",
+          "time": "2 hours ago"
+        },
+        "inquiry1": {
+          "title": "Technical Inquiry #25",
+          "subtitle": "Inquiry about smart phone lock system",
+          "time": "Yesterday, 11:35 PM"
+        },
+        "complaint2": {
+          "title": "Complaint #28000",
+          "subtitle": "Delay in settling September payments",
+          "time": "Yesterday, 11:25 PM"
+        }
+      }
     }
   }
 }

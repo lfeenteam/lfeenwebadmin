@@ -1,88 +1,159 @@
 <div class="host-detail-page" [dir]="currentDir">
+
+  <!-- Summary strip -->
   <section class="summary-strip">
     <div class="summary-item">
       <span class="summary-heading">
         <i-tabler name="calendar" class="icon-16"></i-tabler>
         <span class="summary-label">{{ 'd3.complaints.hostDetail.submittedAt' | translate }}</span>
       </span>
-      <strong>{{ 'd3.complaints.hostDetail.submittedDate' | translate }}</strong>
+      @if (loading()) {
+        <span class="skel skel-text skel-md"></span>
+      } @else {
+        <strong>{{ ticket() ? formatDate(ticket()!.initialMessage.createdAt) : '-' }}</strong>
+      }
     </div>
+
     <div class="summary-item">
       <span class="summary-heading">
         <i-tabler name="clock" class="icon-16"></i-tabler>
         <span class="summary-label">{{ 'd3.complaints.hostDetail.lastUpdate' | translate }}</span>
       </span>
-      <strong>{{ 'd3.complaints.hostDetail.lastUpdateValue' | translate }}</strong>
+      @if (loading()) {
+        <span class="skel skel-text skel-md"></span>
+      } @else {
+        <strong>{{ ticket() ? lastUpdateDate : '-' }}</strong>
+      }
     </div>
+
     <div class="summary-item">
       <span class="summary-heading">
         <i-tabler name="user-check" class="icon-16"></i-tabler>
         <span class="summary-label">{{ 'd3.complaints.hostDetail.followedBy' | translate }}</span>
       </span>
-      <strong>{{ 'd3.complaints.hostDetail.followedByValue' | translate }}</strong>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ ticket()?.assignedAdminName ?? '-' }}</strong>
+      }
     </div>
+
     <div class="summary-item">
       <span class="summary-heading">
         <i-tabler name="tag" class="icon-16"></i-tabler>
         <span class="summary-label">{{ 'd3.complaints.hostDetail.issueType' | translate }}</span>
       </span>
-      <strong>{{ 'd3.complaints.hostDetail.issueTypeValue' | translate }}</strong>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ ticket()?.statusName ?? '-' }}</strong>
+      }
     </div>
   </section>
 
+  <!-- Host profile -->
   <section class="host-profile">
-    <div class="host-avatar">{{ hostInitials }}</div>
-    <div>
-      <h2>{{ 'd3.complaints.hostDetail.hostName' | translate }}</h2>
-      <p>{{ 'd3.complaints.hostDetail.hostSubtitle' | translate }}</p>
-    </div>
-  </section>
-
-  <section class="message-card">
-    <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}</h3>
-    <p>{{ 'd3.complaints.hostDetail.problemBody' | translate }}</p>
-    <p>{{ 'd3.complaints.hostDetail.problemAttachmentNote' | translate }}</p>
-  </section>
-
-  <section class="attachment-section">
-    <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate }}</h3>
-    <div class="attachment-card">
-   
-      
-    <i-tabler name="file-text" class="icon-24"></i-tabler>
-      <div class="attachment-meta">
-        <strong>screen_error_sync.docx</strong>
-        <span>{{ 'd3.complaints.hostDetail.attachmentMeta' | translate }}</span>
+    @if (loading()) {
+      <div class="host-avatar skel-avatar"></div>
+      <div class="skel-profile-lines">
+        <span class="skel skel-text skel-lg"></span>
+        <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
       </div>
-    <button class="download-btn" type="button">
-        <i-tabler name="download" class="icon-16"></i-tabler>
-      </button>
-     
-    </div>
+    } @else if (ticket()) {
+      <div class="host-avatar">{{ getInitials(ticket()!.initialMessage.senderName) }}</div>
+      <div>
+        <h2>{{ ticket()!.initialMessage.senderName }}</h2>
+        <p>{{ hostSubtitle }}</p>
+      </div>
+    }
   </section>
 
-  <section class="support-reply-card">
-    <div class="support-reply-header">
-      <div class="support-reply-agent">
-        <span class="support-avatar">
-          <i-tabler name="headset" class="icon-22"></i-tabler>
-        </span>
-        <div>
-          <h3>{{ 'd3.complaints.hostDetail.supportReplyTitle' | translate }}</h3>
-          <span>{{ 'd3.complaints.hostDetail.supportReplyStatus' | translate }}</span>
+  <!-- Initial message card -->
+  <section class="message-card">
+    @if (loading()) {
+      <span class="skel skel-text skel-md" style="margin-bottom:14px"></span>
+      <span class="skel skel-text" style="width:100%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:85%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:60%"></span>
+    } @else if (ticket()) {
+      <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}: {{ ticket()!.subject }}</h3>
+      <p>{{ ticket()!.initialMessage.body }}</p>
+    }
+  </section>
+
+  <!-- Attachments -->
+  @if (loading()) {
+    <section class="attachment-section">
+      <span class="skel skel-text skel-sm" style="margin-bottom:12px"></span>
+      <div class="attachment-card">
+        <span class="skel skel-icon"></span>
+        <div class="attachment-meta">
+          <span class="skel skel-text skel-md"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:4px"></span>
         </div>
       </div>
-      <time>{{ 'd3.complaints.hostDetail.supportReplyTime' | translate }}</time>
-    </div>
+    </section>
+  } @else if (ticket() && ticket()!.attachments.length > 0) {
+    <section class="attachment-section">
+      <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate }}</h3>
+      @for (att of ticket()!.attachments; track trackById($index, att)) {
+        <div class="attachment-card">
+          <i-tabler name="file-text" class="icon-24"></i-tabler>
+          <div class="attachment-meta">
+            <strong>{{ att.fileName }}</strong>
+            <span>{{ formatBytes(att.sizeBytes) }}</span>
+          </div>
+          <a [href]="att.fileUrl" target="_blank" download class="download-btn" type="button">
+            <i-tabler name="download" class="icon-16"></i-tabler>
+          </a>
+        </div>
+      }
+    </section>
+  }
 
-    <p>{{ 'd3.complaints.hostDetail.supportReplyBody' | translate }}</p>
+  <!-- Admin reply cards -->
+  @if (loading()) {
+    <section class="support-reply-card">
+      <div class="support-reply-header">
+        <div class="support-reply-agent">
+          <span class="support-avatar skel-avatar"></span>
+          <div>
+            <span class="skel skel-text skel-md" style="margin-bottom:6px"></span>
+            <span class="skel skel-text skel-sm"></span>
+          </div>
+        </div>
+        <span class="skel skel-text skel-sm"></span>
+      </div>
+      <span class="skel skel-text" style="width:100%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:70%"></span>
+    </section>
+  } @else {
+    @for (msg of adminMessages; track trackById($index, msg)) {
+      <section class="support-reply-card">
+        <div class="support-reply-header">
+          <div class="support-reply-agent">
+            <span class="support-avatar">
+              <i-tabler name="headset" class="icon-22"></i-tabler>
+            </span>
+            <div>
+              <h3>{{ msg.senderName }}</h3>
+              <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
+            </div>
+          </div>
+          <time>{{ formatDate(msg.createdAt) }}</time>
+        </div>
 
-    <div class="support-reply-footer">
-      <i-tabler name="circle-check" class="icon-14"></i-tabler>
-      {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
-    </div>
-  </section>
+        <p>{{ msg.body }}</p>
 
+        <div class="support-reply-footer">
+          <i-tabler name="circle-check" class="icon-14"></i-tabler>
+          {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
+        </div>
+      </section>
+    }
+  }
+
+  <!-- Reply input -->
   @if (!viewOnly) {
     <section class="reply-section">
       <h3>
@@ -93,8 +164,16 @@
         [(ngModel)]="replyText"
         [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
       <div class="reply-footer">
-        <button class="send-reply-btn" type="button" (click)="sendReply()">
-          <i-tabler name="send-2" class="icon-16"></i-tabler>
+        <button
+          class="send-reply-btn"
+          type="button"
+          [disabled]="loading() || sendingReply() || !replyText.trim()"
+          (click)="sendReply()">
+          @if (sendingReply()) {
+            <span class="reply-spinner"></span>
+          } @else {
+            <i-tabler name="send-2" class="icon-16"></i-tabler>
+          }
           {{ 'd3.complaints.hostDetail.sendReply' | translate }}
         </button>
         <button class="attach-reply-btn" type="button">
@@ -115,4 +194,53 @@
       {{ 'd3.complaints.hostDetail.notice' | translate }}
     </div>
   }
+
+  <!-- Close dialog — داخل الـ root div عشان ما يتقطعش -->
+  @if (showCloseDialog()) {
+    <div class="dialog-backdrop" (click)="cancelClose()">
+      <div class="close-dialog" [dir]="currentDir" (click)="$event.stopPropagation()">
+
+        <div class="close-dialog-header">
+          <span class="close-dialog-icon">
+            <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+          </span>
+          <div>
+            <h2>إغلاق الشكوى ومعالجتها</h2>
+            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+          </div>
+        </div>
+
+        <div class="close-dialog-note">
+          <label>ملاحظة <span>(اختياري)</span></label>
+          <textarea
+            [(ngModel)]="closeNote"
+            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+        </div>
+
+        @if (closeError()) {
+          <p class="close-error">{{ closeError() }}</p>
+        }
+
+        <div class="close-dialog-actions">
+          <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
+            إلغاء
+          </button>
+          <button
+            class="dialog-confirm-btn"
+            type="button"
+            [disabled]="closingTicket()"
+            (click)="confirmClose()">
+            @if (closingTicket()) {
+              <span class="reply-spinner"></span>
+            } @else {
+              <i-tabler name="circle-check" class="icon-16"></i-tabler>
+            }
+            تأكيد الإغلاق
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
 </div>
