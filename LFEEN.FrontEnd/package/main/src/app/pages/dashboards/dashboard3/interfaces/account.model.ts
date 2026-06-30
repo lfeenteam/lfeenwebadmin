@@ -19,7 +19,7 @@ export interface AccountItem {
 export interface AccountStats {
   total: number;
   activeOrPublished: number;
-  pendingOrRejected: number;
+  rejected: number;
   underReview: number;
 }
 

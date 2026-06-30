@@ -508,7 +508,7 @@
         "totalEmployees": "إجمالي الموظفين",
         "departmentCount": "عدد الأقسام",
         "activeManagers": "المدراء النشطون",
-        "pendingActivation": "قيد التفعيل",
+        "pendingActivation": "غير نشط",
         "partialOps": "تشبيات جزئية",
         "rejectedOps": "عمليات مرفوضة",
         "successfulOps": "عمليات ناجحة",
@@ -538,6 +538,7 @@
       "deptCard": {
         "active": "نشط",
         "pending": "قيد التفعيل",
+        "inactive": "غير نشط",
         "manager": "المدير المسؤول",
         "employees": "عدد الموظفين",
         "permissions": "صلاحيات القسم"
@@ -586,7 +587,7 @@
           "emailRequired": "البريد الإلكتروني مطلوب",
           "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
           "phoneRequired": "رقم الهاتف مطلوب",
-          "phonePattern": "أرقام و + فقط",
+          "phonePattern": "أدخل رقم هاتف صحيح",
           "roleRequired": "الدور الوظيفي مطلوب"
         }
       },

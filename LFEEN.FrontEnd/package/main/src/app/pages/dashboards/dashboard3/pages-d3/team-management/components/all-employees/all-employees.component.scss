@@ -36,12 +36,13 @@
     }
   }
 
-  &.pending {
-    background-color: #fffbeb;
-    color: #d97706;
-    border: 1px solid #fef3c7;
+  &.pending,
+  &.inactive {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
     .dot {
-      background-color: #d97706;
+      background-color: #dc2626;
     }
   }
 

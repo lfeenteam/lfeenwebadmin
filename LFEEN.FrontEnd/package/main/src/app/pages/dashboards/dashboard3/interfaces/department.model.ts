@@ -66,12 +66,19 @@ export interface Employee {
   roles: EmployeeRole[];
 }
 
+export interface DeptEmployeeStats {
+  totalTeam: number;
+  activeManagers: number;
+  inactiveEmployees: number;
+}
+
 export interface PaginatedEmployeeResponse {
   data: Employee[];
   totalCount: number;
   page: number;
   nextpage: number | null;
   totalPages: number;
+  stats?: DeptEmployeeStats;
 }
 
 export interface DepartmentRole {

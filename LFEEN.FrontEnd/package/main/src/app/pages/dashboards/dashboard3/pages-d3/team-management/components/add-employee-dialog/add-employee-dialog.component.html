@@ -83,10 +83,14 @@
       <!-- Phone Number -->
       <div class="col-md-6 m-b-20">
         <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.phone' | translate }}</mat-label>
-        <mat-form-field appearance="outline" class="w-100 custom-form-field"
-          [class.field-invalid]="employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched">
-          <input matInput formControlName="phoneNumber" [placeholder]="'d3.teamManagement.addEmployeeDialog.phonePlaceholder' | translate">
-        </mat-form-field>
+        <div class="phone-input-wrapper"
+             [class.field-invalid]="employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched">
+          <input #phoneInputRef
+                 type="tel"
+                 class="phone-native-input"
+                 formControlName="phoneNumber"
+                 [placeholder]="'d3.teamManagement.addEmployeeDialog.phonePlaceholder' | translate">
+        </div>
         @if (employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched) {
           <p class="field-error-msg">
             @if (employeeForm.get('phoneNumber')?.hasError('required')) {

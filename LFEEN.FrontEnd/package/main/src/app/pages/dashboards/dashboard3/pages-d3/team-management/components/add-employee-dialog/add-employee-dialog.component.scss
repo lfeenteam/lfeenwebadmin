@@ -228,6 +228,107 @@
   }
 
   // ════════════════════════════════════════
+  // Phone input with intl-tel-input
+  // ════════════════════════════════════════
+  .phone-input-wrapper {
+    position: relative;
+    height: 56px;
+    background-color: #fff;
+    border: 1px solid #E8E8E4;
+    border-radius: 16px;
+
+    &.field-invalid {
+      border-color: #e53935;
+    }
+
+    // Styles below apply to elements that remain INSIDE the wrapper
+    // (the flag button area). Dropdown styles are global — see end of file.
+    ::ng-deep {
+      .iti {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+      }
+
+      .iti__country-container {
+        // Ensure the absolute container spans the full wrapper height
+        top: 0;
+        bottom: 0;
+      }
+
+      .iti__selected-country {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        background: transparent !important;
+        border: none;
+        border-inline-end: 1px solid #E8E8E4;
+        border-start-start-radius: 16px;
+        border-end-start-radius: 16px;
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover, &:focus {
+          background: #F7F7F5 !important;
+          outline: none;
+        }
+      }
+
+      // Reset the library's own padding so our parent gap controls spacing
+      .iti__selected-country-primary {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 0;
+        height: auto;
+      }
+
+      .iti__arrow {
+        display: none !important;
+      }
+
+      .iti__flag {
+        flex-shrink: 0;
+      }
+
+      .iti__selected-dial-code {
+        font-family: 'Cairo', sans-serif !important;
+        font-size: 13px;
+        font-weight: 600;
+        color: #111110;
+        margin: 0;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .phone-native-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    height: 100%;
+    flex: 1;
+    min-width: 0;
+    padding: 0 16px;
+    font-family: 'Cairo', sans-serif !important;
+    font-weight: 500;
+    font-size: 14px;
+    color: #111110;
+    text-align: center;
+    direction: ltr; // phone numbers always read left-to-right
+
+    &::placeholder {
+      color: #9E9E9A;
+    }
+  }
+
+  // ════════════════════════════════════════
   // Mobile (576px)
   // ════════════════════════════════════════
   @media (max-width: 576px) {
@@ -261,6 +362,20 @@
     .field-error-msg { font-size: 11px; }
 
     .password-hint { font-size: 10px; }
+
+    .phone-input-wrapper {
+      height: 50px;
+      border-radius: 12px;
+      ::ng-deep {
+        .iti { border-radius: 12px; }
+        .iti__selected-country {
+          padding: 0 10px;
+          border-start-start-radius: 12px;
+          border-end-start-radius: 12px;
+        }
+      }
+    }
+    .phone-native-input { font-size: 13px; }
 
     .submit-btn {
       min-width: 140px;
@@ -302,6 +417,20 @@
       .dropdown-option { font-size: 12px; padding: 9px 12px; }
     }
 
+    .phone-input-wrapper {
+      height: 46px;
+      border-radius: 10px;
+      ::ng-deep {
+        .iti { border-radius: 10px; }
+        .iti__selected-country {
+          padding: 0 8px;
+          border-start-start-radius: 10px;
+          border-end-start-radius: 10px;
+        }
+      }
+    }
+    .phone-native-input { font-size: 12px; }
+
     .submit-btn {
       min-width: 120px;
       height: 48px;
@@ -310,5 +439,183 @@
     }
 
     .cancel-btn-text { height: 40px; font-size: 13px; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// Global styles for the intl-tel-input detached dropdown.
+//
+// dropdownParent: document.body appends two nested elements to <body>:
+//   .iti--detached-country-selector      ← outer wrapper  (no dir attr)
+//   └── .iti__country-selector[dir=rtl]  ← inner panel    (dir set by library)
+//
+// The library detects RTL at init time via telInputEl.closest("[dir=rtl]")
+// and sets dir="rtl" on the INNER .iti__country-selector — NOT on the outer
+// wrapper. All RTL rules must therefore target .iti__country-selector[dir="rtl"].
+//
+// Root-level ::ng-deep (no host selector) emits plain global CSS.
+// ════════════════════════════════════════════════════════════════
+::ng-deep .iti--detached-country-selector {
+  z-index: 9999 !important;
+  border-radius: 12px !important;
+  border: 1px solid #E8E8E4 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  font-family: 'Cairo', sans-serif;
+  min-width: 280px;
+  max-width: 330px;
+  overflow: hidden;
+
+  .iti__country-selector {
+    display: flex;
+    flex-direction: column;
+    // The library injects style="width:Xpx" (measured at init) as an inline style.
+    // Inline styles beat CSS rules, so !important is required to override it and
+    // make the panel fill the outer container instead of leaving a visible gap.
+    width: 100% !important;
+    box-sizing: border-box;
+    max-height: 320px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .iti__search-input-wrapper {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    border-bottom: 1px solid #E8E8E4;
+  }
+
+  // Span the full wrapper height with top/bottom instead of top+transform,
+  // then use the icon's own display:flex + align-items:center to center the SVG.
+  // This is reliable regardless of the exact wrapper height.
+  .iti__search-icon {
+    top: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  // Don't override padding — the library manages icon/clear-button padding.
+  // Only set font, color, height, and direction.
+  .iti__search-input {
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 13px;
+    color: #111110;
+    outline: none;
+    border: none !important;
+    background: transparent;
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    direction: inherit;
+
+    &::placeholder {
+      color: #9E9E9A;
+    }
+  }
+
+  .iti__country-list {
+    overflow-y: auto;
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 0 !important;
+    scrollbar-width: thin;
+    scrollbar-color: #D1D1CC transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #D1D1CC;
+      border-radius: 4px;
+    }
+  }
+
+  .iti__country {
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 13px;
+    color: #111110;
+    padding: 10px 14px !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:hover, &.iti__highlight {
+      background-color: #F7F7F5 !important;
+    }
+  }
+
+  .iti__country-name {
+    font-family: 'Cairo', sans-serif !important;
+    flex: 1 1 auto;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .iti__dial-code {
+    font-size: 12px;
+    color: #6B6B67;
+    white-space: nowrap;
+    margin: 0 !important;
+  }
+
+  .iti__country-check {
+    margin: 0 !important;
+  }
+
+  // The library hides non-selected checkmarks with visibility:hidden (.iti__v-hide),
+  // but the element still occupies its width (~15px) + the parent's gap in the flex row.
+  // In RTL that ghost space appears as a transparent strip on the far left.
+  // display:none removes it from flow entirely. When a country is selected the library
+  // removes .iti__v-hide, restoring display:flex and making the checkmark visible.
+  .iti__country-check.iti__v-hide {
+    display: none !important;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// RTL overrides — scoped to .iti__country-selector[dir="rtl"],
+// which is the element the library sets dir on (NOT the outer wrapper).
+// ════════════════════════════════════════════════════════════════
+::ng-deep .iti__country-selector[dir="rtl"] {
+  // Search input: text flows right-to-left
+  .iti__search-input {
+    text-align: right;
+  }
+
+  // Explicit icon + clear-button position for browsers where the library's
+  // own CSS-nesting [dir=rtl] rules don't apply.
+  .iti__search-icon {
+    left: auto !important;
+    right: var(--iti-spacer-horizontal, 10px) !important;
+  }
+
+  .iti__search-clear {
+    right: auto !important;
+    left: calc(var(--iti-spacer-horizontal, 10px) / 2) !important;
+  }
+
+  // Force scrollbar to the right side: setting direction:ltr on the list
+  // keeps the scrollbar right; we then restore rtl per row so the flex
+  // layout (flag right, name, dial-code, check left) stays correct.
+  .iti__country-list {
+    direction: ltr;
+  }
+
+  .iti__country {
+    direction: rtl;
   }
 }

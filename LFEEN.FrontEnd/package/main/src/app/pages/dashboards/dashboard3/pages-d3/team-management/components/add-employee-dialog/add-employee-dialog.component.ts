@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -11,8 +11,11 @@ import {
 } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { DepartmentService } from '../../../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../../../interfaces/department.model';
+import intlTelInput from 'intl-tel-input';
+import type { Iti, SomeOptions, UiTranslations } from 'intl-tel-input';
 
 @Component({
   selector: 'app-add-employee-dialog',
@@ -27,7 +30,7 @@ import { Department, DepartmentRole, Employee } from '../../../../interfaces/dep
   templateUrl: './add-employee-dialog.component.html',
   styleUrl: './add-employee-dialog.component.scss'
 })
-export class AddEmployeeDialogComponent implements OnInit {
+export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   employeeForm: FormGroup;
   roles: DepartmentRole[] = [];
   isDropdownOpen = false;
@@ -39,6 +42,18 @@ export class AddEmployeeDialogComponent implements OnInit {
   departments: Department[] = [];
   selectedDept: Department | null = null;
   isDeptDropdownOpen = false;
+
+  @ViewChild('phoneInputRef') private phoneInputRef!: ElementRef<HTMLInputElement>;
+  private iti: Iti | null = null;
+  private langSub: Subscription | null = null;
+
+  private readonly arUiTranslations: UiTranslations = {
+    searchPlaceholder: 'بحث',
+    noCountrySelected: 'اختر دولة',
+    countryListAriaLabel: 'قائمة الدول',
+    clearSearchAriaLabel: 'مسح البحث',
+    searchEmptyState: 'لا توجد نتائج',
+  };
 
   private readonly fieldMap: Record<string, string> = {
     'request.email': 'email',
@@ -75,7 +90,7 @@ export class AddEmployeeDialogComponent implements OnInit {
     this.employeeForm = this.fb.group({
       fullName: [this.data.employee?.fullName || '', [Validators.required, Validators.minLength(2)]],
       email: [this.data.employee?.email || '', [Validators.required, Validators.email]],
-      phoneNumber: [this.data.employee?.phoneNumber || '', [Validators.required, Validators.pattern(/^[+\d]+$/)]],
+      phoneNumber: [this.data.employee?.phoneNumber || '', [Validators.required, Validators.pattern(/^[\d\s+\-().]+$/)]],
       roleId: [this.data.employee?.roles?.[0]?.roleId || '', Validators.required],
     });
 
@@ -90,6 +105,63 @@ export class AddEmployeeDialogComponent implements OnInit {
     } else {
       this.loadRoles();
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.initPhoneInput();
+    this.langSub = this.translate.onLangChange.subscribe(() => {
+      this.reinitPhoneInput();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.iti?.destroy();
+    this.langSub?.unsubscribe();
+  }
+
+  private initPhoneInput(restoreNumber?: string): void {
+    const input = this.phoneInputRef.nativeElement;
+    // Phone numbers are always read LTR regardless of the app language
+    input.setAttribute('dir', 'ltr');
+
+    const isArabic = this.currentLang === 'ar';
+
+    const options: SomeOptions = {
+      initialCountry: 'sa',
+      separateDialCode: true,
+      showFlags: true,
+      countrySearch: true,
+      countryNameLocale: isArabic ? 'ar' : 'en',
+      uiTranslations: isArabic ? this.arUiTranslations : undefined,
+      dropdownParent: document.body,
+      // @ts-ignore — 'intl-tel-input/utils' subpath is not in typesVersions for moduleResolution:node; resolved by esbuild at build time
+      loadUtils: () => import('intl-tel-input/utils'),
+    };
+
+    this.iti = intlTelInput(input, options);
+
+    const number = restoreNumber ?? this.data.employee?.phoneNumber;
+    if (number) {
+      this.iti.setNumber(number);
+      const national = input.value;
+      this.employeeForm.get('phoneNumber')?.setValue(national, { emitEvent: false });
+    }
+  }
+
+  private reinitPhoneInput(): void {
+    const currentValue = this.employeeForm.get('phoneNumber')?.value as string ?? '';
+    this.iti?.destroy();
+    this.iti = null;
+    this.initPhoneInput(currentValue || undefined);
+  }
+
+  get selectedDialCode(): string {
+    const country = this.iti?.getSelectedCountry();
+    return country ? `+${country.dialCode}` : '';
+  }
+
+  getFullPhoneNumber(): string {
+    return this.iti?.getNumber() ?? this.employeeForm.get('phoneNumber')?.value ?? '';
   }
 
   loadDepartments(): void {

@@ -506,7 +506,7 @@
         "totalEmployees": "Total Employees",
         "departmentCount": "Number of Departments",
         "activeManagers": "Active Managers",
-        "pendingActivation": "Pending Activation",
+        "pendingActivation": "Inactive",
         "partialOps": "Partial Operations",
         "rejectedOps": "Rejected Operations",
         "successfulOps": "Successful Operations",
@@ -536,6 +536,7 @@
       "deptCard": {
         "active": "Active",
         "pending": "Pending",
+        "inactive": "Inactive",
         "manager": "Manager In Charge",
         "employees": "Employee Count",
         "permissions": "Department Permissions"
@@ -569,7 +570,7 @@
           "emailRequired": "Email is required",
           "emailInvalid": "Invalid email format",
           "phoneRequired": "Phone number is required",
-          "phonePattern": "Numbers and + only",
+          "phonePattern": "Enter a valid phone number",
           "roleRequired": "Job role is required"
         }
       },

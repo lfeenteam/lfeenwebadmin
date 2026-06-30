@@ -172,6 +172,11 @@ export class TeamManagementComponent implements OnInit {
       this.employeeCurrentPage = this.departmentService.employeeCurrentPage();
       this.isLoadingEmployees = this.departmentService.isLoadingEmployees();
       this.employeePageNumbers = Array.from({ length: this.employeeTotalPages }, (_, i) => i + 1);
+      if (this.departmentId) this.updateStats();
+      const err = this.departmentService.employeesError();
+      if (err) {
+        console.error('[TeamManagement] Employee resource error:', err);
+      }
       this.cdr.markForCheck();
     });
   }
@@ -256,10 +261,11 @@ export class TeamManagementComponent implements OnInit {
 
   updateStats(): void {
     if (this.departmentId && this.selectedDepartment) {
+      const s = this.departmentService.deptEmployeeStats();
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalEmployees', value: this.selectedDepartment.employeeCount, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.activeManagers', value: this.selectedDepartment.activeManagersCount || 0, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.pendingActivation', value: this.selectedDepartment.pendingActivationCount || 0, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
+        { label: 'd3.teamManagement.stats.totalEmployees', value: s?.totalTeam ?? this.selectedDepartment.employeeCount, icon: 'assets/images/svgs/Group.svg', color: 'primary', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.activeManagers', value: s?.activeManagers ?? 0, icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
+        { label: 'd3.teamManagement.stats.pendingActivation', value: s?.inactiveEmployees ?? 0, icon: 'assets/images/svgs/Group (3).svg', color: 'warning', valueColor: '#d97706' }
       ];
     } else if (this.activeTab === 'structure') {
       const s = this.departmentService.departmentStats();
