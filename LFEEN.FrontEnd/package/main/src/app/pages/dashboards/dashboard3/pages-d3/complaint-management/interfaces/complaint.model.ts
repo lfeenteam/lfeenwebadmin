@@ -113,6 +113,46 @@ export interface ChatMessage {
   timestampEn?: string;
 }
 
+export interface ClientTicket {
+  externalId: string;
+  ticketNumber: string;
+  subject: string;
+  department: string;
+  status: string;
+  priority: string;
+  assignedAgentName: string | null;
+  lastMessagePreview: string | null;
+  lastMessageAtUtc: string | null;
+  createdAt: string;
+}
+
+export interface ClientTicketListResponse {
+  data: ClientTicket[];
+  totalCount: number;
+  page: number;
+  nextpage: number | null;
+  totalPages: number;
+}
+
+export interface ClientTicketQueryParams {
+  status?: number;
+  department?: number;
+  priority?: number;
+  assignedAgentUserId?: string;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export const CLIENT_TICKETS_PAGE_SIZE = 8;
+
+export const CLIENT_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[] = [
+  { value: 0, labelKey: 'd3.complaints.clientStatus.open' },
+  { value: 1, labelKey: 'd3.complaints.clientStatus.pending' },
+  { value: 2, labelKey: 'd3.complaints.clientStatus.resolved' },
+  { value: 3, labelKey: 'd3.complaints.clientStatus.closed' },
+];
+
 export interface Complaint {
   id: string;
   ticketId: string;

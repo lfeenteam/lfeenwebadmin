@@ -9,7 +9,9 @@
           (building.tab === 'new'
             ? 'd3.allBuilds.underReview.newBadge'
             : building.tab === 'pendingChanges'
-              ? 'd3.allBuilds.underReview.pendingChangesBadge'
+              ? (building.pendingChangesReason === 'pendingAfterRejection'
+                  ? 'd3.allBuilds.underReview.pendingAfterRejectionBadge'
+                  : 'd3.allBuilds.underReview.pendingChangesBadge')
               : 'd3.allBuilds.underReview.statusLabel') | translate
         }}
       </span>
@@ -82,7 +84,9 @@
         <span class="status-dot"></span>
         {{
           (building.tab === 'pendingChanges'
-            ? 'd3.allBuilds.underReview.pendingChangesBadge'
+            ? (building.pendingChangesReason === 'pendingAfterRejection'
+                ? 'd3.allBuilds.underReview.pendingAfterRejectionBadge'
+                : 'd3.allBuilds.underReview.pendingChangesBadge')
             : 'd3.allBuilds.underReview.statusLabel') | translate
         }}
       </span>

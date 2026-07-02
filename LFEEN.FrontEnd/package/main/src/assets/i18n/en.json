@@ -253,7 +253,8 @@
         "newSectionTitle": "New Buildings",
         "newBadge": "New",
         "pendingChangesSectionTitle": "Pending Changes",
-        "pendingChangesBadge": "Pending Changes"
+        "pendingChangesBadge": "Pending Changes",
+        "pendingAfterRejectionBadge": "Changes After Rejection"
       },
       "filters": {
         "searchPlaceholder": "Search by building name or city...",
@@ -372,6 +373,7 @@
         "statusPending": "New",
         "statusUnderReview": "Under Review",
         "statusPendingChanges": "Pending Changes",
+        "statusPendingAfterRejection": "Changes After Rejection",
         "statusStopped": "Rejected",
         "servicesPricing": "Services",
         "servicesPaid": "Paid",
@@ -1144,7 +1146,7 @@
         },
         "hostRuleText": "Please note that the residential compound applies a quiet-hours policy after 10:00 PM. Shared pool access is not allowed after this time. Please make sure the smart access card is returned at checkout to the allocated box beside the main elevator.",
         "notesTitle": "Review Notes / Rejection Reason",
-        "notesOptional": "Optional for approval",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
         "approveBtn": "Approve Unit Terms"
       },
@@ -1171,7 +1173,7 @@
         "hostGuideText": "Please enter from the main gate of Retaj Tower, then head to the elevators on the right. Go up to the fourth floor; the unit is at the end of the corridor on the left. The unit key is inside the smart box beside the door, and the passcode is 4455.",
         "hostGuideMeta": "Explanation written by the host (Mohammed Al-Harthi)",
         "notesTitle": "Review Notes / Rejection Reason",
-        "notesHint": "Optional for approval",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
         "approveBtn": "Approve Access Method",
         "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting."
@@ -1202,7 +1204,7 @@
           "sat": "Sat"
         },
         "notesTitle": "Review Notes / Rejection Reason",
-        "notesHint": "Optional for approval",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Unit Price"
@@ -1252,6 +1254,7 @@
         "heading": "Host-Selected Policy",
         "subtitle": "Please review the rules and time limits set for refunds before approval.",
         "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Cancellation Policy",
@@ -1289,6 +1292,8 @@
       },
       "finalNotes": {
         "label": "Final Notes Added",
+        "optionalHint": "Optional when approving, required when rejecting",
+        "requiredHint": "Required when rejecting",
         "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
       },
       "depositView": {
@@ -1297,6 +1302,7 @@
         "notice": "This amount is collected before the guest is allowed to check in. If no damage or issues are reported, the amount is automatically refunded 24 hours after checkout.",
         "systemCheck": "The amount is verified by the platform's financial system",
         "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Security Deposit"
@@ -1403,6 +1409,7 @@
           "freeLabel": "Service"
         },
         "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Additional Services"
@@ -1438,6 +1445,7 @@
           "categoryValue": "Management and operation of tourist hospitality facilities"
         },
         "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve License"
@@ -1453,7 +1461,7 @@
       "table": {
         "searchPlaceholder": "Search by name, complaint ID...",
         "ticket": "Ticket #",
-        "client": "Host",
+        "client": "Client",
         "status": "Status",
         "date": "Date",
         "allStatuses": "All statuses",
@@ -1468,6 +1476,12 @@
         "closed": "Closed",
         "pending": "Pending",
         "replied": "Replied"
+      },
+      "clientStatus": {
+        "open": "Open",
+        "pending": "Pending",
+        "resolved": "Resolved",
+        "closed": "Closed"
       },
       "chat": {
         "supportName": "Support",

@@ -122,7 +122,10 @@
   </div>
 
   <div class="final-notes-section">
-    <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+    <div class="notes-label-row">
+      <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+      <small class="notes-hint">{{ 'd3.unitReview.finalNotes.optionalHint' | translate }}</small>
+    </div>
     <textarea
       [(ngModel)]="finalNotes"
       [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
@@ -143,7 +146,7 @@
     <button
       class="btn btn-reject"
       type="button"
-     [disabled]="isViewMode || !allSectionsDecided"
+      [disabled]="isRejectDisabled"
       (click)="onReject()">
       <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
       <i-tabler name="x" class="btn-icon"></i-tabler>

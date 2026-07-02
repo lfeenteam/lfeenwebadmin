@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { ChatMessage, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { ChatMessage, ClientTicket, ClientTicketListResponse, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { environment } from 'src/environments/environment';
 
 const MOCK_DATA: Complaint[] = [
@@ -371,6 +371,60 @@ export class ComplaintService {
       messages: [],
       subject: t.subject,
     };
+  }
+
+  getClientTickets(params: ClientTicketQueryParams): Observable<ClientTicketListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 20).toString());
+
+    if (params.status !== undefined && params.status !== null) {
+      httpParams = httpParams.set('status', params.status.toString());
+    }
+    if (params.department !== undefined && params.department !== null) {
+      httpParams = httpParams.set('department', params.department.toString());
+    }
+    if (params.priority !== undefined && params.priority !== null) {
+      httpParams = httpParams.set('priority', params.priority.toString());
+    }
+    if (params.assignedAgentUserId) {
+      httpParams = httpParams.set('assignedAgentUserId', params.assignedAgentUserId);
+    }
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get<ClientTicketListResponse>(
+      `${environment.apiBaseUrl}/api/client-tickets`,
+      { params: httpParams }
+    );
+  }
+
+  mapClientTicketToComplaint(t: ClientTicket): Complaint {
+    return {
+      id: t.externalId ?? '-',
+      ticketId: t.ticketNumber ?? '-',
+      clientName: '-',
+      clientInitials: '-',
+      clientCode: '-',
+      status: this.mapClientTicketStatus(t.status),
+      date: t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
+      dateEn: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
+      type: 'customer',
+      resolved: t.status === 'Resolved' || t.status === 'Closed',
+      messages: [],
+      subject: t.subject ?? undefined,
+    };
+  }
+
+  private mapClientTicketStatus(status: string): ComplaintStatus {
+    const map: Record<string, ComplaintStatus> = {
+      Open:     'new',
+      Pending:  'pending',
+      Resolved: 'replied',
+      Closed:   'closed',
+    };
+    return map[status] ?? 'new';
   }
 
   private mapTicketStatus(status: string | number): ComplaintStatus {

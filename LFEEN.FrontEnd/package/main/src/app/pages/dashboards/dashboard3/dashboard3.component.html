@@ -24,6 +24,8 @@
       } @else if (pageTitleKey) {
         <app-dashboard3-page-header
           [titleKey]="pageTitleKey"
+          [titleOverride]="pageTitleOverrideText"
+          [extraCrumbs]="pageExtraCrumbs"
           [breadcrumbKey]="pageBreadcrumbKey"
           [breadcrumbRoute]="pageBreadcrumbRoute"
           [showLive]="pageShowLive"

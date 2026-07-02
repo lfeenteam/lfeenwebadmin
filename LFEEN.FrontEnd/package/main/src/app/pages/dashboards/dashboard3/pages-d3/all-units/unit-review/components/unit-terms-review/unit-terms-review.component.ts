@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitTermsResponse } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 interface UnitRule {
   icon: string;
@@ -23,7 +24,7 @@ interface UnitRule {
   templateUrl: './unit-terms-review.component.html',
   styleUrl: './unit-terms-review.component.scss'
 })
-export class UnitTermsReviewComponent implements OnInit {
+export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   termsData: UnitTermsResponse | null = null;
   buildingId = '';
   unitId = '';
@@ -46,7 +47,8 @@ export class UnitTermsReviewComponent implements OnInit {
     private router: Router,
     private unitsService: UnitsService,
     private translate: TranslateService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -81,7 +83,17 @@ export class UnitTermsReviewComponent implements OnInit {
         },
         error: () => { this.isLoading = false; }
       });
+      this.unitsService.getUnitBasicData(this.unitId).subscribe(data => {
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
+      });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   submitDecision(decision: UnitReviewDecision): void {

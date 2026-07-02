@@ -7,13 +7,29 @@
       <input
         type="text"
         [(ngModel)]="searchQuery"
-        (ngModelChange)="currentPage = 1"
+        (ngModelChange)="onSearchInput($event)"
         [placeholder]="searchPlaceholder"
         class="search-input" />
     </div>
-    <button class="status-filter-btn">
-      {{ 'd3.complaints.table.allStatuses' | translate }}
-    </button>
+    @if (statusOptions.length) {
+      <button class="status-filter-btn" type="button" [matMenuTriggerFor]="statusMenu">
+        {{ selectedStatusLabel | translate }}
+      </button>
+      <mat-menu #statusMenu="matMenu">
+        <button mat-menu-item type="button" (click)="onStatusSelect(null)">
+          {{ 'd3.complaints.table.allStatuses' | translate }}
+        </button>
+        @for (opt of statusOptions; track opt.value) {
+          <button mat-menu-item type="button" (click)="onStatusSelect(opt.value)">
+            {{ opt.labelKey | translate }}
+          </button>
+        }
+      </mat-menu>
+    } @else {
+      <button class="status-filter-btn" type="button">
+        {{ 'd3.complaints.table.allStatuses' | translate }}
+      </button>
+    }
   </div>
 
   <!-- Table -->
@@ -49,6 +65,9 @@
     }
 
     <!-- Rows -->
+    @if (loading) {
+      <app-dashboard-loading variant="table" [rows]="pageSize"></app-dashboard-loading>
+    } @else {
     @for (c of pagedComplaints; track c.id) {
       <div
         class="table-row"
@@ -172,6 +191,7 @@
         <i-tabler name="inbox" class="icon-40"></i-tabler>
         <span>{{ 'd3.complaints.table.empty' | translate }}</span>
       </div>
+    }
     }
   </div>
 

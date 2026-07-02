@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import {
   UnitServicesResponse,
   UnitServicesServiceItem,
 } from '../../../../../interfaces/unit-card.model';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 interface ServiceItem {
   id: string;
@@ -66,8 +67,9 @@ const GROUP_ORDER = [
   templateUrl: './unit-services-review.component.html',
   styleUrl: './unit-services-review.component.scss'
 })
-export class UnitServicesReviewComponent implements OnInit {
+export class UnitServicesReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
 
   buildingId = '';
   unitId = '';
@@ -135,6 +137,18 @@ export class UnitServicesReviewComponent implements OnInit {
         },
         error: () => { this.isLoading = false; }
       });
+    this.unitsService.getUnitBasicData(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   groupTitle(group: ServiceGroup): string {

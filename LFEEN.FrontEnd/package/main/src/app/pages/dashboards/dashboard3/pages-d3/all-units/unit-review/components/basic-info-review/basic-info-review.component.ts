@@ -17,6 +17,7 @@ import {
   UnitRoomSection,
   UnitSubArea
 } from '../../../../../interfaces/unit-card.model';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 @Component({
   selector: 'app-basic-info-review',
@@ -40,7 +41,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     private router: Router,
     private unitsService: UnitsService,
     private translate: TranslateService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -85,6 +87,10 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
           this.unitData     = data;
           this.dynamicRooms = this.mapRooms(data.rooms);
           this.isLoading    = false;
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
         },
         error: () => { this.isLoading = false; }
       });
@@ -99,6 +105,7 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.pageBreadcrumbTrail.clear();
   }
 
   getServiceLabel(service: UnitBasicDataService): string {

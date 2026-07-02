@@ -10,6 +10,7 @@ import { forkJoin, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { DepartmentService } from '../../../services/department.service';
 import { RolePermission } from '../../../interfaces/department.model';
+import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 
 interface PermissionRow extends RolePermission {
   selected: boolean;
@@ -47,7 +48,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
     private router: Router,
     private departmentService: DepartmentService,
     private translate: TranslateService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
     this.roleForm = this.fb.group({
@@ -102,6 +104,14 @@ export class AddRoleComponent implements OnInit, OnDestroy {
           this.deptName = res.dept.nameAr ?? res.dept.name ?? '';
           this.deptEnglishName = res.dept.nameEn ?? res.dept.name ?? '';
           this.employeeCount = res.dept.employeeCount;
+          const lang = this.currentLang;
+          this.pageBreadcrumbTrail.set([
+            {
+              label: lang === 'ar' ? this.deptName : this.deptEnglishName,
+              translate: false,
+              route: ['/', lang, 'd3', 'permissions', this.deptId ?? '']
+            }
+          ]);
         }
         this.isLoadingPerms = false;
       },
@@ -167,5 +177,6 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.pageBreadcrumbTrail.clear();
   }
 }

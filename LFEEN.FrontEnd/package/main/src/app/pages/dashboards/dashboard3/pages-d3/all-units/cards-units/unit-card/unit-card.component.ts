@@ -35,6 +35,7 @@ export class UnitCardComponent {
       case 'pending':        return { labelKey: 'd3.allUnits.unitCard.statusPending',        mod: 'pending'        };
       case 'underReview':    return { labelKey: 'd3.allUnits.unitCard.statusUnderReview',    mod: 'underReview'    };
       case 'pendingChanges': return { labelKey: 'd3.allUnits.unitCard.statusPendingChanges', mod: 'pendingChanges' };
+      case 'pendingAfterRejection': return { labelKey: 'd3.allUnits.unitCard.statusPendingAfterRejection', mod: 'pendingAfterRejection' };
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -8,11 +8,14 @@ import { ReviewLicenseComponent } from './review-license/review-license.componen
 import { ActivatedRoute, Router } from '@angular/router';
 import { BuildingReviewService } from '../../services/building-review.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AdminReviewStatus, SectionReviewResponse } from '../../interfaces/building-card.model';
+import { SectionDecisionStatus, SectionReviewResponse } from '../../interfaces/building-card.model';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { ReviewConfirmDialogComponent } from './review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PageBackOverrideService } from '../../services/page-back-override.service';
+import { PageTitleOverrideService } from '../../services/page-title-override.service';
+import { PageBreadcrumbTrailService } from '../../services/page-breadcrumb-trail.service';
 
 @Component({
   selector: 'app-build-review',
@@ -21,14 +24,27 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './build-review.component.html',
   styleUrl: './build-review.component.scss'
 })
-export class BuildReviewComponent implements OnInit {
+export class BuildReviewComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
+  private pageBackOverride = inject(PageBackOverrideService);
+  private pageTitleOverride = inject(PageTitleOverrideService);
+  private pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
+  private readonly sectionTitleKeys: Record<string, string> = {
+    images:  'd3.buildReview.sections.photosTitle',
+    terms:   'd3.buildReview.sections.termsTitle',
+    license: 'd3.buildReview.sections.licenseTitle',
+  };
+  private readonly backHandler = () => {
+    if (this.currentView === 'list') return false;
+    this.currentView = 'list';
+    this.updateHeaderForView();
+    return true;
+  };
 
   currentView: 'list' | 'images' | 'terms' | 'license' | 'final' = 'list';
   buildingId: string | null = null;
   imageError = false;
   orgLogoError = false;
-  viewOnly = false;
   overallStatus = '';
 
   building = {
@@ -56,12 +72,35 @@ export class BuildReviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
-    this.viewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadProperty());
 
     this.loadProperty();
+    this.pageBackOverride.set(this.backHandler);
+  }
+
+  ngOnDestroy(): void {
+    this.pageBackOverride.clear(this.backHandler);
+    this.pageTitleOverride.clear();
+    this.pageBreadcrumbTrail.clear();
+  }
+
+  // Building review's sections aren't separate routes (just internal currentView toggles),
+  // so the shared header can't derive title/breadcrumb from route data here. We push them
+  // manually: at the section list, H1 = building name; inside a section, H1 = section name
+  // and the building name becomes a clickable breadcrumb crumb back to the section list.
+  private updateHeaderForView(): void {
+    const sectionKey = this.sectionTitleKeys[this.currentView];
+    if (!sectionKey) {
+      this.pageTitleOverride.set(this.building.name);
+      this.pageBreadcrumbTrail.clear();
+      return;
+    }
+    this.pageTitleOverride.set(this.translate.instant(sectionKey));
+    this.pageBreadcrumbTrail.set([
+      { label: this.building.name, translate: false, onClick: () => { this.currentView = 'list'; this.updateHeaderForView(); } }
+    ]);
   }
 
   private loadProperty(): void {
@@ -78,21 +117,22 @@ export class BuildReviewComponent implements OnInit {
           totalUnits:          String(data.totalUnits),
           imageUrl:            data.mainPhotoUrl ?? 'assets/images/building.jpg'
         };
+        this.updateHeaderForView();
         this.overallStatus = data.overallStatus?.trim() ?? '';
 
-        this.reviewSections[0].completed = data.photosSection.decision !== 'Pending';
+        this.reviewSections[0].completed = this.isFinalDecision(data.photosSection.decision);
         this.reviewSections[0].status    = this.mapDecision(data.photosSection.decision);
         if (data.photosSection.rejectionReason) {
           this.reviewSections[0].notes = data.photosSection.rejectionReason;
         }
 
-        this.reviewSections[1].completed = data.termsSection.decision !== 'Pending';
+        this.reviewSections[1].completed = this.isFinalDecision(data.termsSection.decision);
         this.reviewSections[1].status    = this.mapDecision(data.termsSection.decision);
         if (data.termsSection.rejectionReason) {
           this.reviewSections[1].notes = data.termsSection.rejectionReason;
         }
 
-        this.reviewSections[2].completed = data.licenseSection.decision !== 'Pending';
+        this.reviewSections[2].completed = this.isFinalDecision(data.licenseSection.decision);
         this.reviewSections[2].status    = this.mapDecision(data.licenseSection.decision);
         if (data.licenseSection.rejectionReason) {
           this.reviewSections[2].notes = data.licenseSection.rejectionReason;
@@ -101,7 +141,14 @@ export class BuildReviewComponent implements OnInit {
     }
   }
 
-  private mapDecision(decision: AdminReviewStatus): 'pending' | 'accepted' | 'rejected' {
+  // A section is only "done" once it has a final decision. Anything else
+  // (Pending, or PendingUpdate after the host edits an already-decided section)
+  // must stay open for review.
+  private isFinalDecision(decision: SectionDecisionStatus): boolean {
+    return decision === 'Approved' || decision === 'Rejected';
+  }
+
+  private mapDecision(decision: SectionDecisionStatus): 'pending' | 'accepted' | 'rejected' {
     switch (decision) {
       case 'Approved': return 'accepted';
       case 'Rejected': return 'rejected';
@@ -150,12 +197,11 @@ export class BuildReviewComponent implements OnInit {
     return this.reviewSections.every(s => s.completed);
   }
 
-  get hasPendingChanges(): boolean {
-    return this.overallStatus === 'HasPendingChanges';
+  get viewOnly(): boolean {
+    return this.overallStatus === 'Approved' || this.overallStatus === 'Rejected';
   }
 
   get isImagesReadOnly(): boolean {
-    if (this.hasPendingChanges) return false;
     return this.reviewSections[0].completed;
   }
 
@@ -169,9 +215,8 @@ export class BuildReviewComponent implements OnInit {
 
   openSection(index: number): void {
     const views: ('images' | 'terms' | 'license')[] = ['images', 'terms', 'license'];
-    if (index === 0 || this.reviewSections[index - 1].completed) {
-      this.currentView = views[index];
-    }
+    this.currentView = views[index];
+    this.updateHeaderForView();
   }
 
   onBack(): void {
@@ -179,6 +224,7 @@ export class BuildReviewComponent implements OnInit {
       this.router.navigate(['../../buildings'], { relativeTo: this.route });
     } else {
       this.currentView = 'list';
+      this.updateHeaderForView();
     }
   }
 
@@ -187,6 +233,7 @@ export class BuildReviewComponent implements OnInit {
     this.reviewSections[index].completed = true;
     this.reviewSections[index].status    = hasRejection ? 'rejected' : 'accepted';
     this.currentView = 'list';
+    this.updateHeaderForView();
   }
 
   get isFinalSuccess(): boolean {

@@ -2,11 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
 import { ComplaintService } from './services/complaint.service';
-import { Complaint, ComplaintTab } from './interfaces/complaint.model';
+import { CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab } from './interfaces/complaint.model';
 
 @Component({
   selector: 'app-complaint-management',
@@ -29,10 +30,18 @@ export class ComplaintManagementComponent {
 
   activeTab         = signal<ComplaintTab>('customers');
   selectedComplaint = signal<Complaint | null>(null);
+  loading           = signal(false);
 
-  private allComplaints  = this.service.complaints;
   private hostTickets    = signal<Complaint[]>([]);
   private resolvedTickets = signal<Complaint[]>([]);
+
+  readonly clientStatusOptions = CLIENT_TICKET_STATUS_OPTIONS;
+  customerTickets     = signal<Complaint[]>([]);
+  customerTotalCount  = signal<number | null>(null);
+  customerTotalPages  = signal(1);
+  customerPage        = signal(1);
+  customerSearch      = signal('');
+  customerStatus      = signal<number | null>(null);
 
   constructor() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as ComplaintTab | null;
@@ -46,17 +55,55 @@ export class ComplaintManagementComponent {
     const tab = this.activeTab();
     if (tab === 'hosts')    return this.hostTickets();
     if (tab === 'resolved') return this.resolvedTickets();
-    return this.allComplaints().filter(c => c.type === 'customer' && !c.resolved);
+    return this.customerTickets();
   });
 
   private loadTabData(tab: ComplaintTab): void {
+    this.loading.set(true);
     if (tab === 'hosts') {
-      this.service.getTickets().subscribe(tickets =>
-        this.hostTickets.set(tickets.filter(t => t.status !== 'closed'))
-      );
+      this.service.getTickets()
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe(tickets => this.hostTickets.set(tickets.filter(t => t.status !== 'closed')));
     } else if (tab === 'resolved') {
-      this.service.getTickets(5).subscribe(tickets => this.resolvedTickets.set(tickets));
+      this.service.getTickets(5)
+        .pipe(finalize(() => this.loading.set(false)))
+        .subscribe(tickets => this.resolvedTickets.set(tickets));
+    } else if (tab === 'customers') {
+      this.loadClientTickets();
     }
+  }
+
+  private loadClientTickets(): void {
+    this.loading.set(true);
+    this.service.getClientTickets({
+      status: this.customerStatus() ?? undefined,
+      search: this.customerSearch() || undefined,
+      page: this.customerPage(),
+      pageSize: CLIENT_TICKETS_PAGE_SIZE,
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe(res => {
+        this.customerTickets.set(res.data.map(t => this.service.mapClientTicketToComplaint(t)));
+        this.customerTotalCount.set(res.totalCount);
+        this.customerTotalPages.set(res.totalPages);
+      });
+  }
+
+  onCustomerSearchChange(term: string): void {
+    this.customerSearch.set(term);
+    this.customerPage.set(1);
+    this.loadClientTickets();
+  }
+
+  onCustomerStatusChange(status: number | null): void {
+    this.customerStatus.set(status);
+    this.customerPage.set(1);
+    this.loadClientTickets();
+  }
+
+  onCustomerPageChange(page: number): void {
+    this.customerPage.set(page);
+    this.loadClientTickets();
   }
 
   setTab(tab: ComplaintTab): void {

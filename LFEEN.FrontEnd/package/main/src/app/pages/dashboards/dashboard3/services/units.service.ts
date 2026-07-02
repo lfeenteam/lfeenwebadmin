@@ -1,8 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { rxResource, toObservable } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
-import { expand, reduce } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, Observable, forkJoin } from 'rxjs';
+import { expand, map, reduce } from 'rxjs/operators';
 import { AccountItem, PaginatedAccountResponse } from '../interfaces/account.model';
 import { PaginatedPropertyResponse } from '../interfaces/building-card.model';
 import {
@@ -62,11 +62,30 @@ export class UnitsService {
       tab:        this.activeTab(),
       sort:       this.sortOrder(),
     }),
-    loader: ({ request }) => this.getAllUnitPages({
-      ...request,
-      status:      this.tabToStatus(request.tab),
-      newestFirst: request.sort !== 'oldest',
-    })
+    loader: ({ request }) => {
+      const newestFirst = request.sort !== 'oldest';
+
+      // The 'pendingChanges' tab covers two distinct statuses (HasPendingChanges and
+      // PendingAfterRejection); fetch both and merge them client-side.
+      if (request.tab === 'pendingChanges') {
+        return forkJoin([
+          this.getAllUnitPages({ ...request, status: 4, newestFirst }),
+          this.getAllUnitPages({ ...request, status: 5, newestFirst }),
+        ]).pipe(
+          map(([hasPendingChanges, pendingAfterRejection]) => ({
+            ...hasPendingChanges,
+            data: [...hasPendingChanges.data, ...pendingAfterRejection.data],
+            totalCount: hasPendingChanges.totalCount + pendingAfterRejection.totalCount,
+          }))
+        );
+      }
+
+      return this.getAllUnitPages({
+        ...request,
+        status: this.tabToStatus(request.tab),
+        newestFirst,
+      });
+    }
   });
 
   private readonly _filterUnitsResource = rxResource({
@@ -402,13 +421,28 @@ export class UnitsService {
       capacity:    u.maxGuests != null
         ? (lang === 'ar' ? `سعة ${u.maxGuests} أفراد` : `${u.maxGuests} guests`)
         : '—',
-      status:      this.tabToUnitStatus(this.activeTab()),
+      status:      this.resolveUnitStatus(u),
       type:        u.unitTypeName,
       description: u.description ?? '',
       district:    u.district ?? null,
       rooms:       0,
       hasPool:     false,
     };
+  }
+
+  private resolveUnitStatus(u: UnitApiItem): UnitStatus {
+    if (this.activeTab() === 'pendingChanges') {
+      return this.isReviewStatus(u, 5) ? 'pendingAfterRejection' : 'pendingChanges';
+    }
+    return this.tabToUnitStatus(this.activeTab());
+  }
+
+  private isReviewStatus(u: UnitApiItem, status: number): boolean {
+    if (typeof u.reviewStatus === 'number') return u.reviewStatus === status;
+    const names: Record<number, string> = {
+      0: 'Pending', 1: 'UnderReview', 2: 'Approved', 3: 'Rejected', 4: 'HasPendingChanges', 5: 'PendingAfterRejection',
+    };
+    return u.reviewStatus === names[status];
   }
 
   private tabToUnitStatus(tab: UnitTab): UnitStatus {
