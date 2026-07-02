@@ -26,7 +26,8 @@ export interface PropertyTypeItem {
   id: number;
   name: string;
 }
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, forkJoin } from 'rxjs';
+import { expand, map, reduce } from 'rxjs/operators';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
 
@@ -55,6 +56,10 @@ export class BuildingReviewService {
       newestFirst: this.newestFirst(),
     }),
     loader: ({ request }) => {
+      if (request.tab === 'pendingChanges') {
+        return this.getMergedPendingChanges(request);
+      }
+
       const params = new URLSearchParams({
         pageNumber: String(request.page),
         pageSize:   String(request.pageSize),
@@ -81,6 +86,76 @@ export class BuildingReviewService {
     }
   }
 
+  // The 'pendingChanges' tab covers two distinct statuses (HasPendingChanges and
+  // PendingAfterRejection), but the API only filters by a single status per request,
+  // so we fetch every page of each status and merge/paginate the combined list client-side.
+  private getMergedPendingChanges(request: {
+    page: number;
+    pageSize: number;
+    search: string;
+    city: string;
+    propertyTypeId: string;
+    newestFirst: boolean;
+  }): Observable<PaginatedPropertyResponse> {
+    const filters = {
+      search: request.search,
+      city: request.city,
+      propertyTypeId: request.propertyTypeId,
+      newestFirst: request.newestFirst,
+    };
+
+    return forkJoin({
+      hasPendingChanges:     this.getAllPropertiesByStatus(PropertyAdminReviewStatusValue.HasPendingChanges, filters),
+      pendingAfterRejection: this.getAllPropertiesByStatus(PropertyAdminReviewStatusValue.PendingAfterRejection, filters),
+    }).pipe(
+      map(({ hasPendingChanges, pendingAfterRejection }) => {
+        const merged = [...hasPendingChanges.data, ...pendingAfterRejection.data].sort((a, b) => {
+          const diff = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          return request.newestFirst ? diff : -diff;
+        });
+
+        const totalCount = merged.length;
+        const totalPages = Math.max(1, Math.ceil(totalCount / request.pageSize));
+        const start = (request.page - 1) * request.pageSize;
+
+        return {
+          data: merged.slice(start, start + request.pageSize),
+          totalCount,
+          page: request.page,
+          nextpage: request.page < totalPages ? request.page + 1 : null,
+          totalPages,
+          stats: hasPendingChanges.stats,
+        };
+      })
+    );
+  }
+
+  private getAllPropertiesByStatus(
+    status: PropertyAdminReviewStatusValue,
+    filters: { search: string; city: string; propertyTypeId: string; newestFirst: boolean }
+  ): Observable<PaginatedPropertyResponse> {
+    const fetchPage = (page: number): Observable<PaginatedPropertyResponse> => {
+      const params = new URLSearchParams({
+        pageNumber: String(page),
+        pageSize:   '50',
+        newestFirst: String(filters.newestFirst),
+        status:     String(status),
+      });
+      if (filters.search) params.set('search', filters.search);
+      if (filters.city) params.set('city', filters.city);
+      if (filters.propertyTypeId) params.set('propertyTypeId', filters.propertyTypeId);
+      return this.http.get<PaginatedPropertyResponse>(`${this.apiUrl}?${params}`);
+    };
+
+    return fetchPage(1).pipe(
+      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+      reduce((acc, res) => ({
+        ...res,
+        data: [...acc.data, ...res.data],
+      }))
+    );
+  }
+
   readonly rawProperties = computed(() => this._propertiesResource.value()?.data ?? []);
   readonly totalPages    = computed(() => this._propertiesResource.value()?.totalPages ?? 1);
   readonly totalCount    = computed(() => this._propertiesResource.value()?.totalCount ?? 0);
@@ -94,11 +169,13 @@ export class BuildingReviewService {
   private mapToBuilding(p: PropertyApiItem): BuildingCardItem {
     const lang             = this.coreService.getLanguage();
     const occupancyPercent = p.occupancyCount ?? 0;
+    const isPendingAfterRejection = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.PendingAfterRejection);
+    const isHasPendingChanges     = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges);
     const tab: BuildingTab =
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved)    ? 'published'    :
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected)    ? 'rejected'     :
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges) ? 'pendingChanges' :
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview) ? 'underReview'  : 'new';
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved) ? 'published' :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected) ? 'rejected'  :
+      (isHasPendingChanges || isPendingAfterRejection)                 ? 'pendingChanges' :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview) ? 'underReview' : 'new';
     const location         = [p.city, p.district].filter(Boolean).join(' - ');
 
     return {
@@ -114,6 +191,7 @@ export class BuildingReviewService {
       lastUpdate: this.formatDate(p.updatedAt, lang),
       tab,
       mainPhotoUrl: p.mainPhotoUrl,
+      pendingChangesReason: isPendingAfterRejection ? 'pendingAfterRejection' : isHasPendingChanges ? 'hasPendingChanges' : undefined,
     };
   }
 

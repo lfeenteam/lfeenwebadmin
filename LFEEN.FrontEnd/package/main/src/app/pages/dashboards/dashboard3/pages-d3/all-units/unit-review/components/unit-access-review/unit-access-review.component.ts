@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingWithUnits, UnitAccessResponse, UnitApiDetailItem, UnitCardItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 type AccessPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -49,8 +50,9 @@ const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
   templateUrl: './unit-access-review.component.html',
   styleUrl: './unit-access-review.component.scss'
 })
-export class UnitAccessReviewComponent implements OnInit {
+export class UnitAccessReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
 
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
@@ -103,6 +105,10 @@ export class UnitAccessReviewComponent implements OnInit {
       .subscribe(buildings => {
         this.building = buildings.find(b => b.id === this.buildingId);
         this.unit     = this.building?.units.find(u => u.id === this.unitId);
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: this.unit?.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
       });
 
     if (this.unitId) {
@@ -132,6 +138,10 @@ export class UnitAccessReviewComponent implements OnInit {
           error: () => { this.isLoading = false; }
         });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   setPhotoDecision(photo: AccessPhoto, decision: Exclude<AccessPhotoDecision, 'pending'>): void {

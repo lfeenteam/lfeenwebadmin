@@ -104,6 +104,22 @@
           color: #111110;
         }
       }
+
+      &--btn {
+        all: unset;
+        font: inherit;
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #9E9E9A;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: color 0.15s ease;
+
+        &:hover {
+          color: #111110;
+        }
+      }
     }
 
     .d3-breadcrumb-arrow {

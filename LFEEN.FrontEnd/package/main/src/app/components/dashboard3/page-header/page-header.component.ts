@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
+import { PageBreadcrumbCrumb } from '../../../pages/dashboards/dashboard3/services/page-breadcrumb-trail.service';
 
 @Component({
   selector: 'app-dashboard3-page-header',
@@ -13,8 +14,10 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 })
 export class PageHeaderComponent {
   @Input({ required: true }) titleKey!: string;
+  @Input() titleOverride: string | null = null;
   @Input() breadcrumbKey = 'd3.header.platform';
   @Input() breadcrumbRoute: string[] | null = null;
+  @Input() extraCrumbs: PageBreadcrumbCrumb[] | null = null;
   @Input() showLive = true;
   @Input() showDate = true;
   @Input() showBack = false;

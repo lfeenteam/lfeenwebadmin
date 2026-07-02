@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DepartmentService } from '../../../services/department.service';
 import { DepartmentManager, RolePermission } from '../../../interfaces/department.model';
+import { PageTitleOverrideService } from '../../../services/page-title-override.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { forkJoin, Subscription } from 'rxjs';
@@ -38,7 +39,8 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pageTitleOverride: PageTitleOverrideService
   ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
     this.roleId = this.route.snapshot.paramMap.get('roleId');
@@ -78,6 +80,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
           ?? '';
         this.permissions = permissions;
         this.isLoading = false;
+        this.pageTitleOverride.set(this.roleName);
       },
       error: () => { this.isLoading = false; }
     });
@@ -85,6 +88,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.pageTitleOverride.clear();
   }
 
   onToggleChange(perm: RolePermission, event: MatSlideToggleChange): void {

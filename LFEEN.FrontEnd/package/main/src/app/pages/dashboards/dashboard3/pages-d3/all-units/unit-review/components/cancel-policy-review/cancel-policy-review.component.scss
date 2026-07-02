@@ -334,12 +334,23 @@
 
 .notes-label-row {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 
   .notes-title {
     font-size: 13px;
     font-weight: 900;
     color: #9E9E9A;
+  }
+
+  .notes-hint {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #FEE2E2;
+    color: #DC2626;
+    font-size: 11px;
+    font-weight: 900;
   }
 }
 

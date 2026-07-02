@@ -495,10 +495,26 @@
   flex-direction: column;
   gap: 10px;
 
+  .notes-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
   .input-label {
     font-size: 13px;
     font-weight: 800;
     color: #111110;
+  }
+
+  .notes-hint {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #FEE2E2;
+    color: #DC2626;
+    font-size: 11px;
+    font-weight: 900;
   }
 
   textarea {

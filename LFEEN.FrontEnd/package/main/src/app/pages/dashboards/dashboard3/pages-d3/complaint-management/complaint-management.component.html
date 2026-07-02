@@ -16,8 +16,17 @@
         [complaints]="visibleComplaints()"
         [selectedId]="selectedComplaint()?.id ?? null"
         [compact]="chatOpen"
+        [loading]="loading()"
+        [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : null"
+        [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : null"
+        [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : null"
+        [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : null"
+        [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : []"
         (rowSelect)="onRowSelect($event)"
-        (detailSelect)="openHostComplaint($event)">
+        (detailSelect)="openHostComplaint($event)"
+        (searchChange)="onCustomerSearchChange($event)"
+        (statusFilterChange)="onCustomerStatusChange($event)"
+        (pageChange)="onCustomerPageChange($event)">
       </app-complaints-table>
     </div>
 

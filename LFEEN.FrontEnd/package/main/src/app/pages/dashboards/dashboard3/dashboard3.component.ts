@@ -10,6 +10,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { filter, Subscription } from 'rxjs';
 import { D3HeaderType, D3RouteHeaderData } from './interfaces/dashboard3-header.model';
 import { ComplaintService } from './pages-d3/complaint-management/services/complaint.service';
+import { PageBackOverrideService } from './services/page-back-override.service';
+import { PageTitleOverrideService } from './services/page-title-override.service';
+import { PageBreadcrumbTrailService } from './services/page-breadcrumb-trail.service';
 
 @Component({
   selector: 'app-dashboard3',
@@ -48,8 +51,19 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     private translate: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
-    private complaintService: ComplaintService
+    private complaintService: ComplaintService,
+    private pageBackOverride: PageBackOverrideService,
+    private pageTitleOverride: PageTitleOverrideService,
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {}
+
+  get pageTitleOverrideText(): string | null {
+    return this.pageTitleOverride.title();
+  }
+
+  get pageExtraCrumbs() {
+    return this.pageBreadcrumbTrail.crumbs();
+  }
 
   ngOnInit(): void {
     this.updateIsLoginRoute();
@@ -71,6 +85,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   }
 
   private applyRouteHeaderData(): void {
+    this.pageTitleOverride.clear();
+    this.pageBreadcrumbTrail.clear();
     let child = this.route.firstChild;
     while (child?.firstChild) {
       child = child.firstChild;
@@ -110,6 +126,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   }
 
   onPageBack(): void {
+    if (this.pageBackOverride.consume()) return;
     window.history.back();
   }
 

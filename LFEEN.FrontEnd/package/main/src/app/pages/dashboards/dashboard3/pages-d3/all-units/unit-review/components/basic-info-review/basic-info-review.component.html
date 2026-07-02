@@ -189,7 +189,10 @@
 
   @if (!isReadOnly) {
     <section class="final-notes-section">
-      <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+      <div class="notes-label-row">
+        <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+        <small class="notes-hint">{{ 'd3.unitReview.finalNotes.requiredHint' | translate }}</small>
+      </div>
       <textarea
         [(ngModel)]="finalNotes"
         [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { ReviewConfirmDialogComponent } from '../../build-review/review-confirm-
 import { UnitReviewDecision, UnitsService } from '../../../services/units.service';
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { PageTitleOverrideService } from '../../../services/page-title-override.service';
 
 interface UnitReviewSection {
   key: string;
@@ -28,8 +29,9 @@ interface UnitReviewSection {
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
-export class UnitReviewComponent implements OnInit {
+export class UnitReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageTitleOverride = inject(PageTitleOverrideService);
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   unitDetail: UnitApiDetailItem | undefined;
@@ -38,7 +40,6 @@ export class UnitReviewComponent implements OnInit {
   buildingId = '';
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
-  viewModeFromParam = false;
   isLoading = false;
 
   readonly reviewSections: UnitReviewSection[] = [
@@ -66,11 +67,6 @@ export class UnitReviewComponent implements OnInit {
     return this.unitDetail?.progressPercentage ?? 0;
   }
 
-  get needsReReview(): boolean {
-    const status = this.unitDetail?.overallStatus?.trim();
-    return status === 'PendingUpdate' || status === 'HasPendingChanges';
-  }
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -83,17 +79,17 @@ export class UnitReviewComponent implements OnInit {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
+  // The page is closed for review only once the unit has a final decision.
+  // Anything else (Pending, PendingUpdate, HasPendingChanges, PendingAfterRejection)
+  // must stay open for review, regardless of which tab/link got you here.
   get isViewMode(): boolean {
     const status = this.unitDetail?.overallStatus?.trim();
-    if (status === 'HasPendingChanges') return false;
-    if (this.viewModeFromParam) return true;
     return status === 'Approved' || status === 'Rejected';
   }
 
   ngOnInit(): void {
-    this.buildingId        = this.route.snapshot.paramMap.get('buildingId') ?? '';
-    this.unitId            = this.route.snapshot.paramMap.get('unitId') ?? '';
-    this.viewModeFromParam = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
+    this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
 
     this.isLoading = true;
     this.unitsService.getUnitById(this.unitId).subscribe({
@@ -121,6 +117,7 @@ export class UnitReviewComponent implements OnInit {
           image:          data.mainPhotoUrl ?? 'assets/images/products/review_image.png',
           units:          []
         };
+        this.pageTitleOverride.set(this.unit.title);
         this.isLoading = false;
       },
       error: () => {
@@ -131,6 +128,10 @@ export class UnitReviewComponent implements OnInit {
     this.unitsService.getReviewDecisions().subscribe(decisions => {
       this.reviewDecisions = decisions;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.pageTitleOverride.clear();
   }
 
   get reviewableSections(): UnitReviewSection[] {
@@ -157,10 +158,16 @@ export class UnitReviewComponent implements OnInit {
     return this.pendingCount === 0;
   }
 
+  // Final notes are optional on approval, but required on rejection.
   get isApproveDisabled(): boolean {
     if (!this.allSectionsDecided) return true;
     if (this.hasAnyRejectedSection) return true;
-    if (this.isViewMode) return !this.finalNotes?.trim();
+    return false;
+  }
+
+  get isRejectDisabled(): boolean {
+    if (this.isViewMode) return true;
+    if (!this.allSectionsDecided) return true;
     return !this.finalNotes?.trim();
   }
 
@@ -192,7 +199,7 @@ export class UnitReviewComponent implements OnInit {
   }
 
   onReject(): void {
-    if (this.isViewMode) return;
+    if (this.isRejectDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -252,8 +259,11 @@ export class UnitReviewComponent implements OnInit {
     return this.getSectionDecision(sectionKey) === 'rejected';
   }
 
+  // A section counts as "decided" only on a final Approved/Rejected decision.
+  // getSectionDecision() already returns undefined for Pending/PendingUpdate/
+  // HasPendingChanges/PendingAfterRejection, so this needs no extra status check.
   isSectionDecided(sectionKey: string): boolean {
-    return !this.needsReReview && !!this.getSectionDecision(sectionKey);
+    return !!this.getSectionDecision(sectionKey);
   }
 
   shouldShowReviewButtonLabel(sectionKey: string): boolean {
@@ -261,7 +271,7 @@ export class UnitReviewComponent implements OnInit {
   }
 
   shouldOpenSectionInViewMode(sectionKey: string): boolean {
-    return this.isSectionApproved(sectionKey) && !this.needsReReview;
+    return this.isSectionApproved(sectionKey);
   }
 
   private getApiSectionDecision(sectionKey: string): string {

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { CancelPolicyType, UnitCancellationPolicyResponse } from '../../../../../interfaces/unit-card.model';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 @Component({
   selector: 'app-cancel-policy-review',
@@ -18,8 +19,9 @@ import { CancelPolicyType, UnitCancellationPolicyResponse } from '../../../../..
   templateUrl: './cancel-policy-review.component.html',
   styleUrl: './cancel-policy-review.component.scss'
 })
-export class CancelPolicyReviewComponent implements OnInit {
+export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
 
   buildingId = '';
   unitId = '';
@@ -61,6 +63,18 @@ export class CancelPolicyReviewComponent implements OnInit {
         next: (data) => { this.policy = data; this.isLoading = false; },
         error: () => { this.isLoading = false; }
       });
+    this.unitsService.getUnitBasicData(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   submitDecision(decision: UnitReviewDecision): void {

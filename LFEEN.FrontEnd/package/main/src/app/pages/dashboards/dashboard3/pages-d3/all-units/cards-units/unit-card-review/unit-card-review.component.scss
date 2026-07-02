@@ -61,6 +61,11 @@
       .status-text { color: #EA580C; }
     }
 
+    &--pendingAfterRejection {
+      background: #FFF1F2;
+      .status-text { color: #E11D48; }
+    }
+
     &--stopped {
       background: #FEF2F2;
       border: 1px solid #FECACA;
@@ -425,6 +430,13 @@
     border: 1px solid #FED7AA;
     color: #EA580C;
     .status-dot { background: #EA580C; }
+  }
+
+  &--pendingAfterRejection {
+    background: #FFF1F2;
+    border: 1px solid #FECDD3;
+    color: #E11D48;
+    .status-dot { background: #E11D48; }
   }
 
   &--stopped {

@@ -110,7 +110,7 @@ export class SidebarService {
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
         } else if (item.route && !item.children?.length) {
-          link = `/d3/team-management/${item.id}`;
+          link = `/d3/permissions/${item.id}`;
         }
 
         const lang = this.coreService.getLanguage();

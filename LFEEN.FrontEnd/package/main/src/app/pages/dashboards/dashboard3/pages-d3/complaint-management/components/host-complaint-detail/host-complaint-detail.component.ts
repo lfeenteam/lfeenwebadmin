@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ComplaintService } from '../../services/complaint.service';
 import { TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
+import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 
 @Component({
   selector: 'app-host-complaint-detail',
@@ -14,11 +15,12 @@ import { TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/
   templateUrl: './host-complaint-detail.component.html',
   styleUrl: './host-complaint-detail.component.scss'
 })
-export class HostComplaintDetailComponent implements OnInit {
+export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private route     = inject(ActivatedRoute);
   private router    = inject(Router);
   private service   = inject(ComplaintService);
+  private pageTitleOverride = inject(PageTitleOverrideService);
 
   replyText       = '';
   closeNote       = '';
@@ -53,12 +55,17 @@ export class HostComplaintDetailComponent implements OnInit {
         next: detail => {
           this.ticket.set(detail);
           this.loading.set(false);
+          this.pageTitleOverride.set(detail.subject);
         },
         error: () => this.loading.set(false),
       });
     } else {
       this.loading.set(false);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.pageTitleOverride.clear();
   }
 
   get currentDir(): 'rtl' | 'ltr' {

@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { Complaint } from '../../interfaces/complaint.model';
 
 @Component({
   selector: 'app-complaints-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent],
   templateUrl: './complaints-table.component.html',
   styleUrl: './complaints-table.component.scss'
 })
@@ -18,20 +21,45 @@ export class ComplaintsTableComponent implements OnChanges {
   @Input() selectedId: string | null = null;
   @Input() activeTab: 'customers' | 'hosts' | 'resolved' = 'customers';
   @Input() compact = false;
+  @Input() loading = false;
+
+  /** Server-driven pagination/filtering (used for the customers/client-tickets tab). When null, the table falls back to local client-side filtering & pagination. */
+  @Input() serverTotalCount: number | null = null;
+  @Input() serverTotalPages: number | null = null;
+  @Input() serverCurrentPage: number | null = null;
+  @Input() statusFilterValue: number | null = null;
+  @Input() statusOptions: { value: number; labelKey: string }[] = [];
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
+  @Output() searchChange = new EventEmitter<string>();
+  @Output() statusFilterChange = new EventEmitter<number | null>();
+  @Output() pageChange = new EventEmitter<number>();
 
   private translate = inject(TranslateService);
+  private searchSubject = new Subject<string>();
 
   searchQuery = '';
   currentPage = 1;
   readonly pageSize = 8;
 
+  constructor() {
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(term => this.searchChange.emit(term.trim()));
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['complaints']) {
+    if (changes['complaints'] && !this.serverMode) {
       this.currentPage = 1;
     }
+    if (changes['serverCurrentPage'] && this.serverCurrentPage != null) {
+      this.currentPage = this.serverCurrentPage;
+    }
+  }
+
+  get serverMode(): boolean {
+    return this.serverTotalCount !== null;
   }
 
   get filtered(): Complaint[] {
@@ -47,6 +75,7 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   get pagedComplaints(): Complaint[] {
+    if (this.serverMode) return this.complaints;
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filtered.slice(start, start + this.pageSize);
   }
@@ -60,6 +89,7 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   get totalPages(): number {
+    if (this.serverMode) return Math.max(1, this.serverTotalPages ?? 1);
     return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
   }
 
@@ -70,6 +100,26 @@ export class ComplaintsTableComponent implements OnChanges {
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
+    if (this.serverMode) {
+      this.pageChange.emit(page);
+    }
+  }
+
+  onSearchInput(value: string): void {
+    this.currentPage = 1;
+    if (this.serverMode) {
+      this.searchSubject.next(value);
+    }
+  }
+
+  get selectedStatusLabel(): string {
+    if (this.statusFilterValue == null) return 'd3.complaints.table.allStatuses';
+    return this.statusOptions.find(o => o.value === this.statusFilterValue)?.labelKey ?? 'd3.complaints.table.allStatuses';
+  }
+
+  onStatusSelect(value: number | null): void {
+    this.currentPage = 1;
+    this.statusFilterChange.emit(value);
   }
 
   displayPage(page: number): string {
@@ -78,6 +128,17 @@ export class ComplaintsTableComponent implements OnChanges {
 
   get paginationSummary(): string {
     const formatter = new Intl.NumberFormat(this.currentDir === 'rtl' ? 'ar-EG' : 'en-US');
+
+    if (this.serverMode) {
+      const totalCount = this.serverTotalCount ?? 0;
+      const shownCount = Math.min(((this.currentPage - 1) * this.pageSize) + this.complaints.length, totalCount);
+      const total = formatter.format(totalCount);
+      const shown = formatter.format(shownCount);
+      return this.currentDir === 'rtl'
+        ? `عرض ${shown} من أصل ${total} تذكرة`
+        : `Showing ${shown} of ${total} tickets`;
+    }
+
     const total = formatter.format(this.filtered.length);
     const shown = formatter.format(Math.min(this.currentPage * this.pageSize, this.filtered.length));
 

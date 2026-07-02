@@ -19,7 +19,17 @@
         }
         <i-tabler [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
       }
-      <h1 class="d3-page-title">{{ titleKey | translate }}</h1>
+      @for (crumb of extraCrumbs; track crumb.label) {
+        @if (crumb.onClick) {
+          <button type="button" class="d3-page-breadcrumb d3-page-breadcrumb--link d3-page-breadcrumb--btn" (click)="crumb.onClick()">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</button>
+        } @else if (crumb.route) {
+          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="crumb.route">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</a>
+        } @else {
+          <p class="d3-page-breadcrumb">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</p>
+        }
+        <i-tabler [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
+      }
+      <h1 class="d3-page-title">{{ titleOverride || (titleKey | translate) }}</h1>
     </div>
   </div>
 

@@ -1,15 +1,20 @@
 export type BuildingTab = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
 export type BuildingViewMode = 'grid' | 'list';
 export type BuildingStatus = 'active' | 'stopped';
-export type PropertyAdminReviewStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges';
+export type PropertyAdminReviewStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges' | 'PendingAfterRejection';
 export type AdminReviewStatus = 'Pending' | 'Approved' | 'Rejected';
+// A section can also come back as one of these when the host edits it after it
+// was already decided (mirrors the property-level HasPendingChanges/PendingAfterRejection status).
+export type SectionDecisionStatus = AdminReviewStatus | 'PendingUpdate' | 'HasPendingChanges' | 'PendingAfterRejection';
+export type PendingChangesReason = 'hasPendingChanges' | 'pendingAfterRejection';
 
 export enum PropertyAdminReviewStatusValue {
   Pending = 0,
   UnderReview = 1,
   Approved = 2,
   Rejected = 3,
-  HasPendingChanges = 4
+  HasPendingChanges = 4,
+  PendingAfterRejection = 5
 }
 
 export interface BuildingCardItem {
@@ -25,6 +30,7 @@ export interface BuildingCardItem {
   lastUpdate: string;
   tab: BuildingTab;
   mainPhotoUrl: string | null;
+  pendingChangesReason?: PendingChangesReason;
 }
 
 export interface PropertyApiItem {
@@ -94,7 +100,7 @@ export interface PhotoGroup {
 
 export interface PropertyPhotosResponse {
   propertyId: number;
-  decision: AdminReviewStatus;
+  decision: SectionDecisionStatus;
   rejectionReason: string | null;
   reviewedAt: string | null;
   approvedCount: number;
@@ -133,7 +139,7 @@ export interface PropertyCustomRule {
 }
 
 export interface PropertyTermsResponse {
-  decision: AdminReviewStatus;
+  decision: SectionDecisionStatus;
   rejectionReason: string | null;
   reviewedAt: string | null;
   checkInTime: string | null;
@@ -158,7 +164,7 @@ export interface TermsReviewResponse {
 
 export interface PropertyLicenseResponse {
   propertyId: number;
-  decision: AdminReviewStatus;
+  decision: SectionDecisionStatus;
   rejectionReason: string | null;
   reviewedAt: string | null;
   licenseId: number | null;
@@ -200,7 +206,7 @@ export interface PropertyFinalDecisionResult {
 }
 
 export interface SectionReview {
-  decision: AdminReviewStatus;
+  decision: SectionDecisionStatus;
   rejectionReason: string | null;
   reviewedAt: string | null;
 }

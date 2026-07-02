@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingWithUnits, UnitCardItem, UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 
 type UnitPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -47,7 +48,7 @@ const GROUP_ICON_MAP: Record<string, string> = {
   templateUrl: './unit-images-review.component.html',
   styleUrl: './unit-images-review.component.scss'
 })
-export class UnitImagesReviewComponent implements OnInit {
+export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   buildingId = '';
@@ -66,7 +67,8 @@ export class UnitImagesReviewComponent implements OnInit {
     private router: Router,
     private unitsService: UnitsService,
     private translate: TranslateService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -107,6 +109,10 @@ export class UnitImagesReviewComponent implements OnInit {
     this.unitsService.getBuildingsWithUnits().subscribe(buildings => {
       this.building = buildings.find(b => b.id === this.buildingId);
       this.unit = this.building?.units.find(u => u.id === this.unitId);
+      const lang = this.translate.currentLang || 'ar';
+      this.pageBreadcrumbTrail.set([
+        { label: this.unit?.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+      ]);
     });
 
     if (this.unitId) {
@@ -131,6 +137,10 @@ export class UnitImagesReviewComponent implements OnInit {
         error: () => { this.isLoading = false; }
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   setDecision(photo: UnitReviewPhoto, decision: Exclude<UnitPhotoDecision, 'pending'>): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AccountService } from '../../../../services/account.service';
 import { AccountDetail } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
+import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 
 @Component({
   selector: 'app-review-account',
@@ -19,7 +20,7 @@ import { ReviewConfirmDialogComponent } from '../../../build-review/review-confi
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })
-export class ReviewAccountComponent implements OnInit {
+export class ReviewAccountComponent implements OnInit, OnDestroy {
   private route      = inject(ActivatedRoute);
   private router     = inject(Router);
   private service    = inject(AccountService);
@@ -27,6 +28,7 @@ export class ReviewAccountComponent implements OnInit {
   private toastr     = inject(ToastrService);
   private dialog     = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private pageTitleOverride = inject(PageTitleOverrideService);
 
   account: AccountDetail | null = null;
   isLoading    = true;
@@ -48,13 +50,21 @@ export class ReviewAccountComponent implements OnInit {
     this.isLoading = true;
     this.isError = false;
     this.service.getAccountById(id).subscribe({
-      next: data => { this.account = data; this.isLoading = false; },
+      next: data => {
+        this.account = data;
+        this.isLoading = false;
+        this.pageTitleOverride.set(this.tradeName !== '—' ? this.tradeName : null);
+      },
       error: ()  => {
         this.isLoading = false;
         this.isError   = true;
         this.toastr.error(this.translate.instant('d3.toast.errorOp'));
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.pageTitleOverride.clear();
   }
 
   accept(): void {

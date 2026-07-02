@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -22,6 +22,7 @@ import { ManagerCardComponent } from './components/manager-card/manager-card.com
 import { LogsFilterComponent } from './components/logs-filter/logs-filter.component';
 import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { PageTitleOverrideService } from '../../services/page-title-override.service';
 
 @Component({
   selector: 'app-team-management',
@@ -45,8 +46,9 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
   templateUrl: './team-management.component.html',
   styleUrl: './team-management.component.scss'
 })
-export class TeamManagementComponent implements OnInit {
+export class TeamManagementComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageTitleOverride = inject(PageTitleOverrideService);
 
   activeTab: 'structure' | 'employees' | 'logs' = 'structure';
   stats: StatItem[] = [];
@@ -199,9 +201,14 @@ export class TeamManagementComponent implements OnInit {
         this.activeTab = 'employees';
         this.loadDepartmentDetails(this.departmentId);
       } else {
+        this.pageTitleOverride.clear();
         this.updateStats();
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.pageTitleOverride.clear();
   }
 
   loadEmployeeFilterOptions(): void {
@@ -239,6 +246,9 @@ export class TeamManagementComponent implements OnInit {
       next: (dept) => {
         this.selectedDepartment = dept;
         this.updateStats();
+        this.pageTitleOverride.set(
+          this.currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name)
+        );
       },
       error: (err) => console.error('Error fetching department details', err)
     });

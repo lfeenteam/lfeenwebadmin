@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 
@@ -31,8 +32,9 @@ interface SeasonalPeriod {
   templateUrl: './unit-pricing-review.component.html',
   styleUrl: './unit-pricing-review.component.scss'
 })
-export class UnitPricingReviewComponent implements OnInit {
+export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
 
   buildingId = '';
   unitId = '';
@@ -121,7 +123,19 @@ export class UnitPricingReviewComponent implements OnInit {
     if (this.unitId) {
       this.loadPricing();
       this.loadCalendar();
+      this.unitsService.getUnitBasicData(this.unitId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.pageBreadcrumbTrail.clear();
   }
 
   private loadPricing(): void {

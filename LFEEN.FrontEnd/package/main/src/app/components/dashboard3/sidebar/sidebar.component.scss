@@ -35,12 +35,29 @@
 
 .d3-sidebar {
   height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
   background-color: #ffffff;
   color: #121212;
   display: flex;
   flex-direction: column;
   border-inline-end: 1px solid #eaeaea;
   font-family: 'Cairo', sans-serif;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #d4d4d4;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
   // حل مشكلة مؤشر اليد بشكل نهائي
   .d3-menu-item, 
@@ -67,6 +84,7 @@
     padding: 0 16px !important;
     opacity: 1;
     margin-top: 24px;
+    flex-shrink: 0;
 
     .d3-logo-text {
       flex: 1;
@@ -98,14 +116,8 @@
     opacity: 1;
     margin-top: 12px;
     box-sizing: border-box;
-    overflow-y: auto !important;
-    overflow-x: visible !important;
-    flex: 1;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    overflow: visible !important;
+    flex: 0 0 auto;
 
     .d3-menu-item {
       color: #4a4a4a;
@@ -249,6 +261,7 @@
 
   .d3-sidebar-footer {
     margin-top: auto;
+    flex-shrink: 0;
     padding: 8px;
     display: flex;
     flex-direction: column;

@@ -12,6 +12,7 @@ import { DepartmentManager, DepartmentRole } from '../../interfaces/department.m
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
+import { PageTitleOverrideService } from '../../services/page-title-override.service';
 
 interface RoleRow {
   id: string;
@@ -49,7 +50,8 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pageTitleOverride: PageTitleOverrideService
   ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
   }
@@ -73,6 +75,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.pageTitleOverride.clear();
   }
 
   private loadDepartment(id: string): void {
@@ -84,6 +87,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
           ? dept.managers
           : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
         this.employeeCount = dept.employeeCount;
+        this.pageTitleOverride.set(this.currentLang === 'ar' ? this.deptName : this.deptEnglishName);
       },
       error: (err) => console.error('Error loading department', err)
     });
