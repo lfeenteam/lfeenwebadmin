@@ -13,6 +13,7 @@ import { ComplaintService } from './pages-d3/complaint-management/services/compl
 import { PageBackOverrideService } from './services/page-back-override.service';
 import { PageTitleOverrideService } from './services/page-title-override.service';
 import { PageBreadcrumbTrailService } from './services/page-breadcrumb-trail.service';
+import { ClientSupportHubService } from './services/client-support-hub.service';
 
 @Component({
   selector: 'app-dashboard3',
@@ -54,7 +55,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     private complaintService: ComplaintService,
     private pageBackOverride: PageBackOverrideService,
     private pageTitleOverride: PageTitleOverrideService,
-    private pageBreadcrumbTrail: PageBreadcrumbTrailService
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService,
+    private clientSupportHub: ClientSupportHubService
   ) {}
 
   get pageTitleOverrideText(): string | null {
@@ -68,16 +70,25 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateIsLoginRoute();
     this.applyRouteHeaderData();
+    this.connectHubIfAuthenticated();
     this.routeSub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updateIsLoginRoute();
         this.applyRouteHeaderData();
+        this.connectHubIfAuthenticated();
       });
+  }
+
+  private connectHubIfAuthenticated(): void {
+    if (!this.isLoginRoute) {
+      this.clientSupportHub.connect();
+    }
   }
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.clientSupportHub.disconnect();
   }
 
   private updateIsLoginRoute(): void {

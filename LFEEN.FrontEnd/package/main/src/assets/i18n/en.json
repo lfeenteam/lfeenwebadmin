@@ -120,7 +120,6 @@
       "title": "CEO Dashboard",
       "platform": "Leven Platform · Kingdom of Saudi Arabia",
       "live": "Live",
-      "date": "October 14, 2024",
       "userName": "Hassan Maghfouri",
       "userRole": "Chief Executive Officer"
     },
@@ -1487,9 +1486,19 @@
         "supportName": "Support",
         "attachmentLabel": "Attachment",
         "online": "Online now",
+        "typing": "Typing...",
         "noMessages": "No messages yet",
         "placeholder": "Type here...",
-        "resolveBtn": "Close & Resolve"
+        "resolveBtn": "Close & Resolve",
+        "assign": {
+          "sectionLabel": "Assigned employee",
+          "noneTitle": "No employee assigned",
+          "noneSubtitle": "Tap here to choose an employee to follow up this complaint",
+          "transferHint": "Tap to transfer this complaint to another employee",
+          "assignAction": "Assign employee",
+          "transferAction": "Transfer to another employee",
+          "assignedToYou": "A new complaint was assigned to you"
+        }
       },
       "hostDetail": {
         "submittedAt": "Submitted at",
@@ -1516,6 +1525,22 @@
         "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
         "supportReplySentNotice": "This reply was sent by email and app notifications",
         "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
+      },
+      "assignDialog": {
+        "title": "Assign Complaint to Employee",
+        "ticketLabel": "Ticket",
+        "searchPlaceholder": "Search by employee name or email...",
+        "columns": {
+          "select": "Select",
+          "employee": "Employee",
+          "phone": "Phone"
+        },
+        "empty": "No matching employees",
+        "selectHint": "Choose an employee from the list to follow up this complaint.",
+        "confirmTextPrefix": "You selected",
+        "confirmTextSuffix": "to follow up this complaint. An instant notification will be sent to the assigned employee.",
+        "confirmBtn": "Confirm Assignment",
+        "success": "Employee assigned successfully"
       }
     },
     "bookings": {

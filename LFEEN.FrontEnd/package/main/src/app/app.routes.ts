@@ -447,6 +447,23 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'complaints/:id/assign',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/assign-employee-page/assign-employee-page.component'
+                  ).then((m) => m.AssignEmployeePageComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.assignDialog.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: false,
+                },
+              },
+              {
                 path: 'complaints/:id',
                 canActivate: [authGuard],
                 loadComponent: () =>

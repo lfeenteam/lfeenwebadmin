@@ -102,6 +102,12 @@ export interface TicketDetail {
   statusHistory: TicketStatusHistory[];
 }
 
+export interface ChatMessageAttachment {
+  fileName: string;
+  url: string;
+  contentType: string;
+}
+
 export interface ChatMessage {
   id: string;
   senderRole: 'client' | 'support' | 'bot';
@@ -111,6 +117,7 @@ export interface ChatMessage {
   contentEn?: string;
   timestamp: string;
   timestampEn?: string;
+  attachment?: ChatMessageAttachment | null;
 }
 
 export interface ClientTicket {
@@ -120,6 +127,7 @@ export interface ClientTicket {
   department: string;
   status: string;
   priority: string;
+  clientName: string | null;
   assignedAgentName: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
@@ -132,6 +140,48 @@ export interface ClientTicketListResponse {
   page: number;
   nextpage: number | null;
   totalPages: number;
+}
+
+export interface ClientTicketMessageAttachment {
+  externalId: string;
+  fileName: string;
+  url: string;
+  contentType: string;
+  sizeBytes: number;
+}
+
+export interface ClientTicketMessage {
+  externalId: string;
+  senderType: string;
+  senderName: string;
+  body: string;
+  attachment: ClientTicketMessageAttachment | null;
+  createdAt: string;
+}
+
+export interface ClientTicketStatusHistoryEntry {
+  fromStatus: string | null;
+  toStatus: string;
+  changedBy: string;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface ClientTicketDetail {
+  relatedBookingId: string | null;
+  closedAtUtc: string | null;
+  messages: ClientTicketMessage[];
+  statusHistory: ClientTicketStatusHistoryEntry[];
+  externalId: string;
+  ticketNumber: string;
+  subject: string;
+  department: string;
+  status: string;
+  priority: string;
+  assignedAgentName: string | null;
+  lastMessagePreview: string | null;
+  lastMessageAtUtc: string | null;
+  createdAt: string;
 }
 
 export interface ClientTicketQueryParams {
@@ -153,6 +203,35 @@ export const CLIENT_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[]
   { value: 3, labelKey: 'd3.complaints.clientStatus.closed' },
 ];
 
+export interface TicketsOverviewItem {
+  externalId: string;
+  ticketNumber: string;
+  ticketType: 'Client' | 'Merchant';
+  userName: string;
+  subject: string;
+  repliedAtUtc: string;
+  createdAt: string;
+}
+
+export interface TicketsOverviewResponse {
+  data: TicketsOverviewItem[];
+  totalCount: number;
+  page: number;
+  nextpage: number | null;
+  totalPages: number;
+}
+
+export interface TicketsOverviewQueryParams {
+  type?: 'Client' | 'Merchant';
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export const RESOLVED_TICKETS_PAGE_SIZE = 8;
+
 export interface Complaint {
   id: string;
   ticketId: string;
@@ -170,4 +249,26 @@ export interface Complaint {
   subjectEn?: string;
   replyDate?: string;
   replyDateEn?: string;
+  assignedAdminUserId?: string | null;
+  assignedAdminName?: string | null;
+}
+
+export interface AssignableEmployee {
+  userId: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  isActive: boolean;
+  avatar?: string | null;
+}
+
+export interface AssignableEmployeePage {
+  data: AssignableEmployee[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface AssignTicketRequest {
+  adminUserId: string;
 }

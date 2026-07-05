@@ -58,6 +58,11 @@ export class HeaderComponent {
     this.selectedLanguage = this.languages.find(l => l.code === langCode) || this.languages[0];
   }
 
+  get currentDate(): string {
+    const locale = this.selectedLanguage.code === 'ar' ? 'ar-EG' : 'en-US';
+    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
+  }
+
   toggleMenu(event: Event): void {
     event.stopPropagation();
     this.menuOpen = !this.menuOpen;

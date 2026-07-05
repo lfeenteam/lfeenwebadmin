@@ -17,16 +17,16 @@
         [selectedId]="selectedComplaint()?.id ?? null"
         [compact]="chatOpen"
         [loading]="loading()"
-        [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : null"
-        [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : null"
-        [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : null"
+        [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : (activeTab() === 'resolved' ? resolvedTotalCount() : null)"
+        [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : (activeTab() === 'resolved' ? resolvedTotalPages() : null)"
+        [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : (activeTab() === 'resolved' ? resolvedPage() : null)"
         [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : null"
         [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : []"
         (rowSelect)="onRowSelect($event)"
         (detailSelect)="openHostComplaint($event)"
-        (searchChange)="onCustomerSearchChange($event)"
+        (searchChange)="activeTab() === 'customers' ? onCustomerSearchChange($event) : onResolvedSearchChange($event)"
         (statusFilterChange)="onCustomerStatusChange($event)"
-        (pageChange)="onCustomerPageChange($event)">
+        (pageChange)="activeTab() === 'customers' ? onCustomerPageChange($event) : onResolvedPageChange($event)">
       </app-complaints-table>
     </div>
 
