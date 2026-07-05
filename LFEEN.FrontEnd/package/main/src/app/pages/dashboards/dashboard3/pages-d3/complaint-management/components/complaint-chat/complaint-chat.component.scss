@@ -40,6 +40,29 @@
     direction: rtl;
   }
 
+  .client-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .client-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #16A34A;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16A34A;
+  }
+
   .menu-btn {
     all: unset;
     box-sizing: border-box;
@@ -135,6 +158,135 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .assign-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .assign-section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6B6B67;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .assign-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #D8D8D4;
+
+    &.is-assigned {
+      background: #16A34A;
+    }
+  }
+
+  .unassigned-card {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px;
+    border: 1.5px dashed #D8D8D4;
+    border-radius: 14px;
+    background: #FAFAF9;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+      border-color: #B0B0AA;
+      background: #F5F5F3;
+    }
+
+    .unassigned-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #F0F0EE;
+      color: #8C8C86;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+
+    .unassigned-title {
+      color: #111110;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .unassigned-subtitle {
+      color: #9E9E9A;
+      font-size: 11px;
+      font-weight: 500;
+    }
+  }
+
+  .assigned-card {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #E8E8E4;
+    border-radius: 14px;
+    background: #fff;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #FAFAF9;
+      border-color: #D8D8D4;
+    }
+
+    .assigned-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #151515;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .assigned-meta {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+      text-align: right;
+    }
+
+    .assigned-name {
+      color: #111110;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .assigned-hint {
+      color: #9E9E9A;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    i-tabler {
+      color: #B0B0AA;
+      flex-shrink: 0;
+    }
   }
 }
 
@@ -255,6 +407,46 @@
   padding: 40px 16px;
 }
 
+.typing-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #F0F0EE;
+  color: #8C8C86;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.typing-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #8C8C86;
+  animation: typing-bounce 1.1s infinite ease-in-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
 .msg-row {
   display: flex;
   align-items: flex-start;
@@ -326,6 +518,53 @@
     text-align: right;
     word-break: break-word;
   }
+
+  .msg-attachment-image-link {
+    display: block;
+
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+
+  .msg-attachment-image {
+    display: block;
+    max-width: 220px;
+    max-height: 220px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .msg-attachment-file {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #F7F7F5;
+    color: #444440;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+
+    span {
+      max-width: 160px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.bubble-support {
+  .msg-attachment-file {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
 }
 
 .bubble-support {
@@ -360,46 +599,6 @@
   flex-shrink: 0;
 }
 
-.attachments-preview {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  padding: 0 2px 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.attachment-chip {
-  all: unset;
-  box-sizing: border-box;
-  cursor: pointer;
-  max-width: 148px;
-  min-height: 28px;
-  padding: 4px 8px;
-  border: 1px solid #E8E8E4;
-  border-radius: 8px;
-  background: #F9F9F7;
-  color: #444440;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex: 0 0 auto;
-  font-size: 11px;
-  font-weight: 600;
-
-  span {
-    min-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-}
-
 .chat-footer {
   min-height: 52px;
   padding: 4px 6px;
@@ -412,7 +611,6 @@
   direction: ltr;
   box-shadow: inset 0 1px 0 rgba(17, 17, 16, 0.02);
 
-  .attach-btn,
   .send-btn {
     all: unset;
     box-sizing: border-box;
@@ -424,22 +622,6 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-  }
-
-  .attach-btn {
-    color: #8C8C86;
-
-    &:hover {
-      background: transparent;
-      color: #111110;
-    }
-  }
-
-  .file-input {
-    display: none;
-  }
-
-  .send-btn {
     background: #111110;
     color: #fff;
 
@@ -588,7 +770,6 @@
     min-height: 44px;
     padding: 4px 6px;
 
-    .attach-btn,
     .send-btn {
       width: 30px;
       height: 30px;

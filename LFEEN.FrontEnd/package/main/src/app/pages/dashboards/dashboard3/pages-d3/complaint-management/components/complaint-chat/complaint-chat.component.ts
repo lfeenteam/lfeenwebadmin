@@ -1,11 +1,15 @@
-import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { Subscription, finalize } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { ChatMessage, Complaint } from '../../interfaces/complaint.model';
 import { ComplaintService } from '../../services/complaint.service';
+import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 
 @Component({
   selector: 'app-complaint-chat',
@@ -14,24 +18,98 @@ import { ComplaintService } from '../../services/complaint.service';
   templateUrl: './complaint-chat.component.html',
   styleUrl: './complaint-chat.component.scss'
 })
-export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
+export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewChecked {
   @Input() complaint!: Complaint;
   @Input() viewOnly = false;
   @Output() close = new EventEmitter<void>();
   @Output() resolve = new EventEmitter<void>();
 
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef;
-  @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;
 
   private service = inject(ComplaintService);
   private translate = inject(TranslateService);
+  private router = inject(Router);
+  private toastr = inject(ToastrService);
+  private hub = inject(ClientSupportHubService);
+  private hubSubs = new Subscription();
+  private ticketScopedSubs = new Subscription();
 
   messageText = '';
-  selectedAttachments: File[] = [];
+  sending = signal(false);
+  clientOnline = signal(false);
+  clientTyping = signal(false);
   private shouldScroll = false;
+  private lastTypingEmitAt = 0;
 
-  ngOnChanges(): void {
+  constructor() {
+    // newMessage$ carries its own ticketExternalId, so it's safe to keep subscribed
+    // for the component's whole lifetime and filter inside the handler.
+    this.hubSubs.add(
+      this.hub.newMessage$.subscribe(event => this.onIncomingMessage(event))
+    );
+  }
+
+  private subscribeTicketScopedEvents(): void {
+    // typingIndicator$/ticketStatusChanged$/participantOnline$/participantOffline$ carry
+    // no ticket id (they're scoped implicitly to whichever room the connection is
+    // currently joined to). Re-creating these subscriptions fresh on every ticket switch
+    // — instead of keeping one long-lived subscription for the component's lifetime —
+    // means we simply aren't listening at all during a switch, so a stale event for the
+    // ticket we just left can't be misattributed to the ticket we just opened.
+    this.ticketScopedSubs = new Subscription();
+    this.ticketScopedSubs.add(
+      this.hub.typingIndicator$.subscribe(event => {
+        if (event.isAgent) return;
+        this.clientTyping.set(event.isTyping);
+      })
+    );
+    this.ticketScopedSubs.add(
+      this.hub.ticketStatusChanged$.subscribe(event => {
+        if (!this.complaint) return;
+        this.complaint = {
+          ...this.complaint,
+          status: this.service.mapClientTicketStatus(event.status),
+          resolved: event.status === 'Resolved' || event.status === 'Closed',
+        };
+      })
+    );
+    this.ticketScopedSubs.add(
+      this.hub.participantOnline$.subscribe(event => {
+        if (!event.isAgent) this.clientOnline.set(true);
+      })
+    );
+    this.ticketScopedSubs.add(
+      this.hub.participantOffline$.subscribe(event => {
+        if (!event.isAgent) this.clientOnline.set(false);
+      })
+    );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.shouldScroll = true;
+
+    const complaintChange = changes['complaint'];
+    if (complaintChange) {
+      const previousId = complaintChange.previousValue?.id;
+      const currentId = complaintChange.currentValue?.id;
+      if (previousId !== currentId) {
+        this.ticketScopedSubs.unsubscribe();
+        this.clientOnline.set(false);
+        this.clientTyping.set(false);
+
+        const leave = previousId ? this.hub.leaveTicket(previousId) : Promise.resolve();
+        leave.then(() => {
+          if (!currentId) return;
+          return this.hub.joinTicket(currentId).then(() => this.subscribeTicketScopedEvents());
+        });
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.hub.leaveTicket(this.complaint?.id);
+    this.hubSubs.unsubscribe();
+    this.ticketScopedSubs.unsubscribe();
   }
 
   ngAfterViewChecked(): void {
@@ -41,29 +119,62 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
     }
   }
 
+  private onIncomingMessage(event: NewMessageEvent): void {
+    if (!this.complaint || event.ticketExternalId !== this.complaint.id) return;
+    if (this.complaint.messages.some(m => m.id === event.messageExternalId)) return;
+
+    const createdAt = new Date(event.sentAt);
+    const message: ChatMessage = {
+      id: event.messageExternalId,
+      senderRole: event.senderType === 'Client' ? 'client' : 'support',
+      senderName: event.senderName,
+      content: event.body,
+      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      attachment: event.attachment
+        ? { fileName: event.attachment.fileName, url: event.attachment.url, contentType: event.attachment.contentType }
+        : null,
+    };
+
+    this.shouldScroll = true;
+    this.complaint = { ...this.complaint, messages: [...this.complaint.messages, message] };
+  }
+
   onResolve(): void {
     this.resolve.emit();
   }
 
+  goToAssignPage(): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.router.navigate([lang, 'd3', 'complaints', this.complaint.id, 'assign'], {
+      state: {
+        ticketNumber: this.complaint.ticketId,
+        complaintType: this.complaint.type,
+        assignedAdminUserId: this.complaint.assignedAdminUserId ?? null,
+        assignedAdminName: this.complaint.assignedAdminName ?? null,
+      }
+    });
+  }
+
   send(): void {
     const text = this.messageText.trim();
-    if (!text && !this.selectedAttachments.length) return;
-
-    const attachmentLabel = this.translate.instant('d3.complaints.chat.attachmentLabel');
-    const attachmentText = this.selectedAttachments.length
-      ? `\n${this.selectedAttachments.map(file => `${attachmentLabel}: ${file.name}`).join('\n')}`
-      : '';
+    if (!text || this.sending()) return;
 
     this.messageText = '';
-    this.selectedAttachments = [];
-    if (this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.value = '';
-    }
+    this.hub.sendTyping(this.complaint.id, false);
 
-    const content = `${text}${attachmentText}`.trim();
-    this.shouldScroll = true;
-    this.appendLocalMessage(content);
-    this.service.sendMessage(this.complaint.id, content).subscribe();
+    // Don't append the message locally — the Hub's NewMessage event renders it,
+    // so every open tab/agent (including this one) stays in sync with one source of truth.
+    this.sending.set(true);
+    this.service.sendClientTicketMessage(this.complaint.id, text)
+      .pipe(finalize(() => this.sending.set(false)))
+      .subscribe({
+        error: () => {
+          // Restore what the agent typed — a failed send shouldn't lose their message.
+          this.messageText = text;
+          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        },
+      });
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -71,6 +182,28 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
       event.preventDefault();
       this.send();
     }
+  }
+
+  onComposerInput(): void {
+    if (this.viewOnly || !this.complaint) return;
+    const now = Date.now();
+    if (now - this.lastTypingEmitAt < 2000) return;
+    this.lastTypingEmitAt = now;
+    this.hub.sendTyping(this.complaint.id, true);
+  }
+
+  onComposerBlur(): void {
+    if (this.viewOnly || !this.complaint) return;
+    this.hub.sendTyping(this.complaint.id, false);
+  }
+
+  getEmployeeInitials(name: string): string {
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(w => w[0] ?? '')
+      .join('')
+      .toUpperCase();
   }
 
   get avatarColor(): string {
@@ -98,24 +231,11 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
   }
 
   get canSend(): boolean {
-    return !!this.messageText.trim() || this.selectedAttachments.length > 0;
+    return !!this.messageText.trim();
   }
 
-  openAttachmentPicker(): void {
-    this.fileInput?.nativeElement.click();
-  }
-
-  onAttachmentChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = Array.from(input.files ?? []);
-    this.selectedAttachments = [...this.selectedAttachments, ...files];
-  }
-
-  removeAttachment(index: number): void {
-    this.selectedAttachments = this.selectedAttachments.filter((_, i) => i !== index);
-    if (!this.selectedAttachments.length && this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.value = '';
-    }
+  isImageAttachment(attachment: { contentType: string }): boolean {
+    return attachment.contentType.startsWith('image/');
   }
 
   displayMessageContent(message: ChatMessage): string {
@@ -134,23 +254,5 @@ export class ComplaintChatComponent implements OnChanges, AfterViewChecked {
     try {
       this.messagesEnd?.nativeElement.scrollIntoView({ behavior: 'smooth' });
     } catch {}
-  }
-
-  private appendLocalMessage(content: string): void {
-    const message: ChatMessage = {
-      id: `local-${Date.now()}`,
-      senderRole: 'support',
-      senderName: this.translate.instant('d3.complaints.chat.supportName'),
-      content,
-      timestamp: new Date().toLocaleTimeString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    };
-
-    this.complaint = {
-      ...this.complaint,
-      messages: [...this.complaint.messages, message]
-    };
   }
 }

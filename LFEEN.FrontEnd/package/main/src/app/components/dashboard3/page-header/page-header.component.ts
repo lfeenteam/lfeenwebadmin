@@ -38,6 +38,11 @@ export class PageHeaderComponent {
     return this.dir === 'rtl';
   }
 
+  get currentDate(): string {
+    const locale = this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';
+    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
+  }
+
   onSidebarToggle(event: Event): void {
     event.stopPropagation();
     this.sidebarToggle.emit();

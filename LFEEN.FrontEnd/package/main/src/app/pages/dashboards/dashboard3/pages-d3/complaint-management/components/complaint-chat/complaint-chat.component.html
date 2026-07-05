@@ -3,9 +3,17 @@
   <!-- Header -->
   <div class="chat-header">
     <div class="chat-header-top">
-      <button class="menu-btn" type="button">
-        <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-      </button>
+      @if (!viewOnly) {
+        <button class="menu-btn" type="button" [matMenuTriggerFor]="chatMenu">
+          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+        </button>
+        <mat-menu #chatMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="goToAssignPage()">
+            <i-tabler name="user-plus" class="icon-18"></i-tabler>
+            <span>{{ (complaint.assignedAdminName ? 'd3.complaints.chat.assign.transferAction' : 'd3.complaints.chat.assign.assignAction') | translate }}</span>
+          </button>
+        </mat-menu>
+      }
       <button class="close-btn" [class.mobile-only]="!viewOnly" type="button" (click)="close.emit()">
         <i-tabler name="x" class="icon-20"></i-tabler>
       </button>
@@ -14,10 +22,46 @@
              <div class="avatar" [class]="'avatar-' + avatarColor">
           {{ complaint.clientInitials }}
         </div>
-        <span class="client-name">{{ displayClientName }}</span>
-   
+        <div class="client-meta">
+          <span class="client-name">{{ displayClientName }}</span>
+          @if (clientOnline()) {
+            <span class="client-online">
+              <span class="online-dot"></span>
+              {{ 'd3.complaints.chat.online' | translate }}
+            </span>
+          }
+        </div>
+
       </div>
     </div>
+
+    @if (!viewOnly) {
+      <div class="assign-section">
+        <div class="assign-section-label">
+          <span class="assign-dot" [class.is-assigned]="!!complaint.assignedAdminName"></span>
+          {{ 'd3.complaints.chat.assign.sectionLabel' | translate }}
+        </div>
+
+        @if (complaint.assignedAdminName) {
+          <button class="assigned-card" type="button" (click)="goToAssignPage()">
+            <div class="assigned-avatar">{{ getEmployeeInitials(complaint.assignedAdminName) }}</div>
+            <div class="assigned-meta">
+              <span class="assigned-name">{{ complaint.assignedAdminName }}</span>
+              <span class="assigned-hint">{{ 'd3.complaints.chat.assign.transferHint' | translate }}</span>
+            </div>
+            <i-tabler name="chevron-left" class="icon-16"></i-tabler>
+          </button>
+        } @else {
+          <button class="unassigned-card" type="button" (click)="goToAssignPage()">
+            <div class="unassigned-icon">
+              <i-tabler name="user-plus" class="icon-22"></i-tabler>
+            </div>
+            <span class="unassigned-title">{{ 'd3.complaints.chat.assign.noneTitle' | translate }}</span>
+            <span class="unassigned-subtitle">{{ 'd3.complaints.chat.assign.noneSubtitle' | translate }}</span>
+          </button>
+        }
+      </div>
+    }
 
     @if (!viewOnly) {
       <button class="resolve-chat-btn" type="button" (click)="onResolve()">
@@ -64,11 +108,34 @@
             <span class="msg-sender">{{ 'd3.complaints.chat.supportName' | translate }}</span>
           }
           <div class="msg-bubble" [class.bubble-support]="msg.senderRole !== 'client'">
-            <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+            @if (msg.attachment) {
+              @if (isImageAttachment(msg.attachment)) {
+                <a class="msg-attachment-image-link" [href]="msg.attachment.url" target="_blank" rel="noopener">
+                  <img [src]="msg.attachment.url" [alt]="msg.attachment.fileName" class="msg-attachment-image" />
+                </a>
+              } @else {
+                <a class="msg-attachment-file" [href]="msg.attachment.url" target="_blank" rel="noopener">
+                  <i-tabler name="paperclip" class="icon-14"></i-tabler>
+                  <span>{{ msg.attachment.fileName }}</span>
+                </a>
+              }
+            }
+            @if (displayMessageContent(msg)) {
+              <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+            }
           </div>
           <span class="msg-time">{{ displayMessageTime(msg) }}</span>
         </div>
 
+      </div>
+    }
+
+    @if (clientTyping()) {
+      <div class="typing-row">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-text">{{ 'd3.complaints.chat.typing' | translate }}</span>
       </div>
     }
 
@@ -78,37 +145,18 @@
   <!-- Input -->
   @if (!viewOnly) {
   <div class="chat-composer">
-    @if (selectedAttachments.length) {
-      <div class="attachments-preview">
-        @for (file of selectedAttachments; track file.name + file.size) {
-          <button class="attachment-chip" type="button" (click)="removeAttachment($index)">
-            <i-tabler name="file" class="icon-14"></i-tabler>
-            <span>{{ file.name }}</span>
-            <i-tabler name="x" class="icon-12"></i-tabler>
-          </button>
-        }
-      </div>
-    }
-
     <div class="chat-footer">
       <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
         <i-tabler name="send-2" class="icon-22"></i-tabler>
       </button>
-      <button class="attach-btn" type="button" (click)="openAttachmentPicker()">
-        <i-tabler name="paperclip" class="icon-22"></i-tabler>
-      </button>
-      <input
-        #fileInput
-        type="file"
-        class="file-input"
-        multiple
-        (change)="onAttachmentChange($event)" />
       <input
         type="text"
         class="msg-input"
         [(ngModel)]="messageText"
         [placeholder]="composerPlaceholder"
-        (keydown)="onKeydown($event)" />
+        (keydown)="onKeydown($event)"
+        (input)="onComposerInput()"
+        (blur)="onComposerBlur()" />
     </div>
   </div>
   }
