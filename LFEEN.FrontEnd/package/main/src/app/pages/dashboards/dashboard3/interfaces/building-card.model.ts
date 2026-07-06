@@ -191,10 +191,73 @@ export interface LicenseReviewResponse {
   overallStatus: PropertyAdminReviewStatus;
 }
 
+export interface LocalSectionDecisionResult {
+  decision: 'Approved' | 'Rejected';
+}
+
+export interface PropertyBasicDataFloor {
+  id: number;
+  name: string;
+  unitCount: number;
+  floorIndex: number;
+}
+
+export interface PropertyBasicDataResponse {
+  propertyId: number;
+  decision: SectionDecisionStatus;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  propertyTypeId: number;
+  propertyTypeName: string;
+  name: string;
+  usage: string;
+  hasLock: boolean;
+  hasUnitServices: boolean;
+  availableViewTypeIds: number[];
+  numberOfFloors: number;
+  numberOfUnits: number;
+  floors: PropertyBasicDataFloor[];
+  amenityIds: string[];
+}
+
+export interface BasicDataReviewPayload {
+  decision: '1' | '2';
+  rejectionReason: string | null;
+}
+
+export interface BasicDataReviewResponse {
+  propertyId: number;
+  section: 'BasicData';
+  decision: Exclude<AdminReviewStatus, 'Pending'>;
+  overallStatus: PropertyAdminReviewStatus;
+}
+
 export type SectionReviewResponse =
   | PhotoReviewResponse
   | TermsReviewResponse
-  | LicenseReviewResponse;
+  | LicenseReviewResponse
+  | BasicDataReviewResponse
+  | LocalSectionDecisionResult;
+
+export interface BuildingReviewInfo {
+  id: string;
+  name: string;
+  location: string;
+  organization: string;
+  organizationLogoUrl: string | null;
+  totalUnits: string;
+  imageUrl: string;
+  propertyTypeName: string;
+  businessType: string;
+  region: string;
+  city: string;
+  district: string;
+  streetName: string;
+  buildingNumber: string;
+  postalCode: string;
+  latitude: number | null;
+  longitude: number | null;
+}
 
 export interface PropertyFinalDecisionPayload {
   finalNotes: string | null;
@@ -238,6 +301,8 @@ export interface PropertyDetailResponse {
   photosSection: SectionReview;
   termsSection: SectionReview;
   licenseSection: SectionReview;
+  basicDataSection: SectionReview;
+  locationSection: SectionReview;
   photosApprovedCount: number;
   photosMinRequired: number;
   completedSections: number;

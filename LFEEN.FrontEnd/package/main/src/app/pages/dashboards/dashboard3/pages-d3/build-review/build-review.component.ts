@@ -5,10 +5,12 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { ReviewImageComponent } from './review-image/review-image.component';
 import { ReviewTermsComponent } from './review-terms/review-terms.component';
 import { ReviewLicenseComponent } from './review-license/review-license.component';
+import { ReviewBasicInfoComponent } from './review-basic-info/review-basic-info.component';
+import { ReviewLocationComponent } from './review-location/review-location.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BuildingReviewService } from '../../services/building-review.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SectionDecisionStatus, SectionReviewResponse } from '../../interfaces/building-card.model';
+import { BuildingReviewInfo, SectionDecisionStatus, SectionReviewResponse } from '../../interfaces/building-card.model';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { ReviewConfirmDialogComponent } from './review-confirm-dialog/review-confirm-dialog.component';
@@ -20,7 +22,7 @@ import { PageBreadcrumbTrailService } from '../../services/page-breadcrumb-trail
 @Component({
   selector: 'app-build-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, ReviewBasicInfoComponent, ReviewLocationComponent, TranslateModule],
   templateUrl: './build-review.component.html',
   styleUrl: './build-review.component.scss'
 })
@@ -30,9 +32,11 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   private pageTitleOverride = inject(PageTitleOverrideService);
   private pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
   private readonly sectionTitleKeys: Record<string, string> = {
-    images:  'd3.buildReview.sections.photosTitle',
-    terms:   'd3.buildReview.sections.termsTitle',
-    license: 'd3.buildReview.sections.licenseTitle',
+    basicInfo: 'd3.buildReview.sections.basicInfoTitle',
+    images:    'd3.buildReview.sections.photosTitle',
+    location:  'd3.buildReview.sections.locationTitle',
+    terms:     'd3.buildReview.sections.termsTitle',
+    license:   'd3.buildReview.sections.licenseTitle',
   };
   private readonly backHandler = () => {
     if (this.currentView === 'list') return false;
@@ -41,20 +45,30 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     return true;
   };
 
-  currentView: 'list' | 'images' | 'terms' | 'license' | 'final' = 'list';
+  currentView: 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final' = 'list';
   buildingId: string | null = null;
   imageError = false;
   orgLogoError = false;
   overallStatus = '';
 
-  building = {
+  building: BuildingReviewInfo = {
     id: '',
     name: '',
     location: '',
     organization: '',
-    organizationLogoUrl: null as string | null,
+    organizationLogoUrl: null,
     totalUnits: '0',
-    imageUrl: 'assets/images/building.jpg'
+    imageUrl: 'assets/images/building.jpg',
+    propertyTypeName: '',
+    businessType: '',
+    region: '',
+    city: '',
+    district: '',
+    streetName: '',
+    buildingNumber: '',
+    postalCode: '',
+    latitude: null,
+    longitude: null
   };
 
   constructor(
@@ -115,27 +129,49 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
           organization:        data.accountName ?? '',
           organizationLogoUrl: data.accountLogoUrl,
           totalUnits:          String(data.totalUnits),
-          imageUrl:            data.mainPhotoUrl ?? 'assets/images/building.jpg'
+          imageUrl:            data.mainPhotoUrl ?? 'assets/images/building.jpg',
+          propertyTypeName:    data.propertyTypeName ?? '',
+          businessType:        data.businessType ?? '',
+          region:              data.region ?? '',
+          city:                data.city ?? '',
+          district:            data.district ?? '',
+          streetName:          data.streetName ?? '',
+          buildingNumber:      data.buildingNumber ?? '',
+          postalCode:          data.postalCode ?? '',
+          latitude:            data.latitude,
+          longitude:           data.longitude
         };
         this.updateHeaderForView();
         this.overallStatus = data.overallStatus?.trim() ?? '';
 
-        this.reviewSections[0].completed = this.isFinalDecision(data.photosSection.decision);
-        this.reviewSections[0].status    = this.mapDecision(data.photosSection.decision);
+        this.reviewSections[1].completed = this.isFinalDecision(data.photosSection.decision);
+        this.reviewSections[1].status    = this.mapDecision(data.photosSection.decision);
         if (data.photosSection.rejectionReason) {
-          this.reviewSections[0].notes = data.photosSection.rejectionReason;
+          this.reviewSections[1].notes = data.photosSection.rejectionReason;
         }
 
-        this.reviewSections[1].completed = this.isFinalDecision(data.termsSection.decision);
-        this.reviewSections[1].status    = this.mapDecision(data.termsSection.decision);
+        this.reviewSections[3].completed = this.isFinalDecision(data.termsSection.decision);
+        this.reviewSections[3].status    = this.mapDecision(data.termsSection.decision);
         if (data.termsSection.rejectionReason) {
-          this.reviewSections[1].notes = data.termsSection.rejectionReason;
+          this.reviewSections[3].notes = data.termsSection.rejectionReason;
         }
 
-        this.reviewSections[2].completed = this.isFinalDecision(data.licenseSection.decision);
-        this.reviewSections[2].status    = this.mapDecision(data.licenseSection.decision);
+        this.reviewSections[4].completed = this.isFinalDecision(data.licenseSection.decision);
+        this.reviewSections[4].status    = this.mapDecision(data.licenseSection.decision);
         if (data.licenseSection.rejectionReason) {
-          this.reviewSections[2].notes = data.licenseSection.rejectionReason;
+          this.reviewSections[4].notes = data.licenseSection.rejectionReason;
+        }
+
+        this.reviewSections[0].completed = this.isFinalDecision(data.basicDataSection.decision);
+        this.reviewSections[0].status    = this.mapDecision(data.basicDataSection.decision);
+        if (data.basicDataSection.rejectionReason) {
+          this.reviewSections[0].notes = data.basicDataSection.rejectionReason;
+        }
+
+        this.reviewSections[2].completed = this.isFinalDecision(data.locationSection.decision);
+        this.reviewSections[2].status    = this.mapDecision(data.locationSection.decision);
+        if (data.locationSection.rejectionReason) {
+          this.reviewSections[2].notes = data.locationSection.rejectionReason;
         }
       });
     }
@@ -156,13 +192,34 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     }
   }
 
-  reviewSections = [
+  reviewSections: {
+    iconUrl?: string;
+    tablerIcon?: string;
+    titleKey: string;
+    completed: boolean;
+    status: 'pending' | 'accepted' | 'rejected';
+    notes: string;
+  }[] = [
+    {
+      tablerIcon: 'clipboard-list',
+      titleKey:   'd3.buildReview.sections.basicInfoTitle',
+      completed:  false,
+      status:     'pending',
+      notes:      ''
+    },
     {
       iconUrl:   'assets/images/svgs/SVG.svg',
       titleKey:  'd3.buildReview.sections.photosTitle',
       completed: false,
       status:    'pending',
       notes:     ''
+    },
+    {
+      tablerIcon: 'map-pin',
+      titleKey:   'd3.buildReview.sections.locationTitle',
+      completed:  false,
+      status:     'pending',
+      notes:      ''
     },
     {
       iconUrl:   'assets/images/svgs/SVG (1).svg',
@@ -202,7 +259,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   get isImagesReadOnly(): boolean {
-    return this.reviewSections[0].completed;
+    return this.reviewSections[1].completed;
   }
 
   get canReject(): boolean {
@@ -214,7 +271,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   openSection(index: number): void {
-    const views: ('images' | 'terms' | 'license')[] = ['images', 'terms', 'license'];
+    const views: ('basicInfo' | 'images' | 'location' | 'terms' | 'license')[] =
+      ['basicInfo', 'images', 'location', 'terms', 'license'];
     this.currentView = views[index];
     this.updateHeaderForView();
   }
