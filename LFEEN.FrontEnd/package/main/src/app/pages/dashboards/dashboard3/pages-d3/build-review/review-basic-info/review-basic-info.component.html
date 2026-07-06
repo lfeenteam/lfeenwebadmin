@@ -1,0 +1,123 @@
+<div class="review-basic-info-container">
+
+  <div class="top-grid">
+    <!-- Basic Data -->
+    <div class="info-card data-card">
+      <div class="card-header">
+        <i-tabler name="file-text"></i-tabler>
+        <span class="card-title">{{ 'd3.buildReview.basicInfo.detailsTitle' | translate }}</span>
+      </div>
+      <div class="data-grid">
+        <div class="data-item">
+          <span class="data-label">{{ 'd3.buildReview.basicInfo.nameLabel' | translate }}</span>
+          <span class="data-value">{{ basicData?.name || '-' }}</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">{{ 'd3.buildReview.basicInfo.typeLabel' | translate }}</span>
+          <span class="data-value">{{ (basicData?.propertyTypeName || '-') | translate }}</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">{{ 'd3.buildReview.basicInfo.districtLabel' | translate }}</span>
+          <span class="data-value">{{ building.district || '-' }}</span>
+        </div>
+        <div class="data-item">
+          <span class="data-label">{{ 'd3.buildReview.basicInfo.usageLabel' | translate }}</span>
+          <span class="data-value">{{ usageDisplay }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features & Control -->
+    <div class="info-card control-card">
+      <div class="card-header">
+        <i-tabler name="adjustments-horizontal"></i-tabler>
+        <span class="card-title">{{ 'd3.buildReview.basicInfo.controlTitle' | translate }}</span>
+      </div>
+      <div class="control-list">
+        @for (feature of controlFeatures; track feature.titleKey) {
+          <div class="control-item">
+            <span class="control-icon"><i-tabler [name]="feature.icon"></i-tabler></span>
+            <div class="control-text">
+              <span class="control-item-title">{{ feature.titleKey | translate }}</span>
+              <span class="control-item-desc">{{ feature.descKey | translate }}</span>
+            </div>
+            <span class="toggle-switch" [class.on]="feature.enabled">
+              <span class="toggle-knob"></span>
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Floors & Units -->
+  <div class="info-card floors-card">
+    <div class="card-header">
+      <i-tabler name="list-details"></i-tabler>
+      <span class="card-title">{{ 'd3.buildReview.basicInfo.floorsTitle' | translate }}</span>
+      <span class="floors-total-badge">
+        {{ 'd3.buildReview.basicInfo.floorsTotalLabel' | translate }}
+        {{ totalFloors }}
+        {{ 'd3.buildReview.basicInfo.floorsUnit' | translate }}
+      </span>
+    </div>
+    <div class="floors-table">
+      <div class="floors-row floors-header-row">
+        <span>{{ 'd3.buildReview.basicInfo.floorNumberLabel' | translate }}</span>
+        <span>{{ 'd3.buildReview.basicInfo.floorNameLabel' | translate }}</span>
+        <span>{{ 'd3.buildReview.basicInfo.unitsCountLabel' | translate }}</span>
+      </div>
+      @for (floor of floors; track floor.number) {
+        <div class="floors-row">
+          <span class="floor-number">{{ floor.number }}</span>
+          <span class="floor-name">{{ floor.name }}</span>
+          <span class="floor-units">{{ floor.units }} {{ 'd3.buildReview.basicInfo.unitsSuffix' | translate }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Services & Amenities -->
+  <div class="info-card amenities-card">
+    <div class="card-header">
+      <i-tabler name="list-details"></i-tabler>
+      <span class="card-title">{{ 'd3.buildReview.basicInfo.amenitiesTitle' | translate }}</span>
+    </div>
+    <div class="amenities-grid">
+      @for (amenity of amenities; track $index) {
+        <div class="amenity-item">
+          <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
+          <span class="amenity-label">{{ amenity.labelKey | translate }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Notes -->
+  @if (!readOnly) {
+  <div class="notes-section">
+    <div class="notes-header">
+      <span class="notes-title">{{ 'd3.buildReview.basicInfo.notesTitle' | translate }}</span>
+      <span class="notes-required">{{ 'd3.buildReview.basicInfo.notesOptional' | translate }}</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      [placeholder]="'d3.buildReview.basicInfo.notesPlaceholder' | translate"
+      [(ngModel)]="rejectionReason"
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
+      <span>{{ 'd3.buildReview.basicInfo.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Rejected')">
+      <span>{{ 'd3.buildReview.basicInfo.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+</div>

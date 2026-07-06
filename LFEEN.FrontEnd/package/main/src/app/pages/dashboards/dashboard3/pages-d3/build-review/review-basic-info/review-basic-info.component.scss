@@ -1,0 +1,318 @@
+.review-basic-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Cairo', sans-serif;
+}
+
+.info-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E8E4;
+    border-radius: 28px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+
+    .card-title { font-size: 15px; font-weight: 900; color: #111110; }
+
+    i-tabler {
+        width: 18px;
+        height: 18px;
+        color: #9E9E9A;
+        ::ng-deep svg { width: 18px; height: 18px; }
+    }
+}
+
+.top-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+// ---- Basic Data Card ----
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    .data-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-align: start;
+
+        .data-label { font-size: 11px; color: #9E9E9A; font-weight: 700; }
+        .data-value { font-size: 14px; font-weight: 900; color: #111110; }
+    }
+}
+
+// ---- Control & Features Card ----
+.control-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.control-item {
+    background: #FAFAFA;
+    border: 1px solid #F4F4F5;
+    border-radius: 22px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .control-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #FFFFFF;
+        border: 1px solid #E8E8E4;
+        color: #111110;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i-tabler { width: 20px; height: 20px; ::ng-deep svg { width: 20px; height: 20px; } }
+    }
+
+    .control-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        text-align: start;
+        min-width: 0;
+
+        .control-item-title { font-size: 13px; font-weight: 900; color: #111110; }
+        .control-item-desc { font-size: 11px; color: #9E9E9A; }
+    }
+}
+
+.toggle-switch {
+    width: 38px;
+    height: 22px;
+    border-radius: 20px;
+    background: #E8E8E4;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+
+    .toggle-knob {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        transition: transform 0.2s;
+        margin-inline-start: 0;
+    }
+
+    &.on {
+        background: #111110;
+
+        .toggle-knob { margin-inline-start: 16px; }
+    }
+}
+
+// ---- Floors & Units Card ----
+.floors-total-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #6B6B67;
+    background: #F7F7F5;
+    border: 1px solid #E8E8E4;
+    border-radius: 10px;
+    padding: 4px 12px;
+    white-space: nowrap;
+    margin-inline-start: auto;
+}
+
+.floors-table {
+    display: flex;
+    flex-direction: column;
+
+    .floors-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        align-items: center;
+        padding: 12px 18px;
+        text-align: start;
+
+        &:not(:last-child) { border-bottom: 1px solid #F0F0EC; }
+
+        span { font-size: 12px; color: #111110; }
+    }
+
+    .floors-header-row {
+        background: #F7F7F5;
+
+        span { font-size: 11px; font-weight: 800; color: #9E9E9A; }
+    }
+
+    .floor-number { font-weight: 900; }
+    .floor-units { font-weight: 700; color: #6B6B67; }
+}
+
+// ---- Amenities Card ----
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+
+    .amenity-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+        background: #F7F7F5;
+        border: 1px solid #E8E8E4;
+        border-radius: 16px;
+        padding: 14px 8px;
+
+        .amenity-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111110;
+            i-tabler { width: 20px; height: 20px; ::ng-deep svg { width: 20px; height: 20px; } }
+        }
+
+        .amenity-label { font-size: 10px; font-weight: 700; color: #6B6B67; line-height: 1.4; }
+    }
+}
+
+// ---- Notes ----
+.notes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .notes-title { font-size: 14px; font-weight: 900; color: #111110; }
+        .notes-required { font-size: 12px; color: #059669; font-weight: 700; }
+    }
+
+    .notes-textarea {
+        width: 100%;
+        border: 1px solid #E8E8E4;
+        background: #FCFCFB;
+        border-radius: 24px;
+        padding: 20px;
+        font-size: 14px;
+        font-family: inherit;
+        color: #111110;
+        resize: none;
+        outline: none;
+        text-align: start;
+
+        &::placeholder { color: #9E9E9A; }
+    }
+}
+
+// ---- Actions ----
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 16px;
+
+    .btn {
+        height: 60px;
+        border-radius: 20px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        font-size: 16px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        i-tabler { width: 22px; height: 22px; ::ng-deep svg { width: 22px; height: 22px; stroke-width: 2.5; } }
+
+        &.btn-approve { background: #111110; color: #FFFFFF; &:hover { opacity: 0.9; } }
+        &.btn-reject { background: #FFFFFF; color: #DC2626; border: 1px solid #E8E8E4; &:hover { background: #FEF2F2; } }
+    }
+}
+
+// ════════════════════════════════════════
+// Tablet / Mobile
+// ════════════════════════════════════════
+@media (max-width: 900px) {
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .amenities-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .review-basic-info-container { gap: 16px; }
+
+  .info-card {
+    padding: 16px 18px;
+    border-radius: 22px;
+  }
+
+  .data-grid {
+    gap: 12px;
+    .data-item .data-value { font-size: 13px; }
+  }
+
+  .floors-table .floors-row {
+    padding: 10px 14px;
+    grid-template-columns: 0.8fr 2fr 0.9fr;
+  }
+
+  .notes-section .notes-textarea {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr 160px;
+    gap: 10px;
+
+    .btn { height: 52px; font-size: 15px; border-radius: 16px; }
+  }
+}
+
+@media (max-width: 576px) {
+  .data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .amenities-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    .btn-approve { order: 1; }
+    .btn-reject  { order: 2; }
+
+    .btn { height: 48px; font-size: 14px; border-radius: 14px; }
+  }
+}

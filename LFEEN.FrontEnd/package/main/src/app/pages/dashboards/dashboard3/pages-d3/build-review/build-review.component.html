@@ -83,8 +83,10 @@
               <i-tabler name="circle-check" class="status-icon"></i-tabler>
             } @else if (section.status === 'rejected') {
               <i-tabler name="circle-x" class="status-icon"></i-tabler>
-            } @else {
+            } @else if (section.iconUrl) {
               <img class="review-icon" [src]="section.iconUrl" [alt]="section.titleKey | translate" />
+            } @else {
+              <i-tabler [name]="section.tablerIcon || 'file-text'" class="status-icon"></i-tabler>
             }
           </span>
         
@@ -171,12 +173,16 @@
       }
     </div>
     }
+  } @else if (currentView === 'basicInfo') {
+    <app-review-basic-info [building]="building" [propertyId]="buildingId || ''" [readOnly]="reviewSections[0].completed" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-basic-info>
   } @else if (currentView === 'images') {
-    <app-review-image [propertyId]="buildingId || ''" [readOnly]="isImagesReadOnly" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-image>
+    <app-review-image [propertyId]="buildingId || ''" [readOnly]="isImagesReadOnly" (back)="onBack()" (approve)="onSectionApproved(1, $event)"></app-review-image>
+  } @else if (currentView === 'location') {
+    <app-review-location [building]="building" [readOnly]="reviewSections[2].completed" (back)="onBack()" (approve)="onSectionApproved(2, $event)"></app-review-location>
   } @else if (currentView === 'terms') {
-    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="reviewSections[1].completed" (back)="onBack()" (approve)="onSectionApproved(1, $event)"></app-review-terms>
+    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="reviewSections[3].completed" (back)="onBack()" (approve)="onSectionApproved(3, $event)"></app-review-terms>
   } @else if (currentView === 'license') {
-    <app-review-license [propertyId]="buildingId || ''" [readOnly]="reviewSections[2].completed" (back)="onBack()" (approve)="onSectionApproved(2, $event)"></app-review-license>
+    <app-review-license [propertyId]="buildingId || ''" [readOnly]="reviewSections[4].completed" (back)="onBack()" (approve)="onSectionApproved(4, $event)"></app-review-license>
   } @else if (currentView === 'final') {
     <div class="final-decision-container">
         

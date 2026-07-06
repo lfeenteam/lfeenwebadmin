@@ -1,0 +1,79 @@
+<div class="review-location-container">
+  <div class="section-header">
+    <h2 class="section-title">{{ 'd3.buildReview.location.title' | translate }}</h2>
+    <p class="section-subtitle">{{ 'd3.buildReview.location.subtitle' | translate }}</p>
+  </div>
+
+  <div class="location-meta-grid">
+    <div class="meta-item full-width">
+      <span class="meta-label">{{ 'd3.buildReview.location.addressLabel' | translate }}</span>
+      <span class="meta-value">{{ building.location || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.regionLabel' | translate }}</span>
+      <span class="meta-value">{{ building.region || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.cityLabel' | translate }}</span>
+      <span class="meta-value">{{ building.city || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.districtLabel' | translate }}</span>
+      <span class="meta-value">{{ building.district || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.streetLabel' | translate }}</span>
+      <span class="meta-value">{{ building.streetName || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.buildingNumberLabel' | translate }}</span>
+      <span class="meta-value">{{ building.buildingNumber || '-' }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">{{ 'd3.buildReview.location.postalCodeLabel' | translate }}</span>
+      <span class="meta-value">{{ building.postalCode || '-' }}</span>
+    </div>
+  </div>
+
+  @if (hasCoordinates) {
+  <div class="map-link-card">
+    <div class="map-icon"><i-tabler name="map-pin"></i-tabler></div>
+    <div class="map-text">
+      <span class="map-title">{{ 'd3.buildReview.location.mapTitle' | translate }}</span>
+      <span class="map-coords">{{ building.latitude }}, {{ building.longitude }}</span>
+    </div>
+    <a class="map-link-btn" [href]="mapUrl" target="_blank" rel="noopener">
+      {{ 'd3.buildReview.location.mapLinkBtn' | translate }}
+      <i-tabler name="external-link"></i-tabler>
+    </a>
+  </div>
+  }
+
+  <!-- Notes -->
+  @if (!readOnly) {
+  <div class="notes-section">
+    <div class="notes-header">
+      <span class="notes-title">{{ 'd3.buildReview.location.notesTitle' | translate }}</span>
+      <span class="notes-required">{{ 'd3.buildReview.location.notesOptional' | translate }}</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      [placeholder]="'d3.buildReview.location.notesPlaceholder' | translate"
+      [(ngModel)]="rejectionReason"
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isSubmitting" (click)="confirmDecision('Approved')">
+      <span>{{ 'd3.buildReview.location.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isSubmitting" (click)="confirmDecision('Rejected')">
+      <span>{{ 'd3.buildReview.location.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+</div>

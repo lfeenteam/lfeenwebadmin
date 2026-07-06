@@ -259,8 +259,12 @@ font-weight: 900;
 .review-sections {
     margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -271,7 +275,7 @@ font-weight: 900;
   background: #ffffff;
   border: 1px solid #E8E8E4;
   border-radius: 32px;
-  padding: 24px;
+  padding: 20px;
   height: 130px;
   box-sizing: border-box;
 

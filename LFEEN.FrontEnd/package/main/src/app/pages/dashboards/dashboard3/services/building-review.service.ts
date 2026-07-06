@@ -17,6 +17,9 @@ import {
   PropertyLicenseResponse,
   LicenseReviewPayload,
   LicenseReviewResponse,
+  PropertyBasicDataResponse,
+  BasicDataReviewPayload,
+  BasicDataReviewResponse,
   PropertyFinalDecisionPayload,
   PropertyFinalDecisionResult,
   PropertyAdminReviewStatusValue
@@ -268,6 +271,14 @@ export class BuildingReviewService {
 
   submitLicenseReview(id: string, payload: LicenseReviewPayload): Observable<LicenseReviewResponse> {
     return this.http.post<LicenseReviewResponse>(`${this.apiUrl}/${id}/license/review`, payload);
+  }
+
+  getPropertyBasicData(id: string): Observable<PropertyBasicDataResponse> {
+    return this.http.get<PropertyBasicDataResponse>(`${this.apiUrl}/${id}/basic-data`);
+  }
+
+  submitBasicDataReview(id: string, payload: BasicDataReviewPayload): Observable<BasicDataReviewResponse> {
+    return this.http.post<BasicDataReviewResponse>(`${this.apiUrl}/${id}/basic-data/review`, payload);
   }
 
   approveBuilding(id: string, payload: PropertyFinalDecisionPayload): Observable<PropertyFinalDecisionResult> {
