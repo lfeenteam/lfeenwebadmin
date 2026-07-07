@@ -1,7 +1,7 @@
 .review-location-container {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
     font-family: 'Cairo', sans-serif;
 }
 
@@ -15,41 +15,75 @@
     .section-subtitle { font-size: 13px; color: #9E9E9A; margin: 0; }
 }
 
-.location-meta-grid {
+// ════════════════════════════════════════
+// Map + address/tip grid
+// ════════════════════════════════════════
+.location-review-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1.8fr 1fr;
     gap: 20px;
+    // stretch (not start) so the map card's height always matches the
+    // address+tip column next to it, instead of using its own fixed height.
+    align-items: stretch;
+}
 
-    .meta-item {
-        background: #FFFFFF;
-        border: 1px solid #E8E8E4;
-        border-radius: 16px;
-        padding: 16px 20px;
+.location-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+// ---- Address details card ----
+.address-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E8E4;
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.address-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .address-card-title { font-size: 15px; font-weight: 900; color: #111110; }
+
+    .info-icon {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
-        text-align: start;
-
-        &.full-width { grid-column: 1 / 3; }
-
-        .meta-label { font-size: 11px; color: #9E9E9A; font-weight: 700; }
-        .meta-value { font-size: 14px; font-weight: 900; color: #111110; }
+        align-items: center;
+        justify-content: center;
+        color: #9E9E9A;
+        cursor: help;
+        i-tabler { width: 16px; height: 16px; ::ng-deep svg { width: 16px; height: 16px; } }
     }
 }
 
-.map-link-card {
+.address-rows {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    background: #F7F7F5;
-    border: 1px solid #E8E8E4;
-    border-radius: 20px;
-    padding: 16px 20px;
+    flex-direction: column;
+    gap: 10px;
+}
 
-    .map-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
+.address-row {
+    display: flex;
+    // Icon pinned to the physical left, label/value pinned to the right — an
+    // intentional left/right split rather than following RTL's normal reading order.
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #FAFAFA;
+    border: 1px solid #F0F0EC;
+    border-radius: 16px;
+    padding: 12px 16px;
+
+    .row-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
         background: #FFFFFF;
         border: 1px solid #E8E8E4;
         color: #111110;
@@ -57,40 +91,213 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        i-tabler { width: 22px; height: 22px; }
+        i-tabler { width: 18px; height: 18px; ::ng-deep svg { width: 18px; height: 18px; } }
     }
 
-    .map-text {
+    .row-text {
         display: flex;
         flex-direction: column;
         gap: 2px;
-        flex: 1;
         text-align: start;
+        min-width: 0;
 
-        .map-title { font-size: 13px; font-weight: 900; color: #111110; }
-        .map-coords { font-size: 12px; color: #9E9E9A; }
-    }
-
-    .map-link-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #111110;
-        color: #FFFFFF;
-        font-size: 12px;
-        font-weight: 800;
-        padding: 10px 16px;
-        border-radius: 14px;
-        text-decoration: none;
-        white-space: nowrap;
-        flex-shrink: 0;
-
-        i-tabler { width: 14px; height: 14px; }
-
-        &:hover { opacity: 0.9; }
+        .row-label { font-size: 11px; color: #9E9E9A; font-weight: 700; }
+        .row-value { font-size: 14px; font-weight: 900; color: #111110; overflow-wrap: break-word; }
     }
 }
 
+// ---- Review tip card (dark) ----
+.review-tip-card {
+    background: #111110;
+    border-radius: 24px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tip-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .tip-icon {
+        width: 22px;
+        height: 22px;
+        color: #F4C744;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i-tabler { width: 18px; height: 18px; ::ng-deep svg { width: 18px; height: 18px; } }
+    }
+
+    .tip-title { font-size: 13px; font-weight: 900; color: #FFFFFF; }
+}
+
+.tip-text {
+    font-size: 12px;
+    line-height: 1.7;
+    color: #C7C7C2;
+    margin: 0;
+    text-align: start;
+}
+
+// ---- Map card ----
+.map-card {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid #E8E8E4;
+    height: 100%;
+    min-height: 340px;
+    background: #EDEDE9;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+.map-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #F7F7F5;
+    color: #6B6B67;
+    font-size: 13px;
+    font-weight: 700;
+
+    i-tabler { width: 24px; height: 24px; ::ng-deep svg { width: 24px; height: 24px; } }
+
+    &.map-error { color: #DC2626; }
+
+    .spin { animation: map-spin 1s linear infinite; }
+}
+
+@keyframes map-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+// Everything below overlays the Google map canvas itself, so it's pinned with
+// physical left/right (not logical inline-start/end) — the map tiles never
+// mirror for RTL, and these controls shouldn't either.
+
+.map-zoom-controls {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    background: #FFFFFF;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+    z-index: 1;
+}
+
+.map-zoom-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: #FFFFFF;
+    color: #111110;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    i-tabler { width: 16px; height: 16px; ::ng-deep svg { width: 16px; height: 16px; stroke-width: 2.5; } }
+
+    &:hover { background: #F4F4F2; }
+    &.zoom-in { border-bottom: 1px solid #ECECE8; }
+}
+
+// Grouped as one cluster (instead of independently centered/right-anchored)
+// so the open-in-maps button and the coordinates pill sit close together.
+.map-bottom-bar {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100% - 24px);
+}
+
+.map-open-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #111110;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 12px 20px;
+    border-radius: 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+
+    i-tabler { width: 16px; height: 16px; ::ng-deep svg { width: 16px; height: 16px; } }
+
+    &:hover { opacity: 0.9; }
+}
+
+.map-coords-pill {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 10px 8px 14px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    white-space: nowrap;
+
+    .coords-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .coords-label { font-size: 10px; color: #9E9E9A; font-weight: 700; }
+    .coords-value {
+        font-size: 12px;
+        color: #111110;
+        font-weight: 800;
+        direction: ltr;
+        unicode-bidi: isolate;
+    }
+
+    .coords-locate-btn {
+        width: 22px;
+        height: 22px;
+        border: none;
+        background: transparent;
+        color: #111110;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+
+        i-tabler { width: 14px; height: 14px; ::ng-deep svg { width: 14px; height: 14px; } }
+
+        &:hover { color: #6B6B67; }
+    }
+}
+
+// ════════════════════════════════════════
+// Notes
+// ════════════════════════════════════════
 .notes-section {
     display: flex;
     flex-direction: column;
@@ -101,7 +308,15 @@
         justify-content: space-between;
         align-items: center;
         .notes-title { font-size: 14px; font-weight: 900; color: #111110; }
-        .notes-required { font-size: 12px; color: #059669; font-weight: 700; }
+        .notes-required {
+            font-size: 11px;
+            font-weight: 800;
+            color: #059669;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            border-radius: 999px;
+            padding: 5px 12px;
+        }
     }
 
     .notes-textarea {
@@ -121,6 +336,9 @@
     }
 }
 
+// ════════════════════════════════════════
+// Actions
+// ════════════════════════════════════════
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 200px;
@@ -143,32 +361,39 @@
 
         &.btn-approve { background: #111110; color: #FFFFFF; &:hover { opacity: 0.9; } }
         &.btn-reject { background: #FFFFFF; color: #DC2626; border: 1px solid #E8E8E4; &:hover { background: #FEF2F2; } }
+
+        &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 }
 
+// ════════════════════════════════════════
+// Responsive
+// ════════════════════════════════════════
+@media (max-width: 900px) {
+  .location-review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-card { height: 320px; }
+}
+
 @media (max-width: 768px) {
-  .review-location-container { gap: 24px; }
+  .review-location-container { gap: 20px; }
 
   .section-header {
     .section-title  { font-size: 18px; }
     .section-subtitle { font-size: 12px; }
   }
 
-  .location-meta-grid {
-    gap: 14px;
-    .meta-item {
-      padding: 14px 16px;
-      border-radius: 14px;
-      .meta-value { font-size: 13px; }
-    }
-  }
+  .address-card, .review-tip-card { padding: 16px; border-radius: 18px; }
 
-  .map-link-card {
-    padding: 14px 16px;
-    border-radius: 16px;
-    flex-wrap: wrap;
+  .map-card { height: 280px; border-radius: 18px; }
 
-    .map-link-btn { width: 100%; justify-content: center; }
+  .map-open-btn { padding: 10px 16px; font-size: 12px; }
+  .map-coords-pill {
+    padding: 6px 8px 6px 10px;
+    .coords-label { font-size: 9px; }
+    .coords-value { font-size: 11px; }
   }
 
   .notes-section .notes-textarea {
@@ -185,17 +410,8 @@
 }
 
 @media (max-width: 576px) {
-  .location-meta-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-
-    .meta-item {
-      padding: 12px 14px;
-      border-radius: 12px;
-
-      &.full-width { grid-column: unset; }
-    }
-  }
+  .map-bottom-bar { bottom: 12px; flex-direction: column; gap: 8px; }
+  .map-zoom-controls { top: 12px; left: 10px; }
 
   .action-buttons {
     grid-template-columns: 1fr;

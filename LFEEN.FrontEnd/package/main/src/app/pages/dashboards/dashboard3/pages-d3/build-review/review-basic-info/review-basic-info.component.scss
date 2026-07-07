@@ -19,6 +19,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    row-gap: 6px;
     gap: 8px;
 
     .card-title { font-size: 15px; font-weight: 900; color: #111110; }
@@ -27,6 +29,7 @@
         width: 18px;
         height: 18px;
         color: #9E9E9A;
+        flex-shrink: 0;
         ::ng-deep svg { width: 18px; height: 18px; }
     }
 }
@@ -152,7 +155,7 @@
 
         &:not(:last-child) { border-bottom: 1px solid #F0F0EC; }
 
-        span { font-size: 12px; color: #111110; }
+        span { font-size: 12px; color: #111110; min-width: 0; overflow-wrap: anywhere; }
     }
 
     .floors-header-row {
@@ -274,14 +277,47 @@
     border-radius: 22px;
   }
 
+  .card-header {
+    .card-title { font-size: 14px; }
+  }
+
+  .floors-total-badge {
+    margin-inline-start: 0;
+    flex-basis: 100%;
+    width: fit-content;
+  }
+
   .data-grid {
     gap: 12px;
-    .data-item .data-value { font-size: 13px; }
+    .data-item .data-value { font-size: 13px; overflow-wrap: anywhere; }
+  }
+
+  .control-item {
+    padding: 12px 14px;
+    gap: 10px;
+    border-radius: 18px;
+
+    .control-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      i-tabler { width: 17px; height: 17px; ::ng-deep svg { width: 17px; height: 17px; } }
+    }
+
+    .control-item-title { font-size: 12px; }
+    .control-item-desc { font-size: 10px; }
   }
 
   .floors-table .floors-row {
     padding: 10px 14px;
     grid-template-columns: 0.8fr 2fr 0.9fr;
+    column-gap: 6px;
+  }
+
+  .amenities-grid {
+    gap: 10px;
+
+    .amenity-item { padding: 12px 6px; }
   }
 
   .notes-section .notes-textarea {
@@ -314,5 +350,39 @@
     .btn-reject  { order: 2; }
 
     .btn { height: 48px; font-size: 14px; border-radius: 14px; }
+  }
+}
+
+@media (max-width: 420px) {
+  .info-card {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .card-header {
+    gap: 6px;
+    i-tabler { width: 16px; height: 16px; ::ng-deep svg { width: 16px; height: 16px; } }
+    .card-title { font-size: 13px; }
+  }
+
+  .floors-total-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .floors-table .floors-row {
+    padding: 8px 10px;
+    grid-template-columns: 0.7fr 2fr 0.9fr;
+
+    span { font-size: 11px; }
+  }
+
+  .amenities-grid {
+    .amenity-item {
+      padding: 10px 4px;
+
+      .amenity-icon { width: 26px; height: 26px; i-tabler { width: 16px; height: 16px; ::ng-deep svg { width: 16px; height: 16px; } } }
+      .amenity-label { font-size: 9px; }
+    }
   }
 }

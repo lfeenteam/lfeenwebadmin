@@ -19,6 +19,8 @@ import { PageBackOverrideService } from '../../services/page-back-override.servi
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { PageBreadcrumbTrailService } from '../../services/page-breadcrumb-trail.service';
 
+type SectionView = 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final';
+
 @Component({
   selector: 'app-build-review',
   standalone: true,
@@ -38,14 +40,16 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     terms:     'd3.buildReview.sections.termsTitle',
     license:   'd3.buildReview.sections.licenseTitle',
   };
+  private readonly validSectionViews: SectionView[] =
+    ['basicInfo', 'images', 'location', 'terms', 'license', 'final'];
+
   private readonly backHandler = () => {
     if (this.currentView === 'list') return false;
-    this.currentView = 'list';
-    this.updateHeaderForView();
+    this.setView('list');
     return true;
   };
 
-  currentView: 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final' = 'list';
+  currentView: SectionView = 'list';
   buildingId: string | null = null;
   imageError = false;
   orgLogoError = false;
@@ -86,12 +90,31 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
+
+    const sectionParam = this.route.snapshot.queryParamMap.get('section') as SectionView | null;
+    if (sectionParam && this.validSectionViews.includes(sectionParam)) {
+      this.currentView = sectionParam;
+    }
+
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadProperty());
 
     this.loadProperty();
     this.pageBackOverride.set(this.backHandler);
+  }
+
+  // Keeps the open section in the URL so a browser reload lands back on the
+  // same section instead of resetting to the list view.
+  private setView(view: SectionView): void {
+    this.currentView = view;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { section: view === 'list' ? null : view },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+    this.updateHeaderForView();
   }
 
   ngOnDestroy(): void {
@@ -113,7 +136,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     }
     this.pageTitleOverride.set(this.translate.instant(sectionKey));
     this.pageBreadcrumbTrail.set([
-      { label: this.building.name, translate: false, onClick: () => { this.currentView = 'list'; this.updateHeaderForView(); } }
+      { label: this.building.name, translate: false, onClick: () => this.setView('list') }
     ]);
   }
 
@@ -271,18 +294,16 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   openSection(index: number): void {
-    const views: ('basicInfo' | 'images' | 'location' | 'terms' | 'license')[] =
+    const views: SectionView[] =
       ['basicInfo', 'images', 'location', 'terms', 'license'];
-    this.currentView = views[index];
-    this.updateHeaderForView();
+    this.setView(views[index]);
   }
 
   onBack(): void {
     if (this.currentView === 'list') {
       this.router.navigate(['../../buildings'], { relativeTo: this.route });
     } else {
-      this.currentView = 'list';
-      this.updateHeaderForView();
+      this.setView('list');
     }
   }
 
@@ -290,8 +311,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     const hasRejection = result?.decision === 'Rejected';
     this.reviewSections[index].completed = true;
     this.reviewSections[index].status    = hasRejection ? 'rejected' : 'accepted';
-    this.currentView = 'list';
-    this.updateHeaderForView();
+    this.setView('list');
   }
 
   get isFinalSuccess(): boolean {
