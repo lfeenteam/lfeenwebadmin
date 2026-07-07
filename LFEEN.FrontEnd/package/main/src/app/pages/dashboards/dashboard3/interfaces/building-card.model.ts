@@ -232,11 +232,47 @@ export interface BasicDataReviewResponse {
   overallStatus: PropertyAdminReviewStatus;
 }
 
+export interface PropertyLocationResponse {
+  propertyId: number;
+  decision: SectionDecisionStatus;
+  rejectionReason: string | null;
+  reviewedAt: string | null;
+  region: string | null;
+  city: string | null;
+  district: string | null;
+  streetName: string | null;
+  buildingNumber: string | null;
+  customBuildingNumber: string | null;
+  additionalNumber: string | null;
+  postalCode: string | null;
+  unitNumber: string | null;
+  splCode: string | null;
+  latitude: number;
+  longitude: number;
+  googleMapsUrl: string | null;
+  formattedAddress: string | null;
+  accessDescription: string | null;
+  nearbyPlaces: string[];
+}
+
+export interface LocationReviewPayload {
+  decision: '1' | '2';
+  rejectionReason: string | null;
+}
+
+export interface LocationReviewResponse {
+  propertyId: number;
+  section: 'Location';
+  decision: Exclude<AdminReviewStatus, 'Pending'>;
+  overallStatus: PropertyAdminReviewStatus;
+}
+
 export type SectionReviewResponse =
   | PhotoReviewResponse
   | TermsReviewResponse
   | LicenseReviewResponse
   | BasicDataReviewResponse
+  | LocationReviewResponse
   | LocalSectionDecisionResult;
 
 export interface BuildingReviewInfo {

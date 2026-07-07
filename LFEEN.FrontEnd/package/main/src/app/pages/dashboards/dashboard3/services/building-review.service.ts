@@ -20,6 +20,9 @@ import {
   PropertyBasicDataResponse,
   BasicDataReviewPayload,
   BasicDataReviewResponse,
+  PropertyLocationResponse,
+  LocationReviewPayload,
+  LocationReviewResponse,
   PropertyFinalDecisionPayload,
   PropertyFinalDecisionResult,
   PropertyAdminReviewStatusValue
@@ -88,10 +91,6 @@ export class BuildingReviewService {
       case 'pendingChanges': return PropertyAdminReviewStatusValue.HasPendingChanges;
     }
   }
-
-  // The 'pendingChanges' tab covers two distinct statuses (HasPendingChanges and
-  // PendingAfterRejection), but the API only filters by a single status per request,
-  // so we fetch every page of each status and merge/paginate the combined list client-side.
   private getMergedPendingChanges(request: {
     page: number;
     pageSize: number;
@@ -279,6 +278,14 @@ export class BuildingReviewService {
 
   submitBasicDataReview(id: string, payload: BasicDataReviewPayload): Observable<BasicDataReviewResponse> {
     return this.http.post<BasicDataReviewResponse>(`${this.apiUrl}/${id}/basic-data/review`, payload);
+  }
+
+  getPropertyLocation(id: string): Observable<PropertyLocationResponse> {
+    return this.http.get<PropertyLocationResponse>(`${this.apiUrl}/${id}/location`);
+  }
+
+  submitLocationReview(id: string, payload: LocationReviewPayload): Observable<LocationReviewResponse> {
+    return this.http.post<LocationReviewResponse>(`${this.apiUrl}/${id}/location/review`, payload);
   }
 
   approveBuilding(id: string, payload: PropertyFinalDecisionPayload): Observable<PropertyFinalDecisionResult> {

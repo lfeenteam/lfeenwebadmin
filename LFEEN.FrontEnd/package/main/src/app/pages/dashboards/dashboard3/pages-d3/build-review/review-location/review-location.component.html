@@ -4,50 +4,91 @@
     <p class="section-subtitle">{{ 'd3.buildReview.location.subtitle' | translate }}</p>
   </div>
 
-  <div class="location-meta-grid">
-    <div class="meta-item full-width">
-      <span class="meta-label">{{ 'd3.buildReview.location.addressLabel' | translate }}</span>
-      <span class="meta-value">{{ building.location || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.regionLabel' | translate }}</span>
-      <span class="meta-value">{{ building.region || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.cityLabel' | translate }}</span>
-      <span class="meta-value">{{ building.city || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.districtLabel' | translate }}</span>
-      <span class="meta-value">{{ building.district || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.streetLabel' | translate }}</span>
-      <span class="meta-value">{{ building.streetName || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.buildingNumberLabel' | translate }}</span>
-      <span class="meta-value">{{ building.buildingNumber || '-' }}</span>
-    </div>
-    <div class="meta-item">
-      <span class="meta-label">{{ 'd3.buildReview.location.postalCodeLabel' | translate }}</span>
-      <span class="meta-value">{{ building.postalCode || '-' }}</span>
-    </div>
-  </div>
+  <div class="location-review-grid">
+    <!-- Map card -->
+    <div class="map-card">
+      <div class="map-container" #mapContainer></div>
 
-  @if (hasCoordinates) {
-  <div class="map-link-card">
-    <div class="map-icon"><i-tabler name="map-pin"></i-tabler></div>
-    <div class="map-text">
-      <span class="map-title">{{ 'd3.buildReview.location.mapTitle' | translate }}</span>
-      <span class="map-coords">{{ building.latitude }}, {{ building.longitude }}</span>
+      @if (isMapLoading) {
+        <div class="map-state map-loading">
+          <i-tabler name="loader-2" class="spin"></i-tabler>
+          <span>{{ 'd3.buildReview.location.mapLoading' | translate }}</span>
+        </div>
+      }
+
+      @if (mapError) {
+        <div class="map-state map-error">
+          <i-tabler name="alert-triangle"></i-tabler>
+          <span>{{ 'd3.buildReview.location.mapError' | translate }}</span>
+        </div>
+      }
+
+      @if (mapReady) {
+        <div class="map-zoom-controls">
+          <button type="button" class="map-zoom-btn zoom-in" (click)="zoomIn()">
+            <i-tabler name="plus"></i-tabler>
+          </button>
+          <button type="button" class="map-zoom-btn zoom-out" (click)="zoomOut()">
+            <i-tabler name="minus"></i-tabler>
+          </button>
+        </div>
+      }
+
+      @if (vm) {
+        <div class="map-bottom-bar">
+
+          <div class="map-coords-pill">
+            @if (mapReady) {
+              <button type="button" class="coords-locate-btn" (click)="recenter()">
+                <i-tabler name="current-location"></i-tabler>
+              </button>
+            }
+            <div class="coords-text">
+              <span class="coords-label">{{ 'd3.buildReview.location.coordsLabel' | translate }}</span>
+              <span class="coords-value">{{ vm.coordinatesText }}</span>
+            </div>
+          </div>
+            <a class="map-open-btn" [href]="vm.googleMapsLink" target="_blank" rel="noopener">
+             <i-tabler name="external-link"></i-tabler>
+              {{ 'd3.buildReview.location.mapLinkBtn' | translate }}
+           
+          </a>
+        </div>
+      }
     </div>
-    <a class="map-link-btn" [href]="mapUrl" target="_blank" rel="noopener">
-      {{ 'd3.buildReview.location.mapLinkBtn' | translate }}
-      <i-tabler name="external-link"></i-tabler>
-    </a>
+
+    <!-- Address details + review tip -->
+    <div class="location-info-col">
+      <div class="address-card">
+        <div class="address-card-header">
+          <span class="address-card-title">{{ 'd3.buildReview.location.addressDetailsTitle' | translate }}</span>
+          <span class="info-icon" [title]="vm?.fullAddress || ''">
+            <i-tabler name="info-circle"></i-tabler>
+          </span>
+        </div>
+
+        <div class="address-rows">
+          @for (row of vm?.addressRows; track row.label) {
+            <div class="address-row">
+              <span class="row-icon"><i-tabler [name]="row.icon"></i-tabler></span>
+              <div class="row-text">
+                <span class="row-label">{{ row.label }}</span>
+                <span class="row-value">{{ row.value }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="review-tip-card">
+        <div class="tip-header">
+          <span class="tip-icon"><i-tabler name="bulb"></i-tabler></span>
+          <span class="tip-title">{{ 'd3.buildReview.location.reviewTipTitle' | translate }}</span>
+        </div>
+        <p class="tip-text">{{ 'd3.buildReview.location.reviewTipText' | translate }}</p>
+      </div>
+    </div>
   </div>
-  }
 
   <!-- Notes -->
   @if (!readOnly) {
@@ -66,11 +107,11 @@
 
   <!-- Actions -->
   <div class="action-buttons">
-    <button class="btn btn-approve" [disabled]="isSubmitting" (click)="confirmDecision('Approved')">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
       <span>{{ 'd3.buildReview.location.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
-    <button class="btn btn-reject" [disabled]="isSubmitting" (click)="confirmDecision('Rejected')">
+    <button class="btn btn-reject" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Rejected')">
       <span>{{ 'd3.buildReview.location.rejectBtn' | translate }}</span>
       <i-tabler name="circle-x"></i-tabler>
     </button>
