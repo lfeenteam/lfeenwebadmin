@@ -6,8 +6,10 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { Complaint } from '../../interfaces/complaint.model';
+import { LoginService } from '../../../../services/login/login.service';
 
 @Component({
   selector: 'app-complaints-table',
@@ -32,11 +34,14 @@ export class ComplaintsTableComponent implements OnChanges {
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
+  @Output() assignClick = new EventEmitter<Complaint>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusFilterChange = new EventEmitter<number | null>();
   @Output() pageChange = new EventEmitter<number>();
 
   private translate = inject(TranslateService);
+  private toastr = inject(ToastrService);
+  private loginService = inject(LoginService);
   private searchSubject = new Subject<string>();
 
   searchQuery = '';
@@ -220,6 +225,33 @@ export class ComplaintsTableComponent implements OnChanges {
         : 'Search by user, ticket number, or subject...';
     }
     return this.translate.instant('d3.complaints.table.searchPlaceholder');
+  }
+
+  isAssignedToMe(complaint: Complaint): boolean {
+    const user = this.loginService.getUser();
+    if (!user) return false;
+    // Host tickets carry a real assignedAdminUserId — compare by id when we have one.
+    // Client tickets never get an id back from the backend (only the assignee's name),
+    // so fall back to a name match for those.
+    if (complaint.assignedAdminUserId) {
+      return complaint.assignedAdminUserId === user.userId;
+    }
+    return !!user.fullName && user.fullName === complaint.assignedAdminName;
+  }
+
+  /** Locked only once someone has actually engaged with the ticket (status moved past 'new') —
+   * a bare assignment with no reply yet still lets anyone reassign it. My own tickets are never locked. */
+  isAssignLocked(complaint: Complaint): boolean {
+    if (!complaint.assignedAdminName || this.isAssignedToMe(complaint)) return false;
+    return complaint.status !== 'new';
+  }
+
+  onAssignBtnClick(complaint: Complaint): void {
+    if (this.isAssignLocked(complaint)) {
+      this.toastr.info(this.translate.instant('d3.complaints.table.assignLockedMsg'));
+      return;
+    }
+    this.assignClick.emit(complaint);
   }
 
   onResolvedAction(complaint: Complaint): void {

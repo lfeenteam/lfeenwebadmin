@@ -4,6 +4,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, catchError, finalize, map, of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { TablerIconsModule } from 'angular-tabler-icons';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
@@ -17,6 +18,7 @@ import { ClientSupportHubService } from '../../services/client-support-hub.servi
   imports: [
     CommonModule,
     TranslateModule,
+    TablerIconsModule,
     ComplaintTabsBarComponent,
     ComplaintsTableComponent,
     ComplaintChatComponent,
@@ -63,11 +65,22 @@ export class ComplaintManagementComponent implements OnDestroy {
 
     const openTicketId = this.route.snapshot.queryParamMap.get('openTicket');
     if (openTicketId) {
-      this.openTicketById(openTicketId);
+      const ticketType = this.route.snapshot.queryParamMap.get('type');
+      const inferredType: Complaint['type'] =
+        ticketType === 'host' || this.activeTab() === 'hosts' ? 'host' : 'customer';
+      this.openTicketById(openTicketId, inferredType);
     }
   }
 
-  private openTicketById(id: string): void {
+  private openTicketById(id: string, type: Complaint['type']): void {
+    if (type === 'host') {
+      this.router.navigate(
+        [this.translate.currentLang || 'ar', 'd3', 'complaints', id],
+        { queryParams: { tab: 'hosts' }, replaceUrl: true }
+      );
+      return;
+    }
+
     this.service.getClientTicketById(id).subscribe({
       next: detail => this.selectedComplaint.set(this.service.mapClientTicketDetailToComplaint(detail)),
       error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
@@ -112,11 +125,6 @@ export class ComplaintManagementComponent implements OnDestroy {
       })
     );
 
-    this.hubSubs.add(
-      this.hub.ticketAssigned$.subscribe(event => {
-        this.toastr.info(`${event.ticketNumber} · ${event.subject}`, this.translate.instant('d3.complaints.chat.assign.assignedToYou'));
-      })
-    );
   }
 
   visibleComplaints = computed(() => {
@@ -223,6 +231,12 @@ export class ComplaintManagementComponent implements OnDestroy {
   setTab(tab: ComplaintTab): void {
     this.activeTab.set(tab);
     this.selectedComplaint.set(null);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab, openTicket: null, type: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
     this.loadTabData(tab);
   }
 
@@ -248,6 +262,8 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadClientTicketDetail(complaint: Complaint): void {
+    if (this.activeTab() !== 'customers' || complaint.type !== 'customer') return;
+
     this.service.getClientTicketById(complaint.id).subscribe({
       next: detail => {
         if (this.selectedComplaint()?.id !== complaint.id) return;
@@ -257,8 +273,27 @@ export class ComplaintManagementComponent implements OnDestroy {
     });
   }
 
+  onAssignClick(complaint: Complaint): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.router.navigate([lang, 'd3', 'complaints', complaint.id, 'assign'], {
+      // Also carried as a query param (not just router state) so the assign page can
+      // still tell customer and host tickets apart after a hard reload, when router
+      // state is gone — otherwise it falls back to assuming 'customer' and calls the
+      // wrong ticket-detail endpoint for a host ticket id.
+      queryParams: { type: complaint.type, tab: this.activeTab() },
+      state: {
+        ticketNumber: complaint.ticketId,
+        complaintType: complaint.type,
+        assignedAdminUserId: complaint.assignedAdminUserId ?? null,
+        assignedAdminName: complaint.assignedAdminName ?? null,
+      }
+    });
+  }
+
   openHostComplaint(complaint: Complaint): void {
-    const queryParams = this.activeTab() === 'resolved' ? { mode: 'view' } : {};
+    const queryParams = this.activeTab() === 'resolved'
+      ? { mode: 'view', tab: 'resolved' }
+      : { tab: 'hosts' };
     this.router.navigate(
       [this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id],
       { queryParams }

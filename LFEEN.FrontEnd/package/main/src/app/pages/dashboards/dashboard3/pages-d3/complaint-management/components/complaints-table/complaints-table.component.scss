@@ -182,16 +182,16 @@
 .table-head,
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1.8fr 1fr 1fr;
+  grid-template-columns: 1fr 1.1fr 0.7fr 0.7fr minmax(110px, 150px);
   align-items: center;
-  column-gap: 24px;
+  column-gap: 18px;
   padding: 0 28px;
 }
 
 .host-support-table {
   .table-head,
   .table-row {
-    grid-template-columns: minmax(180px, 1.1fr) minmax(260px, 2fr) minmax(110px, 0.7fr) minmax(120px, 0.8fr) 80px;
+    grid-template-columns: minmax(180px, 1.1fr) minmax(220px, 1.8fr) minmax(100px, 0.6fr) minmax(110px, 0.7fr) minmax(110px, 150px) 80px;
   }
 }
 
@@ -313,7 +313,8 @@
 }
 
 .col-status,
-.col-date {
+.col-date,
+.col-assign {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,6 +324,52 @@
   color: #8D8D88;
   font-size: 12px;
   font-weight: 500;
+}
+
+.assign-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: #6B6B67;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    background: #F7F7F5;
+    color: #111110;
+  }
+
+  &.is-assigned {
+    color: #111110;
+    background: #F7F7F5;
+  }
+
+  &.is-locked {
+    cursor: not-allowed;
+    color: #9E9E9A;
+
+    &:hover {
+      background: #F7F7F5;
+    }
+  }
+
+  i-tabler {
+    flex-shrink: 0;
+  }
+
+  .assign-name {
+    max-width: 96px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    font-weight: 700;
+  }
 }
 
 .ticket-id {
@@ -626,7 +673,7 @@
 
   .table-head,
   .table-row {
-    grid-template-columns: 80px minmax(170px, 1fr) 110px 100px;
+    grid-template-columns: 80px minmax(150px, 1fr) 100px 90px minmax(100px, 120px);
     column-gap: 8px;
     padding-inline: 12px;
   }
@@ -634,7 +681,7 @@
   .host-support-table {
     .table-head,
     .table-row {
-      grid-template-columns: minmax(150px, 1fr) minmax(160px, 1.6fr) minmax(100px, 0.7fr) minmax(90px, 0.7fr) 56px;
+      grid-template-columns: minmax(140px, 1fr) minmax(140px, 1.4fr) minmax(90px, 0.6fr) minmax(80px, 0.6fr) minmax(100px, 120px) 56px;
     }
   }
 
@@ -664,7 +711,7 @@
 
   .table-head,
   .table-row {
-    grid-template-columns: 80px minmax(140px, 1fr) 100px;
+    grid-template-columns: 80px minmax(120px, 1fr) 90px minmax(90px, 110px);
   }
 
   .resolved-table {
@@ -687,7 +734,7 @@
 
     .table-head,
     .table-row {
-      grid-template-columns: minmax(140px, 1fr) minmax(150px, 1.6fr) minmax(100px, 0.8fr) 50px;
+      grid-template-columns: minmax(120px, 1fr) minmax(130px, 1.6fr) minmax(90px, 0.8fr) minmax(90px, 110px) 50px;
     }
   }
 }
@@ -729,7 +776,7 @@
     grid-template-areas:
       "client  ticket"
       "client  status"
-      "date    date";
+      "date    assign";
     column-gap: 12px;
     row-gap: 0;
     padding: 14px 16px;
@@ -767,6 +814,14 @@
     color: #9E9E9A;
   }
 
+  .col-assign {
+    grid-area: assign;
+    justify-content: flex-end;
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #F0F0EC;
+  }
+
   .status-badge {
     font-size: 11px;
     padding: 2px 8px;
@@ -782,7 +837,7 @@
       grid-template-areas:
         "hclient haction"
         "hsubj   hstatus"
-        "hdate   hdate";
+        "hdate   hassign";
     }
 
     .col-host-client {
@@ -815,6 +870,15 @@
       border-top: 1px solid #F0F0EC;
       font-size: 11px;
       color: #9E9E9A;
+    }
+
+    .col-assign {
+      grid-area: hassign;
+      justify-content: flex-end;
+      align-self: center;
+      padding-top: 8px;
+      margin-top: 8px;
+      border-top: 1px solid #F0F0EC;
     }
 
     .col-action {

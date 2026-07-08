@@ -53,6 +53,7 @@
         <div class="col-subject">موضوع المشكلة</div>
         <div class="col-status">الحالة</div>
         <div class="col-date">التاريخ</div>
+        <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
         <div class="col-action">الإجراء</div>
       </div>
     } @else {
@@ -61,6 +62,7 @@
         <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
         <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
         <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
+        <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
       </div>
     }
 
@@ -148,6 +150,21 @@
 
           <div class="col-date">{{ displayDate(c) }}</div>
 
+          <div class="col-assign">
+            <button
+              class="assign-btn"
+              type="button"
+              [class.is-assigned]="!!c.assignedAdminName"
+              [class.is-locked]="isAssignLocked(c)"
+              [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              (click)="$event.stopPropagation(); onAssignBtnClick(c)">
+              <i-tabler name="user-plus" class="icon-16"></i-tabler>
+              @if (c.assignedAdminName) {
+                <span class="assign-name">{{ c.assignedAdminName }}</span>
+              }
+            </button>
+          </div>
+
           <div class="col-action">
             <button class="row-action-btn" type="button" (click)="$event.stopPropagation(); detailSelect.emit(c)">
               <i-tabler name="arrow-left" class="icon-18"></i-tabler>
@@ -181,6 +198,22 @@
 
           <!-- Date -->
           <div class="col-date">{{ displayDate(c) }}</div>
+
+          <!-- Assign -->
+          <div class="col-assign">
+            <button
+              class="assign-btn"
+              type="button"
+              [class.is-assigned]="!!c.assignedAdminName"
+              [class.is-locked]="isAssignLocked(c)"
+              [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              (click)="$event.stopPropagation(); onAssignBtnClick(c)">
+              <i-tabler name="user-plus" class="icon-16"></i-tabler>
+              @if (c.assignedAdminName) {
+                <span class="assign-name">{{ c.assignedAdminName }}</span>
+              }
+            </button>
+          </div>
         }
 
       </div>

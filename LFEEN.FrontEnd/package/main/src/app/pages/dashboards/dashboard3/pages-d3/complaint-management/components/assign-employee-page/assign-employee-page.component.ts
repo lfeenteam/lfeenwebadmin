@@ -57,7 +57,11 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.ticketExternalId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.complaintType = this.navState?.complaintType ?? 'customer';
+    // Router state doesn't survive a hard reload — the query param is the fallback
+    // source of truth for which endpoint to refetch from below.
+    const typeParam = this.route.snapshot.queryParamMap.get('type');
+    this.complaintType = this.navState?.complaintType
+      ?? (typeParam === 'host' ? 'host' : 'customer');
 
     if (this.navState?.ticketNumber || this.navState?.assignedAdminName) {
       this.applyTicketInfo(
@@ -65,9 +69,12 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
         this.navState.assignedAdminUserId ?? null,
         this.navState.assignedAdminName ?? null
       );
+    } else if (this.ticketExternalId && this.complaintType === 'host') {
+      this.service.getTicketById(this.ticketExternalId).subscribe({
+        next: detail => this.applyTicketInfo(detail.ticketNumber, detail.assignedAdminUserId, detail.assignedAdminName),
+        error: () => this.applyTicketInfo(this.ticketExternalId, null, null),
+      });
     } else if (this.ticketExternalId) {
-      // No nav state (direct URL load / reload) — refetch. The assign flow is only
-      // reachable from customer complaints today, so this fallback assumes 'customer'.
       this.service.getClientTicketById(this.ticketExternalId).subscribe({
         next: detail => this.applyTicketInfo(detail.ticketNumber, null, detail.assignedAgentName),
         error: () => this.applyTicketInfo(this.ticketExternalId, null, null),
@@ -174,8 +181,17 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
   // closed with no visible confirmation that the assignment actually took effect.
   private returnToTicket(): void {
     const lang = this.translate.currentLang || 'ar';
+    if (this.complaintType === 'host') {
+      // Host tickets have their own detail route and are never fetched via
+      // getClientTicketById — the customers-tab openTicket query param would
+      // wrongly call the client-tickets endpoint with a host ticket id.
+      this.router.navigate([lang, 'd3', 'complaints', this.ticketExternalId], {
+        queryParams: { tab: 'hosts' },
+      });
+      return;
+    }
     this.router.navigate([lang, 'd3', 'complaints'], {
-      queryParams: { tab: 'customers', openTicket: this.ticketExternalId },
+      queryParams: { tab: 'customers', type: 'customer', openTicket: this.ticketExternalId },
     });
   }
 

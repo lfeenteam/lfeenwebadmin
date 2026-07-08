@@ -11,6 +11,12 @@
   <div class="content-area" [class.chat-open]="chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')">
 
     <div class="table-column">
+      @if (activeTab() === 'customers' || activeTab() === 'hosts') {
+        <div class="assign-warning">
+          <i-tabler name="info-circle" class="icon-16"></i-tabler>
+          <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>
+        </div>
+      }
       <app-complaints-table
         [activeTab]="activeTab()"
         [complaints]="visibleComplaints()"
@@ -24,6 +30,7 @@
         [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : []"
         (rowSelect)="onRowSelect($event)"
         (detailSelect)="openHostComplaint($event)"
+        (assignClick)="onAssignClick($event)"
         (searchChange)="activeTab() === 'customers' ? onCustomerSearchChange($event) : onResolvedSearchChange($event)"
         (statusFilterChange)="onCustomerStatusChange($event)"
         (pageChange)="activeTab() === 'customers' ? onCustomerPageChange($event) : onResolvedPageChange($event)">
