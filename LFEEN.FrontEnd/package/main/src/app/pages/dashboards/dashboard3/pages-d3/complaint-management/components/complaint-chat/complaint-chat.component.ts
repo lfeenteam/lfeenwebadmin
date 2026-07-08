@@ -1,20 +1,19 @@
 import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ChatMessage, Complaint } from '../../interfaces/complaint.model';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
+import { LoginService } from '../../../../services/login/login.service';
 
 @Component({
   selector: 'app-complaint-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
   templateUrl: './complaint-chat.component.html',
   styleUrl: './complaint-chat.component.scss'
 })
@@ -28,9 +27,9 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
   private service = inject(ComplaintService);
   private translate = inject(TranslateService);
-  private router = inject(Router);
   private toastr = inject(ToastrService);
   private hub = inject(ClientSupportHubService);
+  private loginService = inject(LoginService);
   private hubSubs = new Subscription();
   private ticketScopedSubs = new Subscription();
 
@@ -106,6 +105,29 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     }
   }
 
+  /** Assigns the ticket to the current user only when they actually reply — merely
+   * opening the chat (e.g. by mistake) must not claim it and lock out reassignment. */
+  private assignToCurrentUserIfUnassigned(): Promise<void> {
+    // assignedAdminUserId is never populated for client tickets (the backend only
+    // returns the assignee's name) — guard on the name instead.
+    if (!this.complaint || this.complaint.assignedAdminName) return Promise.resolve();
+    const user = this.loginService.getUser();
+    if (!user?.userId) return Promise.resolve();
+
+    const ticketId = this.complaint.id;
+    return new Promise(resolve => {
+      this.service.assignTicket(ticketId, user.userId, this.complaint.type).subscribe({
+        next: () => {
+          if (this.complaint?.id === ticketId) {
+            this.complaint = { ...this.complaint, assignedAdminUserId: user.userId, assignedAdminName: user.fullName };
+          }
+          resolve();
+        },
+        error: () => resolve(),
+      });
+    });
+  }
+
   ngOnDestroy(): void {
     this.hub.leaveTicket(this.complaint?.id);
     this.hubSubs.unsubscribe();
@@ -144,18 +166,6 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     this.resolve.emit();
   }
 
-  goToAssignPage(): void {
-    const lang = this.translate.currentLang || 'ar';
-    this.router.navigate([lang, 'd3', 'complaints', this.complaint.id, 'assign'], {
-      state: {
-        ticketNumber: this.complaint.ticketId,
-        complaintType: this.complaint.type,
-        assignedAdminUserId: this.complaint.assignedAdminUserId ?? null,
-        assignedAdminName: this.complaint.assignedAdminName ?? null,
-      }
-    });
-  }
-
   send(): void {
     const text = this.messageText.trim();
     if (!text || this.sending()) return;
@@ -166,15 +176,17 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     // Don't append the message locally — the Hub's NewMessage event renders it,
     // so every open tab/agent (including this one) stays in sync with one source of truth.
     this.sending.set(true);
-    this.service.sendClientTicketMessage(this.complaint.id, text)
-      .pipe(finalize(() => this.sending.set(false)))
-      .subscribe({
-        error: () => {
-          // Restore what the agent typed — a failed send shouldn't lose their message.
-          this.messageText = text;
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-        },
-      });
+    this.assignToCurrentUserIfUnassigned().then(() => {
+      this.service.sendClientTicketMessage(this.complaint.id, text)
+        .pipe(finalize(() => this.sending.set(false)))
+        .subscribe({
+          error: () => {
+            // Restore what the agent typed — a failed send shouldn't lose their message.
+            this.messageText = text;
+            this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          },
+        });
+    });
   }
 
   onKeydown(event: KeyboardEvent): void {
@@ -195,15 +207,6 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   onComposerBlur(): void {
     if (this.viewOnly || !this.complaint) return;
     this.hub.sendTyping(this.complaint.id, false);
-  }
-
-  getEmployeeInitials(name: string): string {
-    return name
-      .split(' ')
-      .slice(0, 2)
-      .map(w => w[0] ?? '')
-      .join('')
-      .toUpperCase();
   }
 
   get avatarColor(): string {

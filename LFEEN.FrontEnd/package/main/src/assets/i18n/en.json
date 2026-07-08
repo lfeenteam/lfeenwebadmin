@@ -1552,6 +1552,9 @@
         "client": "Client",
         "status": "Status",
         "date": "Date",
+        "assign": "Assign",
+        "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
+        "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
         "allStatuses": "All statuses",
         "resolveBtn": "Mark as resolved",
         "empty": "No complaints found",
@@ -1578,16 +1581,7 @@
         "typing": "Typing...",
         "noMessages": "No messages yet",
         "placeholder": "Type here...",
-        "resolveBtn": "Close & Resolve",
-        "assign": {
-          "sectionLabel": "Assigned employee",
-          "noneTitle": "No employee assigned",
-          "noneSubtitle": "Tap here to choose an employee to follow up this complaint",
-          "transferHint": "Tap to transfer this complaint to another employee",
-          "assignAction": "Assign employee",
-          "transferAction": "Transfer to another employee",
-          "assignedToYou": "A new complaint was assigned to you"
-        }
+        "resolveBtn": "Close & Resolve"
       },
       "hostDetail": {
         "submittedAt": "Submitted at",

@@ -69,6 +69,24 @@
   }
 }
 
+.assign-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 28px;
+  border-bottom: 1px solid #FDE68A;
+  background: #FFFBEB;
+  color: #92620A;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+
+  i-tabler {
+    flex-shrink: 0;
+  }
+}
+
 :host-context([dir='ltr']) {
   .chat-column {
     border-left: 1px solid #E8E8E4;

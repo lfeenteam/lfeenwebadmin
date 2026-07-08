@@ -207,7 +207,8 @@ export interface TicketsOverviewItem {
   externalId: string;
   ticketNumber: string;
   ticketType: 'Client' | 'Merchant';
-  userName: string;
+  userName: string | null;
+  accountName?: string | null;
   subject: string;
   repliedAtUtc: string;
   createdAt: string;
@@ -271,4 +272,8 @@ export interface AssignableEmployeePage {
 
 export interface AssignTicketRequest {
   adminUserId: string;
+}
+
+export interface AssignHostTicketRequest {
+  assignedAdminUserId: string;
 }

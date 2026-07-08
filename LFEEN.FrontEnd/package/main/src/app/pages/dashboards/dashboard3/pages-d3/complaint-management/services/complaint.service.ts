@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { environment } from 'src/environments/environment';
 
@@ -126,9 +126,12 @@ export class ComplaintService {
   }
 
   assignTicket(ticketId: string, adminUserId: string, ticketType: 'customer' | 'host'): Observable<void> {
+    if (ticketType === 'host') {
+      const payload: AssignHostTicketRequest = { assignedAdminUserId: adminUserId };
+      return this.http.patch<void>(`${environment.apiBaseUrl}/api/tickets/${ticketId}/assignment`, payload);
+    }
     const payload: AssignTicketRequest = { adminUserId };
-    const resource = ticketType === 'customer' ? 'client-tickets' : 'tickets';
-    return this.http.patch<void>(`${environment.apiBaseUrl}/api/${resource}/${ticketId}/assign`, payload);
+    return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/assign`, payload);
   }
 
   getAssignableEmployees(search?: string, page = 1, pageSize = 8): Observable<AssignableEmployeePage> {
@@ -216,12 +219,13 @@ export class ComplaintService {
 
   mapClientTicketStatus(status: string): ComplaintStatus {
     const map: Record<string, ComplaintStatus> = {
-      New:      'new',
-      Open:     'new',
-      Pending:  'pending',
-      InProgress: 'in_progress',
-      Resolved: 'replied',
-      Closed:   'closed',
+      New:          'new',
+      Open:         'new',
+      Pending:      'pending',
+      InProgress:   'in_progress',
+      WaitingClient: 'replied',
+      Resolved:     'replied',
+      Closed:       'closed',
     };
     return map[status] ?? 'new';
   }
@@ -244,11 +248,12 @@ export class ComplaintService {
 
   mapTicketsOverviewItemToComplaint(item: TicketsOverviewItem): Complaint {
     const repliedAt = new Date(item.repliedAtUtc);
+    const clientName = item.userName ?? item.accountName ?? '-';
     return {
       id: item.externalId,
       ticketId: item.ticketNumber,
-      clientName: item.userName,
-      clientInitials: this.getInitials(item.userName),
+      clientName,
+      clientInitials: this.getInitials(clientName),
       clientCode: '-',
       status: 'replied',
       date: new Date(item.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),

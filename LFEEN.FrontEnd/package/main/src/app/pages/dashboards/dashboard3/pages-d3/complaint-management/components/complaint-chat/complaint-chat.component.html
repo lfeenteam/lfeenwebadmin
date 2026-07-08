@@ -3,17 +3,6 @@
   <!-- Header -->
   <div class="chat-header">
     <div class="chat-header-top">
-      @if (!viewOnly) {
-        <button class="menu-btn" type="button" [matMenuTriggerFor]="chatMenu">
-          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-        </button>
-        <mat-menu #chatMenu="matMenu" xPosition="before">
-          <button mat-menu-item (click)="goToAssignPage()">
-            <i-tabler name="user-plus" class="icon-18"></i-tabler>
-            <span>{{ (complaint.assignedAdminName ? 'd3.complaints.chat.assign.transferAction' : 'd3.complaints.chat.assign.assignAction') | translate }}</span>
-          </button>
-        </mat-menu>
-      }
       <button class="close-btn" [class.mobile-only]="!viewOnly" type="button" (click)="close.emit()">
         <i-tabler name="x" class="icon-20"></i-tabler>
       </button>
@@ -34,34 +23,6 @@
 
       </div>
     </div>
-
-    @if (!viewOnly) {
-      <div class="assign-section">
-        <div class="assign-section-label">
-          <span class="assign-dot" [class.is-assigned]="!!complaint.assignedAdminName"></span>
-          {{ 'd3.complaints.chat.assign.sectionLabel' | translate }}
-        </div>
-
-        @if (complaint.assignedAdminName) {
-          <button class="assigned-card" type="button" (click)="goToAssignPage()">
-            <div class="assigned-avatar">{{ getEmployeeInitials(complaint.assignedAdminName) }}</div>
-            <div class="assigned-meta">
-              <span class="assigned-name">{{ complaint.assignedAdminName }}</span>
-              <span class="assigned-hint">{{ 'd3.complaints.chat.assign.transferHint' | translate }}</span>
-            </div>
-            <i-tabler name="chevron-left" class="icon-16"></i-tabler>
-          </button>
-        } @else {
-          <button class="unassigned-card" type="button" (click)="goToAssignPage()">
-            <div class="unassigned-icon">
-              <i-tabler name="user-plus" class="icon-22"></i-tabler>
-            </div>
-            <span class="unassigned-title">{{ 'd3.complaints.chat.assign.noneTitle' | translate }}</span>
-            <span class="unassigned-subtitle">{{ 'd3.complaints.chat.assign.noneSubtitle' | translate }}</span>
-          </button>
-        }
-      </div>
-    }
 
     @if (!viewOnly) {
       <button class="resolve-chat-btn" type="button" (click)="onResolve()">

@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ComplaintService } from '../../services/complaint.service';
 import { TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
+import { LoginService } from '../../../../services/login/login.service';
 
 @Component({
   selector: 'app-host-complaint-detail',
@@ -21,6 +22,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   private router    = inject(Router);
   private service   = inject(ComplaintService);
   private pageTitleOverride = inject(PageTitleOverrideService);
+  private loginService = inject(LoginService);
 
   replyText       = '';
   closeNote       = '';
@@ -118,26 +120,49 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     if (!body || this.sendingReply()) return;
 
     this.sendingReply.set(true);
-    this.service.sendTicketReply(this.ticketId, body).subscribe({
-      next: result => {
-        this.replyText = '';
-        const newMsg = result?.reply ?? null;
-        if (newMsg) {
-          this.ticket.update(t =>
-            t ? { ...t, messages: [...t.messages, newMsg] } : t
+    this.assignToCurrentUserIfUnassigned().then(() => {
+      this.service.sendTicketReply(this.ticketId, body).subscribe({
+        next: result => {
+          this.replyText = '';
+          const newMsg = result?.reply ?? null;
+          if (newMsg) {
+            this.ticket.update(t =>
+              t ? { ...t, messages: [...t.messages, newMsg] } : t
+            );
+            this.sendingReply.set(false);
+          } else {
+            this.service.getTicketById(this.ticketId).subscribe({
+              next: detail => {
+                this.ticket.set(detail);
+                this.sendingReply.set(false);
+              },
+              error: () => this.sendingReply.set(false),
+            });
+          }
+        },
+        error: () => this.sendingReply.set(false),
+      });
+    });
+  }
+
+  /** Assigns the ticket to the current user only when they actually reply — merely
+   * viewing the ticket must not claim it and lock out reassignment. */
+  private assignToCurrentUserIfUnassigned(): Promise<void> {
+    const t = this.ticket();
+    if (!t || t.assignedAdminUserId) return Promise.resolve();
+    const user = this.loginService.getUser();
+    if (!user?.userId) return Promise.resolve();
+
+    return new Promise(resolve => {
+      this.service.assignTicket(this.ticketId, user.userId, 'host').subscribe({
+        next: () => {
+          this.ticket.update(curr =>
+            curr ? { ...curr, assignedAdminUserId: user.userId, assignedAdminName: user.fullName } : curr
           );
-          this.sendingReply.set(false);
-        } else {
-          this.service.getTicketById(this.ticketId).subscribe({
-            next: detail => {
-              this.ticket.set(detail);
-              this.sendingReply.set(false);
-            },
-            error: () => this.sendingReply.set(false),
-          });
-        }
-      },
-      error: () => this.sendingReply.set(false),
+          resolve();
+        },
+        error: () => resolve(),
+      });
     });
   }
 
