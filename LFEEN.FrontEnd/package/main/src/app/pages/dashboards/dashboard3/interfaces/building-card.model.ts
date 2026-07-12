@@ -202,6 +202,27 @@ export interface PropertyBasicDataFloor {
   floorIndex: number;
 }
 
+export interface PropertyBasicDataViewType {
+  id: number;
+  key: string;
+  name: string;
+}
+
+export interface PropertyBasicDataService {
+  serviceId: number;
+  serviceTypeId: number;
+  serviceTypeNameKey: string;
+  displayName: string;
+  isFree: boolean;
+  cost: number | null;
+  costType: string;
+}
+
+export interface PropertyBasicDataFacility {
+  facilityId: number;
+  facilityTypeName: string;
+}
+
 export interface PropertyBasicDataResponse {
   propertyId: number;
   decision: SectionDecisionStatus;
@@ -213,11 +234,12 @@ export interface PropertyBasicDataResponse {
   usage: string;
   hasLock: boolean;
   hasUnitServices: boolean;
-  availableViewTypeIds: number[];
+  availableViewTypes: PropertyBasicDataViewType[];
   numberOfFloors: number;
   numberOfUnits: number;
   floors: PropertyBasicDataFloor[];
-  amenityIds: string[];
+  services: PropertyBasicDataService[];
+  facilities: PropertyBasicDataFacility[];
 }
 
 export interface BasicDataReviewPayload {

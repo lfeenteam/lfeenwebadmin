@@ -1556,6 +1556,9 @@
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
         "allStatuses": "All statuses",
+        "allTypes": "All types",
+        "typeClient": "Client",
+        "typeMerchant": "Host",
         "resolveBtn": "Mark as resolved",
         "empty": "No complaints found",
         "totalPrefix": "Showing 1 of",
@@ -1637,14 +1640,26 @@
       "filters": {
         "searchPlaceholder": "Search by booking #, client name...",
         "checkIn": "Check-in Date",
-        "checkOut": "Check-out Date"
+        "checkOut": "Check-out Date",
+        "clear": "Clear Filters",
+        "moreFilters": "Filters"
       },
       "status": {
         "all": "All Statuses",
         "confirmed": "Confirmed",
         "checkedIn": "Checked In",
         "awaitingCheckin": "Awaiting Check-in",
-        "awaitingCheckout": "Awaiting Check-out"
+        "awaitingCheckout": "Awaiting Check-out",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "pending": "Pending",
+        "unconfirmed": "Unconfirmed",
+        "onHold": "On Hold",
+        "awaitingAck": "Awaiting Customer Acknowledgement",
+        "blocked": "Blocked",
+        "noShow": "No Show",
+        "expired": "Expired",
+        "unknown": "Unknown"
       },
       "table": {
         "bookingNum": "Booking #",

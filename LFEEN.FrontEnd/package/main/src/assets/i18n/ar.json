@@ -859,6 +859,9 @@
         "assignLockedMsg": "هذه الشكوى معينة بالفعل، يجب على الموظف المعين الرد عليها أو حلها",
         "assignHint": "تنبيه: إرسال رد على شكوى غير معينة سيؤدي لتعيينها لك تلقائيًا",
         "allStatuses": "كل الحالات",
+        "allTypes": "كل الأنواع",
+        "typeClient": "عميل",
+        "typeMerchant": "مضيف",
         "resolveBtn": "تمييز كمحلولة",
         "empty": "لا توجد شكاوى",
         "totalPrefix": "عرض 1 من",
@@ -940,14 +943,26 @@
       "filters": {
         "searchPlaceholder": "البحث بـ رقم الحجز، اسم العميل...",
         "checkIn": "تاريخ الدخول",
-        "checkOut": "تاريخ الخروج"
+        "checkOut": "تاريخ الخروج",
+        "clear": "مسح الفلاتر",
+        "moreFilters": "الفلاتر"
       },
       "status": {
         "all": "كل الحالات",
         "confirmed": "مؤكد",
         "checkedIn": "مسجل دخول",
         "awaitingCheckin": "بانتظار تسجيل الدخول",
-        "awaitingCheckout": "بانتظار تسجيل الخروج"
+        "awaitingCheckout": "بانتظار تسجيل الخروج",
+        "completed": "مكتمل",
+        "cancelled": "ملغي",
+        "pending": "قيد الانتظار",
+        "unconfirmed": "غير مؤكد",
+        "onHold": "معلّق",
+        "awaitingAck": "بانتظار موافقة العميل",
+        "blocked": "محظور",
+        "noShow": "لم يحضر",
+        "expired": "منتهي",
+        "unknown": "غير معروف"
       },
       "table": {
         "bookingNum": "رقم الحجز",

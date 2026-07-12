@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { environment } from 'src/environments/environment';
 
@@ -74,17 +74,31 @@ export class ComplaintService {
     );
   }
 
-  getTickets(status?: number): Observable<Complaint[]> {
-    let params = new HttpParams();
-    if (status !== undefined) {
-      params = params.set('status', status.toString());
+  getTickets(params: TicketQueryParams = {}): Observable<TicketListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 20).toString());
+
+    if (params.status !== undefined && params.status !== null) {
+      httpParams = httpParams.set('status', params.status.toString());
     }
-    return this.http
-      .get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params })
-      .pipe(map(res => res.data.map(t => this.mapTicketToComplaint(t))));
+    if (params.department !== undefined && params.department !== null) {
+      httpParams = httpParams.set('department', params.department.toString());
+    }
+    if (params.priority !== undefined && params.priority !== null) {
+      httpParams = httpParams.set('priority', params.priority.toString());
+    }
+    if (params.assignedAdminUserId) {
+      httpParams = httpParams.set('assignedAdminUserId', params.assignedAdminUserId);
+    }
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
+
+    return this.http.get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params: httpParams });
   }
 
-  private mapTicketToComplaint(t: Ticket): Complaint {
+  mapTicketToComplaint(t: Ticket): Complaint {
     return {
       id: t.externalId,
       ticketId: t.ticketNumber,
@@ -187,8 +201,7 @@ export class ComplaintService {
   }
 
   mapClientTicketDetailToComplaint(detail: ClientTicketDetail, fallback?: Complaint): Complaint {
-    const clientMessage = detail.messages.find(m => m.senderType === 'Client');
-    const clientName = clientMessage?.senderName || fallback?.clientName || '-';
+    const clientName = detail.clientName || fallback?.clientName || '-';
 
     return {
       id: detail.externalId,
