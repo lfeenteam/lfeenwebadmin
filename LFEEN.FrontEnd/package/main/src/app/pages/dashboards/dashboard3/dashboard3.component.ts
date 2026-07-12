@@ -38,6 +38,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   pageTitleKey = '';
   pageBreadcrumbKey = 'd3.header.platform';
   pageBreadcrumbRoute: string[] | null = null;
+  pageBreadcrumbQueryParams: Record<string, string> | null = null;
   pageShowLive = true;
   pageShowDate = true;
   pageShowBack = false;
@@ -119,8 +120,15 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
       const params = child?.snapshot.paramMap;
       const resolved = data.breadcrumbRoute.replace(/:(\w+)/g, (_, key) => params?.get(key) ?? key);
       this.pageBreadcrumbRoute = ['/', lang, 'd3', ...resolved.split('/')];
+
+      // Carry the current page's own `tab` query param (e.g. complaints/:id?tab=hosts)
+      // into the breadcrumb link — otherwise clicking it always lands back on the
+      // complaints list's default 'customers' tab, regardless of which tab you came from.
+      const tab = child?.snapshot.queryParamMap.get('tab');
+      this.pageBreadcrumbQueryParams = tab ? { tab } : null;
     } else {
       this.pageBreadcrumbRoute = null;
+      this.pageBreadcrumbQueryParams = null;
     }
   }
 

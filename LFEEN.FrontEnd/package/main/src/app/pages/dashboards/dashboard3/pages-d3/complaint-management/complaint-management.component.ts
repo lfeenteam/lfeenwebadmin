@@ -304,7 +304,10 @@ export class ComplaintManagementComponent implements OnDestroy {
     if (this.selectedComplaint()?.id === complaint.id) {
       this.selectedComplaint.set(null);
     }
-    this.service.resolveComplaint(complaint.id).subscribe();
+    // The status update already happened server-side (chat component calls the API
+    // before emitting resolve) — just drop it from the active customers list here.
+    this.customerTickets.update(list => list.filter(c => c.id !== complaint.id));
+    this.customerTotalCount.update(count => (count !== null ? Math.max(0, count - 1) : count));
   }
 
   closeChat(): void {

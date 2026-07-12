@@ -5,7 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
@@ -39,6 +39,11 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   clientTyping = signal(false);
   private shouldScroll = false;
   private lastTypingEmitAt = 0;
+
+  closeNote = '';
+  showCloseDialog = signal(false);
+  closingTicket = signal(false);
+  closeError = signal<string | null>(null);
 
   constructor() {
     // newMessage$ carries its own ticketExternalId, so it's safe to keep subscribed
@@ -163,7 +168,33 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   onResolve(): void {
-    this.resolve.emit();
+    this.closeError.set(null);
+    this.showCloseDialog.set(true);
+  }
+
+  cancelClose(): void {
+    this.showCloseDialog.set(false);
+    this.closeNote = '';
+    this.closeError.set(null);
+  }
+
+  confirmClose(): void {
+    if (this.closingTicket() || !this.complaint) return;
+    this.closingTicket.set(true);
+    this.closeError.set(null);
+    const note = this.closeNote.trim() || undefined;
+    this.service.updateClientTicketStatus(this.complaint.id, CLIENT_TICKET_STATUS.Resolved, note).subscribe({
+      next: () => {
+        this.closingTicket.set(false);
+        this.showCloseDialog.set(false);
+        this.closeNote = '';
+        this.resolve.emit();
+      },
+      error: () => {
+        this.closingTicket.set(false);
+        this.closeError.set(this.translate.instant('d3.toast.errorOp'));
+      },
+    });
   }
 
   send(): void {
