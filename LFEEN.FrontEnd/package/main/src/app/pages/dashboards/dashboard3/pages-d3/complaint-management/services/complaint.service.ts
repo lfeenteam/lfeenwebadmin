@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { environment } from 'src/environments/environment';
 
@@ -59,6 +59,11 @@ export class ComplaintService {
   updateTicketStatus(ticketId: string, status: string, note?: string): Observable<void> {
     const payload: UpdateStatusRequest = { status, ...(note ? { note } : {}) };
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/tickets/${ticketId}/status`, payload);
+  }
+
+  updateClientTicketStatus(ticketId: string, status: number, note?: string): Observable<void> {
+    const payload: UpdateClientTicketStatusRequest = { status, ...(note ? { note } : {}) };
+    return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/status`, payload);
   }
 
   sendTicketReply(ticketId: string, body: string): Observable<TicketActionResult> {

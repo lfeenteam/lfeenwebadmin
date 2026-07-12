@@ -17,6 +17,7 @@ export class PageHeaderComponent {
   @Input() titleOverride: string | null = null;
   @Input() breadcrumbKey = 'd3.header.platform';
   @Input() breadcrumbRoute: string[] | null = null;
+  @Input() breadcrumbQueryParams: Record<string, string> | null = null;
   @Input() extraCrumbs: PageBreadcrumbCrumb[] | null = null;
   @Input() showLive = true;
   @Input() showDate = true;

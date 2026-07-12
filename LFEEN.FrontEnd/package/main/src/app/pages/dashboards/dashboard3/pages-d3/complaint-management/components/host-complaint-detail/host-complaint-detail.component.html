@@ -54,16 +54,34 @@
   <!-- Host profile -->
   <section class="host-profile">
     @if (loading()) {
-      <div class="host-avatar skel-avatar"></div>
-      <div class="skel-profile-lines">
-        <span class="skel skel-text skel-lg"></span>
-        <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+      <div class="host-profile-item">
+        <div class="host-avatar skel-avatar"></div>
+        <div class="skel-profile-lines">
+          <span class="skel skel-text skel-lg"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+        </div>
+      </div>
+      <div class="host-profile-item">
+        <div class="host-avatar skel-avatar"></div>
+        <div class="skel-profile-lines">
+          <span class="skel skel-text skel-lg"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+        </div>
       </div>
     } @else if (ticket()) {
-      <div class="host-avatar">{{ getInitials(ticket()!.initialMessage.senderName) }}</div>
-      <div>
-        <h2>{{ ticket()!.initialMessage.senderName }}</h2>
-        <p>{{ hostSubtitle }}</p>
+      <div class="host-profile-item">
+        <div class="host-avatar">{{ getInitials(ticket()!.accountName) }}</div>
+        <div>
+          <h2>{{ ticket()!.accountName }}</h2>
+          <p>{{ hostSubtitle }}</p>
+        </div>
+      </div>
+      <div class="host-profile-item">
+        <div class="host-avatar host-avatar-alt">{{ getInitials(ticket()!.initialMessage.senderName) }}</div>
+        <div>
+          <h2>{{ ticket()!.initialMessage.senderName }}</h2>
+          <p>{{ ticket()!.initialMessage.senderTypeName }}</p>
+        </div>
       </div>
     }
   </section>

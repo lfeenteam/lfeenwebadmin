@@ -122,4 +122,52 @@
   </div>
   }
 
+  <!-- Close & resolve dialog -->
+  @if (showCloseDialog()) {
+    <div class="dialog-backdrop" (click)="cancelClose()">
+      <div class="close-dialog" (click)="$event.stopPropagation()">
+
+        <div class="close-dialog-header">
+          <span class="close-dialog-icon">
+            <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+          </span>
+          <div>
+            <h2>إغلاق الشكوى ومعالجتها</h2>
+            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+          </div>
+        </div>
+
+        <div class="close-dialog-note">
+          <label>ملاحظة <span>(اختياري)</span></label>
+          <textarea
+            [(ngModel)]="closeNote"
+            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+        </div>
+
+        @if (closeError()) {
+          <p class="close-error">{{ closeError() }}</p>
+        }
+
+        <div class="close-dialog-actions">
+          <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
+            إلغاء
+          </button>
+          <button
+            class="dialog-confirm-btn"
+            type="button"
+            [disabled]="closingTicket()"
+            (click)="confirmClose()">
+            @if (closingTicket()) {
+              <span class="reply-spinner"></span>
+            } @else {
+              <i-tabler name="circle-check" class="icon-16"></i-tabler>
+            }
+            تأكيد الإغلاق
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
 </div>

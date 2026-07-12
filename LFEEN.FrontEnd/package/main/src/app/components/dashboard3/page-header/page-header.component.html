@@ -13,7 +13,7 @@
     <div class="d3-page-header-main">
       @if (breadcrumbKey) {
         @if (breadcrumbRoute) {
-          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="breadcrumbRoute">{{ breadcrumbKey | translate }}</a>
+          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="breadcrumbRoute" [queryParams]="breadcrumbQueryParams">{{ breadcrumbKey | translate }}</a>
         } @else {
           <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
         }

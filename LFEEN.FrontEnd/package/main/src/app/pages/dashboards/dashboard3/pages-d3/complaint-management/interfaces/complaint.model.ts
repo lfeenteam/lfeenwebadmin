@@ -76,6 +76,11 @@ export interface UpdateStatusRequest {
   note?: string;
 }
 
+export interface UpdateClientTicketStatusRequest {
+  status: number;
+  note?: string;
+}
+
 export interface TicketActionResult {
   externalId: string;
   message: string;
@@ -91,6 +96,7 @@ export interface TicketDetail {
   priority: string;
   department: string;
   propertyName?: string;
+  accountName: string;
   assignedAdminUserId: string | null;
   assignedAdminName: string | null;
   createdByType: string;
@@ -202,6 +208,13 @@ export const CLIENT_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[]
   { value: 2, labelKey: 'd3.complaints.clientStatus.resolved' },
   { value: 3, labelKey: 'd3.complaints.clientStatus.closed' },
 ];
+
+export const CLIENT_TICKET_STATUS = {
+  Open: 0,
+  Pending: 1,
+  Resolved: 2,
+  Closed: 3,
+} as const;
 
 export interface TicketsOverviewItem {
   externalId: string;
