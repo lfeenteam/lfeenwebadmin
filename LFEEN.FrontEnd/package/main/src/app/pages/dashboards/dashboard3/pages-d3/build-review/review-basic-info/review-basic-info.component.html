@@ -87,7 +87,7 @@
       @for (amenity of amenities; track $index) {
         <div class="amenity-item">
           <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
-          <span class="amenity-label">{{ amenity.labelKey | translate }}</span>
+          <span class="amenity-label">{{ amenity.label }}</span>
         </div>
       }
     </div>

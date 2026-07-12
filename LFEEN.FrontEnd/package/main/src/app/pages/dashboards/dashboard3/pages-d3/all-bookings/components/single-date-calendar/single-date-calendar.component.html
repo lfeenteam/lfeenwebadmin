@@ -1,0 +1,34 @@
+<div class="sdc-root" [dir]="currentDir">
+
+  <div class="sdc-header">
+    <button type="button" class="sdc-nav-btn" (click)="prevMonth()">
+      <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+    </button>
+    <span class="sdc-month-title">{{ monthLabel }}</span>
+    <button type="button" class="sdc-nav-btn" (click)="nextMonth()">
+      <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  <div class="sdc-weekdays">
+    @for (wd of weekdayLabels; track wd) {
+      <span class="sdc-weekday">{{ wd }}</span>
+    }
+  </div>
+
+  <div class="sdc-days-grid">
+    @for (day of days; track day.date.getTime()) {
+      <button
+        type="button"
+        class="sdc-day"
+        [class.sdc-day-empty]="!day.inCurrentMonth"
+        [class.sdc-day-today]="day.isToday"
+        [class.sdc-day-selected]="day.isSelected"
+        [disabled]="!day.inCurrentMonth"
+        (click)="selectDay(day)">
+        @if (day.inCurrentMonth) { {{ dayNumberLabel(day.date) }} }
+      </button>
+    }
+  </div>
+
+</div>

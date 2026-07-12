@@ -17,7 +17,7 @@
       </button>
       <mat-menu #statusMenu="matMenu">
         <button mat-menu-item type="button" (click)="onStatusSelect(null)">
-          {{ 'd3.complaints.table.allStatuses' | translate }}
+          {{ allOptionLabelKey | translate }}
         </button>
         @for (opt of statusOptions; track opt.value) {
           <button mat-menu-item type="button" (click)="onStatusSelect(opt.value)">
@@ -27,7 +27,7 @@
       </mat-menu>
     } @else {
       <button class="status-filter-btn" type="button">
-        {{ 'd3.complaints.table.allStatuses' | translate }}
+        {{ allOptionLabelKey | translate }}
       </button>
     }
   </div>

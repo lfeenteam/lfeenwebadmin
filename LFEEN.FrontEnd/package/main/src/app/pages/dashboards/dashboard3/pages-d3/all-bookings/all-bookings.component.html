@@ -34,47 +34,155 @@
         (ngModelChange)="onSearch($event)" />
     </div>
 
-    <!-- Check-in Date -->
-    <label class="date-pill">
-      <i-tabler name="calendar" class="date-icon"></i-tabler>
-      <span class="date-label">{{ checkInDate || ('d3.bookings.filters.checkIn' | translate) }}</span>
-      <input
-        type="date"
-        class="date-input-hidden"
-        [(ngModel)]="checkInDate"
-        (ngModelChange)="onDateChange()" />
-    </label>
+    <!-- Desktop filter pills -->
+    <div class="filter-pills-desktop">
 
-    <!-- Check-out Date -->
-    <label class="date-pill">
-      <i-tabler name="calendar" class="date-icon"></i-tabler>
-      <span class="date-label">{{ checkOutDate || ('d3.bookings.filters.checkOut' | translate) }}</span>
-      <input
-        type="date"
-        class="date-input-hidden"
-        [(ngModel)]="checkOutDate"
-        (ngModelChange)="onDateChange()" />
-    </label>
+      <!-- Check-in Date -->
+      <button type="button" class="date-pill" [matMenuTriggerFor]="checkInMenu" #checkInMenuTrigger="matMenuTrigger">
+        <i-tabler name="calendar" class="date-icon"></i-tabler>
+        <span class="date-label">{{ checkInDate || ('d3.bookings.filters.checkIn' | translate) }}</span>
+      </button>
 
-    <!-- Status Filter -->
-    <button type="button" class="status-filter-btn" [matMenuTriggerFor]="statusMenu">
-      <span>{{ selectedStatusLabel() }}</span>
-      <i-tabler name="chevron-down" class="icon-14"></i-tabler>
+      <mat-menu #checkInMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="checkInDate"
+            (dateSelected)="onCheckInSelect($event); checkInMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
+
+      <!-- Check-out Date -->
+      <button type="button" class="date-pill" [matMenuTriggerFor]="checkOutMenu" #checkOutMenuTrigger="matMenuTrigger">
+        <i-tabler name="calendar" class="date-icon"></i-tabler>
+        <span class="date-label">{{ checkOutDate || ('d3.bookings.filters.checkOut' | translate) }}</span>
+      </button>
+
+      <mat-menu #checkOutMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="checkOutDate"
+            (dateSelected)="onCheckOutSelect($event); checkOutMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
+
+      <!-- Status Filter -->
+      <button type="button" class="status-filter-btn" [matMenuTriggerFor]="statusMenu">
+        <span>{{ selectedStatusLabel() }}</span>
+        <i-tabler name="chevron-down" class="icon-14"></i-tabler>
+      </button>
+
+      <mat-menu #statusMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+        @for (opt of statusOptions; track opt.value) {
+          <button
+            mat-menu-item
+            type="button"
+            [class.selected]="selectedStatus === opt.value"
+            (click)="onStatusChange(opt.value)">
+            {{ opt.labelKey | translate }}
+          </button>
+        }
+      </mat-menu>
+
+      <!-- Clear Filters -->
+      <button type="button" class="clear-filters-btn" [disabled]="!hasActiveFilters" (click)="clearFilters()">
+        <i-tabler name="filter-x" class="icon-14"></i-tabler>
+        <span>{{ 'd3.bookings.filters.clear' | translate }}</span>
+      </button>
+
+    </div>
+
+    <!-- Mobile filters trigger -->
+    <button
+      type="button"
+      class="filter-icon-btn"
+      [class.active]="mobileFilterOpen"
+      [attr.aria-label]="'d3.bookings.filters.moreFilters' | translate"
+      (click)="toggleMobileFilter()">
+      <i-tabler name="filter"></i-tabler>
     </button>
 
-    <mat-menu #statusMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
-      @for (opt of statusOptions; track opt.value) {
-        <button
-          mat-menu-item
-          type="button"
-          [class.selected]="selectedStatus === opt.value"
-          (click)="onStatusChange(opt.value)">
-          {{ opt.labelKey | translate }}
-        </button>
-      }
-    </mat-menu>
-
   </div>
+
+  <!-- Mobile filter bottom sheet -->
+  @if (mobileFilterOpen) {
+    <div class="mobile-filter-backdrop" (click)="closeMobileFilter()"></div>
+    <div class="mobile-filter-sheet">
+      <div class="mobile-filter-handle"></div>
+      <div class="mobile-filter-header">
+        <span class="mobile-filter-title">{{ 'd3.bookings.filters.moreFilters' | translate }}</span>
+        <button type="button" class="mobile-filter-close" (click)="closeMobileFilter()">
+          <i-tabler name="x"></i-tabler>
+        </button>
+      </div>
+      <div class="mobile-filter-body">
+
+        <!-- Check-in Date -->
+        <button type="button" class="mobile-filter-pill" [matMenuTriggerFor]="checkInMobileMenu" #checkInMobileMenuTrigger="matMenuTrigger">
+          <span>{{ checkInDate || ('d3.bookings.filters.checkIn' | translate) }}</span>
+          <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
+        </button>
+
+        <mat-menu #checkInMobileMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+          <ng-template matMenuContent>
+            <app-single-date-calendar
+              (click)="$event.stopPropagation()"
+              [value]="checkInDate"
+              (dateSelected)="onCheckInSelect($event); checkInMobileMenuTrigger.closeMenu()">
+            </app-single-date-calendar>
+          </ng-template>
+        </mat-menu>
+
+        <!-- Check-out Date -->
+        <button type="button" class="mobile-filter-pill" [matMenuTriggerFor]="checkOutMobileMenu" #checkOutMobileMenuTrigger="matMenuTrigger">
+          <span>{{ checkOutDate || ('d3.bookings.filters.checkOut' | translate) }}</span>
+          <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
+        </button>
+
+        <mat-menu #checkOutMobileMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+          <ng-template matMenuContent>
+            <app-single-date-calendar
+              (click)="$event.stopPropagation()"
+              [value]="checkOutDate"
+              (dateSelected)="onCheckOutSelect($event); checkOutMobileMenuTrigger.closeMenu()">
+            </app-single-date-calendar>
+          </ng-template>
+        </mat-menu>
+
+        <!-- Status Filter -->
+        <button type="button" class="mobile-filter-pill" [matMenuTriggerFor]="statusMobileMenu">
+          <span>{{ selectedStatusLabel() }}</span>
+          <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
+        </button>
+
+        <mat-menu #statusMobileMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+          @for (opt of statusOptions; track opt.value) {
+            <button
+              mat-menu-item
+              type="button"
+              [class.selected]="selectedStatus === opt.value"
+              (click)="onStatusChange(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </mat-menu>
+
+        <!-- Clear Filters -->
+        <button type="button" class="mobile-filter-pill mobile-clear-pill" [disabled]="!hasActiveFilters" (click)="clearFilters()">
+          <span>{{ 'd3.bookings.filters.clear' | translate }}</span>
+          <i-tabler name="filter-x" class="pill-chevron"></i-tabler>
+        </button>
+
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <mat-progress-bar mode="indeterminate" class="bookings-loading-bar"></mat-progress-bar>
+  }
 
   <!-- Table -->
   <div class="bookings-table-wrapper">

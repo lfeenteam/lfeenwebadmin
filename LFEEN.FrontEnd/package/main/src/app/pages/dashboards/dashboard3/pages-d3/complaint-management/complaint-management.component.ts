@@ -9,7 +9,7 @@ import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/compl
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
 import { ComplaintService } from './services/complaint.service';
-import { CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, RESOLVED_TICKETS_PAGE_SIZE } from './interfaces/complaint.model';
+import { CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 
 @Component({
@@ -39,7 +39,6 @@ export class ComplaintManagementComponent implements OnDestroy {
   selectedComplaint = signal<Complaint | null>(null);
   loading           = signal(false);
 
-  private hostTickets    = signal<Complaint[]>([]);
   private resolvedTickets = signal<Complaint[]>([]);
 
   readonly clientStatusOptions = CLIENT_TICKET_STATUS_OPTIONS;
@@ -50,10 +49,20 @@ export class ComplaintManagementComponent implements OnDestroy {
   customerSearch      = signal('');
   customerStatus      = signal<number | null>(null);
 
+  readonly hostStatusOptions = HOST_TICKET_STATUS_OPTIONS;
+  hostTickets     = signal<Complaint[]>([]);
+  hostTotalCount  = signal<number | null>(null);
+  hostTotalPages  = signal(1);
+  hostPage        = signal(1);
+  hostSearch      = signal('');
+  hostStatus      = signal<number | null>(null);
+
+  readonly resolvedTypeOptions = RESOLVED_TYPE_OPTIONS;
   resolvedTotalCount  = signal<number | null>(null);
   resolvedTotalPages  = signal(1);
   resolvedPage        = signal(1);
   resolvedSearch      = signal('');
+  resolvedType        = signal<'Client' | 'Merchant' | null>(null);
 
   constructor() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as ComplaintTab | null;
@@ -137,9 +146,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   private loadTabData(tab: ComplaintTab): void {
     this.loading.set(true);
     if (tab === 'hosts') {
-      this.service.getTickets()
-        .pipe(finalize(() => this.loading.set(false)))
-        .subscribe(tickets => this.hostTickets.set(tickets.filter(t => t.status !== 'closed')));
+      this.loadHostTickets();
     } else if (tab === 'resolved') {
       this.loadResolvedTickets();
     } else if (tab === 'customers') {
@@ -147,9 +154,56 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
   }
 
+  private loadHostTickets(): void {
+    this.loading.set(true);
+    this.service.getTickets({
+      status: this.hostStatus() ?? undefined,
+      search: this.hostSearch() || undefined,
+      page: this.hostPage(),
+      pageSize: HOST_TICKETS_PAGE_SIZE,
+    })
+      .pipe(
+        map(res => ({
+          complaints: res.data
+            .filter(t => t.status !== 5 && t.status !== 'Closed')
+            .map(t => this.service.mapTicketToComplaint(t)),
+          totalCount: res.totalCount,
+          totalPages: res.totalPages,
+        })),
+        catchError(() => {
+          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          return of({ complaints: [], totalCount: 0, totalPages: 1 });
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe(res => {
+        this.hostTickets.set(res.complaints);
+        this.hostTotalCount.set(res.totalCount);
+        this.hostTotalPages.set(res.totalPages);
+      });
+  }
+
+  onHostSearchChange(term: string): void {
+    this.hostSearch.set(term);
+    this.hostPage.set(1);
+    this.loadHostTickets();
+  }
+
+  onHostStatusChange(status: number | string | null): void {
+    this.hostStatus.set(status as number | null);
+    this.hostPage.set(1);
+    this.loadHostTickets();
+  }
+
+  onHostPageChange(page: number): void {
+    this.hostPage.set(page);
+    this.loadHostTickets();
+  }
+
   private loadResolvedTickets(): void {
     this.loading.set(true);
     this.service.getResolvedTicketsOverview({
+      type: this.resolvedType() ?? undefined,
       search: this.resolvedSearch() || undefined,
       page: this.resolvedPage(),
       pageSize: RESOLVED_TICKETS_PAGE_SIZE,
@@ -184,6 +238,12 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadResolvedTickets();
   }
 
+  onResolvedTypeChange(type: number | string | null): void {
+    this.resolvedType.set(type as 'Client' | 'Merchant' | null);
+    this.resolvedPage.set(1);
+    this.loadResolvedTickets();
+  }
+
   private loadClientTickets(): void {
     this.loading.set(true);
     this.service.getClientTickets({
@@ -194,7 +254,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     })
       .pipe(
         map(res => ({
-          complaints: res.data.map(t => this.service.mapClientTicketToComplaint(t)),
+          complaints: res.data
+            .filter(t => t.status !== 'Closed')
+            .map(t => this.service.mapClientTicketToComplaint(t)),
           totalCount: res.totalCount,
           totalPages: res.totalPages,
         })),
@@ -217,8 +279,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadClientTickets();
   }
 
-  onCustomerStatusChange(status: number | null): void {
-    this.customerStatus.set(status);
+  onCustomerStatusChange(status: number | string | null): void {
+    this.customerStatus.set(status as number | null);
     this.customerPage.set(1);
     this.loadClientTickets();
   }
@@ -262,7 +324,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadClientTicketDetail(complaint: Complaint): void {
-    if (this.activeTab() !== 'customers' || complaint.type !== 'customer') return;
+    if (complaint.type !== 'customer') return;
 
     this.service.getClientTicketById(complaint.id).subscribe({
       next: detail => {

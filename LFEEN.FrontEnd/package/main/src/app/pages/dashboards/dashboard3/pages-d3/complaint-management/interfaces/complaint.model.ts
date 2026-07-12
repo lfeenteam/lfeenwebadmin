@@ -32,6 +32,25 @@ export interface TicketListResponse {
   stats: null;
 }
 
+export interface TicketQueryParams {
+  status?: number;
+  department?: number;
+  priority?: number;
+  assignedAdminUserId?: string;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export const HOST_TICKETS_PAGE_SIZE = 8;
+
+export const HOST_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[] = [
+  { value: 1, labelKey: 'd3.complaints.status.new' },
+  { value: 2, labelKey: 'd3.complaints.status.pending' },
+  { value: 3, labelKey: 'd3.complaints.status.inProgress' },
+  { value: 4, labelKey: 'd3.complaints.status.replied' },
+];
+
 export interface TicketMessage {
   externalId: string;
   senderType: number | string;
@@ -184,6 +203,7 @@ export interface ClientTicketDetail {
   department: string;
   status: string;
   priority: string;
+  clientName: string | null;
   assignedAgentName: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
@@ -206,14 +226,15 @@ export const CLIENT_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[]
   { value: 0, labelKey: 'd3.complaints.clientStatus.open' },
   { value: 1, labelKey: 'd3.complaints.clientStatus.pending' },
   { value: 2, labelKey: 'd3.complaints.clientStatus.resolved' },
-  { value: 3, labelKey: 'd3.complaints.clientStatus.closed' },
 ];
 
 export const CLIENT_TICKET_STATUS = {
-  Open: 0,
-  Pending: 1,
-  Resolved: 2,
-  Closed: 3,
+  New: 1,
+  Assigned: 2,
+  InProgress: 3,
+  WaitingClient: 4,
+  Resolved: 5,
+  Closed: 6,
 } as const;
 
 export interface TicketsOverviewItem {
@@ -243,6 +264,11 @@ export interface TicketsOverviewQueryParams {
   page?: number;
   pageSize?: number;
 }
+
+export const RESOLVED_TYPE_OPTIONS: { value: 'Client' | 'Merchant'; labelKey: string }[] = [
+  { value: 'Client', labelKey: 'd3.complaints.table.typeClient' },
+  { value: 'Merchant', labelKey: 'd3.complaints.table.typeMerchant' },
+];
 
 export const RESOLVED_TICKETS_PAGE_SIZE = 8;
 

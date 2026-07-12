@@ -183,17 +183,20 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     this.closingTicket.set(true);
     this.closeError.set(null);
     const note = this.closeNote.trim() || undefined;
-    this.service.updateClientTicketStatus(this.complaint.id, CLIENT_TICKET_STATUS.Resolved, note).subscribe({
-      next: () => {
-        this.closingTicket.set(false);
-        this.showCloseDialog.set(false);
-        this.closeNote = '';
-        this.resolve.emit();
-      },
-      error: () => {
-        this.closingTicket.set(false);
-        this.closeError.set(this.translate.instant('d3.toast.errorOp'));
-      },
+    const ticketId = this.complaint.id;
+    this.assignToCurrentUserIfUnassigned().then(() => {
+      this.service.updateClientTicketStatus(ticketId, CLIENT_TICKET_STATUS.Closed, note).subscribe({
+        next: () => {
+          this.closingTicket.set(false);
+          this.showCloseDialog.set(false);
+          this.closeNote = '';
+          this.resolve.emit();
+        },
+        error: () => {
+          this.closingTicket.set(false);
+          this.closeError.set(this.translate.instant('d3.toast.errorOp'));
+        },
+      });
     });
   }
 

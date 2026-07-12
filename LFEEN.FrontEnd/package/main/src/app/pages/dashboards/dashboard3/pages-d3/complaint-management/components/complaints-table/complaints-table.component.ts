@@ -29,14 +29,15 @@ export class ComplaintsTableComponent implements OnChanges {
   @Input() serverTotalCount: number | null = null;
   @Input() serverTotalPages: number | null = null;
   @Input() serverCurrentPage: number | null = null;
-  @Input() statusFilterValue: number | null = null;
-  @Input() statusOptions: { value: number; labelKey: string }[] = [];
+  @Input() statusFilterValue: number | string | null = null;
+  @Input() statusOptions: { value: number | string; labelKey: string }[] = [];
+  @Input() allOptionLabelKey = 'd3.complaints.table.allStatuses';
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
   @Output() assignClick = new EventEmitter<Complaint>();
   @Output() searchChange = new EventEmitter<string>();
-  @Output() statusFilterChange = new EventEmitter<number | null>();
+  @Output() statusFilterChange = new EventEmitter<number | string | null>();
   @Output() pageChange = new EventEmitter<number>();
 
   private translate = inject(TranslateService);
@@ -118,11 +119,11 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   get selectedStatusLabel(): string {
-    if (this.statusFilterValue == null) return 'd3.complaints.table.allStatuses';
-    return this.statusOptions.find(o => o.value === this.statusFilterValue)?.labelKey ?? 'd3.complaints.table.allStatuses';
+    if (this.statusFilterValue == null) return this.allOptionLabelKey;
+    return this.statusOptions.find(o => o.value === this.statusFilterValue)?.labelKey ?? this.allOptionLabelKey;
   }
 
-  onStatusSelect(value: number | null): void {
+  onStatusSelect(value: number | string | null): void {
     this.currentPage = 1;
     this.statusFilterChange.emit(value);
   }
