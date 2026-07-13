@@ -1,8 +1,13 @@
 <div class="unit-access-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
+  } @else {
+
   <section class="unit-summary-card">
     <div class="summary-unit">
-      @if (accessData?.mainPhotoUrl) {
-        <img [src]="accessData!.mainPhotoUrl" [alt]="unit?.title || ('d3.unitReview.accessView.unitAlt' | translate)">
+      @if (accessData?.mainPhotoUrl && !mainPhotoLoadFailed) {
+        <img [src]="accessData!.mainPhotoUrl" [alt]="unit?.title || ('d3.unitReview.accessView.unitAlt' | translate)" (error)="mainPhotoLoadFailed = true">
       } @else {
         <div class="unit-avatar">{{ unitInitials }}</div>
       }
@@ -42,11 +47,25 @@
       </div>
     }
 
+    @if (hasNoPhotos) {
+      <app-review-empty-state
+        icon="camera-off"
+        titleKey="d3.unitReview.accessView.emptyTitle"
+        descKey="d3.unitReview.accessView.emptyDescription">
+      </app-review-empty-state>
+    } @else {
     <div class="access-photos-grid">
       @for (photo of accessPhotos; track photo.titleKey) {
         <article class="access-photo-card" [class.is-rejected]="photo.decision === 'rejected'">
           <div class="photo-frame">
-            <img [src]="photo.image" [alt]="photo.titleKey | translate">
+            @if (!photo.loadFailed) {
+              <img [src]="photo.image" [alt]="photo.titleKey | translate" (error)="photo.loadFailed = true">
+            } @else {
+              <div class="photo-load-error">
+                <i-tabler name="photo-off"></i-tabler>
+                <span>{{ 'd3.unitReview.accessView.noImageLabel' | translate }}</span>
+              </div>
+            }
             <span class="photo-tag">{{ photo.tagKey | translate }}</span>
             <div class="photo-actions">
               <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setPhotoDecision(photo, 'rejected')">
@@ -68,6 +87,7 @@
         </article>
       }
     </div>
+    }
   </section>
 
   @if (accessData?.accessDescription) {
@@ -108,10 +128,12 @@
         <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
         <i-tabler name="circle-x"></i-tabler>
       </button>
-      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || !!rejectionNote.trim()" (click)="submitDecision('approved')">
+      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || hasNoPhotos || !!rejectionNote.trim()" (click)="submitDecision('approved')">
         <span>{{ 'd3.unitReview.accessView.approveBtn' | translate }}</span>
         <i-tabler name="circle-check"></i-tabler>
       </button>
     </footer>
   }
+
+  } <!-- end @else -->
 </div>

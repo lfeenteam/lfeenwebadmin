@@ -11,11 +11,12 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { UnitDepositResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-unit-deposit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-deposit-review.component.html',
   styleUrl: './unit-deposit-review.component.scss'
 })
@@ -33,6 +34,10 @@ export class UnitDepositReviewComponent implements OnInit, OnDestroy {
 
   get depositAmount(): number {
     return this.deposit?.amount ?? 0;
+  }
+
+  get hasDepositData(): boolean {
+    return !!this.deposit?.hasDeposit && this.deposit.amount > 0;
   }
 
   get currencyIconSrc(): string {

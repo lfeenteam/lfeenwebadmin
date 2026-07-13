@@ -61,19 +61,27 @@
       <h3>{{ 'd3.unitReview.termsView.generalRulesTitle' | translate }}</h3>
     </div>
 
-    <div class="rules-grid mt-3">
-      @for (rule of mappedConditions; track $index) {
-        <article class="rule-card" [class.rule-card--rejected]="!rule.approved">
-          <span class="decision-icon">
-            <i-tabler [name]="rule.approved ? 'check' : 'x'"></i-tabler>
-          </span>
-          <div class="rule-label">
-            <span>{{ rule.translationKey | translate }}</span>
-            <i-tabler [name]="rule.icon"></i-tabler>
-          </div>
-        </article>
-      }
-    </div>
+    @if (mappedConditions.length > 0) {
+      <div class="rules-grid mt-3">
+        @for (rule of mappedConditions; track $index) {
+          <article class="rule-card" [class.rule-card--rejected]="!rule.approved">
+            <span class="decision-icon">
+              <i-tabler [name]="rule.approved ? 'check' : 'x'"></i-tabler>
+            </span>
+            <div class="rule-label">
+              <span>{{ rule.translationKey | translate }}</span>
+              <i-tabler [name]="rule.icon"></i-tabler>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="checklist"
+        titleKey="d3.unitReview.termsView.emptyTitle"
+        descKey="d3.unitReview.termsView.emptyDescription">
+      </app-review-empty-state>
+    }
   </section>
 
   @if (termsData?.customRules?.length) {

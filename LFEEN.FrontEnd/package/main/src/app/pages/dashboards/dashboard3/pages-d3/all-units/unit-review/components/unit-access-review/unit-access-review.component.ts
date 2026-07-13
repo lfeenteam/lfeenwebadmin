@@ -11,6 +11,8 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { BuildingWithUnits, UnitAccessResponse, UnitApiDetailItem, UnitCardItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 
 type AccessPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -22,6 +24,7 @@ interface AccessPhoto {
   decision: AccessPhotoDecision;
   rejectionReason: string;
   canReview: boolean;
+  loadFailed: boolean;
 }
 
 const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
@@ -46,7 +49,7 @@ const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
 @Component({
   selector: 'app-unit-access-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, DashboardLoadingComponent],
   templateUrl: './unit-access-review.component.html',
   styleUrl: './unit-access-review.component.scss'
 })
@@ -65,6 +68,7 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
   hasStartedReview = false;
   accessData: UnitAccessResponse | null = null;
   accessPhotos: AccessPhoto[] = [];
+  mainPhotoLoadFailed = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,7 +91,12 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
     return this.accessPhotos.some(p => p.decision === 'rejected');
   }
 
+  get hasNoPhotos(): boolean {
+    return this.accessPhotos.length === 0 || this.accessPhotos.every(p => p.loadFailed);
+  }
+
   get allReviewed(): boolean {
+    if (this.hasNoPhotos) return true;
     return this.accessPhotos.length > 0 && this.accessPhotos.every(p => p.decision !== 'pending');
   }
 
@@ -132,6 +141,7 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
               decision:          this.mapApiPhotoDecision(p.decision),
               rejectionReason:   p.rejectionReason ?? '',
               canReview:         this.canReviewPhoto(p.decision),
+              loadFailed:        !p.imageUrl,
             }));
             this.isLoading = false;
           },

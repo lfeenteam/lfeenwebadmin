@@ -12,6 +12,7 @@ import { UnitReviewDecision, UnitsService } from '../../../../../services/units.
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface CalendarDay {
   day: number | null;
@@ -28,7 +29,7 @@ interface SeasonalPeriod {
 @Component({
   selector: 'app-unit-pricing-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-pricing-review.component.html',
   styleUrl: './unit-pricing-review.component.scss'
 })

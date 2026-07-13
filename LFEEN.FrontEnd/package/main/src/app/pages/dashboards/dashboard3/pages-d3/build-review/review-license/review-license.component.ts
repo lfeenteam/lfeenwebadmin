@@ -13,11 +13,12 @@ import {
 } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-review-license',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule, ReviewEmptyStateComponent],
   templateUrl: './review-license.component.html',
   styleUrl: './review-license.component.scss'
 })
@@ -37,6 +38,7 @@ export class ReviewLicenseComponent implements OnInit {
   isSubmitting = false;
   license: PropertyLicenseResponse | null = null;
   rejectionReason = '';
+  documentLoadFailed = false;
 
   ngOnInit(): void {
     this.translate.onLangChange
@@ -55,6 +57,7 @@ export class ReviewLicenseComponent implements OnInit {
         this.isLoading = false;
         this.license = data;
         this.rejectionReason = data.rejectionReason ?? '';
+        this.documentLoadFailed = false;
       },
       error: () => {
         this.isLoading = false;

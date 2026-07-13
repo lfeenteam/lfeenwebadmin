@@ -22,18 +22,26 @@
   <!-- Seasonal Periods -->
   <section class="seasons-section">
     <h3 class="section-title">{{ 'd3.unitReview.pricingView.seasonalTitle' | translate }}</h3>
-    <div class="seasons-grid">
-      @for (period of seasonalPeriods; track period.label) {
-        <article class="season-card">
-          <div class="season-card-top">
-            <i-tabler name="sun" class="sun-icon"></i-tabler>
-            <span class="period-badge">{{ period.label }}</span>
-          </div>
-          <strong class="season-name">{{ period.name }}</strong>
-          <span class="season-dates">{{ period.dates }}</span>
-        </article>
-      }
-    </div>
+    @if (seasonalPeriods.length > 0) {
+      <div class="seasons-grid">
+        @for (period of seasonalPeriods; track period.label) {
+          <article class="season-card">
+            <div class="season-card-top">
+              <i-tabler name="sun" class="sun-icon"></i-tabler>
+              <span class="period-badge">{{ period.label }}</span>
+            </div>
+            <strong class="season-name">{{ period.name }}</strong>
+            <span class="season-dates">{{ period.dates }}</span>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="calendar-off"
+        titleKey="d3.unitReview.pricingView.emptySeasonalTitle"
+        descKey="d3.unitReview.pricingView.emptySeasonalDescription">
+      </app-review-empty-state>
+    }
   </section>
 
   <!-- Calendar -->

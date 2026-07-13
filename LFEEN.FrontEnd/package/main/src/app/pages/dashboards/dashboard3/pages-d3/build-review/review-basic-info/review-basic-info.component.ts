@@ -13,11 +13,12 @@ import {
 } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingReviewService } from '../../../services/building-review.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-review-basic-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent],
   templateUrl: './review-basic-info.component.html',
   styleUrl: './review-basic-info.component.scss'
 })

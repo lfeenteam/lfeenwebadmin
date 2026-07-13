@@ -18,11 +18,12 @@ import {
   UnitSubArea
 } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-basic-info-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './basic-info-review.component.html',
   styleUrl: './basic-info-review.component.scss'
 })
@@ -74,6 +75,10 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   }
 
   get unitServices(): UnitBasicDataService[] { return this.unitData?.services ?? []; }
+
+  get hasRoomsData(): boolean {
+    return this.dynamicRooms.length > 0 || this.unitFacilities.length > 0 || this.unitServices.length > 0;
+  }
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';

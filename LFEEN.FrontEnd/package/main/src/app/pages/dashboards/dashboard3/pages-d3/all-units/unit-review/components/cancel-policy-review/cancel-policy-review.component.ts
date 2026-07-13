@@ -11,11 +11,12 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { CancelPolicyType, UnitCancellationPolicyResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-cancel-policy-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './cancel-policy-review.component.html',
   styleUrl: './cancel-policy-review.component.scss'
 })

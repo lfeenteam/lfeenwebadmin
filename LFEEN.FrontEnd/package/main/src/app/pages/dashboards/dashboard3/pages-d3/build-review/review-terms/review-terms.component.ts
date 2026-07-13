@@ -13,6 +13,7 @@ import {
 } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface Rule {
   id: number;
@@ -24,7 +25,7 @@ interface Rule {
 @Component({
   selector: 'app-review-terms',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule, ReviewEmptyStateComponent],
   templateUrl: './review-terms.component.html',
   styleUrl: './review-terms.component.scss'
 })

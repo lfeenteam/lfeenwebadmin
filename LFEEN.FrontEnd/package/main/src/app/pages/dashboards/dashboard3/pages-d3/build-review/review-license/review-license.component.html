@@ -13,13 +13,11 @@
   </div>
 
   @if (!isLoading && license && !hasLicenseData) {
-    <div class="empty-license-state">
-      <div class="empty-icon">
-        <i-tabler name="file-off"></i-tabler>
-      </div>
-      <h3>{{ 'd3.buildReview.license.emptyTitle' | translate }}</h3>
-      <p>{{ 'd3.buildReview.license.emptyDescription' | translate }}</p>
-    </div>
+    <app-review-empty-state
+      icon="file-off"
+      titleKey="d3.buildReview.license.emptyTitle"
+      descKey="d3.buildReview.license.emptyDescription">
+    </app-review-empty-state>
   }
 
   <!-- License Document Preview -->
@@ -32,7 +30,14 @@
     </div>
 
     <div class="document-preview">
-        <img [src]="license?.licenseAttachmentUrl" alt="License Document">
+        @if (!documentLoadFailed) {
+          <img [src]="license?.licenseAttachmentUrl" alt="License Document" (error)="documentLoadFailed = true">
+        } @else {
+          <div class="photo-load-error">
+            <i-tabler name="file-off"></i-tabler>
+            <span>{{ 'd3.buildReview.license.noImageLabel' | translate }}</span>
+          </div>
+        }
         <!-- Optional Overlay if rejected/expired -->
         <div class="expired-overlay" *ngIf="isExpired">
             <span class="expired-tag">{{ 'd3.buildReview.license.expiredTag' | translate }}</span>

@@ -51,6 +51,15 @@
     <h2>{{ 'd3.unitReview.basicInfoView.heading' | translate }}</h2>
   </section>
 
+  @if (!hasRoomsData) {
+    <app-review-empty-state
+      icon="home-off"
+      titleKey="d3.unitReview.basicInfoView.emptyTitle"
+      descKey="d3.unitReview.basicInfoView.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (hasRoomsData) {
   <div class="rooms-list">
     @for (room of dynamicRooms; track $index) {
       <article class="room-card" [class.room-card--closed]="!room.isOpen">
@@ -186,6 +195,7 @@
       }
     </article>
   </div>
+  }
 
   @if (!isReadOnly) {
     <section class="final-notes-section">

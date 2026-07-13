@@ -12,6 +12,7 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { UnitLicenseResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface LicenseDetailItem {
   labelKey: string;
@@ -24,7 +25,7 @@ interface LicenseDetailItem {
 @Component({
   selector: 'app-unit-license-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-license-review.component.html',
   styleUrl: './unit-license-review.component.scss'
 })
@@ -63,6 +64,24 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
 
   get ownerInitial(): string {
     return (this.license?.accountName ?? 'H').charAt(0).toUpperCase();
+  }
+
+  get hasLicenseData(): boolean {
+    const l = this.license;
+    if (!l) return false;
+    return Boolean(
+      l.licenseId ||
+      l.licenseNumber ||
+      l.licenseAttachmentUrl ||
+      l.licenseType ||
+      l.licenseTypeName ||
+      l.classification ||
+      l.issueDate ||
+      l.expiryDate ||
+      l.licenseStatusName ||
+      l.documentStatus ||
+      l.documentStatusName
+    );
   }
 
   get licenseDetails(): LicenseDetailItem[] {

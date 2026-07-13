@@ -6,6 +6,13 @@
     </div>
   } @else {
 
+  @if (!hasDepositData) {
+    <app-review-empty-state
+      icon="shield-off"
+      titleKey="d3.unitReview.depositView.emptyTitle"
+      descKey="d3.unitReview.depositView.emptyDescription">
+    </app-review-empty-state>
+  } @else {
   <section class="deposit-card">
     <div class="deposit-icon-box">
       <i-tabler name="shield-check"></i-tabler>
@@ -16,7 +23,7 @@
     <div class="deposit-amount">
       <strong>{{ depositAmount }}</strong>
       <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
-      
+
     </div>
 
     <div class="deposit-notice">
@@ -29,6 +36,7 @@
       <span>{{ 'd3.unitReview.depositView.systemCheck' | translate }}</span>
     </div>
   </section>
+  }
 
   @if (!isReadOnly) {
   <section class="notes-section">
@@ -51,7 +59,7 @@
       <span>{{ 'd3.unitReview.depositView.rejectBtn' | translate }}</span>
       <i-tabler name="circle-x"></i-tabler>
     </button>
-    <button class="btn btn-approve" type="button" [disabled]="!!rejectionNote.trim()" (click)="submitDecision('approved')">
+    <button class="btn btn-approve" type="button" [disabled]="!!rejectionNote.trim() || !hasDepositData" (click)="submitDecision('approved')">
       <span>{{ 'd3.unitReview.depositView.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>

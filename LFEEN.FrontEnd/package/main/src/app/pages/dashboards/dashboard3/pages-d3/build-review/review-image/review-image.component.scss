@@ -82,6 +82,29 @@
     }
   }
 
+  .photo-load-error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #F7F7F5;
+    color: #C9C9C6;
+
+    i-tabler {
+      width: 28px;
+      height: 28px;
+    }
+
+    span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9E9E9A;
+    }
+  }
+
   .card-footer-main, .card-footer {
     padding: 16px 24px;
     display: flex;
