@@ -10,6 +10,7 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { BuildingWithUnits, UnitCardItem, UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 type UnitPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -24,6 +25,7 @@ interface UnitReviewPhoto {
   isMainPhoto: boolean;
   isPendingDeletion: boolean;
   pendingIsMain: boolean | null;
+  loadFailed: boolean;
 }
 
 interface UnitPhotoGroup {
@@ -44,7 +46,7 @@ const GROUP_ICON_MAP: Record<string, string> = {
 @Component({
   selector: 'app-unit-images-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-images-review.component.html',
   styleUrl: './unit-images-review.component.scss'
 })
@@ -85,7 +87,9 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   }
 
   get hasNoPhotos(): boolean {
-    return !this.isLoading && this.totalPhotoCount === 0;
+    if (this.isLoading) return false;
+    if (this.totalPhotoCount === 0) return true;
+    return this.allPhotos.length > 0 && this.allPhotos.every(p => p.loadFailed);
   }
 
   get allReviewed(): boolean {
@@ -221,6 +225,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
       isMainPhoto: apiPhoto.isMainPhoto,
       isPendingDeletion: apiPhoto.isPendingDeletion,
       pendingIsMain: apiPhoto.pendingIsMain,
+      loadFailed: !apiPhoto.url,
     };
   }
 }

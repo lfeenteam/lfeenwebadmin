@@ -11,6 +11,13 @@
     <p>{{ 'd3.unitReview.servicesView.subtitle' | translate }}</p>
   </section>
 
+  @if (!hasRealServicesData) {
+    <app-review-empty-state
+      icon="settings-off"
+      titleKey="d3.unitReview.servicesView.emptyTitle"
+      descKey="d3.unitReview.servicesView.emptyDescription">
+    </app-review-empty-state>
+  } @else {
   <div class="services-list">
     @for (group of serviceGroups; track group.id) {
       <section
@@ -98,6 +105,7 @@
       </section>
     }
   </div>
+  }
 
   @if (!isReadOnly) {
   <section class="notes-section">

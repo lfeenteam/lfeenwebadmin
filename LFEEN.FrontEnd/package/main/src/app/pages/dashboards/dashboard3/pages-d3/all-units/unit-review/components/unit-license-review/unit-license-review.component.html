@@ -1,5 +1,15 @@
 <div class="unit-license-review" [dir]="currentDir">
 
+  @if (!isLoading && license && !hasLicenseData) {
+    <app-review-empty-state
+      icon="file-off"
+      titleKey="d3.unitReview.licenseView.emptyTitle"
+      descKey="d3.unitReview.licenseView.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (isLoading || hasLicenseData) {
+
   <section class="document-shell">
     <div class="document-toolbar">
       <div class="document-toolbar__info">
@@ -79,6 +89,8 @@
     </article>
 
   </section>
+
+  }
 
   @if (!isReadOnly) {
     <section class="notes-section">

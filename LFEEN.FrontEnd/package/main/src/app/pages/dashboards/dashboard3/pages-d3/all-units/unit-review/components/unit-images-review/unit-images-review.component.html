@@ -26,11 +26,28 @@
       </div>
     }
 
+    @if (hasNoPhotos) {
+      <app-review-empty-state
+        icon="photo-off"
+        titleKey="d3.unitReview.imagesView.emptyTitle"
+        descKey="d3.unitReview.imagesView.emptyDescription">
+      </app-review-empty-state>
+    }
+
+    @if (!hasNoPhotos) {
+
     @if (mainPhoto) {
       <section class="main-photo-section">
         <div class="main-photo-card" [class.rejected]="mainPhoto.decision === 'rejected'" [class.accepted]="mainPhoto.decision === 'approved'">
           <div class="main-photo-frame">
-            <img [src]="mainPhoto.url" [alt]="mainPhoto.title">
+            @if (!mainPhoto.loadFailed) {
+              <img [src]="mainPhoto.url" [alt]="mainPhoto.title" (error)="mainPhoto.loadFailed = true">
+            } @else {
+              <div class="photo-load-error">
+                <i-tabler name="photo-off"></i-tabler>
+                <span>{{ 'd3.unitReview.imagesView.noImageLabel' | translate }}</span>
+              </div>
+            }
             <span class="main-photo-badge">{{ 'd3.unitReview.imagesView.mainPhoto.badge' | translate }}</span>
               <div class="photo-actions">
                 <button class="photo-action photo-action--reject" type="button" [class.active]="mainPhoto.decision === 'rejected'" [disabled]="isReadOnly || !mainPhoto.canReview" (click)="setDecision(mainPhoto, 'rejected')">
@@ -72,7 +89,14 @@
           @for (photo of group.photos; track photo.id) {
             <article class="photo-card" [class.rejected]="photo.decision === 'rejected'" [class.accepted]="photo.decision === 'approved'">
               <div class="photo-frame">
-                <img [src]="photo.url" [alt]="photo.title">
+                @if (!photo.loadFailed) {
+                  <img [src]="photo.url" [alt]="photo.title" (error)="photo.loadFailed = true">
+                } @else {
+                  <div class="photo-load-error">
+                    <i-tabler name="photo-off"></i-tabler>
+                    <span>{{ 'd3.unitReview.imagesView.noImageLabel' | translate }}</span>
+                  </div>
+                }
                   <div class="photo-actions">
                     <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setDecision(photo, 'rejected')">
                       <i-tabler name="x"></i-tabler>
@@ -102,6 +126,8 @@
           }
         </div>
       </section>
+    }
+
     }
 
     @if (hasRejections) {

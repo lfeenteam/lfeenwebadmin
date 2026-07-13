@@ -15,6 +15,7 @@ import {
   UnitServicesServiceItem,
 } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface ServiceItem {
   id: string;
@@ -63,7 +64,7 @@ const GROUP_ORDER = [
 @Component({
   selector: 'app-unit-services-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-services-review.component.html',
   styleUrl: './unit-services-review.component.scss'
 })
@@ -95,6 +96,10 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
 
   get hasRejectionNote(): boolean {
     return !!this.rejectionNote.trim();
+  }
+
+  get hasRealServicesData(): boolean {
+    return this.serviceGroups.some(g => g.id !== 'wifi');
   }
 
   constructor(

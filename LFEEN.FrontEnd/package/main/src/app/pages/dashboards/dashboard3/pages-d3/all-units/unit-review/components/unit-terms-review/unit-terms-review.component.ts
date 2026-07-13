@@ -10,6 +10,7 @@ import { ReviewConfirmDialogComponent } from '../../../../build-review/review-co
 import { UnitTermsResponse } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface UnitRule {
   icon: string;
@@ -20,7 +21,7 @@ interface UnitRule {
 @Component({
   selector: 'app-unit-terms-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
   templateUrl: './unit-terms-review.component.html',
   styleUrl: './unit-terms-review.component.scss'
 })

@@ -61,20 +61,28 @@
         {{ 'd3.buildReview.basicInfo.floorsUnit' | translate }}
       </span>
     </div>
-    <div class="floors-table">
-      <div class="floors-row floors-header-row">
-        <span>{{ 'd3.buildReview.basicInfo.floorNumberLabel' | translate }}</span>
-        <span>{{ 'd3.buildReview.basicInfo.floorNameLabel' | translate }}</span>
-        <span>{{ 'd3.buildReview.basicInfo.unitsCountLabel' | translate }}</span>
-      </div>
-      @for (floor of floors; track floor.number) {
-        <div class="floors-row">
-          <span class="floor-number">{{ floor.number }}</span>
-          <span class="floor-name">{{ floor.name }}</span>
-          <span class="floor-units">{{ floor.units }} {{ 'd3.buildReview.basicInfo.unitsSuffix' | translate }}</span>
+    @if (floors.length > 0) {
+      <div class="floors-table">
+        <div class="floors-row floors-header-row">
+          <span>{{ 'd3.buildReview.basicInfo.floorNumberLabel' | translate }}</span>
+          <span>{{ 'd3.buildReview.basicInfo.floorNameLabel' | translate }}</span>
+          <span>{{ 'd3.buildReview.basicInfo.unitsCountLabel' | translate }}</span>
         </div>
-      }
-    </div>
+        @for (floor of floors; track floor.number) {
+          <div class="floors-row">
+            <span class="floor-number">{{ floor.number }}</span>
+            <span class="floor-name">{{ floor.name }}</span>
+            <span class="floor-units">{{ floor.units }} {{ 'd3.buildReview.basicInfo.unitsSuffix' | translate }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="list-details"
+        titleKey="d3.buildReview.basicInfo.emptyFloorsTitle"
+        descKey="d3.buildReview.basicInfo.emptyFloorsDescription">
+      </app-review-empty-state>
+    }
   </div>
 
   <!-- Services & Amenities -->
@@ -83,14 +91,22 @@
       <i-tabler name="list-details"></i-tabler>
       <span class="card-title">{{ 'd3.buildReview.basicInfo.amenitiesTitle' | translate }}</span>
     </div>
-    <div class="amenities-grid">
-      @for (amenity of amenities; track $index) {
-        <div class="amenity-item">
-          <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
-          <span class="amenity-label">{{ amenity.label }}</span>
-        </div>
-      }
-    </div>
+    @if (amenities.length > 0) {
+      <div class="amenities-grid">
+        @for (amenity of amenities; track $index) {
+          <div class="amenity-item">
+            <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
+            <span class="amenity-label">{{ amenity.label }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="list-details"
+        titleKey="d3.buildReview.basicInfo.emptyAmenitiesTitle"
+        descKey="d3.buildReview.basicInfo.emptyAmenitiesDescription">
+      </app-review-empty-state>
+    }
   </div>
 
   <!-- Notes -->

@@ -936,6 +936,9 @@
         "suggestedSolutionPlaceholder": "Suggested solution for host...",
         "rejectionSummaryTitle": "Rejection Summary",
         "rejectionSummarySubtitle": "Issues noted in the uploaded images. Please review.",
+        "emptyTitle": "No images uploaded",
+        "emptyDescription": "The host has not added any images for this property yet.",
+        "noImageLabel": "No image",
         "notesTitle": "Review Notes",
         "notesRequired": "/ Rejection Reason (Mandatory if rejected)",
         "notesPlaceholder": "Please write the rejection reasons in detail here to enable the reject option...",
@@ -968,6 +971,7 @@
         "verificationStatus": "Automated Verification: Matches Ministry of Commerce data",
         "emptyTitle": "No license data available",
         "emptyDescription": "The host has not provided license information or an attachment for this property.",
+        "noImageLabel": "Unable to display image",
         "notesTitle": "Review Notes / Rejection Reason",
         "notesOptional": "Optional for Approval",
         "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
@@ -1004,6 +1008,8 @@
         "floorNameLabel": "Floor Name",
         "unitsCountLabel": "Unit Count",
         "unitsSuffix": "units",
+        "emptyFloorsTitle": "No floor data",
+        "emptyFloorsDescription": "The host has not added floor or unit details for this property.",
         "floorNames": {
           "groundLobby": "Ground Floor - Lobby",
           "servicesFloor": "Services & Facilities Floor",
@@ -1012,6 +1018,8 @@
           "thirdResidential": "Third Residential Floor"
         },
         "amenitiesTitle": "Available Services & Amenities",
+        "emptyAmenitiesTitle": "No services or amenities",
+        "emptyAmenitiesDescription": "The host has not added any services or amenities for this property.",
         "amenityLabels": {
           "cleaning": "Regular Cleaning",
           "smartAssistant": "Smart Assistant",
@@ -1044,6 +1052,8 @@
         "mapLoading": "Loading map...",
         "mapError": "Couldn't load the map",
         "coordsLabel": "Coordinates",
+        "emptyTitle": "No location data",
+        "emptyDescription": "The host has not added location data for this property.",
         "addressDetailsTitle": "Address Details",
         "reviewTipTitle": "Review Tip",
         "reviewTipText": "Make sure the uploaded photos match the surrounding landmarks shown on the map to confirm the location is accurate.",
@@ -1066,6 +1076,8 @@
         "earlyCheckInUnavailable": "Not available",
         "generalRulesTitle": "General Rules",
         "customRulesTitle": "Custom Host Rules",
+        "emptyTitle": "No terms or rules",
+        "emptyDescription": "The host has not added any terms or rules for this property.",
         "notesTitle": "Review Notes / Rejection Reason",
         "notesOptional": "Optional for Approval",
         "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
@@ -1204,7 +1216,9 @@
           "securityValue": "Smoke detector - fire alarm",
           "cleaning": "Cleaning & Setup",
           "cleaningValue": "Smart central cleaning"
-        }
+        },
+        "emptyTitle": "No unit data",
+        "emptyDescription": "The host has not added room, facility, or service details for this unit."
       },
       "termsView": {
         "pageTitle": "Unit Terms Review",
@@ -1221,6 +1235,8 @@
         "earlyArrivalTime": "07:00 AM",
         "generalRulesTitle": "General Flexible Unit Rules",
         "customRulesTitle": "Additional Host Conditions",
+        "emptyTitle": "No terms or rules",
+        "emptyDescription": "The host has not added any terms or rules for this unit.",
         "generalRules": {
           "children": "Suitable for children",
           "parties": "Hosting parties"
@@ -1245,6 +1261,9 @@
         "floor": "Floor",
         "photosTitle": "Access Route Photos",
         "photosHint": "Please verify photo quality and that each image matches the actual access route.",
+        "emptyTitle": "No access route photos",
+        "emptyDescription": "The host has not added any photos showing the access route for this unit.",
+        "noImageLabel": "No image",
         "tags": {
           "external": "External",
           "inside": "Inside",
@@ -1273,6 +1292,8 @@
         "basePrice": "Base Price",
         "perNight": "/ night",
         "seasonalTitle": "Seasonal Pricing Periods",
+        "emptySeasonalTitle": "No seasonal pricing periods",
+        "emptySeasonalDescription": "The host has not added any seasonal pricing periods for this unit.",
         "seasons": {
           "period1": "Pricing Period 1",
           "period2": "Pricing Period 2",
@@ -1332,6 +1353,9 @@
         "rejectionSummaryTitle": "Rejection Reasons Summary",
         "rejectionSummarySubtitle": "Notes found in the uploaded photos. Please review before approval.",
         "defaultRejectionReason": "Photo needs to be replaced or clarified.",
+        "emptyTitle": "No images uploaded",
+        "emptyDescription": "The host has not added any images for this unit yet.",
+        "noImageLabel": "No image",
         "requiredOnReject": "Required on rejection",
         "optionalOnApprove": "Optional on approval",
         "approveBtn": "Approve Unit Photos",
@@ -1341,6 +1365,8 @@
         "pageTitle": "Cancellation Policy Review",
         "heading": "Host-Selected Policy",
         "subtitle": "Please review the rules and time limits set for refunds before approval.",
+        "emptyTitle": "No cancellation policy",
+        "emptyDescription": "The host has not selected a cancellation policy for this unit.",
         "notesLabel": "Review Notes / Rejection Reason",
         "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
@@ -1386,6 +1412,8 @@
       },
       "depositView": {
         "pageTitle": "Security Deposit Review",
+        "emptyTitle": "No security deposit",
+        "emptyDescription": "The host has not set a security deposit amount for this unit.",
         "amountLabel": "Selected security deposit for the unit",
         "notice": "This amount is collected before the guest is allowed to check in. If no damage or issues are reported, the amount is automatically refunded 24 hours after checkout.",
         "systemCheck": "The amount is verified by the platform's financial system",
@@ -1454,6 +1482,8 @@
       "servicesView": {
         "pageTitle": "Additional Services Review",
         "subtitle": "Review the services selected by the host and their pricing before final unit approval",
+        "emptyTitle": "No additional services",
+        "emptyDescription": "The host has not added any additional services for this unit.",
         "parking": {
           "title": "Parking",
           "desc": "Parking policy for the unit",
@@ -1536,7 +1566,9 @@
         "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
-        "approveBtn": "Approve License"
+        "approveBtn": "Approve License",
+        "emptyTitle": "No license data available",
+        "emptyDescription": "The host has not provided license information or an attachment for this unit."
       }
     },
     "complaints": {

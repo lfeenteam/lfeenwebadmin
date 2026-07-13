@@ -14,6 +14,7 @@ import {
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingReviewService } from '../../../services/building-review.service';
 import { GoogleMapsLoaderService } from 'src/app/services/google-maps-loader.service';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 export interface PropertyLocationAddressRow {
   label: string;
@@ -37,7 +38,7 @@ export interface PropertyLocationReviewVM {
 @Component({
   selector: 'app-review-location',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent],
   templateUrl: './review-location.component.html',
   styleUrl: './review-location.component.scss'
 })
@@ -76,6 +77,14 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
     this.viewReady = true;
     this.tryInitMap();
   }
+  get hasLocationData(): boolean {
+    if (!this.location) return false;
+    const l = this.location;
+    const hasCoords = !!(l.latitude && l.longitude);
+    const hasAddress = !!(l.city || l.region || l.district || l.streetName || l.formattedAddress);
+    return hasCoords || hasAddress;
+  }
+
   get vm(): PropertyLocationReviewVM | null {
     if (!this.location) return null;
     const data = this.location;
@@ -133,7 +142,7 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
   }
 
   private tryInitMap(): void {
-    if (!this.viewReady || !this.mapContainerRef || !this.vm || this.map) return;
+    if (!this.viewReady || !this.mapContainerRef || !this.hasLocationData || !this.vm || this.map) return;
 
     this.isMapLoading = true;
     this.mapError = false;

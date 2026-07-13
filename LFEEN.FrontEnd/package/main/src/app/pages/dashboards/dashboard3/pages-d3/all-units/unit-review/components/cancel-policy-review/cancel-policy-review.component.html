@@ -169,6 +169,14 @@
       </div>
     }
 
+    @if (!policyType) {
+      <app-review-empty-state
+        icon="file-off"
+        titleKey="d3.unitReview.cancelPolicyView.emptyTitle"
+        descKey="d3.unitReview.cancelPolicyView.emptyDescription">
+      </app-review-empty-state>
+    }
+
     @if (!isReadOnly) {
       <!-- Notes -->
       <section class="notes-section">

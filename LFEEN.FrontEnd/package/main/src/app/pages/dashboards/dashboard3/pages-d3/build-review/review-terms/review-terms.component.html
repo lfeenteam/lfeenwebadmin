@@ -76,6 +76,14 @@
     </div>
   }
 
+  @if (!isLoading && generalRules.length === 0 && customRules.length === 0) {
+    <app-review-empty-state
+      icon="checklist"
+      titleKey="d3.buildReview.terms.emptyTitle"
+      descKey="d3.buildReview.terms.emptyDescription">
+    </app-review-empty-state>
+  }
+
   <!-- Notes -->
   @if (!readOnly) {
   <div class="notes-section">

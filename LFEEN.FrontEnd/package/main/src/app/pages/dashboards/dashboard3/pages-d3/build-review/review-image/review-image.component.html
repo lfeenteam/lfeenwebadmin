@@ -3,6 +3,16 @@
     <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
   } @else {
 
+  @if (hasNoViewablePhotos) {
+    <app-review-empty-state
+      icon="photo-off"
+      titleKey="d3.buildReview.images.emptyTitle"
+      descKey="d3.buildReview.images.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (!hasNoViewablePhotos) {
+
   <!-- Main Image Section -->
   @if (mainPhoto) {
     <div class="section-group">
@@ -15,7 +25,14 @@
            [class.rejected]="mainPhoto.decision === 'Rejected'"
            [class.accepted]="mainPhoto.decision === 'Approved'">
         <div class="image-wrapper image-wrapper--main">
-          <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName">
+          @if (!mainPhoto.loadFailed) {
+            <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName" (error)="mainPhoto.loadFailed = true">
+          } @else {
+            <div class="photo-load-error">
+              <i-tabler name="photo-off"></i-tabler>
+              <span>{{ 'd3.buildReview.images.noImageLabel' | translate }}</span>
+            </div>
+          }
           <span class="main-photo-badge">{{ 'd3.buildReview.images.mainPhotoBadge' | translate }}</span>
           @if (!readOnly) {
           <div class="image-actions">
@@ -85,7 +102,14 @@
                [class.rejected]="img.decision === 'Rejected'"
                [class.accepted]="img.decision === 'Approved'">
             <div class="image-wrapper">
-              <img class="image-main" [src]="img.url" [alt]="img.fileName">
+              @if (!img.loadFailed) {
+                <img class="image-main" [src]="img.url" [alt]="img.fileName" (error)="img.loadFailed = true">
+              } @else {
+                <div class="photo-load-error">
+                  <i-tabler name="photo-off"></i-tabler>
+                  <span>{{ 'd3.buildReview.images.noImageLabel' | translate }}</span>
+                </div>
+              }
               @if (!readOnly) {
               <div class="image-actions">
                 <button class="btn-action btn-accept"
@@ -141,6 +165,8 @@
     </div>
   }
 
+  }
+
   <!-- Rejection Summary -->
   @if (hasRejections) {
     <div class="rejection-summary">
@@ -187,7 +213,7 @@
   <!-- Action Buttons -->
   @if (!readOnly) {
   <div class="action-buttons">
-    <button class="btn btn-approve" [disabled]="isSubmitting || hasPendingPhotos || allPhotos.length === 0" (click)="confirmSubmit('Approved')">
+    <button class="btn btn-approve" [disabled]="isSubmitting || hasPendingPhotos || hasNoViewablePhotos" (click)="confirmSubmit('Approved')">
       <span>{{ 'd3.buildReview.images.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>

@@ -11,6 +11,7 @@ import { PhotoItem, PhotoReviewPayload, PhotoReviewResponse } from '../../../int
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 interface LocalPhoto {
   mediaId: number;
@@ -23,6 +24,7 @@ interface LocalPhoto {
   decision: 'Pending' | 'Approved' | 'Rejected';
   rejectionReason: string;
   canReview: boolean;
+  loadFailed: boolean;
 }
 
 interface LocalGroup {
@@ -33,7 +35,7 @@ interface LocalGroup {
 @Component({
   selector: 'app-review-image',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent, ReviewEmptyStateComponent],
   templateUrl: './review-image.component.html',
   styleUrl: './review-image.component.scss'
 })
@@ -101,6 +103,10 @@ export class ReviewImageComponent implements OnInit {
     return this.allPhotos.some(p => p.decision === 'Pending');
   }
 
+  get hasNoViewablePhotos(): boolean {
+    return this.allPhotos.length === 0 || this.allPhotos.every(p => p.loadFailed);
+  }
+
   get rejectedGroups(): { title: string; reason: string }[] {
     const result: { title: string; reason: string }[] = [];
     if (this.mainPhoto?.decision === 'Rejected') {
@@ -139,14 +145,17 @@ export class ReviewImageComponent implements OnInit {
       pendingIsMain: photo.pendingIsMain,
       decision:       hasPendingPhotoChange ? 'Pending' : photo.decision,
       rejectionReason: hasPendingPhotoChange ? '' : (photo.rejectionReason ?? ''),
-      canReview:      hasPendingPhotoChange || photo.decision !== 'Approved'
+      canReview:      hasPendingPhotoChange || photo.decision !== 'Approved',
+      loadFailed:     !photo.url
     };
   }
 
   confirmSubmit(decision: 'Approved' | 'Rejected'): void {
     if (!this.propertyId || this.isSubmitting) return;
 
-    if (this.allPhotos.some(p => p.decision === 'Pending')) {
+    const noPhotos = this.hasNoViewablePhotos;
+
+    if (!noPhotos && this.allPhotos.some(p => p.decision === 'Pending')) {
       this.toastr.warning(this.translate.instant('d3.buildReview.images.pendingDecisionRequired'));
       return;
     }
@@ -155,8 +164,6 @@ export class ReviewImageComponent implements OnInit {
       this.toastr.warning(this.translate.instant('d3.buildReview.images.approveAllRequired'));
       return;
     }
-
-    const noPhotos = this.allPhotos.length === 0;
 
     if (decision === 'Rejected' && !noPhotos && !this.hasRejections) {
       this.toastr.warning(this.translate.instant('d3.buildReview.images.rejectedPhotoRequired'));

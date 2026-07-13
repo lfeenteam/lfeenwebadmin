@@ -4,6 +4,15 @@
     <p class="section-subtitle">{{ 'd3.buildReview.location.subtitle' | translate }}</p>
   </div>
 
+  @if (!isLoading && !hasLocationData) {
+    <app-review-empty-state
+      icon="map-pin-off"
+      titleKey="d3.buildReview.location.emptyTitle"
+      descKey="d3.buildReview.location.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (isLoading || hasLocationData) {
   <div class="location-review-grid">
     <!-- Map card -->
     <div class="map-card">
@@ -89,6 +98,7 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- Notes -->
   @if (!readOnly) {
@@ -107,7 +117,7 @@
 
   <!-- Actions -->
   <div class="action-buttons">
-    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting || !hasLocationData" (click)="confirmDecision('Approved')">
       <span>{{ 'd3.buildReview.location.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>
