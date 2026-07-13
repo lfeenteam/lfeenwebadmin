@@ -174,7 +174,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
 
-      const photos = this.allPhotos.map(p => ({
+      const photos = this.hasNoPhotos ? [] : this.allPhotos.map(p => ({
         mediaId: p.id,
         decision: p.decision === 'approved' ? 'Approved' : 'Rejected',
         rejectionReason: p.decision === 'rejected' ? (p.rejectionReason.trim() || null) : null

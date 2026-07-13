@@ -185,7 +185,7 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
         const apiDecision    = isApprove ? 'Approved' : 'Rejected';
         const rejectionReason = isApprove ? null : (this.rejectionNote.trim() || null);
 
-        const photos = this.accessPhotos.map(p => ({
+        const photos = this.hasNoPhotos ? [] : this.accessPhotos.map(p => ({
           category:        p.category,
           decision:        p.decision === 'approved' ? 'Approved' : 'Rejected',
           rejectionReason: p.decision === 'rejected' ? (p.rejectionReason.trim() || null) : null,

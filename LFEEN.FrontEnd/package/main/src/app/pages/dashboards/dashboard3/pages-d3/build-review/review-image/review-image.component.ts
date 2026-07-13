@@ -220,7 +220,7 @@ export class ReviewImageComponent implements OnInit {
   private submitReview(decision: 'Approved' | 'Rejected', approvedCount: number): void {
     const hasRejection = decision === 'Rejected';
     const payload: PhotoReviewPayload = {
-      photos: this.allPhotos.map(p => ({
+      photos: this.hasNoViewablePhotos ? [] : this.allPhotos.map(p => ({
         mediaId:         p.mediaId,
         decision:        p.decision === 'Rejected' ? 'Rejected' : 'Approved',
         rejectionReason: p.decision === 'Rejected' ? p.rejectionReason.trim() : null
