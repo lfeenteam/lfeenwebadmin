@@ -1,7 +1,7 @@
-export type BuildingTab = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type BuildingTab = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
 export type BuildingViewMode = 'grid' | 'list';
 export type BuildingStatus = 'active' | 'stopped';
-export type PropertyAdminReviewStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges' | 'PendingAfterRejection';
+export type PropertyAdminReviewStatus = 'Draft' | 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges' | 'PendingAfterRejection';
 export type AdminReviewStatus = 'Pending' | 'Approved' | 'Rejected';
 // A section can also come back as one of these when the host edits it after it
 // was already decided (mirrors the property-level HasPendingChanges/PendingAfterRejection status).
@@ -9,12 +9,13 @@ export type SectionDecisionStatus = AdminReviewStatus | 'PendingUpdate' | 'HasPe
 export type PendingChangesReason = 'hasPendingChanges' | 'pendingAfterRejection';
 
 export enum PropertyAdminReviewStatusValue {
-  Pending = 0,
-  UnderReview = 1,
-  Approved = 2,
-  Rejected = 3,
-  HasPendingChanges = 4,
-  PendingAfterRejection = 5
+  Draft = 0,
+  Pending = 1,
+  UnderReview = 2,
+  Approved = 3,
+  Rejected = 4,
+  HasPendingChanges = 5,
+  PendingAfterRejection = 6
 }
 
 export interface BuildingCardItem {

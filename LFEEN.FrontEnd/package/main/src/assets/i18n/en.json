@@ -164,6 +164,10 @@
     },
     "emptyState": {
       "builds": {
+        "draft": {
+          "title": "No draft buildings",
+          "desc": "No buildings are currently saved as drafts."
+        },
         "published": {
           "title": "No published buildings",
           "desc": "No buildings have been published yet, or no results match your search."
@@ -186,6 +190,10 @@
         }
       },
       "units": {
+        "draft": {
+          "title": "No draft units",
+          "desc": "No units are currently saved as drafts."
+        },
         "published": {
           "title": "No published units",
           "desc": "No units have been published yet, or no results match your search."
@@ -212,6 +220,10 @@
           "title": "No accounts found",
           "desc": "No accounts have been registered yet, or no results match your search."
         },
+        "draft": {
+          "title": "No draft accounts",
+          "desc": "No accounts are currently saved as drafts."
+        },
         "active": {
           "title": "No active accounts",
           "desc": "There are no active accounts at this time."
@@ -237,6 +249,7 @@
         "unpublishedBuildings": "Unpublished"
       },
       "tabs": {
+        "draft": "Draft",
         "published": "Published Buildings",
         "new": "New",
         "underReview": "Under Review",
@@ -280,6 +293,7 @@
       "buildingCard": {
         "statusRejected": "Rejected",
         "statusActive": "Active",
+        "statusDraft": "Draft",
         "statusStopped": "Stopped",
         "units": "Units",
         "occupancy": "Occupancy",
@@ -369,6 +383,7 @@
         "type": "Type",
         "description": "Description",
         "statusApproved": "Active",
+        "statusDraft": "Draft",
         "statusPending": "New",
         "statusUnderReview": "Under Review",
         "statusPendingChanges": "Pending Changes",
@@ -396,6 +411,7 @@
         "status": "Status"
       },
       "tabs": {
+        "draft": "Draft",
         "published": "Published Units",
         "new": "New",
         "underReview": "Under Review",
@@ -1721,6 +1737,7 @@
       },
       "tabs": {
         "all": "All",
+        "draft": "Draft",
         "active": "Active Accounts",
         "rejected": "Rejected Accounts",
         "underReview": "Accounts Under Review"

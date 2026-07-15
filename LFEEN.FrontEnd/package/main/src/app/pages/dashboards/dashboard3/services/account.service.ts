@@ -46,9 +46,10 @@ export class AccountService {
   // Draft=0 | PendingReview=1 | Approved=2 | Rejected=3
   private tabToStatusParam(tab: AccountTab): string | null {
     switch (tab) {
+      case 'draft':    return '0';
       case 'active':   return '2';
       case 'rejected': return '3';
-      // under_review (Draft=0 + PendingReview=1) and all: fetch without filter, filter client-side
+      // under_review (PendingReview=1) and all: fetch without filter, filter client-side
       default:         return null;
     }
   }
@@ -86,11 +87,11 @@ export class AccountService {
     };
   }
 
-  private mapStatus(status: string): 'active' | 'suspended' | 'under_review' | 'rejected' {
+  private mapStatus(status: string): 'active' | 'suspended' | 'under_review' | 'rejected' | 'draft' {
     switch (status) {
       case 'Approved':      return 'active';
       case 'Rejected':      return 'rejected';
-      case 'Draft':
+      case 'Draft':         return 'draft';
       case 'PendingReview': return 'under_review';
       default:              return 'under_review';
     }

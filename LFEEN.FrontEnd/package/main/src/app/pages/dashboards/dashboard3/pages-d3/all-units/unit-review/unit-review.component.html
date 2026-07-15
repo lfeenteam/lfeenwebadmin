@@ -121,6 +121,7 @@
     }
   </div>
 
+  @if (!isViewMode) {
   <div class="final-notes-section">
     <div class="notes-label-row">
       <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
@@ -129,7 +130,7 @@
     <textarea
       [(ngModel)]="finalNotes"
       [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
-     
+
       rows="3">
     </textarea>
   </div>
@@ -152,6 +153,7 @@
       <i-tabler name="x" class="btn-icon"></i-tabler>
     </button>
   </div>
+  }
 
   }
 </div>

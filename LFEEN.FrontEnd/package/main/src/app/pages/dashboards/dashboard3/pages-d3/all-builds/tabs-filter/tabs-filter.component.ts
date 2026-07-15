@@ -29,9 +29,13 @@ export class TabsFilterComponent {
       id: 'status',
       labelKey: 'd3.allBuilds.filters.allStatuses',
       items: [
-        { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
-        { value: 'active', labelKey: 'd3.allBuilds.buildingCard.statusActive' },
-        { value: 'stopped', labelKey: 'd3.allBuilds.buildingCard.statusStopped' }
+        { value: 'all',            labelKey: 'd3.allBuilds.filters.options.all'  },
+        { value: 'draft',          labelKey: 'd3.allBuilds.tabs.draft'           },
+        { value: 'published',      labelKey: 'd3.allBuilds.tabs.published'       },
+        { value: 'new',            labelKey: 'd3.allBuilds.tabs.new'             },
+        { value: 'underReview',    labelKey: 'd3.allBuilds.tabs.underReview'     },
+        { value: 'pendingChanges', labelKey: 'd3.allBuilds.tabs.pendingChanges'  },
+        { value: 'rejected',       labelKey: 'd3.allBuilds.tabs.rejected'        }
       ]
     },
     {

@@ -65,26 +65,43 @@ export class UnitsService {
     loader: ({ request }) => {
       const newestFirst = request.sort !== 'oldest';
 
+      // 'draft' has no distinct backend status yet (status=0 still returns Pending-status
+      // units), so per the same decision made for properties, we trust the request itself
+      // and label whatever comes back as Draft rather than cross-checking reviewStatus.
+      if (request.tab === 'draft') {
+        return this.getAllUnitPages({ ...request, status: 0, newestFirst });
+      }
+
       // The 'pendingChanges' tab covers two distinct statuses (HasPendingChanges and
       // PendingAfterRejection); fetch both and merge them client-side.
       if (request.tab === 'pendingChanges') {
         return forkJoin([
-          this.getAllUnitPages({ ...request, status: 4, newestFirst }),
           this.getAllUnitPages({ ...request, status: 5, newestFirst }),
+          this.getAllUnitPages({ ...request, status: 6, newestFirst }),
         ]).pipe(
           map(([hasPendingChanges, pendingAfterRejection]) => ({
             ...hasPendingChanges,
-            data: [...hasPendingChanges.data, ...pendingAfterRejection.data],
+            data: [...hasPendingChanges.data, ...pendingAfterRejection.data].filter(u =>
+              this.isReviewStatus(u, 5) || this.isReviewStatus(u, 6)
+            ),
             totalCount: hasPendingChanges.totalCount + pendingAfterRejection.totalCount,
           }))
         );
       }
 
+      const status = this.tabToStatus(request.tab)!;
       return this.getAllUnitPages({
         ...request,
-        status: this.tabToStatus(request.tab),
+        status,
         newestFirst,
-      });
+      }).pipe(
+        // Defensive: only keep units whose actual reviewStatus matches this tab, in case
+        // the backend's numeric `status` filter drifts out of sync with our enum again.
+        map(res => ({
+          ...res,
+          data: res.data.filter(u => this.isReviewStatus(u, status)),
+        }))
+      );
     }
   });
 
@@ -287,13 +304,15 @@ export class UnitsService {
       || account.referenceCode;
   }
 
+  // 0=Draft, 1=Pending, 2=UnderReview, 3=Approved, 4=Rejected, 5=HasPendingChanges, 6=PendingAfterRejection
   private tabToStatus(tab: UnitTab): number | undefined {
     switch (tab) {
-      case 'published':      return 2;
-      case 'new':            return 0;
-      case 'underReview':    return 1;
-      case 'rejected':       return 3;
-      case 'pendingChanges': return 4;
+      case 'draft':          return 0;
+      case 'new':            return 1;
+      case 'underReview':    return 2;
+      case 'published':      return 3;
+      case 'rejected':       return 4;
+      case 'pendingChanges': return 5;
     }
   }
 
@@ -432,21 +451,23 @@ export class UnitsService {
 
   private resolveUnitStatus(u: UnitApiItem): UnitStatus {
     if (this.activeTab() === 'pendingChanges') {
-      return this.isReviewStatus(u, 5) ? 'pendingAfterRejection' : 'pendingChanges';
+      return this.isReviewStatus(u, 6) ? 'pendingAfterRejection' : 'pendingChanges';
     }
     return this.tabToUnitStatus(this.activeTab());
   }
 
+  // 0=Draft, 1=Pending, 2=UnderReview, 3=Approved, 4=Rejected, 5=HasPendingChanges, 6=PendingAfterRejection
   private isReviewStatus(u: UnitApiItem, status: number): boolean {
     if (typeof u.reviewStatus === 'number') return u.reviewStatus === status;
     const names: Record<number, string> = {
-      0: 'Pending', 1: 'UnderReview', 2: 'Approved', 3: 'Rejected', 4: 'HasPendingChanges', 5: 'PendingAfterRejection',
+      0: 'Draft', 1: 'Pending', 2: 'UnderReview', 3: 'Approved', 4: 'Rejected', 5: 'HasPendingChanges', 6: 'PendingAfterRejection',
     };
     return u.reviewStatus === names[status];
   }
 
   private tabToUnitStatus(tab: UnitTab): UnitStatus {
     switch (tab) {
+      case 'draft':          return 'draft';
       case 'published':      return 'active';
       case 'new':            return 'pending';
       case 'underReview':    return 'underReview';

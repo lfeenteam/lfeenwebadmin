@@ -32,7 +32,7 @@ export interface PropertyTypeItem {
   id: number;
   name: string;
 }
-import { EMPTY, Observable, forkJoin } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -51,6 +51,13 @@ export class BuildingReviewService {
   readonly propertyTypeId = signal('');
   readonly newestFirst = signal(true);
 
+  // The backend's numeric `status` filter can't be trusted to stay in sync with our
+  // BuildingTab enum (e.g. it may still reflect a pre-Draft numbering scheme), so for
+  // every tab except 'draft' we fetch everything unfiltered and classify client-side
+  // from each property's actual `reviewStatus`. 'draft' is the one tab whose backing
+  // data has no distinct reviewStatus name yet (it still comes back as "Pending"), so
+  // per product decision we trust the `status=0` filter itself and label whatever it
+  // returns as Draft, instead of relying on the (currently unreliable) reviewStatus field.
   private readonly _propertiesResource = rxResource({
     request: () => ({
       page:     this.currentPage(),
@@ -62,90 +69,51 @@ export class BuildingReviewService {
       newestFirst: this.newestFirst(),
     }),
     loader: ({ request }) => {
-      if (request.tab === 'pendingChanges') {
-        return this.getMergedPendingChanges(request);
-      }
+      const filters = {
+        search: request.search,
+        city: request.city,
+        propertyTypeId: request.propertyTypeId,
+        newestFirst: request.newestFirst,
+      };
+      const isDraft = request.tab === 'draft';
+      const source$ = isDraft
+        ? this.getAllProperties(filters, PropertyAdminReviewStatusValue.Draft)
+        : this.getAllProperties(filters);
 
-      const params = new URLSearchParams({
-        pageNumber: String(request.page),
-        pageSize:   String(request.pageSize),
-        newestFirst: String(request.newestFirst),
-      });
-      if (request.search) params.set('search', request.search);
-      if (request.city) params.set('city', request.city);
-      if (request.propertyTypeId) {
-        params.set('propertyTypeId', request.propertyTypeId);
-      }
-      const statusParam = this.tabToStatusParam(request.tab);
-      params.set('status', String(statusParam));
-      return this.http.get<PaginatedPropertyResponse>(`${this.apiUrl}?${params}`);
+      return source$.pipe(
+        map(res => {
+          const matching = isDraft ? res.data : res.data.filter(p => this.resolveTab(p) === request.tab);
+          const totalCount = matching.length;
+          const totalPages = Math.max(1, Math.ceil(totalCount / request.pageSize));
+          const start = (request.page - 1) * request.pageSize;
+
+          return {
+            ...res,
+            data: matching.slice(start, start + request.pageSize),
+            totalCount,
+            page: request.page,
+            nextpage: request.page < totalPages ? request.page + 1 : null,
+            totalPages,
+          };
+        })
+      );
     }
   });
 
-  private tabToStatusParam(tab: BuildingTab): PropertyAdminReviewStatusValue {
-    switch (tab) {
-      case 'published':   return PropertyAdminReviewStatusValue.Approved;
-      case 'new':         return PropertyAdminReviewStatusValue.Pending;
-      case 'underReview': return PropertyAdminReviewStatusValue.UnderReview;
-      case 'rejected':    return PropertyAdminReviewStatusValue.Rejected;
-      case 'pendingChanges': return PropertyAdminReviewStatusValue.HasPendingChanges;
-    }
-  }
-  private getMergedPendingChanges(request: {
-    page: number;
-    pageSize: number;
-    search: string;
-    city: string;
-    propertyTypeId: string;
-    newestFirst: boolean;
-  }): Observable<PaginatedPropertyResponse> {
-    const filters = {
-      search: request.search,
-      city: request.city,
-      propertyTypeId: request.propertyTypeId,
-      newestFirst: request.newestFirst,
-    };
-
-    return forkJoin({
-      hasPendingChanges:     this.getAllPropertiesByStatus(PropertyAdminReviewStatusValue.HasPendingChanges, filters),
-      pendingAfterRejection: this.getAllPropertiesByStatus(PropertyAdminReviewStatusValue.PendingAfterRejection, filters),
-    }).pipe(
-      map(({ hasPendingChanges, pendingAfterRejection }) => {
-        const merged = [...hasPendingChanges.data, ...pendingAfterRejection.data].sort((a, b) => {
-          const diff = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          return request.newestFirst ? diff : -diff;
-        });
-
-        const totalCount = merged.length;
-        const totalPages = Math.max(1, Math.ceil(totalCount / request.pageSize));
-        const start = (request.page - 1) * request.pageSize;
-
-        return {
-          data: merged.slice(start, start + request.pageSize),
-          totalCount,
-          page: request.page,
-          nextpage: request.page < totalPages ? request.page + 1 : null,
-          totalPages,
-          stats: hasPendingChanges.stats,
-        };
-      })
-    );
-  }
-
-  private getAllPropertiesByStatus(
-    status: PropertyAdminReviewStatusValue,
-    filters: { search: string; city: string; propertyTypeId: string; newestFirst: boolean }
+  private getAllProperties(
+    filters: { search: string; city: string; propertyTypeId: string; newestFirst: boolean },
+    status?: PropertyAdminReviewStatusValue
   ): Observable<PaginatedPropertyResponse> {
     const fetchPage = (page: number): Observable<PaginatedPropertyResponse> => {
       const params = new URLSearchParams({
         pageNumber: String(page),
         pageSize:   '50',
         newestFirst: String(filters.newestFirst),
-        status:     String(status),
       });
       if (filters.search) params.set('search', filters.search);
       if (filters.city) params.set('city', filters.city);
       if (filters.propertyTypeId) params.set('propertyTypeId', filters.propertyTypeId);
+      if (status !== undefined) params.set('status', String(status));
       return this.http.get<PaginatedPropertyResponse>(`${this.apiUrl}?${params}`);
     };
 
@@ -155,6 +123,18 @@ export class BuildingReviewService {
         ...res,
         data: [...acc.data, ...res.data],
       }))
+    );
+  }
+
+  private resolveTab(p: PropertyApiItem): BuildingTab {
+    const isPendingAfterRejection = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.PendingAfterRejection);
+    const isHasPendingChanges     = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges);
+    return (
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Draft)    ? 'draft' :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved) ? 'published' :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected) ? 'rejected'  :
+      (isHasPendingChanges || isPendingAfterRejection)                 ? 'pendingChanges' :
+      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview) ? 'underReview' : 'new'
     );
   }
 
@@ -173,11 +153,9 @@ export class BuildingReviewService {
     const occupancyPercent = p.occupancyCount ?? 0;
     const isPendingAfterRejection = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.PendingAfterRejection);
     const isHasPendingChanges     = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges);
-    const tab: BuildingTab =
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved) ? 'published' :
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected) ? 'rejected'  :
-      (isHasPendingChanges || isPendingAfterRejection)                 ? 'pendingChanges' :
-      this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview) ? 'underReview' : 'new';
+    // The 'draft' tab fetches by `status=0` directly (see _propertiesResource) rather
+    // than classifying by reviewStatus, so trust that request context here too.
+    const tab: BuildingTab = this.activeTab() === 'draft' ? 'draft' : this.resolveTab(p);
     const location         = [p.city, p.district].filter(Boolean).join(' - ');
 
     return {

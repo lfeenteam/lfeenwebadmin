@@ -1,7 +1,7 @@
 <section class="buildings-grid" [class.list-view]="viewMode === 'list'">
 
   <!-- ══ Published: normal table header (list only) ══ -->
-  @if (viewMode === 'list' && (activeTab === 'published' || activeTab === 'rejected')) {
+  @if (viewMode === 'list' && (activeTab === 'published' || activeTab === 'rejected' || activeTab === 'draft')) {
     <header class="table-header">
       <div class="header-col col-info">{{ 'd3.allBuilds.table.buildingHost' | translate }}</div>
       <div class="header-col col-location">{{ 'd3.allBuilds.table.location' | translate }}</div>
@@ -22,7 +22,7 @@
   }
 
   <!-- ══ Empty state for published / rejected tabs ══ -->
-  @if ((activeTab === 'published' || activeTab === 'rejected') && buildings.length === 0) {
+  @if ((activeTab === 'published' || activeTab === 'rejected' || activeTab === 'draft') && buildings.length === 0) {
     <div class="empty-state-span">
       <app-dashboard-empty [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
     </div>

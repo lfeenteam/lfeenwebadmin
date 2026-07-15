@@ -13,13 +13,16 @@
     </span>
     <span
       class="status-badge"
-      [class.active]="building.tab !== 'rejected'"
-      [class.rejected]="building.tab === 'rejected'">
+      [class.active]="building.tab !== 'rejected' && building.tab !== 'draft'"
+      [class.rejected]="building.tab === 'rejected'"
+      [class.draft]="building.tab === 'draft'">
       <span class="status-dot"></span>
       {{
         (building.tab === 'rejected'
           ? 'd3.allBuilds.buildingCard.statusRejected'
-          : 'd3.allBuilds.buildingCard.statusActive') | translate
+          : building.tab === 'draft'
+            ? 'd3.allBuilds.buildingCard.statusDraft'
+            : 'd3.allBuilds.buildingCard.statusActive') | translate
       }}
     </span>
   </div>
@@ -64,13 +67,16 @@
   <div class="card-status-col" *ngIf="viewMode === 'list'">
     <span
       class="status-badge"
-      [class.active]="building.tab !== 'rejected'"
-      [class.rejected]="building.tab === 'rejected'">
+      [class.active]="building.tab !== 'rejected' && building.tab !== 'draft'"
+      [class.rejected]="building.tab === 'rejected'"
+      [class.draft]="building.tab === 'draft'">
       <span class="status-dot"></span>
       {{
         (building.tab === 'rejected'
           ? 'd3.allBuilds.buildingCard.statusRejected'
-          : 'd3.allBuilds.buildingCard.statusActive') | translate
+          : building.tab === 'draft'
+            ? 'd3.allBuilds.buildingCard.statusDraft'
+            : 'd3.allBuilds.buildingCard.statusActive') | translate
       }}
     </span>
   </div>

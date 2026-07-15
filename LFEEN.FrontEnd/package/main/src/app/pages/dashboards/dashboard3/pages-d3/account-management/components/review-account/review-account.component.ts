@@ -130,9 +130,10 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     this.router.navigate([lang, 'd3', 'account-management']);
   }
 
+  // Draft accounts haven't been submitted for review yet, so there's nothing to
+  // accept/reject — only PendingReview should show the decision actions.
   get isPending(): boolean {
-    return this.account?.onboardingStatus === 'Draft' ||
-           this.account?.onboardingStatus === 'PendingReview';
+    return this.account?.onboardingStatus === 'PendingReview';
   }
 
   get tradeName(): string {
