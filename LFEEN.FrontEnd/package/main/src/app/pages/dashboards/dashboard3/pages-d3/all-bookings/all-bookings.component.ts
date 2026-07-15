@@ -18,6 +18,34 @@ interface MetricCard {
   isCurrency?: boolean;
 }
 
+type BookingDetailTab = 'services' | 'log' | 'finance' | 'details';
+
+interface BookingDetailStatic {
+  number: string;
+  status: BookingStatus;
+  guest: {
+    initials: string;
+    colorIndex: number;
+    name: string;
+    phone: string;
+    companionsCount: number;
+    companions: string[];
+  };
+  unit: {
+    number: string;
+    type: string;
+    location: string;
+  };
+  stay: {
+    checkInDate: string;
+    checkInTime: string;
+    checkOutDate: string;
+    checkOutTime: string;
+    nights: number;
+  };
+  dateRangeLabel: string;
+}
+
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
@@ -62,6 +90,49 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
 
   closeMobileFilter(): void {
     this.mobileFilterOpen = false;
+  }
+
+  // ── Booking detail drawer (static mock data) ─────────────────────────────
+  detailDrawerOpen = false;
+  activeDetailTab: BookingDetailTab = 'details';
+
+  readonly bookingDetail: BookingDetailStatic = {
+    number: '#BK-88421',
+    status: 'confirmed',
+    guest: {
+      initials: 'أع',
+      colorIndex: 1,
+      name: 'أحمد العتيبي',
+      phone: '+966 50 123 ****',
+      companionsCount: 2,
+      companions: ['سلمى العتيبي', 'عبدالله العتيبي'],
+    },
+    unit: {
+      number: '250 وحدة',
+      type: 'شقة فندقية',
+      location: 'برج الحمد، الدمام',
+    },
+    stay: {
+      checkInDate: '14 أكتوبر 2024',
+      checkInTime: '14:00',
+      checkOutDate: '18 أكتوبر 2024',
+      checkOutTime: '10:00',
+      nights: 4,
+    },
+    dateRangeLabel: '14 أكتوبر 2024 — 18 أكتوبر 2024',
+  };
+
+  openBookingDetail(): void {
+    this.activeDetailTab = 'details';
+    this.detailDrawerOpen = true;
+  }
+
+  closeBookingDetail(): void {
+    this.detailDrawerOpen = false;
+  }
+
+  setDetailTab(tab: BookingDetailTab): void {
+    this.activeDetailTab = tab;
   }
 
   ngOnInit(): void {

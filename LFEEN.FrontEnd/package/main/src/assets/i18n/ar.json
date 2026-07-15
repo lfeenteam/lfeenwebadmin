@@ -993,6 +993,36 @@
         "view": "عرض التفاصيل",
         "edit": "تعديل",
         "cancel": "إلغاء الحجز"
+      },
+      "detail": {
+        "title": "تفاصيل الحجز",
+        "tabs": {
+          "services": "الخدمات",
+          "log": "السجل",
+          "finance": "المالية",
+          "details": "تفاصيل"
+        },
+        "bookingNumberLabel": "رقم الحجز",
+        "guestInfoTitle": "بيانات الضيف",
+        "guestSection": {
+          "guestName": "اسم الضيف",
+          "phone": "رقم الجوال",
+          "companions": "المرافقين"
+        },
+        "unitSection": {
+          "title": "بيانات الوحدة",
+          "unitNumber": "رقم الوحدة",
+          "unitType": "نوع الوحدة",
+          "location": "الموقع"
+        },
+        "staySection": {
+          "title": "مواعيد الإقامة",
+          "checkOut": "تسجيل الخروج",
+          "checkIn": "تسجيل الدخول",
+          "duration": "مدة الإقامة",
+          "nights": "ليالي"
+        },
+        "comingSoon": "لا توجد بيانات لعرضها حالياً"
       }
     },
     "accountManagement": {
