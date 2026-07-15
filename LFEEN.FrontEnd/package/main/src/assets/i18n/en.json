@@ -1722,6 +1722,36 @@
         "view": "View Details",
         "edit": "Edit",
         "cancel": "Cancel Booking"
+      },
+      "detail": {
+        "title": "Booking Details",
+        "tabs": {
+          "services": "Services",
+          "log": "History",
+          "finance": "Finance",
+          "details": "Details"
+        },
+        "bookingNumberLabel": "Booking #",
+        "guestInfoTitle": "Guest Information",
+        "guestSection": {
+          "guestName": "Guest Name",
+          "phone": "Phone Number",
+          "companions": "Companions"
+        },
+        "unitSection": {
+          "title": "Unit Information",
+          "unitNumber": "Unit Number",
+          "unitType": "Unit Type",
+          "location": "Location"
+        },
+        "staySection": {
+          "title": "Stay Dates",
+          "checkOut": "Check-out",
+          "checkIn": "Check-in",
+          "duration": "Stay Duration",
+          "nights": "nights"
+        },
+        "comingSoon": "No data to display yet"
       }
     },
     "accountManagement": {
