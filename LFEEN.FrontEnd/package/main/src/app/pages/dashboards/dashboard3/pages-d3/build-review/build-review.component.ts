@@ -54,6 +54,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   imageError = false;
   orgLogoError = false;
   overallStatus = '';
+  private forcedViewOnly = false;
 
   building: BuildingReviewInfo = {
     id: '',
@@ -90,6 +91,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
+    this.forcedViewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
     const sectionParam = this.route.snapshot.queryParamMap.get('section') as SectionView | null;
     if (sectionParam && this.validSectionViews.includes(sectionParam)) {
@@ -278,7 +280,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   get viewOnly(): boolean {
-    return this.overallStatus === 'Approved' || this.overallStatus === 'Rejected';
+    return this.forcedViewOnly || this.overallStatus === 'Approved' || this.overallStatus === 'Rejected';
   }
 
   get isImagesReadOnly(): boolean {

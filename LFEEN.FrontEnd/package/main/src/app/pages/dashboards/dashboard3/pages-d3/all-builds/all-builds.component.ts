@@ -55,6 +55,7 @@ export class AllBuildsComponent implements OnInit {
   ];
 
   tabs: TabOption[] = [
+    { id: 'draft',       labelKey: 'd3.allBuilds.tabs.draft'       },
     { id: 'published',   labelKey: 'd3.allBuilds.tabs.published'   },
     { id: 'new',         labelKey: 'd3.allBuilds.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' },
@@ -67,9 +68,13 @@ export class AllBuildsComponent implements OnInit {
       id: 'status',
       labelKey: 'd3.allBuilds.filters.allStatuses',
       items: [
-        { value: 'all',     labelKey: 'd3.allBuilds.filters.options.all'       },
-        { value: 'active',  labelKey: 'd3.allBuilds.buildingCard.statusActive'  },
-        { value: 'stopped', labelKey: 'd3.allBuilds.buildingCard.statusStopped' }
+        { value: 'all',            labelKey: 'd3.allBuilds.filters.options.all'  },
+        { value: 'draft',          labelKey: 'd3.allBuilds.tabs.draft'           },
+        { value: 'published',      labelKey: 'd3.allBuilds.tabs.published'       },
+        { value: 'new',            labelKey: 'd3.allBuilds.tabs.new'             },
+        { value: 'underReview',    labelKey: 'd3.allBuilds.tabs.underReview'     },
+        { value: 'pendingChanges', labelKey: 'd3.allBuilds.tabs.pendingChanges'  },
+        { value: 'rejected',       labelKey: 'd3.allBuilds.tabs.rejected'        }
       ]
     },
     {
@@ -181,13 +186,6 @@ export class AllBuildsComponent implements OnInit {
 
   get filteredBuildings(): BuildingCardItem[] {
     let buildings = this.allBuildings;
-    const activityStatus = this.selectedFilters['status'];
-
-    if (activityStatus === 'active') {
-      buildings = buildings.filter(building => building.status === 'active');
-    } else if (activityStatus === 'stopped') {
-      buildings = buildings.filter(building => building.status === 'stopped');
-    }
 
     if (this.selectedFilters['sort'] === 'occupancy') {
       buildings = [...buildings].sort((a, b) => b.occupancy - a.occupancy);
@@ -206,8 +204,17 @@ export class AllBuildsComponent implements OnInit {
     this.buildingService.setSearch(query);
   }
 
+  private readonly statusFilterTabs: BuildingTab[] =
+    ['draft', 'published', 'new', 'underReview', 'pendingChanges', 'rejected'];
+
   onFiltersChange(filters: Record<string, string>): void {
     this.selectedFilters = filters;
+
+    const statusValue = filters['status'];
+    if (this.statusFilterTabs.includes(statusValue as BuildingTab) && statusValue !== this.activeTab) {
+      this.onTabChange(statusValue);
+    }
+
     this.buildingService.setFilters({
       city: filters['city'] === 'all' ? '' : filters['city'],
       propertyTypeId: filters['type'] === 'all' ? '' : filters['type'],

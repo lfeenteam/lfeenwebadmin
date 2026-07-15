@@ -97,7 +97,7 @@ export interface Account {
   id: string;
   name: string;
   type: 'individual' | 'company';
-  status: 'active' | 'suspended' | 'under_review' | 'rejected';
+  status: 'active' | 'suspended' | 'under_review' | 'rejected' | 'draft';
   onboardingStatus: OnboardingStatus;
   idNumber: string;
   joinDate: string;

@@ -85,6 +85,12 @@
       .status-dot  { background: #9E9E9A; }
       .status-text { color: #9E9E9A; }
     }
+
+    &--draft {
+      background: #F4F4F4;
+      .status-dot  { background: #9E9E9A; }
+      .status-text { color: #6b6b67; }
+    }
   }
 
   &__id {
@@ -443,6 +449,13 @@
     background: #F7F7F5;
     border: 1px solid #E8E8E4;
     color: #9E9E9A;
+    .status-dot { background: #9E9E9A; }
+  }
+
+  &--draft {
+    background: #F4F4F4;
+    border: 1px solid #E8E8E4;
+    color: #6b6b67;
     .status-dot { background: #9E9E9A; }
   }
 }

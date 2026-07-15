@@ -83,6 +83,7 @@ export class AccountManagementComponent implements OnInit {
   get filteredAccounts(): Account[] {
     switch (this.activeTab) {
       case 'all':          return this.accounts;
+      case 'draft':        return this.accounts.filter(a => a.status === 'draft');
       case 'under_review': return this.accounts.filter(a => a.status === 'under_review');
       default:             return this.accounts;
     }

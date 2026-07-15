@@ -1,5 +1,5 @@
-export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection';
-export type UnitTab    = 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft';
+export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
 export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
 export type UnitServicesPricingType = 'paid' | 'free';
 
@@ -57,7 +57,7 @@ export interface BuildingWithUnits {
   needsPropertyReview?: boolean;
 }
 
-// 0=Pending, 1=UnderReview, 2=Approved, 3=Rejected, 4=HasPendingChanges, 5=PendingAfterRejection, null/empty=not reviewed
+// 0=Draft, 1=Pending, 2=UnderReview, 3=Approved, 4=Rejected, 5=HasPendingChanges, 6=PendingAfterRejection, null/empty=not reviewed
 export type UnitReviewStatusCode =
   | 0
   | 1
@@ -65,6 +65,8 @@ export type UnitReviewStatusCode =
   | 3
   | 4
   | 5
+  | 6
+  | 'Draft'
   | 'Pending'
   | 'UnderReview'
   | 'Approved'

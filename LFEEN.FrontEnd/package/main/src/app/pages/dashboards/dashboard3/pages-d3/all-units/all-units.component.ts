@@ -45,6 +45,7 @@ export class AllUnitsComponent {
   ];
 
   tabs: TabOption[] = [
+    { id: 'draft',       labelKey: 'd3.allUnits.tabs.draft'       },
     { id: 'published',   labelKey: 'd3.allUnits.tabs.published'   },
     { id: 'new',         labelKey: 'd3.allUnits.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allUnits.tabs.underReview' },
@@ -145,7 +146,7 @@ export class AllUnitsComponent {
   }
 
   get isReviewTab(): boolean {
-    return this.activeTab === 'new' || this.activeTab === 'underReview' || this.activeTab === 'pendingChanges' || this.activeTab === 'rejected';
+    return this.activeTab === 'new' || this.activeTab === 'underReview' || this.activeTab === 'pendingChanges';
   }
 
   onTabChange(tab: string): void {

@@ -41,6 +41,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
   isLoading = false;
+  private forcedViewOnly = false;
 
   readonly reviewSections: UnitReviewSection[] = [
     { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',             isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
@@ -84,12 +85,13 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // must stay open for review, regardless of which tab/link got you here.
   get isViewMode(): boolean {
     const status = this.unitDetail?.overallStatus?.trim();
-    return status === 'Approved' || status === 'Rejected';
+    return this.forcedViewOnly || status === 'Approved' || status === 'Rejected';
   }
 
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
+    this.forcedViewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
     this.isLoading = true;
     this.unitsService.getUnitById(this.unitId).subscribe({
@@ -160,6 +162,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
 
   // Final notes are optional on approval, but required on rejection.
   get isApproveDisabled(): boolean {
+    if (this.isViewMode) return true;
     if (!this.allSectionsDecided) return true;
     if (this.hasAnyRejectedSection) return true;
     return false;
@@ -271,7 +274,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   shouldOpenSectionInViewMode(sectionKey: string): boolean {
-    return this.isSectionApproved(sectionKey);
+    return this.isViewMode || this.isSectionApproved(sectionKey);
   }
 
   private getApiSectionDecision(sectionKey: string): string {

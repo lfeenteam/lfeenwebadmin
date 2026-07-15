@@ -57,6 +57,13 @@
     .status-dot { background: #DC2626; }
   }
 
+  &.draft {
+    color: #6b6b67;
+    background: #F4F4F4;
+
+    .status-dot { background: #9e9e9a; }
+  }
+
   &.stopped .status-dot { background: #9e9e9a; }
 }
 
@@ -397,6 +404,12 @@
           background: #FEF2F2;
 
           .status-dot { background: #DC2626; }
+        }
+        &.draft {
+          color: #6b6b67;
+          background: #F4F4F4;
+
+          .status-dot { background: #9e9e9a; }
         }
       }
     }

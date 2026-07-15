@@ -36,6 +36,7 @@ export class UnitCardReviewComponent {
   get badgeConfig(): { labelKey: string; mod: string } {
     switch (this.unit.status) {
       case 'active':         return { labelKey: 'd3.allUnits.unitCard.statusApproved',      mod: 'active'         };
+      case 'draft':           return { labelKey: 'd3.allUnits.unitCard.statusDraft',         mod: 'draft'          };
       case 'stopped':        return { labelKey: 'd3.allUnits.unitCard.statusStopped',        mod: 'stopped'        };
       case 'pending':        return { labelKey: 'd3.allUnits.unitCard.statusPending',        mod: 'pending'        };
       case 'underReview':    return { labelKey: 'd3.allUnits.unitCard.statusUnderReview',    mod: 'underReview'    };
