@@ -398,5 +398,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showSuccessModal = false;
+    this.buildingService.setTab('published');
+    this.router.navigate(['../../buildings'], { relativeTo: this.route });
   }
 }

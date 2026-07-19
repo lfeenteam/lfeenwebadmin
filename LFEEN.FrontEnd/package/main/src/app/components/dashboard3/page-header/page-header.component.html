@@ -1,8 +1,8 @@
-<header class="d3-page-header" [dir]="dir">
+<header class="d3-page-header" [dir]="dir()">
   <div class="d3-page-header-right">
     @if (showBack) {
       <button class="d3-page-back-btn" type="button" (click)="onBack($event)">
-        <i-tabler [name]="isRtl ? 'arrow-right' : 'arrow-left'" class="d3-page-icon"></i-tabler>
+        <i-tabler [name]="isRtl() ? 'arrow-right' : 'arrow-left'" class="d3-page-icon"></i-tabler>
       </button>
     } @else {
       <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
@@ -17,7 +17,7 @@
         } @else {
           <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
         }
-        <i-tabler [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
+        <i-tabler [name]="isRtl() ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
       }
       @for (crumb of extraCrumbs; track crumb.label) {
         @if (crumb.onClick) {
@@ -27,7 +27,7 @@
         } @else {
           <p class="d3-page-breadcrumb">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</p>
         }
-        <i-tabler [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
+        <i-tabler [name]="isRtl() ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
       }
       <h1 class="d3-page-title">{{ titleOverride || (titleKey | translate) }}</h1>
     </div>

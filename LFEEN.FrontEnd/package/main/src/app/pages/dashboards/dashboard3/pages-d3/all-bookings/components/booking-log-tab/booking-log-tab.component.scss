@@ -1,0 +1,108 @@
+:host {
+  display: block;
+  font-family: 'Cairo', sans-serif;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-section-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #9e9e9a;
+}
+
+.log-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-item {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.log-item-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.log-item-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2.5; }
+
+  &.log-item-icon--check {
+    background: #ecfdf5;
+    color: #16a34a;
+  }
+
+  &.log-item-icon--payment {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+}
+
+.log-item-line {
+  flex: 1;
+  width: 2px;
+  min-height: 20px;
+  background: #e8e8e4;
+  margin: 4px 0;
+}
+
+.log-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 20px;
+}
+
+.log-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.log-item-meta {
+  font-size: 11px;
+  color: #9e9e9a;
+  font-weight: 500;
+}
+
+.finance-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+  color: #9e9e9a;
+  font-size: 13px;
+
+  ::ng-deep svg { width: 24px; height: 24px; stroke-width: 1.5; }
+}
+
+.spin {
+  ::ng-deep svg { animation: logTabSpin 1s linear infinite; }
+}
+
+@keyframes logTabSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

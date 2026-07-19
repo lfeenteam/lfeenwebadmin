@@ -9,6 +9,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
 import { BookingService } from './services/booking.service';
 import { Booking, BookingApiStatus, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_STATUS_OPTIONS, BookingStatus } from './interfaces/booking.model';
 import { SingleDateCalendarComponent } from './components/single-date-calendar/single-date-calendar.component';
+import { BookingDetailDrawerComponent } from './components/booking-detail-drawer/booking-detail-drawer.component';
 
 interface MetricCard {
   titleKey: string;
@@ -18,38 +19,10 @@ interface MetricCard {
   isCurrency?: boolean;
 }
 
-type BookingDetailTab = 'services' | 'log' | 'finance' | 'details';
-
-interface BookingDetailStatic {
-  number: string;
-  status: BookingStatus;
-  guest: {
-    initials: string;
-    colorIndex: number;
-    name: string;
-    phone: string;
-    companionsCount: number;
-    companions: string[];
-  };
-  unit: {
-    number: string;
-    type: string;
-    location: string;
-  };
-  stay: {
-    checkInDate: string;
-    checkInTime: string;
-    checkOutDate: string;
-    checkOutTime: string;
-    nights: number;
-  };
-  dateRangeLabel: string;
-}
-
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent],
   templateUrl: './all-bookings.component.html',
   styleUrl: './all-bookings.component.scss'
 })
@@ -92,47 +65,17 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
     this.mobileFilterOpen = false;
   }
 
-  // ── Booking detail drawer (static mock data) ─────────────────────────────
+  // ── Booking detail drawer ─────────────────────────────────────────────────
   detailDrawerOpen = false;
-  activeDetailTab: BookingDetailTab = 'details';
+  selectedBookingId: string | null = null;
 
-  readonly bookingDetail: BookingDetailStatic = {
-    number: '#BK-88421',
-    status: 'confirmed',
-    guest: {
-      initials: 'أع',
-      colorIndex: 1,
-      name: 'أحمد العتيبي',
-      phone: '+966 50 123 ****',
-      companionsCount: 2,
-      companions: ['سلمى العتيبي', 'عبدالله العتيبي'],
-    },
-    unit: {
-      number: '250 وحدة',
-      type: 'شقة فندقية',
-      location: 'برج الحمد، الدمام',
-    },
-    stay: {
-      checkInDate: '14 أكتوبر 2024',
-      checkInTime: '14:00',
-      checkOutDate: '18 أكتوبر 2024',
-      checkOutTime: '10:00',
-      nights: 4,
-    },
-    dateRangeLabel: '14 أكتوبر 2024 — 18 أكتوبر 2024',
-  };
-
-  openBookingDetail(): void {
-    this.activeDetailTab = 'details';
+  openBookingDetail(bookingId: string): void {
+    this.selectedBookingId = bookingId;
     this.detailDrawerOpen = true;
   }
 
   closeBookingDetail(): void {
     this.detailDrawerOpen = false;
-  }
-
-  setDetailTab(tab: BookingDetailTab): void {
-    this.activeDetailTab = tab;
   }
 
   ngOnInit(): void {
@@ -227,9 +170,10 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   get paginationSummary(): string {
     const start = this.totalCount === 0 ? 0 : Math.min((this.currentPage - 1) * this.pageSize + 1, this.totalCount);
     const end   = Math.min(this.currentPage * this.pageSize, this.totalCount);
+    const locale = this.currentLang === 'en' ? 'en-US' : 'ar-SA';
     return this.currentDir === 'rtl'
-      ? `عرض ${start} - ${end} من أصل ${this.totalCount} حجز`
-      : `Showing ${start} - ${end} of ${this.totalCount} bookings`;
+      ? `عرض ${start.toLocaleString(locale)} - ${end.toLocaleString(locale)} من أصل ${this.totalCount.toLocaleString(locale)} حجز`
+      : `Showing ${start.toLocaleString(locale)} - ${end.toLocaleString(locale)} of ${this.totalCount.toLocaleString(locale)} bookings`;
   }
 
   changePage(page: number): void {
@@ -320,6 +264,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   }
 
   displayPage(page: number | '...'): string {
-    return page === '...' ? '...' : String(page);
+    if (page === '...') return '...';
+    return page.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA');
   }
 }

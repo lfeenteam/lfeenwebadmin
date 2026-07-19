@@ -61,6 +61,110 @@ export interface BookingApiItem {
   createdAtUtc: string;
 }
 
+export interface BookingCompanion {
+  id: string;
+  name: string | null;
+  phoneNumber: string | null;
+  relationshipType: string | null;
+}
+
+export interface BookingDetailApiItem {
+  bookingId: string;
+  bookingNumber: string;
+  customerName: string | null;
+  customerPhone: string | null;
+  companions: BookingCompanion[] | null;
+  unitId: number | null;
+  unitNumber: string | null;
+  unitTypeName: string | null;
+  propertyId: number | null;
+  propertyName: string | null;
+  city: string | null;
+  checkIn: string | null;
+  checkOut: string | null;
+  nights: number | null;
+  checkedInAtUtc: string | null;
+  checkedOutAtUtc: string | null;
+  displayStatus: string;
+  displayStatusKey: string;
+  displayStatusLabel: string;
+  createdAtUtc: string;
+}
+
+export interface BookingFinancialSummary {
+  bookingId: string;
+  bookingNumber: string;
+  currencyCode: string;
+  pricePerNight: number;
+  nights: number;
+  totalRentAmount: number;
+  paidRentAmount: number;
+  remainingRentAmount: number;
+  unitHasDeposit: boolean;
+  requiredDepositAmount: number;
+  paidDepositAmount: number;
+  remainingDepositAmount: number;
+}
+
+export interface BookingServiceRequestApiItem {
+  externalId: string;
+  bookingId: string;
+  bookingNumber: string;
+  requestType: string;
+  requestTypeKey: string;
+  title: string | null;
+  titleAr: string | null;
+  titleEn: string | null;
+  status: string;
+  statusKey: string;
+  statusLabel: string;
+  pricingStatus: string;
+  paymentStatus: string;
+  unitTaskType: string | null;
+  unitTaskExternalId: string | null;
+  description: string | null;
+  guestNote: string | null;
+  price: number | null;
+  currency: string | null;
+  priceNote: string | null;
+  unitLabel: string | null;
+  propertyName: string | null;
+  createdAtUtc: string;
+  updatedAtUtc: string | null;
+  completedAtUtc: string | null;
+  rejectionReason: string | null;
+  hasProblem: boolean;
+  problemDescription: string | null;
+  problemReportedAtUtc: string | null;
+  isRated: boolean;
+  ratingEase: number | null;
+  ratingSpeed: number | null;
+  ratingStaff: number | null;
+  ratingSatisfaction: number | null;
+  ratingNotes: string | null;
+  ratedAtUtc: string | null;
+  overallRating: number | null;
+  overallRatingLabel: string | null;
+}
+
+export interface BookingServiceRequestListResponse {
+  data: BookingServiceRequestApiItem[];
+  totalCount: number;
+  page: number;
+  nextPage: number | null;
+  totalPages: number;
+}
+
+export type BookingActivityLogSource = 'Admin' | 'Merchant' | 'Guest' | 'System';
+
+export interface BookingActivityLogApiItem {
+  actionKey: string;
+  label: string;
+  actorName: string | null;
+  source: BookingActivityLogSource;
+  atUtc: string;
+}
+
 export interface BookingStats {
   totalCount: number;
   confirmedCount: number;

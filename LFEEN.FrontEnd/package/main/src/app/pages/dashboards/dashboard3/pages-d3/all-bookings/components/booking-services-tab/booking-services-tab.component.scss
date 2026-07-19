@@ -1,0 +1,150 @@
+:host {
+  display: block;
+  font-family: 'Cairo', sans-serif;
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-section-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #9e9e9a;
+}
+
+.service-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e8e8e4;
+  border-radius: 14px;
+  background: #fdfdfb;
+}
+
+.service-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.service-item-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #f3f3ef;
+  color: #6b6b67;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  ::ng-deep svg { width: 16px; height: 16px; stroke-width: 2; }
+}
+
+.service-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.service-item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.service-item-sub {
+  font-size: 11px;
+  color: #9e9e9a;
+  font-weight: 500;
+}
+
+.service-item-price,
+.service-amount-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #111110;
+  direction: ltr;
+}
+
+.service-item-price--lg {
+  font-size: 16px;
+}
+
+.service-amount-currency-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background-color: currentColor;
+  -webkit-mask-image: url('/assets/images/logos/saudi-riyal.svg');
+  mask-image: url('/assets/images/logos/saudi-riyal.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+
+  &.is-text-currency {
+    width: 28px;
+    height: 14px;
+    -webkit-mask-image: url('/assets/images/logos/saudi-riyal-en.svg');
+    mask-image: url('/assets/images/logos/saudi-riyal-en.svg');
+  }
+}
+
+.service-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4px 4px;
+  border-top: 1px solid #e8e8e4;
+  margin-top: 4px;
+}
+
+.service-total-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.finance-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 24px;
+  color: #9e9e9a;
+  font-size: 13px;
+
+  ::ng-deep svg { width: 24px; height: 24px; stroke-width: 1.5; }
+}
+
+.spin {
+  ::ng-deep svg { animation: servicesTabSpin 1s linear infinite; }
+}
+
+@keyframes servicesTabSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

@@ -1445,7 +1445,8 @@
         "rejectedStat": "Rejected sections",
         "pendingStat": "Pending sections",
         "hasRejectionWarning": "There are rejected sections — the unit cannot be approved until they are resolved",
-        "readyToApprove": "All sections reviewed — the unit is ready for final approval"
+        "readyToApprove": "All sections reviewed — the unit is ready for final approval",
+        "alreadyApproved": "This unit has already been approved"
       },
       "actions": {
         "reject": "Reject Request",
@@ -1751,7 +1752,38 @@
           "duration": "Stay Duration",
           "nights": "nights"
         },
-        "comingSoon": "No data to display yet"
+        "financeTab": {
+          "currency": "SAR",
+          "rentSummaryTitle": "Rent Summary",
+          "nightlyRate": "Nightly Rate",
+          "totalRent": "Total Rent",
+          "nightsBreakdown": "{{nights}} nights × {{rate}} SAR",
+          "remainingAmount": "Remaining Amount",
+          "paidAmount": "Paid Amount",
+          "depositTitle": "Deposit Amount",
+          "depositRemaining": "Remaining",
+          "depositPaid": "Paid",
+          "depositTotal": "Total Deposit"
+        },
+        "servicesTab": {
+          "currentRequestsTitle": "Current Requests",
+          "totalLabel": "Total",
+          "empty": "No current requests"
+        },
+        "logTab": {
+          "recentActivityTitle": "Last {{count}} Activities",
+          "byLabel": "By",
+          "empty": "No activity log",
+          "source": {
+            "admin": "Admin",
+            "merchant": "Merchant",
+            "guest": "Guest",
+            "system": "System"
+          }
+        },
+        "comingSoon": "No data to display yet",
+        "loading": "Loading booking details...",
+        "loadError": "Failed to load booking details"
       }
     },
     "accountManagement": {
