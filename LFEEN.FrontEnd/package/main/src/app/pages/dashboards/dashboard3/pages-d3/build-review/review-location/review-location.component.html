@@ -117,7 +117,7 @@
 
   <!-- Actions -->
   <div class="action-buttons">
-    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting || !hasLocationData" (click)="confirmDecision('Approved')">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
       <span>{{ 'd3.buildReview.location.approveBtn' | translate }}</span>
       <i-tabler name="circle-check"></i-tabler>
     </button>

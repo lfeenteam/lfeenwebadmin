@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Booking, BookingApiItem, BookingListResponse, BookingQueryParams, BookingStatus } from '../interfaces/booking.model';
+import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus } from '../interfaces/booking.model';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -19,6 +19,23 @@ export class BookingService {
     if (params.search)       httpParams = httpParams.set('search', params.search);
 
     return this.http.get<BookingListResponse>(`${environment.apiBaseUrl}/api/bookings`, { params: httpParams });
+  }
+
+  getBookingDetail(bookingId: string): Observable<BookingDetailApiItem> {
+    return this.http.get<BookingDetailApiItem>(`${environment.apiBaseUrl}/api/bookings/${bookingId}`);
+  }
+
+  getBookingFinancialSummary(bookingId: string): Observable<BookingFinancialSummary> {
+    return this.http.get<BookingFinancialSummary>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/financial-summary`);
+  }
+
+  getBookingServiceRequests(bookingId: string, page = 1, pageSize = 50): Observable<BookingServiceRequestListResponse> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<BookingServiceRequestListResponse>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/service-requests`, { params });
+  }
+
+  getBookingActivityLog(bookingId: string): Observable<BookingActivityLogApiItem[]> {
+    return this.http.get<BookingActivityLogApiItem[]>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/activity-log`);
   }
 
   mapApiItemToBooking(item: BookingApiItem, colorIndex: number): Booking {
@@ -44,7 +61,17 @@ export class BookingService {
     };
   }
 
-  private mapStatus(status: string): BookingStatus {
+  private static readonly KNOWN_STATUSES: BookingStatus[] = [
+    'blocked', 'cancelled', 'expired', 'no_show', 'completed', 'awaiting_checkout',
+    'checked_in', 'awaiting_checkin', 'awaiting_ack', 'confirmed', 'pending',
+    'on_hold', 'unconfirmed', 'unknown',
+  ];
+
+  mapStatus(status: string | null | undefined): BookingStatus {
+    if (!status) return 'unknown';
+    if (BookingService.KNOWN_STATUSES.includes(status as BookingStatus)) {
+      return status as BookingStatus;
+    }
     const map: Record<string, BookingStatus> = {
       Blocked: 'blocked',
       Cancelled: 'cancelled',
@@ -64,8 +91,8 @@ export class BookingService {
     return map[status] ?? 'unknown';
   }
 
-  private getInitials(name: string): string {
-    if (name === '-') return '-';
+  getInitials(name: string | null | undefined): string {
+    if (!name?.trim()) return '-';
     return name
       .split(' ')
       .filter(Boolean)

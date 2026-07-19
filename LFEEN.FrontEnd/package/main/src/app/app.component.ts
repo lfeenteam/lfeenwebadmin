@@ -1,16 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { BidiModule } from '@angular/cdk/bidi';
 import { CoreService } from './services/core.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet],
+    imports: [RouterOutlet, BidiModule],
     templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   title = 'Modernize Angular Admin Tempplate';
   options = this.settings.getOptions();
+
+  // Bound to a [dir] host so Angular CDK's Directionality service (used by
+  // mat-menu/select/tooltip overlays) reacts live to language switches —
+  // its root singleton otherwise only reads dir once at bootstrap.
+  dir = computed(() => this.settings.getOptionsSignal()().dir);
 
   constructor(private settings: CoreService, private translate: TranslateService, private router: Router) {
     this.translate.use(this.settings.getOptions().language);

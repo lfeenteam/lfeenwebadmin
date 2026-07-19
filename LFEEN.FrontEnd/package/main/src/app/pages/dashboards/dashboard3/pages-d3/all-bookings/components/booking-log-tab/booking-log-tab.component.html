@@ -1,0 +1,46 @@
+@if (loading) {
+  <div class="finance-placeholder">
+    <i-tabler name="loader-2" class="icon-24 spin"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loading' | translate }}</span>
+  </div>
+} @else if (loadError) {
+  <div class="finance-placeholder">
+    <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loadError' | translate }}</span>
+  </div>
+} @else {
+
+<section class="detail-section">
+  <h4 class="detail-section-title">
+    {{ 'd3.bookings.detail.logTab.recentActivityTitle' | translate: { count: activities.length } }}
+  </h4>
+
+  @if (activities.length) {
+    <div class="log-timeline">
+      @for (activity of activities; track $index) {
+        <div class="log-item">
+          <div class="log-item-content">
+            <span class="log-item-title">{{ activity.title }}</span>
+            <span class="log-item-meta">{{ activity.date }} - {{ activity.time }}</span>
+            <span class="log-item-meta">{{ 'd3.bookings.detail.logTab.byLabel' | translate }}: {{ activity.actor }}</span>
+          </div>
+          <div class="log-item-marker">
+            <span class="log-item-icon" [class]="'log-item-icon--' + activity.type">
+              <i-tabler [name]="activity.icon" class="icon-14"></i-tabler>
+            </span>
+            @if (!$last) {
+              <span class="log-item-line"></span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="finance-placeholder">
+      <i-tabler name="history" class="icon-24"></i-tabler>
+      <span>{{ 'd3.bookings.detail.logTab.empty' | translate }}</span>
+    </div>
+  }
+</section>
+
+}

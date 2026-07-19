@@ -1,9 +1,9 @@
-<div class="dashboard-wrapper d-flex" [attr.dir]="currentDir" [class.sidebar-mobile-open]="sidebarMobileOpen">
+<div class="dashboard-wrapper d-flex" [attr.dir]="currentDir()" [class.sidebar-mobile-open]="sidebarMobileOpen">
   <!-- Sidebar -->
   @if (!isLoginRoute) {
     <app-dashboard3-sidebar
       class="dashboard-sidebar"
-      [attr.dir]="currentDir"
+      [attr.dir]="currentDir()"
       [(collapsed)]="sidebarCollapsed"
     
       [mobileMode]="sidebarMobileOpen"

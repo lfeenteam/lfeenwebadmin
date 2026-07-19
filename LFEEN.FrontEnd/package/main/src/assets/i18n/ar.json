@@ -1022,7 +1022,38 @@
           "duration": "مدة الإقامة",
           "nights": "ليالي"
         },
-        "comingSoon": "لا توجد بيانات لعرضها حالياً"
+        "financeTab": {
+          "currency": "ريال",
+          "rentSummaryTitle": "ملخص الإيجار",
+          "nightlyRate": "سعر الليلة",
+          "totalRent": "إجمالي الإيجار",
+          "nightsBreakdown": "{{nights}} ليالي × {{rate}} ريال",
+          "remainingAmount": "المبلغ المتبقي",
+          "paidAmount": "المبلغ المدفوع",
+          "depositTitle": "مبلغ التأمين",
+          "depositRemaining": "المتبقي",
+          "depositPaid": "المدفوع",
+          "depositTotal": "إجمالي التأمين"
+        },
+        "servicesTab": {
+          "currentRequestsTitle": "الطلبات الحالية",
+          "totalLabel": "الإجمالي",
+          "empty": "لا توجد طلبات حالية"
+        },
+        "logTab": {
+          "recentActivityTitle": "آخر {{count}} عملية",
+          "byLabel": "بواسطة",
+          "empty": "لا يوجد سجل نشاط",
+          "source": {
+            "admin": "الإدارة",
+            "merchant": "التاجر",
+            "guest": "الضيف",
+            "system": "النظام"
+          }
+        },
+        "comingSoon": "لا توجد بيانات لعرضها حالياً",
+        "loading": "جاري تحميل تفاصيل الحجز...",
+        "loadError": "تعذر تحميل تفاصيل الحجز"
       }
     },
     "accountManagement": {
@@ -1713,7 +1744,8 @@
         "rejectedStat": "أقسام مرفوضة",
         "pendingStat": "أقسام معلقة",
         "hasRejectionWarning": "يوجد أقسام مرفوضة — لا يمكن اعتماد الوحدة حتى تتم معالجتها",
-        "readyToApprove": "جميع الأقسام تمت مراجعتها — يمكن اعتماد الوحدة الآن"
+        "readyToApprove": "جميع الأقسام تمت مراجعتها — يمكن اعتماد الوحدة الآن",
+        "alreadyApproved": "تم اعتماد هذه الوحدة بالفعل"
       },
       "actions": {
         "reject": "رفض الطلب",

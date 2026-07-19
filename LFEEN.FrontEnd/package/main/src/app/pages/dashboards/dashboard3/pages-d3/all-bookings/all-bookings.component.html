@@ -263,7 +263,7 @@
             <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
           </button>
           <mat-menu #rowMenu="matMenu" class="cardWithShadow" yPosition="below">
-            <button mat-menu-item type="button" (click)="openBookingDetail()">
+            <button mat-menu-item type="button" (click)="openBookingDetail(booking.id)">
               <i-tabler name="eye" class="icon-16"></i-tabler>
               <span>{{ 'd3.bookings.actions.view' | translate }}</span>
             </button>
@@ -296,6 +296,7 @@
 
   <!-- Pagination -->
   <div class="table-footer">
+      <span class="pagination-total">{{ paginationSummary }}</span>
     <div class="pagination-controls">
       <button
         class="page-nav-btn"
@@ -325,160 +326,10 @@
       </button>
     </div>
 
-    <span class="pagination-total">{{ paginationSummary }}</span>
+  
   </div>
 
   <!-- Booking Detail Drawer (static mock data) -->
-  @if (detailDrawerOpen) {
-    <div class="booking-detail-backdrop" (click)="closeBookingDetail()"></div>
-    <aside class="booking-detail-drawer">
-
-      <button type="button" class="detail-close-btn" (click)="closeBookingDetail()">
-        <i-tabler name="x" class="icon-18"></i-tabler>
-      </button>
-
-      <header class="detail-header">
-        <span class="detail-header-label">{{ 'd3.bookings.detail.title' | translate }}</span>
-        <span class="detail-header-number">{{ bookingDetail.number }}</span>
-      </header>
-
-      <div class="detail-guest-summary">
-        <div class="client-avatar" [attr.data-color]="bookingDetail.guest.colorIndex">
-          {{ bookingDetail.guest.initials }}
-        </div>
-        <div class="detail-guest-summary-text">
-          <span class="detail-guest-name">{{ bookingDetail.guest.name }}</span>
-          <span class="detail-guest-daterange">{{ bookingDetail.dateRangeLabel }}</span>
-        </div>
-      </div>
-
-      <nav class="detail-tabs">
-        <button type="button" class="detail-tab" [class.active]="activeDetailTab === 'services'" (click)="setDetailTab('services')">
-          <i-tabler name="tag" class="icon-16"></i-tabler>
-          <span>{{ 'd3.bookings.detail.tabs.services' | translate }}</span>
-        </button>
-        <button type="button" class="detail-tab" [class.active]="activeDetailTab === 'log'" (click)="setDetailTab('log')">
-          <i-tabler name="chart-bar" class="icon-16"></i-tabler>
-          <span>{{ 'd3.bookings.detail.tabs.log' | translate }}</span>
-        </button>
-        <button type="button" class="detail-tab" [class.active]="activeDetailTab === 'finance'" (click)="setDetailTab('finance')">
-          <i-tabler name="credit-card" class="icon-16"></i-tabler>
-          <span>{{ 'd3.bookings.detail.tabs.finance' | translate }}</span>
-        </button>
-        <button type="button" class="detail-tab" [class.active]="activeDetailTab === 'details'" (click)="setDetailTab('details')">
-          <i-tabler name="home" class="icon-16"></i-tabler>
-          <span>{{ 'd3.bookings.detail.tabs.details' | translate }}</span>
-        </button>
-      </nav>
-
-      <div class="detail-body">
-        @if (activeDetailTab === 'details') {
-
-          <div class="detail-number-row">
-            <span class="status-badge" [class]="'status-' + bookingDetail.status">{{ statusLabel(bookingDetail.status) }}</span>
-            <div class="detail-field-text detail-field-text--end">
-              <span class="detail-field-label">{{ 'd3.bookings.detail.bookingNumberLabel' | translate }}</span>
-              <span class="detail-field-value detail-field-value--lg">{{ bookingDetail.number }}</span>
-            </div>
-          </div>
-
-          <section class="detail-section">
-            <h4 class="detail-section-title">{{ 'd3.bookings.detail.guestInfoTitle' | translate }}</h4>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="user" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.guestSection.guestName' | translate }}</span>
-                <span class="detail-field-value">{{ bookingDetail.guest.name }}</span>
-              </div>
-            </div>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="phone" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.guestSection.phone' | translate }}</span>
-                <span class="detail-field-value detail-field-value--ltr">{{ bookingDetail.guest.phone }}</span>
-              </div>
-            </div>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="users" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.guestSection.companions' | translate }} ({{ bookingDetail.guest.companionsCount }})</span>
-                <div class="detail-companion-chips">
-                  @for (name of bookingDetail.guest.companions; track name) {
-                    <span class="detail-companion-chip">{{ name }}</span>
-                  }
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="detail-section">
-            <h4 class="detail-section-title">{{ 'd3.bookings.detail.unitSection.title' | translate }}</h4>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="hash" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.unitSection.unitNumber' | translate }}</span>
-                <span class="detail-field-value">{{ bookingDetail.unit.number }}</span>
-              </div>
-            </div>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="building" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.unitSection.unitType' | translate }}</span>
-                <span class="detail-field-value">{{ bookingDetail.unit.type }}</span>
-              </div>
-            </div>
-
-            <div class="detail-field-card">
-              <span class="detail-field-icon"><i-tabler name="map-pin" class="icon-16"></i-tabler></span>
-              <div class="detail-field-text">
-                <span class="detail-field-label">{{ 'd3.bookings.detail.unitSection.location' | translate }}</span>
-                <span class="detail-field-value">{{ bookingDetail.unit.location }}</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="detail-section">
-            <h4 class="detail-section-title">{{ 'd3.bookings.detail.staySection.title' | translate }}</h4>
-
-            <div class="detail-stay-cards">
-              <div class="detail-stay-card detail-stay-card--out">
-                <span class="detail-stay-label">{{ 'd3.bookings.detail.staySection.checkOut' | translate }}</span>
-                <span class="detail-stay-date">{{ bookingDetail.stay.checkOutDate }}</span>
-                <span class="detail-stay-time">
-                  <i-tabler name="clock" class="icon-12"></i-tabler>
-                  {{ bookingDetail.stay.checkOutTime }}
-                </span>
-              </div>
-              <div class="detail-stay-card detail-stay-card--in">
-                <span class="detail-stay-label">{{ 'd3.bookings.detail.staySection.checkIn' | translate }}</span>
-                <span class="detail-stay-date">{{ bookingDetail.stay.checkInDate }}</span>
-                <span class="detail-stay-time">
-                  <i-tabler name="clock" class="icon-12"></i-tabler>
-                  {{ bookingDetail.stay.checkInTime }}
-                </span>
-              </div>
-            </div>
-
-            <div class="detail-duration-badge">
-              <i-tabler name="clock-hour-3" class="icon-14"></i-tabler>
-              <span>{{ 'd3.bookings.detail.staySection.duration' | translate }}: {{ bookingDetail.stay.nights }} {{ 'd3.bookings.detail.staySection.nights' | translate }}</span>
-            </div>
-          </section>
-
-        } @else {
-          <div class="detail-placeholder">
-            <i-tabler name="info-circle" class="icon-24"></i-tabler>
-            <span>{{ 'd3.bookings.detail.comingSoon' | translate }}</span>
-          </div>
-        }
-      </div>
-
-    </aside>
-  }
+  <app-booking-detail-drawer [open]="detailDrawerOpen" [bookingId]="selectedBookingId" (closed)="closeBookingDetail()"></app-booking-detail-drawer>
 
 </div>

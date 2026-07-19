@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { PageBreadcrumbCrumb } from '../../../pages/dashboards/dashboard3/services/page-breadcrumb-trail.service';
+import { CoreService } from '../../../services/core.service';
 
 @Component({
   selector: 'app-dashboard3-page-header',
@@ -29,15 +30,14 @@ export class PageHeaderComponent {
   @Output() back = new EventEmitter<void>();
   @Output() action = new EventEmitter<string>();
 
-  constructor(private translate: TranslateService) {}
+  constructor(private translate: TranslateService, private settings: CoreService) {}
 
-  get dir(): 'rtl' | 'ltr' {
-    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
-  }
-
-  get isRtl(): boolean {
-    return this.dir === 'rtl';
-  }
+  // Sourced from CoreService's signal (not translate.currentLang) so the
+  // header/breadcrumb-arrow direction updates the instant the language
+  // changes, instead of waiting on a getter to be re-checked by change
+  // detection (which a lang switch doesn't reliably trigger).
+  readonly dir = computed(() => this.settings.getOptionsSignal()().dir);
+  readonly isRtl = computed(() => this.dir() === 'rtl');
 
   get currentDate(): string {
     const locale = this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';

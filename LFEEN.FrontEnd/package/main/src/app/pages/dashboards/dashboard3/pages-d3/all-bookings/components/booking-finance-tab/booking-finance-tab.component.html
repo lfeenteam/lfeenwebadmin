@@ -1,0 +1,84 @@
+@if (loading) {
+  <div class="finance-placeholder">
+    <i-tabler name="loader-2" class="icon-24 spin"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loading' | translate }}</span>
+  </div>
+} @else if (loadError || !finance) {
+  <div class="finance-placeholder">
+    <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loadError' | translate }}</span>
+  </div>
+} @else {
+
+<section class="detail-section">
+  <h4 class="detail-section-title">{{ 'd3.bookings.detail.financeTab.rentSummaryTitle' | translate }}</h4>
+
+  <div class="finance-cards-grid">
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.totalRent' | translate }}</span>
+      <span class="finance-amount">
+        <span class="finance-amount-value">{{ formatAmount(finance.totalRent) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+      <span class="finance-card-sub">
+        {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | translate: { nights: finance.nights, rate: formatAmount(finance.nightlyRate) } }}
+      </span>
+    </div>
+
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.nightlyRate' | translate }}</span>
+      <span class="finance-amount">
+        <span class="finance-amount-value">{{ formatAmount(finance.nightlyRate) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.paidAmount' | translate }}</span>
+      <span class="finance-amount finance-amount--green">
+        <span class="finance-amount-value">{{ formatAmount(finance.paidAmount) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.remainingAmount' | translate }}</span>
+      <span class="finance-amount finance-amount--orange">
+        <span class="finance-amount-value">{{ formatAmount(finance.remainingAmount) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<section class="detail-section">
+  <h4 class="detail-section-title">{{ 'd3.bookings.detail.financeTab.depositTitle' | translate }}</h4>
+
+  <div class="finance-cards-grid finance-cards-grid--triple">
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.depositTotal' | translate }}</span>
+      <span class="finance-amount">
+        <span class="finance-amount-value">{{ formatAmount(finance.deposit.total) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.depositPaid' | translate }}</span>
+      <span class="finance-amount finance-amount--green">
+        <span class="finance-amount-value">{{ formatAmount(finance.deposit.paid) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+
+    <div class="finance-card">
+      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.depositRemaining' | translate }}</span>
+      <span class="finance-amount finance-amount--green">
+        <span class="finance-amount-value">{{ formatAmount(finance.deposit.remaining) }}</span>
+        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+  </div>
+</section>
+
+}

@@ -113,6 +113,11 @@
         <i-tabler name="alert-circle" class="alert-icon"></i-tabler>
         <span>{{ 'd3.unitReview.finalReview.hasRejectionWarning' | translate }}</span>
       </div>
+    } @else if (isViewMode && allSectionsDecided) {
+      <div class="final-review-alert final-review-alert--success">
+        <i-tabler name="circle-check" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.alreadyApproved' | translate }}</span>
+      </div>
     } @else if (allSectionsDecided) {
       <div class="final-review-alert final-review-alert--success">
         <i-tabler name="circle-check" class="alert-icon"></i-tabler>

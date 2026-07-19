@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../../components/dashboard3/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../components/dashboard3/header/header.component';
@@ -6,8 +6,8 @@ import { PageHeaderComponent } from '../../../components/dashboard3/page-header/
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
-import { TranslateService } from '@ngx-translate/core';
 import { filter, Subscription } from 'rxjs';
+import { CoreService } from '../../../services/core.service';
 import { D3HeaderType, D3RouteHeaderData } from './interfaces/dashboard3-header.model';
 import { ComplaintService } from './pages-d3/complaint-management/services/complaint.service';
 import { PageBackOverrideService } from './services/page-back-override.service';
@@ -31,6 +31,14 @@ import { ClientSupportHubService } from './services/client-support-hub.service';
   styleUrl: './dashboard3.component.scss',
 })
 export class AppDashboard3Component implements OnInit, OnDestroy {
+  private settings = inject(CoreService);
+
+  // Sourced from CoreService's signal (not translate.currentLang) so the dir
+  // attribute — which the sidebar/header/every routed page inherit from —
+  // updates the instant the language changes, instead of waiting on a getter
+  // to be re-checked by change detection (which a lang switch doesn't reliably trigger).
+  readonly currentDir = computed(() => this.settings.getOptionsSignal()().dir);
+
   sidebarCollapsed = false;
   sidebarMobileOpen = false;
 
@@ -50,7 +58,6 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   private routeSub?: Subscription;
 
   constructor(
-    private translate: TranslateService,
     private router: Router,
     private route: ActivatedRoute,
     private complaintService: ComplaintService,
@@ -130,10 +137,6 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
       this.pageBreadcrumbRoute = null;
       this.pageBreadcrumbQueryParams = null;
     }
-  }
-
-  get currentDir(): 'rtl' | 'ltr' {
-    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
   toggleMobileSidebar(): void {
