@@ -167,8 +167,10 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  // A rejected section is grounds to reject the whole unit right away —
+  // no need to wait until every other section has been reviewed too.
   get isRejectDisabled(): boolean {
-    if (!this.allSectionsDecided) return true;
+    if (!this.hasAnyRejectedSection && !this.allSectionsDecided) return true;
     return !this.finalNotes?.trim();
   }
 

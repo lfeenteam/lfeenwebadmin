@@ -288,11 +288,11 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   get canReject(): boolean {
-    return !this.viewOnly && this.allSectionsComplete;
+    return this.allSectionsComplete;
   }
 
   get canApprove(): boolean {
-    return !this.viewOnly && this.allSectionsComplete;
+    return this.allSectionsComplete;
   }
 
   openSection(index: number): void {

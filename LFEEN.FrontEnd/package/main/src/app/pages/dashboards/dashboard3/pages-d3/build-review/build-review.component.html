@@ -134,7 +134,7 @@
       </div>
     }
 
-    @if (allSectionsComplete && !viewOnly) {
+    @if (allSectionsComplete) {
       <div class="final-notes-inline">
         <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
         <textarea
@@ -146,7 +146,6 @@
     }
 
     <!-- Action Buttons -->
-    @if (!viewOnly) {
     <div class="action-wrapper">
       <div class="action-buttons">
         <button
@@ -172,7 +171,6 @@
       </div>
       }
     </div>
-    }
   } @else if (currentView === 'basicInfo') {
     <app-review-basic-info [building]="building" [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[0].completed" (back)="onBack()" (approve)="onSectionApproved(0, $event)"></app-review-basic-info>
   } @else if (currentView === 'images') {
@@ -230,7 +228,6 @@
         }
 
         <!-- Final Action Buttons -->
-        @if (!viewOnly) {
         <div class="action-buttons-final">
             <button class="btn-approve-final" [disabled]="!isFinalSuccess || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
@@ -241,7 +238,6 @@
                 <i-tabler name="circle-x"></i-tabler>
             </button>
         </div>
-        }
     </div>
   }
 
