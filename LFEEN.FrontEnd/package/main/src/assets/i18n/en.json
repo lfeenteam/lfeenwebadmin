@@ -1422,6 +1422,7 @@
       },
       "finalNotes": {
         "label": "Final Notes Added",
+        "rejectionReasonLabel": "Rejection Reason",
         "optionalHint": "Optional when approving, required when rejecting",
         "requiredHint": "Required when rejecting",
         "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
