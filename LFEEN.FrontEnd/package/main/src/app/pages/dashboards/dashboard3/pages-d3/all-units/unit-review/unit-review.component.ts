@@ -162,14 +162,12 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
 
   // Final notes are optional on approval, but required on rejection.
   get isApproveDisabled(): boolean {
-    if (this.isViewMode) return true;
     if (!this.allSectionsDecided) return true;
     if (this.hasAnyRejectedSection) return true;
     return false;
   }
 
   get isRejectDisabled(): boolean {
-    if (this.isViewMode) return true;
     if (!this.allSectionsDecided) return true;
     return !this.finalNotes?.trim();
   }
@@ -197,7 +195,12 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
         if (!confirmed) return;
         this.unitsService.approveUnit(this.unitId, this.finalNotes)
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({ next: () => this.onBack() });
+          .subscribe({
+            next: () => {
+              this.unitsService.setTab('published');
+              this.onBack();
+            }
+          });
       });
   }
 

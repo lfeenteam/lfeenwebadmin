@@ -126,16 +126,16 @@
     }
   </div>
 
-  @if (!isViewMode) {
   <div class="final-notes-section">
     <div class="notes-label-row">
-      <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+      <span class="input-label">
+        {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
+      </span>
       <small class="notes-hint">{{ 'd3.unitReview.finalNotes.optionalHint' | translate }}</small>
     </div>
     <textarea
       [(ngModel)]="finalNotes"
       [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
-
       rows="3">
     </textarea>
   </div>
@@ -158,7 +158,6 @@
       <i-tabler name="x" class="btn-icon"></i-tabler>
     </button>
   </div>
-  }
 
   }
 </div>
