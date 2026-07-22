@@ -142,6 +142,7 @@ export interface ChatMessage {
   contentEn?: string;
   timestamp: string;
   timestampEn?: string;
+  createdAtUtc: string;
   attachment?: ChatMessageAttachment | null;
 }
 
