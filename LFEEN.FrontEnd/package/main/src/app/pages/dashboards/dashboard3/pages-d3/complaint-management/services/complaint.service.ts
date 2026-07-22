@@ -24,14 +24,16 @@ export class ComplaintService {
   }
 
   sendMessage(complaintId: string, content: string): Observable<void> {
+    const now = new Date();
     const msg: ChatMessage = {
       id: Date.now().toString(),
       senderRole: 'support',
       senderName: 'فريق الدعم',
       senderNameEn: 'Support',
       content,
-      timestamp: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      timestamp: now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+      timestampEn: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      createdAtUtc: now.toISOString()
     };
     this._complaints.update(list =>
       list.map(c => c.id === complaintId
@@ -229,6 +231,7 @@ export class ComplaintService {
       content: m.body,
       timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
       timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      createdAtUtc: m.createdAt,
       attachment: m.attachment
         ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
         : null,

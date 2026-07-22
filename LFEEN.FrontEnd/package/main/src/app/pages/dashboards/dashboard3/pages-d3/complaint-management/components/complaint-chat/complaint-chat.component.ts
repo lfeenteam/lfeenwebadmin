@@ -158,6 +158,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
       content: event.body,
       timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
       timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      createdAtUtc: event.sentAt,
       attachment: event.attachment
         ? { fileName: event.attachment.fileName, url: event.attachment.url, contentType: event.attachment.contentType }
         : null,
@@ -256,7 +257,19 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   get dateSeparatorLabel(): string {
-    return this.translate.currentLang === 'en' ? 'Today - 9:10 AM' : 'اليوم - ٩:١٠ ص';
+    const firstMessage = this.complaint?.messages?.[0];
+    if (!firstMessage) return '';
+
+    const isEn = this.translate.currentLang === 'en';
+    const createdAt = new Date(firstMessage.createdAtUtc);
+    const time = createdAt.toLocaleTimeString(isEn ? 'en-US' : 'ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+    if (createdAt.toDateString() === new Date().toDateString()) {
+      return isEn ? `Today - ${time}` : `اليوم - ${time}`;
+    }
+
+    const day = createdAt.toLocaleDateString(isEn ? 'en-US' : 'ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+    return `${day} - ${time}`;
   }
 
   get resolveButtonLabel(): string {
