@@ -60,6 +60,10 @@ export class AccountCardComponent {
     return this.translate.instant(key);
   }
 
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'ar' ? 'rtl' : 'ltr';
+  }
+
   get avatarColor(): string {
     const colors = ['orange', 'blue', 'green', 'purple', 'red'] as const;
     const code = (this.account?.avatarInitials ?? 'A').charCodeAt(0);

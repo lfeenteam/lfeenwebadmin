@@ -181,8 +181,8 @@
   }
 
   @if (loading) {
-    <mat-progress-bar mode="indeterminate" class="bookings-loading-bar"></mat-progress-bar>
-  }
+    <app-dashboard-loading variant="table" [rows]="pageSize"></app-dashboard-loading>
+  } @else {
 
   <!-- Table -->
   <div class="bookings-table-wrapper">
@@ -326,8 +326,10 @@
       </button>
     </div>
 
-  
+
   </div>
+
+  }
 
   <!-- Booking Detail Drawer (static mock data) -->
   <app-booking-detail-drawer [open]="detailDrawerOpen" [bookingId]="selectedBookingId" (closed)="closeBookingDetail()"></app-booking-detail-drawer>

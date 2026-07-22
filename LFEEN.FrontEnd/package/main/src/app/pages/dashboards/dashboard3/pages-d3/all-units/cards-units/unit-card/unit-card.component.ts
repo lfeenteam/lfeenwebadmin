@@ -17,6 +17,7 @@ export class UnitCardComponent {
   @Input() unit!: UnitCardItem;
   @Input() viewMode: ViewMode = 'grid';
   @Input() buildingId = '';
+  @Input() activeTab = '';
 
   constructor(
     private translate: TranslateService,
@@ -43,7 +44,10 @@ export class UnitCardComponent {
   goToReview(): void {
     this.router.navigate(
       ['../unit-review', this.buildingId, this.unit.id],
-      { relativeTo: this.route, queryParams: { mode: 'view' } }
+      {
+        relativeTo: this.route,
+        queryParams: { mode: 'view', ...(this.activeTab === 'draft' ? { tab: 'draft' } : {}) }
+      }
     );
   }
 }

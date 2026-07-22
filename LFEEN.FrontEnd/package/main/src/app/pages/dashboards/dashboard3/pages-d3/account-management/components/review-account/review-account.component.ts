@@ -35,6 +35,23 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   isError      = false;
   isSubmitting = false;
   rejectionReason = '';
+  isUnifiedNumberInvalid = false;
+
+  basicNameAr = '';
+  basicNameEn = '';
+  showBasicNameSecondary = false;
+
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
+
+  get primaryBasicName(): string {
+    return this.currentLang === 'ar' ? this.basicNameAr : this.basicNameEn;
+  }
+  set primaryBasicName(value: string) {
+    if (this.currentLang === 'ar') this.basicNameAr = value;
+    else this.basicNameEn = value;
+  }
 
   ngOnInit(): void {
     this.translate.onLangChange
@@ -52,6 +69,8 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     this.service.getAccountById(id).subscribe({
       next: data => {
         this.account = data;
+        this.basicNameAr = data.business?.basicNameAr || data.business?.basicName || '';
+        this.basicNameEn = data.business?.basicNameEn || '';
         this.isLoading = false;
         this.pageTitleOverride.set(this.tradeName !== '—' ? this.tradeName : null);
       },
@@ -69,6 +88,12 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
 
   accept(): void {
     if (!this.account || this.isSubmitting) return;
+    const basicNameAr = (this.basicNameAr || this.basicNameEn).trim();
+    const basicNameEn = (this.basicNameEn || this.basicNameAr).trim();
+    if (!basicNameAr || !basicNameEn) {
+      this.toastr.warning(this.translate.instant('d3.reviewAccount.decision.basicNameRequired'));
+      return;
+    }
     const accountId = this.account.accountId;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
@@ -81,7 +106,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
         tone:              'approve',
         successTitleKey:   'common.done',
         successMessageKey: 'd3.reviewAccount.decision.acceptSuccess',
-        onConfirm: () => this.service.acceptAccount(accountId)
+        onConfirm: () => this.service.acceptAccount(accountId, { basicNameAr, basicNameEn })
       }
     });
     dialogRef.afterClosed().subscribe(confirmed => {
@@ -111,7 +136,10 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
       this.isSubmitting = true;
-      this.service.rejectAccount(this.account!.accountId, this.rejectionReason.trim()).subscribe({
+      this.service.rejectAccount(this.account!.accountId, {
+        rejectionReason: this.rejectionReason.trim(),
+        isUnifiedNumberInvalid: this.isUnifiedNumberInvalid
+      }).subscribe({
         next: () => {
           this.toastr.success(this.translate.instant('d3.reviewAccount.decision.rejectSuccess'));
           this.service.setTab('rejected');
@@ -176,5 +204,21 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
       return translated !== key ? translated : cat;
     }
     return cat;
+  }
+
+  sectionStatusLabel(status: string | null | undefined): string {
+    if (!status) return '—';
+    const key = `d3.reviewAccount.sectionStatus.${status}`;
+    const translated = this.translate.instant(key);
+    return translated !== key ? translated : status;
+  }
+
+  sectionStatusClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'Approved':      return 'approved';
+      case 'PendingReview': return 'pending';
+      case 'Rejected':      return 'rejected';
+      default:               return 'draft';
+    }
   }
 }

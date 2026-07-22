@@ -42,6 +42,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   reviewDecisions: Record<string, UnitReviewDecision> = {};
   isLoading = false;
   private forcedViewOnly = false;
+  private originTab = '';
 
   readonly reviewSections: UnitReviewSection[] = [
     { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',             isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
@@ -68,6 +69,27 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.unitDetail?.progressPercentage ?? 0;
   }
 
+  // The header badge must reflect the unit's actual overallStatus, not the tab
+  // you navigated from — otherwise a Draft/Approved unit opened for viewing
+  // still shows "under admin review". But 'Draft' (status=0) and 'new' (status=1)
+  // units both come back from the single-unit API with the literal overallStatus
+  // 'Pending' — there's no distinct backend value for Draft yet (same gap noted
+  // in units.service.ts/getAllUnitPages) — so overallStatus alone can't tell a
+  // never-submitted Draft apart from a unit genuinely awaiting its first review.
+  // originTab (the ?tab= query param the unit lists pass along) disambiguates them.
+  get headerStatusConfig(): { labelKey: string; icon: string; mod: string } {
+    const status = this.unitDetail?.overallStatus?.trim();
+    if (status === 'Approved') return { labelKey: 'd3.unitReview.status.approved', icon: 'circle-check', mod: 'approved' };
+    if (status === 'Rejected') return { labelKey: 'd3.unitReview.status.rejected', icon: 'circle-x',     mod: 'rejected' };
+    if (this.originTab === 'draft' || !status) {
+      return { labelKey: 'd3.unitReview.status.draftLabel', icon: 'file-text', mod: 'draft' };
+    }
+    if (this.originTab === 'new') {
+      return { labelKey: 'd3.unitReview.status.newLabel', icon: 'file-text', mod: 'pending' };
+    }
+    return { labelKey: 'd3.unitReview.status.adminReviewLabel', icon: 'clock', mod: 'pending' };
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -92,6 +114,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
     this.forcedViewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.originTab = this.route.snapshot.queryParamMap.get('tab') ?? '';
 
     this.isLoading = true;
     this.unitsService.getUnitById(this.unitId).subscribe({

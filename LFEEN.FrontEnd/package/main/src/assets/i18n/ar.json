@@ -1117,13 +1117,19 @@
         "dataStatus": "حالة البيانات",
         "dataVerified": "تم التحقق من البيانات",
         "dataNotVerified": "لم يتم التحقق",
-        "businessCategory": "فئة الأعمال"
+        "businessCategory": "فئة الأعمال",
+        "legalEntityName": "الاسم القانوني للمنشأة",
+        "companyNumber": "رقم السجل التجاري",
+        "nationalCategory": "التصنيف الوطني",
+        "businessSubcategory": "الفئة الفرعية للنشاط",
+        "commercialExpiryDate": "تاريخ انتهاء السجل التجاري"
       },
       "tradeName": {
         "cardTitle": "الهوية التجارية",
         "logoLabel": "شعار المنشأة",
         "nameLabel": "الاسم التجاري",
-        "documentLabel": "وثيقة توثيق العلامة التجارية"
+        "documentLabel": "وثيقة توثيق العلامة التجارية",
+        "crCertificateLabel": "شهادة السجل التجاري"
       },
       "taxAddress": {
         "cardTitle": "الضريبة والعنوان الوطني",
@@ -1135,23 +1141,59 @@
         "postalCode": "الرمز البريدي",
         "district": "الحي",
         "buildingNumber": "رقم المبنى",
-        "streetName": "اسم الشارع"
+        "streetName": "اسم الشارع",
+        "vatNumber": "الرقم الضريبي (VAT)",
+        "taxRate": "نسبة الضريبة",
+        "vatCertificate": "شهادة ضريبة القيمة المضافة",
+        "vatCertificateYes": "متوفرة",
+        "vatCertificateNo": "غير متوفرة"
       },
       "contactInfo": {
         "cardTitle": "بيانات التواصل",
         "mobile": "رقم الجوال",
-        "email": "البريد الإلكتروني"
+        "email": "البريد الإلكتروني",
+        "phoneVerified": "تم التحقق"
       },
       "bankInfo": {
         "cardTitle": "بيانات الحساب البنكي",
         "iban": "رقم الآيبان (IBAN)",
-        "bankVerified": "تم التحقق من الحساب البنكي"
+        "bankVerified": "تم التحقق من الحساب البنكي",
+        "beneficiaryName": "اسم المستفيد",
+        "swiftCode": "رمز السويفت (SWIFT)"
+      },
+      "accountOverview": {
+        "cardTitle": "بيانات الحساب",
+        "disabled": "الحساب معطّل",
+        "referenceCode": "الرقم المرجعي",
+        "idNumber": "رقم الهوية",
+        "birthDate": "تاريخ الميلاد",
+        "memberCount": "عدد الأعضاء",
+        "propertyCount": "عدد العقارات",
+        "createdAt": "تاريخ الإنشاء",
+        "updatedAt": "آخر تحديث",
+        "businessInfoStatus": "حالة بيانات المنشأة",
+        "bankInfoStatus": "حالة البيانات البنكية",
+        "taxInfoStatus": "حالة البيانات الضريبية",
+        "documentsStatus": "حالة المستندات",
+        "previousRejectionReason": "سبب الرفض السابق"
+      },
+      "sectionStatus": {
+        "Draft": "مسودة",
+        "PendingReview": "قيد المراجعة",
+        "Approved": "مقبول",
+        "Rejected": "مرفوض"
       },
       "decision": {
         "cardTitle": "اتخاذ قرار بشأن الطلب",
+        "basicNameLabel": "الاسم الأساسي المعتمد للمنشأة",
+        "basicNameHint": "سيتم اعتماد هذا الاسم رسمياً عند تفعيل الحساب",
+        "basicNamePlaceholder": "مثال: مؤسسة حلول المسافر",
+        "basicNameRequired": "يرجى إدخال الاسم الأساسي بالعربي والإنجليزي قبل القبول",
         "notesLabel": "ملاحظات الرفض",
         "notesRequired": "(إلزامية في حال الرفض)",
         "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "invalidUnifiedNumberLabel": "الرقم الموحد غير صحيح",
+        "invalidUnifiedNumberHint": "فعّل هذا الخيار إذا كان سبب الرفض هو خطأ في الرقم الموحد للمنشأة",
         "rejectBtn": "رفض الطلب",
         "approveBtn": "قبول وتفعيل الحساب",
         "lockNotice": "بسبب الشروط من صدد التسهيلات المقدمة والمتعلقة بقرار التأهيل الشوامل للمنشأة",
@@ -1427,7 +1469,9 @@
         "progressLabel": "حالة المراجعة",
         "progressCount": "{{completed}} من {{total}}",
         "approved": "تم القبول",
-        "rejected": "تم الرفض"
+        "rejected": "تم الرفض",
+        "draftLabel": "مسودة",
+        "newLabel": "جديد"
       },
       "sections": {
         "basicInfo": {

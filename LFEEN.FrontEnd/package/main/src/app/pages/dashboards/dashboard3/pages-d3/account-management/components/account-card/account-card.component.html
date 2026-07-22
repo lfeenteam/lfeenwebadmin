@@ -34,7 +34,7 @@
 
       <div class="card-actions d-flex align-items-center justify-content-end">
         <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
-          <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+          <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
         </button>
       </div>
 

@@ -37,9 +37,12 @@ export interface AccountDetail {
   referenceCode: string;
   onboardingStatus: OnboardingStatus;
   rejectionReason: string | null;
+  isDisabled: boolean;
   businessType: string;
   createdAt: string;
   updatedAt: string | null;
+  idNumber: string | null;
+  birthDateGregorian: string | null;
   businessInfoStatus: string;
   bankInfoStatus: string;
   taxInfoStatus: string;
@@ -58,6 +61,7 @@ export interface AccountDetail {
     unifiedNationalNumber: string | null;
     unifiedNumberVerified: boolean;
     taxNumber: string | null;
+    taxRate: number | null;
     commercialExpiryDate: string | null;
     nationalCategory: string | null;
     businessCategory: string | null;
@@ -66,6 +70,8 @@ export interface AccountDetail {
     logoUrl: string | null;
     trademarkDocumentFileId: string | null;
     trademarkDocumentUrl: string | null;
+    crCertificateFileId: string | null;
+    crCertificateUrl: string | null;
   } | null;
   contact: {
     phoneNumber: string | null;
@@ -91,6 +97,16 @@ export interface AccountDetail {
     vatNumber: string | null;
   } | null;
   documents: any[];
+}
+
+export interface AcceptAccountRequest {
+  basicNameAr: string;
+  basicNameEn: string;
+}
+
+export interface RejectAccountRequest {
+  rejectionReason: string;
+  isUnifiedNumberInvalid: boolean;
 }
 
 export interface Account {
