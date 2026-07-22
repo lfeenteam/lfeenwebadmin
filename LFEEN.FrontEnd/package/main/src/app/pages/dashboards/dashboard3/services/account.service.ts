@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDetail } from '../interfaces/account.model';
+import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDetail, AcceptAccountRequest, RejectAccountRequest } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -144,11 +144,11 @@ export class AccountService {
     return this.http.get<AccountDetail>(`${this.apiUrl}/${id}`);
   }
 
-  acceptAccount(id: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/accept`, {});
+  acceptAccount(id: string, payload: AcceptAccountRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/accept`, payload);
   }
 
-  rejectAccount(id: string, rejectionReason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/reject`, { rejectionReason });
+  rejectAccount(id: string, payload: RejectAccountRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/reject`, payload);
   }
 }

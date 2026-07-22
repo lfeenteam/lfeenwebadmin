@@ -10,6 +10,7 @@ import { BookingService } from './services/booking.service';
 import { Booking, BookingApiStatus, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_STATUS_OPTIONS, BookingStatus } from './interfaces/booking.model';
 import { SingleDateCalendarComponent } from './components/single-date-calendar/single-date-calendar.component';
 import { BookingDetailDrawerComponent } from './components/booking-detail-drawer/booking-detail-drawer.component';
+import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 
 interface MetricCard {
   titleKey: string;
@@ -22,7 +23,7 @@ interface MetricCard {
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent],
   templateUrl: './all-bookings.component.html',
   styleUrl: './all-bookings.component.scss'
 })

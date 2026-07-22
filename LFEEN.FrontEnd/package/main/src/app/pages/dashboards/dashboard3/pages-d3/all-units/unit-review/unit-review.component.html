@@ -14,9 +14,9 @@
     </div>
 
     <div class="status-progress-row">
-      <span class="status-badge">
-        <i-tabler name="clock" class="status-icon"></i-tabler>
-        {{ 'd3.unitReview.status.adminReviewLabel' | translate }}
+      <span class="status-badge" [ngClass]="'status-badge--' + headerStatusConfig.mod">
+        <i-tabler [name]="headerStatusConfig.icon" class="status-icon"></i-tabler>
+        {{ headerStatusConfig.labelKey | translate }}
       </span>
 
       <div class="progress-section">

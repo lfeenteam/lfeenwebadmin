@@ -73,6 +73,21 @@
     display: flex;
     align-items: center;
   }
+
+  &--approved {
+    background: #ECFDF5;
+    color: #059669;
+  }
+
+  &--rejected {
+    background: #FFF1F2;
+    color: #E11D48;
+  }
+
+  &--draft {
+    background: #F7F7F5;
+    color: #6B6B67;
+  }
 }
 .progress-section {
   display: flex;

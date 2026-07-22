@@ -39,6 +39,34 @@
           <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.businessCategory' | translate }}</span>
           <span class="field-value">{{ businessCategoryLabel }}</span>
         </div>
+        @if (account.business?.legalEntityName) {
+          <div class="field-row">
+            <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.legalEntityName' | translate }}</span>
+            <span class="field-value">{{ account.business!.legalEntityName }}</span>
+          </div>
+        }
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.companyNumber' | translate }}</span>
+          <span class="field-value">{{ account.business?.companyNumber || '—' }}</span>
+        </div>
+        @if (account.business?.nationalCategory) {
+          <div class="field-row">
+            <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.nationalCategory' | translate }}</span>
+            <span class="field-value">{{ account.business!.nationalCategory }}</span>
+          </div>
+        }
+        @if (account.business?.businessSubcategory) {
+          <div class="field-row">
+            <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.businessSubcategory' | translate }}</span>
+            <span class="field-value">{{ account.business!.businessSubcategory }}</span>
+          </div>
+        }
+        @if (account.business?.commercialExpiryDate) {
+          <div class="field-row">
+            <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.commercialExpiryDate' | translate }}</span>
+            <span class="field-value">{{ account.business!.commercialExpiryDate | date:'mediumDate' }}</span>
+          </div>
+        }
       </div>
     </div>
 
@@ -67,9 +95,9 @@
             <span class="field-label">{{ 'd3.reviewAccount.tradeName.nameLabel' | translate }}</span>
             <span class="field-value bold">{{ tradeName }}</span>
           </div>
-          @if (account.business?.trademarkDocumentUrl) {
-            <div class="stacked-field">
-              <span class="field-label">{{ 'd3.reviewAccount.tradeName.documentLabel' | translate }}</span>
+          <div class="stacked-field">
+            <span class="field-label">{{ 'd3.reviewAccount.tradeName.documentLabel' | translate }}</span>
+            @if (account.business?.trademarkDocumentUrl) {
               <div class="file-badge" (click)="openDocument(account.business!.trademarkDocumentUrl!)">
                 <div class="file-icon-wrap">
                   <i-tabler name="file-description" class="icon-20"></i-tabler>
@@ -87,8 +115,34 @@
                   </a>
                 </div>
               </div>
-            </div>
-          }
+            } @else {
+              <span class="field-value">—</span>
+            }
+          </div>
+          <div class="stacked-field">
+            <span class="field-label">{{ 'd3.reviewAccount.tradeName.crCertificateLabel' | translate }}</span>
+            @if (account.business?.crCertificateUrl) {
+              <div class="file-badge" (click)="openDocument(account.business!.crCertificateUrl!)">
+                <div class="file-icon-wrap">
+                  <i-tabler name="file-description" class="icon-20"></i-tabler>
+                </div>
+                <div class="file-info">
+                  <span class="file-name">{{ getDocumentFileName(account.business!.crCertificateUrl!) }}</span>
+                </div>
+                <div class="file-actions">
+                  <a [href]="account.business!.crCertificateUrl!"
+                     [download]="getDocumentFileName(account.business!.crCertificateUrl!)"
+                     target="_blank"
+                     class="file-action-btn"
+                     (click)="$event.stopPropagation()">
+                    <i-tabler name="download" class="icon-16"></i-tabler>
+                  </a>
+                </div>
+              </div>
+            } @else {
+              <span class="field-value">—</span>
+            }
+          </div>
         </div>
 
       </div>
@@ -141,6 +195,25 @@
           <span class="field-label">{{ 'd3.reviewAccount.taxAddress.streetName' | translate }}</span>
           <span class="field-value">{{ account.contact?.streetName || '—' }}</span>
         </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.vatNumber' | translate }}</span>
+          <span class="field-value">{{ account.tax?.vatNumber || '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.taxRate' | translate }}</span>
+          <span class="field-value">{{ account.business?.taxRate != null ? (account.business!.taxRate + '%') : '—' }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.taxAddress.vatCertificate' | translate }}</span>
+          @if (account.tax?.hasVatCertificate) {
+            <span class="verified-badge small">
+              <i-tabler name="circle-check" class="icon-14"></i-tabler>
+              {{ 'd3.reviewAccount.taxAddress.vatCertificateYes' | translate }}
+            </span>
+          } @else {
+            <span class="field-value">{{ 'd3.reviewAccount.taxAddress.vatCertificateNo' | translate }}</span>
+          }
+        </div>
       </div>
     </div>
 
@@ -162,6 +235,12 @@
             <span class="field-label">{{ 'd3.reviewAccount.contactInfo.mobile' | translate }}</span>
             <span class="field-value ltr">{{ account.contact?.phoneNumber || '—' }}</span>
           </div>
+          @if (account.contact?.phoneVerified) {
+            <span class="verified-badge small" style="margin-inline-start:auto">
+              <i-tabler name="circle-check" class="icon-14"></i-tabler>
+              {{ 'd3.reviewAccount.contactInfo.phoneVerified' | translate }}
+            </span>
+          }
         </div>
         <div class="contact-row">
           <div class="contact-icon-wrap">
@@ -187,6 +266,14 @@
           <span class="field-label">{{ 'd3.reviewAccount.bankInfo.iban' | translate }}</span>
           <span class="field-value ltr">{{ account.bank?.iban || '—' }}</span>
         </div>
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.bankInfo.beneficiaryName' | translate }}</span>
+          <span class="field-value">{{ account.bank?.beneficiaryName || '—' }}</span>
+        </div>
+        <div class="field-row">
+          <span class="field-label">{{ 'd3.reviewAccount.bankInfo.swiftCode' | translate }}</span>
+          <span class="field-value ltr">{{ account.bank?.swiftCode || '—' }}</span>
+        </div>
         <div class="bank-info-content">
           <div class="bank-icon-wrap">
             <i-tabler name="building-bank" class="icon-20"></i-tabler>
@@ -204,6 +291,80 @@
       </div>
     </div>
 
+    <!-- بيانات الحساب -->
+    <div class="info-card full-width">
+      <div class="card-title-row">
+        <div class="card-icon-box">
+          <i-tabler name="info-circle" class="icon-20"></i-tabler>
+        </div>
+        <span class="card-title">{{ 'd3.reviewAccount.accountOverview.cardTitle' | translate }}</span>
+        @if (account.isDisabled) {
+          <span class="region-badge disabled-badge">
+            <span class="region-label">{{ 'd3.reviewAccount.accountOverview.disabled' | translate }}</span>
+          </span>
+        }
+      </div>
+
+      <div class="fields-grid-2">
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.referenceCode' | translate }}</span>
+          <span class="field-value ltr">{{ account.referenceCode || '—' }}</span>
+        </div>
+        @if (account.idNumber) {
+          <div class="field-col">
+            <span class="field-label">{{ 'd3.reviewAccount.accountOverview.idNumber' | translate }}</span>
+            <span class="field-value ltr">{{ account.idNumber }}</span>
+          </div>
+        }
+        @if (account.birthDateGregorian) {
+          <div class="field-col">
+            <span class="field-label">{{ 'd3.reviewAccount.accountOverview.birthDate' | translate }}</span>
+            <span class="field-value">{{ account.birthDateGregorian | date:'mediumDate' }}</span>
+          </div>
+        }
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.memberCount' | translate }}</span>
+          <span class="field-value">{{ account.memberCount }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.propertyCount' | translate }}</span>
+          <span class="field-value">{{ account.propertyCount }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.createdAt' | translate }}</span>
+          <span class="field-value">{{ account.createdAt | date:'mediumDate' }}</span>
+        </div>
+        @if (account.updatedAt) {
+          <div class="field-col">
+            <span class="field-label">{{ 'd3.reviewAccount.accountOverview.updatedAt' | translate }}</span>
+            <span class="field-value">{{ account.updatedAt | date:'mediumDate' }}</span>
+          </div>
+        }
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.businessInfoStatus' | translate }}</span>
+          <span class="status-chip" [class]="sectionStatusClass(account.businessInfoStatus)">{{ sectionStatusLabel(account.businessInfoStatus) }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.bankInfoStatus' | translate }}</span>
+          <span class="status-chip" [class]="sectionStatusClass(account.bankInfoStatus)">{{ sectionStatusLabel(account.bankInfoStatus) }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.taxInfoStatus' | translate }}</span>
+          <span class="status-chip" [class]="sectionStatusClass(account.taxInfoStatus)">{{ sectionStatusLabel(account.taxInfoStatus) }}</span>
+        </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.documentsStatus' | translate }}</span>
+          <span class="status-chip" [class]="sectionStatusClass(account.documentsStatus)">{{ sectionStatusLabel(account.documentsStatus) }}</span>
+        </div>
+        @if (account.onboardingStatus === 'Rejected' && account.rejectionReason) {
+          <div class="field-col full-width">
+            <span class="field-label">{{ 'd3.reviewAccount.accountOverview.previousRejectionReason' | translate }}</span>
+            <span class="field-value">{{ account.rejectionReason }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
   </div>
 
   @if (isPending) {
@@ -215,6 +376,33 @@
         <span class="card-title">{{ 'd3.reviewAccount.decision.cardTitle' | translate }}</span>
       </div>
 
+      <div class="field-group">
+        <label class="notes-label m-b-8" style="display:block;color:#111110;">{{ 'd3.reviewAccount.decision.basicNameLabel' | translate }}</label>
+        <p class="basic-name-hint">{{ 'd3.reviewAccount.decision.basicNameHint' | translate }}</p>
+        <div class="bilingual-input-wrapper" [dir]="dir">
+          <input class="bilingual-input"
+            [(ngModel)]="primaryBasicName"
+            name="basicNamePrimary"
+            [placeholder]="'d3.reviewAccount.decision.basicNamePlaceholder' | translate">
+          <button type="button" class="lang-chip" [class.active]="showBasicNameSecondary"
+            (click)="showBasicNameSecondary = !showBasicNameSecondary">
+            {{ currentLang === 'ar' ? 'English' : 'عربي' }}
+          </button>
+        </div>
+        @if (showBasicNameSecondary) {
+          <div class="bilingual-input-wrapper secondary m-t-8" [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
+            @if (currentLang === 'ar') {
+              <input class="bilingual-input" [(ngModel)]="basicNameEn" name="basicNameEn"
+                placeholder="e.g. Traveler Solutions Est.">
+            } @else {
+              <input class="bilingual-input" [(ngModel)]="basicNameAr" name="basicNameAr"
+                placeholder="مثال: مؤسسة حلول المسافر">
+            }
+            <span class="lang-chip static">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
+          </div>
+        }
+      </div>
+
       <div class="notes-label-row">
         <span class="notes-label">{{ 'd3.reviewAccount.decision.notesLabel' | translate }}</span>
         <span class="notes-required">{{ 'd3.reviewAccount.decision.notesRequired' | translate }}</span>
@@ -224,6 +412,14 @@
         rows="4"
         [(ngModel)]="rejectionReason"
         [placeholder]="'d3.reviewAccount.decision.notesPlaceholder' | translate"></textarea>
+
+      <div class="invalid-number-toggle-row">
+        <div>
+          <label class="field-label d-block">{{ 'd3.reviewAccount.decision.invalidUnifiedNumberLabel' | translate }}</label>
+          <p class="f-s-12 text-muted m-0">{{ 'd3.reviewAccount.decision.invalidUnifiedNumberHint' | translate }}</p>
+        </div>
+        <mat-slide-toggle [(ngModel)]="isUnifiedNumberInvalid" color="primary"></mat-slide-toggle>
+      </div>
     </div>
 
     <div class="action-section">

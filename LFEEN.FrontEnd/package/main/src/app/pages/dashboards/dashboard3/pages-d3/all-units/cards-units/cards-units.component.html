@@ -78,9 +78,9 @@
           </header>
           @for (unit of building.units; track unit.id) {
             @if (isReviewTab) {
-              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode" [activeTab]="activeTab"></app-unit-card-review>
             } @else {
-              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id"></app-unit-card>
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id" [activeTab]="activeTab"></app-unit-card>
             }
           }
         </div>
@@ -88,9 +88,9 @@
         <div class="units-grid">
           @for (unit of building.units; track unit.id) {
             @if (isReviewTab) {
-              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode"></app-unit-card-review>
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!building.needsPropertyReview" [buildingId]="building.id" [viewMode]="viewMode" [activeTab]="activeTab"></app-unit-card-review>
             } @else {
-              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id"></app-unit-card>
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id" [activeTab]="activeTab"></app-unit-card>
             }
           }
         </div>

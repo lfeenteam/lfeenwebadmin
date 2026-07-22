@@ -374,7 +374,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 12px;
   }
 }
 
@@ -536,6 +537,102 @@
 
   &::placeholder { color: #DC262666; }
   &:focus { border-color: #DC2626; }
+}
+
+// ===== Status Chips =====
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+
+  &.approved { background: #F0FDF4; border: 1px solid #DCFCE7; color: #15803D; }
+  &.pending  { background: #FFFBEB; border: 1px solid #FDE68A; color: #B45309; }
+  &.rejected { background: #FEF2F2; border: 1px solid #FEE2E2; color: #DC2626; }
+  &.draft    { background: #F1F1EE; border: 1px solid #E8E8E4; color: #6B6B67; }
+}
+
+.disabled-badge {
+  background: #FEF2F2;
+  border-color: #FEE2E2;
+
+  .region-label { color: #DC2626; }
+}
+
+// ===== Bilingual Input (basic name in decision section) =====
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.basic-name-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #90A1B9;
+  margin: 0 0 8px;
+}
+
+.bilingual-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8FAFC;
+  border: 1.5px solid #E8E8E4;
+  border-radius: 12px;
+  padding: 0 12px;
+  transition: border-color 0.15s;
+
+  &:focus-within { border-color: #111110; }
+  &.secondary { background: #F1F1EE; }
+
+  .bilingual-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111110;
+    padding: 12px 0;
+
+    &::placeholder { color: #BFBFBA; font-weight: 600; }
+  }
+
+  .lang-chip {
+    flex-shrink: 0;
+    background: #F1F1EE;
+    border: 1px solid #E8E8E4;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B6B67;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover { background: #E8E8E4; color: #111110; }
+    &.active { background: #111110; color: #fff; border-color: #111110; }
+    &.static { cursor: default; pointer-events: none; }
+  }
+}
+
+// ===== Invalid Unified Number Toggle =====
+.invalid-number-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #FEF2F2;
+  border: 1px solid #FEE2E2;
+
+  .field-label { color: #111110; }
+  .text-muted { color: #9E9E9A; }
 }
 
 // ===== Action Section =====
@@ -772,5 +869,24 @@
 
   .contact-row {
     gap: 10px;
+  }
+}
+
+// ── Slide Toggle colors ─────────────────────
+::ng-deep .review-account {
+  .mat-mdc-slide-toggle.mat-primary {
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-handle-color: #fff;
+    --mdc-switch-unselected-track-color: #EDEDEB;
+    --mdc-switch-unselected-handle-color: #fff;
+
+    .mdc-switch:enabled .mdc-switch__track::after {
+      background-color: #111110 !important;
+    }
+
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #EDEDEB !important;
+      border: 1px solid #E8E8E4;
+    }
   }
 }

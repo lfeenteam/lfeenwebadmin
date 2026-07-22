@@ -1115,7 +1115,9 @@
         "progressLabel": "Review status",
         "progressCount": "{{completed}} of {{total}}",
         "approved": "Approved",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "draftLabel": "Draft",
+        "newLabel": "New"
       },
       "sections": {
         "basicInfo": {
@@ -1848,13 +1850,19 @@
         "dataStatus": "Data Status",
         "dataVerified": "Data Verified",
         "dataNotVerified": "Not Verified",
-        "businessCategory": "Business Category"
+        "businessCategory": "Business Category",
+        "legalEntityName": "Legal Entity Name",
+        "companyNumber": "Commercial Registration Number",
+        "nationalCategory": "National Category",
+        "businessSubcategory": "Business Subcategory",
+        "commercialExpiryDate": "Commercial Registration Expiry"
       },
       "tradeName": {
         "cardTitle": "Commercial Identity",
         "logoLabel": "Facility Logo",
         "nameLabel": "Trade Name",
-        "documentLabel": "Brand Documentation"
+        "documentLabel": "Brand Documentation",
+        "crCertificateLabel": "Commercial Registration Certificate"
       },
       "taxAddress": {
         "cardTitle": "Tax and National Address",
@@ -1866,23 +1874,59 @@
         "postalCode": "Postal Code",
         "district": "District",
         "buildingNumber": "Building Number",
-        "streetName": "Street Name"
+        "streetName": "Street Name",
+        "vatNumber": "VAT Number",
+        "taxRate": "Tax Rate",
+        "vatCertificate": "VAT Certificate",
+        "vatCertificateYes": "Available",
+        "vatCertificateNo": "Not Available"
       },
       "contactInfo": {
         "cardTitle": "Contact Information",
         "mobile": "Mobile Number",
-        "email": "Email Address"
+        "email": "Email Address",
+        "phoneVerified": "Verified"
       },
       "bankInfo": {
         "cardTitle": "Bank Account Information",
         "iban": "IBAN Number",
-        "bankVerified": "Bank Account Verified"
+        "bankVerified": "Bank Account Verified",
+        "beneficiaryName": "Beneficiary Name",
+        "swiftCode": "SWIFT Code"
+      },
+      "accountOverview": {
+        "cardTitle": "Account Overview",
+        "disabled": "Account Disabled",
+        "referenceCode": "Reference Code",
+        "idNumber": "ID Number",
+        "birthDate": "Birth Date",
+        "memberCount": "Member Count",
+        "propertyCount": "Property Count",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated",
+        "businessInfoStatus": "Business Info Status",
+        "bankInfoStatus": "Bank Info Status",
+        "taxInfoStatus": "Tax Info Status",
+        "documentsStatus": "Documents Status",
+        "previousRejectionReason": "Previous Rejection Reason"
+      },
+      "sectionStatus": {
+        "Draft": "Draft",
+        "PendingReview": "Pending Review",
+        "Approved": "Approved",
+        "Rejected": "Rejected"
       },
       "decision": {
         "cardTitle": "Make Decision on Request",
+        "basicNameLabel": "Facility's Approved Basic Name",
+        "basicNameHint": "This name will be officially used once the account is activated",
+        "basicNamePlaceholder": "e.g. Traveler Solutions Est.",
+        "basicNameRequired": "Please enter the basic name in Arabic and English before accepting",
         "notesLabel": "Rejection Notes",
         "notesRequired": "(Required if rejecting)",
         "notesPlaceholder": "Please enter rejection reasons in detail so the host can make corrections...",
+        "invalidUnifiedNumberLabel": "Unified Number Is Invalid",
+        "invalidUnifiedNumberHint": "Enable this if the rejection reason is an invalid facility unified number",
         "rejectBtn": "Reject Request",
         "approveBtn": "Accept and Activate Account",
         "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",

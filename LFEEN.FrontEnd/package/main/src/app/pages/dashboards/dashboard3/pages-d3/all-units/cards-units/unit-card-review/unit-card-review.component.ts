@@ -18,6 +18,7 @@ export class UnitCardReviewComponent {
   @Input() forceUnderReviewStyle: boolean = false;
   @Input() buildingId!: string;
   @Input() viewMode: ViewMode = 'grid';
+  @Input() activeTab = '';
 
   constructor(
     private router: Router,
@@ -57,7 +58,8 @@ export class UnitCardReviewComponent {
 
   goToReview(): void {
     this.router.navigate(['../unit-review', this.buildingId, this.unit.id], {
-      relativeTo: this.route
+      relativeTo: this.route,
+      queryParams: this.activeTab ? { tab: this.activeTab } : {}
     });
   }
 }
