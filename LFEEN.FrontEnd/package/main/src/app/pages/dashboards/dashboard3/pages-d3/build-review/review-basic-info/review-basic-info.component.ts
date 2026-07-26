@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -13,6 +13,7 @@ import {
 } from '../../../interfaces/building-card.model';
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingReviewService } from '../../../services/building-review.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
@@ -33,6 +34,7 @@ export class ReviewBasicInfoComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
 
   basicData: PropertyBasicDataResponse | null = null;
   isLoading = false;
@@ -40,6 +42,13 @@ export class ReviewBasicInfoComponent implements OnInit {
   rejectionReason = '';
 
   ngOnInit(): void {
+    // The backend localizes propertyTypeName/usage/service & facility names based on
+    // the Accept-Language header (set from the current language at request time), so
+    // a language toggle needs a fresh fetch — the strings won't retranslate on their own.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadBasicData());
+
     this.loadBasicData();
   }
 
