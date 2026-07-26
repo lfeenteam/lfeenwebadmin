@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, Observable, forkJoin } from 'rxjs';
-import { expand, map, reduce } from 'rxjs/operators';
+import { catchError, expand, map, reduce } from 'rxjs/operators';
 import { AccountItem, PaginatedAccountResponse } from '../interfaces/account.model';
 import { PaginatedPropertyResponse } from '../interfaces/building-card.model';
 import {
@@ -52,8 +52,6 @@ export class UnitsService {
   readonly sortOrder    = signal<UnitSortOrder>('newest');
   readonly buildingsPage = signal(1);
 
-  private readonly BUILDINGS_PER_PAGE = 6;
-
   private readonly _unitsResource = rxResource({
     request: () => ({
       search:     this.searchQuery(),
@@ -61,6 +59,7 @@ export class UnitsService {
       propertyId: this.propertyId(),
       tab:        this.activeTab(),
       sort:       this.sortOrder(),
+      page:       this.buildingsPage(),
     }),
     loader: ({ request }) => {
       const newestFirst = request.sort !== 'oldest';
@@ -69,11 +68,13 @@ export class UnitsService {
       // units), so per the same decision made for properties, we trust the request itself
       // and label whatever comes back as Draft rather than cross-checking reviewStatus.
       if (request.tab === 'draft') {
-        return this.getAllUnitPages({ ...request, status: 0, newestFirst });
+        return this.fetchUnitsPage({ ...request, status: 0, newestFirst });
       }
 
       // The 'pendingChanges' tab covers two distinct statuses (HasPendingChanges and
-      // PendingAfterRejection); fetch both and merge them client-side.
+      // PendingAfterRejection). There's no single backend query for "either of these two
+      // statuses" with real pagination, so this tab still pulls everything for both statuses
+      // and merges client-side — it's a much smaller dataset than the other tabs in practice.
       if (request.tab === 'pendingChanges') {
         return forkJoin([
           this.getAllUnitPages({ ...request, status: 5, newestFirst }),
@@ -90,7 +91,7 @@ export class UnitsService {
       }
 
       const status = this.tabToStatus(request.tab)!;
-      return this.getAllUnitPages({
+      return this.fetchUnitsPage({
         ...request,
         status,
         newestFirst,
@@ -103,11 +104,6 @@ export class UnitsService {
         }))
       );
     }
-  });
-
-  private readonly _filterUnitsResource = rxResource({
-    request: () => true,
-    loader: () => this.getAllUnitPages({})
   });
 
   private readonly _statsResource = rxResource({
@@ -131,7 +127,6 @@ export class UnitsService {
     }
     return data;
   });
-  readonly filterUnits = computed(() => this._filterUnitsResource.value()?.data ?? []);
   readonly rawAccounts = computed(() => this._accountsFilterResource.value()?.data ?? []);
   readonly rawProperties = computed(() => this._propertiesFilterResource.value()?.data ?? []);
   readonly propertyMainPhotoMap = computed(() => {
@@ -143,8 +138,7 @@ export class UnitsService {
     }
     return mapByPropertyId;
   });
-  readonly totalPages = computed(() => this._unitsResource.value()?.totalPages ?? 1);
-  readonly totalCount = computed(() => this.rawUnits().length);
+  readonly totalCount = computed(() => this._unitsResource.value()?.totalCount ?? 0);
   readonly isLoading  = this._unitsResource.isLoading;
   readonly unitStats  = computed<UnitApiStats | null>(() => this._statsResource.value()?.stats ?? null);
 
@@ -188,13 +182,11 @@ export class UnitsService {
     return 2;
   }
 
-  readonly totalBuildingsCount = computed(() => this.buildingsWithUnitsSignal().length);
-
   readonly propertiesForFilter = computed<FilterItem[]>(() => {
     const seen = new Map<number, FilterItem>();
-    for (const u of this.filterUnits()) {
-      if (!seen.has(u.propertyId)) {
-        seen.set(u.propertyId, { value: String(u.propertyId), labelKey: u.propertyName });
+    for (const p of this.rawProperties()) {
+      if (!seen.has(p.propertyId)) {
+        seen.set(p.propertyId, { value: String(p.propertyId), labelKey: p.name });
       }
     }
     return Array.from(seen.values());
@@ -214,14 +206,32 @@ export class UnitsService {
     return Array.from(seen.values());
   });
 
-  readonly totalBuildingPages = computed(() =>
-    Math.ceil(this.totalBuildingsCount() / this.BUILDINGS_PER_PAGE) || 1
-  );
+  readonly totalBuildingPages = computed(() => this._unitsResource.value()?.totalPages ?? 1);
 
-  readonly paginatedBuildings = computed<BuildingWithUnits[]>(() => {
-    const start = (this.buildingsPage() - 1) * this.BUILDINGS_PER_PAGE;
-    return this.buildingsWithUnitsSignal().slice(start, start + this.BUILDINGS_PER_PAGE);
-  });
+  readonly paginatedBuildings = computed<BuildingWithUnits[]>(() => this.buildingsWithUnitsSignal());
+
+  // Fetches exactly the page the backend reports (page/totalPages/nextpage passed through
+  // untouched), so the UI's pagination controls drive real server-side pagination instead
+  // of pulling every page up front just to slice it client-side.
+  private fetchUnitsPage(filters: {
+    search?: string;
+    accountId?: string;
+    propertyId?: string;
+    status?: number | string;
+    newestFirst?: boolean;
+    page: number;
+  }): Observable<PaginatedUnitResponse> {
+    const params = new URLSearchParams({
+      pageNumber:  String(filters.page),
+      pageSize:    '20',
+      newestFirst: filters.newestFirst === false ? 'false' : 'true',
+    });
+    if (filters.search)              params.set('search',     filters.search);
+    if (filters.accountId)           params.set('accountId',  filters.accountId);
+    if (filters.propertyId)          params.set('propertyId', filters.propertyId);
+    if (filters.status !== undefined) params.set('status',    String(filters.status));
+    return this.http.get<PaginatedUnitResponse>(`${this.apiUrl}?${params}`);
+  }
 
   private getAllUnitPages(filters: {
     search?: string;
@@ -244,7 +254,9 @@ export class UnitsService {
     };
 
     return fetchPage(1).pipe(
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+      // If a later page fails (e.g. a transient gateway error), stop paginating and
+      // keep whatever pages already succeeded instead of losing the whole list.
+      expand(res => res.nextpage != null ? fetchPage(res.nextpage).pipe(catchError(() => EMPTY)) : EMPTY),
       reduce((acc, res) => ({
         ...res,
         data: [...acc.data, ...res.data],
@@ -265,7 +277,9 @@ export class UnitsService {
     };
 
     return fetchPage(1).pipe(
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+      // If a later page fails (e.g. a transient gateway error), stop paginating and
+      // keep whatever pages already succeeded instead of losing the whole list.
+      expand(res => res.nextpage != null ? fetchPage(res.nextpage).pipe(catchError(() => EMPTY)) : EMPTY),
       reduce((acc, res) => ({
         ...res,
         data: [...acc.data, ...res.data],
@@ -286,7 +300,9 @@ export class UnitsService {
     };
 
     return fetchPage(1).pipe(
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+      // If a later page fails (e.g. a transient gateway error), stop paginating and
+      // keep whatever pages already succeeded instead of losing the whole list.
+      expand(res => res.nextpage != null ? fetchPage(res.nextpage).pipe(catchError(() => EMPTY)) : EMPTY),
       reduce((acc, res) => ({
         ...res,
         data: [...acc.data, ...res.data],

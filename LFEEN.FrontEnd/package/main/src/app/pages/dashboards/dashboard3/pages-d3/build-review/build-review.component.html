@@ -53,7 +53,7 @@
   <!-- Progress Bar -->
 <div class="progress-section">
   <div class="progress-header">
-    <span class="progress-status">{{ 'd3.buildReview.progress.statusLabel' | translate: { completed: completedCount, total: reviewSections.length } }}</span>
+    <span class="progress-status">{{ 'd3.buildReview.progress.statusLabel' | translate: { completed: completedCount, total: visibleReviewSections.length } }}</span>
     <span class="progress-percent">%{{ progressPercent }}</span>
   </div>
 
@@ -64,14 +64,14 @@
 
   <!-- Review Sections or Image Review -->
   @if (currentView === 'list') {
-    <div class="review-sections">
-      @for (section of reviewSections; track section.titleKey; let i = $index) {
+    <div class="review-sections" [style.--section-count]="visibleReviewSections.length">
+      @for (section of visibleReviewSections; track section.titleKey) {
         <div
           class="review-card"
           [class.accepted]="section.status === 'accepted'"
           [class.rejected]="section.status === 'rejected'"
           [class.pending]="section.status === 'pending'"
-          (click)="openSection(i)"
+          (click)="openSection(section.index)"
         >
          <div class="review-card-inner">
           <span

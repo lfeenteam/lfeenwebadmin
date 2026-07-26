@@ -46,7 +46,9 @@ export interface PropertyApiItem {
   reviewStatus: PropertyAdminReviewStatus | PropertyAdminReviewStatusValue;
   photosSectionDecision: AdminReviewStatus;
   termsSectionDecision: AdminReviewStatus;
-  licenseSectionDecision: AdminReviewStatus;
+  // null when the property's type/business setup doesn't require a license section at all
+  // (e.g. private hospitality facilities), as opposed to Pending which means it's required but undecided.
+  licenseSectionDecision: AdminReviewStatus | null;
   completedSections: number;
   createdAt: string;
   updatedAt: string;
@@ -359,7 +361,8 @@ export interface PropertyDetailResponse {
   updatedAt: string;
   photosSection: SectionReview;
   termsSection: SectionReview;
-  licenseSection: SectionReview;
+  // null when this property doesn't require a license section (see licenseSectionDecision above).
+  licenseSection: SectionReview | null;
   basicDataSection: SectionReview;
   locationSection: SectionReview;
   photosApprovedCount: number;

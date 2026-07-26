@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { BuildingReviewService } from '../../../services/building-review.service';
 import {
   LicenseReviewPayload,
@@ -33,12 +34,27 @@ export class ReviewLicenseComponent implements OnInit {
   private translate = inject(TranslateService);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private sanitizer = inject(DomSanitizer);
 
   isLoading = false;
   isSubmitting = false;
   license: PropertyLicenseResponse | null = null;
   rejectionReason = '';
-  documentLoadFailed = false;
+
+  // The attachment can be a PDF or an image; an <img> tag can't render a PDF (it 404s
+  // the "error" handler even on a valid URL), so preview both through a sandboxed iframe.
+  get safeDocumentUrl(): SafeResourceUrl | null {
+    const url = this.license?.licenseAttachmentUrl;
+    if (!url) return null;
+
+    // For PDFs, the browser's built-in viewer otherwise renders its own toolbar and
+    // grey page background around the document. These open-params (supported by
+    // Chrome/Edge's native PDF viewer) hide that chrome and fit the page to width,
+    // so it reads as a clean document instead of an embedded PDF viewer.
+    const isPdf = /\.pdf(\?|#|$)/i.test(url);
+    const src = isPdf ? `${url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH` : url;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(src);
+  }
 
   ngOnInit(): void {
     this.translate.onLangChange
@@ -57,7 +73,6 @@ export class ReviewLicenseComponent implements OnInit {
         this.isLoading = false;
         this.license = data;
         this.rejectionReason = data.rejectionReason ?? '';
-        this.documentLoadFailed = false;
       },
       error: () => {
         this.isLoading = false;
