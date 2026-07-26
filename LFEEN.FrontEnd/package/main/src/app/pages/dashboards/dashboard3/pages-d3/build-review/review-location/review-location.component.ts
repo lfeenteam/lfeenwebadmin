@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -14,6 +14,7 @@ import {
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingReviewService } from '../../../services/building-review.service';
 import { GoogleMapsLoaderService } from 'src/app/services/google-maps-loader.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 export interface PropertyLocationAddressRow {
@@ -56,6 +57,7 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
   private mapsLoader = inject(GoogleMapsLoaderService);
+  private destroyRef = inject(DestroyRef);
 
   private location: PropertyLocationResponse | null = null;
   private map: any = null;
@@ -70,6 +72,13 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
   rejectionReason = '';
 
   ngOnInit(): void {
+    // The backend localizes city/district/formattedAddress etc. based on the
+    // Accept-Language header (set from the current language at request time), so
+    // a language toggle needs a fresh fetch — the strings won't retranslate on their own.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadLocation());
+
     this.loadLocation();
   }
 

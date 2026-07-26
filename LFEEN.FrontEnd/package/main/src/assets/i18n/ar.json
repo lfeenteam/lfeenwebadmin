@@ -331,12 +331,12 @@
       },
       "buildingHosts": {
         "host1": "مجموعة ريادة الفندقية",
-        "host2": "شركة إيواء العقارية",
+        "host2": "شركة إيواء للمباني",
         "host3": "فهد القحطاني (فرد)",
         "host4": "شركة البحر للمنتجعات",
-        "host5": "المطور العقاري الحديث",
+        "host5": "مطوّر المباني الحديث",
         "host6": "صاحب المنشأة",
-        "host7": "شركة سكاى العقارية",
+        "host7": "شركة سكاى للمباني",
         "host8": "مجموعة الضيافة"
       },
       "buildingLocations": {
@@ -365,16 +365,16 @@
       "placeholder": "محتوى الوحدات قيد التطوير...",
       "cards": {
         "totalUnits": "إجمالي الوحدات",
-        "publishedUnits": "عقارات منشورة",
+        "publishedUnits": "مباني منشورة",
         "activeUnits": "وحدات نشطة",
         "stoppedUnits": "وحدات متوقفة",
         "unpublishedUnits": "غير منشورة",
         "underReviewUnits": "تحت المراجعة"
       },
       "filters": {
-        "searchPlaceholder": "بحث باسم الوحدة، رقمها، أو العقار...",
+        "searchPlaceholder": "بحث باسم الوحدة، رقمها، أو المبنى...",
         "allAccounts": "كل الحسابات",
-        "allProperties": "كل العقارات",
+        "allProperties": "كل المباني",
         "allStatuses": "كل الحالات",
         "unitType": "نوع الوحدة",
         "sortNewest": "الأحدث",
@@ -396,13 +396,13 @@
         "servicesFree": "مجانية"
       },
       "cardsUnits": {
-        "awaitingReviewMeta": "بانتظار مراجعة العقار أولاً",
-        "reviewPropertyBtn": "مراجعة العقار أولاً",
+        "awaitingReviewMeta": "بانتظار مراجعة المبنى أولاً",
+        "reviewPropertyBtn": "مراجعة المبنى أولاً",
         "publishedUnits": "{{count}} وحدة منشورة",
         "approvedBadge": "معتمد",
         "activationNotice": {
           "title": "تنبيه نظام التفعيل",
-          "description": "يرجى العلم أنه في حال الموافقة على أي وحدة سكنية تابعة لـ ({{buildingName}})، لن يتم نشرها فعليًا في المنصة للحجز، إلا بعد الحصول على الموافقة النهائية على بيانات العقار الرئيسي أولاً."
+          "description": "يرجى العلم أنه في حال الموافقة على أي وحدة سكنية تابعة لـ ({{buildingName}})، لن يتم نشرها فعليًا في المنصة للحجز، إلا بعد الحصول على الموافقة النهائية على بيانات المبنى الرئيسي أولاً."
         }
       },
       "table": {
@@ -503,7 +503,7 @@
       "sidebar": {
         "title1": "إدارة ذكية",
         "title2": "لأكبر منصة حجوزات في المملكة",
-        "description": "تحكم كامل في العقارات، المضيفين، والعمليات اليومية بذكاء اصطناعي ودقة متناهية."
+        "description": "تحكم كامل في المباني، المضيفين، والعمليات اليومية بذكاء اصطناعي ودقة متناهية."
       },
       "form": {
         "title": "تسجيل دخول الإدارة",
@@ -983,7 +983,7 @@
       "table": {
         "bookingNum": "رقم الحجز",
         "client": "العميل",
-        "unit": "الوحدة / العقار",
+        "unit": "الوحدة / المبنى",
         "dates": "تاريخ الدخول / الخروج",
         "amount": "المبلغ",
         "status": "الحالة",
@@ -1083,7 +1083,7 @@
       "card": {
         "requestDate": "تاريخ الطلب",
         "joinDate": "تاريخ الانضمام",
-        "propertyCount": "عدد العقارات",
+        "propertyCount": "عدد المباني",
         "statusActive": "نشط",
         "statusUnderReview": "تحت المراجعة",
         "statusDraft": "مسودة",
@@ -1168,7 +1168,7 @@
         "idNumber": "رقم الهوية",
         "birthDate": "تاريخ الميلاد",
         "memberCount": "عدد الأعضاء",
-        "propertyCount": "عدد العقارات",
+        "propertyCount": "عدد المباني",
         "createdAt": "تاريخ الإنشاء",
         "updatedAt": "آخر تحديث",
         "businessInfoStatus": "حالة بيانات المنشأة",
@@ -1241,7 +1241,7 @@
       },
       "finalDecision": {
         "readyTitle": "جاهز للاعتماد النهائي",
-        "readyDesc": "لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد العقار ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً",
+        "readyDesc": "لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد المبنى ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً",
         "rejectionSummaryTitle": "ملخص أسباب الرفض",
         "rejectionSummarySubtitle": "موجز الملاحظات للأقسام الثلاثة",
         "sectionNotesPrefix": "ملاحظات",
@@ -1249,39 +1249,39 @@
         "finalNotesPlaceholder": "اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب...",
         "finalNotesOptionalLabel": "الملاحظات النهائية (اختياري)",
         "finalNotesOptionalPlaceholder": "أضف أي ملاحظات نهائية للمضيف...",
-        "rejectSuccess": "تم رفض العقار بنجاح.",
+        "rejectSuccess": "تم رفض المبنى بنجاح.",
         "errors": {
-          "alreadyApproved": "تم اعتماد هذا العقار مسبقًا.",
-          "accountNotApproved": "يجب اعتماد حساب العقار أولًا.",
+          "alreadyApproved": "تم اعتماد هذا المبنى مسبقًا.",
+          "accountNotApproved": "يجب اعتماد حساب المبنى أولًا.",
           "sectionsNotApproved": "يجب قبول أقسام المراجعة الثلاثة قبل الاعتماد النهائي.",
-          "alreadyRejected": "تم رفض هذا العقار مسبقًا."
+          "alreadyRejected": "تم رفض هذا المبنى مسبقًا."
         }
       },
       "confirm": {
-        "imagesApproveTitle": "اعتماد صور العقار؟",
-        "imagesApproveMessage": "هل أنت متأكد من اعتماد جميع صور العقار؟",
-        "imagesRejectTitle": "رفض صور العقار؟",
-        "imagesRejectMessage": "هل أنت متأكد من رفض صور العقار بالأسباب المكتوبة؟",
-        "termsApproveTitle": "اعتماد شروط العقار؟",
-        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين العقار؟",
-        "termsRejectTitle": "رفض شروط العقار؟",
-        "termsRejectMessage": "هل أنت متأكد من رفض شروط العقار بالسبب المكتوب؟",
-        "licenseApproveTitle": "اعتماد ترخيص العقار؟",
-        "licenseApproveMessage": "هل أنت متأكد من اعتماد ترخيص العقار؟",
-        "licenseRejectTitle": "رفض ترخيص العقار؟",
-        "licenseRejectMessage": "هل أنت متأكد من رفض ترخيص العقار بالسبب المكتوب؟",
+        "imagesApproveTitle": "اعتماد صور المبنى؟",
+        "imagesApproveMessage": "هل أنت متأكد من اعتماد جميع صور المبنى؟",
+        "imagesRejectTitle": "رفض صور المبنى؟",
+        "imagesRejectMessage": "هل أنت متأكد من رفض صور المبنى بالأسباب المكتوبة؟",
+        "termsApproveTitle": "اعتماد شروط المبنى؟",
+        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين المبنى؟",
+        "termsRejectTitle": "رفض شروط المبنى؟",
+        "termsRejectMessage": "هل أنت متأكد من رفض شروط المبنى بالسبب المكتوب؟",
+        "licenseApproveTitle": "اعتماد ترخيص المبنى؟",
+        "licenseApproveMessage": "هل أنت متأكد من اعتماد ترخيص المبنى؟",
+        "licenseRejectTitle": "رفض ترخيص المبنى؟",
+        "licenseRejectMessage": "هل أنت متأكد من رفض ترخيص المبنى بالسبب المكتوب؟",
         "basicInfoApproveTitle": "اعتماد البيانات الأساسية؟",
-        "basicInfoApproveMessage": "هل أنت متأكد من اعتماد البيانات الأساسية للعقار؟",
+        "basicInfoApproveMessage": "هل أنت متأكد من اعتماد البيانات الأساسية للمبنى؟",
         "basicInfoRejectTitle": "رفض البيانات الأساسية؟",
-        "basicInfoRejectMessage": "هل أنت متأكد من رفض البيانات الأساسية للعقار بالسبب المكتوب؟",
+        "basicInfoRejectMessage": "هل أنت متأكد من رفض البيانات الأساسية للمبنى بالسبب المكتوب؟",
         "locationApproveTitle": "اعتماد الموقع الجغرافي؟",
-        "locationApproveMessage": "هل أنت متأكد من اعتماد الموقع الجغرافي للعقار؟",
+        "locationApproveMessage": "هل أنت متأكد من اعتماد الموقع الجغرافي للمبنى؟",
         "locationRejectTitle": "رفض الموقع الجغرافي؟",
-        "locationRejectMessage": "هل أنت متأكد من رفض الموقع الجغرافي للعقار بالسبب المكتوب؟",
-        "finalApproveTitle": "اعتماد العقار نهائيًا؟",
-        "finalApproveMessage": "تم قبول جميع الأقسام. هل أنت متأكد من الاعتماد النهائي لهذا العقار؟",
-        "finalRejectTitle": "رفض العقار نهائيًا؟",
-        "finalRejectMessage": "هل أنت متأكد من اتخاذ قرار الرفض النهائي لهذا العقار؟",
+        "locationRejectMessage": "هل أنت متأكد من رفض الموقع الجغرافي للمبنى بالسبب المكتوب؟",
+        "finalApproveTitle": "اعتماد المبنى نهائيًا؟",
+        "finalApproveMessage": "تم قبول جميع الأقسام. هل أنت متأكد من الاعتماد النهائي لهذا المبنى؟",
+        "finalRejectTitle": "رفض المبنى نهائيًا؟",
+        "finalRejectMessage": "هل أنت متأكد من اتخاذ قرار الرفض النهائي لهذا المبنى؟",
         "approveAction": "نعم، اعتماد",
         "rejectAction": "نعم، رفض"
       },
@@ -1295,7 +1295,7 @@
         "mainImageTitle": "الصورة الرئيسية (الخارجية)",
         "mainPhotoBadge": "الصورة الرئيسية للمبنى",
         "exteriorTitle": "الصور الخارجية للمبنى",
-        "interiorTitle": "الصور الداخلية للعقار",
+        "interiorTitle": "الصور الداخلية للمبنى",
         "imagesCount": "{{count}} صور",
         "statusRejected": "مرفوضة",
         "statusAccepted": "مقبولة",
@@ -1307,7 +1307,7 @@
         "rejectionSummaryTitle": "ملخص أسباب الرفض",
         "rejectionSummarySubtitle": "تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً",
         "emptyTitle": "لا توجد صور مرفوعة",
-        "emptyDescription": "لم يقم المضيف بإضافة أي صور لهذا العقار بعد.",
+        "emptyDescription": "لم يقم المضيف بإضافة أي صور لهذا المبنى بعد.",
         "noImageLabel": "لا توجد صورة",
         "notesTitle": "ملاحظات المراجعة",
         "notesRequired": "/ سبب الرفض (إلزامي في حال الرفض)",
@@ -1317,15 +1317,15 @@
         "rejectedPhotoRequired": "يجب رفض صورة واحدة على الأقل قبل رفض قسم الصور.",
         "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة.",
         "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
-        "approveSuccess": "تم قبول قسم الصور بنجاح. حالة العقار الآن: {{status}}.",
-        "rejectSuccess": "تم رفض قسم الصور بنجاح. حالة العقار الآن: {{status}}.",
+        "approveSuccess": "تم قبول قسم الصور بنجاح. حالة المبنى الآن: {{status}}.",
+        "rejectSuccess": "تم رفض قسم الصور بنجاح. حالة المبنى الآن: {{status}}.",
         "overallStatus": {
           "Pending": "قيد الانتظار",
           "UnderReview": "تحت المراجعة",
           "Approved": "مقبول",
           "Rejected": "مرفوض"
         },
-        "approveBtn": "اعتماد الصور العقار",
+        "approveBtn": "اعتماد صور المبنى",
         "rejectBtn": "رفض الطلب"
       },
       "license": {
@@ -1340,25 +1340,25 @@
         "businessTypeLabel": "نوع نشاط المنشأة",
         "verificationStatus": "نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة",
         "emptyTitle": "لا توجد بيانات للترخيص",
-        "emptyDescription": "لم يقم المضيف بإضافة بيانات الترخيص أو إرفاق مستند لهذا العقار.",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الترخيص أو إرفاق مستند لهذا المبنى.",
         "noImageLabel": "تعذر عرض الصورة",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",
         "notesOptional": "اختياري للموافقة",
         "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
         "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الترخيص.",
-        "approveSuccess": "تم قبول ترخيص العقار بنجاح.",
-        "rejectSuccess": "تم رفض ترخيص العقار بنجاح.",
+        "approveSuccess": "تم قبول ترخيص المبنى بنجاح.",
+        "rejectSuccess": "تم رفض ترخيص المبنى بنجاح.",
         "approveBtn": "اعتماد مراجعة ترخيص وزارة السياحة",
         "rejectBtn": "رفض الطلب"
       },
       "basicInfo": {
         "title": "مراجعة البيانات الأساسية",
-        "subtitle": "يرجى مراجعة البيانات الأساسية للعقار والتأكد من صحتها قبل الاعتماد.",
+        "subtitle": "يرجى مراجعة البيانات الأساسية للمبنى والتأكد من صحتها قبل الاعتماد.",
         "detailsTitle": "البيانات الأساسية",
-        "nameLabel": "اسم العقار",
-        "idLabel": "رقم العقار",
-        "typeLabel": "نوع العقار",
-        "usageLabel": "استخدام العقار",
+        "nameLabel": "اسم المبنى",
+        "idLabel": "رقم المبنى",
+        "typeLabel": "نوع المبنى",
+        "usageLabel": "استخدام المبنى",
         "usageValues": {
           "IndividualHousing": "سكن فردي"
         },
@@ -1367,7 +1367,7 @@
         "organizationLabel": "المؤسسة المشغّلة",
         "totalUnitsLabel": "إجمالي الوحدات",
         "controlTitle": "الخصائص والتحكم",
-        "smartLockTitle": "قفل ذكي للعقار",
+        "smartLockTitle": "قفل ذكي للمبنى",
         "smartLockDesc": "يمكن الدخول دون مفتاح عبر رمز",
         "extraServicesTitle": "خدمات إضافية",
         "extraServicesDesc": "تشمل كافة الخدمات المضافة",
@@ -1379,7 +1379,7 @@
         "unitsCountLabel": "عدد الوحدات",
         "unitsSuffix": "وحدات",
         "emptyFloorsTitle": "لا توجد بيانات طوابق",
-        "emptyFloorsDescription": "لم يقم المضيف بإضافة تفاصيل الطوابق والوحدات لهذا العقار.",
+        "emptyFloorsDescription": "لم يقم المضيف بإضافة تفاصيل الطوابق والوحدات لهذا المبنى.",
         "floorNames": {
           "groundLobby": "الطابق الأرضي - اللوبي",
           "servicesFloor": "طابق الخدمات والمرافق",
@@ -1389,7 +1389,7 @@
         },
         "amenitiesTitle": "الخدمات والمرافق المتوفرة",
         "emptyAmenitiesTitle": "لا توجد خدمات أو مرافق",
-        "emptyAmenitiesDescription": "لم يقم المضيف بإضافة أي خدمات أو مرافق لهذا العقار.",
+        "emptyAmenitiesDescription": "لم يقم المضيف بإضافة أي خدمات أو مرافق لهذا المبنى.",
         "amenityLabels": {
           "cleaning": "تنظيف دوري",
           "smartAssistant": "مساعد ذكية",
@@ -1404,12 +1404,12 @@
         "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض البيانات الأساسية.",
         "approveSuccess": "تم قبول البيانات الأساسية بنجاح.",
         "rejectSuccess": "تم رفض البيانات الأساسية بنجاح.",
-        "approveBtn": "اعتماد بيانات العقار",
+        "approveBtn": "اعتماد بيانات المبنى",
         "rejectBtn": "رفض الطلب"
       },
       "location": {
         "title": "مراجعة الموقع الجغرافي",
-        "subtitle": "يرجى التحقق من عنوان العقار وموقعه على الخريطة ومطابقته للموقع الفعلي.",
+        "subtitle": "يرجى التحقق من عنوان المبنى وموقعه على الخريطة ومطابقته للموقع الفعلي.",
         "addressLabel": "العنوان الكامل",
         "regionLabel": "المنطقة",
         "cityLabel": "المدينة",
@@ -1423,7 +1423,7 @@
         "mapError": "تعذر تحميل الخريطة",
         "coordsLabel": "الإحداثيات",
         "emptyTitle": "لا توجد بيانات موقع",
-        "emptyDescription": "لم يقم المضيف بإضافة بيانات الموقع الجغرافي لهذا العقار.",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الموقع الجغرافي لهذا المبنى.",
         "addressDetailsTitle": "تفاصيل العنوان",
         "reviewTipTitle": "نصيحة للمراجعة",
         "reviewTipText": "تأكد من مطابقة الصور المرفوعة مع المعالم المحيطة الظاهرة في الخريطة لضمان دقة الموقع الصحيح عنه.",
@@ -1433,11 +1433,11 @@
         "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الموقع الجغرافي.",
         "approveSuccess": "تم قبول الموقع الجغرافي بنجاح.",
         "rejectSuccess": "تم رفض الموقع الجغرافي بنجاح.",
-        "approveBtn": "اعتماد موقع العقار",
+        "approveBtn": "اعتماد موقع المبنى",
         "rejectBtn": "رفض الطلب"
       },
       "terms": {
-        "title": "مراجعة شروط وقوانين العقار",
+        "title": "مراجعة شروط وقوانين المبنى",
         "subtitle": "يرجى مراجعة سياسات الدخول والخروج والقواعد التي وضعها المضيف لضمان توافقها مع معايير لفين.",
         "checkInLabel": "موعد الدخول",
         "checkOutLabel": "موعد الخروج",
@@ -1447,14 +1447,14 @@
         "generalRulesTitle": "القوانين العامة",
         "customRulesTitle": "شروط مخصصة من المضيف",
         "emptyTitle": "لا توجد شروط أو قوانين",
-        "emptyDescription": "لم يقم المضيف بإضافة أي شروط أو قوانين لهذا العقار.",
+        "emptyDescription": "لم يقم المضيف بإضافة أي شروط أو قوانين لهذا المبنى.",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",
         "notesOptional": "اختياري للموافقة",
         "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
         "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الشروط.",
-        "approveSuccess": "تم قبول شروط العقار بنجاح.",
-        "rejectSuccess": "تم رفض شروط العقار بنجاح.",
-        "approveBtn": "اعتماد مراجعة الشروط وقوانين العقار",
+        "approveSuccess": "تم قبول شروط المبنى بنجاح.",
+        "rejectSuccess": "تم رفض شروط المبنى بنجاح.",
+        "approveBtn": "اعتماد مراجعة الشروط وقوانين المبنى",
         "rejectBtn": "رفض الطلب"
       }
     },
@@ -1605,7 +1605,7 @@
         "earlyArrivalDesc": "السماح للضيف بالوصول قبل الموعد الرسمي",
         "availableLabel": "الموعد المتاح",
         "earlyArrivalTime": "٠٧:٠٠ ص",
-        "generalRulesTitle": "القوانين العامة للوحدة المرونة من العقار",
+        "generalRulesTitle": "القوانين العامة للوحدة المرونة من المبنى",
         "customRulesTitle": "شروط إضافية من المضيف",
         "emptyTitle": "لا توجد شروط أو قوانين",
         "emptyDescription": "لم يقم المضيف بإضافة أي شروط أو قوانين لهذه الوحدة.",
@@ -1862,7 +1862,7 @@
           "title": "مواقف السيارات",
           "desc": "سياسة المواقف الخاصة بالوحدة",
           "itemTitle": "نوع الخدمة",
-          "itemDesc": "موقف مخصص للضيف داخل العقار"
+          "itemDesc": "موقف مخصص للضيف داخل المبنى"
         },
         "food": {
           "title": "خدمات الطعام",
@@ -1913,7 +1913,7 @@
         "documentTitle": "وثيقة الترخيص المرفقة",
         "documentAlt": "وثيقة ترخيص الوحدة",
         "owner": {
-          "title": "بيانات مالك العقار",
+          "title": "بيانات مالك المبنى",
           "name": "مجموعة رحلة الفندقية",
           "subtitle": "نظام السجل التجاري",
           "id": "٤٣٠٠٢٩٣٨٧",
@@ -2001,12 +2001,12 @@
       "tabs": {
         "all": "الكل",
         "complaints": "الشكاوى",
-        "propertyReview": "مراجعة عقارات",
+        "propertyReview": "مراجعة مباني",
         "inquiries": "الاستفسارات"
       },
       "types": {
         "complaint": "شكوى",
-        "propertyReview": "مراجعة عقار",
+        "propertyReview": "مراجعة مبنى",
         "inquiry": "استفسار"
       },
       "mock": {
@@ -2016,7 +2016,7 @@
           "time": "منذ ٢ ساعات"
         },
         "propertyReview1": {
-          "title": "مراجعة عقار #٣٥٤",
+          "title": "مراجعة مبنى #٣٥٤",
           "subtitle": "طلب اعتماد مبنى جديد: مجمع لاقتدر",
           "time": "منذ ساعتين"
         },
