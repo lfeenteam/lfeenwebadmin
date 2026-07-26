@@ -164,7 +164,10 @@ export interface UnitApiDetailItem {
   cancellationPolicySection: UnitApiSection;
   depositSection: UnitApiSection;
   servicesSection: UnitApiSection;
-  licenseSection: UnitApiSection;
+  // null when the unit's type/business setup doesn't require a license section at all
+  // (as opposed to Pending, which means it's required but undecided).
+  licenseSection: UnitApiSection | null;
+  licenseApplicable: boolean;
   completedSections: number;
   totalSections: number;
   progressPercentage: number;

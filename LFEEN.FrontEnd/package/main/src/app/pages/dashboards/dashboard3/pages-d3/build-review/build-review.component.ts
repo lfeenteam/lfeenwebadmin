@@ -181,10 +181,21 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
           this.reviewSections[3].notes = data.termsSection.rejectionReason;
         }
 
-        this.reviewSections[4].completed = this.isFinalDecision(data.licenseSection.decision);
-        this.reviewSections[4].status    = this.mapDecision(data.licenseSection.decision);
-        if (data.licenseSection.rejectionReason) {
-          this.reviewSections[4].notes = data.licenseSection.rejectionReason;
+        // Some property types (e.g. private hospitality facilities) don't require a
+        // license at all, in which case the API sends licenseSection as null rather
+        // than a Pending decision. Drop it from the review flow entirely instead of
+        // blocking approval on a section that will never be decided.
+        this.reviewSections[4].applicable = !!data.licenseSection;
+        if (data.licenseSection) {
+          this.reviewSections[4].completed = this.isFinalDecision(data.licenseSection.decision);
+          this.reviewSections[4].status    = this.mapDecision(data.licenseSection.decision);
+          if (data.licenseSection.rejectionReason) {
+            this.reviewSections[4].notes = data.licenseSection.rejectionReason;
+          }
+        }
+
+        if (this.currentView === 'license' && !this.reviewSections[4].applicable) {
+          this.setView('list');
         }
 
         this.reviewSections[0].completed = this.isFinalDecision(data.basicDataSection.decision);
@@ -218,49 +229,69 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   reviewSections: {
+    index: number;
     iconUrl?: string;
     tablerIcon?: string;
     titleKey: string;
     completed: boolean;
     status: 'pending' | 'accepted' | 'rejected';
     notes: string;
+    // False when this property doesn't require this section at all (currently only
+    // the license section, for property types that have no license requirement).
+    applicable: boolean;
   }[] = [
     {
+      index:      0,
       tablerIcon: 'clipboard-list',
       titleKey:   'd3.buildReview.sections.basicInfoTitle',
       completed:  false,
       status:     'pending',
-      notes:      ''
+      notes:      '',
+      applicable: true
     },
     {
+      index:     1,
       iconUrl:   'assets/images/svgs/SVG.svg',
       titleKey:  'd3.buildReview.sections.photosTitle',
       completed: false,
       status:    'pending',
-      notes:     ''
+      notes:     '',
+      applicable: true
     },
     {
+      index:      2,
       tablerIcon: 'map-pin',
       titleKey:   'd3.buildReview.sections.locationTitle',
       completed:  false,
       status:     'pending',
-      notes:      ''
+      notes:      '',
+      applicable: true
     },
     {
+      index:     3,
       iconUrl:   'assets/images/svgs/SVG (1).svg',
       titleKey:  'd3.buildReview.sections.termsTitle',
       completed: false,
       status:    'pending',
-      notes:     ''
+      notes:     '',
+      applicable: true
     },
     {
+      index:     4,
       iconUrl:   'assets/images/svgs/SVG (2).svg',
       titleKey:  'd3.buildReview.sections.licenseTitle',
       completed: false,
       status:    'pending',
-      notes:     ''
+      notes:     '',
+      applicable: true
     }
   ];
+
+  // The list view, progress bar, and approve/reject gating should only consider
+  // sections that actually apply to this property (see `applicable` above).
+  get visibleReviewSections() {
+    return this.reviewSections.filter(s => s.applicable);
+  }
 
   finalRejectionNotes = '';
   finalNotes = '';
@@ -268,15 +299,15 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   showSuccessModal = false;
 
   get completedCount(): number {
-    return this.reviewSections.filter(s => s.completed).length;
+    return this.visibleReviewSections.filter(s => s.completed).length;
   }
 
   get progressPercent(): number {
-    return Math.round((this.completedCount / this.reviewSections.length) * 100);
+    return Math.round((this.completedCount / this.visibleReviewSections.length) * 100);
   }
 
   get allSectionsComplete(): boolean {
-    return this.reviewSections.every(s => s.completed);
+    return this.visibleReviewSections.every(s => s.completed);
   }
 
   get viewOnly(): boolean {
@@ -317,11 +348,11 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   get isFinalSuccess(): boolean {
-    return this.reviewSections.every(s => s.status === 'accepted');
+    return this.visibleReviewSections.every(s => s.status === 'accepted');
   }
 
   get rejectedSectionsSummary() {
-    return this.reviewSections.filter(s => s.status === 'rejected');
+    return this.visibleReviewSections.filter(s => s.status === 'rejected');
   }
 
   onReject(): void {

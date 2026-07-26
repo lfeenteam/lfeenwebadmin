@@ -30,8 +30,8 @@
     </div>
 
     <div class="document-preview">
-        @if (!documentLoadFailed) {
-          <img [src]="license?.licenseAttachmentUrl" alt="License Document" (error)="documentLoadFailed = true">
+        @if (safeDocumentUrl) {
+          <iframe [src]="safeDocumentUrl" width="100%" height="600" style="border:none;display:block;"></iframe>
         } @else {
           <div class="photo-load-error">
             <i-tabler name="file-off"></i-tabler>

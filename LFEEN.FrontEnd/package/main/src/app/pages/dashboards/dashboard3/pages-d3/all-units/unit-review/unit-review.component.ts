@@ -159,8 +159,19 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     this.pageTitleOverride.clear();
   }
 
+  // Some unit types (e.g. private hospitality facilities) don't require a license at
+  // all, in which case the API sends licenseSection as null and licenseApplicable as
+  // false. Drop it from the review flow entirely instead of showing a section that
+  // will never be decided.
+  get visibleSections(): UnitReviewSection[] {
+    if (this.unitDetail && !this.unitDetail.licenseApplicable) {
+      return this.reviewSections.filter(s => s.key !== 'license');
+    }
+    return this.reviewSections;
+  }
+
   get reviewableSections(): UnitReviewSection[] {
-    return this.reviewSections.filter(s => !s.isSmartLockBadge);
+    return this.visibleSections.filter(s => !s.isSmartLockBadge);
   }
 
   get approvedCount(): number {
@@ -316,7 +327,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'cancelPolicy': return d.cancellationPolicySection.decision;
       case 'deposit':      return d.depositSection.decision;
       case 'services':     return d.servicesSection.decision;
-      case 'license':      return d.licenseSection.decision;
+      // licenseSection is null when the unit's type/business setup doesn't require a
+      // license at all (as opposed to Pending, which means it's required but undecided).
+      case 'license':      return d.licenseSection?.decision ?? 'Pending';
       default:             return 'Pending';
     }
   }
@@ -333,7 +346,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'cancelPolicy': return d.cancellationPolicySection.description ?? '';
       case 'deposit':      return d.depositSection.description ?? '';
       case 'services':     return d.servicesSection.description ?? '';
-      case 'license':      return d.licenseSection.description ?? '';
+      case 'license':      return d.licenseSection?.description ?? '';
       default:             return '';
     }
   }

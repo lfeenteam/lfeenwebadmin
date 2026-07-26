@@ -30,7 +30,7 @@
   </div>
 
   <div class="review-sections-grid">
-    @for (section of reviewSections; track section.titleKey) {
+    @for (section of visibleSections; track section.titleKey) {
       <div
         class="unit-review-card"
         [class.unit-review-card--decided]="isSectionDecided(section.key)"

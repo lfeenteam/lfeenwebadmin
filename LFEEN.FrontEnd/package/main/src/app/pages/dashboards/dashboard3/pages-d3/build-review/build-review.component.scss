@@ -259,7 +259,7 @@ font-weight: 900;
 .review-sections {
     margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--section-count, 5), 1fr);
   gap: 16px;
 
   @media (max-width: 1200px) {
