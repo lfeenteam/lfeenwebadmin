@@ -12,6 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AccountService } from '../../services/account.service';
 import { Account } from '../../interfaces/account.model';
 import { StatItem } from '../../interfaces/stats.model';
+import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 export type { Account } from '../../interfaces/account.model';
 
@@ -83,7 +84,6 @@ export class AccountManagementComponent implements OnInit {
   get filteredAccounts(): Account[] {
     switch (this.activeTab) {
       case 'all':          return this.accounts;
-      case 'draft':        return this.accounts.filter(a => a.status === 'draft');
       case 'under_review': return this.accounts.filter(a => a.status === 'under_review');
       default:             return this.accounts;
     }
@@ -121,11 +121,6 @@ export class AccountManagementComponent implements OnInit {
   }
 
   get visiblePages(): (number | '...')[] {
-    const n = this.totalPages;
-    const c = this.currentPage;
-    if (n <= 7) return Array.from({ length: n }, (_, i) => i + 1);
-    if (c <= 4)     return [1, 2, 3, 4, '...', n - 2, n - 1, n];
-    if (c >= n - 3) return [1, 2, 3, '...', n - 3, n - 2, n - 1, n];
-    return [1, 2, 3, '...', c, '...', n - 2, n - 1, n];
+    return getVisiblePages(this.currentPage, this.totalPages);
   }
 }

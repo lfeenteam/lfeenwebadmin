@@ -11,6 +11,7 @@ import { Booking, BookingApiStatus, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_ST
 import { SingleDateCalendarComponent } from './components/single-date-calendar/single-date-calendar.component';
 import { BookingDetailDrawerComponent } from './components/booking-detail-drawer/booking-detail-drawer.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
 interface MetricCard {
   titleKey: string;
@@ -152,7 +153,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   }
 
   private formatMetricNumber(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA');
+    return formatLocalizedNumber(value, this.currentLang);
   }
 
   get pagedBookings(): Booking[] {
@@ -160,12 +161,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   }
 
   get visiblePages(): (number | '...')[] {
-    const n = this.totalPages;
-    const c = this.currentPage;
-    if (n <= 7) return Array.from({ length: n }, (_, i) => i + 1);
-    if (c <= 4)     return [1, 2, 3, 4, '...', n - 1, n];
-    if (c >= n - 3) return [1, 2, '...', n - 3, n - 2, n - 1, n];
-    return [1, 2, '...', c, '...', n - 1, n];
+    return getVisiblePages(this.currentPage, this.totalPages, 2);
   }
 
   get paginationSummary(): string {

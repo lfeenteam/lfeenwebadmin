@@ -4,6 +4,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { BookingService } from '../../services/booking.service';
 import { BookingServiceRequestApiItem } from '../../interfaces/booking.model';
+import { formatLocalizedDayMonth } from 'src/app/utils/date-format.util';
+import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
 interface ServiceRequestView {
   name: string;
@@ -12,9 +14,6 @@ interface ServiceRequestView {
   price: number | null;
   icon: string;
 }
-
-const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 @Component({
   selector: 'app-booking-services-tab',
@@ -45,7 +44,7 @@ export class BookingServicesTabComponent implements OnChanges {
 
   formatAmount(amount: number): string {
     const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    return amount.toLocaleString(lang === 'en' ? 'en-US' : 'ar-SA');
+    return formatLocalizedNumber(amount, lang);
   }
 
   get currencyIconEn(): boolean {
@@ -83,13 +82,8 @@ export class BookingServicesTabComponent implements OnChanges {
   }
 
   private formatDate(iso: string | null): string {
-    if (!iso) return '-';
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return '-';
-
     const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    const months = lang === 'en' ? MONTHS_EN : MONTHS_AR;
-    return `${d.getUTCDate()} ${months[d.getUTCMonth()]}`;
+    return formatLocalizedDayMonth(iso, lang);
   }
 
   private iconFor(unitTaskType: string | null, requestTypeKey: string | null): string {

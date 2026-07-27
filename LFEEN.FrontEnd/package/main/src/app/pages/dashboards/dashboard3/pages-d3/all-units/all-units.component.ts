@@ -8,6 +8,7 @@ import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interf
 import { UnitsService, UnitSortOrder } from '../../services/units.service';
 import { BuildingWithUnits, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
+import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
 
 @Component({
   selector: 'app-all-units',
@@ -89,10 +90,10 @@ export class AllUnitsComponent {
       const s = this.unitsService.unitStats();
       if (s) {
         this.metrics = [
-          { ...this.metrics[0], value: this.formatNumber(s.total)             },
-          { ...this.metrics[1], value: this.formatNumber(s.activeOrPublished) },
-          { ...this.metrics[2], value: this.formatNumber(s.pendingOrRejected) },
-          { ...this.metrics[3], value: this.formatNumber(s.underReview)       },
+          { ...this.metrics[0], value: formatNumber(s.total)             },
+          { ...this.metrics[1], value: formatNumber(s.activeOrPublished) },
+          { ...this.metrics[2], value: formatNumber(s.pendingOrRejected) },
+          { ...this.metrics[3], value: formatNumber(s.underReview)       },
         ];
       }
 
@@ -132,17 +133,8 @@ export class AllUnitsComponent {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
-  private formatNumber(value: number): string {
-    return new Intl.NumberFormat().format(value);
-  }
-
   get visiblePages(): (number | '...')[] {
-    const n = this.totalPages;
-    const c = this.currentPage;
-    if (n <= 7) return Array.from({ length: n }, (_, i) => i + 1);
-    if (c <= 4)     return [1, 2, 3, 4, '...', n - 2, n - 1, n];
-    if (c >= n - 3) return [1, 2, 3, '...', n - 3, n - 2, n - 1, n];
-    return [1, 2, 3, '...', c, '...', n - 2, n - 1, n];
+    return getVisiblePages(this.currentPage, this.totalPages);
   }
 
   get isReviewTab(): boolean {

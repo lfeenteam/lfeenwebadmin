@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TranslateModule } from '@ngx-translate/core';
 
-export type AccountTab = 'all' | 'draft' | 'active' | 'rejected' | 'under_review';
+export type AccountTab = 'all' | 'active' | 'rejected' | 'under_review';
 
 @Component({
   selector: 'app-account-tabs-bar',
@@ -18,7 +18,6 @@ export class AccountTabsBarComponent {
 
   readonly tabs: { key: AccountTab; label: string; hasDot?: boolean }[] = [
     { key: 'all',          label: 'd3.accountManagement.tabs.all' },
-    { key: 'draft',        label: 'd3.accountManagement.tabs.draft' },
     { key: 'active',       label: 'd3.accountManagement.tabs.active' },
     { key: 'rejected',     label: 'd3.accountManagement.tabs.rejected' },
     { key: 'under_review', label: 'd3.accountManagement.tabs.underReview', hasDot: true },

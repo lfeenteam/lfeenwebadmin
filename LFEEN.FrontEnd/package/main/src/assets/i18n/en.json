@@ -220,10 +220,6 @@
           "title": "No accounts found",
           "desc": "No accounts have been registered yet, or no results match your search."
         },
-        "draft": {
-          "title": "No draft accounts",
-          "desc": "No accounts are currently saved as drafts."
-        },
         "active": {
           "title": "No active accounts",
           "desc": "There are no active accounts at this time."
@@ -1802,7 +1798,6 @@
       },
       "tabs": {
         "all": "All",
-        "draft": "Draft",
         "active": "Active Accounts",
         "rejected": "Rejected Accounts",
         "underReview": "Accounts Under Review"
@@ -1819,7 +1814,6 @@
         "propertyCount": "Number of Properties",
         "statusActive": "Active",
         "statusUnderReview": "Under Review",
-        "statusDraft": "Draft",
         "statusPending": "Pending Review",
         "statusRejected": "Rejected",
         "statusSuspended": "Suspended",
