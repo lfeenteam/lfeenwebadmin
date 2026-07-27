@@ -49,14 +49,16 @@
         }
       </div>
 
-      <button
-        type="button"
-        class="filter-icon-btn"
-        [class.active]="mobileFilterOpen"
-        [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate"
-        (click)="toggleMobileFilter()">
-        <i-tabler name="filter"></i-tabler>
-      </button>
+      @if (showMoreFiltersButton) {
+        <button
+          type="button"
+          class="filter-icon-btn"
+          [class.active]="mobileFilterOpen"
+          [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate"
+          (click)="toggleMobileFilter()">
+          <i-tabler name="filter"></i-tabler>
+        </button>
+      }
 
       <div class="search-box">
         <i-tabler name="search" class="search-icon"></i-tabler>

@@ -17,25 +17,62 @@
           <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>
         </div>
       }
-      <app-complaints-table
-        [activeTab]="activeTab()"
-        [complaints]="visibleComplaints()"
-        [selectedId]="selectedComplaint()?.id ?? null"
-        [compact]="chatOpen"
-        [loading]="loading()"
-        [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : (activeTab() === 'hosts' ? hostTotalCount() : (activeTab() === 'resolved' ? resolvedTotalCount() : null))"
-        [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : (activeTab() === 'hosts' ? hostTotalPages() : (activeTab() === 'resolved' ? resolvedTotalPages() : null))"
-        [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : (activeTab() === 'hosts' ? hostPage() : (activeTab() === 'resolved' ? resolvedPage() : null))"
-        [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : (activeTab() === 'hosts' ? hostStatus() : resolvedType())"
-        [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : (activeTab() === 'hosts' ? hostStatusOptions : resolvedTypeOptions)"
-        [allOptionLabelKey]="activeTab() === 'resolved' ? 'd3.complaints.table.allTypes' : 'd3.complaints.table.allStatuses'"
-        (rowSelect)="onRowSelect($event)"
-        (detailSelect)="openHostComplaint($event)"
-        (assignClick)="onAssignClick($event)"
-        (searchChange)="activeTab() === 'customers' ? onCustomerSearchChange($event) : (activeTab() === 'hosts' ? onHostSearchChange($event) : onResolvedSearchChange($event))"
-        (statusFilterChange)="activeTab() === 'hosts' ? onHostStatusChange($event) : (activeTab() === 'resolved' ? onResolvedTypeChange($event) : onCustomerStatusChange($event))"
-        (pageChange)="activeTab() === 'customers' ? onCustomerPageChange($event) : (activeTab() === 'hosts' ? onHostPageChange($event) : onResolvedPageChange($event))">
-      </app-complaints-table>
+
+      @if (activeTab() === 'hosts') {
+        <div class="host-filters-bar">
+          <app-tabs-filter
+            class="host-tabs-filter"
+            [tabs]="[]"
+            [showMoreFiltersButton]="false"
+            [filterOptions]="hostFilterOptions()"
+            [activeFilters]="hostActiveFiltersSnapshot()"
+            [searchQuery]="hostSearch()"
+            [searchPlaceholder]="'d3.complaints.hostFilters.searchPlaceholder'"
+            (searchQueryChange)="onHostSearchInput($event)"
+            (filtersChange)="onHostFiltersChange($event)">
+          </app-tabs-filter>
+
+          <div class="host-extra-filters">
+            <button class="host-filter-btn" type="button" (click)="resetHostFilters()">
+              <i-tabler name="filter-x" class="icon-16"></i-tabler>
+              {{ 'd3.complaints.hostFilters.reset' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'hosts' && hostError() && !loading()) {
+        <div class="host-error-state">
+          <i-tabler name="alert-triangle" class="icon-32"></i-tabler>
+          <span>{{ 'd3.complaints.hostFilters.errorMsg' | translate }}</span>
+          <button class="host-filter-btn" type="button" (click)="retryLoadHostTickets()">
+            {{ 'd3.complaints.hostFilters.retry' | translate }}
+          </button>
+        </div>
+      } @else {
+        <app-complaints-table
+          [activeTab]="activeTab()"
+          [complaints]="visibleComplaints()"
+          [selectedId]="selectedComplaint()?.id ?? null"
+          [compact]="chatOpen"
+          [loading]="loading()"
+          [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : (activeTab() === 'hosts' ? hostTotalCount() : (activeTab() === 'resolved' ? resolvedTotalCount() : null))"
+          [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : (activeTab() === 'hosts' ? hostTotalPages() : (activeTab() === 'resolved' ? resolvedTotalPages() : null))"
+          [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : (activeTab() === 'hosts' ? hostPage() : (activeTab() === 'resolved' ? resolvedPage() : null))"
+          [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : (activeTab() === 'hosts' ? hostStatus() : resolvedType())"
+          [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : resolvedTypeOptions"
+          [allOptionLabelKey]="activeTab() === 'resolved' ? 'd3.complaints.table.allTypes' : 'd3.complaints.table.allStatuses'"
+          [emptyMessageKey]="activeTab() === 'hosts' ? 'd3.complaints.hostFilters.emptyFiltered' : 'd3.complaints.table.empty'"
+          [showClearFiltersInEmpty]="activeTab() === 'hosts' && hostHasActiveFilters()"
+          (rowSelect)="onRowSelect($event)"
+          (detailSelect)="openHostComplaint($event)"
+          (assignClick)="onAssignClick($event)"
+          (searchChange)="activeTab() === 'customers' ? onCustomerSearchChange($event) : onResolvedSearchChange($event)"
+          (statusFilterChange)="activeTab() === 'resolved' ? onResolvedTypeChange($event) : onCustomerStatusChange($event)"
+          (pageChange)="activeTab() === 'customers' ? onCustomerPageChange($event) : (activeTab() === 'hosts' ? onHostPageChange($event) : onResolvedPageChange($event))"
+          (clearFilters)="resetHostFilters()">
+        </app-complaints-table>
+      }
     </div>
 
     @if (chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')) {

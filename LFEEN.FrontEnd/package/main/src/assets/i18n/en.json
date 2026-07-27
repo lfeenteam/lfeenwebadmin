@@ -1619,6 +1619,26 @@
         "pending": "Pending",
         "replied": "Replied"
       },
+      "hostFilters": {
+        "searchPlaceholder": "Search by subject, ticket number...",
+        "property": "Property",
+        "department": "Department",
+        "priority": "Priority",
+        "notAssigned": "Not assigned",
+        "allPriorities": "All priorities",
+        "allDepartments": "All departments",
+        "allProperties": "All buildings",
+        "allEmployees": "All employees",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "reset": "Reset filters",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "errorMsg": "Something went wrong while loading tickets.",
+        "emptyFiltered": "No tickets match the current filters",
+        "clearFilters": "Clear filters",
+        "dateRangeError": "\"Date from\" must not be after \"Date to\""
+      },
       "clientStatus": {
         "open": "Open",
         "pending": "Pending",

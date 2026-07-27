@@ -87,7 +87,97 @@
   }
 }
 
+.host-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 10px 28px;
+  border-bottom: 1px solid #E8E8E4;
+  background: #FDFDFB;
+  direction: rtl;
+
+  .host-tabs-filter {
+    flex: 1 1 480px;
+    min-width: 280px;
+
+    // app-tabs-filter is designed to sit under page-level hero cards elsewhere (42px
+    // top margin) and to show tabs above the filter row — neither applies here since
+    // this row already sits right under this page's own tab bar.
+    ::ng-deep .tabs-filter {
+      margin-top: 0;
+    }
+
+    ::ng-deep .tabs-row {
+      display: none;
+    }
+
+    // .filters-row carries a bottom-only padding meant to separate it from the border
+    // under it elsewhere — here it just throws the pills off-center against the reset
+    // button next to them, since this row already has its own border-bottom.
+    ::ng-deep .filters-row {
+      padding-bottom: 0;
+    }
+
+    ::ng-deep .tabs-filter-toolbar {
+      border-bottom: none;
+    }
+  }
+}
+
+.host-extra-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.host-filter-btn {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  height: 47px;
+  padding: 10px 20px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0px 1px 2px -1px #0000001A;
+  color: #111110;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: #F7F7F5;
+    border-color: #D8D8D2;
+  }
+}
+
+.host-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: #DC2626;
+  font-size: 13px;
+  font-family: 'Cairo', sans-serif;
+}
+
 :host-context([dir='ltr']) {
+  .host-filters-bar {
+    direction: ltr;
+  }
+
   .chat-column {
     border-left: 1px solid #E8E8E4;
     border-right: none;
