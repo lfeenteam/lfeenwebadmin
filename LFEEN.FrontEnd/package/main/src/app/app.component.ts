@@ -38,5 +38,9 @@ export class AppComponent implements OnInit {
     if (!this.settings.hasPreferredLanguage()) {
       this.settings.updateFromBrowserLanguage();
     }
+
+    // App bootstrapped successfully, so a future chunk-load error is a
+    // fresh occurrence and should be allowed to trigger another reload.
+    sessionStorage.removeItem('chunk-load-error-reloaded');
   }
 }

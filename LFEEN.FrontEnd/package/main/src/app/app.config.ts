@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideZoneChangeDetection,
   importProvidersFrom,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
 import { AuthInterceptor } from './guards/auth.interceptor';
+import { ChunkLoadErrorHandler } from './guards/chunk-load-error.handler';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -53,6 +55,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(), // required animations providers
     provideToastr(), // Toastr providers
     provideZoneChangeDetection({ eventCoalescing: true }),
+    { provide: ErrorHandler, useClass: ChunkLoadErrorHandler },
     provideHighlightOptions({
       coreLibraryLoader: () => import('highlight.js/lib/core'),
       lineNumbersLoader: () => import('ngx-highlightjs/line-numbers'), // Optional, add line numbers if needed
