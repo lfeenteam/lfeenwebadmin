@@ -113,7 +113,7 @@ export interface Account {
   id: string;
   name: string;
   type: 'individual' | 'company';
-  status: 'active' | 'suspended' | 'under_review' | 'rejected' | 'draft';
+  status: 'active' | 'suspended' | 'under_review' | 'rejected';
   onboardingStatus: OnboardingStatus;
   idNumber: string;
   joinDate: string;

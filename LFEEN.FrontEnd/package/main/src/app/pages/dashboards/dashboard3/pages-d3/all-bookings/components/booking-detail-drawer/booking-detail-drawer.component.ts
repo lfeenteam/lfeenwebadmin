@@ -7,6 +7,7 @@ import { BookingService } from '../../services/booking.service';
 import { BookingFinanceTabComponent } from '../booking-finance-tab/booking-finance-tab.component';
 import { BookingServicesTabComponent } from '../booking-services-tab/booking-services-tab.component';
 import { BookingLogTabComponent } from '../booking-log-tab/booking-log-tab.component';
+import { formatLocalizedDateTime } from 'src/app/utils/date-format.util';
 
 type BookingDetailTab =   'details' | 'finance' |  'log' | 'services'  ;
 
@@ -35,9 +36,6 @@ interface BookingDetailView {
   };
   dateRangeLabel: string;
 }
-
-const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 @Component({
   selector: 'app-booking-detail-drawer',
@@ -154,17 +152,8 @@ export class BookingDetailDrawerComponent implements OnChanges {
   }
 
   private formatDateParts(iso: string | null): { date: string; time: string } | null {
-    if (!iso) return null;
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return null;
-
     const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    const months = lang === 'en' ? MONTHS_EN : MONTHS_AR;
-
-    return {
-      date: `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`,
-      time: `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`,
-    };
+    return formatLocalizedDateTime(iso, lang);
   }
 
   private colorIndexFor(id: string): number {

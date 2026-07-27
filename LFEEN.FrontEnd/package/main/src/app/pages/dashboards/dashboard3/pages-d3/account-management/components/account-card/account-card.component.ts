@@ -28,7 +28,6 @@ export class AccountCardComponent {
   get statusLabel(): string {
     const onboarding = this.account?.onboardingStatus;
     const onboardingMap: Record<string, string> = {
-      Draft:         'd3.accountManagement.card.statusDraft',
       PendingReview: 'd3.accountManagement.card.statusPending',
       Approved:      'd3.accountManagement.card.statusActive',
       Rejected:      'd3.accountManagement.card.statusRejected',
