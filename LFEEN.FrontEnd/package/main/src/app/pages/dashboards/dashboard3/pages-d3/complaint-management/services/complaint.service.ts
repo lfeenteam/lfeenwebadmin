@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketOptionsResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
@@ -82,15 +82,6 @@ export class ComplaintService {
       .set('page', (params.page ?? 1).toString())
       .set('pageSize', (params.pageSize ?? 20).toString());
 
-    if (params.status) {
-      httpParams = httpParams.set('status', params.status);
-    }
-    if (params.department) {
-      httpParams = httpParams.set('department', params.department);
-    }
-    if (params.priority) {
-      httpParams = httpParams.set('priority', params.priority);
-    }
     if (params.propertyId !== undefined && params.propertyId !== null) {
       httpParams = httpParams.set('propertyId', params.propertyId.toString());
     }
@@ -108,10 +99,6 @@ export class ComplaintService {
     }
 
     return this.http.get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params: httpParams });
-  }
-
-  getTicketOptions(): Observable<TicketOptionsResponse> {
-    return this.http.get<TicketOptionsResponse>(`${environment.apiBaseUrl}/api/tickets/options`);
   }
 
   getPropertiesForFilter(): Observable<TicketPropertyFilterItem[]> {

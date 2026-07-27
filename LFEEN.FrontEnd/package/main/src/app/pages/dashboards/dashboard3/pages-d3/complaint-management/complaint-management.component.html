@@ -59,7 +59,7 @@
           [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : (activeTab() === 'hosts' ? hostTotalCount() : (activeTab() === 'resolved' ? resolvedTotalCount() : null))"
           [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : (activeTab() === 'hosts' ? hostTotalPages() : (activeTab() === 'resolved' ? resolvedTotalPages() : null))"
           [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : (activeTab() === 'hosts' ? hostPage() : (activeTab() === 'resolved' ? resolvedPage() : null))"
-          [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : (activeTab() === 'hosts' ? hostStatus() : resolvedType())"
+          [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : (activeTab() === 'hosts' ? null : resolvedType())"
           [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : resolvedTypeOptions"
           [allOptionLabelKey]="activeTab() === 'resolved' ? 'd3.complaints.table.allTypes' : 'd3.complaints.table.allStatuses'"
           [emptyMessageKey]="activeTab() === 'hosts' ? 'd3.complaints.hostFilters.emptyFiltered' : 'd3.complaints.table.empty'"
