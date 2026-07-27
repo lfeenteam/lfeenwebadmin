@@ -4,11 +4,11 @@ export type ComplaintTab    = 'customers' | 'hosts' | 'resolved';
 export interface Ticket {
   externalId: string;
   ticketNumber: string;
-  propertyId: number;
-  propertyExternalId: string;
-  propertyName: string;
+  propertyId: number | null;
+  propertyExternalId: string | null;
+  propertyName: string | null;
   accountId: string;
-  accountName: string;
+  accountName: string | null;
   subject: string;
   department: string;
   departmentName: string;
@@ -18,7 +18,7 @@ export interface Ticket {
   priorityName: string;
   createdAt: string;
   updatedAt: string;
-  lastMessageAtUtc: string;
+  lastMessageAtUtc: string | null;
   assignedAdminUserId: string | null;
   assignedAdminName: string | null;
 }
@@ -33,23 +33,41 @@ export interface TicketListResponse {
 }
 
 export interface TicketQueryParams {
-  status?: number;
-  department?: number;
-  priority?: number;
+  status?: string;
+  department?: string;
+  priority?: string;
+  propertyId?: number;
   assignedAdminUserId?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
   page?: number;
   pageSize?: number;
 }
 
-export const HOST_TICKETS_PAGE_SIZE = 8;
+export const HOST_TICKETS_PAGE_SIZE = 20;
 
-export const HOST_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[] = [
-  { value: 1, labelKey: 'd3.complaints.status.new' },
-  { value: 2, labelKey: 'd3.complaints.status.pending' },
-  { value: 3, labelKey: 'd3.complaints.status.inProgress' },
-  { value: 4, labelKey: 'd3.complaints.status.replied' },
-];
+/** One option entry as returned by GET /api/tickets/options — `name` is what gets sent
+ * back to the API as the filter value, `labelAr`/`labelEn` are display-only. */
+export interface TicketOptionItem {
+  value: number | string | boolean;
+  name: string;
+  labelEn: string;
+  labelAr: string;
+}
+
+export interface TicketOptionsResponse {
+  problemTypes: TicketOptionItem[];
+  statuses: TicketOptionItem[];
+  priorities: TicketOptionItem[];
+  senderTypes: TicketOptionItem[];
+  replyVisibilities: TicketOptionItem[];
+}
+
+export interface TicketPropertyFilterItem {
+  propertyId: number;
+  name: string;
+}
 
 export interface TicketMessage {
   externalId: string;
@@ -292,6 +310,11 @@ export interface Complaint {
   replyDateEn?: string;
   assignedAdminUserId?: string | null;
   assignedAdminName?: string | null;
+  propertyName?: string | null;
+  departmentName?: string;
+  priorityName?: string;
+  priorityRaw?: string;
+  lastMessageAtUtc?: string | null;
 }
 
 export interface AssignableEmployee {

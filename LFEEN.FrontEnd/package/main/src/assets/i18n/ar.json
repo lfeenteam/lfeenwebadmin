@@ -886,6 +886,26 @@
         "pending": "قيد الانتظار",
         "replied": "تم الرد"
       },
+      "hostFilters": {
+        "searchPlaceholder": "ابحث بالموضوع، رقم التذكرة...",
+        "property": "العقار",
+        "department": "القسم",
+        "priority": "الأولوية",
+        "notAssigned": "غير معيّنة",
+        "allPriorities": "كل الأولويات",
+        "allDepartments": "كل الأقسام",
+        "allProperties": "كل المباني",
+        "allEmployees": "كل الموظفين",
+        "dateFrom": "من تاريخ",
+        "dateTo": "إلى تاريخ",
+        "reset": "إعادة تعيين الفلاتر",
+        "refresh": "تحديث",
+        "retry": "إعادة المحاولة",
+        "errorMsg": "حدث خطأ أثناء تحميل التذاكر.",
+        "emptyFiltered": "لا توجد تذاكر مطابقة للفلاتر الحالية",
+        "clearFilters": "مسح الفلاتر",
+        "dateRangeError": "يجب ألا يكون تاريخ البداية بعد تاريخ النهاية"
+      },
       "clientStatus": {
         "open": "مفتوحة",
         "pending": "قيد الانتظار",

@@ -1,15 +1,17 @@
 import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, catchError, finalize, map, of } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, map, of } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
+import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS } from './interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketOptionItem, TicketOptionsResponse, TicketPropertyFilterItem } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 
 @Component({
@@ -17,11 +19,13 @@ import { ClientSupportHubService } from '../../services/client-support-hub.servi
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     TranslateModule,
     TablerIconsModule,
     ComplaintTabsBarComponent,
     ComplaintsTableComponent,
     ComplaintChatComponent,
+    TabsFilterComponent,
   ],
   templateUrl: './complaint-management.component.html',
   styleUrl: './complaint-management.component.scss'
@@ -34,6 +38,10 @@ export class ComplaintManagementComponent implements OnDestroy {
   private hub = inject(ClientSupportHubService);
   private toastr = inject(ToastrService);
   private hubSubs = new Subscription();
+  private hostSearchSub?: Subscription;
+  private hostSearchSubject = new Subject<string>();
+  private langSub?: Subscription;
+  private currentLangSignal = signal(this.translate.currentLang || this.translate.defaultLang || 'ar');
 
   activeTab         = signal<ComplaintTab>('customers');
   selectedComplaint = signal<Complaint | null>(null);
@@ -49,13 +57,100 @@ export class ComplaintManagementComponent implements OnDestroy {
   customerSearch      = signal('');
   customerStatus      = signal<number | null>(null);
 
-  readonly hostStatusOptions = HOST_TICKET_STATUS_OPTIONS;
   hostTickets     = signal<Complaint[]>([]);
   hostTotalCount  = signal<number | null>(null);
   hostTotalPages  = signal(1);
   hostPage        = signal(1);
   hostSearch      = signal('');
-  hostStatus      = signal<number | null>(null);
+  hostStatus      = signal<string | null>(null);
+  hostPriority    = signal<string | null>(null);
+  hostDepartment  = signal<string | null>(null);
+  hostPropertyId  = signal<number | null>(null);
+  hostAssignedAdminUserId = signal<string | null>(null);
+  hostError       = signal(false);
+
+  private hostOptions   = signal<TicketOptionsResponse | null>(null);
+  hostProperties  = signal<TicketPropertyFilterItem[]>([]);
+  hostEmployees   = signal<AssignableEmployee[]>([]);
+
+  private readonly hostStatusOptions = computed(() =>
+    this.toFilterOptions(this.hostOptions()?.statuses, this.currentLangSignal())
+  );
+  private readonly hostPriorityOptions = computed(() =>
+    this.toFilterOptions(this.hostOptions()?.priorities, this.currentLangSignal())
+  );
+  private readonly hostDepartmentOptions = computed(() =>
+    this.toFilterOptions(this.hostOptions()?.problemTypes, this.currentLangSignal())
+  );
+
+  hostHasActiveFilters = computed(() =>
+    !!this.hostSearch() ||
+    this.hostStatus() !== null ||
+    this.hostPriority() !== null ||
+    this.hostDepartment() !== null ||
+    this.hostPropertyId() !== null ||
+    this.hostAssignedAdminUserId() !== null
+  );
+
+  private toFilterOptions(items: TicketOptionItem[] | undefined, lang: string): { value: string; labelKey: string }[] {
+    if (!Array.isArray(items)) return [];
+    return items.map(item => ({
+      value: item.name,
+      labelKey: lang === 'en' ? item.labelEn : item.labelAr,
+    }));
+  }
+
+  /** Unified search + dropdown bar for the hosts tab, styled like the Units/Builds pages.
+   * `computed()` keeps this reference-stable across repeated reads within the same change
+   * detection cycle — using plain getters here previously produced a fresh array every read,
+   * which tripped Angular's dev-mode ExpressionChangedAfterItHasBeenChecked check the first
+   * time this section entered the DOM and broke the tab switch until a hard reload. */
+  readonly hostFilterOptions = computed<BuildFilterOption[]>(() => {
+    const allItem = (labelKey: string) => ({ value: 'all', labelKey });
+    return [
+      {
+        id: 'status',
+        labelKey: 'd3.complaints.table.allStatuses',
+        items: [allItem('d3.complaints.table.allStatuses'), ...this.hostStatusOptions()],
+      },
+      {
+        id: 'priority',
+        labelKey: 'd3.complaints.hostFilters.allPriorities',
+        items: [allItem('d3.complaints.hostFilters.allPriorities'), ...this.hostPriorityOptions()],
+      },
+      {
+        id: 'department',
+        labelKey: 'd3.complaints.hostFilters.allDepartments',
+        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...this.hostDepartmentOptions()],
+      },
+      {
+        id: 'property',
+        labelKey: 'd3.complaints.hostFilters.allProperties',
+        items: [
+          allItem('d3.complaints.hostFilters.allProperties'),
+          ...(Array.isArray(this.hostProperties()) ? this.hostProperties() : [])
+            .map(p => ({ value: String(p.propertyId), labelKey: p.name })),
+        ],
+      },
+      {
+        id: 'employee',
+        labelKey: 'd3.complaints.hostFilters.allEmployees',
+        items: [
+          allItem('d3.complaints.hostFilters.allEmployees'),
+          ...(Array.isArray(this.hostEmployees()) ? this.hostEmployees() : [])
+            .map(e => ({ value: e.userId, labelKey: e.fullName })),
+        ],
+      },
+    ];
+  });
+
+  readonly hostActiveFiltersSnapshot = computed<Record<string, string>>(() => ({
+    status: this.hostStatus() ?? 'all',
+    priority: this.hostPriority() ?? 'all',
+    department: this.hostDepartment() ?? 'all',
+    property: this.hostPropertyId() !== null ? String(this.hostPropertyId()) : 'all',
+    employee: this.hostAssignedAdminUserId() ?? 'all',
+  }));
 
   readonly resolvedTypeOptions = RESOLVED_TYPE_OPTIONS;
   resolvedTotalCount  = signal<number | null>(null);
@@ -71,6 +166,20 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
     this.loadTabData(this.activeTab());
     this.watchLiveUpdates();
+    this.loadHostFilterSources();
+
+    this.hostSearchSub = this.hostSearchSubject
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe(term => this.applyHostSearch(term));
+
+    // departmentName/statusName/priorityName come back from the API already localized
+    // based on the Accept-Language header, so a lang switch needs a refetch of the active
+    // tab to pick up the new language — the same pattern all-bookings/all-units use.
+    this.langSub = this.translate.onLangChange.subscribe(({ lang }) => {
+      this.currentLangSignal.set(lang);
+      this.loadTabData(this.activeTab());
+      this.loadHostFilterSources();
+    });
 
     const openTicketId = this.route.snapshot.queryParamMap.get('openTicket');
     if (openTicketId) {
@@ -98,6 +207,8 @@ export class ComplaintManagementComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.hubSubs.unsubscribe();
+    this.hostSearchSub?.unsubscribe();
+    this.langSub?.unsubscribe();
   }
 
   private watchLiveUpdates(): void {
@@ -154,49 +265,92 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
   }
 
+  private loadHostFilterSources(): void {
+    this.service.getTicketOptions().subscribe({
+      next: options => this.hostOptions.set(options),
+      error: () => { /* filters are optional to populate; the search/date filters still work without them */ },
+    });
+    this.service.getPropertiesForFilter().subscribe({
+      next: properties => this.hostProperties.set(Array.isArray(properties) ? properties : []),
+      error: () => { /* property filter simply stays empty if this call fails */ },
+    });
+    this.service.getAssignableEmployees(undefined, 1, 50).subscribe({
+      next: page => this.hostEmployees.set(Array.isArray(page?.data) ? page.data : []),
+      error: () => { /* assigned-employee filter simply stays empty if this call fails */ },
+    });
+  }
+
   private loadHostTickets(): void {
     this.loading.set(true);
+    this.hostError.set(false);
     this.service.getTickets({
       status: this.hostStatus() ?? undefined,
+      priority: this.hostPriority() ?? undefined,
+      department: this.hostDepartment() ?? undefined,
+      propertyId: this.hostPropertyId() ?? undefined,
+      assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
       search: this.hostSearch() || undefined,
       page: this.hostPage(),
       pageSize: HOST_TICKETS_PAGE_SIZE,
     })
       .pipe(
         map(res => ({
-          complaints: res.data
-            .filter(t => t.status !== 5 && t.status !== 'Closed')
-            .map(t => this.service.mapTicketToComplaint(t)),
+          complaints: res.data.map(t => this.service.mapTicketToComplaint(t)),
           totalCount: res.totalCount,
           totalPages: res.totalPages,
         })),
         catchError(() => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-          return of({ complaints: [], totalCount: 0, totalPages: 1 });
+          this.hostError.set(true);
+          return of(null);
         }),
         finalize(() => this.loading.set(false))
       )
       .subscribe(res => {
+        if (!res) return; // keep the previous list/filters on screen when the request fails
         this.hostTickets.set(res.complaints);
         this.hostTotalCount.set(res.totalCount);
         this.hostTotalPages.set(res.totalPages);
       });
   }
 
-  onHostSearchChange(term: string): void {
-    this.hostSearch.set(term);
+  onHostSearchInput(term: string): void {
+    this.hostSearchSubject.next(term);
+  }
+
+  private applyHostSearch(term: string): void {
+    this.hostSearch.set(term.trim());
     this.hostPage.set(1);
     this.loadHostTickets();
   }
 
-  onHostStatusChange(status: number | string | null): void {
-    this.hostStatus.set(status as number | null);
+  /** Single handler for the unified status/priority/department/property/employee dropdown bar. */
+  onHostFiltersChange(filters: Record<string, string>): void {
+    this.hostStatus.set(filters['status'] && filters['status'] !== 'all' ? filters['status'] : null);
+    this.hostPriority.set(filters['priority'] && filters['priority'] !== 'all' ? filters['priority'] : null);
+    this.hostDepartment.set(filters['department'] && filters['department'] !== 'all' ? filters['department'] : null);
+    this.hostPropertyId.set(filters['property'] && filters['property'] !== 'all' ? Number(filters['property']) : null);
+    this.hostAssignedAdminUserId.set(filters['employee'] && filters['employee'] !== 'all' ? filters['employee'] : null);
     this.hostPage.set(1);
     this.loadHostTickets();
   }
 
   onHostPageChange(page: number): void {
     this.hostPage.set(page);
+    this.loadHostTickets();
+  }
+
+  retryLoadHostTickets(): void {
+    this.loadHostTickets();
+  }
+
+  resetHostFilters(): void {
+    this.hostSearch.set('');
+    this.hostStatus.set(null);
+    this.hostPriority.set(null);
+    this.hostDepartment.set(null);
+    this.hostPropertyId.set(null);
+    this.hostAssignedAdminUserId.set(null);
+    this.hostPage.set(1);
     this.loadHostTickets();
   }
 

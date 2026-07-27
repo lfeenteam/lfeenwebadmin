@@ -32,6 +32,10 @@ export class ComplaintsTableComponent implements OnChanges {
   @Input() statusFilterValue: number | string | null = null;
   @Input() statusOptions: { value: number | string; labelKey: string }[] = [];
   @Input() allOptionLabelKey = 'd3.complaints.table.allStatuses';
+  /** Overrides the generic empty-state text (e.g. a host-tab-specific "no tickets match the current filters" message). */
+  @Input() emptyMessageKey = 'd3.complaints.table.empty';
+  /** Shows a "clear filters" action inside the empty state — only meaningful when filters are actually active. */
+  @Input() showClearFiltersInEmpty = false;
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
@@ -39,6 +43,7 @@ export class ComplaintsTableComponent implements OnChanges {
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusFilterChange = new EventEmitter<number | string | null>();
   @Output() pageChange = new EventEmitter<number>();
+  @Output() clearFilters = new EventEmitter<void>();
 
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
@@ -217,6 +222,22 @@ export class ComplaintsTableComponent implements OnChanges {
         : complaint.replyDate;
     }
     return this.displayDate(complaint);
+  }
+
+  displayPropertyName(complaint: Complaint): string {
+    return complaint.propertyName ?? '-';
+  }
+
+  displayDepartmentName(complaint: Complaint): string {
+    return complaint.departmentName ?? '-';
+  }
+
+  displayPriorityName(complaint: Complaint): string {
+    return complaint.priorityName ?? '-';
+  }
+
+  displayAssignedAdminName(complaint: Complaint): string {
+    return complaint.assignedAdminName ?? this.translate.instant('d3.complaints.hostFilters.notAssigned');
   }
 
   get searchPlaceholder(): string {

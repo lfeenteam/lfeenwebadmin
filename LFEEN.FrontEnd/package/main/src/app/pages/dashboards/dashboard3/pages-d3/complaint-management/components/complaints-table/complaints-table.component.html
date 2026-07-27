@@ -1,36 +1,38 @@
 <div class="table-wrapper">
 
-  <!-- Search + Filter bar -->
-  <div class="table-toolbar">
-    <div class="search-box">
-      <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchInput($event)"
-        [placeholder]="searchPlaceholder"
-        class="search-input" />
-    </div>
-    @if (statusOptions.length) {
-      <button class="status-filter-btn" type="button" [matMenuTriggerFor]="statusMenu">
-        {{ selectedStatusLabel | translate }}
-      </button>
-      <mat-menu #statusMenu="matMenu">
-        <button mat-menu-item type="button" (click)="onStatusSelect(null)">
+  <!-- Search + Filter bar (hosts tab has its own unified search/filters bar above this table) -->
+  @if (!hostSupportMode) {
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput($event)"
+          [placeholder]="searchPlaceholder"
+          class="search-input" />
+      </div>
+      @if (statusOptions.length) {
+        <button class="status-filter-btn" type="button" [matMenuTriggerFor]="statusMenu">
+          {{ selectedStatusLabel | translate }}
+        </button>
+        <mat-menu #statusMenu="matMenu">
+          <button mat-menu-item type="button" (click)="onStatusSelect(null)">
+            {{ allOptionLabelKey | translate }}
+          </button>
+          @for (opt of statusOptions; track opt.value) {
+            <button mat-menu-item type="button" (click)="onStatusSelect(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </mat-menu>
+      } @else {
+        <button class="status-filter-btn" type="button">
           {{ allOptionLabelKey | translate }}
         </button>
-        @for (opt of statusOptions; track opt.value) {
-          <button mat-menu-item type="button" (click)="onStatusSelect(opt.value)">
-            {{ opt.labelKey | translate }}
-          </button>
-        }
-      </mat-menu>
-    } @else {
-      <button class="status-filter-btn" type="button">
-        {{ allOptionLabelKey | translate }}
-      </button>
-    }
-  </div>
+      }
+    </div>
+  }
 
   <!-- Table -->
   <div class="complaints-table" [class.host-support-table]="hostSupportMode" [class.resolved-table]="resolvedMode" [class.compact-mode]="compact && resolvedMode">
@@ -51,7 +53,10 @@
       <div class="table-head host-head">
         <div class="col-host-client">المضيف</div>
         <div class="col-subject">موضوع المشكلة</div>
+        <div class="col-property">{{ 'd3.complaints.hostFilters.property' | translate }}</div>
+        <div class="col-department">{{ 'd3.complaints.hostFilters.department' | translate }}</div>
         <div class="col-status">الحالة</div>
+        <div class="col-priority">{{ 'd3.complaints.hostFilters.priority' | translate }}</div>
         <div class="col-date">التاريخ</div>
         <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
         <div class="col-action">الإجراء</div>
@@ -142,9 +147,19 @@
 
           <div class="col-subject">{{ displaySubject(c) }}</div>
 
+          <div class="col-property">{{ displayPropertyName(c) }}</div>
+
+          <div class="col-department">{{ displayDepartmentName(c) }}</div>
+
           <div class="col-status">
             <span class="status-badge" [class]="'status-' + c.status">
               {{ statusLabelKey(c.status) | translate }}
+            </span>
+          </div>
+
+          <div class="col-priority">
+            <span class="priority-badge" [class]="'priority-' + (c.priorityRaw || '').toLowerCase()">
+              {{ displayPriorityName(c) }}
             </span>
           </div>
 
@@ -159,9 +174,7 @@
               [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
-              @if (c.assignedAdminName) {
-                <span class="assign-name">{{ c.assignedAdminName }}</span>
-              }
+              <span class="assign-name">{{ displayAssignedAdminName(c) }}</span>
             </button>
           </div>
 
@@ -222,7 +235,12 @@
     @empty {
       <div class="empty-state">
         <i-tabler name="inbox" class="icon-40"></i-tabler>
-        <span>{{ 'd3.complaints.table.empty' | translate }}</span>
+        <span>{{ emptyMessageKey | translate }}</span>
+        @if (showClearFiltersInEmpty) {
+          <button class="clear-filters-btn" type="button" (click)="clearFilters.emit()">
+            {{ 'd3.complaints.hostFilters.clearFilters' | translate }}
+          </button>
+        }
       </div>
     }
     }

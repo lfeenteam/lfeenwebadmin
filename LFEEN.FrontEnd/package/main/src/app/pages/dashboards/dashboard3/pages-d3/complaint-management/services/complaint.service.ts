@@ -1,8 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignHostTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketOptionsResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
+import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -81,14 +82,17 @@ export class ComplaintService {
       .set('page', (params.page ?? 1).toString())
       .set('pageSize', (params.pageSize ?? 20).toString());
 
-    if (params.status !== undefined && params.status !== null) {
-      httpParams = httpParams.set('status', params.status.toString());
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
     }
-    if (params.department !== undefined && params.department !== null) {
-      httpParams = httpParams.set('department', params.department.toString());
+    if (params.department) {
+      httpParams = httpParams.set('department', params.department);
     }
-    if (params.priority !== undefined && params.priority !== null) {
-      httpParams = httpParams.set('priority', params.priority.toString());
+    if (params.priority) {
+      httpParams = httpParams.set('priority', params.priority);
+    }
+    if (params.propertyId !== undefined && params.propertyId !== null) {
+      httpParams = httpParams.set('propertyId', params.propertyId.toString());
     }
     if (params.assignedAdminUserId) {
       httpParams = httpParams.set('assignedAdminUserId', params.assignedAdminUserId);
@@ -96,17 +100,37 @@ export class ComplaintService {
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }
+    if (params.dateFrom) {
+      httpParams = httpParams.set('dateFrom', params.dateFrom);
+    }
+    if (params.dateTo) {
+      httpParams = httpParams.set('dateTo', params.dateTo);
+    }
 
     return this.http.get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params: httpParams });
+  }
+
+  getTicketOptions(): Observable<TicketOptionsResponse> {
+    return this.http.get<TicketOptionsResponse>(`${environment.apiBaseUrl}/api/tickets/options`);
+  }
+
+  getPropertiesForFilter(): Observable<TicketPropertyFilterItem[]> {
+    const params = new HttpParams()
+      .set('pageNumber', '1')
+      .set('pageSize', '50')
+      .set('newestFirst', 'true');
+    return this.http
+      .get<PaginatedPropertyResponse>(`${environment.apiBaseUrl}/api/properties`, { params })
+      .pipe(map(res => res.data.map(p => ({ propertyId: p.propertyId, name: p.name }))));
   }
 
   mapTicketToComplaint(t: Ticket): Complaint {
     return {
       id: t.externalId,
       ticketId: t.ticketNumber,
-      clientName: t.accountName,
-      clientInitials: this.getInitials(t.accountName),
-      clientCode: t.propertyName,
+      clientName: t.accountName ?? '-',
+      clientInitials: this.getInitials(t.accountName ?? '-'),
+      clientCode: t.propertyName ?? '-',
       status: this.mapTicketStatus(t.status),
       date: new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
       dateEn: new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
@@ -116,6 +140,11 @@ export class ComplaintService {
       subject: t.subject,
       assignedAdminUserId: t.assignedAdminUserId,
       assignedAdminName: t.assignedAdminName,
+      propertyName: t.propertyName ?? null,
+      departmentName: t.departmentName,
+      priorityName: t.priorityName,
+      priorityRaw: typeof t.priority === 'string' ? t.priority : undefined,
+      lastMessageAtUtc: t.lastMessageAtUtc ?? null,
     };
   }
 

@@ -69,6 +69,19 @@ export class TabsFilterComponent {
     }
   ];
   @Input() searchPlaceholder: string = 'd3.allBuilds.filters.searchPlaceholder';
+  /** The small "more filters" icon button that opens the mobile bottom sheet — on by
+   * default (existing pages rely on it for narrow screens). Pages that already show
+   * every filter as its own dropdown pill with no narrow-screen fallback can turn it off. */
+  @Input() showMoreFiltersButton = true;
+
+  /** Lets a parent that owns the filter state externally (e.g. resets it via its own
+   * "clear filters" button) keep these dropdown pills in sync — optional, other pages
+   * that only read `filtersChange` don't need to pass it. */
+  @Input() set activeFilters(value: Record<string, string> | undefined) {
+    if (value) {
+      this.selectedFilters = { ...this.selectedFilters, ...value };
+    }
+  }
 
   @Output() activeTabChange = new EventEmitter<string>();
   @Output() searchQueryChange = new EventEmitter<string>();
