@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { ComplaintService } from '../../services/complaint.service';
 import { TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
@@ -23,6 +24,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   private service   = inject(ComplaintService);
   private pageTitleOverride = inject(PageTitleOverrideService);
   private loginService = inject(LoginService);
+  private toastr = inject(ToastrService);
 
   replyText       = '';
   closeNote       = '';
@@ -59,7 +61,10 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
           this.loading.set(false);
           this.pageTitleOverride.set(detail.subject);
         },
-        error: () => this.loading.set(false),
+        error: () => {
+          this.loading.set(false);
+          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        },
       });
     } else {
       this.loading.set(false);
@@ -86,8 +91,50 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   formatBytes(bytes: number): string {
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (!bytes) return `0 ${this.translate.instant('d3.complaints.hostDetail.kb')}`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} ${this.translate.instant('d3.complaints.hostDetail.kb')}`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} ${this.translate.instant('d3.complaints.hostDetail.mb')}`;
+  }
+
+  isImageAttachment(contentType: string | null | undefined): boolean {
+    return !!contentType && contentType.startsWith('image/');
+  }
+
+  getFileIcon(contentType: string | null | undefined): string {
+    if (!contentType) return 'file';
+    if (contentType.startsWith('image/')) return 'photo';
+    if (contentType === 'application/pdf') return 'file-type-pdf';
+    if (contentType.includes('word') || contentType === 'application/msword') return 'file-type-doc';
+    if (contentType.includes('sheet') || contentType === 'application/vnd.ms-excel') return 'file-type-xls';
+    if (contentType.startsWith('video/')) return 'video';
+    return 'file';
+  }
+
+  /** Swaps a broken image thumbnail for the generic file icon instead of leaving a broken-image box. */
+  onThumbnailError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
+  }
+
+  openAttachment(att: TicketAttachment | null | undefined): void {
+    if (!att?.fileUrl) {
+      this.toastr.error(this.translate.instant('d3.complaints.hostDetail.fileUnavailable'));
+      return;
+    }
+    window.open(att.fileUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  /** Top-level `attachments` can legitimately repeat a file already shown under the
+   * initial message or a reply (older data / previous mapping) — filter those out by
+   * externalId so nothing is shown twice on the page. */
+  legacyAttachments(ticket: TicketDetail): TicketAttachment[] {
+    const shownIds = new Set<string>();
+    if (ticket.initialMessage?.attachment?.externalId) {
+      shownIds.add(ticket.initialMessage.attachment.externalId);
+    }
+    for (const m of ticket.messages ?? []) {
+      if (m?.attachment?.externalId) shownIds.add(m.attachment.externalId);
+    }
+    return (ticket.attachments ?? []).filter(a => a && !shownIds.has(a.externalId));
   }
 
   get adminMessages(): TicketMessage[] {
@@ -154,7 +201,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     if (!user?.userId) return Promise.resolve();
 
     return new Promise(resolve => {
-      this.service.assignTicket(this.ticketId, user.userId, 'host').subscribe({
+      this.service.assignTicket(this.ticketId, user.userId).subscribe({
         next: () => {
           this.ticket.update(curr =>
             curr ? { ...curr, assignedAdminUserId: user.userId, assignedAdminName: user.fullName } : curr

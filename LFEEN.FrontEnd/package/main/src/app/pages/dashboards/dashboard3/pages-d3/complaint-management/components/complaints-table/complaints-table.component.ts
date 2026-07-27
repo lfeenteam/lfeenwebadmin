@@ -1,15 +1,17 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
+import { MatMenu } from '@angular/material/menu';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { Complaint } from '../../interfaces/complaint.model';
+import { AssignableEmployee, Complaint } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
+import { ComplaintService } from '../../services/complaint.service';
 
 @Component({
   selector: 'app-complaints-table',
@@ -39,25 +41,44 @@ export class ComplaintsTableComponent implements OnChanges {
 
   @Output() rowSelect = new EventEmitter<Complaint>();
   @Output() detailSelect = new EventEmitter<Complaint>();
-  @Output() assignClick = new EventEmitter<Complaint>();
+  /** Fired once an employee is picked from the inline assign popover and the assignment call succeeds. */
+  @Output() assignConfirm = new EventEmitter<{ complaintId: string; employee: AssignableEmployee }>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusFilterChange = new EventEmitter<number | string | null>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() clearFilters = new EventEmitter<void>();
 
+  @ViewChild('assignMenu') assignMenu!: MatMenu;
+
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private loginService = inject(LoginService);
+  private complaintService = inject(ComplaintService);
   private searchSubject = new Subject<string>();
+  private assignSearchSubject = new Subject<string>();
 
   searchQuery = '';
   currentPage = 1;
   readonly pageSize = 8;
 
+  // ── Inline assign popover state ──────────────────────────────────────────
+  assigningComplaint: Complaint | null = null;
+  assignSearchTerm = '';
+  assignEmployees: AssignableEmployee[] = [];
+  assignLoading = false;
+  assignSubmitting = false;
+  private assignPage = 1;
+  private assignTotalPages = 1;
+  readonly assignPageSize = 10;
+
   constructor() {
     this.searchSubject
       .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe(term => this.searchChange.emit(term.trim()));
+
+    this.assignSearchSubject
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe(term => this.loadAssignEmployees(term, true));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -273,7 +294,75 @@ export class ComplaintsTableComponent implements OnChanges {
       this.toastr.info(this.translate.instant('d3.complaints.table.assignLockedMsg'));
       return;
     }
-    this.assignClick.emit(complaint);
+    this.assigningComplaint = complaint;
+    this.assignSearchTerm = '';
+    this.assignEmployees = [];
+    this.assignPage = 1;
+    this.assignTotalPages = 1;
+    this.loadAssignEmployees();
+  }
+
+  /** null closes the popover for locked rows without opening the shared mat-menu instance. */
+  assignMenuFor(complaint: Complaint): MatMenu | null {
+    return this.isAssignLocked(complaint) ? null : this.assignMenu;
+  }
+
+  onAssignMenuClosed(): void {
+    this.assigningComplaint = null;
+    this.assignEmployees = [];
+    this.assignSearchTerm = '';
+  }
+
+  onAssignSearchChange(term: string): void {
+    this.assignSearchTerm = term;
+    this.assignSearchSubject.next(term);
+  }
+
+  private loadAssignEmployees(search = this.assignSearchTerm, reset = false): void {
+    if (reset) {
+      this.assignPage = 1;
+      this.assignEmployees = [];
+    }
+    this.assignLoading = true;
+    this.complaintService.getAssignableEmployees(search || undefined, this.assignPage, this.assignPageSize)
+      .pipe(finalize(() => this.assignLoading = false))
+      .subscribe(result => {
+        this.assignEmployees = this.assignPage === 1 ? result.data : [...this.assignEmployees, ...result.data];
+        this.assignTotalPages = result.totalPages;
+      });
+  }
+
+  onAssignListScroll(event: Event): void {
+    if (this.assignLoading || this.assignPage >= this.assignTotalPages) return;
+    const el = event.target as HTMLElement;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 48) {
+      this.assignPage += 1;
+      this.loadAssignEmployees(this.assignSearchTerm);
+    }
+  }
+
+  isAssignSelected(employee: AssignableEmployee): boolean {
+    return this.assigningComplaint?.assignedAdminUserId === employee.userId;
+  }
+
+  getAssignInitials(name: string): string {
+    return name.split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase();
+  }
+
+  selectAssignEmployee(employee: AssignableEmployee): void {
+    const complaint = this.assigningComplaint;
+    if (!complaint || this.assignSubmitting) return;
+
+    this.assignSubmitting = true;
+    this.complaintService.assignTicket(complaint.id, employee.userId)
+      .pipe(finalize(() => this.assignSubmitting = false))
+      .subscribe({
+        next: () => {
+          this.toastr.success(this.translate.instant('d3.complaints.assignDialog.success'));
+          this.assignConfirm.emit({ complaintId: complaint.id, employee });
+        },
+        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
+      });
   }
 
   onResolvedAction(complaint: Complaint): void {

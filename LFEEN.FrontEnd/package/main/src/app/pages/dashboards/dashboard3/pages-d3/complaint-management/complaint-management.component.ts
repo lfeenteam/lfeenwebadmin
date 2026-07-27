@@ -489,21 +489,20 @@ export class ComplaintManagementComponent implements OnDestroy {
     });
   }
 
-  onAssignClick(complaint: Complaint): void {
-    const lang = this.translate.currentLang || 'ar';
-    this.router.navigate([lang, 'd3', 'complaints', complaint.id, 'assign'], {
-      // Also carried as a query param (not just router state) so the assign page can
-      // still tell customer and host tickets apart after a hard reload, when router
-      // state is gone — otherwise it falls back to assuming 'customer' and calls the
-      // wrong ticket-detail endpoint for a host ticket id.
-      queryParams: { type: complaint.type, tab: this.activeTab() },
-      state: {
-        ticketNumber: complaint.ticketId,
-        complaintType: complaint.type,
-        assignedAdminUserId: complaint.assignedAdminUserId ?? null,
-        assignedAdminName: complaint.assignedAdminName ?? null,
-      }
-    });
+  // The table already performed the assignTicket call and shown the success/error toast —
+  // this just reflects the new assignee in the in-memory lists so the row updates in place.
+  onAssignConfirm({ complaintId, employee }: { complaintId: string; employee: AssignableEmployee }): void {
+    const patch = (list: Complaint[]) => list.map(c =>
+      c.id === complaintId
+        ? { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName }
+        : c
+    );
+    this.customerTickets.update(patch);
+    this.hostTickets.update(patch);
+
+    if (this.selectedComplaint()?.id === complaintId) {
+      this.selectedComplaint.update(c => c && { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName });
+    }
   }
 
   openHostComplaint(complaint: Complaint): void {

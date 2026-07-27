@@ -86,6 +86,34 @@
     }
   </section>
 
+  <!-- Reusable attachment card, used for the initial message, each reply, and the legacy attachments section -->
+  <ng-template #attachmentCard let-att="att">
+    <div class="attachment-card">
+      @if (isImageAttachment(att.contentType) && att.fileUrl) {
+        <img
+          [src]="att.fileUrl"
+          [alt]="att.fileName"
+          class="attachment-thumb"
+          (error)="onThumbnailError($event)"
+          (click)="openAttachment(att)" />
+      } @else {
+        <i-tabler [name]="getFileIcon(att.contentType)" class="icon-24"></i-tabler>
+      }
+      <div class="attachment-meta">
+        <strong>{{ att.fileName || ('d3.complaints.hostDetail.unknownFile' | translate) }}</strong>
+        <span>{{ formatBytes(att.sizeBytes) }}</span>
+      </div>
+      <button
+        type="button"
+        class="download-btn"
+        [disabled]="!att.fileUrl"
+        [attr.aria-label]="'d3.complaints.hostDetail.openFile' | translate"
+        (click)="openAttachment(att)">
+        <i-tabler name="download" class="icon-16"></i-tabler>
+      </button>
+    </div>
+  </ng-template>
+
   <!-- Initial message card -->
   <section class="message-card">
     @if (loading()) {
@@ -96,6 +124,9 @@
     } @else if (ticket()) {
       <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}: {{ ticket()!.subject }}</h3>
       <p>{{ ticket()!.initialMessage.body }}</p>
+      @if (ticket()!.initialMessage.attachment) {
+        <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: ticket()!.initialMessage.attachment }"></ng-container>
+      }
     }
   </section>
 
@@ -111,20 +142,11 @@
         </div>
       </div>
     </section>
-  } @else if (ticket() && ticket()!.attachments.length > 0) {
+  } @else if (ticket() && legacyAttachments(ticket()!).length > 0) {
     <section class="attachment-section">
-      <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate }}</h3>
-      @for (att of ticket()!.attachments; track trackById($index, att)) {
-        <div class="attachment-card">
-          <i-tabler name="file-text" class="icon-24"></i-tabler>
-          <div class="attachment-meta">
-            <strong>{{ att.fileName }}</strong>
-            <span>{{ formatBytes(att.sizeBytes) }}</span>
-          </div>
-          <a [href]="att.fileUrl" target="_blank" download class="download-btn" type="button">
-            <i-tabler name="download" class="icon-16"></i-tabler>
-          </a>
-        </div>
+      <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate: { count: legacyAttachments(ticket()!).length } }}</h3>
+      @for (att of legacyAttachments(ticket()!); track trackById($index, att)) {
+        <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att }"></ng-container>
       }
     </section>
   }
@@ -162,6 +184,10 @@
         </div>
 
         <p>{{ msg.body }}</p>
+
+        @if (msg.attachment) {
+          <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: msg.attachment }"></ng-container>
+        }
 
         <div class="support-reply-footer">
           <i-tabler name="circle-check" class="icon-14"></i-tabler>

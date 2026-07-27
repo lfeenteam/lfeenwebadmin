@@ -7,8 +7,7 @@ export interface Ticket {
   propertyId: number | null;
   propertyExternalId: string | null;
   propertyName: string | null;
-  accountId: string;
-  accountName: string | null;
+  createdByName: string | null;
   subject: string;
   department: string;
   departmentName: string;
@@ -80,6 +79,7 @@ export interface TicketMessage {
   body: string;
   isInternalNote: boolean;
   createdAt: string;
+  attachment?: TicketAttachment | null;
 }
 
 export interface TicketAttachment {
@@ -334,9 +334,5 @@ export interface AssignableEmployeePage {
 }
 
 export interface AssignTicketRequest {
-  adminUserId: string;
-}
-
-export interface AssignHostTicketRequest {
   assignedAdminUserId: string;
 }
