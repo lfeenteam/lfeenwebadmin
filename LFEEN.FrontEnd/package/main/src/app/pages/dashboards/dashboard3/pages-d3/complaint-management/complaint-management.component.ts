@@ -11,7 +11,7 @@ import { ComplaintsTableComponent } from './components/complaints-table/complain
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketOptionItem, TicketOptionsResponse, TicketPropertyFilterItem } from './interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 
 @Component({
@@ -62,43 +62,18 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostTotalPages  = signal(1);
   hostPage        = signal(1);
   hostSearch      = signal('');
-  hostStatus      = signal<string | null>(null);
-  hostPriority    = signal<string | null>(null);
-  hostDepartment  = signal<string | null>(null);
   hostPropertyId  = signal<number | null>(null);
   hostAssignedAdminUserId = signal<string | null>(null);
   hostError       = signal(false);
 
-  private hostOptions   = signal<TicketOptionsResponse | null>(null);
   hostProperties  = signal<TicketPropertyFilterItem[]>([]);
   hostEmployees   = signal<AssignableEmployee[]>([]);
 
-  private readonly hostStatusOptions = computed(() =>
-    this.toFilterOptions(this.hostOptions()?.statuses, this.currentLangSignal())
-  );
-  private readonly hostPriorityOptions = computed(() =>
-    this.toFilterOptions(this.hostOptions()?.priorities, this.currentLangSignal())
-  );
-  private readonly hostDepartmentOptions = computed(() =>
-    this.toFilterOptions(this.hostOptions()?.problemTypes, this.currentLangSignal())
-  );
-
   hostHasActiveFilters = computed(() =>
     !!this.hostSearch() ||
-    this.hostStatus() !== null ||
-    this.hostPriority() !== null ||
-    this.hostDepartment() !== null ||
     this.hostPropertyId() !== null ||
     this.hostAssignedAdminUserId() !== null
   );
-
-  private toFilterOptions(items: TicketOptionItem[] | undefined, lang: string): { value: string; labelKey: string }[] {
-    if (!Array.isArray(items)) return [];
-    return items.map(item => ({
-      value: item.name,
-      labelKey: lang === 'en' ? item.labelEn : item.labelAr,
-    }));
-  }
 
   /** Unified search + dropdown bar for the hosts tab, styled like the Units/Builds pages.
    * `computed()` keeps this reference-stable across repeated reads within the same change
@@ -108,21 +83,6 @@ export class ComplaintManagementComponent implements OnDestroy {
   readonly hostFilterOptions = computed<BuildFilterOption[]>(() => {
     const allItem = (labelKey: string) => ({ value: 'all', labelKey });
     return [
-      {
-        id: 'status',
-        labelKey: 'd3.complaints.table.allStatuses',
-        items: [allItem('d3.complaints.table.allStatuses'), ...this.hostStatusOptions()],
-      },
-      {
-        id: 'priority',
-        labelKey: 'd3.complaints.hostFilters.allPriorities',
-        items: [allItem('d3.complaints.hostFilters.allPriorities'), ...this.hostPriorityOptions()],
-      },
-      {
-        id: 'department',
-        labelKey: 'd3.complaints.hostFilters.allDepartments',
-        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...this.hostDepartmentOptions()],
-      },
       {
         id: 'property',
         labelKey: 'd3.complaints.hostFilters.allProperties',
@@ -145,9 +105,6 @@ export class ComplaintManagementComponent implements OnDestroy {
   });
 
   readonly hostActiveFiltersSnapshot = computed<Record<string, string>>(() => ({
-    status: this.hostStatus() ?? 'all',
-    priority: this.hostPriority() ?? 'all',
-    department: this.hostDepartment() ?? 'all',
     property: this.hostPropertyId() !== null ? String(this.hostPropertyId()) : 'all',
     employee: this.hostAssignedAdminUserId() ?? 'all',
   }));
@@ -266,10 +223,6 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadHostFilterSources(): void {
-    this.service.getTicketOptions().subscribe({
-      next: options => this.hostOptions.set(options),
-      error: () => { /* filters are optional to populate; the search/date filters still work without them */ },
-    });
     this.service.getPropertiesForFilter().subscribe({
       next: properties => this.hostProperties.set(Array.isArray(properties) ? properties : []),
       error: () => { /* property filter simply stays empty if this call fails */ },
@@ -284,9 +237,6 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loading.set(true);
     this.hostError.set(false);
     this.service.getTickets({
-      status: this.hostStatus() ?? undefined,
-      priority: this.hostPriority() ?? undefined,
-      department: this.hostDepartment() ?? undefined,
       propertyId: this.hostPropertyId() ?? undefined,
       assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
       search: this.hostSearch() || undefined,
@@ -323,11 +273,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadHostTickets();
   }
 
-  /** Single handler for the unified status/priority/department/property/employee dropdown bar. */
+  /** Single handler for the unified property/employee dropdown bar. */
   onHostFiltersChange(filters: Record<string, string>): void {
-    this.hostStatus.set(filters['status'] && filters['status'] !== 'all' ? filters['status'] : null);
-    this.hostPriority.set(filters['priority'] && filters['priority'] !== 'all' ? filters['priority'] : null);
-    this.hostDepartment.set(filters['department'] && filters['department'] !== 'all' ? filters['department'] : null);
     this.hostPropertyId.set(filters['property'] && filters['property'] !== 'all' ? Number(filters['property']) : null);
     this.hostAssignedAdminUserId.set(filters['employee'] && filters['employee'] !== 'all' ? filters['employee'] : null);
     this.hostPage.set(1);
@@ -345,9 +292,6 @@ export class ComplaintManagementComponent implements OnDestroy {
 
   resetHostFilters(): void {
     this.hostSearch.set('');
-    this.hostStatus.set(null);
-    this.hostPriority.set(null);
-    this.hostDepartment.set(null);
     this.hostPropertyId.set(null);
     this.hostAssignedAdminUserId.set(null);
     this.hostPage.set(1);

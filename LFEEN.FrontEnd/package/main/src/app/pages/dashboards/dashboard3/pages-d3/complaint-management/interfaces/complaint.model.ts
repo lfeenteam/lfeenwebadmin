@@ -32,9 +32,6 @@ export interface TicketListResponse {
 }
 
 export interface TicketQueryParams {
-  status?: string;
-  department?: string;
-  priority?: string;
   propertyId?: number;
   assignedAdminUserId?: string;
   search?: string;
@@ -45,23 +42,6 @@ export interface TicketQueryParams {
 }
 
 export const HOST_TICKETS_PAGE_SIZE = 20;
-
-/** One option entry as returned by GET /api/tickets/options — `name` is what gets sent
- * back to the API as the filter value, `labelAr`/`labelEn` are display-only. */
-export interface TicketOptionItem {
-  value: number | string | boolean;
-  name: string;
-  labelEn: string;
-  labelAr: string;
-}
-
-export interface TicketOptionsResponse {
-  problemTypes: TicketOptionItem[];
-  statuses: TicketOptionItem[];
-  priorities: TicketOptionItem[];
-  senderTypes: TicketOptionItem[];
-  replyVisibilities: TicketOptionItem[];
-}
 
 export interface TicketPropertyFilterItem {
   propertyId: number;
