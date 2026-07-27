@@ -165,7 +165,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
     if (!employee || this.submitting() || !this.ticketExternalId) return;
 
     this.submitting.set(true);
-    this.service.assignTicket(this.ticketExternalId, employee.userId, this.complaintType)
+    this.service.assignTicket(this.ticketExternalId, employee.userId)
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {

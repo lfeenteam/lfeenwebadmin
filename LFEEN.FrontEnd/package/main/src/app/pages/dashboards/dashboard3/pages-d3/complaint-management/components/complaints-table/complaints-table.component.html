@@ -171,6 +171,7 @@
               type="button"
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
+              [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
@@ -219,6 +220,7 @@
               type="button"
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
+              [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
@@ -274,5 +276,43 @@
 
     <span class="pagination-total">{{ paginationSummary }}</span>
   </div>
+
+  <!-- Shared inline assign popover: one mat-menu instance re-targeted per row via assignMenuFor(c) -->
+  <mat-menu #assignMenu="matMenu" class="assign-popover-panel" (closed)="onAssignMenuClosed()">
+    <div class="assign-popover">
+      <div class="assign-popover-search" (click)="$event.stopPropagation()">
+        <i-tabler name="search" class="icon-16"></i-tabler>
+        <input
+          type="text"
+          [ngModel]="assignSearchTerm"
+          (ngModelChange)="onAssignSearchChange($event)"
+          [placeholder]="'d3.complaints.assignDialog.searchPlaceholder' | translate" />
+      </div>
+
+      <div class="assign-popover-list" (scroll)="onAssignListScroll($event)">
+        @for (employee of assignEmployees; track employee.userId) {
+          <button mat-menu-item type="button" class="assign-popover-item" [class.selected]="isAssignSelected(employee)" (click)="selectAssignEmployee(employee)">
+            <span class="assign-popover-row">
+              <span class="assign-popover-avatar">{{ getAssignInitials(employee.fullName) }}</span>
+              <span class="assign-popover-meta">
+                <span class="assign-popover-name">{{ employee.fullName }}</span>
+                <span class="assign-popover-email">{{ employee.email }}</span>
+              </span>
+            </span>
+          </button>
+        }
+
+        @if (assignLoading) {
+          <div class="assign-popover-loading">
+            <i-tabler name="loader-2" class="icon-16 spin"></i-tabler>
+          </div>
+        }
+
+        @if (!assignLoading && assignEmployees.length === 0) {
+          <div class="assign-popover-empty">{{ 'd3.complaints.assignDialog.empty' | translate }}</div>
+        }
+      </div>
+    </div>
+  </mat-menu>
 
 </div>

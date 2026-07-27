@@ -157,6 +157,33 @@
   background: #fff;
 }
 
+// Attachments embedded in a message weren't part of the original design (only the
+// legacy top-level list existed there), so they need a little breathing room from the
+// message text above them — the legacy list itself keeps its original flush stacking.
+.message-card .attachment-card,
+.support-reply-card .attachment-card {
+  margin-top: 12px;
+}
+
+.attachment-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.download-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+
+  &:hover {
+    background: transparent;
+    color: #6B6B67;
+  }
+}
+
 .download-btn,
 .attach-reply-btn {
   all: unset;
