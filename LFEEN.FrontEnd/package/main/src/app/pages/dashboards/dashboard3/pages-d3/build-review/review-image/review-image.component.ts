@@ -18,6 +18,7 @@ interface LocalPhoto {
   url: string;
   fileName: string;
   classification: string;
+  classificationLabel: string;
   isMainPhoto: boolean;
   isPendingDeletion: boolean;
   pendingIsMain: boolean | null;
@@ -29,6 +30,7 @@ interface LocalPhoto {
 
 interface LocalGroup {
   groupKey: string;
+  groupLabel: string;
   photos: LocalPhoto[];
 }
 
@@ -80,7 +82,7 @@ export class ReviewImageComponent implements OnInit {
           if (g.groupKey === 'MainPhoto') {
             this.mainPhoto = localPhotos[0] ?? null;
           } else {
-            this.photoGroups.push({ groupKey: g.groupKey, photos: localPhotos });
+            this.photoGroups.push({ groupKey: g.groupKey, groupLabel: g.groupLabel, photos: localPhotos });
           }
         }
       },
@@ -116,7 +118,7 @@ export class ReviewImageComponent implements OnInit {
       const rejected = g.photos.filter(p => p.decision === 'Rejected');
       if (rejected.length > 0) {
         result.push({
-          title: g.groupKey,
+          title: g.groupLabel,
           reason: rejected.map(p => p.rejectionReason).filter(Boolean).join('، ')
         });
       }
@@ -140,6 +142,7 @@ export class ReviewImageComponent implements OnInit {
       url:            photo.url,
       fileName:       photo.fileName,
       classification: photo.classification,
+      classificationLabel: photo.classificationLabel,
       isMainPhoto:    photo.isMainPhoto,
       isPendingDeletion: photo.isPendingDeletion,
       pendingIsMain: photo.pendingIsMain,

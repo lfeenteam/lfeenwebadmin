@@ -28,11 +28,19 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.log('[AuthInterceptor] error caught', {
+          url: req.url,
+          status: error.status,
+          isRefreshRequestUrl: this.loginService.isRefreshRequestUrl(req.url),
+          hasValidRefreshToken: this.loginService.hasValidRefreshToken(),
+        });
+
         if (
           error.status === 401 &&
           !this.loginService.isRefreshRequestUrl(req.url) &&
           this.loginService.hasValidRefreshToken()
         ) {
+          console.log('[AuthInterceptor] conditions met, calling refreshToken()');
           return this.loginService.refreshToken().pipe(
             switchMap(() => next.handle(this.addAuthorizationHeader(req))),
             catchError((refreshError) => this.logoutAndRedirect(refreshError))

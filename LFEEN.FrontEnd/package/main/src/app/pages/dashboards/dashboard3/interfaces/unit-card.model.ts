@@ -238,6 +238,7 @@ export interface UnitPhotoItem {
   isPendingDeletion: boolean;
   pendingIsMain: boolean | null;
   classification: string;
+  classificationLabel: string;
   classificationCategory: string;
   classificationConfidence: number;
   displayOrder: number;
@@ -248,6 +249,7 @@ export interface UnitPhotoItem {
 
 export interface UnitPhotoGroupItem {
   groupKey: string;
+  groupLabel: string;
   totalCount: number;
   photos: UnitPhotoItem[];
 }
