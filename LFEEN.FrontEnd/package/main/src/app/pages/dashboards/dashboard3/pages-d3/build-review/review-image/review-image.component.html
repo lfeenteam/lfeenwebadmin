@@ -54,7 +54,7 @@
         <div class="card-footer-main">
           <div class="text-info">
             <span class="image-name">{{ mainPhoto.fileName }}</span>
-            <span class="image-category">{{ mainPhoto.classification }}</span>
+            <span class="image-category">{{ mainPhoto.classificationLabel }}</span>
             @if (mainPhoto.isPendingDeletion) {
               <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
             } @else if (mainPhoto.pendingIsMain !== null) {
@@ -92,7 +92,7 @@
     <div class="section-group">
       <div class="section-title-wrapper">
         <span class="section-indicator"></span>
-        <span class="section-title">{{ group.groupKey }}</span>
+        <span class="section-title">{{ group.groupLabel }}</span>
         <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: group.photos.length } }}</span>
       </div>
 
@@ -130,7 +130,7 @@
             <div class="card-footer">
               <div class="text-info">
                 <span class="image-name">{{ img.fileName }}</span>
-                <span class="image-category">{{ img.classification }}</span>
+                <span class="image-category">{{ img.classificationLabel }}</span>
                 @if (img.isPendingDeletion) {
                   <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
                 } @else if (img.pendingIsMain !== null) {

@@ -91,12 +91,14 @@ export interface PhotoItem {
   isPendingDeletion: boolean;
   pendingIsMain: boolean | null;
   classification: string;
+  classificationLabel: string;
   decision: AdminReviewStatus;
   rejectionReason: string | null;
 }
 
 export interface PhotoGroup {
   groupKey: string;
+  groupLabel: string;
   totalCount: number;
   photos: PhotoItem[];
 }

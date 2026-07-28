@@ -133,7 +133,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
           }
 
           this.photoGroups = otherGroups.map(group => ({
-            title: group.groupKey,
+            title: group.groupLabel,
             icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
             photos: group.photos.map(p => this.mapPhoto(p))
           }));
@@ -215,7 +215,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     return {
       id: apiPhoto.mediaId,
       url: apiPhoto.url,
-      title: apiPhoto.classification ?? '',
+      title: apiPhoto.classificationLabel ?? apiPhoto.classification ?? '',
       category: apiPhoto.classificationCategory ?? '',
       decision: hasPendingPhotoChange
         ? 'pending'
