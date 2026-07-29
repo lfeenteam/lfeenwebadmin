@@ -281,12 +281,11 @@ export interface UnitBasicDataService {
   serviceExternalId: string;
   serviceTypeId: number;
   serviceTypeNameKey: string;
-  displayNameAr: string | null;
-  displayNameEn: string | null;
+  displayName: string | null;
   uiType: string;
   isFree: boolean;
   cost: number | null;
-  costType: string;
+  costType: string | null;
   wifiSsid: string | null;
   wifiPassword: string | null;
   isWifiConfigured: boolean;

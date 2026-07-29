@@ -128,7 +128,7 @@
         <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
         <i-tabler name="circle-x"></i-tabler>
       </button>
-      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || hasNoPhotos || !!rejectionNote.trim()" (click)="submitDecision('approved')">
+      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || !!rejectionNote.trim()" (click)="submitDecision('approved')">
         <span>{{ 'd3.unitReview.accessView.approveBtn' | translate }}</span>
         <i-tabler name="circle-check"></i-tabler>
       </button>
