@@ -56,7 +56,6 @@
         <div class="col-property">{{ 'd3.complaints.hostFilters.property' | translate }}</div>
         <div class="col-department">{{ 'd3.complaints.hostFilters.department' | translate }}</div>
         <div class="col-status">الحالة</div>
-        <div class="col-priority">{{ 'd3.complaints.hostFilters.priority' | translate }}</div>
         <div class="col-date">التاريخ</div>
         <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
         <div class="col-action">الإجراء</div>
@@ -154,12 +153,6 @@
           <div class="col-status">
             <span class="status-badge" [class]="'status-' + c.status">
               {{ statusLabelKey(c.status) | translate }}
-            </span>
-          </div>
-
-          <div class="col-priority">
-            <span class="priority-badge" [class]="'priority-' + (c.priorityRaw || '').toLowerCase()">
-              {{ displayPriorityName(c) }}
             </span>
           </div>
 

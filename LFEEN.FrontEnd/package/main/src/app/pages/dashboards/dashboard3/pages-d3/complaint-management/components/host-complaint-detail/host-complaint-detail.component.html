@@ -46,7 +46,7 @@
       @if (loading()) {
         <span class="skel skel-text skel-sm"></span>
       } @else {
-        <strong>{{ ticket()?.statusName ?? '-' }}</strong>
+        <strong>{{ ticket()?.departmentName ?? '-' }}</strong>
       }
     </div>
   </section>
@@ -70,9 +70,9 @@
       </div>
     } @else if (ticket()) {
       <div class="host-profile-item">
-        <div class="host-avatar">{{ getInitials(ticket()!.accountName) }}</div>
+        <div class="host-avatar">{{ getInitials(accountDisplayName) }}</div>
         <div>
-          <h2>{{ ticket()!.accountName }}</h2>
+          <h2>{{ accountDisplayName }}</h2>
           <p>{{ hostSubtitle }}</p>
         </div>
       </div>
@@ -207,11 +207,33 @@
       <textarea
         [(ngModel)]="replyText"
         [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
+
+      @if (selectedFile(); as file) {
+        <div class="attachment-card selected-attachment">
+          @if (isImageAttachment(file.type)) {
+            <i-tabler name="photo" class="icon-24"></i-tabler>
+          } @else {
+            <i-tabler [name]="getFileIcon(file.type)" class="icon-24"></i-tabler>
+          }
+          <div class="attachment-meta">
+            <strong>{{ file.name }}</strong>
+            <span>{{ formatBytes(file.size) }}</span>
+          </div>
+          <button
+            type="button"
+            class="download-btn"
+            [attr.aria-label]="'d3.complaints.hostDetail.removeAttachment' | translate"
+            (click)="clearSelectedFile()">
+            <i-tabler name="x" class="icon-16"></i-tabler>
+          </button>
+        </div>
+      }
+
       <div class="reply-footer">
         <button
           class="send-reply-btn"
           type="button"
-          [disabled]="loading() || sendingReply() || !replyText.trim()"
+          [disabled]="loading() || sendingReply() || !canSendReply"
           (click)="sendReply()">
           @if (sendingReply()) {
             <span class="reply-spinner"></span>
@@ -220,7 +242,8 @@
           }
           {{ 'd3.complaints.hostDetail.sendReply' | translate }}
         </button>
-        <button class="attach-reply-btn" type="button">
+        <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+        <button class="attach-reply-btn" type="button" (click)="fileInput.click()">
           <i-tabler name="paperclip" class="icon-18"></i-tabler>
         </button>
       </div>

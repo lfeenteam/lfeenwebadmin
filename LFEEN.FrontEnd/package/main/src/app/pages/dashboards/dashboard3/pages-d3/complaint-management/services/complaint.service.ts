@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, ReplyRequest, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
@@ -69,11 +69,14 @@ export class ComplaintService {
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/status`, payload);
   }
 
-  sendTicketReply(ticketId: string, body: string): Observable<TicketActionResult> {
-    const payload: ReplyRequest = { body, isInternalNote: false };
+  sendTicketReply(ticketId: string, body: string, attachment?: File | null): Observable<TicketActionResult> {
+    const form = new FormData();
+    if (body) form.append('Body', body);
+    form.append('IsInternalNote', 'false');
+    if (attachment) form.append('Attachment', attachment);
     return this.http.post<TicketActionResult>(
       `${environment.apiBaseUrl}/api/tickets/${ticketId}/replies`,
-      payload
+      form
     );
   }
 

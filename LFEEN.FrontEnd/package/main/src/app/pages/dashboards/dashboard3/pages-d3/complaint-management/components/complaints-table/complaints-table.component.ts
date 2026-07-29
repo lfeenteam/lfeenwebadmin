@@ -206,12 +206,19 @@ export class ComplaintsTableComponent implements OnChanges {
       : complaint.date;
   }
 
+  /** Truncates by word count (not characters) so short words aren't cut mid-word —
+   * used for the subject column, which only has room for a few words per row. */
+  private truncateWords(text: string, wordLimit = 4): string {
+    const words = text.trim().split(/\s+/);
+    return words.length > wordLimit ? `${words.slice(0, wordLimit).join(' ')}...` : text;
+  }
+
   displaySubject(complaint: Complaint): string {
     if (complaint.subject) {
       const text = this.translate.currentLang === 'en'
         ? complaint.subjectEn ?? complaint.subject
         : complaint.subject;
-      return text.length > 68 ? `${text.slice(0, 68)}...` : text;
+      return this.truncateWords(text);
     }
 
     const firstMessage = complaint.messages[0];
@@ -223,7 +230,7 @@ export class ComplaintsTableComponent implements OnChanges {
       ? firstMessage.contentEn ?? firstMessage.content
       : firstMessage.content;
 
-    return content.length > 68 ? `${content.slice(0, 68)}...` : content;
+    return this.truncateWords(content);
   }
 
   displayResolvedSubject(complaint: Complaint): string {
@@ -251,10 +258,6 @@ export class ComplaintsTableComponent implements OnChanges {
 
   displayDepartmentName(complaint: Complaint): string {
     return complaint.departmentName ?? '-';
-  }
-
-  displayPriorityName(complaint: Complaint): string {
-    return complaint.priorityName ?? '-';
   }
 
   displayAssignedAdminName(complaint: Complaint): string {

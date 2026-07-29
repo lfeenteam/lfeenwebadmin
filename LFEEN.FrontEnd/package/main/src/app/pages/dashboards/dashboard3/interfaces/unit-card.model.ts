@@ -162,7 +162,11 @@ export interface UnitApiDetailItem {
   accessSection: UnitApiSection;
   accessPhotosSection: UnitApiSection;
   cancellationPolicySection: UnitApiSection;
-  depositSection: UnitApiSection;
+  // null when the unit's type/business setup doesn't require a deposit section at all
+  // (as opposed to hasSecurityDeposit=false, which means a deposit isn't required for
+  // this unit but the section is still shown as an informational badge).
+  depositSection: UnitApiSection | null;
+  hasSecurityDeposit: boolean;
   servicesSection: UnitApiSection;
   // null when the unit's type/business setup doesn't require a license section at all
   // (as opposed to Pending, which means it's required but undecided).

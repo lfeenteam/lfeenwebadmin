@@ -40,8 +40,8 @@
           <span class="icon-box">
             <i-tabler [name]="isSectionDecided(section.key) ? 'help' : section.icon"></i-tabler>
           </span>
-          @if (section.isSmartLockBadge) {
-            <span class="info-tag">{{ 'd3.unitReview.sections.smartLock.infoBadge' | translate }}</span>
+          @if (isInformationalSection(section)) {
+            <span class="info-tag">{{ infoBadgeKey(section) | translate }}</span>
           } @else if (isSectionApproved(section.key)) {
             <span class="decision-badge decision-badge--approved">
               <i-tabler name="circle-check" class="decision-icon"></i-tabler>
@@ -62,10 +62,10 @@
           <p class="desc">{{ getSectionDescription(section.key) || (section.descKey | translate) }}</p>
         </div>
 
-        @if (section.isSmartLockBadge) {
+        @if (isInformationalSection(section)) {
           <span class="active-badge">
             <i-tabler name="check" class="active-icon"></i-tabler>
-            {{ 'd3.unitReview.sections.smartLock.activeBadge' | translate }}
+            {{ activeBadgeKey | translate }}
           </span>
         } @else {
           <button class="review-btn" [class.review-btn--icon]="isSectionDecided(section.key)" type="button" (click)="onReviewSection(section)">
