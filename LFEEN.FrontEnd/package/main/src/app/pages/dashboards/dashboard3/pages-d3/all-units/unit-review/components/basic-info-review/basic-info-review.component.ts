@@ -114,11 +114,19 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   }
 
   getServiceLabel(service: UnitBasicDataService): string {
-    const isAr = this.translate.currentLang !== 'en';
-    const primary   = isAr ? service.displayNameAr : service.displayNameEn;
-    const secondary = isAr ? service.displayNameEn : service.displayNameAr;
     const isKey = (v: string | null) => !v || v.startsWith('ServiceType.');
-    return (!isKey(primary) ? primary : !isKey(secondary) ? secondary : service.serviceTypeNameKey) ?? service.serviceTypeNameKey;
+
+    if (!isKey(service.displayName)) return service.displayName as string;
+
+    const translated = this.translate.instant(service.serviceTypeNameKey);
+    if (translated !== service.serviceTypeNameKey) return translated;
+
+    return this.fallbackFromServiceTypeKey(service.serviceTypeNameKey);
+  }
+
+  private fallbackFromServiceTypeKey(key: string): string {
+    const match = key.match(/ServiceType\.(\w+)\./);
+    return match?.[1] ?? key;
   }
 
   onBack(): void {
