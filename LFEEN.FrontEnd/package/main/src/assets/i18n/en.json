@@ -1155,7 +1155,8 @@
         "deposit": {
           "title": "8. Security Deposit",
           "desc": "Required deposit: 500 SAR, charged at booking and refunded 24h after checkout",
-          "btn": "Review Deposit"
+          "btn": "Review Deposit",
+          "infoBadge": "Informational"
         },
         "services": {
           "title": "9. Service Customization",
@@ -1621,7 +1622,7 @@
       },
       "hostFilters": {
         "searchPlaceholder": "Search by subject, ticket number...",
-        "property": "Property",
+        "property": "Building name",
         "department": "Department",
         "priority": "Priority",
         "notAssigned": "Not assigned",
@@ -1675,6 +1676,7 @@
         "unknownFile": "Unknown file",
         "openFile": "Open file",
         "fileUnavailable": "This file is unavailable",
+        "removeAttachment": "Remove attachment",
         "replyTitle": "Official technical support reply",
         "replyPlaceholder": "Write the official reply to the host here...",
         "sendReply": "Send official reply",

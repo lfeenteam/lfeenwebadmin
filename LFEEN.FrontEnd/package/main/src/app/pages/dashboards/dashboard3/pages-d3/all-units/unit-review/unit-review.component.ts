@@ -57,16 +57,21 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     { key: 'license',      titleKey: 'd3.unitReview.sections.license.title',      descKey: 'd3.unitReview.sections.license.desc',      icon: 'certificate',      isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.license.btn'      }
   ];
 
+  // Computed from reviewableSections rather than the backend's completedSections/
+  // totalSections, because those count informational-only sections (smartLock, and
+  // deposit when hasSecurityDeposit=false) toward the total without ever marking them
+  // "completed" — that mismatch is what made the header progress ("8 of 9") disagree
+  // with the final-review tally ("7 approved") for units with a non-applicable deposit.
   get completedCount(): number {
-    return this.unitDetail?.completedSections ?? 0;
+    return this.approvedCount + this.rejectedCount;
   }
 
   get totalCount(): number {
-    return this.unitDetail?.totalSections ?? this.reviewSections.length;
+    return this.reviewableSections.length;
   }
 
   get progressPercent(): number {
-    return this.unitDetail?.progressPercentage ?? 0;
+    return this.totalCount > 0 ? Math.round((this.completedCount / this.totalCount) * 100) : 0;
   }
 
   // The header badge must reflect the unit's actual overallStatus, not the tab
@@ -162,16 +167,37 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // Some unit types (e.g. private hospitality facilities) don't require a license at
   // all, in which case the API sends licenseSection as null and licenseApplicable as
   // false. Drop it from the review flow entirely instead of showing a section that
-  // will never be decided.
+  // will never be decided. depositSection is null the same way, for units whose setup
+  // doesn't have a deposit section at all.
   get visibleSections(): UnitReviewSection[] {
-    if (this.unitDetail && !this.unitDetail.licenseApplicable) {
-      return this.reviewSections.filter(s => s.key !== 'license');
-    }
-    return this.reviewSections;
+    return this.reviewSections.filter(s => {
+      if (s.key === 'license') return !this.unitDetail || this.unitDetail.licenseApplicable;
+      if (s.key === 'deposit') return !this.unitDetail || !!this.unitDetail.depositSection;
+      return true;
+    });
   }
 
+  // hasSecurityDeposit=false means a deposit isn't required for this unit — the section
+  // stays visible but, like smartLock, is shown as an informational badge instead of a
+  // decision the reviewer has to approve/reject.
+  get isDepositInformational(): boolean {
+    return !!this.unitDetail && !!this.unitDetail.depositSection && !this.unitDetail.hasSecurityDeposit;
+  }
+
+  isInformationalSection(section: UnitReviewSection): boolean {
+    if (section.isSmartLockBadge) return true;
+    if (section.key === 'deposit') return this.isDepositInformational;
+    return false;
+  }
+
+  infoBadgeKey(section: UnitReviewSection): string {
+    return `d3.unitReview.sections.${section.key}.infoBadge`;
+  }
+
+  readonly activeBadgeKey = 'd3.unitReview.sections.smartLock.activeBadge';
+
   get reviewableSections(): UnitReviewSection[] {
-    return this.visibleSections.filter(s => !s.isSmartLockBadge);
+    return this.visibleSections.filter(s => !this.isInformationalSection(s));
   }
 
   get approvedCount(): number {
@@ -325,7 +351,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'pricing':      return d.pricingSection.decision;
       case 'access':       return d.accessSection.decision;
       case 'cancelPolicy': return d.cancellationPolicySection.decision;
-      case 'deposit':      return d.depositSection.decision;
+      // depositSection is null when the unit's type/business setup doesn't have a
+      // deposit section at all (as opposed to Pending, which means it's undecided).
+      case 'deposit':      return d.depositSection?.decision ?? 'Pending';
       case 'services':     return d.servicesSection.decision;
       // licenseSection is null when the unit's type/business setup doesn't require a
       // license at all (as opposed to Pending, which means it's required but undecided).
@@ -344,7 +372,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'pricing':      return d.pricingSection.description ?? '';
       case 'access':       return d.accessSection.description ?? '';
       case 'cancelPolicy': return d.cancellationPolicySection.description ?? '';
-      case 'deposit':      return d.depositSection.description ?? '';
+      case 'deposit':      return d.depositSection?.description ?? '';
       case 'services':     return d.servicesSection.description ?? '';
       case 'license':      return d.licenseSection?.description ?? '';
       default:             return '';

@@ -34,6 +34,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   closingTicket   = signal(false);
   closeError      = signal<string | null>(null);
   ticket          = signal<TicketDetail | null>(null);
+  selectedFile    = signal<File | null>(null);
 
   private ticketId = '';
 
@@ -79,8 +80,16 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
-  getInitials(name: string): string {
+  getInitials(name: string | null | undefined): string {
+    if (!name) return '';
     return name.split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase();
+  }
+
+  /** The API only returns `accountName` for some ticket sources — fall back to
+   * `createdByName` (always present) so the profile card never renders blank. */
+  get accountDisplayName(): string {
+    const t = this.ticket();
+    return t?.accountName || t?.createdByName || '-';
   }
 
   formatDate(dateStr: string): string {
@@ -162,15 +171,32 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return item.externalId;
   }
 
+  get canSendReply(): boolean {
+    return !!this.replyText.trim() || !!this.selectedFile();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.selectedFile.set(file);
+    input.value = '';
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile.set(null);
+  }
+
   sendReply(): void {
     const body = this.replyText.trim();
-    if (!body || this.sendingReply()) return;
+    const attachment = this.selectedFile();
+    if ((!body && !attachment) || this.sendingReply()) return;
 
     this.sendingReply.set(true);
     this.assignToCurrentUserIfUnassigned().then(() => {
-      this.service.sendTicketReply(this.ticketId, body).subscribe({
+      this.service.sendTicketReply(this.ticketId, body, attachment).subscribe({
         next: result => {
           this.replyText = '';
+          this.selectedFile.set(null);
           const newMsg = result?.reply ?? null;
           if (newMsg) {
             this.ticket.update(t =>
@@ -187,7 +213,10 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
             });
           }
         },
-        error: () => this.sendingReply.set(false),
+        error: () => {
+          this.sendingReply.set(false);
+          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        },
       });
     });
   }

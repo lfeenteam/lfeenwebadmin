@@ -83,11 +83,6 @@ export interface TicketStatusHistory {
   createdAt: string;
 }
 
-export interface ReplyRequest {
-  body: string;
-  isInternalNote: boolean;
-}
-
 export interface UpdateStatusRequest {
   status: string;
   note?: string;
@@ -112,8 +107,10 @@ export interface TicketDetail {
   statusName: string;
   priority: string;
   department: string;
+  departmentName?: string;
   propertyName?: string;
-  accountName: string;
+  accountName?: string;
+  createdByName?: string | null;
   assignedAdminUserId: string | null;
   assignedAdminName: string | null;
   createdByType: string;
@@ -121,7 +118,7 @@ export interface TicketDetail {
   closedAtUtc: string | null;
   initialMessage: TicketMessage;
   messages: TicketMessage[];
-  attachments: TicketAttachment[];
+  attachments?: TicketAttachment[];
   statusHistory: TicketStatusHistory[];
 }
 
