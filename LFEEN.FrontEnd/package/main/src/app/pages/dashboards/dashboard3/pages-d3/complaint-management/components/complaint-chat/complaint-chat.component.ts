@@ -121,7 +121,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
     const ticketId = this.complaint.id;
     return new Promise(resolve => {
-      this.service.assignTicket(ticketId, user.userId).subscribe({
+      this.service.assignClientTicket(ticketId, user.userId).subscribe({
         next: () => {
           if (this.complaint?.id === ticketId) {
             this.complaint = { ...this.complaint, assignedAdminUserId: user.userId, assignedAdminName: user.fullName };

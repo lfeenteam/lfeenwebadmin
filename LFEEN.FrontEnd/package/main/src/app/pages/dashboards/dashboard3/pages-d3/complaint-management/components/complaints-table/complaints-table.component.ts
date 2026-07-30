@@ -357,7 +357,10 @@ export class ComplaintsTableComponent implements OnChanges {
     if (!complaint || this.assignSubmitting) return;
 
     this.assignSubmitting = true;
-    this.complaintService.assignTicket(complaint.id, employee.userId)
+    const request$ = complaint.type === 'customer'
+      ? this.complaintService.assignClientTicket(complaint.id, employee.userId)
+      : this.complaintService.assignTicket(complaint.id, employee.userId);
+    request$
       .pipe(finalize(() => this.assignSubmitting = false))
       .subscribe({
         next: () => {

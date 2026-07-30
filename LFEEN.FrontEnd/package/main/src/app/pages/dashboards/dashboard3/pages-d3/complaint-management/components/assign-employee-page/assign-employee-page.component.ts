@@ -165,7 +165,10 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
     if (!employee || this.submitting() || !this.ticketExternalId) return;
 
     this.submitting.set(true);
-    this.service.assignTicket(this.ticketExternalId, employee.userId)
+    const request$ = this.complaintType === 'host'
+      ? this.service.assignTicket(this.ticketExternalId, employee.userId)
+      : this.service.assignClientTicket(this.ticketExternalId, employee.userId);
+    request$
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
