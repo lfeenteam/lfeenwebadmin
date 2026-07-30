@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
@@ -165,12 +165,16 @@ export class ComplaintService {
     );
   }
 
-  // One unified assignment endpoint for both host and customer tickets — the separate
-  // /api/client-tickets/{id}/assign endpoint ignored the given adminUserId server-side
-  // and silently self-assigned to whichever admin's token made the call.
+  // Host tickets use the unified assignment endpoint.
   assignTicket(ticketId: string, adminUserId: string): Observable<void> {
     const payload: AssignTicketRequest = { assignedAdminUserId: adminUserId };
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/tickets/${ticketId}/assignment`, payload);
+  }
+
+  // Customer (client) tickets have their own dedicated assignment endpoint.
+  assignClientTicket(ticketExternalId: string, agentUserId: string): Observable<void> {
+    const payload: AssignClientTicketRequest = { agentUserId };
+    return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketExternalId}/assign`, payload);
   }
 
   getAssignableEmployees(search?: string, page = 1, pageSize = 8): Observable<AssignableEmployeePage> {

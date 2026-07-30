@@ -313,3 +313,7 @@ export interface AssignableEmployeePage {
 export interface AssignTicketRequest {
   assignedAdminUserId: string;
 }
+
+export interface AssignClientTicketRequest {
+  agentUserId: string;
+}
