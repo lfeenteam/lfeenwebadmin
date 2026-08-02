@@ -304,7 +304,9 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
         s.isWifiConfigured ||
         s.serviceTypeNameKey.toLowerCase().includes('wifi')
       );
-    groups.push(this.buildWifiGroup(wifiService));
+    if (wifiService?.isWifiConfigured === true) {
+      groups.push(this.buildWifiGroup(wifiService));
+    }
 
     return groups.sort((a, b) => {
       const ai = GROUP_ORDER.indexOf(a.id);
