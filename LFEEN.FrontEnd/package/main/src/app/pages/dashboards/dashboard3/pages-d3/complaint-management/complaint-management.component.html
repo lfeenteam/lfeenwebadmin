@@ -81,7 +81,8 @@
           [complaint]="selectedComplaint()!"
           [viewOnly]="activeTab() === 'resolved'"
           (close)="closeChat()"
-          (resolve)="onResolve(selectedComplaint()!)">
+          (resolve)="onResolve(selectedComplaint()!)"
+          (claimed)="onTicketClaimed($event)">
         </app-complaint-chat>
       </div>
     }

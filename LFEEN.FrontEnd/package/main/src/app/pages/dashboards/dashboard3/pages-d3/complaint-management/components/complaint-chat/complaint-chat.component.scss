@@ -779,6 +779,17 @@
   flex: 0 0 14px;
 }
 
+.older-messages-loading {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 2px;
+
+  .reply-spinner {
+    border-color: rgba(0,0,0,0.12);
+    border-top-color: #6B7280;
+  }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

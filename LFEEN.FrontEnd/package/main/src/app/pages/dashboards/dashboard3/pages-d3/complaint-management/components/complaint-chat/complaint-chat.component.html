@@ -38,7 +38,13 @@
   </div>
 
   <!-- Messages -->
-  <div class="chat-messages">
+  <div class="chat-messages" #messagesContainer (scroll)="onMessagesScroll()">
+    @if (loadingOlderMessages()) {
+      <div class="older-messages-loading">
+        <span class="reply-spinner"></span>
+      </div>
+    }
+
     @if (complaint.messages.length > 0) {
       <div class="date-separator">
         {{ dateSeparatorLabel }}

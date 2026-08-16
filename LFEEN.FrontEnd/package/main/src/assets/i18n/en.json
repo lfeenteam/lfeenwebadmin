@@ -1603,6 +1603,7 @@
         "date": "Date",
         "assign": "Assign",
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
+        "assignDelayedMsg": "No activity for a while — you can reassign this complaint",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
         "allStatuses": "All statuses",
         "allTypes": "All types",

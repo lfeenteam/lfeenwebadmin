@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
@@ -45,8 +45,13 @@ export class ComplaintService {
     return of(undefined).pipe(delay(200));
   }
 
-  sendClientTicketMessage(ticketId: string, body: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/messages`, { body });
+  // The endpoint expects multipart/form-data (lowercase field names), not JSON —
+  // a plain JSON body gets a 415 Unsupported Media Type back.
+  sendClientTicketMessage(ticketId: string, body: string, attachment?: File | null): Observable<void> {
+    const form = new FormData();
+    form.append('body', body);
+    if (attachment) form.append('attachment', attachment);
+    return this.http.post<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/messages`, form);
   }
 
   getTicketById(externalId: string): Observable<TicketDetail> {
@@ -165,6 +170,23 @@ export class ComplaintService {
     );
   }
 
+  // Tickets waiting for an agent (mainly PendingAgent) — used to surface priority
+  // items at the top of the main client-tickets list, not as a replacement for it.
+  getClientTicketsQueue(params: ClientTicketQueueQueryParams = {}): Observable<ClientTicketListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 50).toString());
+
+    if (params.department !== undefined && params.department !== null) {
+      httpParams = httpParams.set('department', params.department.toString());
+    }
+
+    return this.http.get<ClientTicketListResponse>(
+      `${environment.apiBaseUrl}/api/client-tickets/queue`,
+      { params: httpParams }
+    );
+  }
+
   // Host tickets use the unified assignment endpoint.
   assignTicket(ticketId: string, adminUserId: string): Observable<void> {
     const payload: AssignTicketRequest = { assignedAdminUserId: adminUserId };
@@ -175,6 +197,12 @@ export class ComplaintService {
   assignClientTicket(ticketExternalId: string, agentUserId: string): Observable<void> {
     const payload: AssignClientTicketRequest = { agentUserId };
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketExternalId}/assign`, payload);
+  }
+
+  // Self-claim for a PendingAgent client ticket — called when the current agent starts
+  // replying to an unassigned ticket, rather than picking an employee from a list.
+  claimClientTicket(ticketExternalId: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketExternalId}/claim`, {});
   }
 
   getAssignableEmployees(search?: string, page = 1, pageSize = 8): Observable<AssignableEmployeePage> {
@@ -205,7 +233,8 @@ export class ComplaintService {
     const clientName = t.clientName ?? '-';
     return {
       id: t.externalId ?? '-',
-      ticketId: t.ticketNumber ?? '-',
+      chatExternalId: t.chatExternalId,
+      ticketId: t.sessionNumber ?? t.ticketNumber ?? '-',
       clientName,
       clientInitials: this.getInitials(clientName),
       clientCode: '-',
@@ -217,6 +246,7 @@ export class ComplaintService {
       messages: [],
       subject: t.subject ?? undefined,
       assignedAdminName: t.assignedAgentName,
+      lastMessageAtUtc: t.lastMessageAtUtc ?? null,
     };
   }
 
@@ -229,7 +259,7 @@ export class ComplaintService {
 
     return {
       id: detail.externalId,
-      ticketId: detail.ticketNumber,
+      ticketId: detail.sessionNumber ?? detail.ticketNumber ?? '-',
       clientName,
       clientInitials: this.getInitials(clientName),
       clientCode: fallback?.clientCode ?? '-',
@@ -260,15 +290,100 @@ export class ComplaintService {
     };
   }
 
+  // Chat-level detail — replaces getClientTicketById as the source for the open chat's
+  // message thread, since it carries the full conversation (including the bot phase)
+  // instead of just the session's own messages.
+  getClientChatById(chatExternalId: string): Observable<ClientChat> {
+    return this.http.get<ClientChat>(`${environment.apiBaseUrl}/api/client-chats/${chatExternalId}`);
+  }
+
+  // Older-message pagination for a single session, once its hasMoreMessages is true.
+  // `before` is the externalId of the oldest message currently loaded in the UI.
+  getClientTicketMessages(ticketExternalId: string, before: string): Observable<ClientTicketMessagesPage> {
+    const params = new HttpParams().set('before', before);
+    return this.http.get<ClientTicketMessagesPage>(
+      `${environment.apiBaseUrl}/api/client-tickets/${ticketExternalId}/messages`,
+      { params }
+    );
+  }
+
+  mapClientChatMessages(messages: ClientChatMessage[]): ChatMessage[] {
+    return messages.map(m => this.mapClientChatMessage(m));
+  }
+
+  mapClientChatToComplaint(chat: ClientChat, fallback?: Complaint): Complaint {
+    const session = chat.sessions.find(s => s.externalId === chat.currentSessionExternalId)
+      ?? chat.sessions[chat.sessions.length - 1];
+    const clientName = fallback?.clientName || '-';
+
+    if (!session) {
+      return {
+        id: fallback?.id ?? chat.externalId,
+        chatExternalId: chat.externalId,
+        ticketId: fallback?.ticketId ?? '-',
+        clientName,
+        clientInitials: this.getInitials(clientName),
+        clientCode: fallback?.clientCode ?? '-',
+        status: fallback?.status ?? 'new',
+        date: fallback?.date ?? '-',
+        dateEn: fallback?.dateEn ?? '-',
+        type: 'customer',
+        resolved: false,
+        messages: [],
+        hasMoreMessages: false,
+        subject: fallback?.subject,
+        assignedAdminName: fallback?.assignedAdminName ?? null,
+      };
+    }
+
+    return {
+      id: session.externalId,
+      chatExternalId: chat.externalId,
+      ticketId: session.sessionNumber,
+      clientName,
+      clientInitials: this.getInitials(clientName),
+      clientCode: fallback?.clientCode ?? '-',
+      status: this.mapClientTicketStatus(session.status),
+      date: new Date(session.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      dateEn: new Date(session.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+      type: 'customer',
+      resolved: session.status === 'Resolved' || session.status === 'Closed' || !!session.closedAtUtc,
+      messages: session.messages.map(m => this.mapClientChatMessage(m)),
+      hasMoreMessages: session.hasMoreMessages,
+      subject: fallback?.subject,
+      assignedAdminName: session.assignedAgentName,
+    };
+  }
+
+  private mapClientChatMessage(m: ClientChatMessage): ChatMessage {
+    const createdAt = new Date(m.createdAt);
+    return {
+      id: m.externalId,
+      senderRole: m.senderType === 'Client' ? 'client' : 'support',
+      senderName: m.senderName,
+      content: m.body,
+      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      createdAtUtc: m.createdAt,
+      attachment: m.attachment
+        ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
+        : null,
+    };
+  }
+
   mapClientTicketStatus(status: string): ComplaintStatus {
     const map: Record<string, ComplaintStatus> = {
       New:          'new',
       Open:         'new',
+      BotHandling:  'new',
       Pending:      'pending',
+      PendingAgent: 'pending',
       InProgress:   'in_progress',
-      WaitingClient: 'replied',
+      WaitingForClient: 'replied',
       Resolved:     'replied',
       Closed:       'closed',
+      ClosedByClient: 'closed',
+      ClosedByAdmin:  'closed',
     };
     return map[status] ?? 'new';
   }
