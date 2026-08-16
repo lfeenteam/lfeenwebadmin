@@ -152,6 +152,11 @@ export interface UnitApiDetailItem {
   hasLock: boolean;
   isSmartLockActive: boolean;
   overallStatus: string;
+  // Whether the unit is actually live/published for booking. Distinct from
+  // overallStatus === 'Approved', which only reflects that every review section
+  // has been approved — the unit doesn't go live until the final approval action
+  // is submitted, so isDisplayed is the reliable "final approval already done" signal.
+  isDisplayed: boolean;
   finalNotes: string | null;
   createdAt: string;
   updatedAt: string;

@@ -855,6 +855,7 @@
     "buildReview": {
       "title": "Building Review",
       "reviewRequestsBC": "Review Requests",
+      "buildingCrumbLabel": "Building",
       "urgentRequest": "Urgent Request",
       "buildingInfo": {
         "imageAlt": "Building Image",
@@ -1103,6 +1104,7 @@
     "unitReview": {
       "title": "Unit Review",
       "reviewRequestsBC": "Review Requests",
+      "unitCrumbLabel": "Unit",
       "unitInfo": {
         "unitNumberLabel": "Unit Number"
       },
@@ -1111,6 +1113,7 @@
         "progressLabel": "Review status",
         "progressCount": "{{completed}} of {{total}}",
         "approved": "Approved",
+        "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",
         "newLabel": "New"

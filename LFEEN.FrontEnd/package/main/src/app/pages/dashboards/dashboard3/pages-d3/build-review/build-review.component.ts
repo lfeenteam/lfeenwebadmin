@@ -127,17 +127,20 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
 
   // Building review's sections aren't separate routes (just internal currentView toggles),
   // so the shared header can't derive title/breadcrumb from route data here. We push them
-  // manually: at the section list, H1 = building name; inside a section, H1 = section name
-  // and the building name becomes a clickable breadcrumb crumb back to the section list.
+  // manually: at the section list, H1 = building name, with a fixed "Building" crumb ahead
+  // of it so the breadcrumb reads as entity-type then entity-name; inside a section, H1 =
+  // section name and the building name becomes a clickable crumb back to the section list.
   private updateHeaderForView(): void {
     const sectionKey = this.sectionTitleKeys[this.currentView];
+    const buildingTypeCrumb = { label: 'd3.buildReview.buildingCrumbLabel', translate: true };
     if (!sectionKey) {
       this.pageTitleOverride.set(this.building.name);
-      this.pageBreadcrumbTrail.clear();
+      this.pageBreadcrumbTrail.set([buildingTypeCrumb]);
       return;
     }
     this.pageTitleOverride.set(this.translate.instant(sectionKey));
     this.pageBreadcrumbTrail.set([
+      buildingTypeCrumb,
       { label: this.building.name, translate: false, onClick: () => this.setView('list') }
     ]);
   }
