@@ -50,12 +50,33 @@ export class ComplaintManagementComponent implements OnDestroy {
   private resolvedTickets = signal<Complaint[]>([]);
 
   readonly clientStatusOptions = CLIENT_TICKET_STATUS_OPTIONS;
-  customerTickets     = signal<Complaint[]>([]);
+  // customerAllTickets: the paginated main list from GET /api/client-tickets.
+  // customerQueueTickets: PendingAgent tickets from GET /api/client-tickets/queue, kept
+  // separate so a live queue refresh never clobbers the main list or its pagination.
+  // customerDisplayTickets (below) derives the merged, deduped, priority-first view.
+  customerAllTickets  = signal<Complaint[]>([]);
+  customerQueueTickets = signal<Complaint[]>([]);
   customerTotalCount  = signal<number | null>(null);
   customerTotalPages  = signal(1);
   customerPage        = signal(1);
   customerSearch      = signal('');
   customerStatus      = signal<number | null>(null);
+
+  // Queue-priority ordering only applies to the default, unfiltered first page — the same
+  // guard already used for live NewClientTicket inserts — so it never fights search/filter/
+  // pagination results with tickets that don't belong in them.
+  private customerQueueApplicable = computed(() =>
+    this.customerPage() === 1 && !this.customerSearch() && this.customerStatus() === null
+  );
+
+  customerDisplayTickets = computed<Complaint[]>(() => {
+    const all = this.customerAllTickets();
+    if (!this.customerQueueApplicable()) return all;
+    const queue = this.customerQueueTickets();
+    if (!queue.length) return all;
+    const queueIds = new Set(queue.map(c => c.id));
+    return [...queue, ...all.filter(c => !queueIds.has(c.id))];
+  });
 
   hostTickets     = signal<Complaint[]>([]);
   hostTotalCount  = signal<number | null>(null);
@@ -122,6 +143,7 @@ export class ComplaintManagementComponent implements OnDestroy {
       this.activeTab.set(tab);
     }
     this.loadTabData(this.activeTab());
+    this.loadQueueTickets();
     this.watchLiveUpdates();
     this.loadHostFilterSources();
 
@@ -156,8 +178,20 @@ export class ComplaintManagementComponent implements OnDestroy {
       return;
     }
 
+    // Deep links only carry the session/ticket id, not the chatExternalId the chat endpoint
+    // needs — resolve it here first, then load the full chat thread.
     this.service.getClientTicketById(id).subscribe({
-      next: detail => this.selectedComplaint.set(this.service.mapClientTicketDetailToComplaint(detail)),
+      next: ticket => {
+        const fallback = this.service.mapClientTicketDetailToComplaint(ticket);
+        if (!ticket.chatExternalId) {
+          this.selectedComplaint.set(fallback);
+          return;
+        }
+        this.service.getClientChatById(ticket.chatExternalId).subscribe({
+          next: chat => this.selectedComplaint.set(this.service.mapClientChatToComplaint(chat, fallback)),
+          error: () => this.selectedComplaint.set(fallback),
+        });
+      },
       error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
     });
   }
@@ -169,46 +203,68 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private watchLiveUpdates(): void {
+    // NewClientTicket/SessionEscalated only tell us *that* something changed, not the full
+    // row data needed to render it — so they're used purely as a trigger to refetch the
+    // queue and re-merge, never to synthesize a partial ticket into the list.
     this.hubSubs.add(
-      this.hub.newClientTicket$.subscribe(event => {
-        if (this.activeTab() !== 'customers' || this.customerPage() !== 1) return;
-        if (this.customerSearch() || this.customerStatus() !== null) return;
-        const complaint: Complaint = {
-          id: event.ticketExternalId,
-          ticketId: event.ticketNumber,
-          clientName: '-',
-          clientInitials: '-',
-          clientCode: '-',
-          status: 'new',
-          date: new Date(event.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
-          dateEn: new Date(event.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-          type: 'customer',
-          resolved: false,
-          messages: [],
-          subject: event.subject,
-        };
-        this.customerTickets.update(list => [complaint, ...list]);
-        this.customerTotalCount.update(count => (count ?? 0) + 1);
+      this.hub.newClientTicket$.subscribe(() => this.loadQueueTickets())
+    );
+
+    this.hubSubs.add(
+      this.hub.sessionEscalated$.subscribe(() => this.loadQueueTickets())
+    );
+
+    // Another agent claimed a session that was in our queue — refresh so it drops out
+    // of the priority section immediately.
+    this.hubSubs.add(
+      this.hub.sessionClaimed$.subscribe(() => this.loadQueueTickets())
+    );
+
+    // A session only needs a queue refresh if it was actually put back into PendingAgent.
+    this.hubSubs.add(
+      this.hub.agentReleased$.subscribe(event => {
+        if (event.requeued) this.loadQueueTickets();
       })
+    );
+
+    // Status moved to Resolved/Closed* — it no longer belongs in the priority queue.
+    this.hubSubs.add(
+      this.hub.sessionResolved$.subscribe(() => this.loadQueueTickets())
     );
 
     this.hubSubs.add(
       this.hub.newClientMessage$.subscribe(event => {
-        this.customerTickets.update(list => {
-          const ticket = list.find(c => c.id === event.ticketExternalId);
+        // This is a personal notification for tickets NOT currently open — if it's the
+        // open chat, NewMessage already rendered it live there; nothing to do here.
+        if (this.selectedComplaint()?.chatExternalId === event.chatExternalId) return;
+        this.customerAllTickets.update(list => {
+          const ticket = list.find(c => c.chatExternalId === event.chatExternalId);
           if (!ticket) return list;
-          return [ticket, ...list.filter(c => c.id !== event.ticketExternalId)];
+          return [ticket, ...list.filter(c => c.chatExternalId !== event.chatExternalId)];
         });
       })
     );
 
   }
 
+  // Silent background refresh — never toggles the page-level `loading` signal, so it
+  // doesn't blank the table or show a full-page loader while the main list stays put.
+  private loadQueueTickets(): void {
+    this.service.getClientTicketsQueue()
+      .pipe(
+        map(res => [...res.data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
+        catchError(() => of([])),
+      )
+      .subscribe(sorted => {
+        this.customerQueueTickets.set(sorted.map(t => this.service.mapClientTicketToComplaint(t)));
+      });
+  }
+
   visibleComplaints = computed(() => {
     const tab = this.activeTab();
     if (tab === 'hosts')    return this.hostTickets();
     if (tab === 'resolved') return this.resolvedTickets();
-    return this.customerTickets();
+    return this.customerDisplayTickets();
   });
 
   private loadTabData(tab: ComplaintTab): void {
@@ -365,7 +421,7 @@ export class ComplaintManagementComponent implements OnDestroy {
         finalize(() => this.loading.set(false))
       )
       .subscribe(res => {
-        this.customerTickets.set(res.complaints);
+        this.customerAllTickets.set(res.complaints);
         this.customerTotalCount.set(res.totalCount);
         this.customerTotalPages.set(res.totalPages);
       });
@@ -424,10 +480,23 @@ export class ComplaintManagementComponent implements OnDestroy {
   private loadClientTicketDetail(complaint: Complaint): void {
     if (complaint.type !== 'customer') return;
 
-    this.service.getClientTicketById(complaint.id).subscribe({
-      next: detail => {
+    if (!complaint.chatExternalId) {
+      // Defensive fallback — every row from the list carries chatExternalId today,
+      // but don't leave the chat unopenable if a row somehow doesn't.
+      this.service.getClientTicketById(complaint.id).subscribe({
+        next: detail => {
+          if (this.selectedComplaint()?.id !== complaint.id) return;
+          this.selectedComplaint.set(this.service.mapClientTicketDetailToComplaint(detail, complaint));
+        },
+        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
+      });
+      return;
+    }
+
+    this.service.getClientChatById(complaint.chatExternalId).subscribe({
+      next: chat => {
         if (this.selectedComplaint()?.id !== complaint.id) return;
-        this.selectedComplaint.set(this.service.mapClientTicketDetailToComplaint(detail, complaint));
+        this.selectedComplaint.set(this.service.mapClientChatToComplaint(chat, complaint));
       },
       error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
     });
@@ -441,12 +510,32 @@ export class ComplaintManagementComponent implements OnDestroy {
         ? { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName }
         : c
     );
-    this.customerTickets.update(patch);
+    this.customerAllTickets.update(patch);
+    this.customerQueueTickets.update(patch);
     this.hostTickets.update(patch);
 
     if (this.selectedComplaint()?.id === complaintId) {
       this.selectedComplaint.update(c => c && { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName });
     }
+  }
+
+  // The chat already made the claim call — this reflects the new assignee in the in-memory
+  // lists and drops the ticket out of the priority Queue immediately, without waiting on the
+  // background refresh below (kept for cases another ticket became claimable/requeued too).
+  onTicketClaimed({ complaintId, agentUserId, agentName }: { complaintId: string; agentUserId: string; agentName: string }): void {
+    const patch = (list: Complaint[]) => list.map(c =>
+      c.id === complaintId
+        ? { ...c, assignedAdminUserId: agentUserId, assignedAdminName: agentName }
+        : c
+    );
+    this.customerAllTickets.update(patch);
+    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaintId));
+
+    if (this.selectedComplaint()?.id === complaintId) {
+      this.selectedComplaint.update(c => c && { ...c, assignedAdminUserId: agentUserId, assignedAdminName: agentName });
+    }
+
+    this.loadQueueTickets();
   }
 
   openHostComplaint(complaint: Complaint): void {
@@ -465,7 +554,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
     // The status update already happened server-side (chat component calls the API
     // before emitting resolve) — just drop it from the active customers list here.
-    this.customerTickets.update(list => list.filter(c => c.id !== complaint.id));
+    this.customerAllTickets.update(list => list.filter(c => c.id !== complaint.id));
+    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaint.id));
     this.customerTotalCount.update(count => (count !== null ? Math.max(0, count - 1) : count));
   }
 

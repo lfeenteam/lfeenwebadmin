@@ -285,10 +285,29 @@ export class ComplaintsTableComponent implements OnChanges {
     return !!user.fullName && user.fullName === complaint.assignedAdminName;
   }
 
+  /** Hours of no activity on a ticket still awaiting the assigned agent's action before
+   * it's considered stalled and opened up for reassignment. */
+  private readonly delayThresholdMs = 6 * 60 * 60 * 1000;
+
+  /** True once an assigned ticket has sat with no activity past the threshold while still
+   * awaiting the agent's own action — 'replied'/'closed' mean the ball is elsewhere
+   * (client/host, or resolved), so those never count as the agent stalling.
+   * lastMessageAtUtc is the closest signal available — the API doesn't expose who sent
+   * the last message or when the ticket was assigned, so this is an approximation. */
+  isDelayed(complaint: Complaint): boolean {
+    if (!complaint.assignedAdminName) return false;
+    if (complaint.status === 'replied' || complaint.status === 'closed') return false;
+    if (!complaint.lastMessageAtUtc) return false;
+    return Date.now() - new Date(complaint.lastMessageAtUtc).getTime() > this.delayThresholdMs;
+  }
+
   /** Locked only once someone has actually engaged with the ticket (status moved past 'new') —
-   * a bare assignment with no reply yet still lets anyone reassign it. My own tickets are never locked. */
+   * a bare assignment with no reply yet still lets anyone reassign it. My own tickets are never
+   * locked, and neither are stalled ones (isDelayed) — a non-responsive assignee shouldn't block
+   * someone else from picking it up. */
   isAssignLocked(complaint: Complaint): boolean {
     if (!complaint.assignedAdminName || this.isAssignedToMe(complaint)) return false;
+    if (this.isDelayed(complaint)) return false;
     return complaint.status !== 'new';
   }
 

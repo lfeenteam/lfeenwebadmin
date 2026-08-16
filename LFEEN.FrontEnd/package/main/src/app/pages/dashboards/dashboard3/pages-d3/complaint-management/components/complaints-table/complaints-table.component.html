@@ -164,8 +164,9 @@
               type="button"
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
+              [class.is-delayed]="isDelayed(c)"
               [matMenuTriggerFor]="assignMenuFor(c)"
-              [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              [title]="isDelayed(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignDelayedMsg' | translate)) : isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
               <span class="assign-name">{{ displayAssignedAdminName(c) }}</span>
@@ -213,8 +214,9 @@
               type="button"
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
+              [class.is-delayed]="isDelayed(c)"
               [matMenuTriggerFor]="assignMenuFor(c)"
-              [title]="isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              [title]="isDelayed(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignDelayedMsg' | translate)) : isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
               @if (c.assignedAdminName) {

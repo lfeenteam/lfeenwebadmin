@@ -11,50 +11,76 @@ export interface HubMessageAttachment {
 }
 
 export interface NewClientTicketEvent {
-  ticketExternalId: string;
-  ticketNumber: string;
-  subject: string;
+  sessionExternalId: string;
+  sessionNumber: string;
   department: string;
   createdAt: string;
 }
 
+export interface SessionEscalatedEvent {
+  sessionExternalId: string;
+  sessionNumber: string;
+  department: string;
+  createdAt: string;
+}
+
+// ChatMessageBroadcast — fires for any message in a room this connection has joined.
+export interface NewMessageEvent {
+  externalId: string;
+  chatExternalId: string;
+  senderType: string;
+  senderName: string;
+  body: string;
+  optionsJson: string | null;
+  attachment: HubMessageAttachment | null;
+  sentAt: string;
+}
+
+// Personal notification to the assigned agent when a client messages a ticket that
+// isn't the one currently open in this tab.
 export interface NewClientMessageEvent {
-  ticketExternalId: string;
+  chatExternalId: string;
+  sessionExternalId: string;
   senderName: string;
   preview: string;
   sentAt: string;
 }
 
-export interface NewMessageEvent {
-  messageExternalId: string;
-  ticketExternalId: string;
-  senderType: string;
-  senderName: string;
-  body: string;
-  attachment: HubMessageAttachment | null;
-  sentAt: string;
-}
-
-export interface TicketAssignedEvent {
-  ticketExternalId: string;
-  ticketNumber: string;
-  subject: string;
-}
-
-export interface TicketStatusChangedEvent {
+// Personal variant (to the claiming agent) carries sessionExternalId; the room
+// broadcast to everyone else doesn't.
+export interface SessionClaimedEvent {
+  sessionExternalId?: string;
   status: string;
   agentName: string;
+}
+
+export interface AgentReleasedEvent {
+  sessionExternalId: string;
+  reason: string;
+  requeued: boolean;
+}
+
+// Personal — only sent to the agent who lost the session.
+export interface SessionReleasedEvent {
+  sessionExternalId: string;
+  reason: string;
+  requeued: boolean;
+}
+
+export interface SessionResolvedEvent {
+  sessionExternalId: string;
+  status: string;
+}
+
+export interface MessagesSeenEvent {
+  readerType: string;
+  readAtUtc: string;
 }
 
 export interface TypingIndicatorEvent {
   userId: string;
   isAgent: boolean;
   isTyping: boolean;
-}
-
-export interface ParticipantPresenceEvent {
-  userId: string;
-  isAgent: boolean;
 }
 
 // Single shared SignalR connection for the Client Support Hub. Connect once when
@@ -64,25 +90,29 @@ export interface ParticipantPresenceEvent {
 export class ClientSupportHubService {
   private connection: signalR.HubConnection | null = null;
   private startPromise: Promise<void> | null = null;
-  private joinedTicketId: string | null = null;
+  private joinedChatId: string | null = null;
 
   private readonly _newClientTicket = new Subject<NewClientTicketEvent>();
-  private readonly _newClientMessage = new Subject<NewClientMessageEvent>();
+  private readonly _sessionEscalated = new Subject<SessionEscalatedEvent>();
   private readonly _newMessage = new Subject<NewMessageEvent>();
-  private readonly _ticketAssigned = new Subject<TicketAssignedEvent>();
-  private readonly _ticketStatusChanged = new Subject<TicketStatusChangedEvent>();
+  private readonly _newClientMessage = new Subject<NewClientMessageEvent>();
+  private readonly _sessionClaimed = new Subject<SessionClaimedEvent>();
+  private readonly _agentReleased = new Subject<AgentReleasedEvent>();
+  private readonly _sessionReleased = new Subject<SessionReleasedEvent>();
+  private readonly _sessionResolved = new Subject<SessionResolvedEvent>();
+  private readonly _messagesSeen = new Subject<MessagesSeenEvent>();
   private readonly _typingIndicator = new Subject<TypingIndicatorEvent>();
-  private readonly _participantOnline = new Subject<ParticipantPresenceEvent>();
-  private readonly _participantOffline = new Subject<ParticipantPresenceEvent>();
 
   readonly newClientTicket$ = this._newClientTicket.asObservable();
-  readonly newClientMessage$ = this._newClientMessage.asObservable();
+  readonly sessionEscalated$ = this._sessionEscalated.asObservable();
   readonly newMessage$ = this._newMessage.asObservable();
-  readonly ticketAssigned$ = this._ticketAssigned.asObservable();
-  readonly ticketStatusChanged$ = this._ticketStatusChanged.asObservable();
+  readonly newClientMessage$ = this._newClientMessage.asObservable();
+  readonly sessionClaimed$ = this._sessionClaimed.asObservable();
+  readonly agentReleased$ = this._agentReleased.asObservable();
+  readonly sessionReleased$ = this._sessionReleased.asObservable();
+  readonly sessionResolved$ = this._sessionResolved.asObservable();
+  readonly messagesSeen$ = this._messagesSeen.asObservable();
   readonly typingIndicator$ = this._typingIndicator.asObservable();
-  readonly participantOnline$ = this._participantOnline.asObservable();
-  readonly participantOffline$ = this._participantOffline.asObservable();
 
   readonly connected = signal(false);
 
@@ -102,9 +132,9 @@ export class ClientSupportHubService {
 
     connection.onreconnected(() => {
       this.connected.set(true);
-      if (this.joinedTicketId) {
-        connection.invoke('JoinTicket', this.joinedTicketId).catch(err =>
-          console.error('JoinTicket after reconnect failed', err)
+      if (this.joinedChatId) {
+        connection.invoke('JoinChat', this.joinedChatId).catch(err =>
+          console.error('JoinChat after reconnect failed', err)
         );
       }
     });
@@ -122,41 +152,50 @@ export class ClientSupportHubService {
   }
 
   disconnect(): void {
-    this.joinedTicketId = null;
+    this.joinedChatId = null;
     this.connection?.stop();
     this.connection = null;
     this.startPromise = null;
     this.connected.set(false);
   }
 
-  joinTicket(ticketExternalId: string | null | undefined): Promise<void> {
-    if (!ticketExternalId) return Promise.resolve();
-    this.joinedTicketId = ticketExternalId;
-    return this.invoke('JoinTicket', ticketExternalId);
+  joinChat(chatExternalId: string | null | undefined): Promise<void> {
+    if (!chatExternalId) return Promise.resolve();
+    this.joinedChatId = chatExternalId;
+    return this.invoke('JoinChat', chatExternalId);
   }
 
-  leaveTicket(ticketExternalId: string | null | undefined): Promise<void> {
-    if (!ticketExternalId) return Promise.resolve();
-    if (this.joinedTicketId === ticketExternalId) {
-      this.joinedTicketId = null;
+  leaveChat(chatExternalId: string | null | undefined): Promise<void> {
+    if (!chatExternalId) return Promise.resolve();
+    if (this.joinedChatId === chatExternalId) {
+      this.joinedChatId = null;
     }
-    return this.invoke('LeaveTicket', ticketExternalId);
+    return this.invoke('LeaveChat', chatExternalId);
   }
 
-  sendTyping(ticketExternalId: string | null | undefined, isTyping: boolean): void {
-    if (!ticketExternalId) return;
-    this.invoke('Typing', ticketExternalId, isTyping);
+  sendTyping(chatExternalId: string | null | undefined, isTyping: boolean): void {
+    if (!chatExternalId) return;
+    this.invoke('Typing', chatExternalId, isTyping);
+  }
+
+  // Call right after joining a chat, and again whenever NewMessage arrives while
+  // that chat is the one open on screen.
+  markSeen(chatExternalId: string | null | undefined): void {
+    if (!chatExternalId) return;
+    this.invoke('MarkSeen', chatExternalId);
   }
 
   private registerHandlers(connection: signalR.HubConnection): void {
     connection.on('NewClientTicket', (payload: NewClientTicketEvent) => this._newClientTicket.next(payload));
-    connection.on('NewClientMessage', (payload: NewClientMessageEvent) => this._newClientMessage.next(payload));
+    connection.on('SessionEscalated', (payload: SessionEscalatedEvent) => this._sessionEscalated.next(payload));
     connection.on('NewMessage', (payload: NewMessageEvent) => this._newMessage.next(payload));
-    connection.on('TicketAssigned', (payload: TicketAssignedEvent) => this._ticketAssigned.next(payload));
-    connection.on('TicketStatusChanged', (payload: TicketStatusChangedEvent) => this._ticketStatusChanged.next(payload));
+    connection.on('NewClientMessage', (payload: NewClientMessageEvent) => this._newClientMessage.next(payload));
+    connection.on('SessionClaimed', (payload: SessionClaimedEvent) => this._sessionClaimed.next(payload));
+    connection.on('AgentReleased', (payload: AgentReleasedEvent) => this._agentReleased.next(payload));
+    connection.on('SessionReleased', (payload: SessionReleasedEvent) => this._sessionReleased.next(payload));
+    connection.on('SessionResolved', (payload: SessionResolvedEvent) => this._sessionResolved.next(payload));
+    connection.on('MessagesSeen', (payload: MessagesSeenEvent) => this._messagesSeen.next(payload));
     connection.on('TypingIndicator', (payload: TypingIndicatorEvent) => this._typingIndicator.next(payload));
-    connection.on('ParticipantOnline', (payload: ParticipantPresenceEvent) => this._participantOnline.next(payload));
-    connection.on('ParticipantOffline', (payload: ParticipantPresenceEvent) => this._participantOffline.next(payload));
   }
 
   private invoke(method: string, ...args: unknown[]): Promise<void> {

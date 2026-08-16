@@ -143,10 +143,14 @@ export interface ChatMessage {
 
 export interface ClientTicket {
   externalId: string;
-  ticketNumber: string;
+  chatExternalId?: string;
+  sessionNumber?: string;
+  /** Older responses used this name — sessionNumber is what the API returns now. */
+  ticketNumber?: string;
   subject: string;
   department: string;
   status: string;
+  currentHandler?: string;
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
@@ -194,10 +198,14 @@ export interface ClientTicketDetail {
   messages: ClientTicketMessage[];
   statusHistory: ClientTicketStatusHistoryEntry[];
   externalId: string;
-  ticketNumber: string;
+  chatExternalId?: string;
+  sessionNumber?: string;
+  /** Older responses used this name — sessionNumber is what the API returns now. */
+  ticketNumber?: string;
   subject: string;
   department: string;
   status: string;
+  currentHandler?: string;
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
@@ -206,12 +214,71 @@ export interface ClientTicketDetail {
   createdAt: string;
 }
 
+export interface ClientChatMessageOption {
+  key: string;
+  labelAr: string;
+  labelEn: string;
+}
+
+export interface ClientChatMessageOptions {
+  interactionId: string;
+  inputType: string;
+  options: ClientChatMessageOption[];
+}
+
+export interface ClientChatMessage {
+  externalId: string;
+  /** 'Client' | 'Bot' | 'Agent' — anything other than 'Client' renders as a support bubble. */
+  senderType: string;
+  senderName: string;
+  body: string;
+  options: ClientChatMessageOptions | null;
+  attachment: ClientTicketMessageAttachment | null;
+  createdAt: string;
+}
+
+export interface ClientChatSession {
+  externalId: string;
+  sessionNumber: string;
+  department: string;
+  status: string;
+  currentHandler: string;
+  assignedAgentName: string | null;
+  createdAt: string;
+  closedAtUtc: string | null;
+  messages: ClientChatMessage[];
+  hasMoreMessages: boolean;
+}
+
+// GET /api/client-tickets/{ticketExternalId}/messages?before={oldest loaded messageId} —
+// paginates older messages within a single session once its hasMoreMessages is true.
+export interface ClientTicketMessagesPage {
+  messages: ClientChatMessage[];
+  hasMore: boolean;
+}
+
+// GET /api/client-chats/{chatExternalId} — a chat can hold multiple sessions over time
+// (e.g. re-escalations); currentSessionExternalId points at the one currently active.
+export interface ClientChat {
+  externalId: string;
+  currentSessionExternalId: string;
+  clientLastReadAtUtc: string | null;
+  agentLastReadAtUtc: string | null;
+  sessions: ClientChatSession[];
+}
+
 export interface ClientTicketQueryParams {
   status?: number;
   department?: number;
   priority?: number;
   assignedAgentUserId?: string;
   search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ClientTicketQueueQueryParams {
+  department?: number;
   page?: number;
   pageSize?: number;
 }
@@ -270,6 +337,8 @@ export const RESOLVED_TICKETS_PAGE_SIZE = 8;
 
 export interface Complaint {
   id: string;
+  /** GET /api/client-chats/{chatExternalId} — only set for customer-type complaints. */
+  chatExternalId?: string;
   ticketId: string;
   clientName: string;
   clientNameEn?: string;
@@ -281,6 +350,8 @@ export interface Complaint {
   type: 'customer' | 'host';
   resolved: boolean;
   messages: ChatMessage[];
+  /** Whether older messages exist beyond what's currently loaded (customer chats only). */
+  hasMoreMessages?: boolean;
   subject?: string;
   subjectEn?: string;
   replyDate?: string;

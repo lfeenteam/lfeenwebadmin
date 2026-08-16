@@ -76,7 +76,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
       });
     } else if (this.ticketExternalId) {
       this.service.getClientTicketById(this.ticketExternalId).subscribe({
-        next: detail => this.applyTicketInfo(detail.ticketNumber, null, detail.assignedAgentName),
+        next: detail => this.applyTicketInfo(detail.sessionNumber ?? detail.ticketNumber ?? this.ticketExternalId ?? '', null, detail.assignedAgentName),
         error: () => this.applyTicketInfo(this.ticketExternalId, null, null),
       });
     }
