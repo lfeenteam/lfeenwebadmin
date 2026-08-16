@@ -12,6 +12,7 @@ import { UnitReviewDecision, UnitsService } from '../../../services/units.servic
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
+import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 
 interface UnitReviewSection {
   key: string;
@@ -32,6 +33,7 @@ interface UnitReviewSection {
 export class UnitReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly pageTitleOverride = inject(PageTitleOverrideService);
+  private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   unitDetail: UnitApiDetailItem | undefined;
@@ -84,6 +86,12 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // originTab (the ?tab= query param the unit lists pass along) disambiguates them.
   get headerStatusConfig(): { labelKey: string; icon: string; mod: string } {
     const status = this.unitDetail?.overallStatus?.trim();
+    // overallStatus flips to 'Approved' as soon as every section is approved, but the
+    // unit isn't actually live until the final approval action is submitted (isDisplayed).
+    // Labeling that in-between state "Approved" reads as done when it isn't yet.
+    if (status === 'Approved' && !this.unitDetail?.isDisplayed) {
+      return { labelKey: 'd3.unitReview.status.readyToPublish', icon: 'circle-check', mod: 'approved' };
+    }
     if (status === 'Approved') return { labelKey: 'd3.unitReview.status.approved', icon: 'circle-check', mod: 'approved' };
     if (status === 'Rejected') return { labelKey: 'd3.unitReview.status.rejected', icon: 'circle-x',     mod: 'rejected' };
     if (this.originTab === 'draft' || !status) {
@@ -148,6 +156,10 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           units:          []
         };
         this.pageTitleOverride.set(this.unit.title);
+        // Fixed "Unit" crumb between the generic "review requests" entry link and the
+        // unit's own title, so the breadcrumb reads as entity-type then entity-name
+        // instead of jumping straight from the generic entry link to the unit's name.
+        this.pageBreadcrumbTrail.set([{ label: 'd3.unitReview.unitCrumbLabel', translate: true }]);
         this.isLoading = false;
       },
       error: () => {
@@ -162,6 +174,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.pageTitleOverride.clear();
+    this.pageBreadcrumbTrail.clear();
   }
 
   // Some unit types (e.g. private hospitality facilities) don't require a license at
@@ -221,9 +234,14 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   // Final notes are optional on approval, but required on rejection.
+  // Gated on isDisplayed rather than overallStatus: overallStatus already reads
+  // 'Approved' once every section is approved, before the final approval action has
+  // actually been submitted, so it can't tell "ready for final approval" apart from
+  // "already finally approved and live".
   get isApproveDisabled(): boolean {
     if (!this.allSectionsDecided) return true;
     if (this.hasAnyRejectedSection) return true;
+    if (this.unitDetail?.isDisplayed) return true;
     return false;
   }
 

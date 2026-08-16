@@ -112,10 +112,25 @@ export class SidebarComponent implements OnInit {
     this.router.navigateByUrl(this.buildLink(item.link));
   }
 
+  // Some review flows live at a sibling path instead of nested under their list
+  // page (e.g. unit-review/:buildingId/:unitId is not under /units/...), so the
+  // link's own prefix can't detect them. Map those review paths to the list-page
+  // link they conceptually belong to, so the sidebar still highlights correctly.
+  private readonly activeUrlAliases: Record<string, string[]> = {
+    '/d3/units':     ['/d3/unit-review'],
+    '/d3/buildings': ['/d3/build-review'],
+  };
+
   isActive(item: NavItem): boolean {
     if (!item.link) return false;
     const built = this.buildLink(item.link);
-    return this.router.url === built || this.router.url.startsWith(built + '/');
+    if (this.router.url === built || this.router.url.startsWith(built + '/')) return true;
+
+    const aliases = this.activeUrlAliases[item.link] ?? [];
+    return aliases.some(alias => {
+      const builtAlias = this.buildLink(alias);
+      return this.router.url === builtAlias || this.router.url.startsWith(builtAlias + '/');
+    });
   }
 
   get isOnSettingsPage(): boolean {

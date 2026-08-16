@@ -1234,6 +1234,7 @@
     "buildReview": {
       "title": "مراجعة المبنى",
       "reviewRequestsBC": "طلبات المراجعة",
+      "buildingCrumbLabel": "مبنى",
       "urgentRequest": "طلب عاجل",
       "buildingInfo": {
         "imageAlt": "صورة المبنى",
@@ -1482,6 +1483,7 @@
     "unitReview": {
       "title": "مراجعة الوحدة",
       "reviewRequestsBC": "طلبات المراجعة",
+      "unitCrumbLabel": "وحدة",
       "unitInfo": {
         "unitNumberLabel": "رقم الوحدة"
       },
@@ -1490,6 +1492,7 @@
         "progressLabel": "حالة المراجعة",
         "progressCount": "{{completed}} من {{total}}",
         "approved": "تم القبول",
+        "readyToPublish": "جاهزة للنشر",
         "rejected": "تم الرفض",
         "draftLabel": "مسودة",
         "newLabel": "جديد"
