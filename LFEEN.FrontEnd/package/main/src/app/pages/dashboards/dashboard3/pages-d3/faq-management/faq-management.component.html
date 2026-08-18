@@ -1,0 +1,145 @@
+<div class="faq-page" [dir]="dirSignal()">
+
+  <!-- Hero header -->
+  <div class="faq-hero">
+    <div class="hero-title-block">
+      <div class="hero-title-row">
+        <button class="help-btn" type="button" [title]="'d3.faq.help' | translate">
+          <i-tabler name="question-mark" class="icon-16"></i-tabler>
+        </button>
+        <h1 class="hero-title">{{ 'd3.faq.pageTitle' | translate }}</h1>
+      </div>
+      <p class="hero-subtitle">{{ 'd3.faq.pageSubtitle' | translate }}</p>
+    </div>
+
+    <div class="hero-actions">
+        <div class="stats-row">
+        <span class="stat-item">
+           <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
+        <span class="stat-circle stat-circle-total">{{ totalCount() }}</span>
+          </span>
+        <span class="stat-divider"></span>
+        <span class="stat-item">
+
+          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
+                  <span class="stat-circle stat-circle-active">{{ activeCount() }}</span>
+        </span>
+        <span class="stat-divider"></span>
+        <span class="stat-item">
+          
+          <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
+          <span class="stat-circle stat-circle-inactive">{{ inactiveCount() }}</span>
+        </span>
+      </div>
+      <button class="add-article-btn" type="button" (click)="openAddDialog()">
+        <i-tabler name="plus" class="icon-18"></i-tabler>
+        {{ 'd3.faq.addArticle' | translate }}
+      </button>
+
+    
+    </div>
+  </div>
+
+  <!-- Articles table card -->
+  <div class="faq-card">
+
+    <div class="faq-card-toolbar">
+      <h2 class="list-title">{{ 'd3.faq.listTitle' | translate }}</h2>
+
+      <div class="dept-filter-wrap">
+        <span class="filter-label">{{ 'd3.faq.filter.byDepartment' | translate }}:</span>
+        <button class="dept-filter-btn" type="button" [matMenuTriggerFor]="deptMenu">
+          <span class="filter-value">{{ selectedDeptLabel() }}</span>
+          <i-tabler name="chevron-down" class="icon-14"></i-tabler>
+        </button>
+      </div>
+      <mat-menu #deptMenu="matMenu">
+        <button mat-menu-item type="button" (click)="setDeptFilter('all')">{{ 'd3.faq.filter.all' | translate }}</button>
+        @for (dept of departmentOptions; track dept.value) {
+          <button mat-menu-item type="button" (click)="setDeptFilter(dept.value)">{{ deptOptionLabel(dept) }}</button>
+        }
+      </mat-menu>
+    </div>
+
+    <div class="faq-table">
+      <div class="table-head">
+        <div class="col-title">{{ 'd3.faq.table.articleTitle' | translate }}</div>
+        <div class="col-dept">{{ 'd3.faq.table.department' | translate }}</div>
+        <div class="col-order">{{ 'd3.faq.table.order' | translate }}</div>
+        <div class="col-status">{{ 'd3.faq.table.status' | translate }}</div>
+        <div class="col-actions">{{ 'd3.faq.table.actions' | translate }}</div>
+      </div>
+
+      @if (loading()) {
+        <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+      } @else {
+
+      @for (article of filteredArticles(); track article.id) {
+        <div class="table-row">
+
+          <div class="col-title">
+            <span class="row-title">{{ article.titleEn }}</span>
+            <span class="row-subtitle">{{ article.titleAr }}</span>
+          </div>
+
+          <div class="col-dept">
+            @if (article.department) {
+              <span class="dept-badge" [class]="'dept-' + article.department">{{ departmentLabel(article.department) }}</span>
+            } @else {
+              <span class="dept-none">—</span>
+            }
+          </div>
+
+          <div class="col-order">
+            <span class="order-badge" [class.order-badge-inactive]="article.status === 'inactive'">{{ article.order }}</span>
+          </div>
+
+          <div class="col-status">
+            <span class="status-pill" [class.status-active]="article.status === 'active'" [class.status-inactive]="article.status === 'inactive'">
+              {{ (article.status === 'active' ? 'd3.faq.status.active' : 'd3.faq.status.inactive') | translate }}
+            </span>
+          </div>
+
+          <div class="col-actions">
+            <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+              <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+            </button>
+            <mat-menu #rowMenu="matMenu" class="faq-row-menu">
+              <button mat-menu-item type="button" (click)="openEditDialog(article)">
+                <i-tabler name="pencil" class="icon-16"></i-tabler>
+                {{ 'common.edit' | translate }}
+              </button>
+              <button mat-menu-item type="button" class="menu-item-danger" (click)="deleteArticle(article)">
+                <i-tabler name="trash" class="icon-16"></i-tabler>
+                {{ 'd3.faq.menu.delete' | translate }}
+              </button>
+              @if (article.status === 'active') {
+                <button mat-menu-item type="button" class="menu-item-danger" (click)="toggleStatus(article)">
+                  <i-tabler name="circle-x" class="icon-16"></i-tabler>
+                  {{ 'd3.faq.menu.deactivate' | translate }}
+                </button>
+              } @else {
+                <button mat-menu-item type="button" class="menu-item-success" (click)="toggleStatus(article)">
+                  <i-tabler name="circle-check" class="icon-16"></i-tabler>
+                  {{ 'd3.faq.menu.activate' | translate }}
+                </button>
+              }
+            </mat-menu>
+          </div>
+
+        </div>
+      }
+
+      @empty {
+        <div class="empty-state">
+          <i-tabler name="file-off" class="icon-32"></i-tabler>
+          <span>{{ 'd3.faq.table.empty' | translate }}</span>
+        </div>
+      }
+
+      }
+    </div>
+
+  </div>
+
+</div>

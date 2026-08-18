@@ -517,6 +517,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'faq',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/faq-management/faq-management.component'
+                  ).then((m) => m.FaqManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.faq.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
                 path: 'settings',
                 canActivate: [authGuard],
                 loadComponent: () =>
