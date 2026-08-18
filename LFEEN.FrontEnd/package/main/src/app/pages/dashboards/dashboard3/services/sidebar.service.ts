@@ -52,11 +52,12 @@ export class SidebarService {
     }
 
     const staticItems: NavItem[] = [
-      { translationKey: 'd3.sidebar.buildings',         icon: 'building-skyscraper', link: '/d3/buildings' },
       { translationKey: 'd3.sidebar.units',             icon: 'smart-home',          link: '/d3/units' },
+      { translationKey: 'd3.sidebar.buildings',         icon: 'building-skyscraper', link: '/d3/buildings' },
       { translationKey: 'd3.sidebar.accountManagement', icon: 'users',               link: '/d3/account-management' },
       { translationKey: 'd3.sidebar.bookings',          icon: 'calendar-time',       link: '/d3/bookings' },
-      { translationKey: 'd3.sidebar.complaints',        icon: 'message-exclamation', link: '/d3/complaints' }
+      { translationKey: 'd3.sidebar.complaints',        icon: 'message-exclamation', link: '/d3/complaints' },
+      { translationKey: 'd3.sidebar.faq',               icon: 'help-circle',         link: '/d3/faq' }
     ];
 
     staticItems.forEach(sItem => {

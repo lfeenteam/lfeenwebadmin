@@ -134,6 +134,7 @@
       "bookings": "الحجوزات",
       "complaints": "شكوى",
       "customers": "العملاء",
+      "faq": "الأسئلة الشائعة",
       "settings": "الإعدادات",
       "notifications": "التنبيهات",
       "logout": "تسجيل الخروج"
@@ -2055,6 +2056,80 @@
           "subtitle": "تأخر في تسوية دفعات سبتمبر",
           "time": "أمس، ١١:٢٥ م"
         }
+      }
+    },
+    "faq": {
+      "title": "إدارة الأسئلة الشائعة",
+      "pageTitle": "إدارة الأسئلة الشائعة",
+      "pageSubtitle": "المقالات التي يمكن الاطلاع عليها في تطبيقات الدعم",
+      "help": "مساعدة",
+      "addArticle": "إضافة مقالة جديدة",
+      "listTitle": "قائمة المقالات",
+      "stats": {
+        "total": "إجمالي",
+        "active": "نشطة",
+        "inactive": "معطلة"
+      },
+      "filter": {
+        "all": "الكل",
+        "byDepartment": "تصفية حسب القسم"
+      },
+      "table": {
+        "articleTitle": "العنوان",
+        "department": "القسم",
+        "order": "الترتيب",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "empty": "لا توجد مقالات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "معطل"
+      },
+      "menu": {
+        "activate": "تفعيل",
+        "deactivate": "تعطيل",
+        "delete": "حذف"
+      },
+      "delete": {
+        "title": "تأكيد الحذف",
+        "message": "هل أنت متأكد من حذف هذه المقالة؟ لا يمكن التراجع عن هذا الإجراء."
+      },
+      "toggle": {
+        "activateTitle": "تأكيد التفعيل",
+        "activateMessage": "هل أنت متأكد من تفعيل هذه المقالة؟",
+        "deactivateTitle": "تأكيد التعطيل",
+        "deactivateMessage": "هل أنت متأكد من تعطيل هذه المقالة؟"
+      },
+      "dialog": {
+        "addTitle": "إنشاء مقالة جديدة",
+        "editTitle": "تعديل المقالة",
+        "cancel": "إلغاء",
+        "sectionTitle": "العنوان",
+        "sectionContent": "النص / الإجابة",
+        "englishLabel": "ENGLISH",
+        "arabicLabel": "العربية",
+        "titleEnPlaceholder": "How to make a booking?",
+        "titleArPlaceholder": "كيف يمكنني إجراء حجز؟",
+        "contentEnPlaceholder": "Answer in English...",
+        "contentArPlaceholder": "الإجابة بالعربية...",
+        "department": "القسم",
+        "departmentPlaceholder": "اختر القسم",
+        "noDepartment": "بدون قسم",
+        "order": "الترتيب",
+        "orderHint": "تصاعدي (1 = أول)",
+        "clear": "مسح",
+        "create": "إنشاء المقالة",
+        "validation": {
+          "titleRequired": "العنوان مطلوب باللغتين",
+          "orderRequired": "الترتيب مطلوب"
+        }
+      },
+      "toast": {
+        "addSuccess": "تمت إضافة المقالة بنجاح",
+        "updateSuccess": "تم تحديث المقالة بنجاح",
+        "deleteSuccess": "تم حذف المقالة بنجاح",
+        "statusUpdateSuccess": "تم تحديث حالة المقالة"
       }
     }
   }

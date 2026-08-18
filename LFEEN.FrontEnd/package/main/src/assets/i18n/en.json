@@ -132,6 +132,7 @@
       "bookings": "Bookings",
       "complaints": "Complaints",
       "customers": "Customers",
+      "faq": "FAQ",
       "settings": "Settings",
       "notifications": "Notifications",
       "logout": "Logout"
@@ -2053,6 +2054,80 @@
           "subtitle": "Delay in settling September payments",
           "time": "Yesterday, 11:25 PM"
         }
+      }
+    },
+    "faq": {
+      "title": "FAQ Management",
+      "pageTitle": "FAQ Management",
+      "pageSubtitle": "Articles available to view in support apps",
+      "help": "Help",
+      "addArticle": "Add New Article",
+      "listTitle": "Articles List",
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "filter": {
+        "all": "All",
+        "byDepartment": "Filter by department"
+      },
+      "table": {
+        "articleTitle": "Title",
+        "department": "Department",
+        "order": "Order",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No articles found"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Confirm Delete",
+        "message": "Are you sure you want to delete this article? This action cannot be undone."
+      },
+      "toggle": {
+        "activateTitle": "Confirm Activation",
+        "activateMessage": "Are you sure you want to activate this article?",
+        "deactivateTitle": "Confirm Deactivation",
+        "deactivateMessage": "Are you sure you want to deactivate this article?"
+      },
+      "dialog": {
+        "addTitle": "Create New Article",
+        "editTitle": "Edit Article",
+        "cancel": "Cancel",
+        "sectionTitle": "Title",
+        "sectionContent": "Text / Answer",
+        "englishLabel": "ENGLISH",
+        "arabicLabel": "Arabic",
+        "titleEnPlaceholder": "How to make a booking?",
+        "titleArPlaceholder": "كيف يمكنني إجراء حجز؟",
+        "contentEnPlaceholder": "Answer in English...",
+        "contentArPlaceholder": "الإجابة بالعربية...",
+        "department": "Department",
+        "departmentPlaceholder": "Select department",
+        "noDepartment": "No department",
+        "order": "Order",
+        "orderHint": "Ascending (1 = first)",
+        "clear": "Clear",
+        "create": "Create Article",
+        "validation": {
+          "titleRequired": "Title is required in both languages",
+          "orderRequired": "Order is required"
+        }
+      },
+      "toast": {
+        "addSuccess": "Article added successfully",
+        "updateSuccess": "Article updated successfully",
+        "deleteSuccess": "Article deleted successfully",
+        "statusUpdateSuccess": "Article status updated"
       }
     }
   }

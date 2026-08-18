@@ -1,0 +1,80 @@
+<div class="faq-dialog" dir="rtl">
+
+  <div class="faq-dialog-header">
+    <span class="title-accent"></span>
+    <h2 class="dialog-title">{{ (isEditMode ? 'd3.faq.dialog.editTitle' : 'd3.faq.dialog.addTitle') | translate }}</h2>
+    <button class="cancel-link" type="button" (click)="dialogRef.close()">
+      {{ 'd3.faq.dialog.cancel' | translate }}
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  <mat-dialog-content class="faq-dialog-body">
+    <form [formGroup]="faqForm">
+
+      <div class="field-section">
+        <p class="section-label">{{ 'd3.faq.dialog.sectionTitle' | translate }}</p>
+        <div class="bilingual-row">
+          <div class="bilingual-col">
+            <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
+            <input class="faq-input" type="text" formControlName="titleAr" [placeholder]="'d3.faq.dialog.titleArPlaceholder' | translate">
+          </div>
+          <div class="bilingual-col">
+            <label class="lang-label">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
+            <input class="faq-input" type="text" dir="ltr" formControlName="titleEn" [placeholder]="'d3.faq.dialog.titleEnPlaceholder' | translate">
+          </div>
+        </div>
+        @if ((faqForm.get('titleAr')?.invalid && faqForm.get('titleAr')?.touched) || (faqForm.get('titleEn')?.invalid && faqForm.get('titleEn')?.touched)) {
+          <p class="field-error-msg">{{ 'd3.faq.dialog.validation.titleRequired' | translate }}</p>
+        }
+      </div>
+
+      <div class="field-section">
+        <p class="section-label">{{ 'd3.faq.dialog.sectionContent' | translate }}</p>
+        <div class="bilingual-row">
+          <div class="bilingual-col">
+            <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
+            <textarea class="faq-textarea" rows="4" formControlName="contentAr" [placeholder]="'d3.faq.dialog.contentArPlaceholder' | translate"></textarea>
+          </div>
+          <div class="bilingual-col">
+            <label class="lang-label">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
+            <textarea class="faq-textarea" rows="4" dir="ltr" formControlName="contentEn" [placeholder]="'d3.faq.dialog.contentEnPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-col dept-col">
+          <label class="meta-label">{{ 'd3.faq.dialog.department' | translate }}</label>
+          <button class="dept-select" type="button" [matMenuTriggerFor]="deptMenu">
+            <span class="dept-select-value">{{ selectedDept ? deptDisplay(selectedDept) : ('d3.faq.dialog.departmentPlaceholder' | translate) }}</span>
+            <i-tabler name="chevron-down" class="icon-16"></i-tabler>
+          </button>
+          <mat-menu #deptMenu="matMenu" class="faq-dept-menu">
+            <button mat-menu-item type="button" (click)="selectDepartment(null)">{{ 'd3.faq.dialog.noDepartment' | translate }}</button>
+            @for (dept of departmentOptions; track dept.value) {
+              <button mat-menu-item type="button" (click)="selectDepartment(dept)">{{ deptDisplay(dept) }}</button>
+            }
+          </mat-menu>
+        </div>
+
+        <div class="meta-col order-col">
+          <label class="meta-label">{{ 'd3.faq.dialog.order' | translate }}</label>
+          <input class="faq-input order-input" type="number" min="1" formControlName="order">
+          <span class="order-hint">{{ 'd3.faq.dialog.orderHint' | translate }}</span>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="faq-dialog-footer">
+    <button class="submit-btn" type="button" (click)="save()">
+      {{ (isEditMode ? 'common.save' : 'd3.faq.dialog.create') | translate }}
+    </button>
+    <button class="clear-btn" type="button" (click)="clear()">
+      {{ 'd3.faq.dialog.clear' | translate }}
+    </button>
+  </div>
+
+</div>
