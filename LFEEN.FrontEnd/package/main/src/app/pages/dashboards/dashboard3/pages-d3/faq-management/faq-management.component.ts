@@ -130,30 +130,36 @@ export class FaqManagementComponent implements OnInit {
   }
 
   openEditDialog(article: FaqArticle): void {
-    const dialogRef = this.dialog.open(AddFaqDialogComponent, {
-      width: '560px',
-      maxWidth: '95vw',
-      data: { article, nextOrder: article.order }
-    });
+    this.faqService.getArticleById(article.externalId).subscribe({
+      next: (dto) => {
+        const fresh = this.mapDtoToArticle(dto);
+        const dialogRef = this.dialog.open(AddFaqDialogComponent, {
+          width: '560px',
+          maxWidth: '95vw',
+          data: { article: fresh, nextOrder: fresh.order }
+        });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (!result) return;
+        dialogRef.afterClosed().subscribe(result => {
+          if (!result) return;
 
-      this.faqService.updateArticle(article.id, {
-        TitleEn: result.titleEn,
-        TitleAr: result.titleAr,
-        BodyEn: result.contentEn,
-        BodyAr: result.contentAr,
-        Department: result.department,
-        DisplayOrder: result.order,
-        IsActive: result.status === 'active',
-      }).subscribe({
-        next: (dto) => {
-          this.articles.update(list => list.map(a => a.id === article.id ? this.mapDtoToArticle(dto) : a));
-          this.toastr.success(this.translate.instant('d3.faq.toast.updateSuccess'));
-        },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
-      });
+          this.faqService.updateArticle(fresh.externalId, {
+            TitleEn: result.titleEn,
+            TitleAr: result.titleAr,
+            BodyEn: result.contentEn,
+            BodyAr: result.contentAr,
+            Department: result.department,
+            DisplayOrder: result.order,
+            IsActive: result.status === 'active',
+          }).subscribe({
+            next: (updatedDto) => {
+              this.articles.update(list => list.map(a => a.id === fresh.id ? this.mapDtoToArticle(updatedDto) : a));
+              this.toastr.success(this.translate.instant('d3.faq.toast.updateSuccess'));
+            },
+            error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
+          });
+        });
+      },
+      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
   }
 
@@ -171,17 +177,13 @@ export class FaqManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
 
-      this.faqService.updateArticle(article.id, {
-        TitleEn: article.titleEn,
-        TitleAr: article.titleAr,
-        BodyEn: article.contentEn,
-        BodyAr: article.contentAr,
-        Department: article.department,
-        DisplayOrder: article.order,
-        IsActive: isActivating,
-      }).subscribe({
-        next: (dto) => {
-          this.articles.update(list => list.map(a => a.id === article.id ? this.mapDtoToArticle(dto) : a));
+      const request$ = isActivating
+        ? this.faqService.activateArticle(article.externalId)
+        : this.faqService.deactivateArticle(article.externalId);
+
+      request$.subscribe({
+        next: () => {
+          this.articles.update(list => list.map(a => a.id === article.id ? { ...a, status: isActivating ? 'active' : 'inactive' } : a));
           this.toastr.success(this.translate.instant('d3.faq.toast.statusUpdateSuccess'));
         },
         error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
@@ -199,7 +201,7 @@ export class FaqManagementComponent implements OnInit {
     dialogRef.afterClosed().subscribe(confirmed => {
       if (!confirmed) return;
 
-      this.faqService.deleteArticle(article.id).subscribe({
+      this.faqService.deleteArticle(article.externalId).subscribe({
         next: () => {
           this.articles.update(list => list.filter(a => a.id !== article.id));
           this.toastr.success(this.translate.instant('d3.faq.toast.deleteSuccess'));

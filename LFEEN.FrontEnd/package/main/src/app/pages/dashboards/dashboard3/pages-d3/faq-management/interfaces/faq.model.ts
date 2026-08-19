@@ -3,7 +3,7 @@ export type FaqStatus = 'active' | 'inactive';
 
 export interface FaqArticle {
   id: number;
-  externalId?: string;
+  externalId: string;
   order: number;
   titleEn: string;
   titleAr: string;
@@ -37,8 +37,9 @@ export interface CreateFaqArticleRequest {
   DisplayOrder: number;
 }
 
-// PUT /api/support-faq/{id} is a full replace — every field must be sent,
-// including IsActive (there's no separate activate/deactivate endpoint).
+// PUT /api/support-faq/{externalId} is a full replace — every field must be sent,
+// including IsActive. Prefer POST /api/support-faq/{externalId} (activate) or
+// POST /api/support-faq/{externalId}/deactivate for a plain status toggle.
 export interface UpdateFaqArticleRequest extends CreateFaqArticleRequest {
   IsActive: boolean;
 }
@@ -59,4 +60,6 @@ export interface FaqArticleDto {
 export interface GetFaqArticlesParams {
   department?: FaqDepartment;
   activeOnly?: boolean;
+  pageNumber?: number;
+  pageSize?: number;
 }
