@@ -90,6 +90,7 @@ export interface DepartmentRole {
   descriptionAr?: string;
   descriptionEn?: string;
   departmentId: string | null;
+  departmentName?: string | null;
   departmentNameAr?: string | null;
   departmentNameEn?: string | null;
   isManagerRole: boolean;
@@ -124,7 +125,7 @@ export interface RolePayload {
   nameEn: string;
   descriptionAr: string;
   descriptionEn: string;
-  departmentId: string;
+  departmentId?: string | null;
   isManagerRole: boolean;
 }
 

@@ -11,7 +11,11 @@
       {{ (data.role ? 'd3.addRoleDialog.titleEdit' : 'd3.addRoleDialog.titleAdd') | translate }}
     </h2>
     <p class="dialog-subtitle f-s-12 m-0">
-      {{ 'd3.addRoleDialog.subtitle' | translate: { dept: data.deptName || ('d3.addRoleDialog.defaultDept' | translate) } }}
+      @if (data.departmentId && data.deptName) {
+        {{ 'd3.addRoleDialog.subtitle' | translate: { dept: data.deptName } }}
+      } @else {
+        {{ 'd3.addRoleDialog.subtitleGeneric' | translate }}
+      }
     </p>
   </div>
 

@@ -29,6 +29,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   managers: DepartmentManager[] = [];
   employeeCount = 0;
   roleName = '';
+  hasDepartmentContext = false;
 
   isLoading = true;
   permissions: RolePermission[] = [];
@@ -50,29 +51,40 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     return this.translate.currentLang || 'ar';
   }
 
+  get backRoute(): string {
+    return this.deptId
+      ? `/${this.currentLang}/d3/permissions/${this.deptId}`
+      : `/${this.currentLang}/d3/roles`;
+  }
+
   ngOnInit(): void {
     this.langSub = this.translate.onLangChange.subscribe(() => this.loadData());
     this.loadData();
   }
 
   private loadData(): void {
-    if (!this.deptId || !this.roleId) return;
+    if (!this.roleId) return;
     this.isLoading = true;
     forkJoin({
-      dept: this.departmentService.getDepartmentById(this.deptId),
+      dept: this.deptId ? this.departmentService.getDepartmentById(this.deptId) : Promise.resolve(null),
       role: this.departmentService.getRoleById(this.roleId),
       permissions: this.departmentService.getRolePermissions(this.roleId)
     }).subscribe({
       next: ({ dept, role, permissions }) => {
-        this.deptName = dept.name
-          ?? (this.currentLang === 'ar' ? dept.nameAr : dept.nameEn)
-          ?? dept.nameAr
-          ?? dept.nameEn
-          ?? '';
-        this.managers = dept.managers?.length
-          ? dept.managers
-          : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
-        this.employeeCount = dept.employeeCount;
+        this.hasDepartmentContext = !!dept;
+        if (dept) {
+          this.deptName = dept.name
+            ?? (this.currentLang === 'ar' ? dept.nameAr : dept.nameEn)
+            ?? dept.nameAr
+            ?? dept.nameEn
+            ?? '';
+          this.managers = dept.managers?.length
+            ? dept.managers
+            : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
+          this.employeeCount = dept.employeeCount;
+        } else {
+          this.deptName = (this.currentLang === 'ar' ? role.departmentNameAr : role.departmentNameEn) ?? role.departmentName ?? '';
+        }
         this.roleName = role.name
           ?? (this.currentLang === 'ar' ? role.nameAr : role.nameEn)
           ?? role.nameAr
@@ -95,6 +107,19 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     if (!event.checked) {
       // Immediately revert the toggle to ON, wait for confirm
       event.source.checked = true;
+
+      const dependents = this.permissions.filter(
+        p => p.id !== perm.id && (p.impliedPermissionIds ?? []).includes(perm.id)
+      );
+      if (dependents.length > 0) {
+        this.toastr.warning(
+          this.translate.instant('d3.permissions.dependencyBlocked', {
+            names: dependents.map(d => d.name).join('، ')
+          })
+        );
+        return;
+      }
+
       this.confirmRemove(perm);
     }
   }

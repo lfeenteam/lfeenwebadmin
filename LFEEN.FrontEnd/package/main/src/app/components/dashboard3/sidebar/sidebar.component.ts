@@ -121,16 +121,41 @@ export class SidebarComponent implements OnInit {
     '/d3/buildings': ['/d3/build-review'],
   };
 
+  // When two sidebar items' links share a prefix (e.g. '/d3/roles' and
+  // '/d3/roles/add'), naive prefix matching would mark both active at once.
+  // Only the longest (most specific) matching link should win.
+  private getBestMatchingLink(): string | null {
+    let best: string | null = null;
+    let bestLen = -1;
+
+    const consider = (itemLink: string, urlToMatch: string) => {
+      const built = this.buildLink(urlToMatch);
+      if (this.router.url === built || this.router.url.startsWith(built + '/')) {
+        if (built.length > bestLen) {
+          bestLen = built.length;
+          best = itemLink;
+        }
+      }
+    };
+
+    const walk = (items: NavItem[]) => {
+      for (const item of items) {
+        if (item.link) {
+          consider(item.link, item.link);
+          const aliases = this.activeUrlAliases[item.link] ?? [];
+          aliases.forEach(alias => consider(item.link!, alias));
+        }
+        if (item.children?.length) walk(item.children);
+      }
+    };
+
+    walk(this.filteredNavItems());
+    return best;
+  }
+
   isActive(item: NavItem): boolean {
     if (!item.link) return false;
-    const built = this.buildLink(item.link);
-    if (this.router.url === built || this.router.url.startsWith(built + '/')) return true;
-
-    const aliases = this.activeUrlAliases[item.link] ?? [];
-    return aliases.some(alias => {
-      const builtAlias = this.buildLink(alias);
-      return this.router.url === builtAlias || this.router.url.startsWith(builtAlias + '/');
-    });
+    return item.link === this.getBestMatchingLink();
   }
 
   get isOnSettingsPage(): boolean {

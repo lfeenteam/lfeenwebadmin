@@ -447,6 +447,51 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'roles',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/roles/roles.component'
+                  ).then((m) => m.RolesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.rolesPage.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'roles/add',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
+                  ).then((m) => m.AddRoleComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.addRolePage.title',
+                  breadcrumbKey: 'd3.rolesPage.title',
+                  breadcrumbRoute: 'roles',
+                  showBack: true
+                },
+              },
+              {
+                path: 'roles/:roleId',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
+                  ).then((m) => m.RolePermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbKey: 'd3.rolesPage.title',
+                  breadcrumbRoute: 'roles',
+                  showBack: true
+                },
+              },
+              {
                 path: 'complaints/:id/assign',
                 canActivate: [authGuard],
                 loadComponent: () =>

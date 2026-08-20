@@ -14,32 +14,34 @@
             <i-tabler name="briefcase" class="icon-32"></i-tabler>
           </div>
           <div>
-            <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName }}</h2>
+            <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName || roleName }}</h2>
             <p class="dept-desc m-0">{{ 'd3.permissions.description' | translate }}</p>
           </div>
         </div>
-        <div class="d-flex gap-16">
-          <div class="stat-item managers-stat">
-            <span class="stat-label d-block m-b-8">{{ 'd3.permissions.manager' | translate }}</span>
-            <div class="d-flex flex-wrap gap-8">
-              @for (mgr of managers; track mgr.id) {
-                <div class="manager-chip d-flex align-items-center gap-6">
-                  <div class="manager-chip-avatar d-flex align-items-center justify-content-center">
-                    {{ mgr.fullName.charAt(0) }}
+        @if (hasDepartmentContext) {
+          <div class="d-flex gap-16">
+            <div class="stat-item managers-stat">
+              <span class="stat-label d-block m-b-8">{{ 'd3.permissions.manager' | translate }}</span>
+              <div class="d-flex flex-wrap gap-8">
+                @for (mgr of managers; track mgr.id) {
+                  <div class="manager-chip d-flex align-items-center gap-6">
+                    <div class="manager-chip-avatar d-flex align-items-center justify-content-center">
+                      {{ mgr.fullName.charAt(0) }}
+                    </div>
+                    <span class="manager-chip-name f-s-13 f-w-600">{{ mgr.fullName }}</span>
                   </div>
-                  <span class="manager-chip-name f-s-13 f-w-600">{{ mgr.fullName }}</span>
-                </div>
-              }
-              @empty {
-                <span class="stat-value">---</span>
-              }
+                }
+                @empty {
+                  <span class="stat-value">---</span>
+                }
+              </div>
+            </div>
+            <div class="stat-item text-center">
+              <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
+              <span class="stat-value">{{ employeeCount }}</span>
             </div>
           </div>
-          <div class="stat-item text-center">
-            <span class="stat-label d-block">{{ 'd3.permissions.employeeCount' | translate }}</span>
-            <span class="stat-value">{{ employeeCount }}</span>
-          </div>
-        </div>
+        }
       </mat-card-content>
     </mat-card>
 
@@ -87,7 +89,7 @@
 
     <!-- Actions -->
     <div class="d-flex gap-16 justify-content-end">
-      <button mat-stroked-button class="cancel-btn" [routerLink]="['../..']">
+      <button mat-stroked-button class="cancel-btn" [routerLink]="[backRoute]">
         {{ 'd3.permissions.cancelBtn' | translate }}
       </button>
       <!-- <button mat-flat-button color="dark" class="save-btn">

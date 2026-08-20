@@ -372,4 +372,9 @@ export interface PropertyDetailResponse {
   completedSections: number;
   progressPercentage: number;
   canFinalApprove: boolean;
+  // Whether the property is actually live/published. Distinct from overallStatus
+  // === 'Approved', which only reflects that every review section has been
+  // approved — the property doesn't go live until the final approval action is
+  // submitted, so isDisplayed is the reliable "final approval already done" signal.
+  isDisplayed: boolean;
 }

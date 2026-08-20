@@ -7,7 +7,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DepartmentService } from '../../../../services/department.service';
-import { DepartmentRole } from '../../../../interfaces/department.model';
+import { DepartmentRole, RolePayload } from '../../../../interfaces/department.model';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -42,7 +42,7 @@ export class AddRoleDialogComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private toastr: ToastrService,
     public dialogRef: MatDialogRef<AddRoleDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { departmentId: string; role?: DepartmentRole; deptName?: string }
+    @Inject(MAT_DIALOG_DATA) public data: { departmentId?: string | null; role?: DepartmentRole; deptName?: string }
   ) {
     const lang = this.translate.currentLang || 'ar';
     const r = this.data.role;
@@ -96,23 +96,18 @@ export class AddRoleDialogComponent implements OnInit {
     this.isSubmitting = true;
     const v = this.roleForm.value;
 
+    const payload: RolePayload = {
+      nameAr: v.nameAr,
+      nameEn: v.nameEn || v.nameAr,
+      descriptionAr: v.descriptionAr,
+      descriptionEn: v.descriptionEn || v.descriptionAr,
+      isManagerRole: v.isManagerRole,
+      ...(this.data.departmentId ? { departmentId: this.data.departmentId } : {})
+    };
+
     const request = this.data.role
-      ? this.departmentService.updateRole(this.data.role.id, {
-          nameAr: v.nameAr,
-          nameEn: v.nameEn,
-          descriptionAr: v.descriptionAr,
-          descriptionEn: v.descriptionEn,
-          departmentId: this.data.departmentId,
-          isManagerRole: v.isManagerRole
-        })
-      : this.departmentService.createRole({
-          nameAr: v.nameAr,
-          nameEn: v.nameEn || v.nameAr,
-          descriptionAr: v.descriptionAr,
-          descriptionEn: v.descriptionEn || v.descriptionAr,
-          departmentId: this.data.departmentId,
-          isManagerRole: v.isManagerRole
-        });
+      ? this.departmentService.updateRole(this.data.role.id, payload)
+      : this.departmentService.createRole(payload);
 
     request.subscribe({
       next: (response) => {
