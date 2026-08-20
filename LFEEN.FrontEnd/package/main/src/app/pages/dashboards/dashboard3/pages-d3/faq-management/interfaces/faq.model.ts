@@ -2,7 +2,6 @@ export type FaqDepartment = 'General' | 'Booking' | 'Payment' | 'Technical' | 'A
 export type FaqStatus = 'active' | 'inactive';
 
 export interface FaqArticle {
-  id: number;
   externalId: string;
   order: number;
   titleEn: string;
@@ -38,7 +37,7 @@ export interface CreateFaqArticleRequest {
 }
 
 // PUT /api/support-faq/{externalId} is a full replace — every field must be sent,
-// including IsActive. Prefer POST /api/support-faq/{externalId} (activate) or
+// including IsActive. Prefer POST /api/support-faq/{externalId}/activate or
 // POST /api/support-faq/{externalId}/deactivate for a plain status toggle.
 export interface UpdateFaqArticleRequest extends CreateFaqArticleRequest {
   IsActive: boolean;
@@ -46,7 +45,6 @@ export interface UpdateFaqArticleRequest extends CreateFaqArticleRequest {
 
 // Matches the shape returned by both GET /api/support-faq and POST /api/support-faq.
 export interface FaqArticleDto {
-  id: number;
   externalId: string;
   titleAr: string;
   titleEn: string;
@@ -62,4 +60,15 @@ export interface GetFaqArticlesParams {
   activeOnly?: boolean;
   pageNumber?: number;
   pageSize?: number;
+}
+
+// GET /api/support-faq returns a paginated envelope, not a bare array.
+export interface PaginatedFaqArticlesResponse {
+  data: FaqArticleDto[];
+  totalCount: number;
+  activeCount: number;
+  inactiveCount: number;
+  page: number;
+  nextPage: number | null;
+  totalPages: number;
 }

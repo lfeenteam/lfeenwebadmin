@@ -62,7 +62,6 @@ export class FaqManagementComponent implements OnInit {
 
   private mapDtoToArticle(dto: FaqArticleDto): FaqArticle {
     return {
-      id: dto.id,
       externalId: dto.externalId,
       order: dto.displayOrder,
       titleEn: dto.titleEn,
@@ -77,8 +76,8 @@ export class FaqManagementComponent implements OnInit {
   loadArticles(): void {
     this.loading.set(true);
     this.faqService.getArticles({ activeOnly: false }).subscribe({
-      next: (dtos) => {
-        this.articles.set(dtos.map(dto => this.mapDtoToArticle(dto)));
+      next: (response) => {
+        this.articles.set(response.data.map(dto => this.mapDtoToArticle(dto)));
         this.loading.set(false);
       },
       error: () => {
@@ -152,7 +151,7 @@ export class FaqManagementComponent implements OnInit {
             IsActive: result.status === 'active',
           }).subscribe({
             next: (updatedDto) => {
-              this.articles.update(list => list.map(a => a.id === fresh.id ? this.mapDtoToArticle(updatedDto) : a));
+              this.articles.update(list => list.map(a => a.externalId === fresh.externalId ? this.mapDtoToArticle(updatedDto) : a));
               this.toastr.success(this.translate.instant('d3.faq.toast.updateSuccess'));
             },
             error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
@@ -183,7 +182,7 @@ export class FaqManagementComponent implements OnInit {
 
       request$.subscribe({
         next: () => {
-          this.articles.update(list => list.map(a => a.id === article.id ? { ...a, status: isActivating ? 'active' : 'inactive' } : a));
+          this.articles.update(list => list.map(a => a.externalId === article.externalId ? { ...a, status: isActivating ? 'active' : 'inactive' } : a));
           this.toastr.success(this.translate.instant('d3.faq.toast.statusUpdateSuccess'));
         },
         error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
@@ -203,7 +202,7 @@ export class FaqManagementComponent implements OnInit {
 
       this.faqService.deleteArticle(article.externalId).subscribe({
         next: () => {
-          this.articles.update(list => list.filter(a => a.id !== article.id));
+          this.articles.update(list => list.filter(a => a.externalId !== article.externalId));
           this.toastr.success(this.translate.instant('d3.faq.toast.deleteSuccess'));
         },
         error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
