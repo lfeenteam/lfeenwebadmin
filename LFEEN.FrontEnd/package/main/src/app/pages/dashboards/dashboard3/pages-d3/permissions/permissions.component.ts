@@ -32,6 +32,7 @@ interface RoleRow {
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
   private langSub!: Subscription;
+  private routeSub!: Subscription;
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -52,9 +53,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private toastr: ToastrService,
     private pageTitleOverride: PageTitleOverrideService
-  ) {
-    this.deptId = this.route.snapshot.paramMap.get('id');
-  }
+  ) {}
 
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
@@ -67,14 +66,19 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         this.loadRoles(this.deptId);
       }
     });
-    if (this.deptId) {
-      this.loadDepartment(this.deptId);
-      this.loadRoles(this.deptId);
-    }
+
+    this.routeSub = this.route.paramMap.subscribe(params => {
+      this.deptId = params.get('id');
+      if (this.deptId) {
+        this.loadDepartment(this.deptId);
+        this.loadRoles(this.deptId);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.routeSub?.unsubscribe();
     this.pageTitleOverride.clear();
   }
 
@@ -148,11 +152,20 @@ editRole(role: RoleRow): void {
 
 
   deleteRole(role: RoleRow): void {
+    this.departmentService.getEmployeeCountForRole(role.id).subscribe({
+      next: (count) => this.confirmDeleteRole(role, count),
+      error: () => this.confirmDeleteRole(role, 0)
+    });
+  }
+
+  private confirmDeleteRole(role: RoleRow, employeeCount: number): void {
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: {
         title: this.translate.instant('d3.toast.deleteRoleTitle'),
-        message: this.translate.instant('d3.toast.deleteRoleMessage')
+        message: employeeCount > 0
+          ? this.translate.instant('d3.toast.deleteRoleMessageWithEmployees', { count: employeeCount })
+          : this.translate.instant('d3.toast.deleteRoleMessage')
       },
       panelClass: 'custom-confirm-dialog'
     });

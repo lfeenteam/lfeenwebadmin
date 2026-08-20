@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, effect, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { combineLatest } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -195,16 +196,23 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-      this.departmentId = params['id'] || null;
-      if (this.departmentId) {
-        this.activeTab = 'employees';
-        this.loadDepartmentDetails(this.departmentId);
-      } else {
-        this.pageTitleOverride.clear();
-        this.updateStats();
-      }
-    });
+    combineLatest([this.route.params, this.route.queryParams])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([params, queryParams]) => {
+        this.departmentId = params['id'] || null;
+        if (this.departmentId) {
+          this.activeTab = 'employees';
+          this.loadDepartmentDetails(this.departmentId);
+        } else {
+          this.pageTitleOverride.clear();
+          if (queryParams['tab'] === 'employees') {
+            this.setActiveTab('employees');
+          } else {
+            this.activeTab = 'structure';
+            this.updateStats();
+          }
+        }
+      });
   }
 
   ngOnDestroy(): void {

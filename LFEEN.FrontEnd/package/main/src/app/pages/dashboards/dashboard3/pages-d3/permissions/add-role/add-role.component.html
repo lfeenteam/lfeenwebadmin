@@ -3,7 +3,7 @@
   <!-- Page Title -->
   <div class="page-title-block m-b-24">
     <h1 class="f-s-24 f-w-900 m-b-4">{{ 'd3.addRolePage.title' | translate }}</h1>
-    <p class="page-subtitle m-0">{{ 'd3.addRolePage.subtitle' | translate }}</p>
+    <p class="page-subtitle m-0">{{ (deptId ? 'd3.addRolePage.subtitle' : 'd3.addRolePage.subtitleGeneric') | translate }}</p>
   </div>
 
   <form [formGroup]="roleForm">
@@ -128,13 +128,15 @@
   </form>
 
   <!-- Alert Box -->
-  <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
-    <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
-    <div>
-      <h4 class="m-b-4">{{ 'd3.permissions.alert.title' | translate }}</h4>
-      <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
+  @if (deptId) {
+    <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
+      <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
+      <div>
+        <h4 class="m-b-4">{{ 'd3.permissions.alert.title' | translate }}</h4>
+        <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Actions -->
   <div class="d-flex gap-16 justify-content-end">

@@ -161,7 +161,8 @@
       "removePermSuccess": "Permission removed successfully",
       "removePermError": "Error removing permission",
       "deleteRoleTitle": "Delete this role?",
-      "deleteRoleMessage": "This action cannot be undone and the role will be permanently removed from the department."
+      "deleteRoleMessage": "This action cannot be undone and the role will be permanently deleted from the system.",
+      "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
     },
     "emptyState": {
       "builds": {
@@ -680,6 +681,7 @@
     "addRolePage": {
       "title": "Add New Job Role",
       "subtitle": "Define the new role's details and access permissions within the department",
+      "subtitleGeneric": "Define the new role's details and access permissions",
       "basicInfoTitle": "Basic Role Information",
       "roleNameLabel": "Job Role Name",
       "roleNamePlaceholder": "e.g. Operations Manager, Quality Supervisor...",
@@ -691,6 +693,7 @@
       "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
       "saveBtn": "Save Job Role",
       "cancelBtn": "Cancel",
+      "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}",
       "validation": {
         "nameRequired": "Role name is required"
       }
@@ -699,7 +702,7 @@
       "titleEdit": "Edit Job Role",
       "titleAdd": "Add New Role",
       "subtitle": "These permissions will be assigned to the {{dept}} department",
-      "defaultDept": "Operations",
+      "subtitleGeneric": "These permissions will be assigned to this job role",
       "roleNameLabel": "Job Role Name",
       "namePlaceholderAr": "e.g. Booking Auditor, Quality Supervisor...",
       "descriptionLabel": "Permission Description",
@@ -712,6 +715,20 @@
       "validation": {
         "nameRequired": "Role name is required",
         "nameMinLength": "Name must be at least 2 characters"
+      }
+    },
+    "rolesPage": {
+      "title": "Job Roles",
+      "description": "Manage all job roles and their permissions across the system, whether linked to a department or not.",
+      "allDepartments": "All Departments",
+      "noDepartment": "No Department",
+      "noRoles": "No job roles added yet",
+      "addRoleBtn": "Add New Job Role",
+      "table": {
+        "role": "Job Role",
+        "department": "Department",
+        "description": "Role Description",
+        "actions": "Actions"
       }
     },
     "permissions": {
@@ -737,7 +754,8 @@
         "message": "Any change in these permissions will be applied immediately to all current employees ({{count}} employees) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department."
       },
       "cancelBtn": "Cancel Changes",
-      "saveBtn": "Save and Update Permissions"
+      "saveBtn": "Save and Update Permissions",
+      "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}"
     },
     "permCodes": {
       "Departments": {
@@ -886,13 +904,16 @@
       "finalDecision": {
         "readyTitle": "Ready for Final Approval",
         "readyDesc": "All required documents and data have been successfully reviewed. You can now approve the property to activate the host account and start receiving bookings immediately.",
+        "alreadyApprovedTitle": "Already Finally Approved",
+        "alreadyApprovedDesc": "This building has already been approved and published — no need to approve it again.",
         "rejectionSummaryTitle": "Rejection Reasons Summary",
         "rejectionSummarySubtitle": "Notes summary for the three sections",
         "sectionNotesPrefix": "Notes for",
         "finalNotesLabel": "Final Notes (for Host)",
         "finalNotesPlaceholder": "Write a final summary to be sent to the host clarifying the steps needed to correct the request...",
-        "finalNotesOptionalLabel": "Final notes (optional)",
+        "finalNotesOptionalLabel": "Final notes",
         "finalNotesOptionalPlaceholder": "Add any final notes for the host...",
+        "finalNotesHint": "Optional to approve, required to reject",
         "rejectSuccess": "The property was rejected successfully.",
         "errors": {
           "alreadyApproved": "This property has already been approved.",

@@ -132,11 +132,22 @@
         <h3>{{ 'd3.buildReview.finalDecision.readyTitle' | translate }}</h3>
         <p>{{ 'd3.buildReview.finalDecision.readyDesc' | translate }}</p>
       </div>
+    } @else if (allSectionsComplete && isFinalSuccess && isDisplayed) {
+      <div class="success-final-card inline-final-card">
+        <div class="celebrate-icon">
+          <i-tabler name="circle-check"></i-tabler>
+        </div>
+        <h3>{{ 'd3.buildReview.finalDecision.alreadyApprovedTitle' | translate }}</h3>
+        <p>{{ 'd3.buildReview.finalDecision.alreadyApprovedDesc' | translate }}</p>
+      </div>
     }
 
     @if (allSectionsComplete) {
       <div class="final-notes-inline">
-        <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
+        <div class="notes-label-row">
+          <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
+          <small class="notes-hint">{{ 'd3.buildReview.finalDecision.finalNotesHint' | translate }}</small>
+        </div>
         <textarea
           [(ngModel)]="finalNotes"
           [placeholder]="'d3.buildReview.finalDecision.finalNotesOptionalPlaceholder' | translate"
@@ -150,15 +161,15 @@
       <div class="action-buttons">
         <button
           class="btn btn-approve"
-          [class.active]="allSectionsComplete && isFinalSuccess"
-          [disabled]="!allSectionsComplete || !isFinalSuccess || isFinalSubmitting"
+          [class.active]="!isApproveDisabled"
+          [disabled]="isApproveDisabled || isFinalSubmitting"
           (click)="onApprove()"
         >
           <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
         </button>
 
-        <button class="btn btn-reject" [disabled]="!allSectionsComplete || isFinalSubmitting" (click)="onReject()">
+        <button class="btn btn-reject" [class.active]="!isRejectDisabled" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
           <span>{{ 'd3.buildReview.actions.reject' | translate }}</span>
           <i-tabler name="circle-x" class="btn-icon"></i-tabler>
         </button>
@@ -229,11 +240,11 @@
 
         <!-- Final Action Buttons -->
         <div class="action-buttons-final">
-            <button class="btn-approve-final" [disabled]="!isFinalSuccess || isFinalSubmitting" (click)="onApprove()">
+            <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
                 <i-tabler name="circle-check"></i-tabler>
             </button>
-            <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isFinalSubmitting" (click)="onReject()">
+            <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
                 <span>{{ 'd3.buildReview.actions.rejectFinal' | translate }}</span>
                 <i-tabler name="circle-x"></i-tabler>
             </button>

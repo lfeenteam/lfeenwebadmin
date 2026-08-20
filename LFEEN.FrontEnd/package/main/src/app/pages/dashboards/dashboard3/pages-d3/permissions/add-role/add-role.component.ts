@@ -9,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { DepartmentService } from '../../../services/department.service';
-import { RolePermission } from '../../../interfaces/department.model';
+import { RolePayload, RolePermission } from '../../../interfaces/department.model';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 
 interface PermissionRow extends RolePermission {
@@ -123,8 +123,49 @@ export class AddRoleComponent implements OnInit, OnDestroy {
     return this.permissions.filter(p => p.selected).length;
   }
 
+  private impliedIdsOf(permId: string): Set<string> {
+    const result = new Set<string>();
+    const queue = [permId];
+    while (queue.length) {
+      const current = this.permissions.find(p => p.id === queue.shift());
+      for (const impliedId of current?.impliedPermissionIds ?? []) {
+        if (!result.has(impliedId)) {
+          result.add(impliedId);
+          queue.push(impliedId);
+        }
+      }
+    }
+    return result;
+  }
+
   togglePermission(perm: PermissionRow, checked: boolean): void {
-    perm.selected = checked;
+    if (checked) {
+      perm.selected = true;
+      this.impliedIdsOf(perm.id).forEach(id => {
+        const implied = this.permissions.find(p => p.id === id);
+        if (implied) implied.selected = true;
+      });
+      return;
+    }
+
+    const dependents = this.permissions.filter(
+      p => p.selected && p.id !== perm.id && this.impliedIdsOf(p.id).has(perm.id)
+    );
+    if (dependents.length > 0) {
+      this.toastr.warning(
+        this.translate.instant('d3.addRolePage.dependencyBlocked', {
+          names: dependents.map(d => d.name).join('، ')
+        })
+      );
+      return;
+    }
+    perm.selected = false;
+  }
+
+  private get backRoute(): string {
+    return this.deptId
+      ? `/${this.currentLang}/d3/permissions/${this.deptId}`
+      : `/${this.currentLang}/d3/roles`;
   }
 
   save(): void {
@@ -139,14 +180,16 @@ export class AddRoleComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     const v = this.roleForm.value;
 
-    this.departmentService.createRole({
+    const payload: RolePayload = {
       nameAr: v.nameAr || v.nameEn,
       nameEn: v.nameEn || v.nameAr,
       descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
-      departmentId: this.deptId!,
-      isManagerRole: v.isManagerRole
-    }).pipe(
+      isManagerRole: v.isManagerRole,
+      ...(this.deptId ? { departmentId: this.deptId } : {})
+    };
+
+    this.departmentService.createRole(payload).pipe(
       switchMap((newRole: any) => {
         const selectedIds = this.permissions.filter(p => p.selected).map(p => p.id);
         if (selectedIds.length === 0) {
@@ -160,7 +203,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
         this.toastr.success(
           this.translate.instant('d3.toast.addRoleSuccess')
         );
-        this.router.navigate([`/${this.currentLang}/d3/permissions/${this.deptId}`]);
+        this.router.navigate([this.backRoute]);
       },
       error: () => {
         this.isSubmitting = false;
@@ -172,7 +215,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate([`/${this.currentLang}/d3/permissions/${this.deptId}`]);
+    this.router.navigate([this.backRoute]);
   }
 
   ngOnDestroy(): void {

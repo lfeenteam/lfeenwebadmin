@@ -51,26 +51,6 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
-    const staticItems: NavItem[] = [
-      { translationKey: 'd3.sidebar.units',             icon: 'smart-home',          link: '/d3/units' },
-      { translationKey: 'd3.sidebar.buildings',         icon: 'building-skyscraper', link: '/d3/buildings' },
-      { translationKey: 'd3.sidebar.accountManagement', icon: 'users',               link: '/d3/account-management' },
-      { translationKey: 'd3.sidebar.bookings',          icon: 'calendar-time',       link: '/d3/bookings' },
-      { translationKey: 'd3.sidebar.complaints',        icon: 'message-exclamation', link: '/d3/complaints' },
-      { translationKey: 'd3.sidebar.faq',               icon: 'help-circle',         link: '/d3/faq' }
-    ];
-
-    staticItems.forEach(sItem => {
-      if (!items.find(i => i.link === sItem.link)) {
-        const dashIndex = items.findIndex(i => i.icon === 'layout-dashboard');
-        if (dashIndex !== -1) {
-          items.splice(dashIndex + 1, 0, sItem);
-        } else {
-          items.push(sItem);
-        }
-      }
-    });
-
     if (!items.find(i => i.link === '/d3/settings')) {
       items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
@@ -95,13 +75,28 @@ export class SidebarService {
       'admin-users':      'user-cog',
       'roles':            'shield-check',
       'permissions':      'lock',
-      'permission-groups':'layers-intersect'
+      'permission-groups':'layers-intersect',
+      'units':            'smart-home',
+      'properties':       'building-skyscraper',
+      'accounts':         'users',
+      'bookings':         'calendar-time',
+      'complaints':       'message-exclamation',
+      'support-faq':      'help-circle'
     };
 
     const exactRouteMap: { [key: string]: string } = {
       'dashboard':       '/d3/ceo',
       'departments-all': '/d3/team-management',
+      'admin-users':     '/d3/team-management?tab=employees',
       'settings':        '/d3/settings',
+      'units':           '/d3/units',
+      'properties':      '/d3/buildings',
+      'accounts':        '/d3/account-management',
+      'bookings':        '/d3/bookings',
+      'complaints':      '/d3/complaints',
+      'support-faq':     '/d3/faq',
+      'roles':           '/d3/roles',
+      'permissions':     '/d3/roles/add'
     };
 
     return items
@@ -110,19 +105,16 @@ export class SidebarService {
         let link: string | null = null;
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
+        } else if (item.entityId) {
+          link = `/d3/permissions/${item.entityId}`;
         } else if (item.route && !item.children?.length) {
           link = `/d3/permissions/${item.id}`;
         }
 
-        const lang = this.coreService.getLanguage();
-        const localizedTitle = lang === 'ar'
-          ? (item.titleAr || item.titleEn || item.title)
-          : (item.titleEn || item.titleAr || item.title);
-
         return {
           id: item.id,
           key: item.key,
-          title: localizedTitle || '',
+          title: item.title || '',
           icon: iconMap[item.key] || 'point',
           link,
           children: item.children?.length ? this.mapSidebarToNavItems(item.children) : undefined

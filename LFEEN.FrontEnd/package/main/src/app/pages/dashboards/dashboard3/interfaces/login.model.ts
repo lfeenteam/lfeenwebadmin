@@ -7,11 +7,10 @@ export interface SidebarItem {
   id: string;
   key: string;
   title?: string;
-  titleAr?: string;
-  titleEn?: string;
   icon: string | null;
   route: string | null;
   requiredPermission: string | null;
+  entityId: string | null;
   order: number;
   children: SidebarItem[];
 }

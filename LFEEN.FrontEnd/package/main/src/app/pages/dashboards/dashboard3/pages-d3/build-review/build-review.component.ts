@@ -54,6 +54,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   imageError = false;
   orgLogoError = false;
   overallStatus = '';
+  isDisplayed = false;
   private forcedViewOnly = false;
 
   building: BuildingReviewInfo = {
@@ -171,6 +172,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         };
         this.updateHeaderForView();
         this.overallStatus = data.overallStatus?.trim() ?? '';
+        this.isDisplayed = data.isDisplayed;
 
         this.reviewSections[1].completed = this.isFinalDecision(data.photosSection.decision);
         this.reviewSections[1].status    = this.mapDecision(data.photosSection.decision);
@@ -313,20 +315,37 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     return this.visibleReviewSections.every(s => s.completed);
   }
 
+  // Gated on isDisplayed for the Approved case, same reason as isApproveDisabled:
+  // overallStatus reads 'Approved' as soon as every section is approved, before
+  // the final approval action has actually been submitted, so it can't tell
+  // "ready for final approval" apart from "already finally approved and live".
   get viewOnly(): boolean {
-    return this.forcedViewOnly || this.overallStatus === 'Approved' || this.overallStatus === 'Rejected';
+    return this.forcedViewOnly
+      || (this.overallStatus === 'Approved' && this.isDisplayed)
+      || this.overallStatus === 'Rejected';
   }
 
   get isImagesReadOnly(): boolean {
     return this.reviewSections[1].completed;
   }
 
-  get canReject(): boolean {
-    return this.allSectionsComplete;
+  // Rejecting still needs a reason on record even though the property is fully
+  // reviewed — either the shared notes field (list view) or the dedicated
+  // rejection notes field (final view) satisfies it.
+  get isRejectDisabled(): boolean {
+    if (!this.allSectionsComplete) return true;
+    return !this.finalNotes?.trim() && !this.finalRejectionNotes?.trim();
   }
 
-  get canApprove(): boolean {
-    return this.allSectionsComplete;
+  // Gated on isDisplayed rather than overallStatus: overallStatus already reads
+  // 'Approved' once every section is approved, before the final approval action has
+  // actually been submitted, so it can't tell "ready for final approval" apart from
+  // "already finally approved and live". Mirrors unit-review.component.ts.
+  get isApproveDisabled(): boolean {
+    if (!this.allSectionsComplete) return true;
+    if (!this.isFinalSuccess) return true;
+    if (this.isDisplayed) return true;
+    return false;
   }
 
   openSection(index: number): void {
@@ -359,12 +378,12 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   onReject(): void {
-    if (!this.canReject || !this.buildingId || this.isFinalSubmitting) return;
+    if (this.isRejectDisabled || !this.buildingId || this.isFinalSubmitting) return;
     this.confirmFinalDecision('Rejected');
   }
 
   onApprove(): void {
-    if (!this.canApprove || !this.isFinalSuccess || !this.buildingId || this.isFinalSubmitting) return;
+    if (this.isApproveDisabled || !this.buildingId || this.isFinalSubmitting) return;
     this.confirmFinalDecision('Approved');
   }
 
@@ -395,7 +414,13 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   private submitFinalDecision(decision: 'Approved' | 'Rejected'): void {
     if (!this.buildingId) return;
 
-    const payload = { finalNotes: this.finalNotes.trim() || null };
+    // The 'final' view's rejection reason lives in a separate field from the
+    // shared list-view notes field — prefer it when present so it's the one
+    // actually sent, instead of being silently dropped.
+    const notes = decision === 'Rejected'
+      ? (this.finalRejectionNotes.trim() || this.finalNotes.trim())
+      : this.finalNotes.trim();
+    const payload = { finalNotes: notes || null };
     const request = decision === 'Approved'
       ? this.buildingService.approveBuilding(this.buildingId, payload)
       : this.buildingService.rejectBuilding(this.buildingId, payload);

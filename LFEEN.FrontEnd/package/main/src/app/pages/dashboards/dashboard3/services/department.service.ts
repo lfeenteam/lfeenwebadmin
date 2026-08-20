@@ -127,6 +127,14 @@ export class DepartmentService {
     return this.http.get<Employee[]>(`${this.apiUrl}/employees`);
   }
 
+  getEmployeeCountForRole(roleId: string): Observable<number> {
+    return this.http.get<PaginatedEmployeeResponse>(
+      `${this.apiUrl}/employees?page=1&pageSize=1&roleId=${roleId}`
+    ).pipe(
+      map(res => res.totalCount)
+    );
+  }
+
   getAllDepartmentsForDropdown(): Observable<Department[]> {
     return this.http.get<PaginatedDepartmentResponse>(`${this.apiUrl}?page=1&pageSize=100`).pipe(
       map(res => res.data)
