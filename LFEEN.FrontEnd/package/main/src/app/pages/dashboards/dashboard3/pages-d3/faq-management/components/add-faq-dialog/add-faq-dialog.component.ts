@@ -62,7 +62,7 @@ export class AddFaqDialogComponent {
     }
 
     const value = this.faqForm.value;
-    const result: Omit<FaqArticle, 'id' | 'externalId' | 'status'> & { status?: FaqArticle['status'] } = {
+    const result: Omit<FaqArticle, 'externalId' | 'status'> & { status?: FaqArticle['status'] } = {
       titleEn: value.titleEn.trim(),
       titleAr: value.titleAr.trim(),
       contentEn: (value.contentEn || '').trim(),

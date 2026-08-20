@@ -74,7 +74,7 @@
         <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
       } @else {
 
-      @for (article of filteredArticles(); track article.id) {
+      @for (article of filteredArticles(); track article.externalId) {
         <div class="table-row">
 
           <div class="col-title">
