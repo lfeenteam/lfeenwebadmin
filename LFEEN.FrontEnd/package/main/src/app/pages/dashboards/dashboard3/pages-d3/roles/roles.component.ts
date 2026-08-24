@@ -12,6 +12,7 @@ import { DepartmentService } from '../../services/department.service';
 import { Department, DepartmentRole } from '../../interfaces/department.model';
 import { AddRoleDialogComponent } from '../permissions/components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
+import { extractApiErrorMessage } from '../../utils/api-error.util';
 
 interface RoleRow {
   id: string;
@@ -41,6 +42,27 @@ export class RolesComponent implements OnInit, OnDestroy {
   roles: RoleRow[] = [];
 
   selectedDeptFilter = '';
+
+  currentPage = 1;
+  pageSize = 10;
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.roles.length / this.pageSize));
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  get pagedRoles(): RoleRow[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.roles.slice(start, start + this.pageSize);
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+  }
 
   constructor(
     private router: Router,
@@ -96,10 +118,15 @@ export class RolesComponent implements OnInit, OnDestroy {
     };
   }
 
-  applyFilter(): void {
+  private recomputeRoles(): void {
     this.roles = this.selectedDeptFilter
       ? this.allRoles.filter(r => r.departmentId === this.selectedDeptFilter)
       : this.allRoles;
+  }
+
+  applyFilter(): void {
+    this.recomputeRoles();
+    this.currentPage = 1;
   }
 
   openAddRole(): void {
@@ -123,7 +150,10 @@ export class RolesComponent implements OnInit, OnDestroy {
       const index = this.allRoles.findIndex(r => r.id === role.id);
       if (index !== -1) {
         this.allRoles[index] = this.toRow({ ...role.raw, ...result });
-        this.applyFilter();
+        this.recomputeRoles();
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages;
+        }
       }
     });
   }
@@ -156,9 +186,9 @@ export class RolesComponent implements OnInit, OnDestroy {
           this.toastr.success(this.translate.instant('d3.toast.deleteRoleSuccess'));
           this.loadData();
         },
-        error: () => {
+        error: (err) => {
           this.deletingId = null;
-          this.toastr.error(this.translate.instant('d3.toast.deleteError'));
+          this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.deleteError')));
         }
       });
     });

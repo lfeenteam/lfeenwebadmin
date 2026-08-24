@@ -134,7 +134,7 @@
       }
 
       &.active-link {
-        background-color: #000000 !important;
+        background-color: #1E293B !important;
         color: #ffffff !important;
 
         ::ng-deep .mat-mdc-list-item-icon,
@@ -248,6 +248,10 @@
         ::ng-deep i-tabler svg {
           width: 16px !important;
           height: 16px !important;
+        }
+
+        &.active-link .d3-menu-title {
+          color: #ffffff !important;
         }
       }
     }

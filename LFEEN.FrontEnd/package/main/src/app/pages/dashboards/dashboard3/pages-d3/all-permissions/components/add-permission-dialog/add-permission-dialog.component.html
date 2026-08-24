@@ -1,0 +1,133 @@
+<div class="permission-dialog-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <button mat-icon-button class="close-btn" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header text-center">
+    <div class="permission-icon-wrapper d-flex align-items-center justify-content-center m-auto m-b-16">
+      <i-tabler name="lock" class="icon-28"></i-tabler>
+    </div>
+    <h2 class="dialog-title f-s-20 f-w-900 m-b-8">
+      {{ (data.permission ? 'd3.addPermissionDialog.titleEdit' : 'd3.addPermissionDialog.titleAdd') | translate }}
+    </h2>
+    <p class="dialog-subtitle f-s-12 m-0">
+      {{ 'd3.addPermissionDialog.subtitle' | translate }}
+    </p>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="permissionForm">
+
+      <!-- Group select -->
+      <div class="m-b-20">
+        <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.groupLabel' | translate }}</mat-label>
+        <div class="select-wrapper" [class.is-invalid]="permissionForm.get('permissionGroupId')?.invalid && permissionForm.get('permissionGroupId')?.touched">
+          <mat-select
+            class="bilingual-select"
+            formControlName="permissionGroupId"
+            disableOptionCentering
+            panelClass="permission-group-select-panel"
+            [placeholder]="'d3.addPermissionDialog.groupPlaceholder' | translate">
+            @for (group of permissionGroups; track group.id) {
+              <mat-option [value]="group.id">{{ groupDisplayName(group) }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (permissionForm.get('permissionGroupId')?.invalid && permissionForm.get('permissionGroupId')?.touched) {
+          <p class="field-error-msg">{{ 'd3.addPermissionDialog.validation.groupRequired' | translate }}</p>
+        }
+      </div>
+
+      <!-- Code field -->
+      <div class="m-b-20">
+        <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.codeLabel' | translate }}</mat-label>
+        <div class="bilingual-input-wrapper" [class.is-invalid]="permissionForm.get('code')?.invalid && permissionForm.get('code')?.touched">
+          <input class="bilingual-input code-input" formControlName="code" [placeholder]="'d3.addPermissionDialog.codePlaceholder' | translate">
+        </div>
+        @if (permissionForm.get('code')?.invalid && permissionForm.get('code')?.touched) {
+          <p class="field-error-msg">
+            @if (permissionForm.get('code')?.hasError('required')) { {{ 'd3.addPermissionDialog.validation.codeRequired' | translate }} }
+            @else if (permissionForm.get('code')?.hasError('pattern')) { {{ 'd3.addPermissionDialog.validation.codePattern' | translate }} }
+          </p>
+        }
+      </div>
+
+      <!-- Name (Arabic / English) -->
+      <div class="field-row m-b-20">
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.nameArLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper" [class.is-invalid]="permissionForm.get('nameAr')?.invalid && permissionForm.get('nameAr')?.touched">
+            <input class="bilingual-input" formControlName="nameAr" dir="rtl" [placeholder]="'d3.addPermissionDialog.nameArPlaceholder' | translate">
+          </div>
+          @if (permissionForm.get('nameAr')?.invalid && permissionForm.get('nameAr')?.touched) {
+            <p class="field-error-msg">
+              @if (permissionForm.get('nameAr')?.hasError('required')) { {{ 'd3.addPermissionDialog.validation.nameArRequired' | translate }} }
+              @else if (permissionForm.get('nameAr')?.hasError('minlength')) { {{ 'd3.addPermissionDialog.validation.nameMinLength' | translate }} }
+            </p>
+          }
+        </div>
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.nameEnLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper" [class.is-invalid]="permissionForm.get('nameEn')?.invalid && permissionForm.get('nameEn')?.touched">
+            <input class="bilingual-input code-input" formControlName="nameEn" dir="ltr" [placeholder]="'d3.addPermissionDialog.nameEnPlaceholder' | translate">
+          </div>
+          @if (permissionForm.get('nameEn')?.invalid && permissionForm.get('nameEn')?.touched) {
+            <p class="field-error-msg">
+              @if (permissionForm.get('nameEn')?.hasError('required')) { {{ 'd3.addPermissionDialog.validation.nameEnRequired' | translate }} }
+              @else if (permissionForm.get('nameEn')?.hasError('pattern')) { {{ 'd3.addPermissionDialog.validation.nameEnPattern' | translate }} }
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Action field -->
+      <div class="m-b-20">
+        <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.actionLabel' | translate }}</mat-label>
+        <div class="select-wrapper" [class.is-invalid]="permissionForm.get('action')?.invalid && permissionForm.get('action')?.touched">
+          <mat-select
+            class="bilingual-select"
+            formControlName="action"
+            disableOptionCentering
+            panelClass="permission-group-select-panel"
+            [placeholder]="'d3.addPermissionDialog.actionPlaceholder' | translate">
+            @for (action of actionOptions; track action) {
+              <mat-option [value]="action">{{ action }}</mat-option>
+            }
+          </mat-select>
+        </div>
+        @if (permissionForm.get('action')?.invalid && permissionForm.get('action')?.touched) {
+          <p class="field-error-msg">{{ 'd3.addPermissionDialog.validation.actionRequired' | translate }}</p>
+        }
+      </div>
+
+      <!-- Description (Arabic / English) -->
+      <div class="field-row">
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.descriptionArLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionAr" dir="rtl" rows="3"
+              [placeholder]="'d3.addPermissionDialog.descriptionPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionDialog.descriptionEnLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionEn" dir="ltr" rows="3"
+              placeholder="Describe what this permission allows..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions d-flex justify-content-between gap-12">
+    <button mat-button (click)="dialogRef.close()" class="cancel-btn">{{ 'd3.addPermissionDialog.cancelBtn' | translate }}</button>
+    <button mat-flat-button color="dark" class="submit-btn" (click)="save()" [disabled]="isSubmitting">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      }
+      {{ (data.permission ? 'd3.addPermissionDialog.saveBtn' : 'd3.addPermissionDialog.addBtn') | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

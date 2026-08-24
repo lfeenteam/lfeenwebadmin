@@ -162,6 +162,24 @@
       "removePermError": "Error removing permission",
       "deleteRoleTitle": "Delete this role?",
       "deleteRoleMessage": "This action cannot be undone and the role will be permanently deleted from the system.",
+      "addPermissionGroupSuccess": "Permission group added successfully",
+      "editPermissionGroupSuccess": "Permission group updated successfully",
+      "deletePermissionGroupSuccess": "Permission group deleted successfully",
+      "deletePermissionGroupTitle": "Delete this permission group?",
+      "deletePermissionGroupMessage": "This action cannot be undone and the permission group will be permanently deleted from the system.",
+      "deletePermissionGroupInUseError": "This group cannot be deleted because it still contains permissions",
+      "loadPermissionGroupsError": "Error loading permission groups",
+      "addPermissionSuccess": "Permission added successfully",
+      "editPermissionSuccess": "Permission updated successfully",
+      "deletePermissionSuccess": "Permission deleted successfully",
+      "deletePermissionTitle": "Delete this permission?",
+      "deletePermissionMessage": "This action cannot be undone and may affect roles or other permissions that depend on it.",
+      "deletePermissionInUseError": "This permission cannot be deleted because it is used as a dependency or assigned to a role",
+      "loadPermissionsError": "Error loading permissions",
+      "addDependencySuccess": "Dependency added successfully",
+      "removeDependencySuccess": "Dependency removed successfully",
+      "removeDependencyTitle": "Remove Dependency",
+      "removeDependencyMessage": "Remove this permission's dependency on \"{{code}}\"?",
       "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
     },
     "emptyState": {
@@ -685,6 +703,8 @@
       "basicInfoTitle": "Basic Role Information",
       "roleNameLabel": "Job Role Name",
       "roleNamePlaceholder": "e.g. Operations Manager, Quality Supervisor...",
+      "departmentLabel": "Department (optional)",
+      "departmentPlaceholder": "No Department",
       "descriptionLabel": "Role Description",
       "descriptionPlaceholder": "Write a summary of tasks this role holder can perform...",
       "permissionsTitle": "Set Role Permissions",
@@ -729,7 +749,101 @@
         "department": "Department",
         "description": "Role Description",
         "actions": "Actions"
+      },
+      "pagination": {
+        "total": "Role"
       }
+    },
+    "addPermissionGroupDialog": {
+      "titleEdit": "Edit Permission Group",
+      "titleAdd": "Add New Permission Group",
+      "subtitle": "Groups organize permissions into logical modules across the system",
+      "nameArLabel": "Group Name (Arabic)",
+      "nameArPlaceholder": "مثال: التقارير، المستخدمين...",
+      "nameEnLabel": "Group Name (English)",
+      "nameEnPlaceholder": "e.g. Reports, Users...",
+      "descriptionArLabel": "Group Description (Arabic)",
+      "descriptionEnLabel": "Group Description (English)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً للصلاحيات التي تندرج تحت هذه المجموعة...",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Group to System",
+      "validation": {
+        "nameArRequired": "Arabic group name is required",
+        "nameEnRequired": "English group name is required",
+        "nameEnPattern": "Can only contain letters, numbers, spaces, dots, and hyphens",
+        "nameMinLength": "Name must be at least 2 characters"
+      }
+    },
+    "permissionGroupsPage": {
+      "title": "Permission Groups",
+      "description": "Organize permissions into logical modules across the system. Every permission must belong to exactly one group.",
+      "noGroups": "No permission groups added yet",
+      "addGroupBtn": "Add New Permission Group",
+      "table": {
+        "name": "Group Name",
+        "description": "Description",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "total": "Group"
+      }
+    },
+    "addPermissionDialog": {
+      "titleEdit": "Edit Permission",
+      "titleAdd": "Add New Permission",
+      "subtitle": "Every permission belongs to a group and has a unique code in the format Module.Action",
+      "groupLabel": "Permission Group",
+      "groupPlaceholder": "Select a permission group",
+      "codeLabel": "Permission Code",
+      "codePlaceholder": "e.g. Users.Delete",
+      "nameArLabel": "Permission Name (Arabic)",
+      "nameArPlaceholder": "مثال: حذف المستخدمين",
+      "nameEnLabel": "Permission Name (English)",
+      "nameEnPlaceholder": "e.g. Delete Users",
+      "actionLabel": "Action Type",
+      "actionPlaceholder": "Select action type",
+      "descriptionArLabel": "Description (Arabic)",
+      "descriptionEnLabel": "Description (English)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً لما تسمح به هذه الصلاحية...",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Permission to System",
+      "validation": {
+        "groupRequired": "Permission group is required",
+        "codeRequired": "Permission code is required",
+        "codePattern": "Code must be in the format Module.Action, e.g. Users.Delete",
+        "nameArRequired": "Arabic permission name is required",
+        "nameEnRequired": "English permission name is required",
+        "nameEnPattern": "Can only contain letters, numbers, spaces, dots, and hyphens",
+        "nameMinLength": "Name must be at least 2 characters",
+        "actionRequired": "Action type is required"
+      }
+    },
+    "allPermissionsPage": {
+      "title": "Permissions",
+      "description": "The master catalog of every atomic permission in the system, and how they depend on one another.",
+      "noPermissions": "No permissions added yet",
+      "addPermissionBtn": "Add New Permission",
+      "table": {
+        "name": "Permission Name",
+        "group": "Group",
+        "action": "Action",
+        "actions": "Actions",
+        "dependenciesTooltip": "Manage Dependencies"
+      },
+      "pagination": {
+        "total": "Permission"
+      }
+    },
+    "permissionDependenciesPage": {
+      "title": "Permission Dependencies",
+      "backBtn": "Back to Permissions",
+      "requiredCount": "Requires {{count}} permission(s)",
+      "noDependencies": "This permission doesn't currently depend on any other permission",
+      "removeTooltip": "Remove",
+      "selectPlaceholder": "Select a permission to add as a dependency",
+      "addBtn": "Add Dependency"
     },
     "permissions": {
       "pageTitle": "Department Permissions",

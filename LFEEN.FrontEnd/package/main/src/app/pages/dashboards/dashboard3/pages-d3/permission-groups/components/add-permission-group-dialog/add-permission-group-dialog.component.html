@@ -1,0 +1,79 @@
+<div class="group-dialog-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <button mat-icon-button class="close-btn" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header text-center">
+    <div class="group-icon-wrapper d-flex align-items-center justify-content-center m-auto m-b-16">
+      <i-tabler name="layers-intersect" class="icon-28"></i-tabler>
+    </div>
+    <h2 class="dialog-title f-s-20 f-w-900 m-b-8">
+      {{ (data.group ? 'd3.addPermissionGroupDialog.titleEdit' : 'd3.addPermissionGroupDialog.titleAdd') | translate }}
+    </h2>
+    <p class="dialog-subtitle f-s-12 m-0">
+      {{ 'd3.addPermissionGroupDialog.subtitle' | translate }}
+    </p>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="groupForm">
+
+      <!-- Name (Arabic / English) -->
+      <div class="field-row m-b-20">
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionGroupDialog.nameArLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper" [class.is-invalid]="groupForm.get('nameAr')?.invalid && groupForm.get('nameAr')?.touched">
+            <input class="bilingual-input" formControlName="nameAr" dir="rtl" [placeholder]="'d3.addPermissionGroupDialog.nameArPlaceholder' | translate">
+          </div>
+          @if (groupForm.get('nameAr')?.invalid && groupForm.get('nameAr')?.touched) {
+            <p class="field-error-msg">
+              @if (groupForm.get('nameAr')?.hasError('required')) { {{ 'd3.addPermissionGroupDialog.validation.nameArRequired' | translate }} }
+              @else if (groupForm.get('nameAr')?.hasError('minlength')) { {{ 'd3.addPermissionGroupDialog.validation.nameMinLength' | translate }} }
+            </p>
+          }
+        </div>
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionGroupDialog.nameEnLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper" [class.is-invalid]="groupForm.get('nameEn')?.invalid && groupForm.get('nameEn')?.touched">
+            <input class="bilingual-input" formControlName="nameEn" dir="ltr" [placeholder]="'d3.addPermissionGroupDialog.nameEnPlaceholder' | translate">
+          </div>
+          @if (groupForm.get('nameEn')?.invalid && groupForm.get('nameEn')?.touched) {
+            <p class="field-error-msg">
+              @if (groupForm.get('nameEn')?.hasError('required')) { {{ 'd3.addPermissionGroupDialog.validation.nameEnRequired' | translate }} }
+              @else if (groupForm.get('nameEn')?.hasError('pattern')) { {{ 'd3.addPermissionGroupDialog.validation.nameEnPattern' | translate }} }
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Description (Arabic / English) -->
+      <div class="field-row">
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionGroupDialog.descriptionArLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionAr" dir="rtl" rows="3"
+              [placeholder]="'d3.addPermissionGroupDialog.descriptionPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+        <div class="field-col">
+          <mat-label class="field-label d-block m-b-8">{{ 'd3.addPermissionGroupDialog.descriptionEnLabel' | translate }}</mat-label>
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea" formControlName="descriptionEn" dir="ltr" rows="3"
+              placeholder="Permissions related to..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions d-flex justify-content-between gap-12">
+    <button mat-button (click)="dialogRef.close()" class="cancel-btn">{{ 'd3.addPermissionGroupDialog.cancelBtn' | translate }}</button>
+    <button mat-flat-button color="dark" class="submit-btn" (click)="save()" [disabled]="isSubmitting">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      }
+      {{ (data.group ? 'd3.addPermissionGroupDialog.saveBtn' : 'd3.addPermissionGroupDialog.addBtn') | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

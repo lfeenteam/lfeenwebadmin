@@ -1,8 +1,8 @@
-.roles-container {
+.permissions-container {
   padding: 0;
   font-family: 'Cairo', sans-serif !important;
 
-  .roles-description {
+  .permissions-description {
     font-family: 'Cairo', sans-serif !important;
     font-weight: 700;
     font-size: 12px;
@@ -24,7 +24,7 @@
       gap: 24px;
     }
 
-    .roles-summary {
+    .permissions-summary {
       display: flex;
       align-items: center;
       gap: 16px;
@@ -32,7 +32,7 @@
       flex: 1 1 auto;
     }
 
-    .roles-details {
+    .permissions-details {
       min-width: 0;
       text-align: start;
 
@@ -52,18 +52,7 @@
     }
   }
 
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 0 0 auto;
-  }
-
-  .filter-wrapper {
-    flex: 0 0 auto;
-  }
-
-  .add-role-btn-top {
+  .add-perm-btn {
     --mdc-filled-button-container-color: #111110;
     --mdc-filled-button-label-text-color: #fff;
     background-color: #111110 !important;
@@ -86,31 +75,13 @@
     }
   }
 
-  .dept-filter-select {
-    font-family: 'Cairo', sans-serif !important;
-    font-weight: 700;
-    font-size: 13px;
-    color: #111110;
-    background-color: #FFFFFF;
-    border: 1px solid #E8E8E4;
-    border-radius: 12px;
-    padding: 10px 16px;
-    min-width: 180px;
-    cursor: pointer;
-
-    &:focus {
-      outline: none;
-      border-color: #111110;
-    }
-  }
-
   .table-card {
     border: 1px solid #E8E8E4 !important;
     border-radius: 24px !important;
     overflow: hidden;
   }
 
-  .roles-table {
+  .permissions-table {
     width: 100%;
     border-collapse: collapse;
 
@@ -155,10 +126,51 @@
     border: 1px solid #E8E8E4;
     border-radius: 20px;
     padding: 4px 12px;
+  }
 
-    &.no-dept {
-      color: #9E9E9A;
-      font-style: normal;
+  .perm-desc {
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: start;
+    vertical-align: middle;
+    color: #6B6B67;
+    display: inline-block;
+  }
+
+  .actions-header-wide { width: 120px; }
+  .actions-col-wide { width: 120px; }
+
+  .action-dots-btn {
+    color: #9E9E9A;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-mdc-focus-indicator,
+    ::ng-deep .mat-ripple {
+      display: none !important;
+    }
+
+    ::ng-deep span {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: 100% !important;
+    }
+
+    &:hover {
+      color: #111110;
+      background-color: #F7F7F5 !important;
     }
   }
 
@@ -216,76 +228,6 @@
     }
   }
 
-  .perm-crown-icon {
-    color: #B45309;
-    flex-shrink: 0;
-  }
-
-  .perm-desc {
-    font-weight: 700;
-    font-size: 12px;
-    line-height: 16px;
-    text-align: start;
-    vertical-align: middle;
-    color: #6B6B67;
-    display: inline-block;
-  }
-
-  .permission-icon-wrapper {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: #F7F7F5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .permission-icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .actions-header-wide { width: 120px; }
-  .actions-col-wide { width: 120px; }
-
-  .action-dots-btn {
-    color: #9E9E9A;
-    width: 36px !important;
-    height: 36px !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 8px !important;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    ::ng-deep .mat-mdc-button-persistent-ripple,
-    ::ng-deep .mat-mdc-focus-indicator,
-    ::ng-deep .mat-ripple {
-      display: none !important;
-    }
-
-    ::ng-deep span {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      height: 100% !important;
-    }
-
-    &:hover {
-      color: #111110;
-      background-color: #F7F7F5 !important;
-    }
-  }
-
   @media (max-width: 767px) {
     .header-content {
       align-items: stretch;
@@ -293,21 +235,7 @@
       gap: 16px;
     }
 
-    .header-actions {
-      flex-direction: column;
-      align-items: stretch;
-      width: 100%;
-    }
-
-    .filter-wrapper {
-      width: 100%;
-    }
-
-    .dept-filter-select {
-      width: 100%;
-    }
-
-    .add-role-btn-top {
+    .add-perm-btn {
       width: 100%;
       justify-content: center;
     }

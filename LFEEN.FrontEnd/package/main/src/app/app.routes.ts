@@ -462,6 +462,51 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'permission-groups',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permission-groups/permission-groups.component'
+                  ).then((m) => m.PermissionGroupsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissionGroupsPage.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'all-permissions',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-permissions/all-permissions.component'
+                  ).then((m) => m.AllPermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.allPermissionsPage.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'all-permissions/:id/dependencies',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-permissions/permission-dependencies/permission-dependencies.component'
+                  ).then((m) => m.PermissionDependenciesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissionDependenciesPage.title',
+                  breadcrumbKey: 'd3.allPermissionsPage.title',
+                  breadcrumbRoute: 'all-permissions',
+                  showBack: true
+                },
+              },
+              {
                 path: 'roles/add',
                 canActivate: [authGuard],
                 loadComponent: () =>

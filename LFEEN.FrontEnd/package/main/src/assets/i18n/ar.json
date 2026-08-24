@@ -164,7 +164,25 @@
       "removePermError": "حدث خطأ أثناء إزالة الصلاحية",
       "deleteRoleTitle": "هل أنت متأكد من حذف هذا الدور؟",
       "deleteRoleMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم حذف الدور نهائياً من النظام.",
-      "deleteRoleMessageWithEmployees": "هذا الدور معيّن حالياً لـ {{count}} موظف. حذفه سيؤدي لإزالة صلاحياته من هؤلاء الموظفين فوراً، ولا يمكن التراجع عن هذا الإجراء."
+      "deleteRoleMessageWithEmployees": "هذا الدور معيّن حالياً لـ {{count}} موظف. حذفه سيؤدي لإزالة صلاحياته من هؤلاء الموظفين فوراً، ولا يمكن التراجع عن هذا الإجراء.",
+      "addPermissionGroupSuccess": "تم إضافة مجموعة الصلاحيات بنجاح",
+      "editPermissionGroupSuccess": "تم تعديل مجموعة الصلاحيات بنجاح",
+      "deletePermissionGroupSuccess": "تم حذف مجموعة الصلاحيات بنجاح",
+      "deletePermissionGroupTitle": "هل أنت متأكد من حذف هذه المجموعة؟",
+      "deletePermissionGroupMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم حذف مجموعة الصلاحيات نهائياً من النظام.",
+      "deletePermissionGroupInUseError": "لا يمكن حذف هذه المجموعة لأنها لا تزال تحتوي على صلاحيات مرتبطة بها",
+      "loadPermissionGroupsError": "حدث خطأ أثناء تحميل مجموعات الصلاحيات",
+      "addPermissionSuccess": "تم إضافة الصلاحية بنجاح",
+      "editPermissionSuccess": "تم تعديل الصلاحية بنجاح",
+      "deletePermissionSuccess": "تم حذف الصلاحية بنجاح",
+      "deletePermissionTitle": "هل أنت متأكد من حذف هذه الصلاحية؟",
+      "deletePermissionMessage": "لا يمكن التراجع عن هذا الإجراء، وقد يؤثر حذفها على الأدوار أو الصلاحيات الأخرى التي تعتمد عليها.",
+      "deletePermissionInUseError": "لا يمكن حذف هذه الصلاحية لأنها مستخدمة كاعتمادية أو معيّنة لدور",
+      "loadPermissionsError": "حدث خطأ أثناء تحميل الصلاحيات",
+      "addDependencySuccess": "تم إضافة الاعتمادية بنجاح",
+      "removeDependencySuccess": "تم إزالة الاعتمادية بنجاح",
+      "removeDependencyTitle": "إزالة الاعتمادية",
+      "removeDependencyMessage": "هل تريد إزالة اعتماد هذه الصلاحية على \"{{code}}\"؟"
     },
     "emptyState": {
       "builds": {
@@ -687,6 +705,8 @@
       "basicInfoTitle": "معلومات الدور الأساسية",
       "roleNameLabel": "اسم الدور الوظيفي",
       "roleNamePlaceholder": "مثال: مدير عمليات، مشرف جودة...",
+      "departmentLabel": "القسم (اختياري)",
+      "departmentPlaceholder": "بدون قسم",
       "descriptionLabel": "وصف الدور",
       "descriptionPlaceholder": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
       "permissionsTitle": "تحديد صلاحيات الدور",
@@ -731,7 +751,101 @@
         "department": "القسم",
         "description": "وصف الدور",
         "actions": "الإجراءات"
+      },
+      "pagination": {
+        "total": "دور وظيفي"
       }
+    },
+    "addPermissionGroupDialog": {
+      "titleEdit": "تعديل مجموعة الصلاحيات",
+      "titleAdd": "إضافة مجموعة صلاحيات جديدة",
+      "subtitle": "المجموعات تنظّم الصلاحيات في وحدات منطقية داخل النظام",
+      "nameArLabel": "اسم المجموعة (عربي)",
+      "nameArPlaceholder": "مثال: التقارير، المستخدمين...",
+      "nameEnLabel": "اسم المجموعة (إنجليزي)",
+      "nameEnPlaceholder": "e.g. Reports, Users...",
+      "descriptionArLabel": "وصف المجموعة (عربي)",
+      "descriptionEnLabel": "وصف المجموعة (إنجليزي)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً للصلاحيات التي تندرج تحت هذه المجموعة...",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة المجموعة للنظام",
+      "validation": {
+        "nameArRequired": "اسم المجموعة بالعربي مطلوب",
+        "nameEnRequired": "اسم المجموعة بالإنجليزي مطلوب",
+        "nameEnPattern": "يمكن أن يحتوي على أحرف وأرقام ومسافات ونقاط وشرطات فقط",
+        "nameMinLength": "الاسم لا يقل عن حرفين"
+      }
+    },
+    "permissionGroupsPage": {
+      "title": "مجموعات الصلاحيات",
+      "description": "تنظيم الصلاحيات في مجموعات منطقية داخل النظام، كل صلاحية يجب أن تنتمي لمجموعة واحدة.",
+      "noGroups": "لا توجد مجموعات صلاحيات مضافة حالياً",
+      "addGroupBtn": "إضافة مجموعة صلاحيات جديدة",
+      "table": {
+        "name": "اسم المجموعة",
+        "description": "الوصف",
+        "actions": "الإجراءات"
+      },
+      "pagination": {
+        "total": "مجموعة"
+      }
+    },
+    "addPermissionDialog": {
+      "titleEdit": "تعديل الصلاحية",
+      "titleAdd": "إضافة صلاحية جديدة",
+      "subtitle": "كل صلاحية تنتمي لمجموعة، وتُحدَّد بكود فريد بصيغة Module.Action",
+      "groupLabel": "مجموعة الصلاحيات",
+      "groupPlaceholder": "اختر مجموعة الصلاحيات",
+      "codeLabel": "كود الصلاحية",
+      "codePlaceholder": "e.g. Users.Delete",
+      "nameArLabel": "اسم الصلاحية (عربي)",
+      "nameArPlaceholder": "مثال: حذف المستخدمين",
+      "nameEnLabel": "اسم الصلاحية (إنجليزي)",
+      "nameEnPlaceholder": "e.g. Delete Users",
+      "actionLabel": "نوع الإجراء",
+      "actionPlaceholder": "اختر نوع الإجراء",
+      "descriptionArLabel": "الوصف (عربي)",
+      "descriptionEnLabel": "الوصف (إنجليزي)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً لما تسمح به هذه الصلاحية...",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة الصلاحية للنظام",
+      "validation": {
+        "groupRequired": "مجموعة الصلاحيات مطلوبة",
+        "codeRequired": "كود الصلاحية مطلوب",
+        "codePattern": "الكود يجب أن يكون بصيغة Module.Action مثل Users.Delete",
+        "nameArRequired": "اسم الصلاحية بالعربي مطلوب",
+        "nameEnRequired": "اسم الصلاحية بالإنجليزي مطلوب",
+        "nameEnPattern": "يمكن أن يحتوي على أحرف وأرقام ومسافات ونقاط وشرطات فقط",
+        "nameMinLength": "الاسم لا يقل عن حرفين",
+        "actionRequired": "نوع الإجراء مطلوب"
+      }
+    },
+    "allPermissionsPage": {
+      "title": "الصلاحيات",
+      "description": "الكتالوج الأساسي لكل الصلاحيات الذرية في النظام، وربطها باعتماديات بعضها البعض.",
+      "noPermissions": "لا توجد صلاحيات مضافة حالياً",
+      "addPermissionBtn": "إضافة صلاحية جديدة",
+      "table": {
+        "name": "اسم الصلاحية",
+        "group": "المجموعة",
+        "action": "الإجراء",
+        "actions": "الإجراءات",
+        "dependenciesTooltip": "إدارة الاعتماديات"
+      },
+      "pagination": {
+        "total": "صلاحية"
+      }
+    },
+    "permissionDependenciesPage": {
+      "title": "اعتماديات الصلاحية",
+      "backBtn": "الرجوع للصلاحيات",
+      "requiredCount": "يتطلب {{count}} صلاحيات",
+      "noDependencies": "هذه الصلاحية لا تعتمد على أي صلاحية أخرى حالياً",
+      "removeTooltip": "إزالة",
+      "selectPlaceholder": "اختر صلاحية لإضافتها كاعتمادية",
+      "addBtn": "إضافة اعتمادية"
     },
     "permissions": {
       "pageTitle": "صلاحيات القسم",

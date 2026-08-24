@@ -1,109 +1,82 @@
-<div class="roles-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+<div class="groups-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
   <!-- Header Card -->
   <mat-card class="m-b-24 header-card">
     <mat-card-content class="p-24 header-content">
-      <div class="roles-summary">
+      <div class="groups-summary">
         <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
-          <i-tabler name="shield-check" class="icon-32"></i-tabler>
+          <i-tabler name="layers-intersect" class="icon-32"></i-tabler>
         </div>
-        <div class="roles-details">
-          <h2 class="f-s-20 f-w-900 m-b-4">{{ 'd3.rolesPage.title' | translate }}</h2>
-          <p class="roles-description m-0">{{ 'd3.rolesPage.description' | translate }}</p>
+        <div class="groups-details">
+          <h2 class="f-s-20 f-w-900 m-b-4">{{ 'd3.permissionGroupsPage.title' | translate }}</h2>
+          <p class="groups-description m-0">{{ 'd3.permissionGroupsPage.description' | translate }}</p>
         </div>
       </div>
 
-      <div class="header-actions">
-        <div class="filter-wrapper">
-          <select class="dept-filter-select" [(ngModel)]="selectedDeptFilter" (ngModelChange)="applyFilter()">
-            <option value="">{{ 'd3.rolesPage.allDepartments' | translate }}</option>
-            @for (dept of departments; track dept.id) {
-              <option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</option>
-            }
-          </select>
+      <button mat-flat-button class="add-group-btn" (click)="openAddGroup()">
+        <div class="d-flex align-items-center justify-content-center gap-8">
+          <i-tabler name="plus" class="icon-18"></i-tabler>
+          {{ 'd3.permissionGroupsPage.addGroupBtn' | translate }}
         </div>
-
-        <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
-          <div class="d-flex align-items-center justify-content-center gap-8">
-            <i-tabler name="plus" class="icon-18"></i-tabler>
-            {{ 'd3.rolesPage.addRoleBtn' | translate }}
-          </div>
-        </button>
-      </div>
+      </button>
     </mat-card-content>
   </mat-card>
 
-  <!-- Roles Table -->
+  <!-- Permission Groups Table -->
   <mat-card class="shadow-none table-card m-b-24">
     <mat-card-content class="p-0">
       <div class="table-responsive">
-        <table class="table roles-table m-0">
+        <table class="table groups-table m-0">
           <thead>
             <tr>
-              <th>{{ 'd3.rolesPage.table.role' | translate }}</th>
-              <th>{{ 'd3.rolesPage.table.department' | translate }}</th>
-              <th>{{ 'd3.rolesPage.table.description' | translate }}</th>
-              <th class="text-center actions-header-wide">{{ 'd3.rolesPage.table.actions' | translate }}</th>
+              <th>{{ 'd3.permissionGroupsPage.table.name' | translate }}</th>
+              <th>{{ 'd3.permissionGroupsPage.table.description' | translate }}</th>
+              <th class="text-center actions-header-wide">{{ 'd3.permissionGroupsPage.table.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             @if (isLoading) {
               <tr>
-                <td colspan="4" class="p-24 text-center">
+                <td colspan="3" class="p-24 text-center">
                   <mat-spinner diameter="32" class="m-auto"></mat-spinner>
                 </td>
               </tr>
-            } @else if (roles.length === 0) {
+            } @else if (groups.length === 0) {
               <tr>
-                <td colspan="4" class="p-24 text-center text-muted">
-                  {{ 'd3.rolesPage.noRoles' | translate }}
+                <td colspan="3" class="p-24 text-center text-muted">
+                  {{ 'd3.permissionGroupsPage.noGroups' | translate }}
                 </td>
               </tr>
             } @else {
-              @for (role of pagedRoles; track role.id) {
+              @for (group of groups; track group.id) {
                 <tr>
                   <td class="p-24">
                     <div class="d-flex align-items-center gap-12">
                       <div class="permission-icon-wrapper">
-                        <i-tabler name="user-circle" class="permission-icon"></i-tabler>
+                        <i-tabler name="layers-intersect" class="permission-icon"></i-tabler>
                       </div>
-                      <div class="d-flex align-items-start gap-6">
-                        <span class="f-s-14 f-w-900">{{ role.name }}</span>
-                        @if (role.isManagerRole) {
-                          <i-tabler name="crown" class="icon-14 perm-crown-icon m-t-2" [matTooltip]="'d3.permissions.table.managerRoleTooltip' | translate"></i-tabler>
-                        }
-                      </div>
+                      <span class="f-s-14 f-w-900">{{ displayName(group) }}</span>
                     </div>
                   </td>
                   <td class="p-24">
-                    @if (role.departmentName) {
-                      <span class="dept-badge">{{ role.departmentName }}</span>
-                    } @else {
-                      <span class="dept-badge no-dept">{{ 'd3.rolesPage.noDepartment' | translate }}</span>
-                    }
-                  </td>
-                  <td class="p-24">
-                    <span class="perm-desc">{{ role.description }}</span>
+                    <span class="perm-desc">{{ displayDescription(group) }}</span>
                   </td>
                   <td class="p-24 text-center actions-col-wide">
-                    @if (deletingId === role.id) {
+                    @if (deletingId === group.id) {
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
                       <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
-                          <i-tabler name="eye" class="icon-18"></i-tabler>
-                        </button>
                         <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
                           <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
                         </button>
                       </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
-                        <button mat-menu-item (click)="editRole(role)">
+                        <button mat-menu-item (click)="editGroup(group)">
                           <span class="menu-item-row">
                             <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
                             <span>{{ 'd3.permissions.table.editBtn' | translate }}</span>
                           </span>
                         </button>
-                        <button mat-menu-item class="delete-item" (click)="deleteRole(role)">
+                        <button mat-menu-item class="delete-item" (click)="deleteGroup(group)">
                           <span class="menu-item-row">
                             <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
                             <span>{{ 'd3.permissions.table.deleteBtn' | translate }}</span>
@@ -122,7 +95,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
           <span class="f-s-13 text-muted">
-            {{ roles.length }} {{ 'd3.rolesPage.pagination.total' | translate }}
+            {{ totalCount }} {{ 'd3.permissionGroupsPage.pagination.total' | translate }}
           </span>
           <div class="d-flex align-items-center gap-4">
             <button mat-icon-button class="page-nav-btn"
