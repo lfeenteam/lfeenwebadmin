@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DepartmentService } from '../../../../services/department.service';
 import { DepartmentRole, RolePayload } from '../../../../interfaces/department.model';
+import { extractApiErrorMessage } from '../../../../utils/api-error.util';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -126,9 +127,7 @@ export class AddRoleDialogComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.toastr.error(
-          this.translate.instant('d3.toast.errorOp')
-        );
+        this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.errorOp')));
         this.cdr.detectChanges();
       }
     });

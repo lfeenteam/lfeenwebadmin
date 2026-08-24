@@ -9,7 +9,8 @@ import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { DepartmentService } from '../../../services/department.service';
-import { RolePayload, RolePermission } from '../../../interfaces/department.model';
+import { Department, RolePayload, RolePermission } from '../../../interfaces/department.model';
+import { extractApiErrorMessage } from '../../../utils/api-error.util';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 
 interface PermissionRow extends RolePermission {
@@ -38,6 +39,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   isLoadingPerms = true;
   isSubmitting = false;
 
+  departments: Department[] = [];
+
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
   }
@@ -57,7 +60,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       nameEn: [''],
       descriptionAr: [''],
       descriptionEn: [''],
-      isManagerRole: [false]
+      isManagerRole: [false],
+      departmentId: ['']
     });
   }
 
@@ -92,8 +96,10 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
     this.isLoadingPerms = true;
     forkJoin({
-      perms: this.departmentService.getPermissions(100),
-      ...(this.deptId ? { dept: this.departmentService.getDepartmentById(this.deptId) } : {})
+      perms: this.departmentService.getPermissions(500),
+      ...(this.deptId
+        ? { dept: this.departmentService.getDepartmentById(this.deptId) }
+        : { allDepts: this.departmentService.getAllDepartmentsForDropdown() })
     }).subscribe({
       next: (res: any) => {
         this.permissions = (res.perms as RolePermission[]).map(permission => ({
@@ -112,6 +118,9 @@ export class AddRoleComponent implements OnInit, OnDestroy {
               route: ['/', lang, 'd3', 'permissions', this.deptId ?? '']
             }
           ]);
+        }
+        if (res.allDepts) {
+          this.departments = res.allDepts;
         }
         this.isLoadingPerms = false;
       },
@@ -186,7 +195,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
       isManagerRole: v.isManagerRole,
-      ...(this.deptId ? { departmentId: this.deptId } : {})
+      ...((this.deptId || v.departmentId) ? { departmentId: this.deptId || v.departmentId } : {})
     };
 
     this.departmentService.createRole(payload).pipe(
@@ -205,11 +214,9 @@ export class AddRoleComponent implements OnInit, OnDestroy {
         );
         this.router.navigate([this.backRoute]);
       },
-      error: () => {
+      error: (err) => {
         this.isSubmitting = false;
-        this.toastr.error(
-          this.translate.instant('d3.toast.saveError')
-        );
+        this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.saveError')));
       }
     });
   }

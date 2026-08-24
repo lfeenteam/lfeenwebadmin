@@ -12,6 +12,7 @@ import { PageTitleOverrideService } from '../../../services/page-title-override.
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { forkJoin, Subscription } from 'rxjs';
+import { extractApiErrorMessage } from '../../../utils/api-error.util';
 
 @Component({
   selector: 'app-role-permissions',
@@ -145,11 +146,9 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
             this.translate.instant('d3.toast.removePermSuccess')
           );
         },
-        error: () => {
+        error: (err) => {
           this.deletingId = null;
-          this.toastr.error(
-            this.translate.instant('d3.toast.removePermError')
-          );
+          this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.removePermError')));
         }
       });
     });

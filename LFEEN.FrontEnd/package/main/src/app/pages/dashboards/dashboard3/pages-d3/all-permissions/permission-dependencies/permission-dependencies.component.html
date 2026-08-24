@@ -1,0 +1,94 @@
+<div class="perm-deps-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+
+  @if (isLoading) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height:200px">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (sourcePermission) {
+
+    <!-- Header Card -->
+    <mat-card class="m-b-24 header-card">
+      <mat-card-content class="p-24 d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div class="d-flex align-items-center gap-16">
+          <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+            <i-tabler name="git-branch" class="icon-32"></i-tabler>
+          </div>
+          <div>
+            <h2 class="f-s-20 f-w-900 m-b-4">{{ sourcePermissionName }}</h2>
+            <div class="d-flex align-items-center gap-8">
+              <span class="code-badge">{{ sourcePermission.code }}</span>
+              <span class="dept-badge">{{ sourcePermission.permissionGroupName }}</span>
+            </div>
+          </div>
+        </div>
+        <button mat-stroked-button class="back-btn" [routerLink]="[currentLang, 'd3', 'all-permissions']">
+          {{ 'd3.permissionDependenciesPage.backBtn' | translate }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Dependencies Card -->
+    <mat-card class="shadow-none deps-card m-b-24">
+      <mat-card-content class="p-0">
+
+        <div class="card-header-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
+          <span class="active-count">{{ 'd3.permissionDependenciesPage.requiredCount' | translate: { count: dependencies.length } }}</span>
+        </div>
+
+        <div class="deps-divider"></div>
+
+        @if (dependencies.length === 0) {
+          <div class="empty-state text-center p-40">
+            <i-tabler name="git-branch" class="icon-40 m-b-12 text-muted"></i-tabler>
+            <p class="f-s-14 m-0 text-muted">{{ 'd3.permissionDependenciesPage.noDependencies' | translate }}</p>
+          </div>
+        }
+
+        @for (dep of dependencies; track dep.requiredPermissionId) {
+          <div class="dep-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
+            <div class="dep-info">
+              <span class="dep-name d-block">{{ dep.requiredPermissionName || dep.requiredPermissionCode }}</span>
+              <span class="dep-code d-block">{{ dep.requiredPermissionCode }}</span>
+            </div>
+            @if (removingId === dep.requiredPermissionId) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <button mat-icon-button class="remove-btn" (click)="removeDependency(dep)" [matTooltip]="'d3.permissionDependenciesPage.removeTooltip' | translate">
+                <i-tabler name="trash" class="icon-18"></i-tabler>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Add dependency row -->
+        <div class="add-dep-row d-flex align-items-center gap-12 p-x-24 p-y-16">
+          <div class="dep-select-wrapper">
+            <mat-select
+              class="dep-select"
+              [(ngModel)]="selectedRequiredId"
+              disableOptionCentering
+              panelClass="permission-group-select-panel"
+              [placeholder]="'d3.permissionDependenciesPage.selectPlaceholder' | translate">
+              @for (perm of candidatePermissions; track perm.id) {
+                <mat-option [value]="perm.id">{{ perm.code }} — {{ displayName(perm) }}</mat-option>
+              }
+            </mat-select>
+          </div>
+          <button class="add-dep-btn d-inline-flex align-items-center gap-8"
+            [disabled]="!selectedRequiredId || isAdding"
+            [matTooltip]="'d3.permissionDependenciesPage.addBtn' | translate"
+            (click)="addDependency()">
+            @if (isAdding) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <i-tabler name="plus" class="icon-16"></i-tabler>
+            }
+            <span>{{ 'd3.permissionDependenciesPage.addBtn' | translate }}</span>
+          </button>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+  }
+</div>

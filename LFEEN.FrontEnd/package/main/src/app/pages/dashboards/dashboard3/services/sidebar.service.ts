@@ -95,8 +95,9 @@ export class SidebarService {
       'bookings':        '/d3/bookings',
       'complaints':      '/d3/complaints',
       'support-faq':     '/d3/faq',
-      'roles':           '/d3/roles',
-      'permissions':     '/d3/roles/add'
+      'roles':              '/d3/roles',
+      'permissions':        '/d3/all-permissions',
+      'permission-groups':  '/d3/permission-groups'
     };
 
     return items

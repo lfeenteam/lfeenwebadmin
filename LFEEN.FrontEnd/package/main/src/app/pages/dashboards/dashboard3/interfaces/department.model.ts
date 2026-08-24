@@ -137,3 +137,74 @@ export interface EmployeeFormData {
 }
 
 export type UpdateEmployeePayload = EmployeeFormData;
+
+export interface PermissionGroup {
+  id: string;
+  name?: string;
+  nameAr?: string;
+  nameEn?: string;
+  description?: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface PermissionGroupPayload {
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+}
+
+export interface PaginatedPermissionGroupResponse {
+  data: PermissionGroup[];
+  totalCount: number;
+  page: number;
+  nextpage: number | null;
+  totalPages: number;
+}
+
+export interface Permission {
+  id: string;
+  permissionGroupId: string;
+  permissionGroupName: string;
+  code: string;
+  name?: string;
+  nameAr?: string;
+  nameEn?: string;
+  description?: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
+  action: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface PermissionPayload {
+  permissionGroupId: string;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  action: string;
+}
+
+export interface PaginatedPermissionsResponse {
+  data: Permission[];
+  totalCount: number;
+  page: number;
+  nextpage: number | null;
+  totalPages: number;
+}
+
+export interface PermissionDependency {
+  sourcePermissionId: string;
+  sourcePermissionCode: string;
+  sourcePermissionName?: string;
+  requiredPermissionId: string;
+  requiredPermissionCode: string;
+  requiredPermissionName?: string;
+  createdAt: string;
+}

@@ -15,7 +15,14 @@ import {
   RolePermissionsResponse,
   RolePayload,
   EmployeeFormData,
-  UpdateEmployeePayload
+  UpdateEmployeePayload,
+  PermissionGroup,
+  PermissionGroupPayload,
+  PaginatedPermissionGroupResponse,
+  Permission,
+  PermissionPayload,
+  PaginatedPermissionsResponse,
+  PermissionDependency
 } from '../interfaces/department.model';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -136,7 +143,7 @@ export class DepartmentService {
   }
 
   getAllDepartmentsForDropdown(): Observable<Department[]> {
-    return this.http.get<PaginatedDepartmentResponse>(`${this.apiUrl}?page=1&pageSize=100`).pipe(
+    return this.http.get<PaginatedDepartmentResponse>(`${this.apiUrl}?page=1&pageSize=500`).pipe(
       map(res => res.data)
     );
   }
@@ -149,7 +156,7 @@ export class DepartmentService {
 
   getAllRolesForDropdown(): Observable<DepartmentRole[]> {
     return this.http.get<{ data: DepartmentRole[] }>(
-      `${this.rolesApiUrl}?page=1&pageSize=100`
+      `${this.rolesApiUrl}?page=1&pageSize=500`
     ).pipe(
       map(res => res.data)
     );
@@ -215,7 +222,7 @@ export class DepartmentService {
   // ── Permissions ────────────────────────────────────────────
   private permissionsApiUrl = `${environment.apiBaseUrl}/api/permissions`;
 
-  getPermissions(pageSize: number = 100): Observable<RolePermission[]> {
+  getPermissions(pageSize: number = 500): Observable<RolePermission[]> {
     return this.http.get<RolePermissionsResponse>(`${this.permissionsApiUrl}?page=1&pageSize=${pageSize}`).pipe(
       map(res => res.data)
     );
@@ -223,5 +230,78 @@ export class DepartmentService {
 
   bulkAssignPermissions(roleId: string, permissionIds: string[]): Observable<any> {
     return this.http.post(`${this.rolesApiUrl}/${roleId}/permissions/bulk`, { permissionIds });
+  }
+
+  // ── Permission Groups ──────────────────────────────────────
+  private permissionGroupsApiUrl = `${environment.apiBaseUrl}/api/permission-groups`;
+
+  getPermissionGroups(page: number = 1, pageSize: number = 10): Observable<PaginatedPermissionGroupResponse> {
+    return this.http.get<PaginatedPermissionGroupResponse>(
+      `${this.permissionGroupsApiUrl}?page=${page}&pageSize=${pageSize}`
+    );
+  }
+
+  getAllPermissionGroupsForDropdown(): Observable<PermissionGroup[]> {
+    return this.getPermissionGroups(1, 500).pipe(
+      map(res => res.data)
+    );
+  }
+
+  createPermissionGroup(data: PermissionGroupPayload): Observable<PermissionGroup> {
+    return this.http.post<PermissionGroup>(this.permissionGroupsApiUrl, data);
+  }
+
+  updatePermissionGroup(id: string, data: PermissionGroupPayload): Observable<PermissionGroup> {
+    return this.http.put<PermissionGroup>(`${this.permissionGroupsApiUrl}/${id}`, data);
+  }
+
+  deletePermissionGroup(id: string): Observable<any> {
+    return this.http.delete(`${this.permissionGroupsApiUrl}/${id}`);
+  }
+
+  // ── Permission Catalog ─────────────────────────────────────
+  getAllPermissions(page: number = 1, pageSize: number = 10): Observable<PaginatedPermissionsResponse> {
+    return this.http.get<PaginatedPermissionsResponse>(
+      `${this.permissionsApiUrl}?page=${page}&pageSize=${pageSize}`
+    );
+  }
+
+  getAllPermissionsForDropdown(): Observable<Permission[]> {
+    return this.getAllPermissions(1, 500).pipe(
+      map(res => res.data)
+    );
+  }
+
+  getPermissionById(id: string): Observable<Permission> {
+    return this.http.get<Permission>(`${this.permissionsApiUrl}/${id}`);
+  }
+
+  createPermission(data: PermissionPayload): Observable<Permission> {
+    return this.http.post<Permission>(this.permissionsApiUrl, data);
+  }
+
+  updatePermission(id: string, data: PermissionPayload): Observable<Permission> {
+    return this.http.put<Permission>(`${this.permissionsApiUrl}/${id}`, data);
+  }
+
+  deletePermission(id: string): Observable<any> {
+    return this.http.delete(`${this.permissionsApiUrl}/${id}`);
+  }
+
+  // ── Permission Dependencies ─────────────────────────────────
+  getPermissionDependencies(id: string): Observable<PermissionDependency[]> {
+    return this.http.get<PermissionDependency[] | { data: PermissionDependency[] }>(
+      `${this.permissionsApiUrl}/${id}/dependencies`
+    ).pipe(
+      map(res => Array.isArray(res) ? res : (res?.data ?? []))
+    );
+  }
+
+  addPermissionDependency(id: string, requiredPermissionId: string): Observable<PermissionDependency> {
+    return this.http.post<PermissionDependency>(`${this.permissionsApiUrl}/${id}/dependencies`, { requiredPermissionId });
+  }
+
+  removePermissionDependency(id: string, requiredPermissionId: string): Observable<any> {
+    return this.http.delete(`${this.permissionsApiUrl}/${id}/dependencies/${requiredPermissionId}`);
   }
 }

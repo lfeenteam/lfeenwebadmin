@@ -45,6 +45,25 @@
           }
         </div>
 
+        <!-- Department (optional, only when not scoped to a department already) -->
+        @if (!deptId) {
+          <div class="field-group m-b-20">
+            <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.departmentLabel' | translate }}</label>
+            <div class="bilingual-input-wrapper select-wrapper">
+              <mat-select
+                class="bilingual-input dept-select"
+                formControlName="departmentId"
+                disableOptionCentering
+                panelClass="permission-group-select-panel">
+                <mat-option value="">{{ 'd3.addRolePage.departmentPlaceholder' | translate }}</mat-option>
+                @for (dept of departments; track dept.id) {
+                  <mat-option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</mat-option>
+                }
+              </mat-select>
+            </div>
+          </div>
+        }
+
         <!-- Manager Role Toggle -->
         <div class="field-group m-b-20">
           <div class="manager-toggle-row d-flex align-items-center justify-content-between p-16 rounded-8 bg-light-primary">

@@ -77,6 +77,34 @@
         &::placeholder { color: #BFBFBA; font-weight: 600; }
       }
 
+      &.select-wrapper {
+        padding: 0 12px;
+      }
+
+      .dept-select {
+        cursor: pointer;
+        width: 100%;
+
+        ::ng-deep .mat-mdc-select-trigger {
+          width: 100%;
+          height: 100%;
+          padding: 12px 0;
+          display: flex;
+          align-items: center;
+        }
+
+        ::ng-deep .mat-mdc-select-value {
+          font-family: 'Cairo', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #111110;
+        }
+
+        ::ng-deep .mat-mdc-select-arrow {
+          color: #6B6B67;
+        }
+      }
+
       .bilingual-textarea {
         flex: 1;
         border: none;
