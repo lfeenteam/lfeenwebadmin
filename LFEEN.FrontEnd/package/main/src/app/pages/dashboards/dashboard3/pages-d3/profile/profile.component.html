@@ -3,14 +3,11 @@
   <!-- Hero: title/subtitle on right, photo on left -->
   <div class="profile-hero">
     <div class="hero-text">
-      <h2 class="profile-hero-title">الملف الشخصي</h2>
-      <p class="profile-subtitle">إدارة معلوماتك الشخصية وتفضيلات الأمان بحسابك</p>
+      <h2 class="profile-hero-title">{{ 'd3.profile.title' | translate }}</h2>
+      <p class="profile-subtitle">{{ 'd3.profile.subtitle' | translate }}</p>
     </div>
     <div class="avatar-wrapper">
       <img src="/assets/images/profile/user-1.jpg" alt="user" class="profile-avatar" />
-      <button class="avatar-camera-btn" type="button">
-        <i-tabler name="camera" class="icon-16"></i-tabler>
-      </button>
     </div>
   </div>
 
@@ -21,29 +18,28 @@
         <span class="card-icon-box">
           <i-tabler name="user" class="icon-18"></i-tabler>
         </span>
-        <h3>المعلومات الأساسية</h3>
+        <h3>{{ 'd3.profile.basicInfo' | translate }}</h3>
       </div>
     </div>
 
     <div class="info-grid">
       <div class="info-field">
-        <label>الاسم الكامل</label>
-        <div class="info-val-box">سلطان العليق</div>
+        <label>{{ 'd3.profile.fullName' | translate }}</label>
+        <div class="info-val-box">{{ loginService.getUser()?.fullName || '-' }}</div>
       </div>
       <div class="info-field">
-        <label>البريد الإلكتروني</label>
-        <div class="info-val-box">ceo&#64;lafin.sa</div>
+        <label>{{ 'd3.profile.email' | translate }}</label>
+        <div class="info-val-box">{{ loginService.getUser()?.email || '-' }}</div>
       </div>
       <div class="info-field">
-        <label>رقم الهاتف</label>
+        <label>{{ 'd3.profile.phone' | translate }}</label>
         <div class="info-val-box phone-val">
-          <span class="phone-number">0501234567</span>
-          <span class="phone-prefix">+966</span>
+          <span class="phone-number">{{ loginService.getUser()?.phoneNumber || ' ' }}</span>
         </div>
       </div>
       <div class="info-field">
-        <label>لغة الواجهة</label>
-        <div class="info-val-box">العربية (Arabic)</div>
+        <label>{{ 'd3.profile.language' | translate }}</label>
+        <div class="info-val-box">{{ interfaceLanguage }}</div>
       </div>
     </div>
   </div>
@@ -56,12 +52,12 @@
           <i-tabler name="lock" class="icon-18"></i-tabler>
         </span>
         <div class="security-text">
-          <h3 class="security-title">الأمان وكلمة المرور</h3>
-          <p class="security-desc">قم بتحديث كلمة المرور الخاصة بك بانتظام للحفاظ على أمان حسابك</p>
+          <h3 class="security-title">{{ 'd3.profile.security' | translate }}</h3>
+          <p class="security-desc">{{ 'd3.profile.securityDesc' | translate }}</p>
         </div>
       </div>
       <button class="change-pass-btn" type="button" (click)="openChangePassword()">
-        تعديل كلمة المرور
+        {{ 'd3.profile.changePassword' | translate }}
       </button>
     </div>
   </div>
@@ -73,22 +69,22 @@
         <span class="card-icon-box">
           <i-tabler name="bell" class="icon-18"></i-tabler>
         </span>
-        <h3>تفضيلات الإشعارات</h3>
+        <h3>{{ 'd3.profile.notifications' | translate }}</h3>
       </div>
     </div>
     <div class="notif-list">
       <div class="notif-row">
         <mat-slide-toggle [(ngModel)]="notifEmail" class="profile-toggle"></mat-slide-toggle>
         <div class="notif-info">
-          <span class="notif-title">إشعارات البريد</span>
-          <span class="notif-desc">استلام ملخص العمليات اليومي عبر البريد</span>
+          <span class="notif-title">{{ 'd3.profile.emailNotifTitle' | translate }}</span>
+          <span class="notif-desc">{{ 'd3.profile.emailNotifDesc' | translate }}</span>
         </div>
       </div>
       <div class="notif-row">
         <mat-slide-toggle [(ngModel)]="notifBrowser" class="profile-toggle"></mat-slide-toggle>
         <div class="notif-info">
-          <span class="notif-title">إشعارات المتصفح</span>
-          <span class="notif-desc">استلام تنبيهات فورية عند وجود حجز جديد</span>
+          <span class="notif-title">{{ 'd3.profile.browserNotifTitle' | translate }}</span>
+          <span class="notif-desc">{{ 'd3.profile.browserNotifDesc' | translate }}</span>
         </div>
       </div>
     </div>

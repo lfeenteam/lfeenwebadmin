@@ -51,6 +51,19 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
+    if (!items.find(i => i.link === '/d3/subscriptions/management')) {
+      items.push({
+        translationKey: 'd3.sidebar.subscriptions',
+        icon: 'credit-card',
+        link: null,
+        children: [
+          { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
+          { translationKey: 'd3.sidebar.subscriptionManagement', icon: 'list-details', link: '/d3/subscriptions/management' },
+          { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
+        ]
+      });
+    }
+
     if (!items.find(i => i.link === '/d3/settings')) {
       items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });

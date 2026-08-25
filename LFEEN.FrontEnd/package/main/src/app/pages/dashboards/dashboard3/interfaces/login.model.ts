@@ -23,6 +23,7 @@ export interface LoginResponse {
   userId: string;
   fullName: string;
   email: string;
+  phoneNumber?: string | null;
   roles: string[];
   permissions: string[];
   sidebar: SidebarItem[];

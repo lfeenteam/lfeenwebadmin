@@ -1,0 +1,154 @@
+<div class="subscription-log-container" [dir]="currentDir">
+
+  <mat-card class="shadow-none list-card">
+    <mat-card-content class="p-0">
+
+      @if (isLoading) {
+        <div class="p-24">
+          <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+        </div>
+      } @else {
+
+      <div class="list-header d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div>
+          <h3 class="m-0 f-s-18 f-w-800">{{ 'd3.subscriptionLog.title' | translate }}</h3>
+          <p class="m-0 list-subtitle">{{ 'd3.subscriptionLog.subtitle' | translate }}</p>
+        </div>
+
+        <div class="filters-bar d-flex align-items-center gap-12">
+          <div class="search-wrapper position-relative">
+            <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+            <input
+              type="text"
+              class="search-input"
+              [placeholder]="'d3.subscriptionLog.searchPlaceholder' | translate"
+              [attr.aria-label]="'d3.subscriptionLog.searchPlaceholder' | translate"
+              [value]="searchQuery"
+              (input)="onSearchChange($any($event.target).value)" />
+          </div>
+
+          <mat-select
+            class="filter-select-native"
+            [value]="actionFilter"
+            [aria-label]="'d3.subscriptionLog.table.actionType' | translate"
+            disableOptionCentering
+            panelClass="subs-log-filter-panel"
+            (selectionChange)="onFilterChange($event.value)">
+            <mat-select-trigger>
+              <span class="d-flex align-items-center gap-6">
+                <i-tabler name="filter" class="icon-16"></i-tabler>
+                {{ selectedFilterLabelKey | translate }}
+              </span>
+            </mat-select-trigger>
+            @for (opt of actionFilterOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
+            }
+          </mat-select>
+        </div>
+      </div>
+
+      <div class="table-box">
+        <div class="table-responsive">
+        <table class="table log-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.subscriptionLog.table.refNumber' | translate }}</th>
+              <th>{{ 'd3.subscriptionLog.table.actionType' | translate }}</th>
+              <th>{{ 'd3.subscriptionLog.table.service' | translate }}</th>
+              <th>{{ 'd3.subscriptionLog.table.actor' | translate }}</th>
+              <th>{{ 'd3.subscriptionLog.table.date' | translate }}</th>
+              <th>{{ 'd3.subscriptionLog.table.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of filteredEntries; track entry.id) {
+              <tr class="log-row">
+                <td class="p-24">
+                  <span class="f-s-13 f-w-800 ref-number">{{ entry.refNumber }}</span>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actionType' | translate }}</span>
+                  <span class="action-badge" [class]="'action-' + entry.actionType">
+                    {{ ('d3.subscriptionLog.action.' + entry.actionType) | translate }}
+                  </span>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.service' | translate }}</span>
+                  <div class="d-flex align-items-center gap-8">
+                    <span class="service-mini-icon d-flex align-items-center justify-content-center">
+                      <i-tabler [name]="entry.serviceIcon" class="icon-14"></i-tabler>
+                    </span>
+                    <span class="f-s-13 f-w-700">{{ entry.serviceName }}</span>
+                  </div>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actor' | translate }}</span>
+                  <div class="d-flex align-items-center gap-8">
+                    <span class="actor-avatar d-flex align-items-center justify-content-center">{{ entry.actorInitial }}</span>
+                    <span class="f-s-13 f-w-700">{{ entry.actorName }}</span>
+                  </div>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.date' | translate }}</span>
+                  <span class="log-date">{{ formatDate(entry.date) }}</span>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.status' | translate }}</span>
+                  <span class="log-status" [class]="'status-' + entry.status">
+                    <span class="dot"></span>
+                    {{ ('d3.subscriptionLog.status.' + entry.status) | translate }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="p-0">
+                  <app-dashboard-empty titleKey="d3.subscriptionLog.empty.title" descKey="d3.subscriptionLog.empty.desc"></app-dashboard-empty>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="pagination-wrapper d-flex align-items-center justify-content-between">
+          <span class="pagination-total">
+            {{ fmt(totalCount) }} {{ 'd3.subscriptionLog.pagination.total' | translate }}
+          </span>
+          <div class="pagination-controls d-flex align-items-center gap-4">
+            <button class="page-nav-btn"
+              [attr.aria-label]="'d3.subscriptionLog.pagination.prev' | translate"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="page-ellipsis">...</span>
+              } @else {
+                <button class="page-number-btn"
+                  [class.active]="currentPage === item"
+                  [attr.aria-label]="('d3.subscriptionLog.pagination.page' | translate) + ' ' + fmt($any(item))"
+                  (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button class="page-nav-btn"
+              [attr.aria-label]="'d3.subscriptionLog.pagination.next' | translate"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

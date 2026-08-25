@@ -1,0 +1,128 @@
+<div class="subscription-settings-container" [dir]="currentDir">
+
+  @if (isLoading) {
+    <app-dashboard-loading variant="cards" [rows]="6"></app-dashboard-loading>
+  } @else {
+
+  <div class="settings-card">
+  <div class="settings-header d-flex align-items-start justify-content-between flex-wrap gap-16">
+    <div>
+      <h2 class="m-0 f-s-20 f-w-800">{{ 'd3.subscriptions.settings.title' | translate }}</h2>
+      <p class="m-0 settings-subtitle">{{ 'd3.subscriptions.settings.subtitle' | translate }}</p>
+    </div>
+
+    <div class="filters-bar d-flex align-items-center gap-12">
+      <div class="search-wrapper position-relative">
+        <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'d3.subscriptions.settings.searchPlaceholder' | translate"
+          [attr.aria-label]="'d3.subscriptions.settings.searchPlaceholder' | translate"
+          [value]="searchQuery"
+          (input)="onSearchChange($any($event.target).value)" />
+      </div>
+
+      <mat-select
+        class="filter-select-native"
+        [value]="statusFilter"
+        [aria-label]="'d3.subscriptions.settings.filters.all' | translate"
+        disableOptionCentering
+        panelClass="subs-settings-filter-panel"
+        (selectionChange)="onFilterChange($event.value)">
+        <mat-select-trigger>
+          <span class="d-flex align-items-center gap-6">
+            <i-tabler name="filter" class="icon-16"></i-tabler>
+            {{ selectedFilterLabelKey | translate }}
+          </span>
+        </mat-select-trigger>
+        @for (opt of statusFilterOptions; track opt.value) {
+          <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
+        }
+      </mat-select>
+    </div>
+  </div>
+  </div>
+
+  <div class="row m-t-24">
+    @for (offer of filteredOffers; track offer.id) {
+      <div class="col-md-6 col-lg-4 m-b-16">
+        <mat-card class="shadow-none offer-card">
+          <mat-card-content class="offer-card-content">
+
+            <div class="offer-top-row d-flex align-items-start justify-content-between">
+              <div class="offer-icon-wrapper d-flex align-items-center justify-content-center" [class]="'tone-' + offer.tone">
+                <i-tabler [name]="offer.icon" class="icon-26"></i-tabler>
+              </div>
+
+              <div class="offer-controls d-flex align-items-center gap-8">
+                <button type="button" class="gear-btn" [attr.aria-label]="'d3.subscriptions.settings.configureBtn' | translate" (click)="openServiceSettings(offer)">
+                  <i-tabler name="settings" class="icon-16"></i-tabler>
+                </button>
+              </div>
+            </div>
+
+            <div class="offer-badge" [class]="'tone-' + offer.badgeTone">
+              <i-tabler [name]="offer.badgeIcon" class="icon-13"></i-tabler>
+              {{ ('d3.subscriptions.settings.services.' + offer.id + '.badge') | translate }}
+            </div>
+
+            <h4 class="offer-title m-0">{{ ('d3.subscriptions.settings.services.' + offer.id + '.name') | translate }}</h4>
+            <p class="offer-desc">{{ ('d3.subscriptions.settings.services.' + offer.id + '.desc') | translate }}</p>
+
+            <ul class="offer-features m-0">
+              <li>
+                <i-tabler name="circle-check" class="icon-14"></i-tabler>
+                <span>{{ ('d3.subscriptions.settings.services.' + offer.id + '.feature1') | translate }}</span>
+              </li>
+              <li>
+                <i-tabler name="circle-check" class="icon-14"></i-tabler>
+                <span>{{ ('d3.subscriptions.settings.services.' + offer.id + '.feature2') | translate }}</span>
+              </li>
+            </ul>
+
+            <div class="offer-price-box d-flex align-items-stretch">
+              <div class="offer-price-cell">
+                <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
+                @if (offer.isFree) {
+                  <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
+                } @else {
+                  <span class="offer-price-value offer-price-value--monthly d-flex align-items-center gap-4">
+                    {{ fmt(offer.monthlyPriceValue) }}
+                    <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="currencyIconAlt"></span>
+                  </span>
+                }
+              </div>
+              <div class="offer-price-divider"></div>
+              <div class="offer-price-cell">
+                <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
+                @if (offer.isFree) {
+                  <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
+                } @else {
+                  <span class="offer-price-value d-flex align-items-center gap-4">
+                    {{ fmt(offer.annualPriceValue) }}
+                    <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="currencyIconAlt"></span>
+                  </span>
+                }
+              </div>
+            </div>
+
+          </mat-card-content>
+        </mat-card>
+      </div>
+    } @empty {
+      <div class="col-12">
+        <app-dashboard-empty titleKey="d3.subscriptions.settings.empty.title" descKey="d3.subscriptions.settings.empty.desc"></app-dashboard-empty>
+      </div>
+    }
+  </div>
+
+  }
+
+</div>

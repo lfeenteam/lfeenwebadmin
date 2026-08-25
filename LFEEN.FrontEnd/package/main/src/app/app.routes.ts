@@ -622,6 +622,68 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'subscriptions/management',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-management/subscription-management.component'
+                  ).then((m) => m.SubscriptionManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/log',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-log/subscription-log.component'
+                  ).then((m) => m.SubscriptionLogComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptionLog.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/settings',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-settings/subscription-settings.component'
+                  ).then((m) => m.SubscriptionSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.settings.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
+                path: 'subscriptions/settings/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-service-settings/subscription-service-settings.component'
+                  ).then((m) => m.SubscriptionServiceSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.serviceSettings.pageTitle',
+                  breadcrumbKey: 'd3.subscriptions.settings.pageTitle',
+                  breadcrumbRoute: 'subscriptions/settings',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
                 path: 'settings',
                 canActivate: [authGuard],
                 loadComponent: () =>

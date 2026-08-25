@@ -1,0 +1,257 @@
+<div class="subscription-management-container" [dir]="currentDir">
+
+  @if (isLoading) {
+    <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+  } @else {
+
+  <!-- Stats -->
+  <div class="row m-b-24">
+    @for (stat of stats; track $index) {
+      <div class="col-6 col-lg-3">
+        <mat-card class="border stat-card">
+          <mat-card-content class="stat-card-content">
+            <div class="stat-top-group">
+              <div class="stat-top-row d-flex align-items-center justify-content-between">
+                <div class="stat-icon-wrapper d-flex align-items-center justify-content-center" [class]="'tone-' + stat.tone">
+                  <i-tabler [name]="stat.icon" class="icon-20"></i-tabler>
+                </div>
+                <span class="stat-label" [class]="'tone-text-' + stat.tone">
+                  @if (stat.isGrowth) {
+                    {{ 'd3.subscriptions.stats.growthBadge' | translate: { percent: fmt(growthPercent) } }}
+                  } @else {
+                    {{ stat.labelKey | translate }}
+                  }
+                </span>
+              </div>
+              <span class="stat-subtitle d-block">{{ stat.subtitleKey | translate }}</span>
+            </div>
+            <div class="stat-value-row d-flex align-items-center">
+              <h2 class="stat-value m-0">{{ fmt(stat.value) }}</h2>
+              @if (stat.currency) {
+                <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="stat-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </div>
+
+  <!-- Subscribers list card -->
+  <mat-card class="shadow-none list-card">
+    <mat-card-content class="p-0">
+
+      <div class="list-header d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div>
+          <h3 class="m-0 f-s-18 f-w-800">{{ 'd3.subscriptions.listTitle' | translate }}</h3>
+          <p class="m-0 list-subtitle">{{ 'd3.subscriptions.listSubtitle' | translate }}</p>
+        </div>
+        <div class="search-wrapper position-relative">
+          <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+          <input
+            type="text"
+            class="search-input"
+            [placeholder]="'d3.subscriptions.searchPlaceholder' | translate"
+            [attr.aria-label]="'d3.subscriptions.searchPlaceholder' | translate"
+            [value]="searchQuery"
+            (input)="onSearchChange($any($event.target).value)" />
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table subs-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.subscriptions.table.facility' | translate }}</th>
+              <th>{{ 'd3.subscriptions.table.activeServices' | translate }}</th>
+              <th>{{ 'd3.subscriptions.table.fees' | translate }}</th>
+              <th>{{ 'd3.subscriptions.table.status' | translate }}</th>
+              <th class="text-center">{{ 'd3.subscriptions.table.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (account of filteredAccounts; track account.id) {
+              <tr class="subs-row">
+                <td class="p-24">
+                  <div class="d-flex align-items-center gap-12">
+                    <div class="facility-icon-wrapper d-flex align-items-center justify-content-center">
+                      <i-tabler [name]="account.icon" class="icon-18"></i-tabler>
+                    </div>
+                    <div>
+                      <span class="f-s-14 f-w-800 d-block">{{ account.facilityName }}</span>
+                      <span class="facility-classification">{{ account.classificationKey | translate }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptions.table.activeServices' | translate }}</span>
+                  <div class="d-flex align-items-center gap-6">
+                    @for (svc of account.services.slice(0, 3); track svc.id) {
+                      <span class="service-mini-icon d-flex align-items-center justify-content-center">
+                        <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                      </span>
+                    }
+                    @if (extraServicesCount(account) > 0) {
+                      <span class="extra-services-chip">
+                        {{ 'd3.subscriptions.table.others' | translate: { count: extraServicesCount(account) } }}
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptions.table.fees' | translate }}</span>
+                  <div class="d-flex align-items-center gap-4">
+                    <span class="f-s-14 f-w-800">{{ fmt(account.feesAmountValue) }}</span>
+                    <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+                  </div>
+                  <span class="fees-period">{{ fmt(account.feesAnnualValue) }} / {{ 'd3.subscriptions.period.annual' | translate }}</span>
+                </td>
+                <td class="p-24">
+                  <span class="mobile-field-label">{{ 'd3.subscriptions.table.status' | translate }}</span>
+                  <span class="status-badge" [class]="'status-' + account.status">
+                    {{ ('d3.subscriptions.status.' + account.status) | translate }}
+                  </span>
+                </td>
+                <td class="p-24 text-center">
+                  <div class="d-flex flex-column align-items-center justify-content-center gap-0">
+                    <button type="button" class="expand-row-btn"
+                      [attr.aria-label]="(expandedId === account.id ? 'd3.subscriptions.table.collapseTooltip' : 'd3.subscriptions.table.expandTooltip') | translate"
+                      (click)="toggleExpand(account)">
+                      <i-tabler [name]="expandedId === account.id ? 'chevron-up' : 'chevron-down'" class="icon-18"></i-tabler>
+                    </button>
+                    <button type="button" class="action-dots-btn"
+                      [attr.aria-label]="'d3.subscriptions.table.moreActions' | translate"
+                      [matMenuTriggerFor]="rowMenu">
+                      <i-tabler name="dots-vertical" class="icon-16 dots-icon-compact"></i-tabler>
+                    </button>
+                  </div>
+                  <mat-menu #rowMenu="matMenu" xPosition="before">
+                    <button mat-menu-item (click)="toggleExpand(account)">
+                      <i-tabler name="eye" class="icon-16 menu-icon"></i-tabler>
+                      <span>{{ 'd3.subscriptions.table.viewBtn' | translate }}</span>
+                    </button>
+                    <button mat-menu-item (click)="toggleExpand(account)">
+                      <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
+                      <span>{{ 'd3.subscriptions.table.editBtn' | translate }}</span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+              @if (expandedId === account.id) {
+                <tr class="subs-detail-row">
+                  <td colspan="5" class="p-0">
+                    <div class="detail-panel">
+                      <h4 class="m-0 f-s-15 f-w-800">{{ 'd3.subscriptions.detail.title' | translate }}</h4>
+                      <p class="m-0 detail-subtitle">{{ 'd3.subscriptions.detail.subtitle' | translate }}</p>
+
+                      <div class="table-responsive m-t-16">
+                        <table class="table detail-table m-0">
+                          <thead>
+                            <tr>
+                              <th>{{ 'd3.subscriptions.detail.serviceName' | translate }}</th>
+                              <th>{{ 'd3.subscriptions.detail.category' | translate }}</th>
+                              <th>{{ 'd3.subscriptions.detail.price' | translate }}</th>
+                              <th>{{ 'd3.subscriptions.detail.subscriptionType' | translate }}</th>
+                              <th>{{ 'd3.subscriptions.detail.startDate' | translate }}</th>
+                              <th>{{ 'd3.subscriptions.detail.endDate' | translate }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (svc of account.services; track svc.id) {
+                              <tr>
+                                <td>
+                                  <div class="d-flex align-items-center gap-8">
+                                    <span class="service-mini-icon d-flex align-items-center justify-content-center">
+                                      <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                                    </span>
+                                    <span class="f-s-13 f-w-700">{{ svc.name }}</span>
+                                  </div>
+                                </td>
+                                <td class="text-muted-cell">
+                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.category' | translate }}</span>
+                                  {{ svc.categoryKey | translate }}
+                                </td>
+                                <td class="f-w-700">
+                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.price' | translate }}</span>
+                                  @if (svc.priceValue === null) {
+                                    {{ 'd3.subscriptions.detail.free' | translate }}
+                                  } @else {
+                                    <div class="d-flex align-items-center gap-4">
+                                      <span>{{ fmt(svc.priceValue) }}</span>
+                                      <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+                                    </div>
+                                  }
+                                </td>
+                                <td>
+                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.subscriptionType' | translate }}</span>
+                                  <span class="type-badge">{{ ('d3.subscriptions.period.' + svc.period) | translate }}</span>
+                                </td>
+                                <td class="text-muted-cell">
+                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.startDate' | translate }}</span>
+                                  {{ formatDate(svc.startDate) }}
+                                </td>
+                                <td class="text-muted-cell">
+                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
+                                  {{ formatDate(svc.endDate) }}
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+            @empty {
+              <tr>
+                <td colspan="5" class="p-0">
+                  <app-dashboard-empty titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="pagination-wrapper d-flex align-items-center justify-content-between">
+          <span class="pagination-total">
+            {{ fmt(totalCount) }} {{ 'd3.subscriptions.pagination.total' | translate }}
+          </span>
+          <div class="pagination-controls d-flex align-items-center gap-4">
+            <button class="page-nav-btn"
+              [attr.aria-label]="'d3.subscriptions.pagination.prev' | translate"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="page-ellipsis">...</span>
+              } @else {
+                <button class="page-number-btn"
+                  [class.active]="currentPage === item"
+                  [attr.aria-label]="('d3.subscriptions.pagination.page' | translate) + ' ' + fmt($any(item))"
+                  (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button class="page-nav-btn"
+              [attr.aria-label]="'d3.subscriptions.pagination.next' | translate"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+  }
+
+</div>

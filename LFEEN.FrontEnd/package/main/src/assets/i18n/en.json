@@ -123,6 +123,38 @@
       "userName": "Hassan Maghfouri",
       "userRole": "Chief Executive Officer"
     },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Manage your personal information and account security preferences",
+      "basicInfo": "Basic Information",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "language": "Interface Language",
+      "security": "Security & Password",
+      "securityDesc": "Update your password regularly to keep your account secure",
+      "changePassword": "Change Password",
+      "notifications": "Notification Preferences",
+      "emailNotifTitle": "Email Notifications",
+      "emailNotifDesc": "Receive a daily summary of operations via email",
+      "browserNotifTitle": "Browser Notifications",
+      "browserNotifDesc": "Receive instant alerts when a new booking is made",
+      "changePasswordDialog": {
+        "title": "Change Password",
+        "subtitle": "Enter your details to update your account security",
+        "currentPassword": "Current Password",
+        "currentPasswordPlaceholder": "Enter your current password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "hint": "Make sure to use a strong password with uppercase, lowercase, numbers and special characters",
+        "mismatch": "Passwords do not match",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "success": "Password changed successfully",
+        "error": "Failed to change password"
+      }
+    },
     "sidebar": {
       "brand": "LFEEN",
       "dashboard": "Dashboard",
@@ -133,6 +165,10 @@
       "complaints": "Complaints",
       "customers": "Customers",
       "faq": "FAQ",
+      "subscriptions": "Subscriptions",
+      "subscriptionSettings": "Subscription Settings",
+      "subscriptionManagement": "Subscription Management",
+      "subscriptionLog": "Subscription Log",
       "settings": "Settings",
       "notifications": "Notifications",
       "logout": "Logout"
@@ -1991,6 +2027,274 @@
       },
       "pagination": {
         "total": "account"
+      }
+    },
+    "subscriptions": {
+      "pageTitle": "Subscription Management",
+      "listTitle": "Subscribers Accounts List",
+      "listSubtitle": "Manage active service details and fees for each facility",
+      "searchPlaceholder": "Search for a facility...",
+      "stats": {
+        "annual": "Annual",
+        "annualDesc": "Annual Income",
+        "monthly": "Monthly",
+        "monthlyDesc": "Expected Income",
+        "active": "Currently Active",
+        "activeDesc": "Active Subscriptions",
+        "total": "Total Subscribers",
+        "growth": "growth",
+        "growthBadge": "+{{percent}}% growth"
+      },
+      "classification": {
+        "hotel": "Hotel",
+        "resort": "Resort",
+        "apartments": "Furnished Apartments",
+        "villas": "Villas"
+      },
+      "category": {
+        "communication": "Communication Services",
+        "analytics": "Independence & Wellbeing",
+        "bookings": "Booking Management"
+      },
+      "table": {
+        "facility": "Facility / Classification",
+        "activeServices": "Active Services",
+        "fees": "Fees",
+        "status": "Status",
+        "actions": "Actions",
+        "others": "+{{count}} more",
+        "viewBtn": "View",
+        "editBtn": "Edit",
+        "expandTooltip": "Show details",
+        "collapseTooltip": "Hide details",
+        "moreActions": "More actions"
+      },
+      "period": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "free": "Free"
+      },
+      "status": {
+        "active": "Active",
+        "suspended": "Suspended",
+        "expired": "Expired"
+      },
+      "detail": {
+        "title": "Services & Subscriptions Details",
+        "subtitle": "List of all active services and their due dates for the facility",
+        "serviceName": "Service Name",
+        "category": "Service Type",
+        "price": "Price",
+        "subscriptionType": "Subscription Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "free": "Free"
+      },
+      "empty": {
+        "title": "No subscribers yet",
+        "desc": "No subscriber accounts have been registered yet, or no results match your search."
+      },
+      "pagination": {
+        "total": "subscriber",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page"
+      },
+      "settings": {
+        "pageTitle": "Subscription Settings",
+        "title": "Platform Services & Subscriptions Package",
+        "subtitle": "Enable or disable each service, and adjust its details and prices set in Saudi Riyal",
+        "searchPlaceholder": "Search for a service name...",
+        "configureBtn": "Service settings",
+        "monthlyPrice": "Monthly Price",
+        "annualPrice": "Annual Price",
+        "filters": {
+          "all": "All"
+        },
+        "status": {
+          "enabled": "Enabled",
+          "disabled": "Disabled"
+        },
+        "empty": {
+          "title": "No services found",
+          "desc": "No services match your search or the selected filter."
+        },
+        "services": {
+          "whatsappMuqam": {
+            "name": "WhatsApp for Business (Muqam Platform)",
+            "badge": "Permanent free discount",
+            "desc": "Manage direct communication channels with guests through the unified national platform for hospitality services",
+            "feature1": "Automatic sync of unit data",
+            "feature2": "Compatible with the hospitality portal system"
+          },
+          "rasd": {
+            "name": "Rasd Platform (Field Oversight)",
+            "badge": "3-day free trial",
+            "desc": "A comprehensive platform for field monitoring, quality control, and tracking actual visits to the facility",
+            "feature1": "Periodic inspection and complaint intake",
+            "feature2": "Instant alerts when violations are detected"
+          },
+          "whatsappBusiness": {
+            "name": "WhatsApp for Business",
+            "badge": "14-day free trial",
+            "desc": "Send instant booking notifications and welcome messages, and receive guest requests automatically and interactively",
+            "feature1": "Instant integration via the official account API",
+            "feature2": "Unlimited message and confirmation templates"
+          },
+          "zatca": {
+            "name": "E-Invoicing (ZATCA)",
+            "badge": "6-day free trial",
+            "desc": "Issue simplified tax invoices with a QR code compliant with the Zakat, Tax and Customs Authority",
+            "feature1": "Fully compliant with e-invoicing requirements",
+            "feature2": "Automatic archiving of all issued invoices"
+          },
+          "payments": {
+            "name": "Fast Electronic Payment Gateway",
+            "badge": "No setup fees for the first 30 days",
+            "desc": "Receive payments instantly via mada, Apple Pay, and credit cards with high speed and no delay",
+            "feature1": "High transfer speed and competitive fees",
+            "feature2": "Secured with 3D Secure standards"
+          },
+          "sms": {
+            "name": "Smart SMS Notification Service",
+            "badge": "Welcome credit - 50 messages",
+            "desc": "Send SMS messages to confirm bookings, OTP verification codes, and due invoice alerts",
+            "feature1": "Easily customizable messages",
+            "feature2": "High and reliable delivery rate"
+          }
+        }
+      },
+      "serviceSettings": {
+      "pageTitle": "Service Settings",
+      "backBtn": "Back to services list",
+      "serviceStatusLabel": "Service status",
+      "title": "Settings & customization for {{service}}",
+      "activeNow": "Service currently active",
+      "inactiveNow": "Service currently inactive",
+      "headerDesc": "Customize integration data sources, fee rules by facility classification, free trial terms, and the list of subscribed facilities",
+      "actions": "Actions",
+      "editRow": "Edit",
+      "deleteRow": "Delete",
+      "state": {
+        "title": "Service Status Control",
+        "desc": "Manage the platform's operating status and customize renewal and subscription behavior for all linked facilities.",
+        "currentStatus": "Current status",
+        "stopped": "Permanently stopped",
+        "stoppedDesc": "Fully close the service for all facilities",
+        "renewalStopped": "Renewal stopped",
+        "renewalStoppedDesc": "Prevent auto-renewal of current subscriptions",
+        "suspended": "Temporarily suspended",
+        "suspendedDesc": "Pause the service with the ability to resume",
+        "active": "Fully active",
+        "activeDesc": "The service runs at full capacity for all subscribers",
+        "confirmBtn": "Confirm change",
+        "oneWeek": "One week",
+        "twoWeeks": "Two weeks",
+        "oneMonth": "One month",
+        "durationTitle": "Duration Settings",
+        "durationDesc": "Specify the required period to apply the selected status"
+      },
+      "integration": {
+        "title": "Integration data fields",
+        "desc": "The data and keys required to connect directly with the client to activate each service",
+        "addBtn": "Add new field",
+        "fieldName": "Field name",
+        "dataType": "Data type",
+        "required": "Required",
+        "optional": "Optional",
+        "dataTypePlaceholder": "Text describing the data type...",
+        "fieldNamePlaceholder": "Enter field name..."
+      },
+      "rules": {
+        "title": "Fee rules by account type",
+        "desc": "Adjust the subscription price range based on the standard rate or a custom rate per facility type",
+        "type": "Facility type / classification",
+        "adjustment": "Applied adjustment",
+        "status": "Status",
+        "active": "Active",
+        "disabled": "Disabled",
+        "newTypePlaceholder": "New classification name...",
+        "addBtn": "Add account type",
+        "cancelBtn": "Cancel",
+        "uploadIcon": "Upload icon"
+      },
+      "facilities": {
+        "title": "Facilities currently subscribed to this service",
+        "desc": "List of facilities with this service enabled, their subscription dates, and fees paid",
+        "searchPlaceholder": "Search for a facility...",
+        "facility": "Facility & classification",
+        "plan": "Plan type",
+        "startDate": "Start date",
+        "subscribeDate": "Subscribe date",
+        "amountPaid": "Amount paid",
+        "status": "Status",
+        "planType": {
+          "annualAdvanced": "Annual - advanced",
+          "monthly": "Monthly",
+          "annualTrial": "Annual - trial"
+        },
+        "subscriberStatus": {
+          "active": "Active",
+          "trial": "Trial"
+        },
+        "empty": "No facilities are subscribed to this service yet."
+      },
+      "pricing": {
+        "title": "Default standard pricing for the service",
+        "desc": "Applied when no custom pricing rules exist above",
+        "monthlyLabel": "Standard monthly price (SAR)",
+        "annualLabel": "Standard annual price (SAR)",
+        "vatLabel": "Includes VAT (15%)",
+        "vatDesc": "The tax invoice is issued automatically once the subscription is confirmed"
+      },
+      "trial": {
+        "title": "Free trial period settings",
+        "desc": "Grant new facilities access to test the service before subscription and billing begin",
+        "durationLabel": "Trial period duration (days)",
+        "days": "days",
+        "recommended": "(Recommended)",
+        "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings."
+      },
+      "footerNote": "All edits here are saved at the global service level and affect all subscribed accounts.",
+      "cancelBtn": "Discard changes",
+      "saveBtn": "Save & update settings"
+      }
+    },
+    "subscriptionLog": {
+      "pageTitle": "Subscription Log",
+      "title": "Subscription Activity Log",
+      "subtitle": "Track all operations and actions performed on the facility's subscriptions",
+      "searchPlaceholder": "Search for a facility...",
+      "filters": {
+        "all": "All"
+      },
+      "table": {
+        "refNumber": "Reference No.",
+        "actionType": "Action Type",
+        "service": "Service",
+        "actor": "By",
+        "date": "Date",
+        "status": "Status"
+      },
+      "action": {
+        "renew": "Renewal",
+        "add": "Addition",
+        "cancel": "Cancellation"
+      },
+      "status": {
+        "completed": "Completed",
+        "processing": "Processing",
+        "cancelled": "Cancelled"
+      },
+      "empty": {
+        "title": "No operations yet",
+        "desc": "No subscription operations have been recorded yet, or no results match your search."
+      },
+      "pagination": {
+        "total": "operation",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page"
       }
     },
     "businessCategories": {

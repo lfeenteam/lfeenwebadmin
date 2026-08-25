@@ -101,7 +101,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  text-align: right;
+  text-align: start;
 }
 
 .security-title {
@@ -161,7 +161,7 @@
     font-size: 13px;
     font-weight: 600;
     color: #6B6B67;
-    text-align: right;
+    text-align: start;
   }
 }
 
@@ -170,10 +170,12 @@
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 10px 14px;
+  min-height: 40px;
+  box-sizing: border-box;
   font-size: 14px;
   font-weight: 500;
   color: #111110;
-  text-align: right;
+  text-align: start;
 
   &.phone-val {
     display: flex;
@@ -248,7 +250,7 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  text-align: right;
+  text-align: start;
 }
 
 .notif-title {
