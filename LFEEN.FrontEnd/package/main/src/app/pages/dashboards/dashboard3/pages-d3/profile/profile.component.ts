@@ -5,6 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MaterialModule } from 'src/app/material.module';
 import { MatDialog } from '@angular/material/dialog';
+import { LoginService } from '../../services/login/login.service';
 
 @Component({
   selector: 'app-profile',
@@ -16,12 +17,17 @@ import { MatDialog } from '@angular/material/dialog';
 export class ProfileComponent {
   private translate = inject(TranslateService);
   private dialog = inject(MatDialog);
+  loginService = inject(LoginService);
 
   notifEmail = true;
   notifBrowser = false;
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  get interfaceLanguage(): string {
+    return this.translate.currentLang === 'en' ? 'English' : 'العربية';
   }
 
   async openChangePassword(): Promise<void> {

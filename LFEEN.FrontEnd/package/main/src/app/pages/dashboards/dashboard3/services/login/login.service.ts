@@ -12,6 +12,7 @@ import { environment } from 'src/environments/environment';
 export class LoginService {
   private apiUrl = `${environment.apiBaseUrl}/api/auth/Login`;
   private refreshUrl = `${environment.apiBaseUrl}/api/auth/refresh-token`;
+  private changePasswordUrl = `${environment.apiBaseUrl}/api/auth/change-password`;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';
@@ -60,6 +61,10 @@ export class LoginService {
 
   setToken(response: LoginResponse): void {
     this.handleAuthentication(response);
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(this.changePasswordUrl, { currentPassword, newPassword });
   }
 
   private setRememberMe(value: boolean): void {
@@ -196,6 +201,7 @@ export class LoginService {
       userId: response.userId,
       fullName: response.fullName || (response as any).userName,
       email: response.email,
+      phoneNumber: response.phoneNumber || null,
       roles: response.roles,
     };
     sessionStorage.setItem(this.userKey, JSON.stringify(userData));
