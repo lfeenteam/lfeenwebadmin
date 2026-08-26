@@ -105,7 +105,11 @@ export interface RolePermission {
   permissionGroupName: string;
   code: string;
   name: string;
+  nameAr?: string;
+  nameEn?: string;
   description: string;
+  descriptionAr?: string;
+  descriptionEn?: string;
   action: string;
   createdAt: string;
   updatedAt: string | null;

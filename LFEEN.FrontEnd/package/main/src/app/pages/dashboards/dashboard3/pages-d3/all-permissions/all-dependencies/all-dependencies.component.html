@@ -1,0 +1,136 @@
+<div class="all-deps-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+
+  <!-- Header Card -->
+  <mat-card class="m-b-24 header-card">
+    <mat-card-content class="p-24 d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div class="d-flex align-items-center gap-16">
+        <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+          <i-tabler name="hierarchy-3" class="icon-32"></i-tabler>
+        </div>
+        <div>
+          <h2 class="f-s-20 f-w-900 m-b-4">{{ 'd3.allDependenciesPage.title' | translate }}</h2>
+          <p class="m-0 f-s-13 header-desc">{{ 'd3.allDependenciesPage.description' | translate }}</p>
+        </div>
+      </div>
+      <button mat-stroked-button class="back-btn" [routerLink]="['/', currentLang, 'd3', 'all-permissions']">
+        {{ 'd3.permissionDependenciesPage.backBtn' | translate }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Filters -->
+  <mat-card class="m-b-24 filters-card shadow-none">
+    <mat-card-content class="p-16 d-flex align-items-center gap-16 flex-wrap">
+      <div class="search-wrapper position-relative flex-grow-1">
+        <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+        <input type="text"
+               class="search-input"
+               [placeholder]="'d3.allDependenciesPage.searchPlaceholder' | translate"
+               [(ngModel)]="searchTerm">
+      </div>
+      <mat-select
+        class="filter-select-native"
+        [(ngModel)]="selectedGroupId"
+        disableOptionCentering
+        panelClass="permission-group-select-panel">
+        <mat-option value="">{{ 'd3.allDependenciesPage.allGroups' | translate }}</mat-option>
+        @for (group of groups; track group.id) {
+          <mat-option [value]="group.id">{{ groupDisplayName(group) }}</mat-option>
+        }
+      </mat-select>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height:200px">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else {
+    <mat-card class="shadow-none table-card m-b-24">
+      <mat-card-content class="p-0">
+        <div class="table-responsive">
+          <table class="table deps-table m-0">
+            <thead>
+              <tr>
+                <th class="expand-header"></th>
+                <th>{{ 'd3.allDependenciesPage.table.source' | translate }}</th>
+                <th>{{ 'd3.allDependenciesPage.table.group' | translate }}</th>
+                <th class="text-center">{{ 'd3.allDependenciesPage.table.count' | translate }}</th>
+                <th class="text-center actions-header-wide">{{ 'd3.allDependenciesPage.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (filteredRows.length === 0) {
+                <tr>
+                  <td colspan="5" class="p-24 text-center text-muted">
+                    {{ 'd3.allDependenciesPage.noResults' | translate }}
+                  </td>
+                </tr>
+              } @else {
+                @for (row of filteredRows; track row.id) {
+                  <tr class="source-row">
+                    <td class="p-16 expand-col">
+                      <button mat-icon-button class="tree-toggle" (click)="toggleRow(row.id)"
+                        [matTooltip]="(isRowExpanded(row.id) ? 'd3.permissionDependenciesPage.collapseTooltip' : 'd3.permissionDependenciesPage.expandTooltip') | translate">
+                        <i-tabler [name]="isRowExpanded(row.id) ? 'chevron-up' : 'chevron-down'" class="icon-16"></i-tabler>
+                      </button>
+                    </td>
+                    <td class="p-16">
+                      <span class="f-s-14 f-w-900 d-block">{{ row.name }}</span>
+                      <span class="code-badge">{{ row.code }}</span>
+                    </td>
+                    <td class="p-16">
+                      <span class="dept-badge">{{ row.groupName }}</span>
+                    </td>
+                    <td class="p-16 text-center">
+                      <span class="count-badge">{{ row.directCount }}</span>
+                    </td>
+                    <td class="p-16 text-center actions-col-wide">
+                      <button mat-icon-button class="view-btn"
+                        [routerLink]="['/', currentLang, 'd3', 'all-permissions', row.id, 'dependencies']"
+                        [matTooltip]="'d3.allPermissionsPage.table.dependenciesTooltip' | translate">
+                        <i-tabler name="git-branch" class="icon-18"></i-tabler>
+                      </button>
+                    </td>
+                  </tr>
+
+                  @if (isRowExpanded(row.id)) {
+                    <tr class="tree-row">
+                      <td colspan="5" class="p-0">
+                        <div class="tree-wrapper p-16">
+                          <ng-template #depNode let-node="node" let-depth="depth">
+                            <div class="tree-node-row d-flex align-items-center gap-8" [style.padding-inline-start.px]="depth * 24">
+                              @if (node.children.length) {
+                                <button mat-icon-button class="tree-toggle" (click)="toggleTree(node.id)"
+                                  [matTooltip]="(isTreeExpanded(node.id) ? 'd3.permissionDependenciesPage.collapseTooltip' : 'd3.permissionDependenciesPage.expandTooltip') | translate">
+                                  <i-tabler [name]="isTreeExpanded(node.id) ? 'chevron-up' : 'chevron-down'" class="icon-16"></i-tabler>
+                                </button>
+                              } @else {
+                                <span class="tree-leaf-dot"></span>
+                              }
+                              <span class="code-badge tree-code-badge">{{ node.code }}</span>
+                              <span class="tree-node-name">{{ node.name }}</span>
+                            </div>
+                            @if (node.children.length && isTreeExpanded(node.id)) {
+                              @for (child of node.children; track child.id) {
+                                <ng-container *ngTemplateOutlet="depNode; context: { node: child, depth: depth + 1 }"></ng-container>
+                              }
+                            }
+                          </ng-template>
+
+                          @for (node of row.tree; track node.id) {
+                            <ng-container *ngTemplateOutlet="depNode; context: { node: node, depth: 0 }"></ng-container>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

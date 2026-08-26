@@ -48,8 +48,14 @@ export class AddRoleDialogComponent implements OnInit {
     const lang = this.translate.currentLang || 'ar';
     const r = this.data.role;
     this.roleForm = this.fb.group({
-      nameAr: [r?.nameAr || (lang === 'ar' ? r?.name : '') || '', [Validators.required, Validators.minLength(2)]],
-      nameEn: [r?.nameEn || (lang === 'en' ? r?.name : '') || ''],
+      nameAr: [
+        r?.nameAr || (lang === 'ar' ? r?.name : '') || '',
+        lang === 'ar' ? [Validators.required, Validators.minLength(2)] : []
+      ],
+      nameEn: [
+        r?.nameEn || (lang === 'en' ? r?.name : '') || '',
+        lang === 'en' ? [Validators.required, Validators.minLength(2)] : []
+      ],
       descriptionAr: [r?.descriptionAr || (lang === 'ar' ? r?.description : '') || ''],
       descriptionEn: [r?.descriptionEn || (lang === 'en' ? r?.description : '') || ''],
       isManagerRole: [r?.isManagerRole ?? false]
@@ -98,9 +104,9 @@ export class AddRoleDialogComponent implements OnInit {
     const v = this.roleForm.value;
 
     const payload: RolePayload = {
-      nameAr: v.nameAr,
+      nameAr: v.nameAr || v.nameEn,
       nameEn: v.nameEn || v.nameAr,
-      descriptionAr: v.descriptionAr,
+      descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
       isManagerRole: v.isManagerRole,
       ...(this.data.departmentId ? { departmentId: this.data.departmentId } : {})
@@ -122,7 +128,6 @@ export class AddRoleDialogComponent implements OnInit {
           ...v,
           id: this.data.role?.id || response?.id
         };
-        console.log('Dialog closing with data:', updatedData);
         this.dialogRef.close(updatedData);
       },
       error: (err) => {

@@ -129,8 +129,8 @@
           @for (perm of permissions; track perm.id) {
             <div class="perm-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
               <div class="perm-info">
-                <span class="perm-name d-block">{{ perm.name }}</span>
-                <span class="perm-desc d-block">{{ perm.description }}</span>
+                <span class="perm-name d-block">{{ permDisplayName(perm) }}</span>
+                <span class="perm-desc d-block">{{ permDisplayDescription(perm) }}</span>
               </div>
               <mat-slide-toggle
                 color="primary"

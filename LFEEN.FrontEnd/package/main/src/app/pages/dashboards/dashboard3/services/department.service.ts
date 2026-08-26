@@ -297,6 +297,14 @@ export class DepartmentService {
     );
   }
 
+  getAllPermissionDependencies(): Observable<PermissionDependency[]> {
+    return this.http.get<PermissionDependency[] | { data: PermissionDependency[] }>(
+      `${this.permissionsApiUrl}/dependencies`
+    ).pipe(
+      map(res => Array.isArray(res) ? res : (res?.data ?? []))
+    );
+  }
+
   addPermissionDependency(id: string, requiredPermissionId: string): Observable<PermissionDependency> {
     return this.http.post<PermissionDependency>(`${this.permissionsApiUrl}/${id}/dependencies`, { requiredPermissionId });
   }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { DepartmentService } from '../../services/department.service';
 import { Permission } from '../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { resolveBilingualText } from '../../utils/bilingual.util';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 
@@ -38,7 +39,6 @@ export class AllPermissionsComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private router: Router,
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private dialog: MatDialog,
@@ -59,11 +59,7 @@ export class AllPermissionsComponent implements OnInit, OnDestroy {
   }
 
   displayName(permission: Permission): string {
-    return (this.currentLang === 'ar' ? permission.nameAr : permission.nameEn)
-      ?? permission.name
-      ?? permission.nameAr
-      ?? permission.nameEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, permission.nameAr, permission.nameEn, permission.name);
   }
 
   private loadData(): void {
@@ -116,16 +112,32 @@ export class AllPermissionsComponent implements OnInit, OnDestroy {
     });
   }
 
-  manageDependencies(permission: Permission): void {
-    this.router.navigate([this.currentLang, 'd3', 'all-permissions', permission.id, 'dependencies']);
+  deletePermission(permission: Permission): void {
+    this.deletingId = permission.id;
+    this.departmentService.getAllPermissionDependencies().subscribe({
+      next: (allDependencies) => {
+        this.deletingId = null;
+        const dependents = allDependencies.filter(d => d.requiredPermissionId === permission.id);
+        const message = dependents.length > 0
+          ? this.translate.instant('d3.toast.deletePermissionUsedAsDependencyMessage', {
+              codes: dependents.map(d => d.sourcePermissionCode).join('، ')
+            })
+          : this.translate.instant('d3.toast.deletePermissionMessage');
+        this.confirmDelete(permission, message);
+      },
+      error: () => {
+        this.deletingId = null;
+        this.confirmDelete(permission, this.translate.instant('d3.toast.deletePermissionMessage'));
+      }
+    });
   }
 
-  deletePermission(permission: Permission): void {
+  private confirmDelete(permission: Permission, message: string): void {
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: {
         title: this.translate.instant('d3.toast.deletePermissionTitle'),
-        message: this.translate.instant('d3.toast.deletePermissionMessage')
+        message
       },
       panelClass: 'custom-confirm-dialog'
     });

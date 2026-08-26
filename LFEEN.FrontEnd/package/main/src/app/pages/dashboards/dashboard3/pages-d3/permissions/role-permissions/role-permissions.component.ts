@@ -13,6 +13,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { forkJoin, Subscription } from 'rxjs';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
+import { resolveBilingualText } from '../../../utils/bilingual.util';
+import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
 
 @Component({
   selector: 'app-role-permissions',
@@ -74,23 +76,15 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
       next: ({ dept, role, permissions }) => {
         this.hasDepartmentContext = !!dept;
         if (dept) {
-          this.deptName = dept.name
-            ?? (this.currentLang === 'ar' ? dept.nameAr : dept.nameEn)
-            ?? dept.nameAr
-            ?? dept.nameEn
-            ?? '';
+          this.deptName = resolveBilingualText(this.currentLang, dept.nameAr, dept.nameEn, dept.name);
           this.managers = dept.managers?.length
             ? dept.managers
             : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
           this.employeeCount = dept.employeeCount;
         } else {
-          this.deptName = (this.currentLang === 'ar' ? role.departmentNameAr : role.departmentNameEn) ?? role.departmentName ?? '';
+          this.deptName = resolveBilingualText(this.currentLang, role.departmentNameAr, role.departmentNameEn, role.departmentName);
         }
-        this.roleName = role.name
-          ?? (this.currentLang === 'ar' ? role.nameAr : role.nameEn)
-          ?? role.nameAr
-          ?? role.nameEn
-          ?? '';
+        this.roleName = resolveBilingualText(this.currentLang, role.nameAr, role.nameEn, role.name);
         this.permissions = permissions;
         this.isLoading = false;
         this.pageTitleOverride.set(this.roleName);
@@ -109,8 +103,9 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
       // Immediately revert the toggle to ON, wait for confirm
       event.source.checked = true;
 
+      const getImpliedIds = (id: string) => this.permissions.find(p => p.id === id)?.impliedPermissionIds;
       const dependents = this.permissions.filter(
-        p => p.id !== perm.id && (p.impliedPermissionIds ?? []).includes(perm.id)
+        p => p.id !== perm.id && resolveTransitiveImpliedIds(p.id, getImpliedIds).has(perm.id)
       );
       if (dependents.length > 0) {
         this.toastr.warning(

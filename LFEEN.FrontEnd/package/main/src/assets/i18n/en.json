@@ -203,6 +203,7 @@
       "deletePermissionGroupSuccess": "Permission group deleted successfully",
       "deletePermissionGroupTitle": "Delete this permission group?",
       "deletePermissionGroupMessage": "This action cannot be undone and the permission group will be permanently deleted from the system.",
+      "deletePermissionGroupContainsPermissionsMessage": "Warning: this group contains {{count}} permission(s). Deleting the group may affect them. Continue?",
       "deletePermissionGroupInUseError": "This group cannot be deleted because it still contains permissions",
       "loadPermissionGroupsError": "Error loading permission groups",
       "addPermissionSuccess": "Permission added successfully",
@@ -210,6 +211,7 @@
       "deletePermissionSuccess": "Permission deleted successfully",
       "deletePermissionTitle": "Delete this permission?",
       "deletePermissionMessage": "This action cannot be undone and may affect roles or other permissions that depend on it.",
+      "deletePermissionUsedAsDependencyMessage": "Warning: this permission is used as a dependency by the following permissions: {{codes}}. Deleting it will remove that link from them. Continue?",
       "deletePermissionInUseError": "This permission cannot be deleted because it is used as a dependency or assigned to a role",
       "loadPermissionsError": "Error loading permissions",
       "addDependencySuccess": "Dependency added successfully",
@@ -879,7 +881,28 @@
       "noDependencies": "This permission doesn't currently depend on any other permission",
       "removeTooltip": "Remove",
       "selectPlaceholder": "Select a permission to add as a dependency",
-      "addBtn": "Add Dependency"
+      "addBtn": "Add Dependency",
+      "fullChainCount": "{{count}} permission(s) in the full dependency chain",
+      "noChain": "No indirect (multi-level) dependencies for this permission",
+      "dependentsCount": "{{count}} permission(s) depend on this",
+      "noDependents": "No other permission depends on this one — safe to delete",
+      "dependentsWarning": "Warning: deleting this permission will affect the following permissions, since they depend on it directly or indirectly",
+      "collapseTooltip": "Collapse",
+      "expandTooltip": "Expand"
+    },
+    "allDependenciesPage": {
+      "title": "All Permission Dependencies",
+      "viewAllBtn": "View All Dependencies",
+      "description": "All dependency relationships between permissions in the system, in one place.",
+      "searchPlaceholder": "Search by permission code or name",
+      "allGroups": "All Groups",
+      "noResults": "No matching dependency relationships",
+      "table": {
+        "source": "Permission",
+        "group": "Group",
+        "count": "Direct Dependencies",
+        "actions": "Actions"
+      }
     },
     "permissions": {
       "pageTitle": "Department Permissions",

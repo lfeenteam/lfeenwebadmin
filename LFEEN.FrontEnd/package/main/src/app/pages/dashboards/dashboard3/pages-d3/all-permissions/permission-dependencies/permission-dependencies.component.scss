@@ -105,10 +105,24 @@
         color: #9E9E9A;
         width: 36px !important;
         height: 36px !important;
+        padding: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         border-radius: 8px !important;
+
+        ::ng-deep .mat-mdc-button-persistent-ripple,
+        ::ng-deep .mat-mdc-focus-indicator,
+        ::ng-deep .mat-ripple {
+          display: none !important;
+        }
+
+        ::ng-deep span {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 100% !important;
+        }
 
         &:hover {
           color: #e53935;
@@ -170,6 +184,78 @@
       ::ng-deep .mat-mdc-select-arrow {
         color: #6B6B67;
       }
+    }
+
+    // ── Full dependency chain (tree) ─────────
+    .tree-wrapper {
+      .tree-node-row {
+        padding: 6px 8px;
+        border-radius: 8px;
+        transition: background 0.15s;
+
+        &:hover { background: #FCFCFB; }
+      }
+
+      .tree-toggle {
+        width: 28px !important;
+        height: 28px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #6B6B67;
+        flex-shrink: 0;
+
+        ::ng-deep .mat-mdc-button-persistent-ripple,
+        ::ng-deep .mat-mdc-focus-indicator,
+        ::ng-deep .mat-ripple {
+          display: none !important;
+        }
+
+        ::ng-deep span {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 100% !important;
+        }
+      }
+
+      .tree-leaf-dot {
+        display: inline-block;
+        width: 28px;
+        flex-shrink: 0;
+      }
+
+      .tree-code-badge {
+        flex-shrink: 0;
+      }
+
+      .tree-node-name {
+        font-weight: 700;
+        font-size: 13px;
+        color: #111110;
+      }
+    }
+
+    // ── Reverse dependents (cascade warning) ──
+    .dependents-warning {
+      background: #FFF8E6;
+      border: 1px solid #F5D98A;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #7A5A00;
+
+      i-tabler {
+        color: #C99A00;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+    }
+
+    .dependent-row {
+      .dep-name { color: #111110; }
     }
 
     .add-dep-btn {

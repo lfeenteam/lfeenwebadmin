@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { DepartmentService } from '../../services/department.service';
 import { PermissionGroup } from '../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { resolveBilingualText } from '../../utils/bilingual.util';
 import { AddPermissionGroupDialogComponent } from './components/add-permission-group-dialog/add-permission-group-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 
@@ -58,19 +59,11 @@ export class PermissionGroupsComponent implements OnInit, OnDestroy {
   }
 
   displayName(group: PermissionGroup): string {
-    return (this.currentLang === 'ar' ? group.nameAr : group.nameEn)
-      ?? group.name
-      ?? group.nameAr
-      ?? group.nameEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, group.nameAr, group.nameEn, group.name);
   }
 
   displayDescription(group: PermissionGroup): string {
-    return (this.currentLang === 'ar' ? group.descriptionAr : group.descriptionEn)
-      ?? group.description
-      ?? group.descriptionAr
-      ?? group.descriptionEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, group.descriptionAr, group.descriptionEn, group.description);
   }
 
   private loadData(): void {
@@ -124,11 +117,29 @@ export class PermissionGroupsComponent implements OnInit, OnDestroy {
   }
 
   deleteGroup(group: PermissionGroup): void {
+    this.deletingId = group.id;
+    this.departmentService.getAllPermissionsForDropdown().subscribe({
+      next: (allPermissions) => {
+        this.deletingId = null;
+        const containedCount = allPermissions.filter(p => p.permissionGroupId === group.id).length;
+        const message = containedCount > 0
+          ? this.translate.instant('d3.toast.deletePermissionGroupContainsPermissionsMessage', { count: containedCount })
+          : this.translate.instant('d3.toast.deletePermissionGroupMessage');
+        this.confirmDeleteGroup(group, message);
+      },
+      error: () => {
+        this.deletingId = null;
+        this.confirmDeleteGroup(group, this.translate.instant('d3.toast.deletePermissionGroupMessage'));
+      }
+    });
+  }
+
+  private confirmDeleteGroup(group: PermissionGroup, message: string): void {
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: {
         title: this.translate.instant('d3.toast.deletePermissionGroupTitle'),
-        message: this.translate.instant('d3.toast.deletePermissionGroupMessage')
+        message
       },
       panelClass: 'custom-confirm-dialog'
     });

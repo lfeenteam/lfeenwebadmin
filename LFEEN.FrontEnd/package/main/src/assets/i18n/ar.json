@@ -206,6 +206,7 @@
       "deletePermissionGroupSuccess": "تم حذف مجموعة الصلاحيات بنجاح",
       "deletePermissionGroupTitle": "هل أنت متأكد من حذف هذه المجموعة؟",
       "deletePermissionGroupMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم حذف مجموعة الصلاحيات نهائياً من النظام.",
+      "deletePermissionGroupContainsPermissionsMessage": "تحذير: هذه المجموعة تحتوي على {{count}} صلاحية. حذف المجموعة قد يؤثر على هذه الصلاحيات. هل تريد المتابعة؟",
       "deletePermissionGroupInUseError": "لا يمكن حذف هذه المجموعة لأنها لا تزال تحتوي على صلاحيات مرتبطة بها",
       "loadPermissionGroupsError": "حدث خطأ أثناء تحميل مجموعات الصلاحيات",
       "addPermissionSuccess": "تم إضافة الصلاحية بنجاح",
@@ -213,6 +214,7 @@
       "deletePermissionSuccess": "تم حذف الصلاحية بنجاح",
       "deletePermissionTitle": "هل أنت متأكد من حذف هذه الصلاحية؟",
       "deletePermissionMessage": "لا يمكن التراجع عن هذا الإجراء، وقد يؤثر حذفها على الأدوار أو الصلاحيات الأخرى التي تعتمد عليها.",
+      "deletePermissionUsedAsDependencyMessage": "تحذير: هذه الصلاحية مستخدمة كاعتمادية للصلاحيات التالية: {{codes}}. حذفها سيزيل هذا الارتباط منها. هل تريد المتابعة؟",
       "deletePermissionInUseError": "لا يمكن حذف هذه الصلاحية لأنها مستخدمة كاعتمادية أو معيّنة لدور",
       "loadPermissionsError": "حدث خطأ أثناء تحميل الصلاحيات",
       "addDependencySuccess": "تم إضافة الاعتمادية بنجاح",
@@ -881,7 +883,28 @@
       "noDependencies": "هذه الصلاحية لا تعتمد على أي صلاحية أخرى حالياً",
       "removeTooltip": "إزالة",
       "selectPlaceholder": "اختر صلاحية لإضافتها كاعتمادية",
-      "addBtn": "إضافة اعتمادية"
+      "addBtn": "إضافة اعتمادية",
+      "fullChainCount": "{{count}} صلاحية ضمن السلسلة الكاملة للاعتماديات",
+      "noChain": "لا توجد اعتماديات غير مباشرة (متعددة المستويات) لهذه الصلاحية",
+      "dependentsCount": "{{count}} صلاحية تعتمد على هذه الصلاحية",
+      "noDependents": "لا توجد صلاحية أخرى تعتمد على هذه الصلاحية — يمكن حذفها بأمان",
+      "dependentsWarning": "تنبيه: حذف هذه الصلاحية سيؤثر على الصلاحيات التالية لأنها تعتمد عليها بشكل مباشر أو غير مباشر",
+      "collapseTooltip": "طي",
+      "expandTooltip": "توسيع"
+    },
+    "allDependenciesPage": {
+      "title": "كل اعتماديات الصلاحيات",
+      "viewAllBtn": "عرض كل الاعتماديات",
+      "description": "كل علاقات الاعتماد بين الصلاحيات في النظام في مكان واحد.",
+      "searchPlaceholder": "ابحث بكود أو اسم الصلاحية",
+      "allGroups": "كل المجموعات",
+      "noResults": "لا توجد علاقات اعتماد مطابقة",
+      "table": {
+        "source": "الصلاحية",
+        "group": "المجموعة",
+        "count": "عدد الاعتماديات المباشرة",
+        "actions": "الإجراءات"
+      }
     },
     "permissions": {
       "pageTitle": "صلاحيات القسم",
