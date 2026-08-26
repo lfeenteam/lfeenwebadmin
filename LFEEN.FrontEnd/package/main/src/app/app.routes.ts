@@ -492,6 +492,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'all-permissions-dependencies',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-permissions/all-dependencies/all-dependencies.component'
+                  ).then((m) => m.AllDependenciesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.allDependenciesPage.title',
+                  breadcrumbKey: 'd3.allPermissionsPage.title',
+                  breadcrumbRoute: 'all-permissions',
+                  showBack: true
+                },
+              },
+              {
                 path: 'all-permissions/:id/dependencies',
                 canActivate: [authGuard],
                 loadComponent: () =>

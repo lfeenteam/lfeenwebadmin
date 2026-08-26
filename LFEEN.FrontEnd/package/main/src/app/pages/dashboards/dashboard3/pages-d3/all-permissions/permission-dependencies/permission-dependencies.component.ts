@@ -12,6 +12,20 @@ import { DepartmentService } from '../../../services/department.service';
 import { Permission, PermissionDependency } from '../../../interfaces/department.model';
 import { DeleteConfirmDialogComponent } from '../../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
+import { resolveBilingualText } from '../../../utils/bilingual.util';
+
+interface DependencyTreeNode {
+  id: string;
+  code: string;
+  name: string;
+  children: DependencyTreeNode[];
+}
+
+interface ReverseDependent {
+  id: string;
+  code: string;
+  name: string;
+}
 
 @Component({
   selector: 'app-permission-dependencies',
@@ -30,6 +44,12 @@ export class PermissionDependenciesComponent implements OnInit {
   sourcePermission: Permission | null = null;
   dependencies: PermissionDependency[] = [];
   allPermissions: Permission[] = [];
+  allDependencies: PermissionDependency[] = [];
+
+  dependencyTree: DependencyTreeNode[] = [];
+  reverseDependents: ReverseDependent[] = [];
+  private expandedIds = new Set<string>();
+  private childrenByPermission = new Map<string, PermissionDependency[]>();
 
   selectedRequiredId = '';
 
@@ -49,24 +69,40 @@ export class PermissionDependenciesComponent implements OnInit {
 
   get sourcePermissionName(): string {
     if (!this.sourcePermission) return '';
-    return (this.currentLang === 'ar' ? this.sourcePermission.nameAr : this.sourcePermission.nameEn)
-      ?? this.sourcePermission.name
-      ?? this.sourcePermission.nameAr
-      ?? this.sourcePermission.nameEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, this.sourcePermission.nameAr, this.sourcePermission.nameEn, this.sourcePermission.name);
   }
 
   get candidatePermissions(): Permission[] {
     const requiredIds = new Set(this.dependencies.map(d => d.requiredPermissionId));
-    return this.allPermissions.filter(p => p.id !== this.permissionId && !requiredIds.has(p.id));
+    return this.allPermissions.filter(p =>
+      p.id !== this.permissionId && !requiredIds.has(p.id) && !this.wouldCreateCycle(p.id)
+    );
+  }
+
+  private wouldCreateCycle(candidateId: string): boolean {
+    if (!this.permissionId) return false;
+
+    const visited = new Set<string>([candidateId]);
+    let queue = [candidateId];
+
+    while (queue.length) {
+      const next: string[] = [];
+      for (const id of queue) {
+        for (const dep of this.childrenByPermission.get(id) ?? []) {
+          if (dep.requiredPermissionId === this.permissionId) return true;
+          if (visited.has(dep.requiredPermissionId)) continue;
+          visited.add(dep.requiredPermissionId);
+          next.push(dep.requiredPermissionId);
+        }
+      }
+      queue = next;
+    }
+
+    return false;
   }
 
   displayName(permission: Permission): string {
-    return (this.currentLang === 'ar' ? permission.nameAr : permission.nameEn)
-      ?? permission.name
-      ?? permission.nameAr
-      ?? permission.nameEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, permission.nameAr, permission.nameEn, permission.name);
   }
 
   ngOnInit(): void {
@@ -79,16 +115,101 @@ export class PermissionDependenciesComponent implements OnInit {
     forkJoin({
       permission: this.departmentService.getPermissionById(this.permissionId),
       dependencies: this.departmentService.getPermissionDependencies(this.permissionId),
-      allPermissions: this.departmentService.getAllPermissionsForDropdown()
+      allPermissions: this.departmentService.getAllPermissionsForDropdown(),
+      allDependencies: this.departmentService.getAllPermissionDependencies()
     }).subscribe({
-      next: ({ permission, dependencies, allPermissions }) => {
+      next: ({ permission, dependencies, allPermissions, allDependencies }) => {
         this.sourcePermission = permission;
         this.dependencies = dependencies;
         this.allPermissions = allPermissions;
+        this.allDependencies = allDependencies;
+        this.buildDependencyTree();
+        this.buildReverseDependents();
         this.isLoading = false;
       },
       error: () => { this.isLoading = false; }
     });
+  }
+
+  private permissionName(id: string, fallbackCode: string, fallbackName?: string): string {
+    const perm = this.allPermissions.find(p => p.id === id);
+    return resolveBilingualText(this.currentLang, perm?.nameAr, perm?.nameEn, perm?.name ?? fallbackName) || fallbackCode;
+  }
+
+  private buildDependencyTree(): void {
+    this.childrenByPermission = new Map<string, PermissionDependency[]>();
+    for (const dep of this.allDependencies) {
+      const list = this.childrenByPermission.get(dep.sourcePermissionId) ?? [];
+      list.push(dep);
+      this.childrenByPermission.set(dep.sourcePermissionId, list);
+    }
+
+    if (!this.permissionId) { this.dependencyTree = []; return; }
+
+    this.expandedIds = new Set<string>();
+
+    const build = (id: string, ancestors: Set<string>): DependencyTreeNode[] => {
+      const deps = this.childrenByPermission.get(id) ?? [];
+      return deps.map(dep => {
+        const childId = dep.requiredPermissionId;
+        this.expandedIds.add(childId);
+        const isCycle = ancestors.has(childId);
+        return {
+          id: childId,
+          code: dep.requiredPermissionCode,
+          name: this.permissionName(childId, dep.requiredPermissionCode, dep.requiredPermissionName),
+          children: isCycle ? [] : build(childId, new Set(ancestors).add(childId))
+        };
+      });
+    };
+
+    this.dependencyTree = build(this.permissionId, new Set([this.permissionId]));
+  }
+
+  private buildReverseDependents(): void {
+    if (!this.permissionId) { this.reverseDependents = []; return; }
+
+    const parentsByPermission = new Map<string, PermissionDependency[]>();
+    for (const dep of this.allDependencies) {
+      const list = parentsByPermission.get(dep.requiredPermissionId) ?? [];
+      list.push(dep);
+      parentsByPermission.set(dep.requiredPermissionId, list);
+    }
+
+    const result: ReverseDependent[] = [];
+    const visited = new Set<string>([this.permissionId]);
+    let queue = [this.permissionId];
+
+    while (queue.length) {
+      const next: string[] = [];
+      for (const id of queue) {
+        for (const dep of parentsByPermission.get(id) ?? []) {
+          if (visited.has(dep.sourcePermissionId)) continue;
+          visited.add(dep.sourcePermissionId);
+          result.push({
+            id: dep.sourcePermissionId,
+            code: dep.sourcePermissionCode,
+            name: this.permissionName(dep.sourcePermissionId, dep.sourcePermissionCode, dep.sourcePermissionName)
+          });
+          next.push(dep.sourcePermissionId);
+        }
+      }
+      queue = next;
+    }
+
+    this.reverseDependents = result;
+  }
+
+  isExpanded(id: string): boolean {
+    return this.expandedIds.has(id);
+  }
+
+  toggleExpand(id: string): void {
+    if (this.expandedIds.has(id)) {
+      this.expandedIds.delete(id);
+    } else {
+      this.expandedIds.add(id);
+    }
   }
 
   addDependency(): void {
@@ -124,6 +245,11 @@ export class PermissionDependenciesComponent implements OnInit {
       this.departmentService.removePermissionDependency(this.permissionId, dependency.requiredPermissionId).subscribe({
         next: () => {
           this.dependencies = this.dependencies.filter(d => d.requiredPermissionId !== dependency.requiredPermissionId);
+          this.allDependencies = this.allDependencies.filter(d =>
+            !(d.sourcePermissionId === this.permissionId && d.requiredPermissionId === dependency.requiredPermissionId)
+          );
+          this.buildDependencyTree();
+          this.buildReverseDependents();
           this.removingId = null;
           this.toastr.success(this.translate.instant('d3.toast.removeDependencySuccess'));
         },

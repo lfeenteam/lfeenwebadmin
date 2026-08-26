@@ -14,12 +14,17 @@
 
       <div class="header-actions">
         <div class="filter-wrapper">
-          <select class="dept-filter-select" [(ngModel)]="selectedDeptFilter" (ngModelChange)="applyFilter()">
-            <option value="">{{ 'd3.rolesPage.allDepartments' | translate }}</option>
+          <mat-select
+            class="dept-filter-select"
+            [(ngModel)]="selectedDeptFilter"
+            (ngModelChange)="applyFilter()"
+            disableOptionCentering
+            panelClass="permission-group-select-panel">
+            <mat-option value="">{{ 'd3.rolesPage.allDepartments' | translate }}</mat-option>
             @for (dept of departments; track dept.id) {
-              <option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</option>
+              <mat-option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</mat-option>
             }
-          </select>
+          </mat-select>
         </div>
 
         <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">

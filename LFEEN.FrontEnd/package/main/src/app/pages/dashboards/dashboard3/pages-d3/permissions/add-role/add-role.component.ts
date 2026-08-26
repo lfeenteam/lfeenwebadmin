@@ -11,6 +11,8 @@ import { switchMap } from 'rxjs/operators';
 import { DepartmentService } from '../../../services/department.service';
 import { Department, RolePayload, RolePermission } from '../../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
+import { resolveBilingualText } from '../../../utils/bilingual.util';
+import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 
 interface PermissionRow extends RolePermission {
@@ -61,7 +63,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       descriptionAr: [''],
       descriptionEn: [''],
       isManagerRole: [false],
-      departmentId: ['']
+      departmentId: ['', this.deptId ? [] : [Validators.required]]
     });
   }
 
@@ -133,18 +135,15 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   }
 
   private impliedIdsOf(permId: string): Set<string> {
-    const result = new Set<string>();
-    const queue = [permId];
-    while (queue.length) {
-      const current = this.permissions.find(p => p.id === queue.shift());
-      for (const impliedId of current?.impliedPermissionIds ?? []) {
-        if (!result.has(impliedId)) {
-          result.add(impliedId);
-          queue.push(impliedId);
-        }
-      }
-    }
-    return result;
+    return resolveTransitiveImpliedIds(permId, id => this.permissions.find(p => p.id === id)?.impliedPermissionIds);
+  }
+
+  permDisplayName(perm: PermissionRow): string {
+    return resolveBilingualText(this.currentLang, perm.nameAr, perm.nameEn, perm.name);
+  }
+
+  permDisplayDescription(perm: PermissionRow): string {
+    return resolveBilingualText(this.currentLang, perm.descriptionAr, perm.descriptionEn, perm.description);
   }
 
   togglePermission(perm: PermissionRow, checked: boolean): void {
@@ -163,7 +162,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
     if (dependents.length > 0) {
       this.toastr.warning(
         this.translate.instant('d3.addRolePage.dependencyBlocked', {
-          names: dependents.map(d => d.name).join('، ')
+          names: dependents.map(d => this.permDisplayName(d)).join('، ')
         })
       );
       return;

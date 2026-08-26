@@ -12,12 +12,20 @@
         </div>
       </div>
 
-      <button mat-flat-button class="add-perm-btn" (click)="openAddPermission()">
-        <div class="d-flex align-items-center justify-content-center gap-8">
-          <i-tabler name="plus" class="icon-18"></i-tabler>
-          {{ 'd3.allPermissionsPage.addPermissionBtn' | translate }}
-        </div>
-      </button>
+      <div class="d-flex align-items-center gap-12 flex-wrap">
+        <button mat-stroked-button class="view-deps-btn" [routerLink]="['/', currentLang, 'd3', 'all-permissions-dependencies']">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            <i-tabler name="hierarchy-3" class="icon-18"></i-tabler>
+            {{ 'd3.allDependenciesPage.viewAllBtn' | translate }}
+          </div>
+        </button>
+        <button mat-flat-button class="add-perm-btn" (click)="openAddPermission()">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            <i-tabler name="plus" class="icon-18"></i-tabler>
+            {{ 'd3.allPermissionsPage.addPermissionBtn' | translate }}
+          </div>
+        </button>
+      </div>
     </mat-card-content>
   </mat-card>
 

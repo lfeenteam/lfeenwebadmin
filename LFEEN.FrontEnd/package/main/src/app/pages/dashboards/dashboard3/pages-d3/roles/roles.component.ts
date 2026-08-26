@@ -13,6 +13,7 @@ import { Department, DepartmentRole } from '../../interfaces/department.model';
 import { AddRoleDialogComponent } from '../permissions/components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { resolveBilingualText } from '../../utils/bilingual.util';
 
 interface RoleRow {
   id: string;
@@ -107,11 +108,11 @@ export class RolesComponent implements OnInit, OnDestroy {
   private toRow(role: DepartmentRole): RoleRow {
     return {
       id: role.id,
-      name: (this.currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name ?? '',
-      description: (this.currentLang === 'ar' ? role.descriptionAr : role.descriptionEn) ?? role.description ?? '',
+      name: resolveBilingualText(this.currentLang, role.nameAr, role.nameEn, role.name),
+      description: resolveBilingualText(this.currentLang, role.descriptionAr, role.descriptionEn, role.description),
       departmentId: role.departmentId,
       departmentName: role.departmentId
-        ? ((this.currentLang === 'ar' ? role.departmentNameAr : role.departmentNameEn) ?? role.departmentName ?? '')
+        ? resolveBilingualText(this.currentLang, role.departmentNameAr, role.departmentNameEn, role.departmentName)
         : '',
       isManagerRole: role.isManagerRole,
       raw: role

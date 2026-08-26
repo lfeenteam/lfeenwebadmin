@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest, forkJoin, of } from 'rxjs';
+import { catchError, startWith, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -13,6 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
+import { resolveBilingualText } from '../../utils/bilingual.util';
 
 interface RoleRow {
   id: string;
@@ -31,8 +33,7 @@ interface RoleRow {
   styleUrl: './permissions.component.scss'
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
-  private langSub!: Subscription;
-  private routeSub!: Subscription;
+  private dataSub!: Subscription;
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -60,61 +61,68 @@ export class PermissionsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.langSub = this.translate.onLangChange.subscribe(() => {
-      if (this.deptId) {
-        this.loadDepartment(this.deptId);
-        this.loadRoles(this.deptId);
-      }
-    });
+    this.dataSub = combineLatest([
+      this.route.paramMap,
+      this.translate.onLangChange.pipe(startWith(null))
+    ]).pipe(
+      switchMap(([params]) => {
+        this.deptId = params.get('id');
+        if (!this.deptId) return of(null);
 
-    this.routeSub = this.route.paramMap.subscribe(params => {
-      this.deptId = params.get('id');
-      if (this.deptId) {
-        this.loadDepartment(this.deptId);
-        this.loadRoles(this.deptId);
-      }
-    });
-  }
+        this.isLoading = true;
+        const id = this.deptId;
+        return forkJoin({
+          department: this.departmentService.getDepartmentById(id).pipe(
+            catchError(err => { console.error('Error loading department', err); return of(null); })
+          ),
+          roles: this.departmentService.getDepartmentRoles(id).pipe(
+            catchError(err => { console.error('Error loading roles', err); return of(null); })
+          )
+        });
+      })
+    ).subscribe(result => {
+      if (!result) { this.isLoading = false; return; }
 
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.routeSub?.unsubscribe();
-    this.pageTitleOverride.clear();
-  }
-
-  private loadDepartment(id: string): void {
-    this.departmentService.getDepartmentById(id).subscribe({
-      next: (dept) => {
-        this.deptName = dept.nameAr ?? dept.name ?? '';
-        this.deptEnglishName = dept.nameEn ?? dept.name ?? '';
+      if (result.department) {
+        const dept = result.department;
+        this.deptName = resolveBilingualText('ar', dept.nameAr, dept.nameEn, dept.name);
+        this.deptEnglishName = resolveBilingualText('en', dept.nameAr, dept.nameEn, dept.name);
         this.managers = dept.managers?.length
           ? dept.managers
           : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
         this.employeeCount = dept.employeeCount;
         this.pageTitleOverride.set(this.currentLang === 'ar' ? this.deptName : this.deptEnglishName);
-      },
-      error: (err) => console.error('Error loading department', err)
+      }
+
+      if (result.roles) {
+        this.roles = result.roles.map(role => this.mapRoleRow(role));
+      }
+
+      this.isLoading = false;
     });
   }
 
-  private loadRoles(id: string): void {
-    this.isLoading = true;
-    this.departmentService.getDepartmentRoles(id).subscribe({
-      next: (roles) => {
-        this.roles = roles.map(role => ({
-          id: role.id,
-          name: (this.currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name ?? '',
-          description: (this.currentLang === 'ar' ? role.descriptionAr : role.descriptionEn) ?? role.description ?? '',
-          icon: 'user-circle',
-          isManagerRole: role.isManagerRole,
-          raw: role
-        }));
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading roles', err);
-        this.isLoading = false;
-      }
+  ngOnDestroy(): void {
+    this.dataSub?.unsubscribe();
+    this.pageTitleOverride.clear();
+  }
+
+  private mapRoleRow(role: DepartmentRole): RoleRow {
+    return {
+      id: role.id,
+      name: resolveBilingualText(this.currentLang, role.nameAr, role.nameEn, role.name),
+      description: resolveBilingualText(this.currentLang, role.descriptionAr, role.descriptionEn, role.description),
+      icon: 'user-circle',
+      isManagerRole: role.isManagerRole,
+      raw: role
+    };
+  }
+
+  private refreshRoles(): void {
+    if (!this.deptId) return;
+    this.departmentService.getDepartmentRoles(this.deptId).subscribe({
+      next: (roles) => { this.roles = roles.map(role => this.mapRoleRow(role)); },
+      error: (err) => console.error('Error loading roles', err)
     });
   }
 
@@ -137,14 +145,9 @@ editRole(role: RoleRow): void {
   });
   ref.afterClosed().subscribe(result => {
     if (result) {
-      console.log('Edit result:', result);
-      
       const roleIndex = this.roles.findIndex(r => r.id === role.id);
       if (roleIndex !== -1) {
-        this.roles[roleIndex].name = (this.currentLang === 'ar' ? result.nameAr : result.nameEn) ?? result.name ?? '';
-        this.roles[roleIndex].description = (this.currentLang === 'ar' ? result.descriptionAr : result.descriptionEn) ?? result.description ?? '';
-        this.roles[roleIndex].isManagerRole = result.isManagerRole ?? false;
-        this.roles[roleIndex].raw = result;
+        this.roles[roleIndex] = this.mapRoleRow({ ...role.raw, ...result });
       }
     }
   });
@@ -179,7 +182,7 @@ editRole(role: RoleRow): void {
           this.toastr.success(
             this.translate.instant('d3.toast.deleteRoleSuccess')
           );
-          if (this.deptId) this.loadRoles(this.deptId);
+          this.refreshRoles();
         },
         error: () => {
           this.deletingId = null;

@@ -21,7 +21,7 @@
             </div>
           </div>
         </div>
-        <button mat-stroked-button class="back-btn" [routerLink]="[currentLang, 'd3', 'all-permissions']">
+        <button mat-stroked-button class="back-btn" [routerLink]="['/', currentLang, 'd3', 'all-permissions']">
           {{ 'd3.permissionDependenciesPage.backBtn' | translate }}
         </button>
       </mat-card-content>
@@ -86,6 +86,86 @@
             <span>{{ 'd3.permissionDependenciesPage.addBtn' | translate }}</span>
           </button>
         </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Full Dependency Chain (multi-level, resolved) -->
+    <mat-card class="shadow-none deps-card m-b-24">
+      <mat-card-content class="p-0">
+
+        <div class="card-header-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
+          <span class="active-count">{{ 'd3.permissionDependenciesPage.fullChainCount' | translate: { count: dependencyTree.length } }}</span>
+        </div>
+
+        <div class="deps-divider"></div>
+
+        @if (dependencyTree.length === 0) {
+          <div class="empty-state text-center p-40">
+            <i-tabler name="sitemap" class="icon-40 m-b-12 text-muted"></i-tabler>
+            <p class="f-s-14 m-0 text-muted">{{ 'd3.permissionDependenciesPage.noChain' | translate }}</p>
+          </div>
+        } @else {
+          <div class="tree-wrapper p-16">
+            <ng-template #depNode let-node="node" let-depth="depth">
+              <div class="tree-node-row d-flex align-items-center gap-8" [style.padding-inline-start.px]="depth * 24">
+                @if (node.children.length) {
+                  <button mat-icon-button class="tree-toggle" (click)="toggleExpand(node.id)"
+                    [matTooltip]="(isExpanded(node.id) ? 'd3.permissionDependenciesPage.collapseTooltip' : 'd3.permissionDependenciesPage.expandTooltip') | translate">
+                    <i-tabler [name]="isExpanded(node.id) ? 'chevron-up' : 'chevron-down'" class="icon-16"></i-tabler>
+                  </button>
+                } @else {
+                  <span class="tree-leaf-dot"></span>
+                }
+                <span class="code-badge tree-code-badge">{{ node.code }}</span>
+                <span class="tree-node-name">{{ node.name }}</span>
+              </div>
+              @if (node.children.length && isExpanded(node.id)) {
+                @for (child of node.children; track child.id) {
+                  <ng-container *ngTemplateOutlet="depNode; context: { node: child, depth: depth + 1 }"></ng-container>
+                }
+              }
+            </ng-template>
+
+            @for (node of dependencyTree; track node.id) {
+              <ng-container *ngTemplateOutlet="depNode; context: { node: node, depth: 0 }"></ng-container>
+            }
+          </div>
+        }
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Reverse Dependents (what breaks if this permission is removed) -->
+    <mat-card class="shadow-none deps-card m-b-24">
+      <mat-card-content class="p-0">
+
+        <div class="card-header-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
+          <span class="active-count">{{ 'd3.permissionDependenciesPage.dependentsCount' | translate: { count: reverseDependents.length } }}</span>
+        </div>
+
+        <div class="deps-divider"></div>
+
+        @if (reverseDependents.length === 0) {
+          <div class="empty-state text-center p-40">
+            <i-tabler name="shield-check" class="icon-40 m-b-12 text-muted"></i-tabler>
+            <p class="f-s-14 m-0 text-muted">{{ 'd3.permissionDependenciesPage.noDependents' | translate }}</p>
+          </div>
+        } @else {
+          <div class="dependents-warning d-flex align-items-start gap-8 m-x-24 m-t-16">
+            <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+            <span>{{ 'd3.permissionDependenciesPage.dependentsWarning' | translate }}</span>
+          </div>
+
+          @for (dep of reverseDependents; track dep.id) {
+            <div class="dep-row dependent-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
+              <div class="dep-info">
+                <span class="dep-name d-block">{{ dep.name }}</span>
+                <span class="dep-code d-block">{{ dep.code }}</span>
+              </div>
+            </div>
+          }
+        }
 
       </mat-card-content>
     </mat-card>

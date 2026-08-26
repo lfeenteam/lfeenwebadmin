@@ -9,6 +9,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DepartmentService } from '../../../../services/department.service';
 import { Permission, PermissionGroup, PermissionPayload } from '../../../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../../../utils/api-error.util';
+import { resolveBilingualText } from '../../../../utils/bilingual.util';
 
 const SAFE_NAME_EN_PATTERN = /^[a-zA-Z0-9\s._-]+$/;
 const ACTION_OPTIONS = ['View', 'Create', 'Update', 'Delete', 'Manage', 'Export', 'Assign'];
@@ -80,11 +81,7 @@ export class AddPermissionDialogComponent implements OnInit {
   }
 
   groupDisplayName(group: PermissionGroup): string {
-    return (this.currentLang === 'ar' ? group.nameAr : group.nameEn)
-      ?? group.name
-      ?? group.nameAr
-      ?? group.nameEn
-      ?? '';
+    return resolveBilingualText(this.currentLang, group.nameAr, group.nameEn, group.name);
   }
 
   save(): void {
