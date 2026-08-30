@@ -1,0 +1,39 @@
+<div class="cancel-booking-dialog" [dir]="currentDir">
+  <button mat-icon-button type="button" class="close-btn" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ 'd3.bookings.cancelBookingDialog.title' | translate }}</h2>
+  </div>
+
+  <div class="dialog-body">
+
+    <div class="warning-box">
+      <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
+      <div class="warning-text">
+        <p class="warning-title">{{ 'd3.bookings.cancelBookingDialog.warningTitle' | translate }}</p>
+        <p class="warning-desc">{{ 'd3.bookings.cancelBookingDialog.warningDesc' | translate }}</p>
+      </div>
+    </div>
+
+    <label class="field-label">{{ 'd3.bookings.cancelBookingDialog.reasonLabel' | translate }}</label>
+    <div class="textarea-wrapper">
+      <textarea
+        class="reason-textarea"
+        rows="3"
+        [(ngModel)]="reason"
+        [placeholder]="'d3.bookings.cancelBookingDialog.reasonPlaceholder' | translate"></textarea>
+    </div>
+
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="confirm-btn" [disabled]="submitting" (click)="confirm()">
+      {{ 'd3.bookings.cancelBookingDialog.confirmBtn' | translate }}
+    </button>
+    <button type="button" class="cancel-btn" (click)="dialogRef.close()">
+      {{ 'd3.bookings.cancelBookingDialog.dismissBtn' | translate }}
+    </button>
+  </div>
+</div>

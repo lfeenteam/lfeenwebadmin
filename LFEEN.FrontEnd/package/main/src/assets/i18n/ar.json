@@ -177,6 +177,7 @@
     },
     "toast": {
       "errorOp": "حدث خطأ أثناء العملية",
+      "successOp": "تمت العملية بنجاح",
       "fillRequired": "يرجى تعبئة الحقول المطلوبة",
       "fillAllRequired": "يرجى تعبئة جميع الحقول المطلوبة",
       "deleteError": "حدث خطأ أثناء الحذف",
@@ -1221,8 +1222,29 @@
       },
       "actions": {
         "view": "عرض التفاصيل",
-        "edit": "تعديل",
+        "changeUnit": "تغيير الوحدة",
         "cancel": "إلغاء الحجز"
+      },
+      "changeUnitDialog": {
+        "title": "تغيير الوحدة",
+        "unitLabel": "اختر الوحدة الجديدة",
+        "unitPlaceholder": "اختر وحدة من القائمة...",
+        "unitLoading": "جارٍ تحميل الوحدات...",
+        "unitEmpty": "لا توجد وحدات منشورة متاحة",
+        "unitHint": "يتم عرض الوحدات المنشورة فقط.",
+        "reasonLabel": "سبب التغيير (اختياري)",
+        "reasonPlaceholder": "اكتب سبب تغيير الوحدة هنا...",
+        "cancelBtn": "تراجع",
+        "confirmBtn": "تأكيد التغيير"
+      },
+      "cancelBookingDialog": {
+        "title": "إلغاء الحجز",
+        "warningTitle": "هل أنت متأكد من إلغاء هذا الحجز؟",
+        "warningDesc": "هذا الإجراء سيقوم بإلغاء الحجز ومعالجة عملية استرداد الأموال للعميل بشكل آلي.",
+        "reasonLabel": "سبب الإلغاء (اختياري)",
+        "reasonPlaceholder": "اكتب سبب الإلغاء هنا...",
+        "dismissBtn": "تراجع",
+        "confirmBtn": "تأكيد الإلغاء"
       },
       "detail": {
         "title": "تفاصيل الحجز",

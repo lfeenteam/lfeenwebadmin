@@ -59,15 +59,15 @@
               </div>
           </div>
 
-          <div class="photo-meta photo-meta--main">
-            <strong>{{ mainPhoto.title }}</strong>
-            <span>{{ mainPhoto.category }}</span>
-            @if (mainPhoto.isPendingDeletion) {
-              <span>{{ 'Pending delete review' }}</span>
-            } @else if (mainPhoto.pendingIsMain !== null) {
-              <span>{{ 'Pending main photo review' }}</span>
-            }
-          </div>
+          @if (mainPhoto.isPendingDeletion || mainPhoto.pendingIsMain !== null) {
+            <div class="photo-meta photo-meta--main">
+              @if (mainPhoto.isPendingDeletion) {
+                <span>{{ 'Pending delete review' }}</span>
+              } @else if (mainPhoto.pendingIsMain !== null) {
+                <span>{{ 'Pending main photo review' }}</span>
+              }
+            </div>
+          }
 
           @if (mainPhoto.decision === 'rejected') {
             <div class="rejection-fields">

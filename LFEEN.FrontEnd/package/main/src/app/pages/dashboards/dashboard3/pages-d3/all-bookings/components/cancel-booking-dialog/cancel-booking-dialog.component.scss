@@ -1,0 +1,197 @@
+// ── D3 Design Tokens ──────────────────────────────────────────────────────
+$d3-red:       #FB2C36;
+$d3-red-light: rgba(251, 44, 54, 0.08);
+$d3-text:      #0F172B;
+$d3-muted:     #62748E;
+$d3-border:    #E8E8E4;
+$d3-surface:   #F8FAFC;
+
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mdc-dialog__surface {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.cancel-booking-dialog {
+  width: min(512px, 95vw);
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+  position: relative;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+
+  .close-btn {
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 14px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex: 0 0 auto;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #9AA4B2;
+    z-index: 2;
+    --mdc-icon-button-state-layer-size: 36px;
+
+    ::ng-deep .mat-mdc-button-touch-target {
+      width: 36px !important;
+      height: 36px !important;
+    }
+
+    ::ng-deep .mat-mdc-button-persistent-ripple,
+    ::ng-deep .mat-mdc-button-persistent-ripple::before,
+    ::ng-deep .mat-ripple,
+    ::ng-deep .mat-mdc-focus-indicator {
+      border-radius: 50% !important;
+    }
+
+    i-tabler {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .dialog-header {
+    padding: 24px 28px 8px;
+    text-align: start;
+
+    .dialog-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 900;
+      color: $d3-text;
+    }
+  }
+
+  .dialog-body {
+    padding: 12px 28px 24px;
+  }
+
+  // ── Warning banner ────────────────────────────────────────
+  .warning-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: $d3-red-light;
+    margin-bottom: 20px;
+
+    .warning-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: $d3-red;
+      margin-top: 2px;
+    }
+
+    .warning-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .warning-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      color: $d3-red;
+    }
+
+    .warning-desc {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: $d3-red;
+      opacity: 0.85;
+      line-height: 1.7;
+    }
+  }
+
+  .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+    color: $d3-text;
+    margin-bottom: 8px;
+    text-align: start;
+  }
+
+  .textarea-wrapper {
+    padding: 12px 14px;
+    border: 1px solid $d3-border;
+    border-radius: 14px;
+    background: #fff;
+    transition: border-color 0.2s;
+
+    &:focus-within { border-color: #9AA4B2; }
+  }
+
+  .reason-textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: $d3-text;
+    line-height: 1.7;
+
+    &::placeholder { color: #9AA4B2; font-weight: 400; }
+  }
+
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 24px;
+    background: $d3-surface;
+    border-top: 1px solid #F1F5F9;
+  }
+
+  .cancel-btn,
+  .confirm-btn {
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
+
+    &:active { transform: scale(0.97); }
+  }
+
+  .cancel-btn {
+    background: #fff;
+    color: $d3-muted;
+    border: 1px solid #E2E8F0;
+
+    &:hover { filter: brightness(0.97); }
+  }
+
+  .confirm-btn {
+    background: #EF4444;
+    color: #fff;
+    box-shadow: 0 4px 6px -4px #E0E7FF, 0 10px 15px -3px #E0E7FF;
+
+    &:hover { filter: brightness(0.93); }
+
+    &:disabled {
+      background: #64748B;
+      color: #fff;
+      cursor: not-allowed;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .dialog-header { padding: 20px 20px 8px; }
+    .dialog-body   { padding: 12px 20px 20px; }
+    .dialog-actions { padding: 16px; }
+  }
+}
