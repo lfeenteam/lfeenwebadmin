@@ -175,6 +175,7 @@
     },
     "toast": {
       "errorOp": "Error during operation",
+      "successOp": "Operation completed successfully",
       "fillRequired": "Please fill required fields",
       "fillAllRequired": "Please fill in all required fields",
       "deleteError": "Error deleting",
@@ -1963,8 +1964,29 @@
       },
       "actions": {
         "view": "View Details",
-        "edit": "Edit",
+        "changeUnit": "Change Unit",
         "cancel": "Cancel Booking"
+      },
+      "changeUnitDialog": {
+        "title": "Change Unit",
+        "unitLabel": "Select the new unit",
+        "unitPlaceholder": "Pick a unit from the list...",
+        "unitLoading": "Loading units...",
+        "unitEmpty": "No published units available",
+        "unitHint": "Only published units are shown.",
+        "reasonLabel": "Reason for change (optional)",
+        "reasonPlaceholder": "Write the reason for changing the unit here...",
+        "cancelBtn": "Back",
+        "confirmBtn": "Confirm Change"
+      },
+      "cancelBookingDialog": {
+        "title": "Cancel Booking",
+        "warningTitle": "Are you sure you want to cancel this booking?",
+        "warningDesc": "This action will cancel the booking and automatically process the refund to the customer.",
+        "reasonLabel": "Reason for cancellation (optional)",
+        "reasonPlaceholder": "Write the reason for cancellation here...",
+        "dismissBtn": "Back",
+        "confirmBtn": "Confirm Cancellation"
       },
       "detail": {
         "title": "Booking Details",

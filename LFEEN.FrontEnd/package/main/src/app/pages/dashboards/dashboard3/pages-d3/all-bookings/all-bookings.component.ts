@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MaterialModule } from 'src/app/material.module';
+import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { BookingService } from './services/booking.service';
 import { Booking, BookingApiStatus, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_STATUS_OPTIONS, BookingStatus } from './interfaces/booking.model';
 import { SingleDateCalendarComponent } from './components/single-date-calendar/single-date-calendar.component';
 import { BookingDetailDrawerComponent } from './components/booking-detail-drawer/booking-detail-drawer.component';
+import { ChangeUnitDialogComponent } from './components/change-unit-dialog/change-unit-dialog.component';
+import { CancelBookingDialogComponent } from './components/cancel-booking-dialog/cancel-booking-dialog.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
@@ -25,6 +28,8 @@ interface MetricCard {
   selector: 'app-all-bookings',
   standalone: true,
   imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent],
+  // Dialog components are opened imperatively via MatDialog, so they are not
+  // listed in `imports`.
   templateUrl: './all-bookings.component.html',
   styleUrl: './all-bookings.component.scss'
 })
@@ -33,6 +38,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   private cdr       = inject(ChangeDetectorRef);
   private bookingService = inject(BookingService);
   private toastr    = inject(ToastrService);
+  private dialog    = inject(MatDialog);
   private langSub?: Subscription;
   private searchSub?: Subscription;
   private searchSubject = new Subject<string>();
@@ -78,6 +84,45 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
 
   closeBookingDetail(): void {
     this.detailDrawerOpen = false;
+  }
+
+  // ── Change unit dialog ────────────────────────────────────────────────────
+  openChangeUnit(booking: Booking): void {
+    const dialogRef = this.dialog.open(ChangeUnitDialogComponent, {
+      width: '512px',
+      maxWidth: '95vw',
+      panelClass: 'change-unit-dialog-panel',
+      data: {
+        bookingId: booking.id,
+        bookingNumber: booking.bookingNumber,
+        currentUnitId: booking.unit.id,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((changed: boolean | undefined) => {
+      // The dialog performs the change-unit request and its own toast; just
+      // refresh the list when it reports success.
+      if (changed) this.loadBookings();
+    });
+  }
+
+  // ── Cancel booking dialog ────────────────────────────────────────────────
+  openCancelBooking(booking: Booking): void {
+    const dialogRef = this.dialog.open(CancelBookingDialogComponent, {
+      width: '512px',
+      maxWidth: '95vw',
+      panelClass: 'cancel-booking-dialog-panel',
+      data: {
+        bookingId: booking.id,
+        bookingNumber: booking.bookingNumber,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((cancelled: boolean | undefined) => {
+      // The dialog performs the cancel request and its own toast; just refresh
+      // the list when it reports success.
+      if (cancelled) this.loadBookings();
+    });
   }
 
   ngOnInit(): void {

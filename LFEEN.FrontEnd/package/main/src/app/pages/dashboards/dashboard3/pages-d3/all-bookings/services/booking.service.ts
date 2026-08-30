@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus } from '../interfaces/booking.model';
+import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
+import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
@@ -38,6 +39,50 @@ export class BookingService {
     return this.http.get<BookingActivityLogApiItem[]>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/activity-log`);
   }
 
+  /**
+   * Units offered when moving a booking to another unit — only published
+   * (review status 3 = Approved) units are eligible.
+   */
+  getPublishedUnits(): Observable<BookingUnitOption[]> {
+    const params = new HttpParams()
+      .set('pageNumber', '1')
+      .set('pageSize', '100')
+      .set('status', '3')
+      .set('newestFirst', 'true');
+
+    return this.http
+      .get<PaginatedUnitResponse>(`${environment.apiBaseUrl}/api/units`, { params })
+      .pipe(
+        map(res => (res.data ?? []).map(u => ({
+          id: u.unitId,
+          name: this.buildUnitOptionLabel(u.name, u.unitTypeName, u.apartmentNumberInFloor, u.propertyName),
+        })))
+      );
+  }
+
+  private buildUnitOptionLabel(
+    name: string | null,
+    unitTypeName: string,
+    apartmentNumberInFloor: number,
+    propertyName: string,
+  ): string {
+    const base = name?.trim() || `${unitTypeName} ${apartmentNumberInFloor}`.trim();
+    return propertyName?.trim() ? `${base} - ${propertyName.trim()}` : base;
+  }
+
+  changeBookingUnit(bookingId: string, newUnitId: number, reason: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/change-unit`, {
+      newUnitId,
+      reason,
+    });
+  }
+
+  cancelBooking(bookingId: string, cancellationReason: string): Observable<void> {
+    return this.http.post<void>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/cancel`, {
+      cancellationReason,
+    });
+  }
+
   mapApiItemToBooking(item: BookingApiItem, colorIndex: number): Booking {
     const customerName = item.customerName?.trim() || '-';
     return {
@@ -50,6 +95,7 @@ export class BookingService {
         colorIndex,
       },
       unit: {
+        id: item.unitId,
         name: item.unitName?.trim() || '-',
         property: item.propertyName?.trim() || '-',
         location: item.city?.trim() || '-',

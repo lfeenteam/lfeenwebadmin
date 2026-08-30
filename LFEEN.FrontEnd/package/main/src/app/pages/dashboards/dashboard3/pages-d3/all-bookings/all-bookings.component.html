@@ -267,11 +267,11 @@
               <i-tabler name="eye" class="icon-16"></i-tabler>
               <span>{{ 'd3.bookings.actions.view' | translate }}</span>
             </button>
-            <button mat-menu-item type="button">
-              <i-tabler name="edit" class="icon-16"></i-tabler>
-              <span>{{ 'd3.bookings.actions.edit' | translate }}</span>
+            <button mat-menu-item type="button" (click)="openChangeUnit(booking)">
+              <i-tabler name="replace" class="icon-16"></i-tabler>
+              <span>{{ 'd3.bookings.actions.changeUnit' | translate }}</span>
             </button>
-            <button mat-menu-item type="button" class="danger-item">
+            <button mat-menu-item type="button" class="danger-item" (click)="openCancelBooking(booking)">
               <i-tabler name="trash" class="icon-16"></i-tabler>
               <span>{{ 'd3.bookings.actions.cancel' | translate }}</span>
             </button>
