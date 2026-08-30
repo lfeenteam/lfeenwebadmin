@@ -1,6 +1,23 @@
 .role-perms-container {
   font-family: 'Cairo', sans-serif !important;
 
+  // ── Tabler icon sizing/alignment helpers ───
+  i-tabler {
+    &.icon-14, &.icon-16, &.icon-18, &.icon-20, &.icon-24, &.icon-32, &.icon-40 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
+    &.icon-14 ::ng-deep svg { width: 14px; height: 14px; }
+    &.icon-16 ::ng-deep svg { width: 16px; height: 16px; }
+    &.icon-18 ::ng-deep svg { width: 18px; height: 18px; }
+    &.icon-20 ::ng-deep svg { width: 20px; height: 20px; }
+    &.icon-24 ::ng-deep svg { width: 24px; height: 24px; }
+    &.icon-32 ::ng-deep svg { width: 32px; height: 32px; }
+    &.icon-40 ::ng-deep svg { width: 40px; height: 40px; }
+  }
+
   .dept-desc {
     font-weight: 700;
     font-size: 12px;
@@ -27,7 +44,6 @@
     background-color: #FCFCFB;
     border: 1px solid #E8E8E4;
 
-    // override Bootstrap f-s-20 !important
     h2 { font-size: 17px !important; }
 
     .dept-icon-wrapper {
@@ -39,7 +55,6 @@
       flex-shrink: 0;
     }
 
-    // inner div: icon + text — match permissions gap
     mat-card-content > div:first-child {
       gap: 16px !important;
     }
@@ -56,72 +71,6 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-    }
-  }
-
-  // ── Permissions Card ─────────────────────
-  .perms-card {
-    border: 1px solid #E8E8E4 !important;
-    border-radius: 24px !important;
-    overflow: hidden;
-
-    .card-header-row {
-      background-color: #FCFCFB;
-
-      .active-count {
-        font-weight: 700;
-        font-size: 12px;
-        color: #6B6B67;
-      }
-
-      .role-badge {
-        background: #111110;
-        color: #fff;
-        border-radius: 20px;
-        padding: 4px 16px;
-        font-size: 12px;
-        font-weight: 900;
-      }
-    }
-
-    .perms-divider {
-      height: 1px;
-      background: #E8E8E4;
-    }
-
-    .perm-row {
-      border-bottom: 1px solid #F1F1EE;
-      transition: background 0.15s;
-
-      &:last-child { border-bottom: none; }
-      &:hover { background: #FCFCFB; }
-
-      .perm-info {
-        flex: 1;
-        padding-inline-end: 16px;
-
-        .perm-name {
-          font-weight: 900;
-          font-size: 14px;
-          color: #111110;
-          margin-bottom: 3px;
-        }
-
-        .perm-desc {
-          font-weight: 700;
-          font-size: 12px;
-          color: #9E9E9A;
-          line-height: 16px;
-        }
-      }
-
-      .toggle-spinner {
-        flex-shrink: 0;
-      }
-    }
-
-    .empty-state {
-      .text-muted { color: #9E9E9A; }
     }
   }
 
@@ -154,6 +103,189 @@
     }
   }
 
+  // ── Permissions Card ─────────────────────
+  .perms-card {
+    border: 1px solid #E8E8E4 !important;
+    border-radius: 24px !important;
+    overflow: hidden;
+
+    .perms-card-header {
+      background: #FCFCFB;
+
+      .role-badge {
+        background: #111110;
+        color: #fff;
+        border-radius: 20px;
+        padding: 4px 16px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .select-all-btn {
+        background: #111110;
+        color: #fff;
+        border: 1px solid #111110;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: 'Cairo', sans-serif;
+        cursor: pointer;
+        transition: opacity 0.15s;
+
+        &:hover { opacity: 0.88; }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+      }
+
+      .selected-badge {
+        background: #F1F1EE;
+        border: 1px solid #E8E8E4;
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6B6B67;
+      }
+    }
+
+    .perms-divider {
+      height: 1px;
+      background: #E8E8E4;
+    }
+
+    .perms-empty {
+      color: #9E9E9A;
+
+      i-tabler { color: #C9C9C4; }
+
+      p { font-size: 14px; font-weight: 700; }
+    }
+
+    .perm-group {
+      margin: 16px 24px;
+      border: 1px solid #E8E8E4;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+
+      .perm-group-header {
+        cursor: pointer;
+        background: #FCFCFB;
+        transition: background 0.15s;
+
+        &:hover { background: #F1F1EE; }
+        &:focus-visible {
+          outline: 2px solid #111110;
+          outline-offset: -2px;
+        }
+
+        .group-chevron { color: #6B6B67; flex-shrink: 0; }
+
+        .group-name {
+          font-size: 14px;
+          font-weight: 900;
+          color: #111110;
+        }
+
+        .group-count {
+          font-size: 12px;
+          font-weight: 700;
+          color: #9E9E9A;
+        }
+      }
+
+      .perm-group-body {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding: 16px;
+        border-top: 1px solid #E8E8E4;
+        background: #fff;
+
+        .perm-row {
+          border: 1px solid #ECECE8;
+          border-radius: 10px;
+          background: #FCFCFB;
+          padding: 12px 14px;
+          transition: border-color 0.15s, background 0.15s;
+
+          &:hover { background: #F7F7F5; border-color: #DBDBD5; }
+
+          &.is-locked {
+            background: #F4F4F1;
+            border-color: #E4E4E0;
+          }
+
+          .perm-lock { color: #9E9E9A; flex-shrink: 0; }
+
+          .perm-info {
+            flex: 1;
+            padding-inline-end: 12px;
+            min-width: 0;
+
+            .perm-name {
+              font-weight: 900;
+              font-size: 14px;
+              color: #111110;
+              margin-bottom: 3px;
+            }
+
+            .perm-desc {
+              font-weight: 700;
+              font-size: 12px;
+              color: #9E9E9A;
+              line-height: 16px;
+            }
+          }
+        }
+      }
+    }
+
+    .pagination-wrapper {
+      border-top: 1px solid #E8E8E4;
+
+      .page-nav-btn,
+      .page-number-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        padding: 0;
+        margin: 0;
+        border: 1px solid #E8E8E4;
+        border-radius: 8px;
+        background: #fff;
+        color: #6B6B67;
+        font-family: 'Cairo', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+        &:hover:not(:disabled) { background: #F7F7F5; color: #111110; }
+        &:disabled { opacity: 0.4; cursor: not-allowed; }
+      }
+
+      .page-number-btn.active {
+        background: #111110;
+        color: #fff;
+        border-color: #111110;
+      }
+
+      @media (max-width: 767.98px) {
+        padding: 12px 16px !important;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center !important;
+
+        .page-nav-btn, .page-number-btn { width: 32px; height: 32px; min-width: 32px; }
+      }
+    }
+  }
+
   // ── Footer Buttons ───────────────────────
   .save-btn {
     background-color: #111110;
@@ -162,10 +294,24 @@
     height: auto;
     font-weight: 700;
     padding: 12px 48px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
     font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+
+    ::ng-deep .mdc-button__label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    ::ng-deep i-tabler svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+    }
+
+    &:disabled { opacity: 0.5; }
   }
 
   .cancel-btn {
@@ -177,6 +323,7 @@
     background-color: #F7F7F5;
     color: #111110;
     font-size: 14px;
+    font-family: 'Cairo', sans-serif;
   }
 }
 
@@ -197,7 +344,6 @@
         padding: 16px !important;
       }
 
-      // stats: 2 equal columns (matches permissions)
       mat-card-content > div:last-child {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -208,12 +354,17 @@
     }
 
     .perms-card {
-      .card-header-row { padding: 12px 16px !important; }
-      .perm-row        { padding: 12px 16px !important; }
+      .perms-card-header { padding: 14px 16px !important; }
+      .perm-group { margin: 12px 14px; }
+      .perm-group .perm-group-body {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+      }
     }
 
     > div:last-child { justify-content: stretch !important; }
-    .cancel-btn { width: 100%; justify-content: center; }
+    .save-btn, .cancel-btn { width: 100%; justify-content: center; }
   }
 }
 
@@ -238,39 +389,21 @@
     .perms-card {
       border-radius: 20px !important;
 
-      .card-header-row {
-        padding: 10px 14px !important;
-        .active-count { font-size: 11px; }
-        .role-badge   { font-size: 11px; padding: 3px 12px; }
+      .perms-card-header {
+        padding: 12px 14px !important;
+        .role-badge     { font-size: 11px; padding: 3px 12px; }
+        .selected-badge { font-size: 11px; padding: 3px 10px; }
       }
 
-      .perm-row {
-        padding: 10px 14px !important;
-
-        .perm-info {
-          padding-inline-end: 10px;
-          .perm-name { font-size: 13px; }
-          .perm-desc { font-size: 11px; }
-        }
+      .perm-group .perm-group-body .perm-row {
+        padding: 10px 12px;
+        .perm-info .perm-name { font-size: 13px; }
+        .perm-info .perm-desc { font-size: 11px; }
       }
     }
-  }
-}
 
-// ════════════════════════════════════════
-// Small Mobile (360px)
-// ════════════════════════════════════════
-@media (max-width: 360px) {
-  .role-perms-container {
-    .header-card {
-      h2 { font-size: 14px !important; }
-      mat-card-content { padding: 12px !important; }
-    }
-
-    .perms-card {
-      .perm-row { padding: 9px 12px !important; }
-      .perm-info .perm-name { font-size: 12px; }
-    }
+    > div:last-child { flex-direction: column !important; }
+    .save-btn, .cancel-btn { width: 100%; justify-content: center; }
   }
 }
 
@@ -291,14 +424,11 @@
       border: 1px solid #E8E8E4;
     }
   }
-}
 
-@media (max-width: 576px) {
-  ::ng-deep .role-perms-container {
-    .mat-mdc-slide-toggle {
-      transform: scale(0.78);
-      transform-origin: left center;
-      flex-shrink: 0;
+  .mat-mdc-slide-toggle.is-indeterminate {
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #C9C9C4 !important;
+      border-color: #C9C9C4;
     }
   }
 }

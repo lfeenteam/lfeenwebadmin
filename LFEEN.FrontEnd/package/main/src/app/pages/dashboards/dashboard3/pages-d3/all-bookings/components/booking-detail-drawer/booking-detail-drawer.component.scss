@@ -446,6 +446,32 @@ border-bottom: 1px solid #E8E8E4;
   ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2; }
 }
 
+.detail-actual-stay {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.detail-actual-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f7f7f5;
+  color: #4b4b47;
+  font-size: 12px;
+  font-weight: 600;
+
+  ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2; flex-shrink: 0; }
+}
+
+.detail-actual-pending {
+  color: #9e9e9a;
+  font-weight: 500;
+}
+
 .detail-placeholder {
   display: flex;
   flex-direction: column;

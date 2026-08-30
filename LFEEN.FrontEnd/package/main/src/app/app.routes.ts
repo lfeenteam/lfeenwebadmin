@@ -461,66 +461,9 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
-              {
-                path: 'permission-groups',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/permission-groups/permission-groups.component'
-                  ).then((m) => m.PermissionGroupsComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.permissionGroupsPage.title',
-                  breadcrumbKey: 'd3.header.platform',
-                  showLive: true,
-                  showDate: true
-                },
-              },
-              {
-                path: 'all-permissions',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/all-permissions/all-permissions.component'
-                  ).then((m) => m.AllPermissionsComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.allPermissionsPage.title',
-                  breadcrumbKey: 'd3.header.platform',
-                  showLive: true,
-                  showDate: true
-                },
-              },
-              {
-                path: 'all-permissions-dependencies',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/all-permissions/all-dependencies/all-dependencies.component'
-                  ).then((m) => m.AllDependenciesComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.allDependenciesPage.title',
-                  breadcrumbKey: 'd3.allPermissionsPage.title',
-                  breadcrumbRoute: 'all-permissions',
-                  showBack: true
-                },
-              },
-              {
-                path: 'all-permissions/:id/dependencies',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/all-permissions/permission-dependencies/permission-dependencies.component'
-                  ).then((m) => m.PermissionDependenciesComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.permissionDependenciesPage.title',
-                  breadcrumbKey: 'd3.allPermissionsPage.title',
-                  breadcrumbRoute: 'all-permissions',
-                  showBack: true
-                },
-              },
+              // Permissions & permission-group management pages removed from routing —
+              // permissions come ready from the backend and are not edited in the frontend.
+              // Components kept on disk under pages-d3/all-permissions & pages-d3/permission-groups.
               {
                 path: 'roles/add',
                 canActivate: [authGuard],

@@ -50,38 +50,114 @@
       <mat-card-content class="p-0">
 
         <!-- Card Header -->
-        <div class="card-header-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
-          <span class="active-count">{{ 'd3.permissions.activePermissionsCount' | translate: { count: permissions.length } }}</span>
+        <div class="perms-card-header p-x-24 p-y-16 d-flex align-items-center justify-content-between flex-wrap gap-12">
           <span class="role-badge">{{ roleName }}</span>
+          @if (!loadError && groupedPermissions.length > 0) {
+            <div class="d-flex align-items-center flex-wrap gap-8">
+              <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6"
+                (click)="toggleSelectAll()">
+                <i-tabler [name]="allPermissionsSelected ? 'square-off' : 'checkbox'" class="icon-16"></i-tabler>
+                {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
+              </button>
+              <span class="selected-badge">
+                {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
+              </span>
+            </div>
+          }
         </div>
 
         <div class="perms-divider"></div>
 
-        @if (permissions.length === 0) {
-          <div class="empty-state text-center p-40">
-            <i-tabler name="shield-off" class="icon-40 m-b-12 text-muted"></i-tabler>
-            <p class="f-s-14 m-0 text-muted">{{ 'd3.permissions.noPermissions' | translate }}</p>
+        @if (loadError) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="alert-triangle" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-b-16">{{ 'd3.addRolePage.loadError' | translate }}</p>
+            <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6" (click)="retryLoad()">
+              <i-tabler name="refresh" class="icon-16"></i-tabler>
+              {{ 'd3.addRolePage.retry' | translate }}
+            </button>
           </div>
-        }
+        } @else if (groupedPermissions.length === 0) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="shield-off" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-0">{{ 'd3.permissions.noPermissions' | translate }}</p>
+          </div>
+        } @else {
+          @for (section of pagedGroups; track section.id) {
+            <div class="perm-group">
+              <div class="perm-group-header d-flex align-items-center justify-content-between p-x-24 p-y-16"
+                role="button" tabindex="0"
+                [attr.aria-expanded]="!isGroupCollapsed(section.id)"
+                (click)="toggleGroupCollapse(section.id)"
+                (keydown.enter)="toggleGroupCollapse(section.id)"
+                (keydown.space)="$event.preventDefault(); toggleGroupCollapse(section.id)">
+                <div class="d-flex align-items-center gap-10">
+                  <i-tabler [name]="isGroupCollapsed(section.id) ? 'chevron-down' : 'chevron-up'" class="icon-18 group-chevron"></i-tabler>
+                  <span class="group-name">{{ section.name }}</span>
+                  <span class="group-count">({{ section.perms.length }} / {{ selectedInGroup(section) }})</span>
+                </div>
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="groupState(section) === 'all'"
+                  [class.is-indeterminate]="groupState(section) === 'some'"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleGroup(section)">
+                </mat-slide-toggle>
+              </div>
 
-        @for (perm of permissions; track perm.id) {
-          <div class="perm-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
-            <!-- Info right -->
-            <div class="perm-info text-end">
-              <span class="perm-name d-block">{{ 'd3.permCodes.' + perm.code + '.name' | translate }}</span>
-              <span class="perm-desc d-block">{{ 'd3.permCodes.' + perm.code + '.description' | translate }}</span>
+              @if (!isGroupCollapsed(section.id)) {
+                <div class="perm-group-body">
+                  @for (perm of section.perms; track perm.id) {
+                    <div class="perm-row d-flex align-items-center justify-content-between gap-8" [class.is-locked]="isLocked(perm)">
+                      <div class="perm-info">
+                        <span class="perm-name d-flex align-items-center gap-6">
+                          {{ permName(perm) }}
+                          @if (isLocked(perm)) {
+                            <i-tabler name="lock" class="icon-14 perm-lock"
+                              [matTooltip]="'d3.addRolePage.lockedHint' | translate"></i-tabler>
+                          }
+                        </span>
+                        <span class="perm-desc d-block">{{ permDescription(perm) }}</span>
+                      </div>
+                      <mat-slide-toggle
+                        color="primary"
+                        [checked]="perm.selected"
+                        [disabled]="isLocked(perm)"
+                        (change)="togglePermission(perm, $event.checked)">
+                      </mat-slide-toggle>
+                    </div>
+                  }
+                </div>
+              }
             </div>
-            <!-- Toggle far left -->
-            @if (deletingId === perm.id) {
-              <mat-spinner diameter="20" class="toggle-spinner"></mat-spinner>
-            } @else {
-              <mat-slide-toggle
-                color="primary"
-                [checked]="true"
-                (change)="onToggleChange(perm, $event)">
-              </mat-slide-toggle>
-            }
-          </div>
+          }
+
+          @if (totalPages > 1) {
+            <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
+              <span class="f-s-13 text-muted">
+                {{ 'd3.addRolePage.pagination.total' | translate: { count: groupedPermissions.length } }}
+              </span>
+              <div class="d-flex align-items-center gap-4">
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === 1"
+                  (click)="changePage(currentPage - 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+                </button>
+                @for (p of pageNumbers; track p) {
+                  <button type="button" class="page-number-btn"
+                    [class.active]="p === currentPage"
+                    (click)="changePage(p)">
+                    {{ p }}
+                  </button>
+                }
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === totalPages"
+                  (click)="changePage(currentPage + 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+                </button>
+              </div>
+            </div>
+          }
         }
 
       </mat-card-content>
@@ -89,8 +165,16 @@
 
     <!-- Actions -->
     <div class="d-flex gap-16 justify-content-end">
-      <button mat-stroked-button class="cancel-btn" [routerLink]="[backRoute]">
+      <button mat-stroked-button class="cancel-btn" (click)="cancel()">
         {{ 'd3.permissions.cancelBtn' | translate }}
+      </button>
+      <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="!isDirty || isSaving">
+        @if (isSaving) {
+          <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+        } @else {
+          <i-tabler name="check" class="icon-16"></i-tabler>
+        }
+        {{ 'd3.permissions.rolePermsEdit.saveBtn' | translate }}
       </button>
     </div>
 

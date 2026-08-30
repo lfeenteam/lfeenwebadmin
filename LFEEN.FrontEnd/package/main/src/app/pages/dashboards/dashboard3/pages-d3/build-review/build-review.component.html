@@ -124,7 +124,7 @@
       ></textarea>
     </div>
   
-    @if (allSectionsComplete && isFinalSuccess && !viewOnly) {
+    @if (allSectionsComplete && isFinalSuccess && !viewOnly && !isApproveDisabled && !isFinalSubmitting) {
       <div class="success-final-card inline-final-card">
         <div class="celebrate-icon">
           <i-tabler name="confetti"></i-tabler>
@@ -138,7 +138,6 @@
           <i-tabler name="circle-check"></i-tabler>
         </div>
         <h3>{{ 'd3.buildReview.finalDecision.alreadyApprovedTitle' | translate }}</h3>
-        <p>{{ 'd3.buildReview.finalDecision.alreadyApprovedDesc' | translate }}</p>
       </div>
     }
 

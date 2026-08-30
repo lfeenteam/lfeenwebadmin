@@ -746,6 +746,17 @@
       "descriptionLabel": "Role Description",
       "descriptionPlaceholder": "Write a summary of tasks this role holder can perform...",
       "permissionsTitle": "Set Role Permissions",
+      "selectAllBtn": "Select all permissions",
+      "deselectAllBtn": "Deselect all",
+      "ungrouped": "Other",
+      "loadError": "Couldn't load permissions",
+      "retry": "Retry",
+      "roleCreatedPermsFailed": "The role was created, but assigning permissions failed. You can edit them from the role page.",
+      "selectedOfTotal": "{{count}} of {{total}} permissions",
+      "lockedHint": "Required by another selected permission — deselect the dependent one first",
+      "pagination": {
+        "total": "{{count}} permission groups"
+      },
       "selectedCount": "{{count}} permissions enabled",
       "isManagerRoleLabel": "Manager Role",
       "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
@@ -912,6 +923,10 @@
       "manager": "Responsible Manager",
       "activePermissionsCount": "{{count}} active permissions",
       "noPermissions": "No permissions defined for this department",
+      "rolePermsEdit": {
+        "saveBtn": "Save changes",
+        "saveSuccess": "Role permissions updated"
+      },
       "table": {
         "department": "Department / Job Title",
         "description": "Permission Description",
@@ -1078,7 +1093,7 @@
         "readyTitle": "Ready for Final Approval",
         "readyDesc": "All required documents and data have been successfully reviewed. You can now approve the property to activate the host account and start receiving bookings immediately.",
         "alreadyApprovedTitle": "Already Finally Approved",
-        "alreadyApprovedDesc": "This building has already been approved and published — no need to approve it again.",
+        "alreadyApprovedDesc": "This building has already been approved.",
         "rejectionSummaryTitle": "Rejection Reasons Summary",
         "rejectionSummarySubtitle": "Notes summary for the three sections",
         "sectionNotesPrefix": "Notes for",
@@ -1572,7 +1587,9 @@
         "requiredOnReject": "Required on rejection",
         "optionalOnApprove": "Optional on approval",
         "approveBtn": "Approve Unit Photos",
-        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting."
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo."
       },
       "cancelPolicyView": {
         "pageTitle": "Cancellation Policy Review",
@@ -1975,7 +1992,11 @@
           "checkOut": "Check-out",
           "checkIn": "Check-in",
           "duration": "Stay Duration",
-          "nights": "nights"
+          "nights": "nights",
+          "actualCheckIn": "Actual check-in",
+          "actualCheckOut": "Actual check-out",
+          "notCheckedInYet": "Guest hasn't checked in yet",
+          "notCheckedOutYet": "Guest hasn't checked out yet"
         },
         "financeTab": {
           "currency": "SAR",

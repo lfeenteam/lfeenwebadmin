@@ -748,6 +748,17 @@
       "descriptionLabel": "وصف الدور",
       "descriptionPlaceholder": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
       "permissionsTitle": "تحديد صلاحيات الدور",
+      "selectAllBtn": "تحديد كل الصلاحيات",
+      "deselectAllBtn": "إلغاء تحديد الكل",
+      "ungrouped": "أخرى",
+      "loadError": "تعذّر تحميل الصلاحيات",
+      "retry": "إعادة المحاولة",
+      "roleCreatedPermsFailed": "تم إنشاء الدور، لكن تعذّر تعيين الصلاحيات. يمكنك تعديلها من صفحة الدور.",
+      "selectedOfTotal": "{{count}} من أصل {{total}} صلاحية",
+      "lockedHint": "مطلوبة لصلاحية أخرى محدَّدة — ألغِ تحديد الصلاحية المعتمِدة عليها أولاً",
+      "pagination": {
+        "total": "{{count}} مجموعة صلاحيات"
+      },
       "selectedCount": "تم تفعيل {{count}} صلاحيات",
       "isManagerRoleLabel": "دور مدير",
       "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
@@ -914,6 +925,10 @@
       "manager": "المدير المسؤول",
       "activePermissionsCount": "تم تفعيل {{count}} صلاحيات",
       "noPermissions": "لا توجد صلاحيات مضافة لهذا الدور",
+      "rolePermsEdit": {
+        "saveBtn": "حفظ التغييرات",
+        "saveSuccess": "تم تحديث صلاحيات الدور"
+      },
       "table": {
         "department": "القسم / الوظيفة",
         "description": "وصف الصلاحية",
@@ -1235,7 +1250,11 @@
           "checkOut": "تسجيل الخروج",
           "checkIn": "تسجيل الدخول",
           "duration": "مدة الإقامة",
-          "nights": "ليالي"
+          "nights": "ليالي",
+          "actualCheckIn": "وقت الدخول الفعلي",
+          "actualCheckOut": "وقت الخروج الفعلي",
+          "notCheckedInYet": "لم يسجل الضيف الدخول بعد",
+          "notCheckedOutYet": "لم يسجل الضيف الخروج بعد"
         },
         "financeTab": {
           "currency": "ريال",
@@ -1725,7 +1744,7 @@
         "readyTitle": "جاهز للاعتماد النهائي",
         "readyDesc": "لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد المبنى ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً",
         "alreadyApprovedTitle": "تم الاعتماد النهائي بالفعل",
-        "alreadyApprovedDesc": "تم اعتماد هذا المبنى ونشره مسبقًا، ولا حاجة لاعتماده مرة أخرى.",
+        "alreadyApprovedDesc": "تم اعتماد هذا المبنى بالفعل.",
         "rejectionSummaryTitle": "ملخص أسباب الرفض",
         "rejectionSummarySubtitle": "موجز الملاحظات للأقسام الثلاثة",
         "sectionNotesPrefix": "ملاحظات",
@@ -2219,7 +2238,9 @@
         "requiredOnReject": "إلزامي عند الرفض",
         "optionalOnApprove": "اختياري عند الموافقة",
         "approveBtn": "اعتماد صور الوحدة",
-        "pendingPhotosWarning": "تبقّى {{count}} صورة لم تتم مراجعتها، يرجى مراجعة جميع الصور قبل الإرسال."
+        "pendingPhotosWarning": "تبقّى {{count}} صورة لم تتم مراجعتها، يرجى مراجعة جميع الصور قبل الإرسال.",
+        "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة."
       },
       "cancelPolicyView": {
         "pageTitle": "مراجعة سياسة الاسترجاع",

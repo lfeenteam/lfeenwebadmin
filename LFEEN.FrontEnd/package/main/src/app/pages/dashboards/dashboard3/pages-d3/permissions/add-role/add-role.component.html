@@ -112,10 +112,17 @@
             <span class="section-bar"></span>
             <span class="section-title">{{ 'd3.addRolePage.permissionsTitle' | translate }}</span>
           </div>
-          @if (!isLoadingPerms) {
-            <span class="selected-badge">
-              {{ 'd3.addRolePage.selectedCount' | translate: { count: selectedCount } }}
-            </span>
+          @if (!isLoadingPerms && !permsLoadError && groupedPermissions.length > 0) {
+            <div class="d-flex align-items-center flex-wrap gap-8">
+              <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6"
+                (click)="toggleSelectAll()" [disabled]="permissions.length === 0">
+                <i-tabler [name]="allPermissionsSelected ? 'square-off' : 'checkbox'" class="icon-16"></i-tabler>
+                {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
+              </button>
+              <span class="selected-badge">
+                {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
+              </span>
+            </div>
           }
         </div>
 
@@ -125,18 +132,94 @@
           <div class="d-flex justify-content-center p-40">
             <mat-spinner diameter="32"></mat-spinner>
           </div>
+        } @else if (permsLoadError) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="alert-triangle" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-b-16">{{ 'd3.addRolePage.loadError' | translate }}</p>
+            <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6" (click)="retryLoad()">
+              <i-tabler name="refresh" class="icon-16"></i-tabler>
+              {{ 'd3.addRolePage.retry' | translate }}
+            </button>
+          </div>
+        } @else if (groupedPermissions.length === 0) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="shield-off" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-0">{{ 'd3.permissions.noPermissions' | translate }}</p>
+          </div>
         } @else {
-          @for (perm of permissions; track perm.id) {
-            <div class="perm-row d-flex align-items-center justify-content-between p-x-24 p-y-16">
-              <div class="perm-info">
-                <span class="perm-name d-block">{{ permDisplayName(perm) }}</span>
-                <span class="perm-desc d-block">{{ permDisplayDescription(perm) }}</span>
+          @for (section of pagedGroups; track section.id) {
+            <div class="perm-group">
+              <div class="perm-group-header d-flex align-items-center justify-content-between p-x-24 p-y-16"
+                role="button" tabindex="0"
+                [attr.aria-expanded]="!isGroupCollapsed(section.id)"
+                (click)="toggleGroupCollapse(section.id)"
+                (keydown.enter)="toggleGroupCollapse(section.id)"
+                (keydown.space)="$event.preventDefault(); toggleGroupCollapse(section.id)">
+                <div class="d-flex align-items-center gap-10">
+                  <i-tabler [name]="isGroupCollapsed(section.id) ? 'chevron-down' : 'chevron-up'" class="icon-18 group-chevron"></i-tabler>
+                  <span class="group-name">{{ section.name }}</span>
+                  <span class="group-count">({{ section.perms.length }} / {{ selectedInGroup(section) }})</span>
+                </div>
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="groupState(section) === 'all'"
+                  [class.is-indeterminate]="groupState(section) === 'some'"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleGroup(section)">
+                </mat-slide-toggle>
               </div>
-              <mat-slide-toggle
-                color="primary"
-                [checked]="perm.selected"
-                (change)="togglePermission(perm, $event.checked)">
-              </mat-slide-toggle>
+
+              @if (!isGroupCollapsed(section.id)) {
+                <div class="perm-group-body">
+                  @for (perm of section.perms; track perm.id) {
+                    <div class="perm-row d-flex align-items-center justify-content-between gap-8" [class.is-locked]="isLocked(perm)">
+                      <div class="perm-info">
+                        <span class="perm-name d-flex align-items-center gap-6">
+                          {{ permDisplayName(perm) }}
+                          @if (isLocked(perm)) {
+                            <i-tabler name="lock" class="icon-14 perm-lock"
+                              [matTooltip]="'d3.addRolePage.lockedHint' | translate"></i-tabler>
+                          }
+                        </span>
+                        <span class="perm-desc d-block">{{ permDisplayDescription(perm) }}</span>
+                      </div>
+                      <mat-slide-toggle
+                        color="primary"
+                        [checked]="perm.selected"
+                        [disabled]="isLocked(perm)"
+                        (change)="togglePermission(perm, $event.checked)">
+                      </mat-slide-toggle>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (totalPages > 1) {
+            <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
+              <span class="f-s-13 text-muted">
+                {{ 'd3.addRolePage.pagination.total' | translate: { count: groupedPermissions.length } }}
+              </span>
+              <div class="d-flex align-items-center gap-4">
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === 1"
+                  (click)="changePage(currentPage - 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+                </button>
+                @for (p of pageNumbers; track p) {
+                  <button type="button" class="page-number-btn"
+                    [class.active]="p === currentPage"
+                    (click)="changePage(p)">
+                    {{ p }}
+                  </button>
+                }
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === totalPages"
+                  (click)="changePage(currentPage + 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+                </button>
+              </div>
             </div>
           }
         }

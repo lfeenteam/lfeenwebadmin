@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { BuildingWithUnits, UnitCardItem, UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
@@ -60,6 +61,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isReadOnly = false;
   totalPhotoCount = 0;
+  minRequired = 0;
 
   mainPhoto: UnitReviewPhoto | null = null;
   photoGroups: UnitPhotoGroup[] = [];
@@ -70,7 +72,8 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     private unitsService: UnitsService,
     private translate: TranslateService,
     private dialog: MatDialog,
-    private pageBreadcrumbTrail: PageBreadcrumbTrailService
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService,
+    private toastr: ToastrService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -105,6 +108,10 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     return this.allPhotos.filter(p => p.decision === 'rejected');
   }
 
+  get approvedCount(): number {
+    return this.allPhotos.filter(p => p.decision === 'approved').length;
+  }
+
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
@@ -125,6 +132,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.isLoading = false;
           this.totalPhotoCount = response.groups.reduce((sum, g) => sum + g.totalCount, 0);
+          this.minRequired = response.minRequired;
           const mainGroup = response.groups.find(g => g.groupKey === 'MainPhoto');
           const otherGroups = response.groups.filter(g => g.groupKey !== 'MainPhoto');
 
@@ -157,6 +165,29 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   submitDecision(decision: UnitReviewDecision): void {
     if (!this.unitId || !this.allReviewed) return;
     if (decision === 'rejected' && !this.hasNoPhotos && !this.hasRejections) return;
+
+    if (decision === 'approved' && this.approvedCount < this.minRequired) {
+      this.toastr.warning(
+        this.translate.instant('d3.unitReview.imagesView.insufficientApprovedPhotos', {
+          approved: this.approvedCount,
+          required: this.minRequired
+        })
+      );
+      return;
+    }
+
+    if (decision === 'rejected' && this.hasNoPhotos && !this.finalNotes.trim()) {
+      this.toastr.warning(this.translate.instant('d3.unitReview.imagesView.rejectionReasonRequired'));
+      return;
+    }
+
+    const rejectedWithoutReason = this.allPhotos.some(
+      p => p.decision === 'rejected' && !p.rejectionReason.trim()
+    );
+    if (decision === 'rejected' && !this.hasNoPhotos && rejectedWithoutReason) {
+      this.toastr.warning(this.translate.instant('d3.unitReview.imagesView.rejectionReasonRequired'));
+      return;
+    }
 
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

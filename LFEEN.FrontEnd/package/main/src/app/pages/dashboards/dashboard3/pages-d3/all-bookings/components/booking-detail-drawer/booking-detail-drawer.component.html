@@ -152,6 +152,25 @@
             <i-tabler name="clock-hour-3" class="icon-14"></i-tabler>
             <span>{{ 'd3.bookings.detail.staySection.duration' | translate }}: {{ bookingDetail.stay.nights }} {{ 'd3.bookings.detail.staySection.nights' | translate }}</span>
           </div>
+
+          <div class="detail-actual-stay">
+            <div class="detail-actual-row">
+              <i-tabler name="door-enter" class="icon-14"></i-tabler>
+              @if (bookingDetail.stay.actualCheckIn) {
+                <span>{{ 'd3.bookings.detail.staySection.actualCheckIn' | translate }}: {{ bookingDetail.stay.actualCheckIn.date }} - {{ bookingDetail.stay.actualCheckIn.time }}</span>
+              } @else {
+                <span class="detail-actual-pending">{{ 'd3.bookings.detail.staySection.notCheckedInYet' | translate }}</span>
+              }
+            </div>
+            <div class="detail-actual-row">
+              <i-tabler name="door-exit" class="icon-14"></i-tabler>
+              @if (bookingDetail.stay.actualCheckOut) {
+                <span>{{ 'd3.bookings.detail.staySection.actualCheckOut' | translate }}: {{ bookingDetail.stay.actualCheckOut.date }} - {{ bookingDetail.stay.actualCheckOut.time }}</span>
+              } @else {
+                <span class="detail-actual-pending">{{ 'd3.bookings.detail.staySection.notCheckedOutYet' | translate }}</span>
+              }
+            </div>
+          </div>
         </section>
 
       } @else if (activeDetailTab === 'finance') {
