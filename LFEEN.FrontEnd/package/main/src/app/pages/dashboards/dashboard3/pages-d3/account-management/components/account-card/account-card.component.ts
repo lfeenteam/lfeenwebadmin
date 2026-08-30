@@ -46,17 +46,20 @@ export class AccountCardComponent {
   }
 
   get idFieldLabel(): string {
-    const key = this.account?.type === 'company'
-      ? 'd3.accountManagement.card.idFieldCompany'
-      : 'd3.accountManagement.card.idFieldIndividual';
+    // مؤسسة فردية لها سجل تجاري زي الشركة، الأفراد فقط بيستخدموا رقم الهوية
+    const key = this.account?.type === 'individual'
+      ? 'd3.accountManagement.card.idFieldIndividual'
+      : 'd3.accountManagement.card.idFieldCompany';
     return this.translate.instant(key);
   }
 
   get actionLabel(): string {
-    const key = this.account?.type === 'company'
-      ? 'd3.accountManagement.card.actionCompany'
-      : 'd3.accountManagement.card.actionIndividual';
-    return this.translate.instant(key);
+    const keyByType: Record<Account['type'], string> = {
+      company:             'd3.accountManagement.card.actionCompany',
+      sole_proprietorship: 'd3.accountManagement.card.actionSoleProprietorship',
+      individual:          'd3.accountManagement.card.actionIndividual',
+    };
+    return this.translate.instant(keyByType[this.account?.type] ?? keyByType.individual);
   }
 
   get currentDir(): 'rtl' | 'ltr' {

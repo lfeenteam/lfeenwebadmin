@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { AssignableEmployee, Complaint } from '../../interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 
@@ -258,6 +258,14 @@ export class ComplaintsTableComponent implements OnChanges {
 
   displayDepartmentName(complaint: Complaint): string {
     return complaint.departmentName ?? '-';
+  }
+
+  /** Client tickets return the raw department enum ("General"…); map it to its i18n key
+   * so the label follows the current language. Falls back to the raw value. */
+  clientDepartmentLabel(complaint: Complaint): string {
+    if (!complaint.department) return '-';
+    const key = CLIENT_TICKET_DEPARTMENT_OPTIONS.find(o => o.value === complaint.department)?.labelKey;
+    return key ? this.translate.instant(key) : complaint.department;
   }
 
   displayAssignedAdminName(complaint: Complaint): string {

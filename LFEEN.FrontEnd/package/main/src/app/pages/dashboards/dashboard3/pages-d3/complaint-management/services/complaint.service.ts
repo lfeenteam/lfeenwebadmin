@@ -96,6 +96,15 @@ export class ComplaintService {
     if (params.assignedAdminUserId) {
       httpParams = httpParams.set('assignedAdminUserId', params.assignedAdminUserId);
     }
+    if (params.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params.department) {
+      httpParams = httpParams.set('department', params.department);
+    }
+    if (params.priority) {
+      httpParams = httpParams.set('priority', params.priority);
+    }
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }
@@ -239,6 +248,7 @@ export class ComplaintService {
       clientInitials: this.getInitials(clientName),
       clientCode: '-',
       status: this.mapClientTicketStatus(t.status),
+      department: t.department,
       date: t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
       dateEn: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
       type: 'customer',

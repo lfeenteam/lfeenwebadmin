@@ -1845,6 +1845,10 @@
         "notAssigned": "Not assigned",
         "allPriorities": "All priorities",
         "allDepartments": "All departments",
+        "status": {
+          "new": "New",
+          "pendingAdminReply": "Awaiting admin reply"
+        },
         "allProperties": "All buildings",
         "allEmployees": "All employees",
         "dateFrom": "Date from",
@@ -1862,6 +1866,21 @@
         "pending": "Pending",
         "resolved": "Resolved",
         "closed": "Closed"
+      },
+      "customerFilters": {
+        "dept": {
+          "general": "General",
+          "booking": "Booking",
+          "payment": "Payment",
+          "technical": "Technical",
+          "account": "Account"
+        },
+        "priority": {
+          "low": "Low",
+          "normal": "Normal",
+          "high": "High",
+          "urgent": "Urgent"
+        }
       },
       "chat": {
         "supportName": "Support",
@@ -2088,8 +2107,9 @@
         "statusSuspended": "Suspended",
         "idFieldCompany": "Commercial Register",
         "idFieldIndividual": "ID Number",
-        "actionCompany": "Company Business",
-        "actionIndividual": "Individual (Freelance)"
+        "actionCompany": "Company",
+        "actionSoleProprietorship": "Sole Proprietorship",
+        "actionIndividual": "Individual"
       },
       "pagination": {
         "total": "account"

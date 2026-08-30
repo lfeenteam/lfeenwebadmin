@@ -112,7 +112,7 @@ export interface RejectAccountRequest {
 export interface Account {
   id: string;
   name: string;
-  type: 'individual' | 'company';
+  type: 'individual' | 'company' | 'sole_proprietorship';
   status: 'active' | 'suspended' | 'under_review' | 'rejected';
   onboardingStatus: OnboardingStatus;
   idNumber: string;

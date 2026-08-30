@@ -11,7 +11,7 @@ import { ComplaintsTableComponent } from './components/complaints-table/complain
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 
 @Component({
@@ -40,6 +40,8 @@ export class ComplaintManagementComponent implements OnDestroy {
   private hubSubs = new Subscription();
   private hostSearchSub?: Subscription;
   private hostSearchSubject = new Subject<string>();
+  private customerSearchSub?: Subscription;
+  private customerSearchSubject = new Subject<string>();
   private langSub?: Subscription;
   private currentLangSignal = signal(this.translate.currentLang || this.translate.defaultLang || 'ar');
 
@@ -60,13 +62,21 @@ export class ComplaintManagementComponent implements OnDestroy {
   customerTotalPages  = signal(1);
   customerPage        = signal(1);
   customerSearch      = signal('');
-  customerStatus      = signal<number | null>(null);
+  customerStatus      = signal<string | null>(null);
+  customerDepartment  = signal<string | null>(null);
+  customerPriority    = signal<string | null>(null);
+  customerAssignedAgentUserId = signal<string | null>(null);
+
+  readonly clientDepartmentOptions = CLIENT_TICKET_DEPARTMENT_OPTIONS;
+  readonly clientPriorityOptions   = CLIENT_TICKET_PRIORITY_OPTIONS;
 
   // Queue-priority ordering only applies to the default, unfiltered first page — the same
   // guard already used for live NewClientTicket inserts — so it never fights search/filter/
   // pagination results with tickets that don't belong in them.
   private customerQueueApplicable = computed(() =>
-    this.customerPage() === 1 && !this.customerSearch() && this.customerStatus() === null
+    this.customerPage() === 1 && !this.customerSearch() &&
+    this.customerStatus() === null && this.customerDepartment() === null &&
+    this.customerPriority() === null && this.customerAssignedAgentUserId() === null
   );
 
   customerDisplayTickets = computed<Complaint[]>(() => {
@@ -85,7 +95,13 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostSearch      = signal('');
   hostPropertyId  = signal<number | null>(null);
   hostAssignedAdminUserId = signal<string | null>(null);
+  hostStatus      = signal<string | null>(null);
+  hostDepartment  = signal<string | null>(null);
+  hostPriority    = signal<string | null>(null);
   hostError       = signal(false);
+
+  readonly hostStatusOptions   = HOST_TICKET_STATUS_OPTIONS;
+  readonly hostPriorityOptions = HOST_TICKET_PRIORITY_OPTIONS;
 
   hostProperties  = signal<TicketPropertyFilterItem[]>([]);
   hostEmployees   = signal<AssignableEmployee[]>([]);
@@ -93,7 +109,10 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostHasActiveFilters = computed(() =>
     !!this.hostSearch() ||
     this.hostPropertyId() !== null ||
-    this.hostAssignedAdminUserId() !== null
+    this.hostAssignedAdminUserId() !== null ||
+    this.hostStatus() !== null ||
+    this.hostDepartment() !== null ||
+    this.hostPriority() !== null
   );
 
   /** Unified search + dropdown bar for the hosts tab, styled like the Units/Builds pages.
@@ -104,6 +123,21 @@ export class ComplaintManagementComponent implements OnDestroy {
   readonly hostFilterOptions = computed<BuildFilterOption[]>(() => {
     const allItem = (labelKey: string) => ({ value: 'all', labelKey });
     return [
+      {
+        id: 'status',
+        labelKey: 'd3.complaints.table.allStatuses',
+        items: [allItem('d3.complaints.table.allStatuses'), ...this.hostStatusOptions],
+      },
+      {
+        id: 'department',
+        labelKey: 'd3.complaints.hostFilters.allDepartments',
+        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...CLIENT_TICKET_DEPARTMENT_OPTIONS],
+      },
+      {
+        id: 'priority',
+        labelKey: 'd3.complaints.hostFilters.allPriorities',
+        items: [allItem('d3.complaints.hostFilters.allPriorities'), ...this.hostPriorityOptions],
+      },
       {
         id: 'property',
         labelKey: 'd3.complaints.hostFilters.allProperties',
@@ -126,8 +160,51 @@ export class ComplaintManagementComponent implements OnDestroy {
   });
 
   readonly hostActiveFiltersSnapshot = computed<Record<string, string>>(() => ({
+    status: this.hostStatus() ?? 'all',
+    department: this.hostDepartment() ?? 'all',
+    priority: this.hostPriority() ?? 'all',
     property: this.hostPropertyId() !== null ? String(this.hostPropertyId()) : 'all',
     employee: this.hostAssignedAdminUserId() ?? 'all',
+  }));
+
+  /** Same unified bar for the customers tab — status / department / priority / assigned-agent,
+   * all sent straight to GET /api/client-tickets as the API's string enum names. Reuses the
+   * hostEmployees list (loaded in loadHostFilterSources) for the assigned-agent dropdown. */
+  readonly customerFilterOptions = computed<BuildFilterOption[]>(() => {
+    const allItem = (labelKey: string) => ({ value: 'all', labelKey });
+    return [
+      {
+        id: 'status',
+        labelKey: 'd3.complaints.table.allStatuses',
+        items: [allItem('d3.complaints.table.allStatuses'), ...this.clientStatusOptions],
+      },
+      {
+        id: 'department',
+        labelKey: 'd3.complaints.hostFilters.allDepartments',
+        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...this.clientDepartmentOptions],
+      },
+      {
+        id: 'priority',
+        labelKey: 'd3.complaints.hostFilters.allPriorities',
+        items: [allItem('d3.complaints.hostFilters.allPriorities'), ...this.clientPriorityOptions],
+      },
+      {
+        id: 'agent',
+        labelKey: 'd3.complaints.hostFilters.allEmployees',
+        items: [
+          allItem('d3.complaints.hostFilters.allEmployees'),
+          ...(Array.isArray(this.hostEmployees()) ? this.hostEmployees() : [])
+            .map(e => ({ value: e.userId, labelKey: e.fullName })),
+        ],
+      },
+    ];
+  });
+
+  readonly customerActiveFiltersSnapshot = computed<Record<string, string>>(() => ({
+    status: this.customerStatus() ?? 'all',
+    department: this.customerDepartment() ?? 'all',
+    priority: this.customerPriority() ?? 'all',
+    agent: this.customerAssignedAgentUserId() ?? 'all',
   }));
 
   readonly resolvedTypeOptions = RESOLVED_TYPE_OPTIONS;
@@ -150,6 +227,10 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostSearchSub = this.hostSearchSubject
       .pipe(debounceTime(400), distinctUntilChanged())
       .subscribe(term => this.applyHostSearch(term));
+
+    this.customerSearchSub = this.customerSearchSubject
+      .pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe(term => this.applyCustomerSearch(term));
 
     // departmentName/statusName/priorityName come back from the API already localized
     // based on the Accept-Language header, so a lang switch needs a refetch of the active
@@ -199,6 +280,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.hubSubs.unsubscribe();
     this.hostSearchSub?.unsubscribe();
+    this.customerSearchSub?.unsubscribe();
     this.langSub?.unsubscribe();
   }
 
@@ -295,6 +377,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.service.getTickets({
       propertyId: this.hostPropertyId() ?? undefined,
       assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
+      status: this.hostStatus() ?? undefined,
+      department: this.hostDepartment() ?? undefined,
+      priority: this.hostPriority() ?? undefined,
       search: this.hostSearch() || undefined,
       page: this.hostPage(),
       pageSize: HOST_TICKETS_PAGE_SIZE,
@@ -329,8 +414,12 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadHostTickets();
   }
 
-  /** Single handler for the unified property/employee dropdown bar. */
+  /** Single handler for the unified status/department/priority/property/employee dropdown bar. */
   onHostFiltersChange(filters: Record<string, string>): void {
+    const norm = (v: string | undefined) => (v && v !== 'all' ? v : null);
+    this.hostStatus.set(norm(filters['status']));
+    this.hostDepartment.set(norm(filters['department']));
+    this.hostPriority.set(norm(filters['priority']));
     this.hostPropertyId.set(filters['property'] && filters['property'] !== 'all' ? Number(filters['property']) : null);
     this.hostAssignedAdminUserId.set(filters['employee'] && filters['employee'] !== 'all' ? filters['employee'] : null);
     this.hostPage.set(1);
@@ -350,6 +439,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostSearch.set('');
     this.hostPropertyId.set(null);
     this.hostAssignedAdminUserId.set(null);
+    this.hostStatus.set(null);
+    this.hostDepartment.set(null);
+    this.hostPriority.set(null);
     this.hostPage.set(1);
     this.loadHostTickets();
   }
@@ -402,6 +494,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loading.set(true);
     this.service.getClientTickets({
       status: this.customerStatus() ?? undefined,
+      department: this.customerDepartment() ?? undefined,
+      priority: this.customerPriority() ?? undefined,
+      assignedAgentUserId: this.customerAssignedAgentUserId() ?? undefined,
       search: this.customerSearch() || undefined,
       page: this.customerPage(),
       pageSize: CLIENT_TICKETS_PAGE_SIZE,
@@ -433,8 +528,29 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadClientTickets();
   }
 
+  onCustomerSearchInput(term: string): void {
+    this.customerSearchSubject.next(term);
+  }
+
+  private applyCustomerSearch(term: string): void {
+    this.customerSearch.set(term.trim());
+    this.customerPage.set(1);
+    this.loadClientTickets();
+  }
+
   onCustomerStatusChange(status: number | string | null): void {
-    this.customerStatus.set(status as number | null);
+    this.customerStatus.set(status != null ? String(status) : null);
+    this.customerPage.set(1);
+    this.loadClientTickets();
+  }
+
+  /** Single handler for the unified customers filter bar (status / department / priority / agent). */
+  onCustomerFiltersChange(filters: Record<string, string>): void {
+    const norm = (v: string | undefined) => (v && v !== 'all' ? v : null);
+    this.customerStatus.set(norm(filters['status']));
+    this.customerDepartment.set(norm(filters['department']));
+    this.customerPriority.set(norm(filters['priority']));
+    this.customerAssignedAgentUserId.set(norm(filters['agent']));
     this.customerPage.set(1);
     this.loadClientTickets();
   }

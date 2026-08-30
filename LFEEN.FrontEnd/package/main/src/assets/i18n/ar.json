@@ -1103,6 +1103,10 @@
         "notAssigned": "غير معيّنة",
         "allPriorities": "كل الأولويات",
         "allDepartments": "كل الأقسام",
+        "status": {
+          "new": "جديدة",
+          "pendingAdminReply": "بانتظار رد الإدارة"
+        },
         "allProperties": "كل المباني",
         "allEmployees": "كل الموظفين",
         "dateFrom": "من تاريخ",
@@ -1120,6 +1124,21 @@
         "pending": "قيد الانتظار",
         "resolved": "تم الحل",
         "closed": "مغلقة"
+      },
+      "customerFilters": {
+        "dept": {
+          "general": "عام",
+          "booking": "الحجوزات",
+          "payment": "الدفع",
+          "technical": "تقني",
+          "account": "الحساب"
+        },
+        "priority": {
+          "low": "منخفضة",
+          "normal": "عادية",
+          "high": "عالية",
+          "urgent": "عاجلة"
+        }
       },
       "chat": {
         "supportName": "فريق الدعم",
@@ -1346,8 +1365,9 @@
         "statusSuspended": "موقوف",
         "idFieldCompany": "السجل التجاري",
         "idFieldIndividual": "رقم الهوية",
-        "actionCompany": "أعمال مؤسسة",
-        "actionIndividual": "أفراد (مستقل)"
+        "actionCompany": "شركة",
+        "actionSoleProprietorship": "مؤسسة فردية",
+        "actionIndividual": "أفراد"
       },
       "pagination": {
         "total": "حساب"
