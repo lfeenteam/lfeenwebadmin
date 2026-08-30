@@ -1,7 +1,8 @@
 <div class="table-wrapper">
 
-  <!-- Search + Filter bar (hosts tab has its own unified search/filters bar above this table) -->
-  @if (!hostSupportMode) {
+  <!-- Search + Filter bar — the customers & hosts tabs each have their own unified
+       search/filters bar above this table, so the toolbar only renders for 'resolved'. -->
+  @if (resolvedMode) {
     <div class="table-toolbar">
       <div class="search-box">
         <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
@@ -26,10 +27,6 @@
             </button>
           }
         </mat-menu>
-      } @else {
-        <button class="status-filter-btn" type="button">
-          {{ allOptionLabelKey | translate }}
-        </button>
       }
     </div>
   }
@@ -65,6 +62,7 @@
         <div class="col-ticket">{{ 'd3.complaints.table.ticket' | translate }}</div>
         <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
         <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
+        <div class="col-department">{{ 'd3.complaints.hostFilters.department' | translate }}</div>
         <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
         <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
       </div>
@@ -203,6 +201,9 @@
               {{ statusLabelKey(c.status) | translate }}
             </span>
           </div>
+
+          <!-- Department -->
+          <div class="col-department">{{ clientDepartmentLabel(c) }}</div>
 
           <!-- Date -->
           <div class="col-date">{{ displayDate(c) }}</div>

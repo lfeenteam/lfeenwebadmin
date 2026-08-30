@@ -182,7 +182,7 @@
 .table-head,
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1.1fr 0.7fr 0.7fr minmax(110px, 150px);
+  grid-template-columns: 1fr 1.1fr 0.7fr 0.7fr 0.7fr minmax(110px, 150px);
   align-items: center;
   column-gap: 18px;
   padding: 0 28px;
@@ -715,7 +715,7 @@
 
   .table-head,
   .table-row {
-    grid-template-columns: 80px minmax(150px, 1fr) 100px 90px minmax(100px, 120px);
+    grid-template-columns: 80px minmax(150px, 1fr) 100px 90px 90px minmax(100px, 120px);
     column-gap: 8px;
     padding-inline: 12px;
   }
@@ -749,7 +749,8 @@
 }
 
 @media (max-width: 640px) and (min-width: 481px) {
-  .col-date { display: none; }
+  .col-date,
+  .col-department { display: none; }
 
   .table-head,
   .table-row {
@@ -959,6 +960,8 @@
   .table-head {
     display: none;
   }
+
+  .col-department { display: none; }
 
   .table-footer {
     min-height: 42px;

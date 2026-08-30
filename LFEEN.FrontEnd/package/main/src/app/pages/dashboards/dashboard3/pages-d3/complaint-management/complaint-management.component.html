@@ -31,13 +31,22 @@
             (searchQueryChange)="onHostSearchInput($event)"
             (filtersChange)="onHostFiltersChange($event)">
           </app-tabs-filter>
+        </div>
+      }
 
-          <div class="host-extra-filters">
-            <button class="host-filter-btn" type="button" (click)="resetHostFilters()">
-              <i-tabler name="filter-x" class="icon-16"></i-tabler>
-              {{ 'd3.complaints.hostFilters.reset' | translate }}
-            </button>
-          </div>
+      @if (activeTab() === 'customers') {
+        <div class="host-filters-bar">
+          <app-tabs-filter
+            class="host-tabs-filter"
+            [tabs]="[]"
+            [showMoreFiltersButton]="false"
+            [filterOptions]="customerFilterOptions()"
+            [activeFilters]="customerActiveFiltersSnapshot()"
+            [searchQuery]="customerSearch()"
+            [searchPlaceholder]="'d3.complaints.table.searchPlaceholder'"
+            (searchQueryChange)="onCustomerSearchInput($event)"
+            (filtersChange)="onCustomerFiltersChange($event)">
+          </app-tabs-filter>
         </div>
       }
 

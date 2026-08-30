@@ -34,6 +34,11 @@ export interface TicketListResponse {
 export interface TicketQueryParams {
   propertyId?: number;
   assignedAdminUserId?: string;
+  // GET /api/tickets: status/priority take numeric codes as strings ('1','2'…),
+  // department takes the enum name ('General'…). All sent verbatim.
+  status?: string;
+  department?: string;
+  priority?: string;
   search?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -42,6 +47,20 @@ export interface TicketQueryParams {
 }
 
 export const HOST_TICKETS_PAGE_SIZE = 20;
+
+// GET /api/tickets status codes: 1=New, 2=PendingAdminReply.
+export const HOST_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: '1', labelKey: 'd3.complaints.hostFilters.status.new' },
+  { value: '2', labelKey: 'd3.complaints.hostFilters.status.pendingAdminReply' },
+];
+
+// GET /api/tickets priority codes: 1=Low, 2=Normal, 3=High, 4=Urgent.
+export const HOST_TICKET_PRIORITY_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: '1', labelKey: 'd3.complaints.customerFilters.priority.low' },
+  { value: '2', labelKey: 'd3.complaints.customerFilters.priority.normal' },
+  { value: '3', labelKey: 'd3.complaints.customerFilters.priority.high' },
+  { value: '4', labelKey: 'd3.complaints.customerFilters.priority.urgent' },
+];
 
 export interface TicketPropertyFilterItem {
   propertyId: number;
@@ -268,9 +287,11 @@ export interface ClientChat {
 }
 
 export interface ClientTicketQueryParams {
-  status?: number;
-  department?: number;
-  priority?: number;
+  // Enum params are the API's own string names (status=PendingAgent, department=Booking,
+  // priority=High …) — GET /api/client-tickets does not accept numeric codes.
+  status?: string;
+  department?: string;
+  priority?: string;
   assignedAgentUserId?: string;
   search?: string;
   page?: number;
@@ -278,17 +299,36 @@ export interface ClientTicketQueryParams {
 }
 
 export interface ClientTicketQueueQueryParams {
-  department?: number;
+  department?: string;
   page?: number;
   pageSize?: number;
 }
 
 export const CLIENT_TICKETS_PAGE_SIZE = 8;
 
-export const CLIENT_TICKET_STATUS_OPTIONS: { value: number; labelKey: string }[] = [
-  { value: 0, labelKey: 'd3.complaints.clientStatus.open' },
-  { value: 1, labelKey: 'd3.complaints.clientStatus.pending' },
-  { value: 2, labelKey: 'd3.complaints.clientStatus.resolved' },
+// `value` is the status name GET /api/client-tickets filters on. The 3 buckets keep the
+// UI's original Open/Pending/Resolved options; adjust the names if the backend's accepted
+// set changes (screenshot showed BotHandling | PendingAgent | Assigned | …).
+export const CLIENT_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: 'BotHandling',  labelKey: 'd3.complaints.clientStatus.open' },
+  { value: 'PendingAgent', labelKey: 'd3.complaints.clientStatus.pending' },
+  { value: 'Resolved',     labelKey: 'd3.complaints.clientStatus.resolved' },
+];
+
+// department / priority filter values — the same string names the API expects.
+export const CLIENT_TICKET_DEPARTMENT_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: 'General',   labelKey: 'd3.complaints.customerFilters.dept.general' },
+  { value: 'Booking',   labelKey: 'd3.complaints.customerFilters.dept.booking' },
+  { value: 'Payment',   labelKey: 'd3.complaints.customerFilters.dept.payment' },
+  { value: 'Technical', labelKey: 'd3.complaints.customerFilters.dept.technical' },
+  { value: 'Account',   labelKey: 'd3.complaints.customerFilters.dept.account' },
+];
+
+export const CLIENT_TICKET_PRIORITY_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: 'Low',    labelKey: 'd3.complaints.customerFilters.priority.low' },
+  { value: 'Normal', labelKey: 'd3.complaints.customerFilters.priority.normal' },
+  { value: 'High',   labelKey: 'd3.complaints.customerFilters.priority.high' },
+  { value: 'Urgent', labelKey: 'd3.complaints.customerFilters.priority.urgent' },
 ];
 
 export const CLIENT_TICKET_STATUS = {
@@ -360,6 +400,8 @@ export interface Complaint {
   assignedAdminName?: string | null;
   propertyName?: string | null;
   departmentName?: string;
+  /** Raw department enum name from the client-tickets API (e.g. "General"); localized in the table. */
+  department?: string;
   priorityName?: string;
   priorityRaw?: string;
   lastMessageAtUtc?: string | null;
