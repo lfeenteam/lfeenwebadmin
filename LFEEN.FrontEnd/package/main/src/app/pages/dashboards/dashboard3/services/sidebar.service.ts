@@ -87,8 +87,6 @@ export class SidebarService {
       'users-management': 'users',
       'admin-users':      'user-cog',
       'roles':            'shield-check',
-      'permissions':      'lock',
-      'permission-groups':'layers-intersect',
       'units':            'smart-home',
       'properties':       'building-skyscraper',
       'accounts':         'users',
@@ -108,12 +106,14 @@ export class SidebarService {
       'bookings':        '/d3/bookings',
       'complaints':      '/d3/complaints',
       'support-faq':     '/d3/faq',
-      'roles':              '/d3/roles',
-      'permissions':        '/d3/all-permissions',
-      'permission-groups':  '/d3/permission-groups'
+      'roles':           '/d3/roles'
     };
 
+    // Permissions & permission groups are managed by the backend only — hide their pages
+    const hiddenKeys = new Set(['permissions', 'permission-groups']);
+
     return items
+      .filter(item => !hiddenKeys.has(item.key))
       .sort((a, b) => a.order - b.order)
       .map(item => {
         let link: string | null = null;

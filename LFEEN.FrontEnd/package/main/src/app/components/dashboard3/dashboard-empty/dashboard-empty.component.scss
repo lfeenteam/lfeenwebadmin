@@ -36,6 +36,27 @@
     display: block;
   }
 
+  &__icon-wrap {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: #F5F5F3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  &__icon {
+    color: #B8B8B3;
+    display: flex;
+
+    ::ng-deep svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
   &__title {
     margin: 0 0 10px;
     font-size: 17px;

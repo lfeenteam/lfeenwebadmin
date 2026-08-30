@@ -25,6 +25,22 @@
     color: #111110;
   }
 
+  // ── Tabler icon sizing/alignment helpers ───
+  i-tabler {
+    &.icon-14, &.icon-16, &.icon-18, &.icon-20, &.icon-24, &.icon-40 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
+    &.icon-14 ::ng-deep svg { width: 14px; height: 14px; }
+    &.icon-16 ::ng-deep svg { width: 16px; height: 16px; }
+    &.icon-18 ::ng-deep svg { width: 18px; height: 18px; }
+    &.icon-20 ::ng-deep svg { width: 20px; height: 20px; }
+    &.icon-24 ::ng-deep svg { width: 24px; height: 24px; }
+    &.icon-40 ::ng-deep svg { width: 40px; height: 40px; }
+  }
+
   // ── Info Card ──────────────────────────────
   .info-card {
     border-radius: 20px !important;
@@ -148,6 +164,22 @@
     .perms-card-header {
       background: #FCFCFB;
 
+      .select-all-btn {
+        background: #111110;
+        color: #fff;
+        border: 1px solid #111110;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: 'Cairo', sans-serif;
+        cursor: pointer;
+        transition: opacity 0.15s;
+
+        &:hover { opacity: 0.88; }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+      }
+
       .selected-badge {
         background: #F1F1EE;
         border: 1px solid #E8E8E4;
@@ -162,6 +194,124 @@
     .perms-divider {
       height: 1px;
       background: #E8E8E4;
+    }
+
+    .perms-empty {
+      color: #9E9E9A;
+
+      i-tabler { color: #C9C9C4; }
+
+      p { font-size: 14px; font-weight: 700; }
+    }
+
+    .pagination-wrapper {
+      border-top: 1px solid #E8E8E4;
+
+      .page-nav-btn,
+      .page-number-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        padding: 0;
+        margin: 0;
+        border: 1px solid #E8E8E4;
+        border-radius: 8px;
+        background: #fff;
+        color: #6B6B67;
+        font-family: 'Cairo', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+        &:hover:not(:disabled) { background: #F7F7F5; color: #111110; }
+        &:disabled { opacity: 0.4; cursor: not-allowed; }
+      }
+
+      .page-nav-btn i-tabler {
+        display: flex;
+        width: 16px;
+        height: 16px;
+      }
+
+      .page-number-btn.active {
+        background: #111110;
+        color: #fff;
+        border-color: #111110;
+      }
+
+      @media (max-width: 767.98px) {
+        padding: 12px 16px !important;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center !important;
+
+        .page-nav-btn, .page-number-btn { width: 32px; height: 32px; min-width: 32px; }
+      }
+    }
+
+    .perm-group {
+      margin: 16px 24px;
+      border: 1px solid #E8E8E4;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+
+      .perm-group-header {
+        cursor: pointer;
+        background: #FCFCFB;
+        transition: background 0.15s;
+
+        &:hover { background: #F1F1EE; }
+        &:focus-visible {
+          outline: 2px solid #111110;
+          outline-offset: -2px;
+        }
+
+        .group-chevron { color: #6B6B67; flex-shrink: 0; }
+
+        .group-name {
+          font-size: 14px;
+          font-weight: 900;
+          color: #111110;
+        }
+
+        .group-count {
+          font-size: 12px;
+          font-weight: 700;
+          color: #9E9E9A;
+        }
+      }
+
+      .perm-group-body {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding: 16px;
+        border-top: 1px solid #E8E8E4;
+        background: #fff;
+
+        .perm-row {
+          border: 1px solid #ECECE8;
+          border-radius: 10px;
+          background: #FCFCFB;
+          padding: 12px 14px;
+          transition: border-color 0.15s, background 0.15s;
+
+          &:hover { background: #F7F7F5; border-color: #DBDBD5; }
+
+          &.is-locked {
+            background: #F4F4F1;
+            border-color: #E4E4E0;
+          }
+
+          .perm-lock { color: #9E9E9A; flex-shrink: 0; }
+        }
+      }
     }
 
     .perm-row {
@@ -221,11 +371,24 @@
     height: auto;
     font-weight: 700;
     padding: 12px 48px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
     font-size: 14px;
     font-family: 'Cairo', sans-serif;
+
+    // mat-flat-button wraps projected content in .mdc-button__label —
+    // make that the flex row so the icon lines up with the text
+    ::ng-deep .mdc-button__label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    ::ng-deep i-tabler svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+    }
   }
 
   .cancel-btn {
@@ -255,7 +418,13 @@
     // perms card
     .perms-card {
       .perms-card-header { padding: 14px 16px !important; }
-      .perm-row { padding: 12px 16px !important; }
+      .perm-group { margin: 12px 14px; }
+      .perm-group .perm-group-body {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 12px;
+      }
+      .perm-group .perm-group-body .perm-row { padding: 12px 14px; }
     }
 
     // alert
@@ -352,6 +521,17 @@
 
 // ── Slide Toggle colors ─────────────────────
 ::ng-deep .add-role-container {
+  // Group-level toggle in "partially selected" state
+  .mat-mdc-slide-toggle.is-indeterminate {
+    --mdc-switch-unselected-track-color: #C9C9C4;
+    --mdc-switch-unselected-hover-track-color: #C9C9C4;
+
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #C9C9C4 !important;
+      border-color: #C9C9C4;
+    }
+  }
+
   .mat-mdc-slide-toggle.mat-primary {
     --mdc-switch-selected-track-color: #111110;
     --mdc-switch-selected-handle-color: #fff;

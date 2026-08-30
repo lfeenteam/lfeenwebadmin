@@ -33,6 +33,8 @@ interface BookingDetailView {
     checkOutDate: string;
     checkOutTime: string;
     nights: number;
+    actualCheckIn: { date: string; time: string } | null;
+    actualCheckOut: { date: string; time: string } | null;
   };
   dateRangeLabel: string;
 }
@@ -119,6 +121,8 @@ export class BookingDetailDrawerComponent implements OnChanges {
   private mapDetail(item: BookingDetailApiItem): BookingDetailView {
     const checkIn = this.formatDateParts(item.checkIn);
     const checkOut = this.formatDateParts(item.checkOut);
+    const actualCheckIn = this.formatDateParts(item.checkedInAtUtc);
+    const actualCheckOut = this.formatDateParts(item.checkedOutAtUtc);
     const location = [item.propertyName?.trim(), item.city?.trim()].filter(Boolean).join('، ');
     const companions: string[] = (item.companions ?? [])
       .map(c => c.name?.trim())
@@ -146,6 +150,8 @@ export class BookingDetailDrawerComponent implements OnChanges {
         checkOutDate: checkOut?.date ?? '-',
         checkOutTime: checkOut?.time ?? '-',
         nights: item.nights ?? 0,
+        actualCheckIn,
+        actualCheckOut,
       },
       dateRangeLabel: checkIn && checkOut ? `${checkIn.date} — ${checkOut.date}` : '-',
     };

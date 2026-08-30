@@ -3,6 +3,10 @@
   <!-- Illustration -->
   @if (imageSrc) {
     <img [src]="imageSrc" alt="" class="d3-empty-state__img" aria-hidden="true" />
+  } @else if (icon) {
+    <div class="d3-empty-state__icon-wrap">
+      <i-tabler [name]="icon" class="d3-empty-state__icon"></i-tabler>
+    </div>
   } @else {
     <div class="d3-empty-state__art">
       <svg viewBox="0 0 200 176" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="d3-empty-state__svg">
