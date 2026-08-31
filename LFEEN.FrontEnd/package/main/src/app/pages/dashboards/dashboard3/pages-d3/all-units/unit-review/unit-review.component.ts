@@ -92,7 +92,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     if (status === 'Approved' && !this.unitDetail?.isDisplayed) {
       return { labelKey: 'd3.unitReview.status.readyToPublish', icon: 'circle-check', mod: 'approved' };
     }
-    if (status === 'Approved') return { labelKey: 'd3.unitReview.status.approved', icon: 'circle-check', mod: 'approved' };
+    // Approved *and* live — the final approval action has been submitted, so the unit is
+    // adopted, not merely "accepted" section-by-section (the section badges keep that wording).
+    if (status === 'Approved') return { labelKey: 'd3.unitReview.status.adopted', icon: 'circle-check', mod: 'approved' };
     if (status === 'Rejected') return { labelKey: 'd3.unitReview.status.rejected', icon: 'circle-x',     mod: 'rejected' };
     if (this.originTab === 'draft' || !status) {
       return { labelKey: 'd3.unitReview.status.draftLabel', icon: 'file-text', mod: 'draft' };

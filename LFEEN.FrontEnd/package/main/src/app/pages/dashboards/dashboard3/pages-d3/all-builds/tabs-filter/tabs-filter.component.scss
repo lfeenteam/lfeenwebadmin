@@ -161,7 +161,9 @@
   border-radius: 12px;
   background: #ffffff;
   box-shadow: 0px 1px 2px -1px #0000001A;
-  display: inline-flex;
+  // Mobile-only affordance — the inline filter pills already cover every filter on
+  // wider screens, so the funnel + its bottom sheet stay hidden until the pills are.
+  display: none;
   align-items: center;
   justify-content: center;
   color: #111110;
@@ -179,6 +181,14 @@
     height: 20px;
     stroke-width: 2;
   }
+}
+
+// The bottom sheet only has layout inside the mobile breakpoint below — keep it out of
+// the flow everywhere else so a lingering `mobileFilterOpen` can't dump unstyled markup
+// into the page on desktop.
+.mobile-filter-backdrop,
+.mobile-filter-sheet {
+  display: none;
 }
 
 @media (max-width: 992px) {
@@ -264,6 +274,7 @@
   }
 
   .filter-icon-btn {
+    display: inline-flex;
     width: 42px;
     height: 42px;
     flex-shrink: 0;
@@ -277,6 +288,7 @@
 
   // ── Bottom sheet ──────────────────────
   .mobile-filter-backdrop {
+    display: block;
     position: fixed;
     inset: 0;
     background: rgba(17, 17, 16, 0.4);

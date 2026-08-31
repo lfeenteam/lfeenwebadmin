@@ -2016,6 +2016,7 @@
         "progressLabel": "حالة المراجعة",
         "progressCount": "{{completed}} من {{total}}",
         "approved": "تم القبول",
+        "adopted": "تم الاعتماد",
         "readyToPublish": "جاهزة للنشر",
         "rejected": "تم الرفض",
         "draftLabel": "مسودة",
