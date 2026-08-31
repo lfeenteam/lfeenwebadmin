@@ -3,6 +3,10 @@
   font-family: 'Cairo', sans-serif;
 }
 
+:host([hidden]) {
+  display: none;
+}
+
 .detail-section {
   display: flex;
   flex-direction: column;

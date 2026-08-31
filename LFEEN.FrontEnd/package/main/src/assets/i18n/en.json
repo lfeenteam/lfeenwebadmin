@@ -1103,6 +1103,7 @@
         "finalNotesOptionalLabel": "Final notes",
         "finalNotesOptionalPlaceholder": "Add any final notes for the host...",
         "finalNotesHint": "Optional to approve, required to reject",
+        "finalNotesHintRejectOnly": "Required to explain the rejection reason",
         "rejectSuccess": "The property was rejected successfully.",
         "errors": {
           "alreadyApproved": "This property has already been approved.",
@@ -1520,7 +1521,28 @@
         "title": "Pricing Policy Review",
         "subtitle": "Please review the daily prices and seasonal periods set by the host",
         "basePrice": "Base Price",
+        "safetyFloor": "Safety Minimum",
         "perNight": "/ night",
+        "policies": {
+          "stayDurationSubtitle": "Discounts based on length of stay",
+          "dayFraction": {
+            "title": "Day Fraction",
+            "quarterDay": "Quarter-day discount",
+            "halfDay": "Half-day discount"
+          },
+          "longStay": {
+            "title": "Long-stay Discount",
+            "weekPlus": "One week or more discount",
+            "monthPlus": "One month or more discount"
+          },
+          "platform": {
+            "title": "Platform Customization",
+            "subtitle": "Set your unit pricing for Lfeen and other platforms",
+            "lfeen": "Lfeen platform",
+            "others": "Other platforms",
+            "discountLabel": "Discount"
+          }
+        },
         "seasonalTitle": "Seasonal Pricing Periods",
         "emptySeasonalTitle": "No seasonal pricing periods",
         "emptySeasonalDescription": "The host has not added any seasonal pricing periods for this unit.",
@@ -1954,7 +1976,14 @@
         "checkIn": "Check-in Date",
         "checkOut": "Check-out Date",
         "clear": "Clear Filters",
-        "moreFilters": "Filters"
+        "moreFilters": "Filters",
+        "dateRangeError": "Check-out date can't be before the check-in date.",
+        "checkOutClearedHint": "Check-out date was cleared because it fell before the check-in date."
+      },
+      "origin": {
+        "all": "All Sources",
+        "clientPortal": "Client Portal",
+        "merchant": "Host"
       },
       "status": {
         "all": "All Statuses",
@@ -1985,7 +2014,8 @@
       "actions": {
         "view": "View Details",
         "changeUnit": "Change Unit",
-        "cancel": "Cancel Booking"
+        "cancel": "Cancel Booking",
+        "menuLabel": "Booking actions"
       },
       "changeUnitDialog": {
         "title": "Change Unit",
@@ -2003,8 +2033,9 @@
         "title": "Cancel Booking",
         "warningTitle": "Are you sure you want to cancel this booking?",
         "warningDesc": "This action will cancel the booking and automatically process the refund to the customer.",
-        "reasonLabel": "Reason for cancellation (optional)",
+        "reasonLabel": "Reason for cancellation",
         "reasonPlaceholder": "Write the reason for cancellation here...",
+        "reasonRequiredError": "Please enter the reason for cancellation.",
         "dismissBtn": "Back",
         "confirmBtn": "Confirm Cancellation"
       },
@@ -2069,7 +2100,6 @@
             "system": "System"
           }
         },
-        "comingSoon": "No data to display yet",
         "loading": "Loading booking details...",
         "loadError": "Failed to load booking details"
       }

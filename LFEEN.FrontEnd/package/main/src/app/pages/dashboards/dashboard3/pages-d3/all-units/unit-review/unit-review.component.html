@@ -131,7 +131,7 @@
       <span class="input-label">
         {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
       </span>
-      <small class="notes-hint">{{ 'd3.unitReview.finalNotes.optionalHint' | translate }}</small>
+      <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
     </div>
     <textarea
       [(ngModel)]="finalNotes"
@@ -140,7 +140,8 @@
     </textarea>
   </div>
 
-  <div class="action-buttons">
+  <div class="action-buttons" [class.single-action]="unitDetail?.isDisplayed">
+    @if (!unitDetail?.isDisplayed) {
     <button
       class="btn btn-approve"
       type="button"
@@ -149,13 +150,14 @@
       <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
       <i-tabler name="circle-check" class="btn-icon"></i-tabler>
     </button>
+    }
     <button
       class="btn btn-reject"
       type="button"
       [disabled]="isRejectDisabled"
       (click)="onReject()">
       <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
-      <i-tabler name="x" class="btn-icon"></i-tabler>
+      <i-tabler name="circle-x" class="btn-icon"></i-tabler>
     </button>
   </div>
 

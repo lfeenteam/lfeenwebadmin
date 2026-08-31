@@ -9,6 +9,9 @@ import { Component, Input } from '@angular/core';
   styleUrl: './dashboard-loading.component.scss'
 })
 export class DashboardLoadingComponent {
+  @Input() label = '';
+  @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  /** kept for backward compatibility with existing usages */
   @Input() rows = 3;
   @Input() variant: 'cards' | 'review' | 'table' = 'cards';
 }

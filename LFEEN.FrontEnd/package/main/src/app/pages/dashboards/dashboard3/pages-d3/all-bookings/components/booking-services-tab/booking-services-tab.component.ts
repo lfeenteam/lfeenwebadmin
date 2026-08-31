@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -25,6 +26,7 @@ interface ServiceRequestView {
 export class BookingServicesTabComponent implements OnChanges {
   private translate = inject(TranslateService);
   private bookingService = inject(BookingService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() bookingId: string | null = null;
 
@@ -56,7 +58,9 @@ export class BookingServicesTabComponent implements OnChanges {
     this.loadError = false;
     this.requests = [];
 
-    this.bookingService.getBookingServiceRequests(bookingId).subscribe({
+    this.bookingService.getBookingServiceRequests(bookingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: res => {
         this.requests = res.data.map(item => this.mapRequest(item));
         this.loading = false;

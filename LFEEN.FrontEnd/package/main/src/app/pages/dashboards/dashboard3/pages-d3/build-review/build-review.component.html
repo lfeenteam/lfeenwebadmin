@@ -145,7 +145,7 @@
       <div class="final-notes-inline">
         <div class="notes-label-row">
           <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
-          <small class="notes-hint">{{ 'd3.buildReview.finalDecision.finalNotesHint' | translate }}</small>
+          <small class="notes-hint">{{ (isDisplayed ? 'd3.buildReview.finalDecision.finalNotesHintRejectOnly' : 'd3.buildReview.finalDecision.finalNotesHint') | translate }}</small>
         </div>
         <textarea
           [(ngModel)]="finalNotes"
@@ -157,7 +157,8 @@
 
     <!-- Action Buttons -->
     <div class="action-wrapper">
-      <div class="action-buttons">
+      <div class="action-buttons" [class.single-action]="isDisplayed">
+        @if (!isDisplayed) {
         <button
           class="btn btn-approve"
           [class.active]="!isApproveDisabled"
@@ -167,6 +168,7 @@
           <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
         </button>
+        }
 
         <button class="btn btn-reject" [class.active]="!isRejectDisabled" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
           <span>{{ 'd3.buildReview.actions.reject' | translate }}</span>
@@ -239,10 +241,12 @@
 
         <!-- Final Action Buttons -->
         <div class="action-buttons-final">
+            @if (!isDisplayed) {
             <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
                 <i-tabler name="circle-check"></i-tabler>
             </button>
+            }
             <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
                 <span>{{ 'd3.buildReview.actions.rejectFinal' | translate }}</span>
                 <i-tabler name="circle-x"></i-tabler>

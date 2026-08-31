@@ -3,14 +3,27 @@
   <!-- Header -->
   <div class="pricing-header">
     <div class="price-badge">
-      <i-tabler name="credit-card" class="badge-icon"></i-tabler>
-      <div class="badge-text">
-        <span class="price-label">{{ 'd3.unitReview.pricingView.basePrice' | translate }}</span>
-        <span class="price-value">
-          {{ basePrice ?? '-' }}
-          <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
-          {{ 'd3.unitReview.pricingView.perNight' | translate }}
-        </span>
+      <div class="price-stat">
+        <i-tabler name="tag" class="badge-icon"></i-tabler>
+        <div class="badge-text">
+          <span class="price-label">{{ 'd3.unitReview.pricingView.basePrice' | translate }}</span>
+          <span class="price-value">
+            {{ basePrice ?? '-' }}
+            <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        </div>
+      </div>
+      <span class="badge-divider"></span>
+      <div class="price-stat">
+          <i-tabler name="shield-check" class="badge-icon badge-icon--safety"></i-tabler>
+        <div class="badge-text">
+          <span class="price-label">{{ 'd3.unitReview.pricingView.safetyFloor' | translate }}</span>
+          <span class="price-value price-value--safety">
+            {{ safetyFloorPrice ?? '-' }}
+            <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon riyal-icon--safety" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        </div>
+      
       </div>
     </div>
     <div class="header-text">
@@ -18,6 +31,66 @@
       <p>{{ 'd3.unitReview.pricingView.subtitle' | translate }}</p>
     </div>
   </div>
+
+  <!-- Pricing Policies -->
+  <section class="policies-section">
+    @for (policy of pricingPolicies; track policy.titleKey) {
+      <article class="policy-card" [class.is-disabled]="!policy.enabled">
+        <div class="policy-card-head">
+          <i-tabler [name]="policy.icon" class="policy-head-icon"></i-tabler>
+          <div class="policy-head-text">
+            <strong>{{ policy.titleKey | translate }}</strong>
+            <span>{{ policy.subtitleKey | translate }}</span>
+          </div>
+          <span class="policy-switch" [class.is-on]="policy.enabled" aria-hidden="true"></span>
+        </div>
+
+        <div class="policy-rows">
+          @for (row of policy.rows; track row.labelKey) {
+            <div class="policy-row">
+              <span class="policy-row-label">{{ row.labelKey | translate }}</span>
+              <div class="policy-row-controls">
+                <span class="policy-field policy-field--pct">{{ row.value }}<small>%</small></span>
+                <span class="policy-switch policy-switch--sm" [class.is-on]="row.enabled" aria-hidden="true"></span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+    }
+
+    <!-- Platform customization -->
+    <article class="policy-card" [class.is-disabled]="!platformPolicy.enabled">
+      <div class="policy-card-head">
+        <i-tabler name="layout-grid" class="policy-head-icon"></i-tabler>
+        <div class="policy-head-text">
+          <strong>{{ 'd3.unitReview.pricingView.policies.platform.title' | translate }}</strong>
+          <span>{{ 'd3.unitReview.pricingView.policies.platform.subtitle' | translate }}</span>
+        </div>
+        <span class="policy-switch" [class.is-on]="platformPolicy.enabled" aria-hidden="true"></span>
+      </div>
+
+      <div class="policy-rows">
+        @for (row of platformPolicy.rows; track row.labelKey) {
+          <div class="policy-row policy-row--platform">
+            <span class="policy-row-label">{{ row.labelKey | translate }}</span>
+            <span class="policy-switch policy-switch--sm" [class.is-on]="row.enabled" aria-hidden="true"></span>
+            <div class="policy-field-group">
+                 <span class="policy-field policy-field--pct">
+                <small class="field-prefix">{{ 'd3.unitReview.pricingView.policies.platform.discountLabel' | translate }}</small>
+                {{ row.discount }}<small>%</small>
+              </span>
+              <span class="policy-field policy-field--price">
+                {{ row.price }}
+                <img [src]="currencyIconSrc" alt="ريال" class="field-riyal" [class.is-text-currency]="currentLang === 'en'">
+              </span>
+          
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
 
   <!-- Seasonal Periods -->
   <section class="seasons-section">

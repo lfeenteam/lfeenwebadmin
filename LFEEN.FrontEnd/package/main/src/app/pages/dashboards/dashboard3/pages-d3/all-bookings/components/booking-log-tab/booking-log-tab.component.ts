@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -34,6 +35,7 @@ const SOURCE_LABEL_KEY: Record<BookingActivityLogSource, string> = {
 export class BookingLogTabComponent implements OnChanges {
   private translate = inject(TranslateService);
   private bookingService = inject(BookingService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() bookingId: string | null = null;
 
@@ -52,7 +54,9 @@ export class BookingLogTabComponent implements OnChanges {
     this.loadError = false;
     this.activities = [];
 
-    this.bookingService.getBookingActivityLog(bookingId).subscribe({
+    this.bookingService.getBookingActivityLog(bookingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: items => {
         this.activities = items.map(item => this.mapActivity(item));
         this.loading = false;

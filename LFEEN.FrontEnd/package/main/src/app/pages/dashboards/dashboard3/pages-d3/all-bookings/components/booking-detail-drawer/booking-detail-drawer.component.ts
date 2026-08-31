@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject, catchError, of, switchMap, tap } from 'rxjs';
 import { BookingDetailApiItem, BookingStatus } from '../../interfaces/booking.model';
 import { BookingService } from '../../services/booking.service';
 import { BookingFinanceTabComponent } from '../booking-finance-tab/booking-finance-tab.component';
@@ -46,23 +48,65 @@ interface BookingDetailView {
   templateUrl: './booking-detail-drawer.component.html',
   styleUrl: './booking-detail-drawer.component.scss'
 })
-export class BookingDetailDrawerComponent implements OnChanges {
+export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
   private bookingService = inject(BookingService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() open = false;
   @Input() bookingId: string | null = null;
   @Output() closed = new EventEmitter<void>();
 
   activeDetailTab: BookingDetailTab = 'details';
+  // Tabs are kept in the DOM (hidden) once first opened so switching back and
+  // forth doesn't re-fetch each child every time.
+  visitedTabs: Record<BookingDetailTab, boolean> = { details: true, finance: false, log: false, services: false };
 
   loading = false;
   loadError = false;
   bookingDetail: BookingDetailView | null = null;
 
+  private scrollLocked = false;
+  // switchMap on this stream so re-opening the drawer for another booking
+  // cancels any still-in-flight request for the previous one.
+  private detailRequest$ = new Subject<string>();
+
+  constructor() {
+    this.detailRequest$
+      .pipe(
+        tap(() => {
+          this.loading = true;
+          this.loadError = false;
+          this.bookingDetail = null;
+        }),
+        switchMap(id => this.bookingService.getBookingDetail(id).pipe(
+          catchError(() => {
+            this.loadError = true;
+            return of(null);
+          }),
+        )),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(item => {
+        if (item) {
+          try {
+            this.bookingDetail = this.mapDetail(item);
+          } catch {
+            this.loadError = true;
+          }
+        }
+        this.loading = false;
+      });
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['open']?.currentValue === true) {
       this.activeDetailTab = 'details';
+      this.visitedTabs = { details: true, finance: false, log: false, services: false };
+    }
+
+    if (changes['open']) {
+      this.setBodyScrollLock(this.open);
     }
 
     if (this.open && this.bookingId) {
@@ -73,12 +117,28 @@ export class BookingDetailDrawerComponent implements OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.setBodyScrollLock(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.open) this.close();
+  }
+
   setDetailTab(tab: BookingDetailTab): void {
     this.activeDetailTab = tab;
+    this.visitedTabs[tab] = true;
   }
 
   close(): void {
     this.closed.emit();
+  }
+
+  private setBodyScrollLock(lock: boolean): void {
+    if (lock === this.scrollLocked) return;
+    this.scrollLocked = lock;
+    document.body.style.overflow = lock ? 'hidden' : '';
   }
 
   statusLabel(status: BookingStatus): string {
@@ -102,20 +162,7 @@ export class BookingDetailDrawerComponent implements OnChanges {
   }
 
   private fetchBookingDetail(bookingId: string): void {
-    this.loading = true;
-    this.loadError = false;
-    this.bookingDetail = null;
-
-    this.bookingService.getBookingDetail(bookingId).subscribe({
-      next: item => {
-        this.bookingDetail = this.mapDetail(item);
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.loadError = true;
-      },
-    });
+    this.detailRequest$.next(bookingId);
   }
 
   private mapDetail(item: BookingDetailApiItem): BookingDetailView {
@@ -133,7 +180,7 @@ export class BookingDetailDrawerComponent implements OnChanges {
       status: this.bookingService.mapStatus(item.displayStatusKey),
       guest: {
         initials: this.bookingService.getInitials(item.customerName),
-        colorIndex: this.colorIndexFor(item.bookingId),
+        colorIndex: this.bookingService.colorIndexForId(item.bookingId),
         name: item.customerName?.trim() || '-',
         phone: item.customerPhone?.trim() || '-',
         companionsCount: companions.length,
@@ -160,11 +207,5 @@ export class BookingDetailDrawerComponent implements OnChanges {
   private formatDateParts(iso: string | null): { date: string; time: string } | null {
     const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
     return formatLocalizedDateTime(iso, lang);
-  }
-
-  private colorIndexFor(id: string): number {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-    return hash % 5;
   }
 }

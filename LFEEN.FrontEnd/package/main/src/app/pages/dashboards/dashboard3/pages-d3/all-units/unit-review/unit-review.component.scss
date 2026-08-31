@@ -558,6 +558,11 @@
 .action-buttons {
   display: flex;
   gap: 16px;
+
+  &.single-action .btn-reject {
+    flex: 1 1 auto;
+    width: 100%;
+  }
 }
 
 .btn {
@@ -609,22 +614,29 @@
 .btn-reject {
   flex: 0 0 auto;
   min-width: 220px;
-  background: #1111100D;
-  border-color: transparent;
-  color: #C9C9C6;
-  transition: background 0.2s, color 0.2s;
+  background: #FFFFFF;
+  border-color: #FFE0E0;
+  color: #F3A2A2;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 
   ::ng-deep svg {
-    stroke: #C9C9C6;
+    stroke: #F3A2A2;
     transition: stroke 0.2s;
   }
 
+  &:disabled {
+    background: #FFFFFF;
+    border-color: #FFDCDC;
+    color: #F3A2A2;
+  }
+
   &:not(:disabled) {
-    background: #E11D48;
-    color: #FFFFFF;
+    background: #FFF1F1;
+    border-color: #F3A2A2;
+    color: #DC2626;
 
     ::ng-deep svg {
-      stroke: #FFFFFF;
+      stroke: #DC2626;
     }
   }
 }

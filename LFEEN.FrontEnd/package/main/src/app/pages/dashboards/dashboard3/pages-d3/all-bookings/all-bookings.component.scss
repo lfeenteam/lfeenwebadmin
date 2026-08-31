@@ -99,6 +99,46 @@
   &.orange { color: #b45309; background: #fffbeb; }
 }
 
+// ── Origin tabs ───────────────────────────────────────────────────────────────
+.origin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 48px;
+  margin-top: 8px;
+  border-bottom: 1px solid #e8e8e4;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 575.98px) {
+    gap: 16px;
+  }
+}
+
+.origin-tab {
+  flex-shrink: 0;
+  height: 48px;
+  padding: 0 4px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: #9e9e9a;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+
+  &.active {
+    color: #111110;
+    font-weight: 900;
+    border-bottom-color: #111110;
+  }
+}
+
 // ── Toolbar ───────────────────────────────────────────────────────────────────
 .bookings-toolbar {
   display: flex;

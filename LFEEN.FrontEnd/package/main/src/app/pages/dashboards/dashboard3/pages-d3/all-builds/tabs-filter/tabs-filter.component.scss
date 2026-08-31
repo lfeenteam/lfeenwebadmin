@@ -16,12 +16,102 @@
   padding-bottom: 0;
 }
 
+.tabs-scroll {
+  position: relative;
+  min-width: 0;
+}
+
 .tabs-row {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 28px;
   flex-shrink: 0;
+}
+
+// Overflow affordance for the scrolling tab strip — a soft fade on whichever edge still
+// has hidden tabs, plus a floating chevron button. Only rendered inside the mobile
+// breakpoint below (the only place `.tabs-row` actually scrolls); inert everywhere else.
+%tabs-scroll-fade {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 48px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tabs-scroll::before {
+  @extend %tabs-scroll-fade;
+  inset-inline-start: 0;
+  background: linear-gradient(to left, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll::after {
+  @extend %tabs-scroll-fade;
+  inset-inline-end: 0;
+  background: linear-gradient(to right, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll-arrow {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e8e8e4;
+  box-shadow: 0 1px 5px rgba(17, 17, 16, 0.16);
+  color: #111110;
+  cursor: pointer;
+  line-height: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  ::ng-deep svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+  }
+}
+
+.tabs-scroll-arrow--start {
+  inset-inline-start: 2px;
+
+  i-tabler { transform: rotate(180deg); }
+}
+
+.tabs-scroll-arrow--end {
+  inset-inline-end: 2px;
+}
+
+:host-context([dir='ltr']) {
+  .tabs-scroll::before {
+    background: linear-gradient(to right, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll::after {
+    background: linear-gradient(to left, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll-arrow--start i-tabler { transform: none; }
+  .tabs-scroll-arrow--end i-tabler { transform: rotate(180deg); }
 }
 
 .tab-btn {
@@ -198,8 +288,11 @@
     gap: 16px;
   }
 
-  .tabs-row {
+  .tabs-scroll {
     order: 1;
+  }
+
+  .tabs-row {
     border-bottom: none;
     padding-bottom: 4px;
   }
@@ -256,6 +349,16 @@
     font-size: 14px;
     padding: 10px 4px;
     flex-shrink: 0;
+  }
+
+  .tabs-scroll.can-scroll-start::before,
+  .tabs-scroll.can-scroll-end::after {
+    opacity: 1;
+  }
+
+  .tabs-scroll.can-scroll-start .tabs-scroll-arrow--start,
+  .tabs-scroll.can-scroll-end .tabs-scroll-arrow--end {
+    display: flex;
   }
 
   .filter-dropdowns { display: none; }

@@ -173,17 +173,16 @@
           </div>
         </section>
 
-      } @else if (activeDetailTab === 'finance') {
-        <app-booking-finance-tab [bookingId]="bookingId"></app-booking-finance-tab>
-      } @else if (activeDetailTab === 'services') {
-        <app-booking-services-tab [bookingId]="bookingId"></app-booking-services-tab>
-      } @else if (activeDetailTab === 'log') {
-        <app-booking-log-tab [bookingId]="bookingId"></app-booking-log-tab>
-      } @else {
-        <div class="detail-placeholder">
-          <i-tabler name="info-circle" class="icon-24"></i-tabler>
-          <span>{{ 'd3.bookings.detail.comingSoon' | translate }}</span>
-        </div>
+      }
+
+      @if (visitedTabs.finance) {
+        <app-booking-finance-tab [bookingId]="bookingId" [hidden]="activeDetailTab !== 'finance'"></app-booking-finance-tab>
+      }
+      @if (visitedTabs.services) {
+        <app-booking-services-tab [bookingId]="bookingId" [hidden]="activeDetailTab !== 'services'"></app-booking-services-tab>
+      }
+      @if (visitedTabs.log) {
+        <app-booking-log-tab [bookingId]="bookingId" [hidden]="activeDetailTab !== 'log'"></app-booking-log-tab>
       }
     </div>
 

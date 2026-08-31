@@ -29,7 +29,7 @@
   </div>
 
   <div class="dialog-actions">
-    <button type="button" class="confirm-btn" [disabled]="submitting" (click)="confirm()">
+    <button type="button" class="confirm-btn" [disabled]="submitting || !reason.trim()" (click)="confirm()">
       {{ 'd3.bookings.cancelBookingDialog.confirmBtn' | translate }}
     </button>
     <button type="button" class="cancel-btn" (click)="dialogRef.close()">

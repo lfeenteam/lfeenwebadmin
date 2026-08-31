@@ -496,6 +496,14 @@ background: #FFFFFF;
   grid-template-columns: 1fr 315px;
   gap: 16px;
   align-items: center;
+
+  &.single-action {
+    grid-template-columns: 1fr;
+
+    .btn-reject {
+      width: 100%;
+    }
+  }
 }
 
 .btn {

@@ -26,6 +26,27 @@ interface SeasonalPeriod {
   dates: string;
 }
 
+interface PricingPolicyRow {
+  labelKey: string;
+  enabled: boolean;
+  value: number;
+}
+
+interface PricingPolicy {
+  titleKey: string;
+  subtitleKey: string;
+  icon: string;
+  enabled: boolean;
+  rows: PricingPolicyRow[];
+}
+
+interface PlatformPricingRow {
+  labelKey: string;
+  enabled: boolean;
+  price: number;
+  discount: number;
+}
+
 @Component({
   selector: 'app-unit-pricing-review',
   standalone: true,
@@ -42,10 +63,43 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   rejectionNote = '';
   currentMonth = new Date();
   basePrice: number | null = null;
+  safetyFloorPrice: number | null = null;
   currentLang = 'ar';
   isReadOnly = false;
 
   seasonalPeriods: SeasonalPeriod[] = [];
+
+  // Static mock data — display-only preview of the host's pricing policies.
+  readonly pricingPolicies: PricingPolicy[] = [
+    {
+      titleKey: 'd3.unitReview.pricingView.policies.dayFraction.title',
+      subtitleKey: 'd3.unitReview.pricingView.policies.stayDurationSubtitle',
+      icon: 'clock',
+      enabled: false,
+      rows: [
+        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.quarterDay', enabled: false, value: 0 },
+        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.halfDay', enabled: false, value: 0 },
+      ],
+    },
+    {
+      titleKey: 'd3.unitReview.pricingView.policies.longStay.title',
+      subtitleKey: 'd3.unitReview.pricingView.policies.stayDurationSubtitle',
+      icon: 'clock',
+      enabled: false,
+      rows: [
+        { labelKey: 'd3.unitReview.pricingView.policies.longStay.weekPlus', enabled: false, value: 0 },
+        { labelKey: 'd3.unitReview.pricingView.policies.longStay.monthPlus', enabled: false, value: 0 },
+      ],
+    },
+  ];
+
+  readonly platformPolicy: { enabled: boolean; rows: PlatformPricingRow[] } = {
+    enabled: false,
+    rows: [
+      { labelKey: 'd3.unitReview.pricingView.policies.platform.lfeen', enabled: false, price: 500, discount: 0 },
+      { labelKey: 'd3.unitReview.pricingView.policies.platform.others', enabled: false, price: 500, discount: 0 },
+    ],
+  };
 
   private calendarDaysMap = new Map<number, { price: number | null; isEnabled: boolean }>();
 
@@ -144,6 +198,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
         this.basePrice = data.basePricePerNight;
+        this.safetyFloorPrice = data.minimumPricePerNight;
         const locale = this.currentLang === 'en' ? enUS : ar;
         this.seasonalPeriods = data.customPeriods.map((p, i) => {
           const start = p.startDate
