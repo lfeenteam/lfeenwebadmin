@@ -1324,6 +1324,7 @@
         "progressLabel": "Review status",
         "progressCount": "{{completed}} of {{total}}",
         "approved": "Approved",
+        "adopted": "Adopted",
         "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",

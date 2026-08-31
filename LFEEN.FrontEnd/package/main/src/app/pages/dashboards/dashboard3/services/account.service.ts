@@ -64,7 +64,6 @@ export class AccountService {
   );
 
   private mapToAccount(item: AccountItem): Account {
-    const isCompany = item.businessType === 'RegisteredEntity';
     const lang = this.coreService.getLanguage();
     const displayName = (lang === 'ar' ? item.tradeNameAr : item.tradeNameEn)
       || item.tradeName
@@ -74,7 +73,7 @@ export class AccountService {
     return {
       id:               item.accountId,
       name:             displayName,
-      type:             isCompany ? 'company' : 'individual',
+      type:             this.mapBusinessType(item.businessType),
       status:           this.mapStatus(item.onboardingStatus),
       onboardingStatus: item.onboardingStatus,
       idNumber:         item.referenceCode,
@@ -84,6 +83,14 @@ export class AccountService {
       avatarInitials:   this.getInitials(displayName),
       logoUrl:          item.logoUrl,
     };
+  }
+
+  private mapBusinessType(businessType: string): Account['type'] {
+    switch (businessType) {
+      case 'RegisteredEntity':   return 'company';
+      case 'SoleProprietorship': return 'sole_proprietorship';
+      default:                   return 'individual';
+    }
   }
 
   private mapStatus(status: string): 'active' | 'suspended' | 'under_review' | 'rejected' {

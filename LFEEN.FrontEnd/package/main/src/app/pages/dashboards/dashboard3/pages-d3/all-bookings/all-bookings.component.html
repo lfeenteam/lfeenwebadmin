@@ -7,10 +7,10 @@
         <div class="metric-content">
           <p class="metric-title">{{ card.titleKey | translate }}</p>
           <h3 class="metric-value" [ngClass]="card.tone">
+            {{ card.value }}
             @if (card.isCurrency) {
               <img [src]="currencyIconSrc" alt="" class="metric-riyal-icon" [class.is-text-currency]="currencyIconEn" />
             }
-            {{ card.value }}
           </h3>
         </div>
         <span class="metric-icon" [ngClass]="card.tone">

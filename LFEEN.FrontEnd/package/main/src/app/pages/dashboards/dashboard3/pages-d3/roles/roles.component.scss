@@ -199,7 +199,9 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      transition: background 0.15s, color 0.15s;
 
+      &:hover:not(:disabled) { background: #F7F7F5; }
       &:disabled { opacity: 0.4; cursor: not-allowed; }
 
       @media (max-width: 767.98px) {
@@ -221,7 +223,7 @@
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
 
-      &:hover { background: #F7F7F5; }
+      &:hover:not(.active) { background: #F7F7F5; }
       &.active { background: #111110; color: #fff; border-color: #111110; }
 
       @media (max-width: 767.98px) {
