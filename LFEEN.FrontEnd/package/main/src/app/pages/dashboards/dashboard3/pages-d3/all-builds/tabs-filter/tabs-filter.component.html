@@ -1,16 +1,36 @@
 <section class="tabs-filter">
   <div class="tabs-filter-toolbar">
-    <nav class="tabs-row" aria-label="Building tabs">
-      @for (tab of tabs; track tab.id) {
-        <button
-          type="button"
-          class="tab-btn"
-          [class.active]="activeTab === tab.id"
-          (click)="selectTab(tab.id)">
-          {{ tab.labelKey | translate }}
-        </button>
-      }
-    </nav>
+    <div class="tabs-scroll" [class.can-scroll-start]="canScrollStart" [class.can-scroll-end]="canScrollEnd">
+      <button
+        type="button"
+        class="tabs-scroll-arrow tabs-scroll-arrow--start"
+        tabindex="-1"
+        aria-hidden="true"
+        (click)="scrollTabs(-1)">
+        <i-tabler name="chevron-left"></i-tabler>
+      </button>
+
+      <nav #tabsRow class="tabs-row" aria-label="Building tabs" (scroll)="updateTabsScrollState()">
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === tab.id"
+            (click)="selectTab(tab.id)">
+            {{ tab.labelKey | translate }}
+          </button>
+        }
+      </nav>
+
+      <button
+        type="button"
+        class="tabs-scroll-arrow tabs-scroll-arrow--end"
+        tabindex="-1"
+        aria-hidden="true"
+        (click)="scrollTabs(1)">
+        <i-tabler name="chevron-left"></i-tabler>
+      </button>
+    </div>
 
     <div class="filters-row">
 

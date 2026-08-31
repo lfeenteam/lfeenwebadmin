@@ -1,14 +1,16 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MaterialModule } from 'src/app/material.module';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
+import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { BookingService } from './services/booking.service';
-import { Booking, BookingApiStatus, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_STATUS_OPTIONS, BookingStatus } from './interfaces/booking.model';
+import { Booking, BookingApiStatus, BookingListResponse, BookingOrigin, BookingStats, BOOKINGS_PAGE_SIZE, BOOKING_ORIGIN_OPTIONS, BOOKING_STATUS_OPTIONS } from './interfaces/booking.model';
 import { SingleDateCalendarComponent } from './components/single-date-calendar/single-date-calendar.component';
 import { BookingDetailDrawerComponent } from './components/booking-detail-drawer/booking-detail-drawer.component';
 import { ChangeUnitDialogComponent } from './components/change-unit-dialog/change-unit-dialog.component';
@@ -31,17 +33,22 @@ interface MetricCard {
   // Dialog components are opened imperatively via MatDialog, so they are not
   // listed in `imports`.
   templateUrl: './all-bookings.component.html',
-  styleUrl: './all-bookings.component.scss'
+  styleUrl: './all-bookings.component.scss',
 })
-export class AllBookingsComponent implements OnInit, OnDestroy {
+export class AllBookingsComponent implements OnInit {
   private translate = inject(TranslateService);
   private cdr       = inject(ChangeDetectorRef);
   private bookingService = inject(BookingService);
   private toastr    = inject(ToastrService);
   private dialog    = inject(MatDialog);
-  private langSub?: Subscription;
-  private searchSub?: Subscription;
+  private router    = inject(Router);
+  private route     = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
+
   private searchSubject = new Subject<string>();
+  // Every filter/paging change pushes here; switchMap cancels any in-flight
+  // request so a slow earlier response can never overwrite a newer one.
+  private reload$ = new Subject<void>();
 
   currentLang = this.translate.currentLang || this.translate.defaultLang || 'ar';
   currentDir: 'rtl' | 'ltr' = this.currentLang === 'en' ? 'ltr' : 'rtl';
@@ -50,6 +57,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   checkInDate   = '';
   checkOutDate  = '';
   selectedStatus: BookingApiStatus | 'all' = 'all';
+  selectedOrigin: BookingOrigin | 'all' = 'all';
   currentPage   = 1;
   pageSize      = BOOKINGS_PAGE_SIZE;
 
@@ -62,6 +70,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   displayedColumns = ['bookingNumber', 'client', 'unit', 'dates', 'amount', 'status', 'action'];
 
   statusOptions = BOOKING_STATUS_OPTIONS;
+  originOptions = BOOKING_ORIGIN_OPTIONS;
 
   mobileFilterOpen = false;
 
@@ -99,11 +108,13 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((changed: boolean | undefined) => {
-      // The dialog performs the change-unit request and its own toast; just
-      // refresh the list when it reports success.
-      if (changed) this.loadBookings();
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((changed: boolean | undefined) => {
+        // The dialog performs the change-unit request and its own toast; just
+        // refresh the list when it reports success.
+        if (changed) this.reload();
+      });
   }
 
   // ── Cancel booking dialog ────────────────────────────────────────────────
@@ -118,63 +129,117 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((cancelled: boolean | undefined) => {
-      // The dialog performs the cancel request and its own toast; just refresh
-      // the list when it reports success.
-      if (cancelled) this.loadBookings();
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((cancelled: boolean | undefined) => {
+        // The dialog performs the cancel request and its own toast; just refresh
+        // the list when it reports success.
+        if (cancelled) this.reload();
+      });
   }
 
   ngOnInit(): void {
-    this.langSub = this.translate.onLangChange.subscribe(({ lang }) => {
-      this.currentLang = lang;
-      this.currentDir  = lang === 'en' ? 'ltr' : 'rtl';
-      this.cdr.detectChanges();
-      // Property/unit/city text comes back localized by the server based on the
-      // Accept-Language header, so a lang switch needs a refetch to pick it up.
-      this.loadBookings();
-    });
+    this.readQueryParams();
 
-    this.searchSub = this.searchSubject
-      .pipe(debounceTime(400), distinctUntilChanged())
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ lang }) => {
+        this.currentLang = lang;
+        this.currentDir  = lang === 'en' ? 'ltr' : 'rtl';
+        // Property/unit/city text comes back localized by the server based on the
+        // Accept-Language header, so a lang switch needs a refetch to pick it up.
+        this.reload();
+      });
+
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(term => {
         this.searchQuery = term;
         this.currentPage = 1;
-        this.loadBookings();
+        this.reload();
       });
 
-    this.loadBookings();
-  }
-
-  ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
-    this.searchSub?.unsubscribe();
-  }
-
-  private loadBookings(): void {
-    this.loading = true;
-    this.bookingService.getBookings({
-      pageNumber: this.currentPage,
-      pageSize: this.pageSize,
-      search: this.searchQuery.trim() || undefined,
-      status: this.selectedStatus !== 'all' ? this.selectedStatus : undefined,
-      checkInDate: this.checkInDate || undefined,
-      checkOutDate: this.checkOutDate || undefined,
-    }).subscribe({
-      next: res => {
-        this.bookings = res.data.map((item, i) => this.bookingService.mapApiItemToBooking(item, i % 5));
-        this.totalCount = res.totalCount;
-        this.totalPages = Math.max(1, res.totalPages);
-        this.stats = res.stats;
+    this.reload$
+      .pipe(
+        tap(() => {
+          this.loading = true;
+          this.syncQueryParams();
+          this.cdr.markForCheck();
+        }),
+        switchMap(() => this.bookingService.getBookings({
+          pageNumber: this.currentPage,
+          pageSize: this.pageSize,
+          search: this.searchQuery.trim() || undefined,
+          status: this.selectedStatus !== 'all' ? this.selectedStatus : undefined,
+          origin: this.selectedOrigin !== 'all' ? this.selectedOrigin : undefined,
+          checkInDate: this.checkInDate || undefined,
+          checkOutDate: this.checkOutDate || undefined,
+        }).pipe(
+          catchError(() => {
+            this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+            return of(null);
+          })
+        )),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res: BookingListResponse | null) => {
+        if (res) {
+          this.bookings = res.data.map(item => this.bookingService.mapApiItemToBooking(item, this.currentLang));
+          this.totalCount = res.totalCount;
+          this.totalPages = Math.max(1, res.totalPages);
+          this.stats = res.stats;
+        } else {
+          this.bookings = [];
+          this.totalCount = 0;
+          this.totalPages = 1;
+          this.stats = null;
+        }
         this.loading = false;
+        this.cdr.markForCheck();
+      });
+
+    this.reload();
+  }
+
+  private reload(): void {
+    this.reload$.next();
+  }
+
+  // ── Query-param sync ─────────────────────────────────────────────────────
+  private readQueryParams(): void {
+    const qp = this.route.snapshot.queryParamMap;
+
+    this.searchQuery = qp.get('q') ?? '';
+    this.checkInDate = qp.get('checkIn') ?? '';
+    this.checkOutDate = qp.get('checkOut') ?? '';
+
+    const status = qp.get('status');
+    if (status && this.statusOptions.some(o => o.value === status)) {
+      this.selectedStatus = status as BookingApiStatus;
+    }
+
+    const origin = qp.get('origin');
+    if (origin && this.originOptions.some(o => o.value === origin)) {
+      this.selectedOrigin = origin as BookingOrigin;
+    }
+
+    const page = Number(qp.get('page'));
+    if (Number.isInteger(page) && page >= 1) this.currentPage = page;
+  }
+
+  private syncQueryParams(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        q: this.searchQuery.trim() || null,
+        status: this.selectedStatus !== 'all' ? this.selectedStatus : null,
+        origin: this.selectedOrigin !== 'all' ? this.selectedOrigin : null,
+        checkIn: this.checkInDate || null,
+        checkOut: this.checkOutDate || null,
+        page: this.currentPage > 1 ? this.currentPage : null,
       },
-      error: () => {
-        this.bookings = [];
-        this.totalCount = 0;
-        this.totalPages = 1;
-        this.loading = false;
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-      }
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 
@@ -201,6 +266,10 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
     return formatLocalizedNumber(value, this.currentLang);
   }
 
+  trackByBookingId(_index: number, booking: Booking): string {
+    return booking.id;
+  }
+
   get pagedBookings(): Booking[] {
     return this.bookings;
   }
@@ -221,7 +290,7 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
-    this.loadBookings();
+    this.reload();
   }
 
   onSearch(q: string): void {
@@ -231,16 +300,18 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
   onStatusChange(status: BookingApiStatus | 'all'): void {
     this.selectedStatus = status;
     this.currentPage = 1;
-    this.loadBookings();
+    this.reload();
   }
 
-  onDateChange(): void {
+  onOriginChange(origin: BookingOrigin | 'all'): void {
+    this.selectedOrigin = origin;
     this.currentPage = 1;
-    this.loadBookings();
+    this.reload();
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.searchQuery.trim() || !!this.checkInDate || !!this.checkOutDate || this.selectedStatus !== 'all';
+    return !!this.searchQuery.trim() || !!this.checkInDate || !!this.checkOutDate
+      || this.selectedStatus !== 'all';
   }
 
   clearFilters(): void {
@@ -250,59 +321,33 @@ export class AllBookingsComponent implements OnInit, OnDestroy {
     this.checkOutDate = '';
     this.selectedStatus = 'all';
     this.currentPage = 1;
-    this.loadBookings();
+    this.reload();
   }
 
   onCheckInSelect(date: string): void {
     this.checkInDate = date;
-    this.onDateChange();
+    // Keep the range coherent: a check-out that now sits before check-in is dropped.
+    if (this.checkOutDate && this.checkOutDate < date) {
+      this.checkOutDate = '';
+      this.toastr.info(this.translate.instant('d3.bookings.filters.checkOutClearedHint'));
+    }
+    this.currentPage = 1;
+    this.reload();
   }
 
   onCheckOutSelect(date: string): void {
+    if (this.checkInDate && date < this.checkInDate) {
+      this.toastr.error(this.translate.instant('d3.bookings.filters.dateRangeError'));
+      return;
+    }
     this.checkOutDate = date;
-    this.onDateChange();
-  }
-
-  statusLabel(status: BookingStatus): string {
-    const key = this.statusLabelKey(status);
-    return key ? this.translate.instant(key) : '-';
-  }
-
-  private statusLabelKey(status: BookingStatus): string {
-    const map: Record<BookingStatus, string> = {
-      blocked:           'd3.bookings.status.blocked',
-      cancelled:         'd3.bookings.status.cancelled',
-      expired:           'd3.bookings.status.expired',
-      no_show:           'd3.bookings.status.noShow',
-      completed:         'd3.bookings.status.completed',
-      awaiting_checkout: 'd3.bookings.status.awaitingCheckout',
-      checked_in:        'd3.bookings.status.checkedIn',
-      awaiting_checkin:  'd3.bookings.status.awaitingCheckin',
-      awaiting_ack:      'd3.bookings.status.awaitingAck',
-      confirmed:         'd3.bookings.status.confirmed',
-      pending:           'd3.bookings.status.pending',
-      on_hold:           'd3.bookings.status.onHold',
-      unconfirmed:       'd3.bookings.status.unconfirmed',
-      unknown:           'd3.bookings.status.unknown',
-    };
-    return map[status];
+    this.currentPage = 1;
+    this.reload();
   }
 
   selectedStatusLabel(): string {
     const opt = this.statusOptions.find(o => o.value === this.selectedStatus);
     return this.translate.instant(opt?.labelKey ?? 'd3.bookings.status.all');
-  }
-
-  formatDate(date: Date | null): string {
-    if (!date) return '-';
-    const monthsAr = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-    const monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const months = this.currentLang === 'en' ? monthsEn : monthsAr;
-    return `${date.getDate()} ${months[date.getMonth()]}`;
-  }
-
-  formatAmountNumber(amount: number): string {
-    return amount.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA');
   }
 
   displayPage(page: number | '...'): string {

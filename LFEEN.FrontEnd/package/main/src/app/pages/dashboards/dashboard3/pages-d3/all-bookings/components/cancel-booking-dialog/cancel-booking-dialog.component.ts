@@ -36,6 +36,10 @@ export class CancelBookingDialogComponent {
 
   confirm(): void {
     if (this.submitting) return;
+    if (!this.reason.trim()) {
+      this.toastr.error(this.translate.instant('d3.bookings.cancelBookingDialog.reasonRequiredError'));
+      return;
+    }
     this.submitting = true;
     this.bookingService
       .cancelBooking(this.data.bookingId, this.reason.trim())

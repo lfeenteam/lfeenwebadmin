@@ -1,13 +1,37 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
+import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { formatNaiveDayMonth } from 'src/app/utils/date-format.util';
+
+const BOOKING_STATUS_LABEL_KEY: Record<BookingStatus, string> = {
+  blocked:           'd3.bookings.status.blocked',
+  cancelled:         'd3.bookings.status.cancelled',
+  expired:           'd3.bookings.status.expired',
+  no_show:           'd3.bookings.status.noShow',
+  completed:         'd3.bookings.status.completed',
+  awaiting_checkout: 'd3.bookings.status.awaitingCheckout',
+  checked_in:        'd3.bookings.status.checkedIn',
+  awaiting_checkin:  'd3.bookings.status.awaitingCheckin',
+  awaiting_ack:      'd3.bookings.status.awaitingAck',
+  confirmed:         'd3.bookings.status.confirmed',
+  pending:           'd3.bookings.status.pending',
+  on_hold:           'd3.bookings.status.onHold',
+  unconfirmed:       'd3.bookings.status.unconfirmed',
+  unknown:           'd3.bookings.status.unknown',
+};
+
+// Statuses where an admin may still move the booking to another unit or cancel it.
+const MODIFIABLE_STATUSES: ReadonlySet<BookingStatus> = new Set<BookingStatus>(['confirmed', 'on_hold']);
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
   private http = inject(HttpClient);
+  private translate = inject(TranslateService);
 
   getBookings(params: BookingQueryParams = {}): Observable<BookingListResponse> {
     let httpParams = new HttpParams()
@@ -17,6 +41,7 @@ export class BookingService {
     if (params.checkInDate)  httpParams = httpParams.set('checkInDate', `${params.checkInDate}T00:00:00Z`);
     if (params.checkOutDate) httpParams = httpParams.set('checkOutDate', `${params.checkOutDate}T00:00:00Z`);
     if (params.status)       httpParams = httpParams.set('status', params.status);
+    if (params.origin)       httpParams = httpParams.set('origin', params.origin);
     if (params.search)       httpParams = httpParams.set('search', params.search);
 
     return this.http.get<BookingListResponse>(`${environment.apiBaseUrl}/api/bookings`, { params: httpParams });
@@ -46,7 +71,7 @@ export class BookingService {
   getPublishedUnits(): Observable<BookingUnitOption[]> {
     const params = new HttpParams()
       .set('pageNumber', '1')
-      .set('pageSize', '100')
+      .set('pageSize', '500')
       .set('status', '3')
       .set('newestFirst', 'true');
 
@@ -83,8 +108,14 @@ export class BookingService {
     });
   }
 
-  mapApiItemToBooking(item: BookingApiItem, colorIndex: number): Booking {
+  mapApiItemToBooking(item: BookingApiItem, lang: string): Booking {
     const customerName = item.customerName?.trim() || '-';
+    const checkIn = item.checkIn ? new Date(item.checkIn) : null;
+    const checkOut = item.checkOut ? new Date(item.checkOut) : null;
+    const amount = item.amount ?? 0;
+    const status = this.mapStatus(item.displayStatusKey);
+    const isClientPortalBooking = item.isClientPortalBooking ?? false;
+
     return {
       id: item.bookingId,
       bookingNumber: item.bookingNumber || '-',
@@ -92,7 +123,7 @@ export class BookingService {
         name: customerName,
         phone: item.customerPhone?.trim() || '-',
         initials: this.getInitials(customerName),
-        colorIndex,
+        colorIndex: this.colorIndexForId(item.bookingId),
       },
       unit: {
         id: item.unitId,
@@ -100,11 +131,26 @@ export class BookingService {
         property: item.propertyName?.trim() || '-',
         location: item.city?.trim() || '-',
       },
-      checkIn: item.checkIn ? new Date(item.checkIn) : null,
-      checkOut: item.checkOut ? new Date(item.checkOut) : null,
-      amount: item.amount ?? 0,
-      status: this.mapStatus(item.displayStatusKey),
+      checkIn,
+      checkOut,
+      amount,
+      status,
+      isClientPortalBooking,
+      checkInLabel: formatNaiveDayMonth(checkIn, lang),
+      checkOutLabel: formatNaiveDayMonth(checkOut, lang),
+      amountLabel: formatLocalizedNumber(amount, lang),
+      statusLabel: status ? this.translate.instant(BOOKING_STATUS_LABEL_KEY[status]) : '-',
+      canModify: isClientPortalBooking && MODIFIABLE_STATUSES.has(status),
     };
+  }
+
+  /** Stable avatar colour bucket (0-4) derived from the booking id, so the same
+   *  booking keeps its colour regardless of row position or page. */
+  colorIndexForId(id: string | null | undefined): number {
+    if (!id) return 0;
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+    return hash % 5;
   }
 
   private static readonly KNOWN_STATUSES: BookingStatus[] = [

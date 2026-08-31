@@ -1211,7 +1211,14 @@
         "checkIn": "تاريخ الدخول",
         "checkOut": "تاريخ الخروج",
         "clear": "مسح الفلاتر",
-        "moreFilters": "الفلاتر"
+        "moreFilters": "الفلاتر",
+        "dateRangeError": "تاريخ الخروج لا يمكن أن يكون قبل تاريخ الدخول.",
+        "checkOutClearedHint": "تم مسح تاريخ الخروج لأنه أصبح قبل تاريخ الدخول."
+      },
+      "origin": {
+        "all": "كل المصادر",
+        "clientPortal": "بوابة العميل",
+        "merchant": "مضيف"
       },
       "status": {
         "all": "كل الحالات",
@@ -1242,7 +1249,8 @@
       "actions": {
         "view": "عرض التفاصيل",
         "changeUnit": "تغيير الوحدة",
-        "cancel": "إلغاء الحجز"
+        "cancel": "إلغاء الحجز",
+        "menuLabel": "إجراءات الحجز"
       },
       "changeUnitDialog": {
         "title": "تغيير الوحدة",
@@ -1260,8 +1268,9 @@
         "title": "إلغاء الحجز",
         "warningTitle": "هل أنت متأكد من إلغاء هذا الحجز؟",
         "warningDesc": "هذا الإجراء سيقوم بإلغاء الحجز ومعالجة عملية استرداد الأموال للعميل بشكل آلي.",
-        "reasonLabel": "سبب الإلغاء (اختياري)",
+        "reasonLabel": "سبب الإلغاء",
         "reasonPlaceholder": "اكتب سبب الإلغاء هنا...",
+        "reasonRequiredError": "يرجى كتابة سبب الإلغاء.",
         "dismissBtn": "تراجع",
         "confirmBtn": "تأكيد الإلغاء"
       },
@@ -1326,7 +1335,6 @@
             "system": "النظام"
           }
         },
-        "comingSoon": "لا توجد بيانات لعرضها حالياً",
         "loading": "جاري تحميل تفاصيل الحجز...",
         "loadError": "تعذر تحميل تفاصيل الحجز"
       }
@@ -1795,6 +1803,7 @@
         "finalNotesOptionalLabel": "الملاحظات النهائية",
         "finalNotesOptionalPlaceholder": "أضف أي ملاحظات نهائية للمضيف...",
         "finalNotesHint": "اختياري في حالة الاعتماد، إلزامي في حالة الرفض",
+        "finalNotesHintRejectOnly": "إلزامي لتوضيح سبب الرفض",
         "rejectSuccess": "تم رفض المبنى بنجاح.",
         "errors": {
           "alreadyApproved": "تم اعتماد هذا المبنى مسبقًا.",
@@ -2212,7 +2221,28 @@
         "title": "مراجعة سياسات التسعير",
         "subtitle": "يرجى مراجعة الأسعار اليومية ومواعيد الدورة المحددة من قبل المضيف",
         "basePrice": "السعر الأساسي",
+        "safetyFloor": "الحد الأدنى للأمان",
         "perNight": "/ ليلة",
+        "policies": {
+          "stayDurationSubtitle": "خصومات حسب مدة الإقامة",
+          "dayFraction": {
+            "title": "تجزئة اليوم",
+            "quarterDay": "خصم ربع يوم",
+            "halfDay": "خصم نصف يوم"
+          },
+          "longStay": {
+            "title": "خصم الإقامة الطويلة",
+            "weekPlus": "خصم أسبوع أو أكثر",
+            "monthPlus": "خصم شهر أو أكثر"
+          },
+          "platform": {
+            "title": "تخصيص المنصات",
+            "subtitle": "حدد تسعير وحدتك على منصة لفين والمنصات الأخرى",
+            "lfeen": "منصة لفين",
+            "others": "المنصات الأخرى",
+            "discountLabel": "خصم"
+          }
+        },
         "seasonalTitle": "فترات التسعير الموسمية",
         "emptySeasonalTitle": "لا توجد فترات تسعير موسمية",
         "emptySeasonalDescription": "لم يقم المضيف بإضافة أي فترات تسعير موسمية لهذه الوحدة.",

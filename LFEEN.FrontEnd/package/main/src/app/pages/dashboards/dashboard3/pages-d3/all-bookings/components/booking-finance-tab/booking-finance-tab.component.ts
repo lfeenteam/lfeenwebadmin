@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -28,6 +29,7 @@ interface FinanceSummaryView {
 export class BookingFinanceTabComponent implements OnChanges {
   private translate = inject(TranslateService);
   private bookingService = inject(BookingService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() bookingId: string | null = null;
 
@@ -46,7 +48,9 @@ export class BookingFinanceTabComponent implements OnChanges {
     this.loadError = false;
     this.finance = null;
 
-    this.bookingService.getBookingFinancialSummary(bookingId).subscribe({
+    this.bookingService.getBookingFinancialSummary(bookingId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: item => {
         this.finance = this.mapFinance(item);
         this.loading = false;

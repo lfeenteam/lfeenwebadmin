@@ -30,6 +30,8 @@ export type BookingStatus =
   | 'unconfirmed'
   | 'unknown';
 
+export type BookingOrigin = 'ClientPortal' | 'Merchant';
+
 export interface Booking {
   id: string;
   bookingNumber: string;
@@ -39,6 +41,13 @@ export interface Booking {
   checkOut: Date | null;
   amount: number;
   status: BookingStatus;
+  isClientPortalBooking: boolean;
+  // Precomputed once at map time so the row template holds no method calls.
+  checkInLabel: string;
+  checkOutLabel: string;
+  amountLabel: string;
+  statusLabel: string;
+  canModify: boolean;
 }
 
 export interface BookingUnitOption {
@@ -64,6 +73,7 @@ export interface BookingApiItem {
   displayStatusKey: BookingApiStatus;
   displayStatusLabel: string;
   createdAtUtc: string;
+  isClientPortalBooking: boolean;
 }
 
 export interface BookingCompanion {
@@ -191,6 +201,7 @@ export interface BookingQueryParams {
   checkInDate?: string;
   checkOutDate?: string;
   status?: BookingApiStatus;
+  origin?: BookingOrigin;
   search?: string;
   pageNumber?: number;
   pageSize?: number;
@@ -214,4 +225,10 @@ export const BOOKING_STATUS_OPTIONS: { value: BookingApiStatus | 'all'; labelKey
   { value: 'NoShow',                          labelKey: 'd3.bookings.status.noShow'       },
   { value: 'Expired',                         labelKey: 'd3.bookings.status.expired'      },
   { value: 'Unknown',                         labelKey: 'd3.bookings.status.unknown'      },
+];
+
+export const BOOKING_ORIGIN_OPTIONS: { value: BookingOrigin | 'all'; labelKey: string }[] = [
+  { value: 'all',          labelKey: 'd3.bookings.origin.all'          },
+  { value: 'ClientPortal', labelKey: 'd3.bookings.origin.clientPortal' },
+  { value: 'Merchant',     labelKey: 'd3.bookings.origin.merchant'     },
 ];

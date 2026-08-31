@@ -141,14 +141,19 @@
         order: 1;
         justify-content: space-between;
       }
-      
-      .tabs-row {
+
+      // `.tabs-scroll` is the flex child that wraps the scrollable tab strip (+ its
+      // overflow arrows), so the ordering / divider live here — not on `.tabs-row`.
+      .tabs-scroll {
         order: 2;
         border-top: 1px solid #ececea;
         padding-top: 16px;
-        justify-content: flex-start;
         position: relative;
         z-index: 2;
+      }
+
+      .tabs-row {
+        justify-content: flex-start;
       }
     }
   }
@@ -239,8 +244,33 @@
 }
 
 // ════════════════════════════════════════
-// Mobile
+// Tablet / Mobile
 // ════════════════════════════════════════
+// Below the desktop inline layout the tabs row is stacked underneath the filters row
+// (filters-row is order:1 here), so the view toggle is pinned to the top inline-end —
+// right beside the filter icon — instead of floating up over the tabs / scroll arrow.
+@media (max-width: 992px) {
+  app-tabs-filter {
+    ::ng-deep .filters-row {
+      padding-inline-end: 74px;
+    }
+  }
+
+  .view-toggle-row {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 0;
+    width: 66px;
+    height: 47px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 3;
+  }
+}
+
 @media (max-width: 768px) {
   // tabs-filter internal margin-top is removed on mobile (set to 0 in its own SCSS),
   // so we compensate here to keep the same visual gap from the metrics above.
@@ -249,25 +279,7 @@
     position: relative;
   }
 
-  // Leave room in the filters-row for the view toggle on the inline-end (left in RTL)
-  app-tabs-filter {
-    ::ng-deep .filters-row {
-      padding-inline-end: 74px;
-    }
-  }
-
-  // Align view toggle with Row 1 (search + filter icon), not with the tabs
   .view-toggle-row {
-    position: absolute;
-    top: 0;
-    inset-inline-end: 0;
-    width: 66px;
     height: 42px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: auto;
-    z-index: 2;
   }
 }

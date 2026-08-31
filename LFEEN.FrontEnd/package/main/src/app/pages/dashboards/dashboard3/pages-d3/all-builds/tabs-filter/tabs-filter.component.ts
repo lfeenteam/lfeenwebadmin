@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -17,7 +28,7 @@ export interface BuildFilterOption {
   templateUrl: './tabs-filter.component.html',
   styleUrl: './tabs-filter.component.scss'
 })
-export class TabsFilterComponent {
+export class TabsFilterComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() activeTab: string = '';
   @Input() searchQuery = '';
   @Input() tabs: { id: string; labelKey: string }[] = [
@@ -97,6 +108,65 @@ export class TabsFilterComponent {
   filterSearchTerms: Record<string, string> = {};
 
   mobileFilterOpen = false;
+
+  /** Overflow affordance for the horizontally scrolling tab strip (mobile view):
+   * whether there are more tabs hidden past the start / end edge. */
+  canScrollStart = false;
+  canScrollEnd = false;
+
+  @ViewChild('tabsRow') private tabsRow?: ElementRef<HTMLElement>;
+  private tabsResizeObserver?: ResizeObserver;
+
+  ngAfterViewInit(): void {
+    const el = this.tabsRow?.nativeElement;
+    if (el && typeof ResizeObserver !== 'undefined') {
+      this.tabsResizeObserver = new ResizeObserver(() => this.updateTabsScrollState());
+      this.tabsResizeObserver.observe(el);
+    }
+    this.updateTabsScrollState();
+  }
+
+  ngOnChanges(): void {
+    // Tab list can change (different page passes its own tabs) — re-measure next frame.
+    Promise.resolve().then(() => this.updateTabsScrollState());
+  }
+
+  ngOnDestroy(): void {
+    this.tabsResizeObserver?.disconnect();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateTabsScrollState();
+  }
+
+  updateTabsScrollState(): void {
+    const el = this.tabsRow?.nativeElement;
+    if (!el) {
+      return;
+    }
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 1) {
+      this.canScrollStart = false;
+      this.canScrollEnd = false;
+      return;
+    }
+    // Normalise scroll position across LTR/RTL (RTL reports a negative scrollLeft
+    // in modern browsers) so the math is direction-agnostic.
+    const scrolled = Math.abs(el.scrollLeft);
+    this.canScrollStart = scrolled > 1;
+    this.canScrollEnd = scrolled < maxScroll - 1;
+  }
+
+  scrollTabs(direction: 1 | -1): void {
+    const el = this.tabsRow?.nativeElement;
+    if (!el) {
+      return;
+    }
+    const isRtl = getComputedStyle(el).direction === 'rtl';
+    const amount = el.clientWidth * 0.75 * direction * (isRtl ? -1 : 1);
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+  }
 
   getFilteredItems(filter: BuildFilterOption): { value: string; labelKey: string }[] {
     const term = (this.filterSearchTerms[filter.id] ?? '').toLowerCase().trim();

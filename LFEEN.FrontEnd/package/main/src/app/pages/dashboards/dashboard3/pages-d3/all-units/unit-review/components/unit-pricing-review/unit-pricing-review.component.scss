@@ -38,19 +38,42 @@
   .price-badge {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: #FAFAFA;
+    gap: 14px;
+    background: #fff;
     border: 1px solid #E8E8E4;
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 16px;
+    padding: 12px 16px;
     white-space: nowrap;
     direction: rtl;
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+
+    .price-stat {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-divider {
+      width: 1px;
+      align-self: stretch;
+      min-height: 34px;
+      background: #E8E8E4;
+      flex-shrink: 0;
+    }
 
     .badge-icon {
-      width: 26px;
-      height: 26px;
+      width: 32px;
+      height: 32px;
+      padding: 6px;
+      border-radius: 8px;
+      background: #F2F2F0;
       color: #111110;
       flex-shrink: 0;
+
+      &--safety {
+        background: #ECFDF3;
+        color: #10B981;
+      }
     }
 
     .badge-text {
@@ -74,6 +97,10 @@
       align-items: center;
       gap: 3px;
 
+      &--safety {
+        color: #10B981;
+      }
+
       .riyal-icon {
         width: 18px;
         height: 18px;
@@ -83,7 +110,247 @@
           width: 26px;
           height: auto;
         }
+
+        // Tints the black currentColor SVG to the safety green (#10B981)
+        &--safety {
+          filter: brightness(0) saturate(100%) invert(58%) sepia(89%) saturate(376%)
+            hue-rotate(115deg) brightness(93%) contrast(88%);
+        }
       }
+    }
+  }
+}
+
+// ─── Pricing Policies ─────────────────────────────────────────────────────────
+.policies-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  direction: rtl;
+}
+
+.policy-card {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  // Dim only the text / value fields when the policy is off — the toggles
+  // themselves stay full-strength black.
+  &.is-disabled {
+    .policy-head-text span,
+    .policy-row-label,
+    .policy-field {
+      opacity: 0.55;
+    }
+  }
+}
+
+.policy-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  .policy-head-icon {
+    width: 34px;
+    height: 34px;
+    padding: 6px;
+    border-radius: 10px;
+    background: #F7F7F5;
+    color: #111110;
+    flex-shrink: 0;
+  }
+
+  .policy-head-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: right;
+
+    strong {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111110;
+    }
+
+    span {
+      font-size: 12px;
+      color: #6B6B67;
+    }
+  }
+}
+
+.policy-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #F0F0EE;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #FCFCFB;
+
+  .policy-row-label {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111110;
+    text-align: right;
+  }
+
+  .policy-row-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Platform rows: label, then the toggle on its own line, then a bordered
+// field group holding the two large fields split by a hairline.
+.policy-row--platform {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #FAFAFA;
+  border-color: #EFEFEC;
+
+  .policy-row-label {
+    flex: none;
+    font-weight: 700;
+  }
+
+  .policy-switch {
+    align-self: flex-end;
+  }
+
+  .policy-field-group {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #E4E4E0;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .policy-field {
+    flex: 1;
+    min-height: 44px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0 16px;
+    justify-content: space-between;
+
+    &--price {
+      flex: 1.6;
+    }
+
+    &--pct {
+      min-width: 0;
+      justify-content: space-between;
+      border-inline-start: 1px solid #E4E4E0;
+    }
+
+    .field-riyal {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.policy-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  white-space: nowrap;
+
+  small {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9E9E9A;
+  }
+
+  .field-prefix {
+    margin-inline-end: 2px;
+  }
+
+  &--pct {
+    min-width: 64px;
+    justify-content: center;
+  }
+
+  &--price {
+    min-width: 84px;
+    justify-content: center;
+  }
+
+  .field-riyal {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+
+    &.is-text-currency {
+      width: 20px;
+      height: auto;
+    }
+  }
+}
+
+.policy-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: #111110;
+  position: relative;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: left 0.15s;
+  }
+
+  &.is-on::after {
+    left: 23px;
+  }
+
+  &--sm {
+    width: 40px;
+    height: 22px;
+
+    &::after {
+      width: 16px;
+      height: 16px;
+    }
+
+    &.is-on::after {
+      left: 21px;
     }
   }
 }
@@ -184,6 +451,15 @@
   .seasons-section .section-title,
   .season-name,
   .season-dates {
+    text-align: left;
+  }
+
+  .policies-section {
+    direction: ltr;
+  }
+
+  .policy-card-head .policy-head-text,
+  .policy-row .policy-row-label {
     text-align: left;
   }
 
@@ -530,6 +806,19 @@
     margin-bottom: 12px;
   }
 
+  .policy-card {
+    padding: 14px 14px;
+  }
+
+  .policy-row {
+    flex-wrap: wrap;
+
+    .policy-row-controls {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
   .seasons-grid {
     gap: 12px;
   }
@@ -631,6 +920,12 @@
   .pricing-header .price-badge {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+
+    .badge-divider {
+      display: none;
+    }
   }
 }
 
