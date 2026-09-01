@@ -54,6 +54,22 @@
 
         .data-label { font-size: 11px; color: #9E9E9A; font-weight: 700; }
         .data-value { font-size: 14px; font-weight: 900; color: #111110; }
+
+        .data-value.view-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .view-chip {
+            font-size: 12px;
+            font-weight: 800;
+            color: #6B6B67;
+            background: #F7F7F5;
+            border: 1px solid #E8E8E4;
+            border-radius: 10px;
+            padding: 4px 10px;
+        }
     }
 }
 

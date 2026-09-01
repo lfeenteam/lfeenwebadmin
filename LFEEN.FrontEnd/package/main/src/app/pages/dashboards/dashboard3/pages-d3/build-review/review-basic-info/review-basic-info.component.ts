@@ -101,12 +101,10 @@ export class ReviewBasicInfoComponent implements OnInit {
       }));
   }
 
-  get usageDisplay(): string {
-    const usage = this.basicData?.usage;
-    if (!usage) return '-';
-    const key = `d3.buildReview.basicInfo.usageValues.${usage}`;
-    const translated = this.translate.instant(key);
-    return translated === key ? usage : translated;
+  get viewTypeNames(): string[] {
+    return (this.basicData?.availableViewTypes ?? [])
+      .map(view => view.name?.trim())
+      .filter((name): name is string => !!name);
   }
 
   get amenities(): { icon: string; label: string }[] {

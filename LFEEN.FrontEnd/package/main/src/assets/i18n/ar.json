@@ -1917,6 +1917,7 @@
         "usageValues": {
           "IndividualHousing": "سكن فردي"
         },
+        "viewTypesLabel": "الإطلالات المتاحة",
         "businessTypeLabel": "نوع النشاط",
         "districtLabel": "اتجاه الواجهة",
         "organizationLabel": "المؤسسة المشغّلة",
@@ -2299,6 +2300,15 @@
           "kitchenCategory": "أجهزة ومعدات المطبخ",
           "secondaryBedroomCategory": "سرير مفرد - غرفة جانبية",
           "masterBedroomCategory": "سرير كينج - غرفة ماستر"
+        },
+        "classificationCategory": {
+          "MainPhoto": "الصورة الرئيسية",
+          "Room": "غرفة",
+          "Bedroom": "غرفة نوم",
+          "Bathroom": "حمام",
+          "Kitchen": "مطبخ",
+          "LivingRoom": "صالة",
+          "Other": "أخرى"
         },
         "rejectionReasonPlaceholder": "سبب الرفض...",
         "suggestedSolutionPlaceholder": "الحل المقترح للمضيف...",

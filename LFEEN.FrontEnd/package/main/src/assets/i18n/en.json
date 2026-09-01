@@ -1217,6 +1217,7 @@
         "usageValues": {
           "IndividualHousing": "Individual Housing"
         },
+        "viewTypesLabel": "Available Views",
         "businessTypeLabel": "Business Type",
         "districtLabel": "Facade Direction",
         "organizationLabel": "Operating Organization",
@@ -1599,6 +1600,15 @@
           "kitchenCategory": "Kitchen equipment and appliances",
           "secondaryBedroomCategory": "Single bed - secondary room",
           "masterBedroomCategory": "King bed - master room"
+        },
+        "classificationCategory": {
+          "MainPhoto": "Main Photo",
+          "Room": "Room",
+          "Bedroom": "Bedroom",
+          "Bathroom": "Bathroom",
+          "Kitchen": "Kitchen",
+          "LivingRoom": "Living Room",
+          "Other": "Other"
         },
         "rejectionReasonPlaceholder": "Rejection reason...",
         "suggestedSolutionPlaceholder": "Suggested correction for host...",
