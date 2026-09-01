@@ -367,6 +367,14 @@ export interface UnitPricingDayRule {
   finalPrice: number;
 }
 
+export interface UnitPricingChannel {
+  channelCode: string;
+  isActive: boolean;
+  changeMode: string;
+  changePercent: number;
+  finalPrice: number;
+}
+
 export interface UnitPricingCustomPeriod {
   name: string;
   startDate: string;
@@ -390,7 +398,7 @@ export interface UnitPricingResponse {
   enableLongStayDiscount: boolean;
   longStayRules: UnitPricingLongStayRule[];
   enableChannelPricing: boolean;
-  channels: unknown[];
+  channels: UnitPricingChannel[];
   customPeriods: UnitPricingCustomPeriod[];
   pendingData: unknown;
 }

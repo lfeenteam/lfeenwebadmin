@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -52,6 +53,8 @@ const GROUP_ICON_MAP: Record<string, string> = {
   styleUrl: './unit-images-review.component.scss'
 })
 export class UnitImagesReviewComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   buildingId = '';
@@ -126,33 +129,40 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
       ]);
     });
 
-    if (this.unitId) {
-      this.isLoading = true;
-      this.unitsService.getUnitPhotos(this.unitId).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.totalPhotoCount = response.groups.reduce((sum, g) => sum + g.totalCount, 0);
-          this.minRequired = response.minRequired;
-          const mainGroup = response.groups.find(g => g.groupKey === 'MainPhoto');
-          const otherGroups = response.groups.filter(g => g.groupKey !== 'MainPhoto');
+    this.loadPhotos();
 
-          if (mainGroup?.photos?.length) {
-            this.mainPhoto = this.mapPhoto(mainGroup.photos[0]);
-          }
-
-          this.photoGroups = otherGroups.map(group => ({
-            title: group.groupLabel,
-            icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
-            photos: group.photos.map(p => this.mapPhoto(p))
-          }));
-        },
-        error: () => { this.isLoading = false; }
-      });
-    }
+    // Group / classification labels are localized by the backend via the Accept-Language
+    // header, so a language switch needs a refetch to pick up the new labels.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadPhotos());
   }
 
   ngOnDestroy(): void {
     this.pageBreadcrumbTrail.clear();
+  }
+
+  private loadPhotos(): void {
+    if (!this.unitId) return;
+    this.isLoading = true;
+    this.unitsService.getUnitPhotos(this.unitId).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.totalPhotoCount = response.groups.reduce((sum, g) => sum + g.totalCount, 0);
+        this.minRequired = response.minRequired;
+        const mainGroup = response.groups.find(g => g.groupKey === 'MainPhoto');
+        const otherGroups = response.groups.filter(g => g.groupKey !== 'MainPhoto');
+
+        this.mainPhoto = mainGroup?.photos?.length ? this.mapPhoto(mainGroup.photos[0]) : null;
+
+        this.photoGroups = otherGroups.map(group => ({
+          title: group.groupLabel,
+          icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
+          photos: group.photos.map(p => this.mapPhoto(p))
+        }));
+      },
+      error: () => { this.isLoading = false; }
+    });
   }
 
   setDecision(photo: UnitReviewPhoto, decision: Exclude<UnitPhotoDecision, 'pending'>): void {
@@ -247,7 +257,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
       id: apiPhoto.mediaId,
       url: apiPhoto.url,
       title: apiPhoto.classificationLabel ?? apiPhoto.classification ?? '',
-      category: apiPhoto.classificationCategory ?? '',
+      category: this.localizeCategory(apiPhoto.classificationCategory),
       decision: hasPendingPhotoChange
         ? 'pending'
         : (apiPhoto.decision?.toLowerCase() ?? 'pending') as UnitPhotoDecision,
@@ -258,5 +268,17 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
       pendingIsMain: apiPhoto.pendingIsMain,
       loadFailed: !apiPhoto.url,
     };
+  }
+
+  /**
+   * classificationCategory comes from the API as a raw English key (e.g. "Room"),
+   * unlike classificationLabel which the backend already localizes. Translate it here,
+   * falling back to the raw value for any key we don't have a translation for.
+   */
+  private localizeCategory(category: string | null | undefined): string {
+    if (!category) return '';
+    const key = `d3.unitReview.imagesView.classificationCategory.${category}`;
+    const label = this.translate.instant(key);
+    return label === key ? category : label;
   }
 }

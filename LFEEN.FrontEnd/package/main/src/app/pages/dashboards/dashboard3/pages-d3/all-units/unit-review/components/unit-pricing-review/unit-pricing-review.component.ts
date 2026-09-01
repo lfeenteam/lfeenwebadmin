@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { UnitPricingResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
@@ -29,7 +30,7 @@ interface SeasonalPeriod {
 interface PricingPolicyRow {
   labelKey: string;
   enabled: boolean;
-  value: number;
+  value: number | string;
 }
 
 interface PricingPolicy {
@@ -37,14 +38,16 @@ interface PricingPolicy {
   subtitleKey: string;
   icon: string;
   enabled: boolean;
+  /** Shown only when the pricing endpoint returns this policy's toggle as true. */
+  visible: boolean;
   rows: PricingPolicyRow[];
 }
 
 interface PlatformPricingRow {
   labelKey: string;
   enabled: boolean;
-  price: number;
-  discount: number;
+  price: number | string;
+  discount: number | string;
 }
 
 @Component({
@@ -69,16 +72,18 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
 
   seasonalPeriods: SeasonalPeriod[] = [];
 
-  // Static mock data — display-only preview of the host's pricing policies.
-  readonly pricingPolicies: PricingPolicy[] = [
+  // Populated from the pricing endpoint in loadPricing(); "-" for missing values, and a whole
+  // section is shown only when its toggle comes back true.
+  pricingPolicies: PricingPolicy[] = [
     {
       titleKey: 'd3.unitReview.pricingView.policies.dayFraction.title',
       subtitleKey: 'd3.unitReview.pricingView.policies.stayDurationSubtitle',
       icon: 'clock',
       enabled: false,
+      visible: false,
       rows: [
-        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.quarterDay', enabled: false, value: 0 },
-        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.halfDay', enabled: false, value: 0 },
+        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.quarterDay', enabled: false, value: '-' },
+        { labelKey: 'd3.unitReview.pricingView.policies.dayFraction.halfDay', enabled: false, value: '-' },
       ],
     },
     {
@@ -86,19 +91,18 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
       subtitleKey: 'd3.unitReview.pricingView.policies.stayDurationSubtitle',
       icon: 'clock',
       enabled: false,
+      visible: false,
       rows: [
-        { labelKey: 'd3.unitReview.pricingView.policies.longStay.weekPlus', enabled: false, value: 0 },
-        { labelKey: 'd3.unitReview.pricingView.policies.longStay.monthPlus', enabled: false, value: 0 },
+        { labelKey: 'd3.unitReview.pricingView.policies.longStay.weekPlus', enabled: false, value: '-' },
+        { labelKey: 'd3.unitReview.pricingView.policies.longStay.monthPlus', enabled: false, value: '-' },
       ],
     },
   ];
 
-  readonly platformPolicy: { enabled: boolean; rows: PlatformPricingRow[] } = {
+  showChannelPricing = false;
+  platformPolicy: { enabled: boolean; rows: PlatformPricingRow[] } = {
     enabled: false,
-    rows: [
-      { labelKey: 'd3.unitReview.pricingView.policies.platform.lfeen', enabled: false, price: 500, discount: 0 },
-      { labelKey: 'd3.unitReview.pricingView.policies.platform.others', enabled: false, price: 500, discount: 0 },
-    ],
+    rows: [],
   };
 
   private calendarDaysMap = new Map<number, { price: number | null; isEnabled: boolean }>();
@@ -197,10 +201,11 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     this.unitsService.getUnitPricing(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(data => {
-        this.basePrice = data.basePricePerNight;
-        this.safetyFloorPrice = data.minimumPricePerNight;
+        this.basePrice = data.basePricePerNight ?? null;
+        this.safetyFloorPrice = data.minimumPricePerNight ?? null;
+        this.applyPricingPolicies(data);
         const locale = this.currentLang === 'en' ? enUS : ar;
-        this.seasonalPeriods = data.customPeriods.map((p, i) => {
+        this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
           const start = p.startDate
             ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
             : '-';
@@ -209,11 +214,50 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
             : '-';
           return {
             label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
-            name: p.name,
+            name: p.name || '-',
             dates: `${start} - ${end}`,
           };
         });
       });
+  }
+
+  /**
+   * Maps the pricing endpoint payload onto the policy cards.
+   * Missing scalar values stay "-"; a section is shown only when its toggle is true.
+   */
+  private applyPricingPolicies(data: UnitPricingResponse): void {
+    const [dayFractionCard, longStayCard] = this.pricingPolicies;
+
+    // Day partitioning — matched by partitionKey ("quarter" / "half").
+    dayFractionCard.visible = data.enableDayPartitioning === true;
+    dayFractionCard.enabled = data.enableDayPartitioning ?? false;
+    const quarter = (data.dayPartitions ?? []).find(p => p.partitionKey === 'quarter');
+    const half = (data.dayPartitions ?? []).find(p => p.partitionKey === 'half');
+    dayFractionCard.rows[0].value = quarter?.discountPercent ?? '-';
+    dayFractionCard.rows[0].enabled = quarter?.isActive ?? false;
+    dayFractionCard.rows[1].value = half?.discountPercent ?? '-';
+    dayFractionCard.rows[1].enabled = half?.isActive ?? false;
+
+    // Long stay — two buckets: week+ (< 28 nights) and month+ (>= 28 nights).
+    longStayCard.visible = data.enableLongStayDiscount === true;
+    longStayCard.enabled = data.enableLongStayDiscount ?? false;
+    const rules = data.longStayRules ?? [];
+    const weekRule = rules.find(r => r.minimumNights < 28);
+    const monthRule = rules.find(r => r.minimumNights >= 28);
+    longStayCard.rows[0].value = weekRule?.discountPercent ?? '-';
+    longStayCard.rows[0].enabled = weekRule?.isActive ?? false;
+    longStayCard.rows[1].value = monthRule?.discountPercent ?? '-';
+    longStayCard.rows[1].enabled = monthRule?.isActive ?? false;
+
+    // Platform / channel pricing — one row per returned channel.
+    this.showChannelPricing = data.enableChannelPricing === true;
+    this.platformPolicy.enabled = data.enableChannelPricing ?? false;
+    this.platformPolicy.rows = (data.channels ?? []).map(channel => ({
+      labelKey: channel.channelCode || '-',
+      enabled: channel.isActive ?? false,
+      price: channel.finalPrice ?? '-',
+      discount: channel.changePercent ?? '-',
+    }));
   }
 
   private loadCalendar(): void {

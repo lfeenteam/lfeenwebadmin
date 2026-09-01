@@ -21,8 +21,16 @@
           <span class="data-value">{{ building.district || '-' }}</span>
         </div>
         <div class="data-item">
-          <span class="data-label">{{ 'd3.buildReview.basicInfo.usageLabel' | translate }}</span>
-          <span class="data-value">{{ usageDisplay }}</span>
+          <span class="data-label">{{ 'd3.buildReview.basicInfo.viewTypesLabel' | translate }}</span>
+          @if (viewTypeNames.length > 0) {
+            <span class="data-value view-types">
+              @for (view of viewTypeNames; track view) {
+                <span class="view-chip">{{ view }}</span>
+              }
+            </span>
+          } @else {
+            <span class="data-value">-</span>
+          }
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@
   <!-- Pricing Policies -->
   <section class="policies-section">
     @for (policy of pricingPolicies; track policy.titleKey) {
+      @if (policy.visible) {
       <article class="policy-card" [class.is-disabled]="!policy.enabled">
         <div class="policy-card-head">
           <i-tabler [name]="policy.icon" class="policy-head-icon"></i-tabler>
@@ -57,9 +58,11 @@
           }
         </div>
       </article>
+      }
     }
 
     <!-- Platform customization -->
+    @if (showChannelPricing) {
     <article class="policy-card" [class.is-disabled]="!platformPolicy.enabled">
       <div class="policy-card-head">
         <i-tabler name="layout-grid" class="policy-head-icon"></i-tabler>
@@ -90,6 +93,7 @@
         }
       </div>
     </article>
+    }
   </section>
 
   <!-- Seasonal Periods -->
