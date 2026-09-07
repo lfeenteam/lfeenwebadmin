@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
+import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -13,6 +14,8 @@ export const routes: Routes = [
   },
   {
     path: ':lang',
+    canActivate: [languageSyncGuard],
+    canActivateChild: [languageSyncChildGuard],
     children: [
       {
         path: '',

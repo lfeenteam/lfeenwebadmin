@@ -1628,7 +1628,7 @@
       "cancelPolicyView": {
         "pageTitle": "Cancellation Policy Review",
         "heading": "Host-Selected Policy",
-        "subtitle": "Please review the rules and time limits set for refunds before approval.",
+        "subtitle": "Please review the refund rules and their mapped cancellation reasons before approval.",
         "emptyTitle": "No cancellation policy",
         "emptyDescription": "The host has not selected a cancellation policy for this unit.",
         "notesLabel": "Review Notes / Rejection Reason",
@@ -1636,36 +1636,51 @@
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Cancellation Policy",
-        "hoursSuffix": "hours before arrival",
         "percentSuffix": "% of booking value",
-        "nonRefundable": {
-          "title": "Non-refundable",
-          "desc": "This strict policy was chosen by the host. Guests are not entitled to any refund once the booking is confirmed, regardless of cancellation time.",
-          "activationLabel": "Activation Status",
-          "activationValue": "Immediately after booking",
-          "refundRateLabel": "Refund Rate",
-          "refundRateValue": "0% of total amount",
-          "warning": "Warning: This policy may affect the unit's booking rate due to its strictness. Please confirm the host's intent to apply it before approval."
+        "yes": "Yes",
+        "no": "No",
+        "policyNameLabel": "Policy name",
+        "ruleTypeLabel": "Rule type",
+        "refundValueLabel": "Refund value",
+        "fixedAmountDesc": "A fixed amount refunded to the guest regardless of the booking value.",
+        "refundPerPeriod": "Per period",
+        "refundPerPeriodDesc": "The refund rate varies by the time window before check-in.",
+        "loadErrorTitle": "Couldn't load the cancellation policy",
+        "loadErrorDescription": "Something went wrong while fetching the data. Please try again.",
+        "retry": "Retry",
+        "priorityLabel": "Priority",
+        "priorityDesc": "Order in which the rule is applied (lowest first).",
+        "requiresNoteLabel": "Requires a note",
+        "reasonsLabel": "Mapped cancellation reasons",
+        "periodsLabel": "Time periods",
+        "periodRefundLabel": "Refund rate",
+        "percentShort": "%",
+        "fallbackTag": "Fallback period",
+        "periodWindow": {
+          "between": "Between {{min}} and {{max}} hours before check-in",
+          "after": "{{min}} hours or more before check-in",
+          "before": "Up to {{max}} hours before check-in",
+          "any": "Any time before check-in"
         },
-        "flexible": {
-          "title": "Flexible Policy",
-          "desc": "This policy allows full refund up to a specified time before arrival, with a partial refund within a shorter window.",
-          "fullLabel": "Full Refund",
-          "fullDesc": "Full amount returned to the guest.",
-          "partialLabel": "Partial Refund Window",
-          "partialDesc": "Cancellation allowed with a percentage deducted.",
-          "refundRateLabel": "Partial Refund Rate",
-          "noRefundLabel": "No Refund",
-          "noRefundDesc": "Last-minute cancellations are non-refundable."
+        "noRulesTitle": "No refund rules",
+        "noRulesDescription": "The host has not added any refund rule to this policy.",
+        "ruleType": {
+          "fullRefund": "Full refund",
+          "flexible": "Flexible refund",
+          "nonRefundable": "Non-refundable"
         },
-        "partialRefund": {
-          "title": "Partial Refund Only",
-          "desc": "This policy allows a partial refund if cancelled within the specified window. No refund for last-minute cancellations.",
-          "windowLabel": "Cancellation Window",
-          "windowDesc": "Cancellations within this period qualify for a partial refund.",
-          "refundRateLabel": "Partial Refund Rate",
-          "noRefundLabel": "No Refund",
-          "noRefundDesc": "Cancellations after the deadline are non-refundable."
+        "pendingUpdate": {
+          "banner": "The host has edited the cancellation policy. Review the changes before approving or rejecting.",
+          "currentLabel": "Current policy",
+          "pendingLabel": "Proposed change"
+        },
+        "warnings": {
+          "UNMAPPED_REASON": "A cancellation reason isn't assigned to any rule.",
+          "DUPLICATE_REASON": "The same reason is assigned to more than one rule.",
+          "OTHER_REASON_WITHOUT_NOTE": "\"Other reason\" is assigned to a rule that doesn't require a note.",
+          "INCOMPLETE_NAMES": "A rule is missing its Arabic or English name.",
+          "FLEXIBLE_PERIOD_WITHOUT_FALLBACK": "A flexible rule has no fallback period.",
+          "OVERLAPPING_FLEXIBLE_PERIODS": "Two periods in the same flexible rule overlap in time."
         }
       },
       "finalNotes": {
