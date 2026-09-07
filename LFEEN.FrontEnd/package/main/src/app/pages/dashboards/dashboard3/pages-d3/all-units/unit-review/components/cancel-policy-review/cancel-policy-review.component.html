@@ -1,6 +1,18 @@
 <div class="cancel-policy-review" [dir]="currentDir">
 
-  @if (isLoading) {
+  @if (loadError) {
+    <div class="load-error">
+      <i-tabler name="alert-circle" class="load-error-icon"></i-tabler>
+      <div class="load-error-text">
+        <strong>{{ 'd3.unitReview.cancelPolicyView.loadErrorTitle' | translate }}</strong>
+        <span>{{ 'd3.unitReview.cancelPolicyView.loadErrorDescription' | translate }}</span>
+      </div>
+      <button type="button" class="load-error-retry" (click)="retry()">
+        <i-tabler name="refresh"></i-tabler>
+        {{ 'd3.unitReview.cancelPolicyView.retry' | translate }}
+      </button>
+    </div>
+  } @else if (isLoading) {
     <div class="loading-wrap">
       <i-tabler name="loader-2" class="spin-icon"></i-tabler>
     </div>
@@ -11,165 +23,168 @@
       <p>{{ 'd3.unitReview.cancelPolicyView.subtitle' | translate }}</p>
     </section>
 
-    <!-- ── Non-refundable ── -->
-    @if (policyType === 'NonRefundable') {
-      <div class="policy-card policy-card--non-refundable">
-        <div class="policy-title-row">
-          <div class="policy-title-text">
-            <h3>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.title' | translate }}</h3>
-            <p>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.desc' | translate }}</p>
-          </div>
-          <i-tabler name="refresh" class="policy-type-icon"></i-tabler>
-        </div>
-
-        <div class="info-grid info-grid--2">
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.refundRateLabel' | translate }}</span>
-            <span class="info-value-line">
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.refundRateValue' | translate }}</span>
-            </span>
-            <i-tabler name="link" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.activationLabel' | translate }}</span>
-            <span class="info-value-line">
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.nonRefundable.activationValue' | translate }}</span>
-            </span>
-            <i-tabler name="bolt" class="info-icon-abs"></i-tabler>
-          </div>
-        </div>
-
-        @if (policy?.policySummary?.length) {
-          <div class="policy-summary">
-            @for (line of policy!.policySummary; track $index) {
-              <p><i-tabler name="info-circle"></i-tabler>{{ line }}</p>
-            }
-          </div>
-        }
-
-        <div class="warning-card">
-          <p>{{ 'd3.unitReview.cancelPolicyView.nonRefundable.warning' | translate }}</p>
-          <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
-        </div>
+    <!-- ── Advisory warnings (never block approval) ── -->
+    @for (code of warnings; track code) {
+      <div class="warning-card">
+        <p>{{ warningKey(code) | translate }}</p>
+        <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
       </div>
     }
 
-    <!-- ── Flexible ── -->
-    @if (policyType === 'Flexible') {
+    <!-- ── One policy set = one section card, rules as blocks inside ── -->
+    <ng-template #policySet let-set="set">
       <div class="policy-card">
         <div class="policy-title-row">
           <div class="policy-title-text">
-            <h3>{{ 'd3.unitReview.cancelPolicyView.flexible.title' | translate }}</h3>
-            <p>{{ 'd3.unitReview.cancelPolicyView.flexible.desc' | translate }}</p>
+            <span class="policy-name-label">{{ 'd3.unitReview.cancelPolicyView.policyNameLabel' | translate }}</span>
+            <h3>{{ set.name || ('d3.unitReview.cancelPolicyView.unnamedPolicy' | translate) }}</h3>
           </div>
-          <i-tabler name="refresh" class="policy-type-icon"></i-tabler>
+          <i-tabler name="clipboard-list" class="policy-type-icon"></i-tabler>
         </div>
 
-        <div class="info-grid info-grid--4">
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.fullLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.fullRefundBeforeHours }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.hoursSuffix' | translate }}</span>
-            </span>
-            <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.fullDesc' | translate }}</p>
-            <i-tabler name="shield-check" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.partialLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.partialRefundBeforeHours }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.hoursSuffix' | translate }}</span>
-            </span>
-            <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.partialDesc' | translate }}</p>
-            <i-tabler name="percentage" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card info-card--rate">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.refundRateLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.partialRefundPercentage }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.percentSuffix' | translate }}</span>
-            </span>
-            <div class="rate-bar-wrap">
-              <div class="rate-bar" [style.width.%]="policy?.partialRefundPercentage ?? 0"></div>
+        @for (rule of set.rules; track $index) {
+          <div class="rule-block">
+            <div class="rule-block-head">
+              <strong>{{ rule.name }}</strong>
+              <span class="rule-type-tag">{{ ruleTypeKey(rule.ruleType) | translate }}</span>
             </div>
-            <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.flexible.noRefundLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.noRefundBeforeHours }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.hoursSuffix' | translate }}</span>
-            </span>
-            <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.flexible.noRefundDesc' | translate }}</p>
-            <i-tabler name="ban" class="info-icon-abs"></i-tabler>
-          </div>
-        </div>
 
-        @if (policy?.policySummary?.length) {
-          <div class="policy-summary">
-            @for (line of policy!.policySummary; track $index) {
-              <p><i-tabler name="info-circle"></i-tabler>{{ line }}</p>
+            <div class="info-grid info-grid--4">
+              <!-- Rule type -->
+              <div class="info-card">
+                <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.ruleTypeLabel' | translate }}</span>
+                <span class="info-value-line">
+                  <span class="info-value-text">{{ ruleTypeKey(rule.ruleType) | translate }}</span>
+                </span>
+                <i-tabler name="file-text" class="info-icon-abs"></i-tabler>
+              </div>
+
+              <!-- Refund value -->
+              @if (rule.isFlexible) {
+                <div class="info-card">
+                  <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.refundValueLabel' | translate }}</span>
+                  <span class="info-value-line">
+                    <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.refundPerPeriod' | translate }}</span>
+                  </span>
+                  <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.refundPerPeriodDesc' | translate }}</p>
+                  <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
+                </div>
+              } @else if (rule.isPercentage) {
+                <div class="info-card info-card--rate">
+                  <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.refundValueLabel' | translate }}</span>
+                  <span class="info-value-line">
+                    <strong class="info-value">{{ rule.refundPercentage ?? 0 }}</strong>
+                    <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.percentSuffix' | translate }}</span>
+                  </span>
+                  <div class="rate-bar-wrap">
+                    <div class="rate-bar" [style.width.%]="rule.refundPercentage ?? 0"></div>
+                  </div>
+                  <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
+                </div>
+              } @else {
+                <div class="info-card">
+                  <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.refundValueLabel' | translate }}</span>
+                  <span class="info-value-line">
+                    <strong class="info-value">{{ rule.refundFixedAmount ?? 0 }}</strong>
+                    <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                  <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.fixedAmountDesc' | translate }}</p>
+                  <i-tabler name="link" class="info-icon-abs"></i-tabler>
+                </div>
+              }
+
+              <!-- Priority -->
+              <div class="info-card">
+                <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.priorityLabel' | translate }}</span>
+                <span class="info-value-line">
+                  <strong class="info-value">{{ rule.priority }}</strong>
+                </span>
+                <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.priorityDesc' | translate }}</p>
+                <i-tabler name="list-numbers" class="info-icon-abs"></i-tabler>
+              </div>
+
+              <!-- Requires note -->
+              <div class="info-card">
+                <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.requiresNoteLabel' | translate }}</span>
+                <span class="info-value-line">
+                  <span class="info-value-text">
+                    {{ (rule.requiresNote ? 'd3.unitReview.cancelPolicyView.yes' : 'd3.unitReview.cancelPolicyView.no') | translate }}
+                  </span>
+                </span>
+                <i-tabler name="message-2" class="info-icon-abs"></i-tabler>
+              </div>
+            </div>
+
+            <!-- Mapped cancellation reasons -->
+            @if (rule.reasons.length) {
+              <div>
+                <span class="summary-label">{{ 'd3.unitReview.cancelPolicyView.reasonsLabel' | translate }}</span>
+                <div class="policy-summary policy-summary--grid">
+                  @for (reason of rule.reasons; track $index) {
+                    <p><i-tabler name="info-circle"></i-tabler>{{ reason }}</p>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Flexible periods -->
+            @if (rule.isFlexible && rule.periods.length) {
+              <div>
+                <span class="summary-label">{{ 'd3.unitReview.cancelPolicyView.periodsLabel' | translate }}</span>
+                <div class="periods-list">
+                  @for (period of rule.periods; track $index) {
+                    <div class="period-item">
+                      <i-tabler name="clock" class="period-icon"></i-tabler>
+                      <div class="period-text">
+                        <span class="period-window">{{ period.windowKey | translate:period.windowParams }}</span>
+                        <span class="period-refund">
+                          {{ 'd3.unitReview.cancelPolicyView.periodRefundLabel' | translate }}:
+                          {{ period.refundPercentage ?? 0 }}{{ 'd3.unitReview.cancelPolicyView.percentShort' | translate }}
+                        </span>
+                      </div>
+                      @if (period.isFallback) {
+                        <span class="period-tag">{{ 'd3.unitReview.cancelPolicyView.fallbackTag' | translate }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
             }
           </div>
         }
-      </div>
-    }
 
-    <!-- ── Partial Refund Only ── -->
-    @if (policyType === 'PartialRefundOnly') {
-      <div class="policy-card">
-        <div class="policy-title-row">
-          <div class="policy-title-text">
-            <h3>{{ 'd3.unitReview.cancelPolicyView.partialRefund.title' | translate }}</h3>
-            <p>{{ 'd3.unitReview.cancelPolicyView.partialRefund.desc' | translate }}</p>
-          </div>
-          <i-tabler name="link" class="policy-type-icon"></i-tabler>
-        </div>
-
-        <div class="info-grid info-grid--3">
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.windowLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.partialRefundBeforeHours }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.hoursSuffix' | translate }}</span>
-            </span>
-            <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.partialRefund.windowDesc' | translate }}</p>
-            <i-tabler name="clock" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card info-card--rate">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.refundRateLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.partialRefundPercentage }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.percentSuffix' | translate }}</span>
-            </span>
-            <div class="rate-bar-wrap">
-              <div class="rate-bar" [style.width.%]="policy?.partialRefundPercentage ?? 0"></div>
-            </div>
-            <i-tabler name="trending-up" class="info-icon-abs"></i-tabler>
-          </div>
-          <div class="info-card">
-            <span class="info-label">{{ 'd3.unitReview.cancelPolicyView.partialRefund.noRefundLabel' | translate }}</span>
-            <span class="info-value-line">
-              <strong class="info-value">{{ policy?.noRefundBeforeHours }}</strong>
-              <span class="info-value-text">{{ 'd3.unitReview.cancelPolicyView.hoursSuffix' | translate }}</span>
-            </span>
-            <p class="info-desc">{{ 'd3.unitReview.cancelPolicyView.partialRefund.noRefundDesc' | translate }}</p>
-            <i-tabler name="ban" class="info-icon-abs"></i-tabler>
-          </div>
-        </div>
-
-        @if (policy?.policySummary?.length) {
-          <div class="policy-summary">
-            @for (line of policy!.policySummary; track $index) {
-              <p><i-tabler name="info-circle"></i-tabler>{{ line }}</p>
-            }
-          </div>
+        @if (!set.rules.length) {
+          <app-review-empty-state
+            icon="file-off"
+            titleKey="d3.unitReview.cancelPolicyView.noRulesTitle"
+            descKey="d3.unitReview.cancelPolicyView.noRulesDescription">
+          </app-review-empty-state>
         }
       </div>
-    }
+    </ng-template>
 
-    @if (!policyType) {
+    @if (hasPolicy) {
+      @if (isPendingUpdate && viewBaseline) {
+        <div class="compare-wrap">
+          <div class="warning-card">
+            <p>{{ 'd3.unitReview.cancelPolicyView.pendingUpdate.banner' | translate }}</p>
+            <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
+          </div>
+
+          <div class="compare-group">
+            <p class="compare-heading">{{ 'd3.unitReview.cancelPolicyView.pendingUpdate.currentLabel' | translate }}</p>
+            <ng-container *ngTemplateOutlet="policySet; context: { set: viewBaseline }"></ng-container>
+          </div>
+
+          <div class="compare-group">
+            <p class="compare-heading">{{ 'd3.unitReview.cancelPolicyView.pendingUpdate.pendingLabel' | translate }}</p>
+            <ng-container *ngTemplateOutlet="policySet; context: { set: viewSet }"></ng-container>
+          </div>
+        </div>
+      } @else {
+        <ng-container *ngTemplateOutlet="policySet; context: { set: viewSet }"></ng-container>
+      }
+    } @else {
       <app-review-empty-state
         icon="file-off"
         titleKey="d3.unitReview.cancelPolicyView.emptyTitle"

@@ -1,5 +1,5 @@
 import { Component, OnInit, computed } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { BidiModule } from '@angular/cdk/bidi';
 import { CoreService } from './services/core.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -18,20 +18,11 @@ export class AppComponent implements OnInit {
   // its root singleton otherwise only reads dir once at bootstrap.
   dir = computed(() => this.settings.getOptionsSignal()().dir);
 
-  constructor(private settings: CoreService, private translate: TranslateService, private router: Router) {
+  constructor(private settings: CoreService, private translate: TranslateService) {
+    // Bootstrap default; the ':lang' route's languageSyncGuard keeps CoreService
+    // and ngx-translate in sync with the URL from then on (early enough that the
+    // AuthInterceptor's Accept-Language header is correct on the first request).
     this.translate.use(this.settings.getOptions().language);
-
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        const urlLang = event.urlAfterRedirects.split('/')[1];
-        if (['ar', 'en'].includes(urlLang)) {
-          this.settings.setOptions({ language: urlLang, dir: urlLang === 'ar' ? 'rtl' : 'ltr' });
-          if (this.translate.currentLang !== urlLang) {
-            this.translate.use(urlLang);
-          }
-        }
-      }
-    });
   }
 
   ngOnInit() {

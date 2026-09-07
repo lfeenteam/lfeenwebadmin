@@ -501,17 +501,59 @@ export interface UnitLicenseResponse {
 }
 
 // ── Cancellation Policy endpoint (/units/{id}/cancellation-policy) ────────────
+// Rule-based shape. `current` is the active policy; `pending` mirrors the same
+// DTO and is populated only while decision === 'PendingUpdate'.
+
+export type CancelPolicyDecision = 'Pending' | 'Approved' | 'Rejected' | 'PendingUpdate';
+export type CancelRuleType = 'FullRefund' | 'Flexible' | 'NonRefundable';
+export type RefundCalculationType = 'Percentage' | 'FixedAmount';
+
+export type CancelPolicyWarningCode =
+  | 'UNMAPPED_REASON'
+  | 'DUPLICATE_REASON'
+  | 'OTHER_REASON_WITHOUT_NOTE'
+  | 'INCOMPLETE_NAMES'
+  | 'FLEXIBLE_PERIOD_WITHOUT_FALLBACK'
+  | 'OVERLAPPING_FLEXIBLE_PERIODS';
+
+export interface CancelPolicyRule {
+  ruleType: CancelRuleType;
+  nameAr: string;
+  nameEn: string;
+  priority: number;
+  refundCalculationType: RefundCalculationType;
+  refundPercentage: number | null;
+  refundFixedAmount: number | null;
+  requiresNote: boolean;
+  /** Localized, ready to display as-is. */
+  reasons: string[];
+  /** Only populated when ruleType === 'Flexible'. Shape not finalized by backend. */
+  periods: CancelPolicyRulePeriod[];
+}
+
+export interface CancelPolicyRulePeriod {
+  minimumHoursBeforeCheckIn: number | null;
+  maximumHoursBeforeCheckIn: number | null;
+  refundPercentage: number | null;
+  order: number;
+  isFallback: boolean;
+}
+
+export interface CancelPolicySet {
+  nameAr: string;
+  nameEn: string;
+  rules: CancelPolicyRule[];
+}
 
 export interface UnitCancellationPolicyResponse {
   unitId: number;
-  decision: string;
+  decision: CancelPolicyDecision;
   rejectionReason: string | null;
   reviewedAt: string | null;
-  policyType: CancelPolicyType;
-  noRefundBeforeHours: number | null;
-  partialRefundPercentage: number | null;
-  partialRefundBeforeHours: number | null;
-  fullRefundBeforeHours: number | null;
-  policySummary: string[];
-  pendingData: unknown;
+  /** The currently active policy — null if none configured. */
+  current: CancelPolicySet | null;
+  /** Non-null only while decision === 'PendingUpdate'. */
+  pending: CancelPolicySet | null;
+  /** Advisory only — never blocks approval. */
+  warnings: CancelPolicyWarningCode[];
 }

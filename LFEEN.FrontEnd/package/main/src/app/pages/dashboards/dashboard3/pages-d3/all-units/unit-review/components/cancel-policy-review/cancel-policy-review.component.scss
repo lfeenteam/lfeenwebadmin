@@ -33,6 +33,62 @@
   to   { transform: rotate(360deg); }
 }
 
+// ─── Load error ──────────────────────────────────────────────────────────────
+.load-error {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 16px;
+  padding: 20px 24px;
+  text-align: start;
+
+  .load-error-icon {
+    width: 28px;
+    height: 28px;
+    color: #DC2626;
+    flex-shrink: 0;
+  }
+
+  .load-error-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong { font-size: 14px; font-weight: 700; color: #991B1B; }
+    span   { font-size: 13px; color: #B91C1C; }
+  }
+
+  .load-error-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid #FCA5A5;
+    background: #fff;
+    color: #B91C1C;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    i-tabler { width: 16px; height: 16px; }
+    &:hover { background: #FEF2F2; }
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+
+    .load-error-retry { justify-content: center; }
+  }
+}
+
 // ─── Heading ──────────────────────────────────────────────────────────────────
 .policy-heading {
   text-align: start;
@@ -277,6 +333,16 @@
   border-radius: 14px;
   padding: 14px 18px;
 
+  &--grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 28px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
   p {
     display: flex;
     align-items: center;
@@ -293,6 +359,59 @@
       color: #9E9E9A;
       flex-shrink: 0;
     }
+  }
+}
+
+// ─── Flexible periods ────────────────────────────────────────────────────────
+.periods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.period-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: start;
+
+  .period-icon {
+    width: 18px;
+    height: 18px;
+    color: #9E9E9A;
+    flex-shrink: 0;
+  }
+
+  .period-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .period-window {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111110;
+  }
+
+  .period-refund {
+    font-size: 12px;
+    color: #6B6B67;
+  }
+
+  .period-tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #EEF2FF;
+    color: #4338CA;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
   }
 }
 
@@ -323,6 +442,94 @@
     flex-shrink: 0;
     margin-top: 1px;
   }
+}
+
+// ─── Riyal icon (fixed-amount refund) ────────────────────────────────────────
+.riyal-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  align-self: center;
+
+  &.is-text-currency {
+    width: 34px;
+  }
+}
+
+// ─── Policy name (section header) ────────────────────────────────────────────
+.policy-name-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9E9E9A;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+// ─── Rule block (one per rule, inside the section card) ──────────────────────
+.rule-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  & + & {
+    border-top: 1px solid #E8E8E4;
+    padding-top: 24px;
+  }
+}
+
+.rule-block-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  text-align: start;
+
+  strong {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111110;
+  }
+}
+
+.rule-type-tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #F1F1EE;
+  color: #6B6B67;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.summary-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9E9E9A;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  text-align: start;
+}
+
+.compare-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.compare-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6B6B67;
+  margin: 0;
+  text-align: start;
 }
 
 // ─── Notes ────────────────────────────────────────────────────────────────────
