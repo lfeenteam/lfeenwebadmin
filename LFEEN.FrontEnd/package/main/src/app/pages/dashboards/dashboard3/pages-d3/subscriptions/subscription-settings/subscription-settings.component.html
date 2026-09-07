@@ -64,20 +64,20 @@
 
             <div class="offer-badge" [class]="'tone-' + offer.badgeTone">
               <i-tabler [name]="offer.badgeIcon" class="icon-13"></i-tabler>
-              {{ ('d3.subscriptions.settings.services.' + offer.id + '.badge') | translate }}
+              {{ offer.badgeText }}
             </div>
 
-            <h4 class="offer-title m-0">{{ ('d3.subscriptions.settings.services.' + offer.id + '.name') | translate }}</h4>
-            <p class="offer-desc">{{ ('d3.subscriptions.settings.services.' + offer.id + '.desc') | translate }}</p>
+            <h4 class="offer-title m-0">{{ offerName(offer) }}</h4>
+            <p class="offer-desc">{{ offer.desc }}</p>
 
             <ul class="offer-features m-0">
               <li>
                 <i-tabler name="circle-check" class="icon-14"></i-tabler>
-                <span>{{ ('d3.subscriptions.settings.services.' + offer.id + '.feature1') | translate }}</span>
+                <span>{{ offer.feature1 }}</span>
               </li>
               <li>
                 <i-tabler name="circle-check" class="icon-14"></i-tabler>
-                <span>{{ ('d3.subscriptions.settings.services.' + offer.id + '.feature2') | translate }}</span>
+                <span>{{ offer.feature2 }}</span>
               </li>
             </ul>
 
@@ -86,7 +86,7 @@
                 <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
                 @if (offer.isFree) {
                   <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
-                } @else {
+                } @else if (offer.monthlyPriceValue !== null) {
                   <span class="offer-price-value offer-price-value--monthly d-flex align-items-center gap-4">
                     {{ fmt(offer.monthlyPriceValue) }}
                     <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
@@ -94,6 +94,8 @@
                       [style.mask-image]="'url(' + currencyIconSrc + ')'"
                       role="img" [attr.aria-label]="currencyIconAlt"></span>
                   </span>
+                } @else {
+                  <span class="offer-price-value offer-price-value--monthly">-</span>
                 }
               </div>
               <div class="offer-price-divider"></div>
@@ -101,7 +103,7 @@
                 <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
                 @if (offer.isFree) {
                   <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
-                } @else {
+                } @else if (offer.annualPriceValue !== null) {
                   <span class="offer-price-value d-flex align-items-center gap-4">
                     {{ fmt(offer.annualPriceValue) }}
                     <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
@@ -109,6 +111,8 @@
                       [style.mask-image]="'url(' + currencyIconSrc + ')'"
                       role="img" [attr.aria-label]="currencyIconAlt"></span>
                   </span>
+                } @else {
+                  <span class="offer-price-value">-</span>
                 }
               </div>
             </div>

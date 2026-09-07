@@ -16,7 +16,7 @@
   overflow: hidden;
 
   ::ng-deep > .mat-mdc-card-content {
-    padding: 0 !important;
+    padding: 0 0 24px !important;
   }
 }
 
@@ -125,6 +125,12 @@
   border-radius: 16px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  padding: 10px;
+
+  .table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+  }
 }
 
 // ── Table ───────────────────────────────────────────────────
