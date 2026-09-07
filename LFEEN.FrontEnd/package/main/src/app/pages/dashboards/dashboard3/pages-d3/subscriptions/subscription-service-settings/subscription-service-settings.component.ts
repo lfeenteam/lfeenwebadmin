@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,6 +12,7 @@ import {
   ServiceSubscribedFacility,
 } from '../interfaces/subscription.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { SubscriptionsService } from '../../../services/subscriptions.service';
 
 interface ServiceMeta {
   icon: string;
@@ -39,6 +41,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private subscriptionsService = inject(SubscriptionsService);
+
+  private subscriptionServiceId: number | null = null;
+  private originalMonthlyPrice: number | null = null;
+  private originalAnnualPrice: number | null = null;
 
   serviceId = '';
   serviceIcon = 'settings';
@@ -90,6 +97,23 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     const meta = SERVICE_META[this.serviceId] ?? SERVICE_META['whatsappBusiness'];
     this.serviceIcon = meta.icon;
     this.serviceTone = meta.tone;
+
+    forkJoin({
+      catalog: this.subscriptionsService.getCatalog(),
+      pricing: this.subscriptionsService.getPricing(),
+    }).subscribe(({ catalog, pricing }) => {
+      const catalogItem = catalog.find(c => c.key === this.serviceId);
+      if (!catalogItem) return;
+
+      this.subscriptionServiceId = catalogItem.id;
+      const monthly = pricing.find(p => p.subscriptionServiceId === catalogItem.id && p.period === 'Monthly' && p.isActive);
+      const annual = pricing.find(p => p.subscriptionServiceId === catalogItem.id && p.period === 'Yearly' && p.isActive);
+
+      this.originalMonthlyPrice = monthly ? monthly.price : null;
+      this.originalAnnualPrice = annual ? annual.price : null;
+      this.defaultMonthlyPrice = this.originalMonthlyPrice ?? 0;
+      this.defaultAnnualPrice = this.originalAnnualPrice ?? 0;
+    });
   }
 
   get serviceNameKey(): string {
@@ -246,6 +270,24 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   }
 
   saveSettings(): void {
-    this.goBack();
+    if (this.subscriptionServiceId === null) {
+      this.goBack();
+      return;
+    }
+
+    const calls = [];
+    if (this.defaultMonthlyPrice !== this.originalMonthlyPrice) {
+      calls.push(this.subscriptionsService.setPrice(this.subscriptionServiceId, 'Monthly', this.defaultMonthlyPrice));
+    }
+    if (this.defaultAnnualPrice !== this.originalAnnualPrice) {
+      calls.push(this.subscriptionsService.setPrice(this.subscriptionServiceId, 'Yearly', this.defaultAnnualPrice));
+    }
+
+    if (calls.length === 0) {
+      this.goBack();
+      return;
+    }
+
+    forkJoin(calls).subscribe(() => this.goBack());
   }
 }

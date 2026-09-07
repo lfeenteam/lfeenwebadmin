@@ -69,7 +69,7 @@
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actionType' | translate }}</span>
                   <span class="action-badge" [class]="'action-' + entry.actionType">
-                    {{ ('d3.subscriptionLog.action.' + entry.actionType) | translate }}
+                    {{ entry.actionLabel }}
                   </span>
                 </td>
                 <td class="p-24">
@@ -103,7 +103,7 @@
             } @empty {
               <tr>
                 <td colspan="6" class="p-0">
-                  <app-dashboard-empty titleKey="d3.subscriptionLog.empty.title" descKey="d3.subscriptionLog.empty.desc"></app-dashboard-empty>
+                  <app-dashboard-empty icon="history" titleKey="d3.subscriptionLog.empty.title" descKey="d3.subscriptionLog.empty.desc"></app-dashboard-empty>
                 </td>
               </tr>
             }

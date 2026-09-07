@@ -1,15 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionOfferCard } from '../interfaces/subscription.model';
+import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionOfferTone, SubscriptionPricingItem } from '../interfaces/subscription.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { SubscriptionsService } from '../../../services/subscriptions.service';
 
 type StatusFilter = 'all' | 'enabled' | 'disabled';
+
+// The catalog's categoryLabel is the only data-driven signal available for icon/tone —
+// there's no per-service branding field in the API.
+const CATEGORY_META: Record<string, { icon: string; tone: SubscriptionOfferTone }> = {
+  Compliance: { icon: 'receipt', tone: 'purple' },
+  SmartLock: { icon: 'lock', tone: 'orange' },
+  GovernmentPlatform: { icon: 'building-bank', tone: 'blue' },
+  Maps: { icon: 'map-pin', tone: 'blue' },
+  ChannelManager: { icon: 'link', tone: 'orange' },
+  Messaging: { icon: 'brand-whatsapp', tone: 'green' },
+  Erp: { icon: 'building-warehouse', tone: 'purple' },
+  Payments: { icon: 'credit-card', tone: 'blue' },
+  Other: { icon: 'apps', tone: 'orange' },
+};
+const DEFAULT_CATEGORY_META = CATEGORY_META['Other'];
 
 @Component({
   selector: 'app-subscription-settings',
@@ -19,11 +36,15 @@ type StatusFilter = 'all' | 'enabled' | 'disabled';
   styleUrl: './subscription-settings.component.scss'
 })
 export class SubscriptionSettingsComponent implements OnInit {
+  private subscriptionsService = inject(SubscriptionsService);
+
   constructor(private translate: TranslateService, private router: Router) {}
 
   isLoading = true;
   searchQuery = '';
   statusFilter: StatusFilter = 'all';
+
+  offers: SubscriptionOfferCard[] = [];
 
   statusFilterOptions: { value: StatusFilter; labelKey: string }[] = [
     { value: 'all', labelKey: 'd3.subscriptions.settings.filters.all' },
@@ -57,18 +78,53 @@ export class SubscriptionSettingsComponent implements OnInit {
     return formatLocalizedNumber(value, this.translate.currentLang);
   }
 
-  offers: SubscriptionOfferCard[] = [
-    { id: 'whatsappMuqam', icon: 'brand-whatsapp', tone: 'green', active: false, badgeIcon: 'gift', badgeTone: 'purple', isFree: true, monthlyPriceValue: 0, annualPriceValue: 0 },
-    { id: 'rasd', icon: 'map-pin', tone: 'blue', active: true, badgeIcon: 'clock', badgeTone: 'green', isFree: false, monthlyPriceValue: 1450, annualPriceValue: 14000 },
-    { id: 'whatsappBusiness', icon: 'brand-whatsapp', tone: 'green', active: true, badgeIcon: 'gift', badgeTone: 'amber', isFree: false, monthlyPriceValue: 150, annualPriceValue: 1450 },
-    { id: 'zatca', icon: 'receipt', tone: 'purple', active: true, badgeIcon: 'clock', badgeTone: 'green', isFree: false, monthlyPriceValue: 200, annualPriceValue: 2000 },
-    { id: 'payments', icon: 'credit-card', tone: 'blue', active: true, badgeIcon: 'shield-check', badgeTone: 'green', isFree: false, monthlyPriceValue: 180, annualPriceValue: 1800 },
-    { id: 'sms', icon: 'message-2', tone: 'orange', active: true, badgeIcon: 'gift', badgeTone: 'amber', isFree: false, monthlyPriceValue: 120, annualPriceValue: 1200 },
-  ];
+  offerName(offer: SubscriptionOfferCard): string {
+    return this.translate.currentLang === 'en' ? offer.nameEn : offer.nameAr;
+  }
 
   ngOnInit(): void {
-    // simulates the initial fetch so the loading skeleton has something to show
-    setTimeout(() => { this.isLoading = false; }, 500);
+    forkJoin({
+      catalog: this.subscriptionsService.getCatalog(),
+      pricing: this.subscriptionsService.getPricing(),
+    }).subscribe({
+      next: ({ catalog, pricing }) => {
+        this.offers = catalog.map(item => this.mapCatalogItemToOffer(item, pricing));
+        this.isLoading = false;
+      },
+      error: () => {
+        this.offers = [];
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapCatalogItemToOffer(item: SubscriptionCatalogItem, pricing: SubscriptionPricingItem[]): SubscriptionOfferCard {
+    const meta = CATEGORY_META[item.categoryLabel] ?? DEFAULT_CATEGORY_META;
+    const monthlyPrice = this.findActivePrice(pricing, item.id, 'Monthly');
+    const annualPrice = this.findActivePrice(pricing, item.id, 'Yearly');
+
+    return {
+      id: item.key,
+      icon: meta.icon,
+      tone: meta.tone,
+      active: item.isActive,
+      badgeIcon: 'shield-check',
+      badgeTone: 'purple',
+      badgeText: '-',
+      nameAr: item.nameAr,
+      nameEn: item.nameEn,
+      desc: '-',
+      feature1: '-',
+      feature2: '-',
+      isFree: monthlyPrice === 0,
+      monthlyPriceValue: monthlyPrice,
+      annualPriceValue: annualPrice,
+    };
+  }
+
+  private findActivePrice(pricing: SubscriptionPricingItem[], subscriptionServiceId: number, period: 'Monthly' | 'Yearly'): number | null {
+    const row = pricing.find(p => p.subscriptionServiceId === subscriptionServiceId && p.period === period && p.isActive);
+    return row ? row.price : null;
   }
 
   get filteredOffers(): SubscriptionOfferCard[] {
@@ -77,7 +133,7 @@ export class SubscriptionSettingsComponent implements OnInit {
     if (this.statusFilter === 'disabled') list = list.filter(o => !o.active);
     const q = this.searchQuery.trim();
     if (q) {
-      list = list.filter(o => this.translate.instant(`d3.subscriptions.settings.services.${o.id}.name`).includes(q));
+      list = list.filter(o => o.nameAr.includes(q) || o.nameEn.includes(q));
     }
     return list;
   }

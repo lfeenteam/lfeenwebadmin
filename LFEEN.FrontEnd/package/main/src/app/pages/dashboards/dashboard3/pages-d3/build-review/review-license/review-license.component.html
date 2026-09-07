@@ -61,11 +61,11 @@
         <span class="meta-value" [class.text-danger]="isExpired">{{ license?.expiryDate | date:'yyyy/MM/dd' }}</span>
     </div>
     }
-    @if (license?.licenseType || license?.facilityName || license?.classification) {
+    @if (license?.facilityName || license?.classification) {
     <div class="meta-item full-width">
         <span class="meta-label">{{ 'd3.buildReview.license.businessTypeLabel' | translate }}</span>
         <span class="meta-value">
-          {{ license?.facilityName || license?.licenseType || license?.classification }}
+          {{ license?.facilityName || license?.classification }}
         </span>
         @if (license?.licenseStatusName || license?.documentStatus) {
         <div class="verification-status">

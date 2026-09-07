@@ -1,12 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionLogActionType, SubscriptionLogEntry } from '../interfaces/subscription.model';
+import { SubscriptionLogActionType, SubscriptionLogEntry, SubscriptionOrder } from '../interfaces/subscription.model';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { SubscriptionsService } from '../../../services/subscriptions.service';
+
+const SERVICE_ICON_BY_KEY: Record<string, string> = {
+  'ntmp-compliance': 'receipt',
+  'whatsapp-business': 'brand-whatsapp',
+  'rasd': 'map-pin',
+  'zatca': 'receipt',
+  'payments': 'credit-card',
+  'sms': 'message-2',
+  'erp-connect': 'plug',
+};
+const DEFAULT_SERVICE_ICON = 'apps';
+
+const PAGE_SIZE = 10;
 
 @Component({
   selector: 'app-subscription-log',
@@ -16,15 +30,15 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
   styleUrl: './subscription-log.component.scss'
 })
 export class SubscriptionLogComponent implements OnInit {
-  constructor(private translate: TranslateService) {}
+  private translate = inject(TranslateService);
+  private subscriptionsService = inject(SubscriptionsService);
 
   isLoading = true;
   searchQuery = '';
   actionFilter: SubscriptionLogActionType | 'all' = 'all';
-
   currentPage = 1;
-  totalPages = 3;
-  totalCount = 28;
+
+  private allEntries: SubscriptionLogEntry[] = [];
 
   actionFilterOptions: { value: SubscriptionLogActionType | 'all'; labelKey: string }[] = [
     { value: 'all', labelKey: 'd3.subscriptionLog.filters.all' },
@@ -49,28 +63,82 @@ export class SubscriptionLogComponent implements OnInit {
     });
   }
 
-  entries: SubscriptionLogEntry[] = [
-    { id: 1, refNumber: '#REF-9021', actionType: 'renew', serviceName: 'واتساب للأعمال', serviceIcon: 'brand-whatsapp', actorName: 'أحمد الزهراني', actorInitial: 'أ', date: new Date(2024, 9, 14), status: 'completed' },
-    { id: 2, refNumber: '#REF-8942', actionType: 'add', serviceName: 'منصة رصد', serviceIcon: 'chart-line', actorName: 'سارة العتيبي', actorInitial: 'س', date: new Date(2024, 9, 13), status: 'completed' },
-    { id: 3, refNumber: '#REF-8810', actionType: 'renew', serviceName: 'بوابة السياحة', serviceIcon: 'map-pin', actorName: 'خالد محمد', actorInitial: 'خ', date: new Date(2024, 9, 12), status: 'processing' },
-    { id: 4, refNumber: '#REF-8755', actionType: 'cancel', serviceName: 'خدمة التنبيهات', serviceIcon: 'bell', actorName: 'نورة علي', actorInitial: 'ن', date: new Date(2024, 9, 11), status: 'cancelled' },
-  ];
-
   ngOnInit(): void {
-    // simulates the initial fetch so the loading skeleton has something to show
-    setTimeout(() => { this.isLoading = false; }, 500);
+    this.subscriptionsService.getAllRequests().subscribe({
+      next: (orders) => {
+        this.allEntries = this.mapOrdersToEntries(orders);
+        this.isLoading = false;
+      },
+      error: () => {
+        this.allEntries = [];
+        this.isLoading = false;
+      }
+    });
   }
 
-  get filteredEntries(): SubscriptionLogEntry[] {
-    let list = this.entries;
+  private mapOrdersToEntries(orders: SubscriptionOrder[]): SubscriptionLogEntry[] {
+    const entries: SubscriptionLogEntry[] = [];
+    for (const order of orders) {
+      const status = this.mapStatus(order.status);
+      const dateSource = order.processedAt ?? order.requestedAt;
+      for (const item of order.items) {
+        entries.push({
+          id: entries.length + 1,
+          refNumber: '#' + order.orderId.slice(0, 8).toUpperCase(),
+          actionType: this.classifyActionType(item.requestTypeLabel),
+          actionLabel: item.requestTypeLabel,
+          serviceName: item.serviceName,
+          serviceIcon: SERVICE_ICON_BY_KEY[item.serviceKey] ?? DEFAULT_SERVICE_ICON,
+          actorName: '-',
+          actorInitial: '-',
+          date: new Date(dateSource),
+          status,
+        });
+      }
+    }
+    return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  // requestTypeLabel is a free-text display string from the API, not a fixed enum,
+  // so this only picks a badge color — the visible text always comes from actionLabel.
+  private classifyActionType(label: string): SubscriptionLogActionType {
+    const normalized = label.toLowerCase();
+    if (normalized.includes('renew')) return 'renew';
+    if (normalized.includes('unsub') || normalized.includes('cancel')) return 'cancel';
+    return 'add';
+  }
+
+  private mapStatus(status: SubscriptionOrder['status']): SubscriptionLogEntry['status'] {
+    switch (status) {
+      case 'Approved': return 'completed';
+      case 'Rejected': return 'cancelled';
+      default: return 'processing'; // Pending and UnderReview both read as "in progress" here
+    }
+  }
+
+  private get filteredBeforePaging(): SubscriptionLogEntry[] {
+    let list = this.allEntries;
     if (this.actionFilter !== 'all') {
       list = list.filter(e => e.actionType === this.actionFilter);
     }
     const q = this.searchQuery.trim();
     if (q) {
-      list = list.filter(e => e.serviceName.includes(q) || e.actorName.includes(q) || e.refNumber.includes(q));
+      list = list.filter(e => e.serviceName.includes(q) || e.refNumber.includes(q));
     }
     return list;
+  }
+
+  get filteredEntries(): SubscriptionLogEntry[] {
+    const start = (this.currentPage - 1) * PAGE_SIZE;
+    return this.filteredBeforePaging.slice(start, start + PAGE_SIZE);
+  }
+
+  get totalCount(): number {
+    return this.filteredBeforePaging.length;
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalCount / PAGE_SIZE));
   }
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -83,10 +151,12 @@ export class SubscriptionLogComponent implements OnInit {
 
   onSearchChange(value: string): void {
     this.searchQuery = value;
+    this.currentPage = 1;
   }
 
   onFilterChange(value: SubscriptionLogActionType | 'all'): void {
     this.actionFilter = value;
+    this.currentPage = 1;
   }
 
   changePage(page: number): void {
