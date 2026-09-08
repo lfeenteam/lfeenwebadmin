@@ -59,6 +59,27 @@
               ],
               "outputHashing": "all"
             },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "12mb",
+                  "maximumError": "12mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "12mb",
+                  "maximumError": "12mb"
+                }
+              ],
+              "outputHashing": "all"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -73,6 +94,9 @@
           "configurations": {
             "production": {
               "buildTarget": "Spike:build:production"
+            },
+            "test": {
+              "buildTarget": "Spike:build:test"
             },
             "development": {
               "buildTarget": "Spike:build:development"
