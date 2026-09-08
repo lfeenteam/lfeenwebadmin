@@ -27,7 +27,7 @@ jobs:
 
       - name: Build Angular
         working-directory: LFEEN.FrontEnd/package/main
-        run: npm run build -- --configuration production
+        run: npm run build -- --configuration testing
 
       - name: Add CNAME
         run: echo "myadminlf.roydigi.com" > LFEEN.FrontEnd/package/main/dist/Spike/browser/CNAME
