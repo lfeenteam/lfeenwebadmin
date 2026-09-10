@@ -1768,11 +1768,23 @@
       "buildingInfo": {
         "imageAlt": "صورة المبنى",
         "orgLabel": "المؤسسة المشغّلة",
+      "operatorLabelEstablishment": "المنشأة المشغّلة",
+      "operatorLabelIndividual": "المُشغِّل",
         "orgName": "مجموعة ريادة الفندقية",
         "totalUnitsLabel": "إجمالي الوحدات"
       },
       "progress": {
         "statusLabel": "حالة المراجعة: {{completed}} من {{total}} أقسام مكتملة"
+      },
+      "status": {
+        "adminReviewLabel": "قيد المراجعة الإدارية",
+        "adopted": "تم الاعتماد",
+        "readyToPublish": "جاهزة للنشر",
+        "rejected": "تم الرفض",
+        "draftLabel": "مسودة",
+        "newLabel": "جديد",
+        "progressLabel": "حالة المراجعة",
+        "progressCount": "{{completed}} من {{total}}"
       },
       "sections": {
         "basicInfoTitle": "البيانات الأساسية",

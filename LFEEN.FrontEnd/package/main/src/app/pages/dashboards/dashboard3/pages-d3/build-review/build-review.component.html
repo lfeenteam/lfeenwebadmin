@@ -1,5 +1,20 @@
 <div class="build-review" [dir]="currentDir">
 
+  <!-- Review Status + Progress -->
+<div class="status-progress-row">
+  <span class="status-badge" [ngClass]="'status-badge--' + headerStatusConfig.mod">
+    <i-tabler [name]="headerStatusConfig.icon" class="status-icon"></i-tabler>
+    {{ headerStatusConfig.labelKey | translate }}
+  </span>
+
+  <div class="progress-section">
+    <span class="progress-title">{{ 'd3.buildReview.status.progressLabel' | translate }}</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" [style.width.%]="progressPercent"></div>
+    </div>
+    <span class="progress-count">{{ 'd3.buildReview.status.progressCount' | translate: { completed: completedCount, total: visibleReviewSections.length } }}</span>
+  </div>
+</div>
 
   <!-- Building Info Card -->
 <div class="building-card">
@@ -27,7 +42,7 @@
     </div>
 
  <div class="building-org">
-  <span class="org-label">{{ 'd3.buildReview.buildingInfo.orgLabel' | translate }}</span>
+  <span class="org-label">{{ operatorLabelKey | translate }}</span>
 
   <span class="org-badge">
     <span class="org-dot">
@@ -47,18 +62,6 @@
       <span class="units-label">{{ 'd3.buildReview.buildingInfo.totalUnitsLabel' | translate }}</span>
       <span class="units-count">{{ building.totalUnits }}</span>
     </div>
-  </div>
-</div>
-
-  <!-- Progress Bar -->
-<div class="progress-section">
-  <div class="progress-header">
-    <span class="progress-status">{{ 'd3.buildReview.progress.statusLabel' | translate: { completed: completedCount, total: visibleReviewSections.length } }}</span>
-    <span class="progress-percent">%{{ progressPercent }}</span>
-  </div>
-
-  <div class="progress-bar-wrap">
-    <div class="progress-bar" [style.width.%]="progressPercent"></div>
   </div>
 </div>
 
@@ -157,8 +160,7 @@
 
     <!-- Action Buttons -->
     <div class="action-wrapper">
-      <div class="action-buttons" [class.single-action]="isDisplayed">
-        @if (!isDisplayed) {
+      <div class="action-buttons">
         <button
           class="btn btn-approve"
           [class.active]="!isApproveDisabled"
@@ -168,7 +170,6 @@
           <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
         </button>
-        }
 
         <button class="btn btn-reject" [class.active]="!isRejectDisabled" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
           <span>{{ 'd3.buildReview.actions.reject' | translate }}</span>
@@ -241,12 +242,10 @@
 
         <!-- Final Action Buttons -->
         <div class="action-buttons-final">
-            @if (!isDisplayed) {
             <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
                 <i-tabler name="circle-check"></i-tabler>
             </button>
-            }
             <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
                 <span>{{ 'd3.buildReview.actions.rejectFinal' | translate }}</span>
                 <i-tabler name="circle-x"></i-tabler>

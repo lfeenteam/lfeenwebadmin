@@ -55,7 +55,9 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   orgLogoError = false;
   overallStatus = '';
   isDisplayed = false;
+  canFinalApprove = false;
   private forcedViewOnly = false;
+  private originTab = '';
 
   building: BuildingReviewInfo = {
     id: '',
@@ -90,9 +92,46 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
+  // The operator field is labelled by account type: a registered company or a sole
+  // proprietorship is an "establishment"; anything else is an individual operator
+  // (same RegisteredEntity/SoleProprietorship split as account.service.ts).
+  get operatorLabelKey(): string {
+    const t = this.building.businessType;
+    return t === 'RegisteredEntity' || t === 'SoleProprietorship'
+      ? 'd3.buildReview.buildingInfo.operatorLabelEstablishment'
+      : 'd3.buildReview.buildingInfo.operatorLabelIndividual';
+  }
+
+  // Mirrors unit-review.component.ts: the header badge reflects the building's actual
+  // overallStatus, not the tab it was opened from. overallStatus flips to 'Approved'
+  // as soon as every section is approved, but the building isn't live until the final
+  // approval action is submitted (isDisplayed) — so that in-between state reads
+  // "ready to publish", and only isDisplayed makes it "adopted". A missing status
+  // (or ?tab=draft) is a never-submitted draft; ?tab=new is a first-time submission.
+  get headerStatusConfig(): { labelKey: string; icon: string; mod: string } {
+    const status = this.overallStatus?.trim();
+    if (status === 'Approved' && !this.isDisplayed) {
+      return { labelKey: 'd3.buildReview.status.readyToPublish', icon: 'circle-check', mod: 'approved' };
+    }
+    if (status === 'Approved') {
+      return { labelKey: 'd3.buildReview.status.adopted', icon: 'circle-check', mod: 'approved' };
+    }
+    if (status === 'Rejected') {
+      return { labelKey: 'd3.buildReview.status.rejected', icon: 'circle-x', mod: 'rejected' };
+    }
+    if (this.originTab === 'draft' || !status) {
+      return { labelKey: 'd3.buildReview.status.draftLabel', icon: 'file-text', mod: 'draft' };
+    }
+    if (this.originTab === 'new') {
+      return { labelKey: 'd3.buildReview.status.newLabel', icon: 'file-text', mod: 'pending' };
+    }
+    return { labelKey: 'd3.buildReview.status.adminReviewLabel', icon: 'clock', mod: 'pending' };
+  }
+
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('id');
     this.forcedViewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.originTab = this.route.snapshot.queryParamMap.get('tab') ?? '';
 
     const sectionParam = this.route.snapshot.queryParamMap.get('section') as SectionView | null;
     if (sectionParam && this.validSectionViews.includes(sectionParam)) {
@@ -173,6 +212,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         this.updateHeaderForView();
         this.overallStatus = data.overallStatus?.trim() ?? '';
         this.isDisplayed = data.isDisplayed;
+        this.canFinalApprove = data.canFinalApprove;
 
         this.reviewSections[1].completed = this.isFinalDecision(data.photosSection.decision);
         this.reviewSections[1].status    = this.mapDecision(data.photosSection.decision);
@@ -337,15 +377,14 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     return !this.finalNotes?.trim() && !this.finalRejectionNotes?.trim();
   }
 
-  // Gated on isDisplayed rather than overallStatus: overallStatus already reads
-  // 'Approved' once every section is approved, before the final approval action has
-  // actually been submitted, so it can't tell "ready for final approval" apart from
-  // "already finally approved and live". Mirrors unit-review.component.ts.
+  // The final-approve button is always rendered. It's enabled only for a building that
+  // has changes awaiting re-approval (overallStatus 'HasPendingChanges'); every other
+  // state — first review, already adopted, rejected — keeps it disabled. canFinalApprove
+  // still guards it so it stays disabled until all pending-change sections are re-reviewed.
+  // Mirrors unit-review.component.ts.
   get isApproveDisabled(): boolean {
-    if (!this.allSectionsComplete) return true;
-    if (!this.isFinalSuccess) return true;
-    if (this.isDisplayed) return true;
-    return false;
+    if (!this.canFinalApprove) return true;
+    return this.overallStatus !== 'HasPendingChanges';
   }
 
   openSection(index: number): void {
