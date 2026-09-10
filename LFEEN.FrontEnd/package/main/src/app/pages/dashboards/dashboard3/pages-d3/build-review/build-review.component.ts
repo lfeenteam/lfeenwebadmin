@@ -213,6 +213,9 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         this.overallStatus = data.overallStatus?.trim() ?? '';
         this.isDisplayed = data.isDisplayed;
         this.canFinalApprove = data.canFinalApprove;
+        // Populate the notes field from the recorded final decision so it stays
+        // visible (read-only via the template) once the building is finally approved.
+        this.finalNotes = data.finalNotes ?? '';
 
         this.reviewSections[1].completed = this.isFinalDecision(data.photosSection.decision);
         this.reviewSections[1].status    = this.mapDecision(data.photosSection.decision);
@@ -377,14 +380,18 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     return !this.finalNotes?.trim() && !this.finalRejectionNotes?.trim();
   }
 
-  // The final-approve button is always rendered. It's enabled only for a building that
-  // has changes awaiting re-approval (overallStatus 'HasPendingChanges'); every other
-  // state — first review, already adopted, rejected — keeps it disabled. canFinalApprove
-  // still guards it so it stays disabled until all pending-change sections are re-reviewed.
-  // Mirrors unit-review.component.ts.
+  // True once the building is live AND finally approved with nothing pending. In this
+  // state there's nothing left to approve, so the approve button is hidden entirely and
+  // the final-notes block only stays visible when there's actually a note. Mirrors unit-review.
+  get isFinalApproved(): boolean {
+    return this.isDisplayed && this.overallStatus === 'Approved';
+  }
+
+  // The approve button is rendered unless the building is already finally approved.
+  // Otherwise the backend's canFinalApprove flag is the source of truth for whether
+  // it's enabled — it already accounts for every section being decided with no rejections.
   get isApproveDisabled(): boolean {
-    if (!this.canFinalApprove) return true;
-    return this.overallStatus !== 'HasPendingChanges';
+    return !this.canFinalApprove;
   }
 
   openSection(index: number): void {

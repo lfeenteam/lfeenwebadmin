@@ -47,6 +47,13 @@
       </div>
     }
 
+    @if (allPhotosFailedToLoad) {
+      <div class="validation-banner">
+        <i-tabler name="alert-triangle"></i-tabler>
+        <span>{{ 'd3.unitReview.accessView.photosFailedToLoadWarning' | translate }}</span>
+      </div>
+    }
+
     @if (hasNoPhotos) {
       <app-review-empty-state
         icon="camera-off"

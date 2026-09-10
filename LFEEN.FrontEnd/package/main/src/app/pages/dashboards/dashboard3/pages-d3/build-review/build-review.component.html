@@ -135,20 +135,15 @@
         <h3>{{ 'd3.buildReview.finalDecision.readyTitle' | translate }}</h3>
         <p>{{ 'd3.buildReview.finalDecision.readyDesc' | translate }}</p>
       </div>
-    } @else if (allSectionsComplete && isFinalSuccess && isDisplayed) {
-      <div class="success-final-card inline-final-card">
-        <div class="celebrate-icon">
-          <i-tabler name="circle-check"></i-tabler>
-        </div>
-        <h3>{{ 'd3.buildReview.finalDecision.alreadyApprovedTitle' | translate }}</h3>
-      </div>
     }
 
-    @if (allSectionsComplete) {
+    @if ((isFinalApproved && finalNotes.trim()) || (!isFinalApproved && allSectionsComplete)) {
       <div class="final-notes-inline">
         <div class="notes-label-row">
           <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
-          <small class="notes-hint">{{ (isDisplayed ? 'd3.buildReview.finalDecision.finalNotesHintRejectOnly' : 'd3.buildReview.finalDecision.finalNotesHint') | translate }}</small>
+          @if (!isFinalApproved) {
+            <small class="notes-hint">{{ (isDisplayed ? 'd3.buildReview.finalDecision.finalNotesHintRejectOnly' : 'd3.buildReview.finalDecision.finalNotesHint') | translate }}</small>
+          }
         </div>
         <textarea
           [(ngModel)]="finalNotes"
@@ -160,6 +155,7 @@
 
     <!-- Action Buttons -->
     <div class="action-wrapper">
+      @if (!isFinalApproved) {
       <div class="action-buttons">
         <button
           class="btn btn-approve"
@@ -176,6 +172,7 @@
           <i-tabler name="circle-x" class="btn-icon"></i-tabler>
         </button>
       </div>
+      }
 
       @if (!allSectionsComplete) {
       <div class="lock-notice">
@@ -241,6 +238,7 @@
         }
 
         <!-- Final Action Buttons -->
+        @if (!isFinalApproved) {
         <div class="action-buttons-final">
             <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
@@ -251,6 +249,7 @@
                 <i-tabler name="circle-x"></i-tabler>
             </button>
         </div>
+        }
     </div>
   }
 
