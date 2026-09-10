@@ -1068,11 +1068,23 @@
       "buildingInfo": {
         "imageAlt": "Building Image",
         "orgLabel": "Operating Organization",
+      "operatorLabelEstablishment": "Operating Establishment",
+      "operatorLabelIndividual": "Operator",
         "orgName": "Riyadah Hotel Group",
         "totalUnitsLabel": "Total Units"
       },
       "progress": {
         "statusLabel": "Review Status: {{completed}} of {{total}} sections completed"
+      },
+      "status": {
+        "adminReviewLabel": "Pending Administrative Review",
+        "adopted": "Adopted",
+        "readyToPublish": "Ready to Publish",
+        "rejected": "Rejected",
+        "draftLabel": "Draft",
+        "newLabel": "New",
+        "progressLabel": "Review status",
+        "progressCount": "{{completed}} of {{total}}"
       },
       "sections": {
         "basicInfoTitle": "Basic Property Info",

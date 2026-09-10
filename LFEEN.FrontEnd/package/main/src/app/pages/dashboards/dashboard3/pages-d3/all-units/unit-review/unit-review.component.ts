@@ -235,16 +235,14 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.pendingCount === 0;
   }
 
-  // Final notes are optional on approval, but required on rejection.
-  // Gated on isDisplayed rather than overallStatus: overallStatus already reads
-  // 'Approved' once every section is approved, before the final approval action has
-  // actually been submitted, so it can't tell "ready for final approval" apart from
-  // "already finally approved and live".
+  // The final-approve button is always rendered. It's enabled only for a unit that
+  // has changes awaiting re-approval (overallStatus 'HasPendingChanges'); every other
+  // state — first review, already adopted, rejected — keeps it disabled. canFinalApprove
+  // still guards it so it stays disabled until all pending-change sections are re-reviewed.
   get isApproveDisabled(): boolean {
-    if (!this.allSectionsDecided) return true;
-    if (this.hasAnyRejectedSection) return true;
-    if (this.unitDetail?.isDisplayed) return true;
-    return false;
+    const d = this.unitDetail;
+    if (!d?.canFinalApprove) return true;
+    return d.overallStatus?.trim() !== 'HasPendingChanges';
   }
 
   // A rejected section is grounds to reject the whole unit right away —

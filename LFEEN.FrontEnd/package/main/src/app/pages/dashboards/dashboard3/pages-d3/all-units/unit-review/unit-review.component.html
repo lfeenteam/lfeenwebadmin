@@ -140,8 +140,7 @@
     </textarea>
   </div>
 
-  <div class="action-buttons" [class.single-action]="unitDetail?.isDisplayed">
-    @if (!unitDetail?.isDisplayed) {
+  <div class="action-buttons">
     <button
       class="btn btn-approve"
       type="button"
@@ -150,7 +149,6 @@
       <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
       <i-tabler name="circle-check" class="btn-icon"></i-tabler>
     </button>
-    }
     <button
       class="btn btn-reject"
       type="button"

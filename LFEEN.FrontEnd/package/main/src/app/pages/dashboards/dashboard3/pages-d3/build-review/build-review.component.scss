@@ -211,48 +211,84 @@ background: #FFFFFF01;
   }
 }
 
-.progress-section {
- margin-top: 20px;
+.status-progress-row {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
 
-  .progress-header {
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FEF9C3;
+  color: #854D0E;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .status-icon {
+    width: 16px;
+    height: 16px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    direction: inherit;
   }
 
-  .progress-status {
-    font-size: 12px;
-    color:  #111110;
-font-weight: 900;
-    white-space: nowrap;
+  &--approved {
+    background: #ECFDF5;
+    color: #059669;
   }
 
-  .progress-percent {
-    font-size: 13px;
-    color: #6B6B67;
-    white-space: nowrap;
+  &--rejected {
+    background: #FFF1F2;
+    color: #E11D48;
   }
 
-  .progress-bar-wrap {
-    width: 100%;
-    height: 6px;
+  &--draft {
     background: #F7F7F5;
-    border: 1px solid #E8E8E4;
-    border-radius: 10px;
-    overflow: hidden;
-
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #4a90d9, #2ecc8a);
-      border-radius: 10px;
-      transition: width 0.4s ease;
-    }
+    color: #6B6B67;
   }
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9E9E9A;
+  white-space: nowrap;
+}
+
+.progress-bar-wrap {
+  width: 90px;
+  height: 8px;
+  background: #E8E8E4;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  .progress-bar {
+    height: 100%;
+    background: #111110;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+}
+
+.progress-count {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111110;
+  white-space: nowrap;
 }
 
 // ---- Review Section Cards ----
@@ -1072,18 +1108,39 @@ background: #FFFFFF;
     }
   }
 
+  .status-progress-row {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-badge {
+    gap: 4px;
+    padding: 5px 9px;
+    border-radius: 9px;
+    font-size: 10px;
+
+    .status-icon {
+      width: 13px;
+      height: 13px;
+    }
+  }
+
   .progress-section {
-    margin-top: 4px;
+    gap: 6px;
+    min-width: 0;
+  }
 
-    .progress-header {
-      gap: 12px;
-    }
+  .progress-title,
+  .progress-count {
+    font-size: 10px;
+  }
 
-    .progress-status {
-      min-width: 0;
-      white-space: normal;
-      line-height: 1.6;
-    }
+  .progress-bar-wrap {
+    width: 60px;
+    height: 7px;
   }
 
   .review-sections {
