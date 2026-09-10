@@ -91,8 +91,19 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
     return this.accessPhotos.some(p => p.decision === 'rejected');
   }
 
+  // Only true when the host genuinely uploaded no access photos. It must NOT fold in
+  // "every image failed to load in the browser": a broken CDN URL still means the
+  // photos exist and need a decision. Treating them as absent hid the whole grid,
+  // enabled the approve button early, and made submitDecision send an empty photos
+  // array — which left accessPhotosSection stuck on Pending and blocked canFinalApprove.
   get hasNoPhotos(): boolean {
-    return this.accessPhotos.length === 0 || this.accessPhotos.every(p => p.loadFailed);
+    return this.accessPhotos.length === 0;
+  }
+
+  // Photos exist but not one of them could be rendered — the reviewer is deciding
+  // blind, so surface a warning rather than silently skipping the section.
+  get allPhotosFailedToLoad(): boolean {
+    return this.accessPhotos.length > 0 && this.accessPhotos.every(p => p.loadFailed);
   }
 
   get allReviewed(): boolean {

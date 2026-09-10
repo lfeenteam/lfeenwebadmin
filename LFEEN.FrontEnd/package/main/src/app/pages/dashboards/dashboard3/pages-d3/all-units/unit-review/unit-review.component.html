@@ -113,12 +113,12 @@
         <i-tabler name="alert-circle" class="alert-icon"></i-tabler>
         <span>{{ 'd3.unitReview.finalReview.hasRejectionWarning' | translate }}</span>
       </div>
-    } @else if (isViewMode && allSectionsDecided) {
+    } @else if (isViewMode && allSectionsDecided && !isFinalApproved) {
       <div class="final-review-alert final-review-alert--success">
         <i-tabler name="circle-check" class="alert-icon"></i-tabler>
         <span>{{ 'd3.unitReview.finalReview.alreadyApproved' | translate }}</span>
       </div>
-    } @else if (allSectionsDecided) {
+    } @else if (allSectionsDecided && !isFinalApproved) {
       <div class="final-review-alert final-review-alert--success">
         <i-tabler name="circle-check" class="alert-icon"></i-tabler>
         <span>{{ 'd3.unitReview.finalReview.readyToApprove' | translate }}</span>
@@ -126,12 +126,15 @@
     }
   </div>
 
+  @if (!isFinalApproved || finalNotes.trim()) {
   <div class="final-notes-section">
     <div class="notes-label-row">
       <span class="input-label">
         {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
       </span>
-      <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
+      @if (!isFinalApproved) {
+        <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
+      }
     </div>
     <textarea
       [(ngModel)]="finalNotes"
@@ -139,7 +142,9 @@
       rows="3">
     </textarea>
   </div>
+  }
 
+  @if (!isFinalApproved) {
   <div class="action-buttons">
     <button
       class="btn btn-approve"
@@ -158,6 +163,7 @@
       <i-tabler name="circle-x" class="btn-icon"></i-tabler>
     </button>
   </div>
+  }
 
   }
 </div>

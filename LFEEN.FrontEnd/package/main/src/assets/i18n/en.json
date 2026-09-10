@@ -1527,7 +1527,8 @@
         "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
         "approveBtn": "Approve Access Method",
-        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting."
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "photosFailedToLoadWarning": "Access photos were uploaded but could not be loaded. Review each one and make your decision — it must still be submitted even if the image doesn't display."
       },
       "pricingView": {
         "pageTitle": "Pricing Policy Review",

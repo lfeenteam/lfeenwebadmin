@@ -235,14 +235,20 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.pendingCount === 0;
   }
 
-  // The final-approve button is always rendered. It's enabled only for a unit that
-  // has changes awaiting re-approval (overallStatus 'HasPendingChanges'); every other
-  // state — first review, already adopted, rejected — keeps it disabled. canFinalApprove
-  // still guards it so it stays disabled until all pending-change sections are re-reviewed.
+  // True once the unit is live AND finally approved with nothing pending. In this
+  // state there's nothing left to approve, so the approve button is hidden entirely
+  // and the final-notes block only stays visible when there's actually a note.
+  get isFinalApproved(): boolean {
+    return !!this.unitDetail?.isDisplayed
+      && this.unitDetail?.overallStatus?.trim() === 'Approved';
+  }
+
+  // The approve button is rendered unless the unit is already finally approved.
+  // Otherwise the backend's canFinalApprove flag is the source of truth for whether
+  // it's enabled — it already accounts for every section (including access photos)
+  // being decided with no rejections.
   get isApproveDisabled(): boolean {
-    const d = this.unitDetail;
-    if (!d?.canFinalApprove) return true;
-    return d.overallStatus?.trim() !== 'HasPendingChanges';
+    return !this.unitDetail?.canFinalApprove;
   }
 
   // A rejected section is grounds to reject the whole unit right away —
@@ -367,7 +373,19 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'photos':       return d.photosSection.decision;
       case 'terms':        return d.termsSection.decision;
       case 'pricing':      return d.pricingSection.decision;
-      case 'access':       return d.accessSection.decision;
+      // The "access" card covers both the access instructions and the access photos,
+      // which the backend tracks as two separate sections reviewed together. If the
+      // photos were re-uploaded after the instructions were approved, accessPhotosSection
+      // flips back to Pending on its own — so the card must stay "pending" (re-reviewable)
+      // until BOTH are approved, otherwise the reviewer can't clear it and canFinalApprove
+      // never turns true.
+      case 'access': {
+        const instr  = d.accessSection.decision;
+        const photos = d.accessPhotosSection.decision;
+        if (instr === 'Rejected' || photos === 'Rejected') return 'Rejected';
+        if (instr === 'Approved' && photos === 'Approved')  return 'Approved';
+        return 'Pending';
+      }
       case 'cancelPolicy': return d.cancellationPolicySection.decision;
       // depositSection is null when the unit's type/business setup doesn't have a
       // deposit section at all (as opposed to Pending, which means it's undecided).
