@@ -17,6 +17,15 @@
 
   <!-- Right Side: Login Form -->
   <div class="login-form-container">
+    <button
+      type="button"
+      class="language-toggle"
+      (click)="toggleLanguage()"
+      [attr.aria-label]="targetLanguage.label">
+      <img [src]="targetLanguage.icon" alt="" class="language-flag" />
+      <span>{{ targetLanguage.label }}</span>
+    </button>
+
     <div class="login-form-content">
       <div class="logo-wrapper">
         <img src="assets/images/logos/Layer_x0020_1.png" alt="LFEEN Logo" class="logo" />

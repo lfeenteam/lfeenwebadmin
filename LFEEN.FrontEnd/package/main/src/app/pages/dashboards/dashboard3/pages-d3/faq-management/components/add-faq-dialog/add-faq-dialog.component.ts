@@ -5,7 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FAQ_DEPARTMENT_OPTIONS, FaqArticle, FaqDepartment, FaqDepartmentOption } from '../../interfaces/faq.model';
+import { FAQ_DEPARTMENT_OPTIONS, FaqArticle, FaqDepartmentOption } from '../../interfaces/faq.model';
 
 @Component({
   selector: 'app-add-faq-dialog',
@@ -34,7 +34,12 @@ export class AddFaqDialogComponent {
     });
 
     if (this.data.article?.department) {
-      this.selectedDept = this.departmentOptions.find(d => d.value === this.data.article!.department) || null;
+      const department = this.data.article.department;
+      this.selectedDept = this.departmentOptions.find(d => d.value === department) ?? {
+        value: department,
+        labelEn: department,
+        labelAr: department,
+      };
     }
   }
 
@@ -68,7 +73,7 @@ export class AddFaqDialogComponent {
       contentEn: (value.contentEn || '').trim(),
       contentAr: (value.contentAr || '').trim(),
       order: Number(value.order),
-      department: (this.selectedDept?.value as FaqDepartment) ?? null,
+      department: this.selectedDept?.value ?? null,
       status: this.data.article?.status ?? 'active',
     };
 

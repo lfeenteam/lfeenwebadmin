@@ -1,4 +1,5 @@
-export type FaqDepartment = 'General' | 'Booking' | 'Payment' | 'Technical' | 'Account';
+// Departments are free text in the Client FAQ API; these UI options are suggestions.
+export type FaqDepartment = string;
 export type FaqStatus = 'active' | 'inactive';
 
 export interface FaqArticle {
@@ -26,24 +27,20 @@ export const FAQ_DEPARTMENT_OPTIONS: FaqDepartmentOption[] = [
   { value: 'Account',   labelEn: 'Account',   labelAr: 'الحساب' },
 ];
 
-// Matches POST /api/support-faq exactly (PascalCase field names as required by the API).
+// POST and PUT /api/client-faq use the same editable-field payload.
 export interface CreateFaqArticleRequest {
-  TitleEn: string;
-  TitleAr: string;
-  BodyEn: string;
-  BodyAr: string;
-  Department: FaqDepartment | null;
-  DisplayOrder: number;
+  titleEn: string;
+  titleAr: string;
+  bodyEn: string;
+  bodyAr: string;
+  department: FaqDepartment | null;
+  displayOrder: number;
 }
 
-// PUT /api/support-faq/{externalId} is a full replace — every field must be sent,
-// including IsActive. Prefer POST /api/support-faq/{externalId}/activate or
-// POST /api/support-faq/{externalId}/deactivate for a plain status toggle.
-export interface UpdateFaqArticleRequest extends CreateFaqArticleRequest {
-  IsActive: boolean;
-}
+// Active state is changed only through the activate/deactivate endpoints.
+export type UpdateFaqArticleRequest = CreateFaqArticleRequest;
 
-// Matches the shape returned by both GET /api/support-faq and POST /api/support-faq.
+// Matches the article returned by the Client FAQ endpoints.
 export interface FaqArticleDto {
   externalId: string;
   titleAr: string;
@@ -62,7 +59,7 @@ export interface GetFaqArticlesParams {
   pageSize?: number;
 }
 
-// GET /api/support-faq returns a paginated envelope, not a bare array.
+// GET /api/client-faq returns a paginated envelope, not a bare array.
 export interface PaginatedFaqArticlesResponse {
   data: FaqArticleDto[];
   totalCount: number;

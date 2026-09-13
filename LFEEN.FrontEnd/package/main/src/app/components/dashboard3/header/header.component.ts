@@ -22,6 +22,7 @@ interface AppLanguage {
 })
 export class HeaderComponent {
   menuOpen = false;
+  isOnline = navigator.onLine;
   fullName = '';
   userRole = '';
 
@@ -114,5 +115,15 @@ export class HeaderComponent {
     if (this.menuOpen && !this.eRef.nativeElement.contains(event.target)) {
       this.menuOpen = false;
     }
+  }
+
+  @HostListener('window:online')
+  onOnline(): void {
+    this.isOnline = true;
+  }
+
+  @HostListener('window:offline')
+  onOffline(): void {
+    this.isOnline = false;
   }
 }

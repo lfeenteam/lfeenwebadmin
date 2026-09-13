@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
+import { CoreService } from '../../../../../services/core.service';
 
 @Component({
   selector: 'app-login',
@@ -30,6 +31,11 @@ import { finalize } from 'rxjs';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  readonly languages = [
+    { code: 'ar', label: 'العربية', icon: '/assets/images/flag/icon-flag-es.svg' },
+    { code: 'en', label: 'English', icon: '/assets/images/flag/icon-flag-en.svg' },
+  ];
+
   loginForm: FormGroup;
   hide = true;
   loading = this.loginService.loading;
@@ -38,12 +44,18 @@ export class LoginComponent {
     return this.translate.currentLang === 'ar' ? 'rtl' : 'ltr';
   }
 
+  get targetLanguage() {
+    const targetCode = this.translate.currentLang === 'ar' ? 'en' : 'ar';
+    return this.languages.find(language => language.code === targetCode)!;
+  }
+
   constructor(
     private fb: FormBuilder,
     private loginService: LoginService,
     private toastr: ToastrService,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private settings: CoreService
   ) {
     const savedEmail = localStorage.getItem('rememberedEmail');
     this.loginForm = this.fb.group({
@@ -51,6 +63,26 @@ export class LoginComponent {
       password: ['', [Validators.required]],
       rememberMe: [!!savedEmail],
     });
+  }
+
+  changeLanguage(language: string): void {
+    if (language === this.translate.currentLang) return;
+    const dir = language === 'ar' ? 'rtl' : 'ltr';
+
+    this.settings.setOptions({ language, dir }, true);
+    this.translate.use(language);
+
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    if (urlSegments.length && ['ar', 'en'].includes(urlSegments[0])) {
+      urlSegments[0] = language;
+    } else {
+      urlSegments.unshift(language);
+    }
+    this.router.navigateByUrl('/' + urlSegments.join('/'));
+  }
+
+  toggleLanguage(): void {
+    this.changeLanguage(this.targetLanguage.code);
   }
 
   onSubmit() {

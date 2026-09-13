@@ -112,12 +112,12 @@ export class FaqManagementComponent implements OnInit {
       if (!result) return;
 
       this.faqService.createArticle({
-        TitleEn: result.titleEn,
-        TitleAr: result.titleAr,
-        BodyEn: result.contentEn,
-        BodyAr: result.contentAr,
-        Department: result.department,
-        DisplayOrder: result.order,
+        titleEn: result.titleEn,
+        titleAr: result.titleAr,
+        bodyEn: result.contentEn,
+        bodyAr: result.contentAr,
+        department: result.department,
+        displayOrder: result.order,
       }).subscribe({
         next: (dto) => {
           this.articles.update(list => [...list, this.mapDtoToArticle(dto)]);
@@ -142,13 +142,12 @@ export class FaqManagementComponent implements OnInit {
           if (!result) return;
 
           this.faqService.updateArticle(fresh.externalId, {
-            TitleEn: result.titleEn,
-            TitleAr: result.titleAr,
-            BodyEn: result.contentEn,
-            BodyAr: result.contentAr,
-            Department: result.department,
-            DisplayOrder: result.order,
-            IsActive: result.status === 'active',
+            titleEn: result.titleEn,
+            titleAr: result.titleAr,
+            bodyEn: result.contentEn,
+            bodyAr: result.contentAr,
+            department: result.department,
+            displayOrder: result.order,
           }).subscribe({
             next: (updatedDto) => {
               this.articles.update(list => list.map(a => a.externalId === fresh.externalId ? this.mapDtoToArticle(updatedDto) : a));
@@ -181,8 +180,8 @@ export class FaqManagementComponent implements OnInit {
         : this.faqService.deactivateArticle(article.externalId);
 
       request$.subscribe({
-        next: () => {
-          this.articles.update(list => list.map(a => a.externalId === article.externalId ? { ...a, status: isActivating ? 'active' : 'inactive' } : a));
+        next: (updatedDto) => {
+          this.articles.update(list => list.map(a => a.externalId === article.externalId ? this.mapDtoToArticle(updatedDto) : a));
           this.toastr.success(this.translate.instant('d3.faq.toast.statusUpdateSuccess'));
         },
         error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
