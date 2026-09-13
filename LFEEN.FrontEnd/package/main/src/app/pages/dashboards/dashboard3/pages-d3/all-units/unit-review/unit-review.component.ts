@@ -381,7 +381,10 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       // never turns true.
       case 'access': {
         const instr  = d.accessSection.decision;
-        const photos = d.accessPhotosSection.decision;
+        // Recent API responses combine the access instructions and photos into
+        // accessSection and omit accessPhotosSection. When the separate section
+        // is present, keep requiring both decisions as before.
+        const photos = d.accessPhotosSection?.decision ?? instr;
         if (instr === 'Rejected' || photos === 'Rejected') return 'Rejected';
         if (instr === 'Approved' && photos === 'Approved')  return 'Approved';
         return 'Pending';

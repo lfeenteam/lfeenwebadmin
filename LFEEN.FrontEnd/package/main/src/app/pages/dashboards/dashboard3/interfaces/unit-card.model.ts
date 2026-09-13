@@ -165,7 +165,9 @@ export interface UnitApiDetailItem {
   termsSection: UnitApiSection;
   pricingSection: UnitApiSection;
   accessSection: UnitApiSection;
-  accessPhotosSection: UnitApiSection;
+  // Older API responses expose access-photo review separately, while newer
+  // responses fold it into accessSection.
+  accessPhotosSection?: UnitApiSection | null;
   cancellationPolicySection: UnitApiSection;
   // null when the unit's type/business setup doesn't require a deposit section at all
   // (as opposed to hasSecurityDeposit=false, which means a deposit isn't required for
