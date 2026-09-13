@@ -14,6 +14,8 @@ import { PageBackOverrideService } from './services/page-back-override.service';
 import { PageTitleOverrideService } from './services/page-title-override.service';
 import { PageBreadcrumbTrailService } from './services/page-breadcrumb-trail.service';
 import { ClientSupportHubService } from './services/client-support-hub.service';
+import { Title } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard3',
@@ -56,6 +58,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   isLoginRoute = false;
 
   private routeSub?: Subscription;
+  private languageSub?: Subscription;
 
   constructor(
     private router: Router,
@@ -64,7 +67,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     private pageBackOverride: PageBackOverrideService,
     private pageTitleOverride: PageTitleOverrideService,
     private pageBreadcrumbTrail: PageBreadcrumbTrailService,
-    private clientSupportHub: ClientSupportHubService
+    private clientSupportHub: ClientSupportHubService,
+    private titleService: Title,
+    private translate: TranslateService
   ) {}
 
   get pageTitleOverrideText(): string | null {
@@ -78,14 +83,17 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateIsLoginRoute();
     this.applyRouteHeaderData();
+    this.updateBrowserTitle();
     this.connectHubIfAuthenticated();
     this.routeSub = this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updateIsLoginRoute();
         this.applyRouteHeaderData();
+        this.updateBrowserTitle();
         this.connectHubIfAuthenticated();
       });
+    this.languageSub = this.translate.onLangChange.subscribe(() => this.updateBrowserTitle());
   }
 
   private connectHubIfAuthenticated(): void {
@@ -96,7 +104,14 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.languageSub?.unsubscribe();
     this.clientSupportHub.disconnect();
+  }
+
+  private updateBrowserTitle(): void {
+    const titleKey = this.pageTitleKey || (this.isLoginRoute ? 'd3.loginPage.form.title' : 'd3.sidebar.dashboard');
+    const translatedTitle = this.translate.instant(titleKey);
+    this.titleService.setTitle(`أدمن لفين | ${translatedTitle}`);
   }
 
   private updateIsLoginRoute(): void {

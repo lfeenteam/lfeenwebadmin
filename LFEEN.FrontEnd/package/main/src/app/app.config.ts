@@ -18,7 +18,6 @@ import {
 } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideClientHydration } from '@angular/platform-browser';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -80,7 +79,6 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
-    provideClientHydration(),
     provideAnimationsAsync(),
     importProvidersFrom(
       FormsModule,

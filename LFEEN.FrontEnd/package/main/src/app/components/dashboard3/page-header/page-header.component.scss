@@ -214,6 +214,19 @@
         color: #16A34A;
         white-space: nowrap;
       }
+
+      &.d3-page-live-badge--offline {
+        background-color: #fee2e2;
+        border-color: #fee2e2;
+
+        .d3-page-live-dot {
+          background-color: #ef4444;
+        }
+
+        .d3-page-live-text {
+          color: #ef4444;
+        }
+      }
     }
 
     .d3-page-date-badge {

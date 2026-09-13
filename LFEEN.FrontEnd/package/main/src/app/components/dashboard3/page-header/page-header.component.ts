@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, computed } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { CoreService } from '../../../services/core.service';
   styleUrl: './page-header.component.scss',
 })
 export class PageHeaderComponent {
+  isOnline = navigator.onLine;
   @Input({ required: true }) titleKey!: string;
   @Input() titleOverride: string | null = null;
   @Input() breadcrumbKey = 'd3.header.platform';
@@ -59,5 +60,15 @@ export class PageHeaderComponent {
     if (this.actionButton?.action) {
       this.action.emit(this.actionButton.action);
     }
+  }
+
+  @HostListener('window:online')
+  onOnline(): void {
+    this.isOnline = true;
+  }
+
+  @HostListener('window:offline')
+  onOffline(): void {
+    this.isOnline = false;
   }
 }

@@ -52,9 +52,9 @@
       </div>
     } @else {
       @if (showLive) {
-        <div class="d3-page-live-badge">
+        <div class="d3-page-live-badge" [class.d3-page-live-badge--offline]="!isOnline">
           <span class="d3-page-live-dot"></span>
-          <span class="d3-page-live-text">{{ 'd3.header.live' | translate }}</span>
+          <span class="d3-page-live-text">{{ (isOnline ? 'd3.header.online' : 'd3.header.offline') | translate }}</span>
         </div>
       }
 

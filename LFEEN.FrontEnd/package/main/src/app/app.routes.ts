@@ -568,7 +568,7 @@ export const routes: Routes = [
                 },
               },
               {
-                path: 'faq',
+                path: 'client-faq',
                 canActivate: [authGuard],
                 loadComponent: () =>
                   import(

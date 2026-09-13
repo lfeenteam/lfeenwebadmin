@@ -7,7 +7,7 @@ import { CreateFaqArticleRequest, FaqArticleDto, GetFaqArticlesParams, Paginated
 @Injectable({ providedIn: 'root' })
 export class FaqService {
   private http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/api/support-faq`;
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/client-faq`;
 
   getArticles(params?: GetFaqArticlesParams): Observable<PaginatedFaqArticlesResponse> {
     let httpParams = new HttpParams();
@@ -31,15 +31,15 @@ export class FaqService {
     return this.http.put<FaqArticleDto>(`${this.baseUrl}/${externalId}`, payload);
   }
 
-  activateArticle(externalId: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${externalId}/activate`, {});
+  activateArticle(externalId: string): Observable<FaqArticleDto> {
+    return this.http.post<FaqArticleDto>(`${this.baseUrl}/${externalId}/activate`, null);
   }
 
-  deactivateArticle(externalId: string): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${externalId}/deactivate`, {});
+  deactivateArticle(externalId: string): Observable<FaqArticleDto> {
+    return this.http.post<FaqArticleDto>(`${this.baseUrl}/${externalId}/deactivate`, null);
   }
 
-  deleteArticle(externalId: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${externalId}`);
+  deleteArticle(externalId: string): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.baseUrl}/${externalId}`);
   }
 }

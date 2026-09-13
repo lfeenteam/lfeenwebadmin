@@ -8,9 +8,9 @@
   <div class="d3-header-right">
     <h1 class="d3-header-title">{{ 'd3.header.title' | translate }}</h1>
 
-    <div class="d3-live-badge">
+    <div class="d3-live-badge" [class.d3-live-badge--offline]="!isOnline">
       <span class="d3-live-dot"></span>
-      <span class="d3-live-text">{{ 'd3.header.live' | translate }}</span>
+      <span class="d3-live-text">{{ (isOnline ? 'd3.header.online' : 'd3.header.offline') | translate }}</span>
     </div>
 
     <span class="d3-header-date">{{ currentDate }}</span>

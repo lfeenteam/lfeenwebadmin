@@ -75,8 +75,12 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: #ef4444;
+        background-color: #16a34a;
         display: inline-block;
+      }
+
+      &.d3-live-badge--offline .d3-live-dot {
+        background-color: #ef4444;
       }
 
       .d3-live-text {
