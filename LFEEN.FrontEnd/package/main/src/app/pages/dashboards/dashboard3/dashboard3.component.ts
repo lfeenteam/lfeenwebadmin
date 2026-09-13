@@ -111,7 +111,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   private updateBrowserTitle(): void {
     const titleKey = this.pageTitleKey || (this.isLoginRoute ? 'd3.loginPage.form.title' : 'd3.sidebar.dashboard');
     const translatedTitle = this.translate.instant(titleKey);
-    this.titleService.setTitle(`أدمن لفين | ${translatedTitle}`);
+    const supervisorTitle = this.translate.instant('d3.header.supervisorTitle');
+    this.titleService.setTitle(`${supervisorTitle} | ${translatedTitle}`);
   }
 
   private updateIsLoginRoute(): void {
