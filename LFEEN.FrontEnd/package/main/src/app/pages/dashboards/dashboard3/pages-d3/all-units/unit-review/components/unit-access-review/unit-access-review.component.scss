@@ -210,6 +210,36 @@
   }
 }
 
+.photo-note {
+  margin: 0 18px 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f7f5;
+  text-align: start;
+
+  span {
+    display: block;
+    margin-bottom: 4px;
+    color: #6b6b67;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: #111110;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+
+    &.photo-note--empty {
+      color: #afafac;
+      font-weight: 500;
+    }
+  }
+}
+
 .photo-frame {
   position: relative;
   height: 192px;
@@ -321,24 +351,6 @@
     font-weight: 500;
     line-height: 1.8;
     text-align: center;
-  }
-}
-
-.host-guide-footer {
-  margin-top: 20px;
-  padding-top: 14px;
-  border-top: 1px solid #E8E8E4;
-  color: #AFAFAC;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
-
-  i-tabler {
-    width: 18px;
-    height: 18px;
   }
 }
 
@@ -476,8 +488,8 @@
   .section-heading,
   .section-hint,
   .access-photo-card strong,
+  .photo-note,
   .host-guide-card,
-  .host-guide-footer,
   .notes-label-row {
     direction: rtl;
   }
@@ -509,10 +521,6 @@
 
   .section-hint {
     text-align: right;
-  }
-
-  .host-guide-footer {
-    justify-content: flex-start;
   }
 
   .host-guide-card p {

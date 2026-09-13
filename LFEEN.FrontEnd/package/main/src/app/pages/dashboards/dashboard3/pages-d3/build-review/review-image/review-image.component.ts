@@ -261,7 +261,6 @@ export class ReviewImageComponent implements OnInit {
           approved: approvedCount,
           required: this.minRequired
         }));
-        console.error('Photo review submission failed', err);
       }
     });
   }

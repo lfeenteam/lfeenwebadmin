@@ -99,7 +99,6 @@ export class RolesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading roles', err);
         this.isLoading = false;
       }
     });

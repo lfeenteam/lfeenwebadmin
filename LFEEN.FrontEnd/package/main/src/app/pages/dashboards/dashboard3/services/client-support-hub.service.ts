@@ -133,9 +133,7 @@ export class ClientSupportHubService {
     connection.onreconnected(() => {
       this.connected.set(true);
       if (this.joinedChatId) {
-        connection.invoke('JoinChat', this.joinedChatId).catch(err =>
-          console.error('JoinChat after reconnect failed', err)
-        );
+        connection.invoke('JoinChat', this.joinedChatId).catch(() => undefined);
       }
     });
     connection.onreconnecting(() => this.connected.set(false));
@@ -145,9 +143,8 @@ export class ClientSupportHubService {
     this.startPromise = connection
       .start()
       .then(() => this.connected.set(true))
-      .catch(err => {
-        console.error('Client support hub connection failed', err);
-        throw err;
+      .catch(() => {
+        this.connected.set(false);
       });
   }
 
@@ -209,11 +206,10 @@ export class ClientSupportHubService {
         // between the initial start() resolving and a later invoke() call — sending in
         // that window is what produces server-side "No Connection with that ID" errors.
         if (connection.state !== signalR.HubConnectionState.Connected) {
-          console.warn(`${method} skipped — hub state is '${connection.state}', not Connected`);
           return;
         }
         return connection.invoke(method, ...args);
       })
-      .catch(err => console.error(`${method} failed`, err));
+      .catch(() => undefined);
   }
 }

@@ -191,6 +191,7 @@ export interface UnitAccessPhotoItem {
   category: string;
   categoryName: string | null;
   imageUrl: string;
+  note: string | null;
   decision: string;
   rejectionReason: string | null;
   reviewedAt: string | null;

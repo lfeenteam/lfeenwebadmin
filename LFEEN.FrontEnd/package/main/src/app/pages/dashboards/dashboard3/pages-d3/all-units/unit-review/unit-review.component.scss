@@ -552,6 +552,16 @@
       outline: none;
       border-color: #B45309;
     }
+
+    &.is-readonly {
+      background: #F7F7F5;
+      color: #475569;
+      cursor: default;
+
+      &:focus {
+        border-color: #E8E8E4;
+      }
+    }
   }
 }
 

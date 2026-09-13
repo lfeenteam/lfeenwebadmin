@@ -73,10 +73,10 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         const id = this.deptId;
         return forkJoin({
           department: this.departmentService.getDepartmentById(id).pipe(
-            catchError(err => { console.error('Error loading department', err); return of(null); })
+            catchError(() => of(null))
           ),
           roles: this.departmentService.getDepartmentRoles(id).pipe(
-            catchError(err => { console.error('Error loading roles', err); return of(null); })
+            catchError(() => of(null))
           )
         });
       })
@@ -122,7 +122,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
     if (!this.deptId) return;
     this.departmentService.getDepartmentRoles(this.deptId).subscribe({
       next: (roles) => { this.roles = roles.map(role => this.mapRoleRow(role)); },
-      error: (err) => console.error('Error loading roles', err)
+      error: () => undefined
     });
   }
 

@@ -21,6 +21,7 @@ interface AccessPhoto {
   image: string;
   titleKey: string;
   tagKey: string;
+  note: string | null;
   decision: AccessPhotoDecision;
   rejectionReason: string;
   canReview: boolean;
@@ -149,6 +150,7 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
               image:             p.imageUrl,
               titleKey:          CATEGORY_MAP[p.category]?.titleKey ?? p.category,
               tagKey:            CATEGORY_MAP[p.category]?.tagKey   ?? '',
+              note:              p.note?.trim() || null,
               decision:          this.mapApiPhotoDecision(p.decision),
               rejectionReason:   p.rejectionReason ?? '',
               canReview:         this.canReviewPhoto(p.decision),

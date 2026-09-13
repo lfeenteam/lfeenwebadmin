@@ -176,10 +176,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       this.isLoadingEmployees = this.departmentService.isLoadingEmployees();
       this.employeePageNumbers = Array.from({ length: this.employeeTotalPages }, (_, i) => i + 1);
       if (this.departmentId) this.updateStats();
-      const err = this.departmentService.employeesError();
-      if (err) {
-        console.error('[TeamManagement] Employee resource error:', err);
-      }
       this.cdr.markForCheck();
     });
   }
@@ -258,7 +254,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
           this.currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name)
         );
       },
-      error: (err) => console.error('Error fetching department details', err)
+      error: () => undefined
     });
 
     this.departmentService.loadEmployeesForDept(id);
@@ -352,7 +348,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
             else this.loadAllEmployees();
           },
           error: (err) => {
-            console.error('Error deleting employee', err);
             this.toastr.error(this.translate.instant('d3.toast.deleteEmployeeError'));
           }
         });
@@ -385,7 +380,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
             else this.loadAllEmployees();
           },
           error: (err) => {
-            console.error('Error toggling employee status', err);
             const errorKey = isActivating ? 'd3.toast.activateEmployeeError' : 'd3.toast.deactivateEmployeeError';
             this.toastr.error(this.translate.instant(errorKey));
           }

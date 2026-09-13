@@ -86,6 +86,13 @@
 
           <strong>{{ photo.titleKey | translate }}</strong>
 
+          <div class="photo-note">
+            <span>{{ 'd3.unitReview.accessView.photoNote' | translate }}</span>
+            <p [class.photo-note--empty]="!photo.note">
+              {{ photo.note || ('d3.unitReview.accessView.noPhotoNote' | translate) }}
+            </p>
+          </div>
+
           @if (photo.decision === 'rejected') {
             <div class="rejection-fields">
               <input type="text" [(ngModel)]="photo.rejectionReason" [readonly]="isReadOnly || !photo.canReview" [placeholder]="'d3.unitReview.imagesView.rejectionReasonPlaceholder' | translate">
@@ -106,10 +113,6 @@
 
       <article class="host-guide-card">
         <p>{{ accessData!.accessDescription }}</p>
-        <div class="host-guide-footer">
-          <i-tabler name="pencil"></i-tabler>
-          <span>{{ 'd3.unitReview.accessView.hostGuideMeta' | translate }}</span>
-        </div>
       </article>
     </section>
   }

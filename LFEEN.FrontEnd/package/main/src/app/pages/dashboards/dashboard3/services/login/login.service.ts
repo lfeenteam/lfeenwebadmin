@@ -90,15 +90,11 @@ export class LoginService {
 
     if (delay > 0) {
       this.refreshTimeout = setTimeout(() => {
-        this.refreshToken().subscribe({
-          error: (err) => console.error('Auto token refresh failed', err)
-        });
+        this.refreshToken().subscribe({ error: () => undefined });
       }, delay);
     } else if (this.hasValidRefreshToken()) {
       // If already expired or within 10s, refresh immediately
-      this.refreshToken().subscribe({
-        error: (err) => console.error('Immediate token refresh failed', err)
-      });
+      this.refreshToken().subscribe({ error: () => undefined });
     }
   }
 

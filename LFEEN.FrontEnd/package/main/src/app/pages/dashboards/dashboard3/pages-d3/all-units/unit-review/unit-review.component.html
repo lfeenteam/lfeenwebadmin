@@ -132,19 +132,21 @@
       <span class="input-label">
         {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
       </span>
-      @if (!isFinalApproved) {
+      @if (!isViewMode) {
         <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
       }
     </div>
     <textarea
       [(ngModel)]="finalNotes"
+      [readonly]="isViewMode"
+      [class.is-readonly]="isViewMode"
       [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
       rows="3">
     </textarea>
   </div>
   }
 
-  @if (!isFinalApproved) {
+  @if (!isViewMode) {
   <div class="action-buttons">
     <button
       class="btn btn-approve"
