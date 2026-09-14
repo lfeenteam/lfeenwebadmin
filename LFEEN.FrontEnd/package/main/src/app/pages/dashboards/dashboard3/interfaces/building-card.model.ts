@@ -259,6 +259,14 @@ export interface BasicDataReviewResponse {
   overallStatus: PropertyAdminReviewStatus;
 }
 
+export interface PropertyNearbyPlace {
+  placeName: string;
+  distanceInMeters: number;
+  rating: string | null;
+  categoryId: number;
+  isLandmark: boolean;
+}
+
 export interface PropertyLocationResponse {
   propertyId: number;
   decision: SectionDecisionStatus;
@@ -279,7 +287,7 @@ export interface PropertyLocationResponse {
   googleMapsUrl: string | null;
   formattedAddress: string | null;
   accessDescription: string | null;
-  nearbyPlaces: string[];
+  nearbyPlaces: PropertyNearbyPlace[];
 }
 
 export interface LocationReviewPayload {

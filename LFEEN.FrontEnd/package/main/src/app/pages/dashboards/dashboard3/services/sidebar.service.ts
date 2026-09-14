@@ -51,6 +51,10 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
+    if (!items.find(i => i.link === '/d3/settlements')) {
+      items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
+    }
+
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
       items.push({
         translationKey: 'd3.sidebar.subscriptions',

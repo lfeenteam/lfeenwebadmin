@@ -102,6 +102,7 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
+    "copy": "Copy",
     "activate": "Activate",
     "deactivate": "Deactivate",
     "save": "Save",
@@ -169,6 +170,7 @@
       "complaints": "Complaints",
       "customers": "Customers",
       "faq": "FAQ",
+      "settlements": "Settlements",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
@@ -1297,6 +1299,9 @@
         "emptyTitle": "No location data",
         "emptyDescription": "The host has not added location data for this property.",
         "addressDetailsTitle": "Address Details",
+        "nearbyPlacesTitle": "Nearby Places",
+        "distanceMetersSuffix": "m",
+        "distanceKmSuffix": "km",
         "reviewTipTitle": "Review Tip",
         "reviewTipText": "Make sure the uploaded photos match the surrounding landmarks shown on the map to confirm the location is accurate.",
         "notesTitle": "Review Notes / Rejection Reason",
@@ -2188,6 +2193,107 @@
       },
       "pagination": {
         "total": "account"
+      }
+    },
+    "settlements": {
+      "title": "Settlements",
+      "subtitle": "Track payment settlement requests with accounts",
+      "tabs": {
+        "current": "Current Settlements",
+        "previous": "Previous Settlements"
+      },
+      "stats": {
+        "maxPaymentTime": "Max Payment Time",
+        "avgRequestValue": "Average Request Value",
+        "totalPending": "Total Pending Amount",
+        "hoursUnit": "hours"
+      },
+      "filters": {
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "searchPlaceholder": "Search by request number, account name...",
+      "table": {
+        "account": "Transaction / Account",
+        "accountName": "Account Name",
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "requestDate": "Date & Time",
+        "status": "Status"
+      },
+      "paymentMethods": {
+        "bankTransfer": "Bank Transfer",
+        "mada": "Mada Network"
+      },
+      "status": {
+        "pending": "Pending Review",
+        "approved": "Completed",
+        "rejected": "Rejected"
+      },
+      "rejectionReasonPrefix": "Rejection reason",
+      "rejectionReasons": {
+        "unclearImage": "Receipt image is unclear",
+        "accountMismatch": "Bank account details do not match"
+      },
+      "dateLabels": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "empty": {
+        "title": "No settlements",
+        "desc": "There are no settlement requests matching your search"
+      },
+      "pagination": {
+        "total": "requests"
+      },
+      "detail": {
+        "title": "Settlement Request Details",
+        "subtitle": "Review the bank account details and available balance",
+        "hostSection": "Host Details",
+        "accountName": "Account Name",
+        "hostName": "Host Name",
+        "phone": "Phone Number",
+        "requestedAmount": "Requested Settlement Amount",
+        "bankSection": "Bank Details",
+        "verified": "Verified",
+        "accountHolder": "Account Holder",
+        "bankName": "Bank Name",
+        "accountNumber": "Account Number",
+        "iban": "IBAN Number",
+        "acceptBtn": "Accept & Transfer Amount",
+        "rejectBtn": "Reject Request",
+        "ibanCopied": "IBAN number copied",
+        "confirmTransferTitle": "Confirm Transfer & Upload Receipt",
+        "companyAccount": "Company / Account",
+        "ibanNumber": "Account / IBAN Number",
+        "amountToTransfer": "Amount to Transfer",
+        "paymentMethod": "Payment Method",
+        "actualAmount": "Actual Transferred Amount",
+        "trxId": "Transaction Reference Number (TRX ID)",
+        "trxIdPlaceholder": "Enter the 12-digit bank reference number...",
+        "receiptLabel": "Transfer Receipt (Image or PDF)",
+        "uploadHint": "Click to upload the receipt or drag the file here",
+        "uploadFormats": "Supports JPG, PNG, PDF (max 5MB)",
+        "confirmTransferBtn": "Confirm & Accept Settlement",
+        "successTitle": "Settlement Completed Successfully",
+        "successMessage": "The transfer request has been processed and notifications sent to the relevant parties",
+        "trxNumber": "Transaction Number",
+        "transferredAmount": "Transferred Amount",
+        "executionTime": "Execution Time",
+        "now": "Now, {{time}}",
+        "closeWindowBtn": "Close Window",
+        "confirmRejectTitle": "Confirm Settlement Rejection",
+        "settlementAmount": "Settlement Amount",
+        "rejectReasonLabel": "Rejection Reason",
+        "rejectReasonPlaceholder": "Please write the reason for rejecting the settlement to be sent to the host...",
+        "rejectReasonHint": "This reason will be visible to the host in their control panel",
+        "confirmRejectBtn": "Confirm Rejection",
+        "rejectSuccessTitle": "Request Rejected Successfully",
+        "rejectSuccessSubtitle": "The request status was updated and the host notified",
+        "rejectDoneTitle": "Rejection Completed Successfully",
+        "rejectDoneMessage": "A rejection notice was sent to the host and the transaction status updated in the system",
+        "recordedReason": "Recorded Rejection Reason",
+        "rejectionDate": "Rejection Date"
       }
     },
     "subscriptions": {

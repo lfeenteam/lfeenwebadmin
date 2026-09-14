@@ -375,6 +375,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'settlements',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/settlements/settlements.component'
+                  ).then((m) => m.SettlementsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.settlements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
                 path: 'account-management',
                 canActivate: [authGuard],
                 loadComponent: () =>

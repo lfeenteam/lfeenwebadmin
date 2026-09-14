@@ -100,6 +100,69 @@
   </div>
   }
 
+  <!-- Nearby places -->
+  @if (vm && vm.nearbyPlaces.length) {
+  <div class="nearby-places-card">
+    <div class="nearby-places-header">
+      <span class="nearby-places-title">{{ 'd3.buildReview.location.nearbyPlacesTitle' | translate }}</span>
+      <span class="nearby-places-count">{{ vm.nearbyPlaces.length }}</span>
+    </div>
+
+    <div class="nearby-places-list">
+      @for (place of pagedNearbyPlaces; track place.name + place.distanceValue) {
+        <div class="nearby-place-row" [class.is-landmark]="place.isLandmark">
+          <span class="place-icon">
+            <i-tabler [name]="place.icon"></i-tabler>
+          </span>
+          <div class="place-text">
+            <span class="place-name">{{ place.name }}</span>
+            @if (place.rating) {
+              <span class="place-rating">
+                <i-tabler name="star"></i-tabler>
+                {{ place.rating }}
+              </span>
+            }
+          </div>
+          <span class="place-distance">
+            <span class="place-distance-value">{{ place.distanceValue }}</span>
+            <span class="place-distance-unit">{{ place.distanceUnit }}</span>
+          </span>
+        </div>
+      }
+    </div>
+
+    @if (nearbyPlacesTotalPages > 1) {
+      <div class="nearby-places-pagination">
+        <button
+          type="button"
+          class="nearby-page-btn"
+          [disabled]="nearbyPlacesPage === 1"
+          (click)="changeNearbyPlacesPage(nearbyPlacesPage - 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler>
+        </button>
+
+        @for (page of nearbyPlacesVisiblePages; track page) {
+          <button
+            type="button"
+            class="nearby-page-btn"
+            [class.active]="nearbyPlacesPage === page"
+            (click)="changeNearbyPlacesPage(page)">
+            {{ page }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="nearby-page-btn"
+          [disabled]="nearbyPlacesPage === nearbyPlacesTotalPages"
+          (click)="changeNearbyPlacesPage(nearbyPlacesPage + 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler>
+        </button>
+      </div>
+    }
+  </div>
+  }
+
   <!-- Notes -->
   @if (!readOnly) {
   <div class="notes-section">

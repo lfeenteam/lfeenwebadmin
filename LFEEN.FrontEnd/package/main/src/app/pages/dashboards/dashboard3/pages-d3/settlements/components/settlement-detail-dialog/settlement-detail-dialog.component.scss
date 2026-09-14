@@ -1,0 +1,672 @@
+:host ::ng-deep .mat-mdc-dialog-container {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.settlement-detail-dialog {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+
+  h2, p, span, div, button, label, textarea, input {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+// ── Header ──────────────────────────────────────────────────
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.header-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.badge-success {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+
+  &.badge-danger {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+}
+
+.header-text {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 2px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111110;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9E9E9A;
+  }
+}
+
+.close-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #6B6B67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &:hover { background: #E2E8F0; }
+}
+
+// ── Detail cards ────────────────────────────────────────────
+.detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 16px;
+
+  &:last-of-type { margin-bottom: 0; }
+}
+
+.detail-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B6B67;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #dcfce7;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.row-label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0;
+  color: #62748E;
+  text-align: right;
+  white-space: nowrap;
+
+  &.row-label--with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.row-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  text-align: end;
+}
+
+.amount-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid #E8E8E4;
+}
+
+.amount-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #111110;
+
+  &.amount-value--accent {
+    font-size: 15px;
+    color: #16a34a;
+  }
+
+  &.amount-value--danger {
+    font-size: 15px;
+    color: #dc2626;
+  }
+}
+
+// ── Payment method (transfer summary) ──────────────────────
+.payment-method-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6B6B67;
+}
+
+// ── IBAN copy row ───────────────────────────────────────────
+.iban-copy-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iban-value {
+  direction: ltr;
+}
+
+.copy-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  color: #6B6B67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &:hover { background: #F1F5F9; }
+}
+
+.riyal-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+
+  &.is-text-currency {
+    width: 26px;
+    height: auto;
+  }
+}
+
+// Recolored variant: the SVG itself is a flat black glyph, so an <img> can't be tinted
+// via `color` — mask it onto a solid-color span instead to get an exact color match.
+.riyal-icon--accent,
+.riyal-icon--danger {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &.is-text-currency {
+    width: 26px;
+    height: 14px;
+  }
+}
+
+.riyal-icon--accent { background-color: #16a34a; }
+.riyal-icon--danger { background-color: #dc2626; }
+
+// ── IBAN ────────────────────────────────────────────────────
+.iban-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.iban-box {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  letter-spacing: 0.5px;
+  direction: ltr;
+  text-align: center;
+}
+
+// ── Transfer confirmation form ─────────────────────────────
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.field-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: 0 44px 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &::placeholder { color: #9E9E9A; font-weight: 500; }
+  &:focus { border-color: #16a34a; }
+
+  // Hide native number spinners so the currency icon has a clean edge to sit against.
+  &[type='number'] {
+    -moz-appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  }
+}
+
+.field-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9E9E9A;
+  pointer-events: none;
+}
+
+:host-context([dir='ltr']) {
+  .field-input { padding: 0 14px 0 44px; }
+  .field-icon { right: auto; left: 14px; }
+}
+
+// ── Reject reason ───────────────────────────────────────────
+.reject-reason-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.reject-reason-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111110;
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s ease;
+
+  &::placeholder { color: #9E9E9A; }
+  &:focus { border-color: #dc2626; }
+}
+
+.reject-reason-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+// ── Receipt upload ──────────────────────────────────────────
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover, &.is-dragging {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+}
+
+.upload-icon {
+  color: #9E9E9A;
+}
+
+.upload-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.upload-subtext {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+.uploaded-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #dcfce7;
+  border-radius: 14px;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.file-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  color: #6B6B67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &:hover { background: #dcfce7; }
+}
+
+// ── Actions ─────────────────────────────────────────────────
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex: 1 1 auto;
+  height: 62px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  transition: filter 0.18s ease, transform 0.12s ease;
+
+  &:active { transform: scale(0.98); }
+}
+
+.btn-reject {
+  flex: 0 0 34%;
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  &:hover { background: #fef2f2; }
+}
+
+.btn-outline {
+  flex: 0 0 34%;
+  background: #fff;
+  color: #111110;
+  border: 1px solid #E2E8F0;
+  &:hover { background: #F8FAFC; }
+}
+
+.btn-accept {
+  flex: 1 1 auto;
+  background: #16a34a;
+  color: #fff;
+  box-shadow:
+    0 8px 10px -6px rgba(0, 153, 102, 0.2),
+    0 20px 25px -5px rgba(0, 153, 102, 0.2);
+  &:hover { filter: brightness(0.93); }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    &:hover { filter: none; }
+  }
+}
+
+.btn-danger {
+  flex: 1 1 auto;
+  background: #dc2626;
+  color: #fff;
+  box-shadow:
+    0 8px 10px -6px rgba(220, 38, 38, 0.2),
+    0 20px 25px -5px rgba(220, 38, 38, 0.2);
+  &:hover { filter: brightness(0.93); }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    &:hover { filter: none; }
+  }
+}
+
+@media (max-width: 480px) {
+  .settlement-detail-dialog { padding: 16px; }
+
+  .detail-actions { flex-direction: column-reverse; }
+  .btn-reject, .btn-outline { flex: 1 1 auto; }
+}
+
+// ── Success view ────────────────────────────────────────────
+@keyframes settlementDrawCircle {
+  from { stroke-dashoffset: 140; }
+  to   { stroke-dashoffset: 0;   }
+}
+
+@keyframes settlementDrawCheck {
+  from { stroke-dashoffset: 80; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+@keyframes settlementFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.success-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.check-svg {
+  width: 38px;
+  height: 38px;
+  overflow: visible;
+
+  .check-circle {
+    stroke: #16a34a;
+    stroke-width: 2.5;
+    fill: none;
+    stroke-dasharray: 140;
+    stroke-dashoffset: 140;
+    animation: settlementDrawCircle 0.45s 0.1s ease forwards;
+  }
+
+  .check-mark {
+    stroke: #16a34a;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    animation: settlementDrawCheck 0.35s 0.42s ease forwards;
+  }
+}
+
+.success-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111110;
+  animation: settlementFadeUp 0.35s 0.2s both;
+}
+
+.success-message {
+  margin: 0 0 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9E9E9A;
+  line-height: 1.7;
+  animation: settlementFadeUp 0.35s 0.28s both;
+}
+
+.success-card {
+  width: 100%;
+  gap: 12px;
+  animation: settlementFadeUp 0.35s 0.35s both;
+}
+
+.btn-close-window {
+  width: 100%;
+  margin-top: 20px;
+  background: #111110;
+  color: #fff;
+  &:hover { filter: brightness(1.15); }
+}
+
+// ── Reject success ──────────────────────────────────────────
+.reject-success-icon-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+}
+
+.reject-success-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: settlementFadeUp 0.35s both;
+}
+
+.reject-success-badge {
+  position: absolute;
+  bottom: -6px;
+  left: -6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  background: #fff;
+  color: #dc2626;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host-context([dir='ltr']) {
+  .reject-success-badge { left: auto; right: -6px; }
+}
+
+.recorded-reason-box {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111110;
+  line-height: 1.7;
+  text-align: start;
+}

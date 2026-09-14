@@ -23,6 +23,25 @@ export interface PropertyLocationAddressRow {
   icon: string;
 }
 
+export interface PropertyNearbyPlaceVM {
+  name: string;
+  distanceValue: string;
+  distanceUnit: string;
+  rating: string | null;
+  isLandmark: boolean;
+  icon: string;
+}
+
+// Best-effort icon per place category, based on the categoryId values observed
+// from the backend (no category enum/reference is published elsewhere in the app).
+// Unmapped ids fall back to a generic pin.
+const NEARBY_PLACE_CATEGORY_ICONS: Record<number, string> = {
+  5: 'heartbeat',        // health & wellness (gyms, hospitals)
+  9: 'building-mosque',
+  11: 'building-bank',   // ATMs
+  12: 'building-store'
+};
+
 export interface PropertyLocationReviewVM {
   propertyId: number;
   decision: string;
@@ -34,6 +53,7 @@ export interface PropertyLocationReviewVM {
   coordinatesText: string;
   googleMapsLink: string;
   rejectionReason: string | null;
+  nearbyPlaces: PropertyNearbyPlaceVM[];
 }
 
 @Component({
@@ -71,6 +91,9 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
   mapReady = false;
   rejectionReason = '';
 
+  nearbyPlacesPage = 1;
+  readonly nearbyPlacesPageSize = 12;
+
   ngOnInit(): void {
     // The backend localizes city/district/formattedAddress etc. based on the
     // Accept-Language header (set from the current language at request time), so
@@ -86,6 +109,30 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
     this.viewReady = true;
     this.tryInitMap();
   }
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  get nearbyPlacesTotalPages(): number {
+    const total = this.vm?.nearbyPlaces.length ?? 0;
+    return Math.max(1, Math.ceil(total / this.nearbyPlacesPageSize));
+  }
+
+  get nearbyPlacesVisiblePages(): number[] {
+    return Array.from({ length: this.nearbyPlacesTotalPages }, (_, i) => i + 1);
+  }
+
+  get pagedNearbyPlaces(): PropertyNearbyPlaceVM[] {
+    const all = this.vm?.nearbyPlaces ?? [];
+    const start = (this.nearbyPlacesPage - 1) * this.nearbyPlacesPageSize;
+    return all.slice(start, start + this.nearbyPlacesPageSize);
+  }
+
+  changeNearbyPlacesPage(page: number): void {
+    if (page < 1 || page > this.nearbyPlacesTotalPages) return;
+    this.nearbyPlacesPage = page;
+  }
+
   get hasLocationData(): boolean {
     if (!this.location) return false;
     const l = this.location;
@@ -128,7 +175,34 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
       googleMapsLink: data.googleMapsUrl?.trim()
         ? data.googleMapsUrl
         : `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-      rejectionReason: data.rejectionReason
+      rejectionReason: data.rejectionReason,
+      nearbyPlaces: (data.nearbyPlaces || [])
+        .slice()
+        .sort((a, b) => a.distanceInMeters - b.distanceInMeters)
+        .map(place => {
+          const distance = this.formatDistance(place.distanceInMeters);
+          return {
+            name: place.placeName,
+            distanceValue: distance.value,
+            distanceUnit: distance.unit,
+            rating: place.rating && place.rating.toUpperCase() !== 'N/A' ? place.rating : null,
+            isLandmark: place.isLandmark,
+            icon: place.isLandmark ? 'star-filled' : (NEARBY_PLACE_CATEGORY_ICONS[place.categoryId] ?? 'map-pin')
+          };
+        })
+    };
+  }
+
+  private formatDistance(meters: number): { value: string; unit: string } {
+    if (meters < 1000) {
+      return {
+        value: `${Math.round(meters)}`,
+        unit: this.translate.instant('d3.buildReview.location.distanceMetersSuffix')
+      };
+    }
+    return {
+      value: (meters / 1000).toFixed(1),
+      unit: this.translate.instant('d3.buildReview.location.distanceKmSuffix')
     };
   }
 
@@ -141,6 +215,7 @@ export class ReviewLocationComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
         this.location = data;
         this.rejectionReason = data.rejectionReason ?? '';
+        this.nearbyPlacesPage = 1;
         this.tryInitMap();
       },
       error: () => {

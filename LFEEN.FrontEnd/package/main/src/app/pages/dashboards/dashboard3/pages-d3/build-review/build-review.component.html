@@ -141,12 +141,14 @@
       <div class="final-notes-inline">
         <div class="notes-label-row">
           <span class="input-label">{{ 'd3.buildReview.finalDecision.finalNotesOptionalLabel' | translate }}</span>
-          @if (!isFinalApproved) {
+          @if (!viewOnly) {
             <small class="notes-hint">{{ (isDisplayed ? 'd3.buildReview.finalDecision.finalNotesHintRejectOnly' : 'd3.buildReview.finalDecision.finalNotesHint') | translate }}</small>
           }
         </div>
         <textarea
           [(ngModel)]="finalNotes"
+          [readonly]="viewOnly"
+          [class.is-readonly]="viewOnly"
           [placeholder]="'d3.buildReview.finalDecision.finalNotesOptionalPlaceholder' | translate"
           rows="3"
         ></textarea>
@@ -155,7 +157,7 @@
 
     <!-- Action Buttons -->
     <div class="action-wrapper">
-      @if (!isFinalApproved) {
+      @if (!viewOnly) {
       <div class="action-buttons">
         <button
           class="btn btn-approve"

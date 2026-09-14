@@ -104,6 +104,7 @@
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
+    "copy": "نسخ",
     "activate": "تفعيل",
     "deactivate": "تعطيل",
     "save": "حفظ",
@@ -171,6 +172,7 @@
       "complaints": "شكوى",
       "customers": "العملاء",
       "faq": "الأسئلة الشائعة",
+      "settlements": "التسويات",
       "subscriptions": "الاشتراكات",
       "subscriptionSettings": "اعدادات الاشتراكات",
       "subscriptionManagement": "ادارة الاشتراكات",
@@ -1385,6 +1387,107 @@
         "total": "حساب"
       }
     },
+    "settlements": {
+      "title": "التسويات",
+      "subtitle": "متابعة طلبات تسوية المدفوعات مع الحسابات",
+      "tabs": {
+        "current": "التسويات الحالية",
+        "previous": "التسويات السابقة"
+      },
+      "stats": {
+        "maxPaymentTime": "أقصى وقت سداد",
+        "avgRequestValue": "متوسط قيمة الطلب",
+        "totalPending": "إجمالي المبالغ المعلقة",
+        "hoursUnit": "ساعة"
+      },
+      "filters": {
+        "newest": "من الأحدث أولاً",
+        "oldest": "من الأقدم أولاً"
+      },
+      "searchPlaceholder": "ابحث برقم الشريحة، اسم الحساب...",
+      "table": {
+        "account": "الحركة / الحساب",
+        "accountName": "اسم الحساب",
+        "amount": "المبلغ",
+        "paymentMethod": "طريقة الدفع",
+        "requestDate": "التاريخ والوقت",
+        "status": "الحالة"
+      },
+      "paymentMethods": {
+        "bankTransfer": "تحويل بنكي",
+        "mada": "شبكة مدى"
+      },
+      "status": {
+        "pending": "بانتظار المراجعة",
+        "approved": "تمت بنجاح",
+        "rejected": "مرفوضة"
+      },
+      "rejectionReasonPrefix": "سبب الرفض",
+      "rejectionReasons": {
+        "unclearImage": "صورة الإيصال غير واضحة",
+        "accountMismatch": "بيانات الحساب البنكي غير مطابقة"
+      },
+      "dateLabels": {
+        "today": "اليوم",
+        "yesterday": "أمس"
+      },
+      "empty": {
+        "title": "لا توجد تسويات",
+        "desc": "لا توجد طلبات تسوية مطابقة لبحثك حاليًا"
+      },
+      "pagination": {
+        "total": "طلب تسوية"
+      },
+      "detail": {
+        "title": "تفاصيل طلب التسوية",
+        "subtitle": "مراجعة بيانات الحساب البنكي والرصيد المتاح",
+        "hostSection": "بيانات المضيف",
+        "accountName": "اسم الحساب",
+        "hostName": "اسم المضيف",
+        "phone": "رقم الهاتف",
+        "requestedAmount": "مبلغ التسوية المطلوب",
+        "bankSection": "البيانات البنكية",
+        "verified": "تم التحقق",
+        "accountHolder": "صاحب الحساب",
+        "bankName": "اسم البنك",
+        "accountNumber": "رقم الحساب",
+        "iban": "رقم الآيبان (IBAN)",
+        "acceptBtn": "قبول وتحويل المبلغ",
+        "rejectBtn": "رفض الطلب",
+        "ibanCopied": "تم نسخ رقم الآيبان",
+        "confirmTransferTitle": "تأكيد التحويل ورفع الإيصال",
+        "companyAccount": "الشركة / الحساب",
+        "ibanNumber": "رقم الحساب/الآيبان",
+        "amountToTransfer": "المبلغ المطلوب تحويله",
+        "paymentMethod": "طريقة الدفع",
+        "actualAmount": "المبلغ المحول فعليًا",
+        "trxId": "رقم مرجع العملية (TRX ID)",
+        "trxIdPlaceholder": "أدخل رقم المرجع البنكي المكون من 12 خانة...",
+        "receiptLabel": "إيصال التحويل (صورة أو PDF)",
+        "uploadHint": "انقر لرفع الإيصال أو اسحب الملف هنا",
+        "uploadFormats": "يدعم الصيغ JPG, PNG, PDF (الحد الأقصى 5 ميجابايت)",
+        "confirmTransferBtn": "تأكيد وقبول التسوية",
+        "successTitle": "تم تنفيذ التسوية بنجاح",
+        "successMessage": "تمت معالجة طلب التحويل وإرسال الإشعارات للأطراف المعنية",
+        "trxNumber": "رقم العملية",
+        "transferredAmount": "المبلغ المحول",
+        "executionTime": "وقت التنفيذ",
+        "now": "الآن، {{time}}",
+        "closeWindowBtn": "إغلاق النافذة",
+        "confirmRejectTitle": "تأكيد رفض التسوية",
+        "settlementAmount": "مبلغ التسوية",
+        "rejectReasonLabel": "سبب الرفض",
+        "rejectReasonPlaceholder": "يرجى كتابة سبب رفض التسوية ليتم إرساله للمضيف...",
+        "rejectReasonHint": "سيظهر هذا السبب للمضيف في لوحة التحكم الخاصة به",
+        "confirmRejectBtn": "تأكيد رفض الطلب",
+        "rejectSuccessTitle": "تم رفض الطلب بنجاح",
+        "rejectSuccessSubtitle": "تم تحديث حالة الطلب وإشعار المضيف",
+        "rejectDoneTitle": "تمت عملية الرفض بنجاح",
+        "rejectDoneMessage": "تم إرسال إشعار الرفض للمضيف وتحديث حالة المعاملة في النظام",
+        "recordedReason": "سبب الرفض المسجل",
+        "rejectionDate": "تاريخ الرفض"
+      }
+    },
     "subscriptions": {
       "pageTitle": "ادارة الاشتراكات",
       "listTitle": "قائمة حسابات المشتركين",
@@ -1997,6 +2100,9 @@
         "emptyTitle": "لا توجد بيانات موقع",
         "emptyDescription": "لم يقم المضيف بإضافة بيانات الموقع الجغرافي لهذا المبنى.",
         "addressDetailsTitle": "تفاصيل العنوان",
+        "nearbyPlacesTitle": "الأماكن القريبة",
+        "distanceMetersSuffix": "م",
+        "distanceKmSuffix": "كم",
         "reviewTipTitle": "نصيحة للمراجعة",
         "reviewTipText": "تأكد من مطابقة الصور المرفوعة مع المعالم المحيطة الظاهرة في الخريطة لضمان دقة الموقع الصحيح عنه.",
         "notesTitle": "ملاحظات المراجعة / سبب الرفض",

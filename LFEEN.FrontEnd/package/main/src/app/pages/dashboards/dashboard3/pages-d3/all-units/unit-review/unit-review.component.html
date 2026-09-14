@@ -7,6 +7,10 @@
     <div class="title-block">
       <h1 class="unit-title">{{ unit?.title }}</h1>
       <p class="unit-meta">
+        @if (unitDetail?.propertyName) {
+          {{ unitDetail?.propertyName }}
+          <span class="meta-sep">·</span>
+        }
         {{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}: {{ unit?.unitNumber }}
         <span class="meta-sep">·</span>
         {{unit?.district || '-' }}
