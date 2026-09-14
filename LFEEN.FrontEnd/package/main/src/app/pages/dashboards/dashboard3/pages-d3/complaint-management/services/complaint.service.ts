@@ -69,7 +69,7 @@ export class ComplaintService {
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/tickets/${ticketId}/status`, payload);
   }
 
-  updateClientTicketStatus(ticketId: string, status: number, note?: string): Observable<void> {
+  updateClientTicketStatus(ticketId: string, status: string, note?: string): Observable<void> {
     const payload: UpdateClientTicketStatusRequest = { status, ...(note ? { note } : {}) };
     return this.http.patch<void>(`${environment.apiBaseUrl}/api/client-tickets/${ticketId}/status`, payload);
   }

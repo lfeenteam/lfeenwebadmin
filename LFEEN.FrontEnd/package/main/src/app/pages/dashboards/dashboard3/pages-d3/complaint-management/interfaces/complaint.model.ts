@@ -108,7 +108,7 @@ export interface UpdateStatusRequest {
 }
 
 export interface UpdateClientTicketStatusRequest {
-  status: number;
+  status: string;
   note?: string;
 }
 
@@ -331,13 +331,14 @@ export const CLIENT_TICKET_PRIORITY_OPTIONS: { value: string; labelKey: string }
   { value: 'Urgent', labelKey: 'd3.complaints.customerFilters.priority.urgent' },
 ];
 
+// String names the backend's status field actually accepts on PATCH /api/client-tickets/{id}/status.
+// Only these four are ever set manually by an agent — the rest (BotHandling, PendingAgent,
+// Assigned, ClosedByClient) are system-driven.
 export const CLIENT_TICKET_STATUS = {
-  New: 1,
-  Assigned: 2,
-  InProgress: 3,
-  WaitingClient: 4,
-  Resolved: 5,
-  Closed: 6,
+  InProgress: 'InProgress',
+  WaitingForClient: 'WaitingForClient',
+  Resolved: 'Resolved',
+  ClosedByAdmin: 'ClosedByAdmin',
 } as const;
 
 export interface TicketsOverviewItem {

@@ -253,7 +253,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     const note = this.closeNote.trim() || undefined;
     const ticketId = this.complaint.id;
     this.claimTicketIfUnassigned().then(() => {
-      this.service.updateClientTicketStatus(ticketId, CLIENT_TICKET_STATUS.Closed, note).subscribe({
+      this.service.updateClientTicketStatus(ticketId, CLIENT_TICKET_STATUS.ClosedByAdmin, note).subscribe({
         next: () => {
           this.closingTicket.set(false);
           this.showCloseDialog.set(false);
