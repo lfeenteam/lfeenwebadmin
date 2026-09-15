@@ -3,6 +3,7 @@ import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/ro
 import { SidebarComponent } from '../../../components/dashboard3/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../components/dashboard3/header/header.component';
 import { PageHeaderComponent } from '../../../components/dashboard3/page-header/page-header.component';
+import { ClientChatFabComponent } from '../../../components/dashboard3/client-chat-fab/client-chat-fab.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
@@ -24,6 +25,7 @@ import { TranslateService } from '@ngx-translate/core';
     SidebarComponent,
     HeaderComponent,
     PageHeaderComponent,
+    ClientChatFabComponent,
     RouterModule,
     CommonModule,
     FormsModule,

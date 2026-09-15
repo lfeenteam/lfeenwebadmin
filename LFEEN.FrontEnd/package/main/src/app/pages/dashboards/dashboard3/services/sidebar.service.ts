@@ -5,6 +5,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { LoginService } from './login/login.service';
 import { SidebarItem } from '../interfaces/login.model';
 import { CoreService } from '../../../../services/core.service';
+import { PAGE_FLAGS } from '../../../../config/page-flags';
 
 export interface NavItem {
   id?: string;
@@ -51,24 +52,29 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
-    if (!items.find(i => i.link === '/d3/settlements')) {
+    if (PAGE_FLAGS['settlements'] && !items.find(i => i.link === '/d3/settlements')) {
       items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
     }
 
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
+      const subscriptionChildren: NavItem[] = [
+        { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
+        { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
+      ];
+      if (PAGE_FLAGS['subscriptions-management']) {
+        subscriptionChildren.splice(1, 0, {
+          translationKey: 'd3.sidebar.subscriptionManagement', icon: 'list-details', link: '/d3/subscriptions/management'
+        });
+      }
       items.push({
         translationKey: 'd3.sidebar.subscriptions',
         icon: 'credit-card',
         link: null,
-        children: [
-          { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
-          { translationKey: 'd3.sidebar.subscriptionManagement', icon: 'list-details', link: '/d3/subscriptions/management' },
-          { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
-        ]
+        children: subscriptionChildren
       });
     }
 
-    if (!items.find(i => i.link === '/d3/settings')) {
+    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
       items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
@@ -113,8 +119,13 @@ export class SidebarService {
       'roles':           '/d3/roles'
     };
 
-    // Permissions & permission groups are managed by the backend only — hide their pages
-    const hiddenKeys = new Set(['permissions', 'permission-groups']);
+    // Driven by page-flags.ts: a page with its flag set to false is hidden from
+    // the sidebar here, and (where a route exists) blocked by page-flag.guard.ts.
+    const hiddenKeys = new Set(
+      Object.entries(PAGE_FLAGS)
+        .filter(([, enabled]) => !enabled)
+        .map(([key]) => key)
+    );
 
     return items
       .filter(item => !hiddenKeys.has(item.key))
@@ -123,6 +134,10 @@ export class SidebarService {
         let link: string | null = null;
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
+        } else if (item.key?.startsWith('department-')) {
+          // Individual department links (e.g. department-it/cs/ops) go to that
+          // department's page — not the disabled permissions module below.
+          link = `/d3/team-management/${item.entityId ?? item.id}`;
         } else if (item.entityId) {
           link = `/d3/permissions/${item.entityId}`;
         } else if (item.route && !item.children?.length) {

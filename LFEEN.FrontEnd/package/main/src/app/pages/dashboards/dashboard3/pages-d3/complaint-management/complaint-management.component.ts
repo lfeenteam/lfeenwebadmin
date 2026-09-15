@@ -504,7 +504,7 @@ export class ComplaintManagementComponent implements OnDestroy {
       .pipe(
         map(res => ({
           complaints: res.data
-            .filter(t => t.status !== 'Closed')
+            .filter(t => this.service.mapClientTicketStatus(t.status) !== 'closed')
             .map(t => this.service.mapClientTicketToComplaint(t)),
           totalCount: res.totalCount,
           totalPages: res.totalPages,

@@ -46,4 +46,9 @@
       <router-outlet></router-outlet>
     </div>
   </div>
+
+  <!-- Floating customer-chat button -->
+  @if (!isLoginRoute) {
+    <app-client-chat-fab></app-client-chat-fab>
+  }
 </div>

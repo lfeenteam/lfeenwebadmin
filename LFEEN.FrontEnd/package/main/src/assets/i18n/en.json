@@ -2012,6 +2012,16 @@
         "success": "Employee assigned successfully"
       }
     },
+    "chatFab": {
+      "title": "Help Center",
+      "subtitle": "You have {{count}} active conversations",
+      "loading": "Loading...",
+      "empty": "No active conversations right now",
+      "viewAll": "View all chats",
+      "unassigned": "Not assigned",
+      "assignedByPrefix": "By:",
+      "yesterday": "Yesterday"
+    },
     "bookings": {
       "title": "Bookings Record",
       "cards": {
@@ -2836,5 +2846,11 @@
         "statusUpdateSuccess": "Article status updated"
       }
     }
+  },
+  "notFound": {
+    "title": "Something went wrong",
+    "subtitle": "Sorry, it looks like the link you followed is broken or the page has been moved.",
+    "refreshButton": "Refresh Page",
+    "homeButton": "Back to Home"
   }
 }

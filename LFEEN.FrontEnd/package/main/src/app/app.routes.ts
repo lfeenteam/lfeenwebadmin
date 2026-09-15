@@ -4,6 +4,7 @@ import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
 import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
 import { authGuard } from './guards/auth.guard';
+import { pageFlagGuard } from './guards/page-flag.guard';
 
 export const routes: Routes = [
   {
@@ -111,7 +112,7 @@ export const routes: Routes = [
               },
               {
                 path: 'ceo',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('dashboard')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/ceo-page/ceo-page.component'
@@ -376,7 +377,7 @@ export const routes: Routes = [
               },
               {
                 path: 'settlements',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('settlements')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/settlements/settlements.component'
@@ -421,7 +422,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/permissions.component'
@@ -436,7 +437,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id/add-role',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
@@ -451,7 +452,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id/role/:roleId',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
@@ -599,7 +600,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/management',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('subscriptions-management')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-management/subscription-management.component'
@@ -661,7 +662,7 @@ export const routes: Routes = [
               },
               {
                 path: 'settings',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('settings')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-settings/platform-settings.component'
@@ -691,7 +692,7 @@ export const routes: Routes = [
               },
               {
                 path: 'notifications',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('notifications')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/notifications/notifications.component'
