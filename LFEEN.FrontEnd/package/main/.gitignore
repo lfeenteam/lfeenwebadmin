@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Contains real local secrets (e.g. googleMapsApiKey) - never commit
+src/environments/environment.ts
