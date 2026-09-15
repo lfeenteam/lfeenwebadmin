@@ -15,15 +15,32 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
         working-directory: LFEEN.FrontEnd/package/main
         run: npm ci
+
+      # إنشاء environment.test.ts أثناء الـ workflow
+      # والـ Google Key تأتي من GitHub Secrets
+      - name: Create Testing Environment
+        working-directory: LFEEN.FrontEnd/package/main
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.TEST_GOOGLE_API_KEY }}
+        run: |
+          cat > src/environments/environment.test.ts <<EOF
+          export const environment = {
+            production: false,
+            apiBaseUrl: 'https://test-api-admin.lfeen.com',
+            googleMapsApiKey: '${GOOGLE_MAPS_API_KEY}'
+          };
+          EOF
 
       - name: Build Angular
         working-directory: LFEEN.FrontEnd/package/main
