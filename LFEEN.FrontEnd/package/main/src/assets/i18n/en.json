@@ -170,7 +170,9 @@
       "complaints": "Complaints",
       "customers": "Customers",
       "faq": "FAQ",
+      "contactUs": "Contact Us",
       "settlements": "Settlements",
+      "platformOffers": "Platform Offers",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
@@ -2772,13 +2774,27 @@
         }
       }
     },
+    "platformOffers": {
+      "title": "Platform Offers", "subtitle": "Admin-owned offers that apply platform-wide, to any unit regardless of merchant", "add": "Add Offer", "cancel": "Cancel", "edit": "Edit", "retry": "Try again", "total": "offers", "automatic": "Automatic", "saved": "Offer saved successfully", "deleted": "Offer deleted successfully", "confirmStatus": "Are you sure you want to change this offer's status?", "confirmDelete": "Are you sure you want to delete this offer? This cannot be undone.", "allUnits": "Applies to all units", "noData": "No data yet",
+      "filters": { "search": "Search by name or code", "allTriggers": "All trigger types", "allStatuses": "All statuses", "min": "Min discount", "max": "Max discount", "reset": "Reset filters" },
+      "status": { "active": "Active", "inactive": "Inactive", "expired": "Expired", "scheduled": "Scheduled" },
+      "table": { "offer": "Offer", "code": "Code", "discount": "Discount", "validity": "Validity", "status": "Status", "uses": "uses" },
+      "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
+      "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
+      "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
+      "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
+      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
+      "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Unit IDs", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
+      "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
+      "form": { "createTitle": "Create Platform Offer", "editTitle": "Edit Platform Offer", "subtitle": "Configure an offer that applies across the platform, regardless of merchant.", "preview": "Preview", "unnamed": "Unnamed offer", "save": "Save Offer", "saving": "Saving…", "addExclusion": "Add Exclusion Period", "addMessage": "Add Message", "addTerm": "Add Term" }
+    },
     "contactUs": {
-      "title": "Contact messages", "subtitle": "Review and resolve messages received from visitors", "total": "messages", "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
+      "title": "Contact Us", "subtitle": "Review and resolve messages received from visitors", "total": "messages", "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
       "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
       "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
       "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
       "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message." },
-      "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note" },
+      "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
       "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
     },
     "faq": {

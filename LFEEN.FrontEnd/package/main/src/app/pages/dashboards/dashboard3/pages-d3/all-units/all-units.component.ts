@@ -31,7 +31,7 @@ export class AllUnitsComponent {
 
   activeTab: string = this.unitsService.activeTab();
   searchQuery       = '';
-  viewMode: ViewMode = 'grid';
+  viewMode: ViewMode = 'list';
   buildingsWithUnits: BuildingWithUnits[] = [];
   isLoading    = false;
   totalCount   = 0;

@@ -10,7 +10,7 @@ import { CoreService } from 'src/app/services/core.service';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { LoginService } from '../../services/login/login.service';
-import { ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
+import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
 import { ContactUsService } from './services/contact-us.service';
 
 @Component({
@@ -29,6 +29,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   private detailRequest?: Subscription;
   private listRequest?: Subscription;
   private drawerTrigger?: HTMLElement;
+  private previewTrigger?: HTMLElement;
 
   readonly dir = computed(() => this.core.getOptionsSignal()().dir);
   readonly canClose = computed(() => this.login.permissions().some(p => p.toLowerCase() === 'contactus.close'.toLowerCase()));
@@ -36,6 +37,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   selected = signal<ContactUsDetail | null>(null); detailLoading = signal(false); detailError = signal('');
   status = signal<ContactUsStatus | 'all'>('all'); search = ''; page = signal(1); pageSize = 20;
   totalCount = signal(0); totalPages = signal(1); closeDialogOpen = signal(false); closing = signal(false); closeNote = '';
+  previewAttachment = signal<ContactUsAttachment | null>(null);
 
   ngOnInit(): void {
     this.searchChanges.pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$)).subscribe(() => { this.page.set(1); this.load(); });
@@ -66,14 +68,17 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
       error: e => { this.detailError.set(extractApiErrorMessage(e, this.translate.instant('d3.contactUs.errors.detail'))); this.detailLoading.set(false); }
     });
   }
-  closePanel(): void { this.detailRequest?.unsubscribe(); this.detailRequest = undefined; this.detailLoading.set(false); this.selected.set(null); this.detailError.set(''); const trigger = this.drawerTrigger; this.drawerTrigger = undefined; setTimeout(() => trigger?.focus()); }
+  closePanel(): void { this.closePreview(false); this.detailRequest?.unsubscribe(); this.detailRequest = undefined; this.detailLoading.set(false); this.selected.set(null); this.detailError.set(''); const trigger = this.drawerTrigger; this.drawerTrigger = undefined; setTimeout(() => trigger?.focus()); }
   statusKey(value: ContactUsStatus): string { return `d3.contactUs.status.${value.toLowerCase()}`; }
   formatBytes(bytes: number): string { if (!bytes) return '0 KB'; const units = ['B', 'KB', 'MB', 'GB']; const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3); return `${(bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0)} ${units[i]}`; }
   pageEnd(): number { return Math.min(this.page() * this.pageSize, this.totalCount()); }
   showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
+  isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }
+  openPreview(file: ContactUsAttachment, event: Event): void { this.previewTrigger = event.currentTarget as HTMLElement; this.previewAttachment.set(file); }
+  closePreview(restoreFocus = true): void { if (!this.previewAttachment()) return; this.previewAttachment.set(null); const trigger = this.previewTrigger; this.previewTrigger = undefined; if (restoreFocus) setTimeout(() => trigger?.focus()); }
   @HostListener('document:keydown.escape')
-  onEscape(): void { if (this.closeDialogOpen()) this.dismissCloseDialog(); else if (this.detailLoading() || this.selected() || this.detailError()) this.closePanel(); }
+  onEscape(): void { if (this.previewAttachment()) this.closePreview(); else if (this.closeDialogOpen()) this.dismissCloseDialog(); else if (this.detailLoading() || this.selected() || this.detailError()) this.closePanel(); }
   confirmClose(): void {
     const detail = this.selected(); if (!detail || this.closing()) return;
     this.closing.set(true);

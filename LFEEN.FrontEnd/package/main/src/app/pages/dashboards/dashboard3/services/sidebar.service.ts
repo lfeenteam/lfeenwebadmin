@@ -56,6 +56,18 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
     }
 
+    // Temporary fixed entry so the Contact Us page can be previewed before the
+    // backend starts returning it in the permission-driven sidebar payload.
+    if (!items.find(i => i.link === '/d3/contact-us')) {
+      items.push({ translationKey: 'd3.sidebar.contactUs', icon: 'mail', link: '/d3/contact-us' });
+    }
+
+    // Temporary fixed entry, same as Contact Us above: the permission-driven
+    // sidebar payload doesn't know about this page yet.
+    if (!items.find(i => i.link === '/d3/platform-offers')) {
+      items.push({ translationKey: 'd3.sidebar.platformOffers', icon: 'discount', link: '/d3/platform-offers' });
+    }
+
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
       const subscriptionChildren: NavItem[] = [
         { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },

@@ -40,7 +40,7 @@ export class AllBuildsComponent implements OnInit {
     type: 'all',
     sort: 'newest'
   };
-  viewMode: ViewMode         = 'grid';
+  viewMode: ViewMode         = 'list';
   allBuildings: BuildingCardItem[] = [];
   isLoading                  = false;
   totalPages                 = 1;

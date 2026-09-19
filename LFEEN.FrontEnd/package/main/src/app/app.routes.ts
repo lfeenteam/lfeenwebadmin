@@ -599,6 +599,72 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'platform-offers',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offers-list.component'
+                  ).then((m) => m.PlatformOffersListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'platform-offers/create',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
+                  ).then((m) => m.PlatformOfferFormComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.form.createTitle',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'platform-offers/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-detail.component'
+                  ).then((m) => m.PlatformOfferDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.title',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'platform-offers/:id/edit',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
+                  ).then((m) => m.PlatformOfferFormComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.form.editTitle',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
                 path: 'client-faq',
                 canActivate: [authGuard],
                 loadComponent: () =>
