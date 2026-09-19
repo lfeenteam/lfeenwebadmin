@@ -443,6 +443,7 @@ export interface UnitServicesServiceItem {
   serviceExternalId: string;
   serviceTypeId: number;
   serviceTypeNameKey: string;
+  displayName?: string | null;
   displayNameAr: string | null;
   displayNameEn: string | null;
   uiType: string;

@@ -412,6 +412,16 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     const hasRejection = result?.decision === 'Rejected';
     this.reviewSections[index].completed = true;
     this.reviewSections[index].status    = hasRejection ? 'rejected' : 'accepted';
+
+    // `canFinalApprove` is loaded with the initial property details. After the
+    // reviewer decides the last section, keeping that old value prevents the
+    // final-decision card/button from appearing until a full page refresh.
+    // Reflect the successful section response in the parent state immediately.
+    this.canFinalApprove = this.isFinalSuccess;
+    if (result && 'overallStatus' in result) {
+      this.overallStatus = result.overallStatus;
+    }
+
     this.setView('list');
   }
 

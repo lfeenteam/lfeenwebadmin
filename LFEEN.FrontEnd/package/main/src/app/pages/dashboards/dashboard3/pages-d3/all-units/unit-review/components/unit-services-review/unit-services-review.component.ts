@@ -114,9 +114,10 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
         this.currentLang = event.lang;
-        if (this.servicesData) {
-          this.serviceGroups = this.mapApiToServiceGroups(this.servicesData);
-        }
+        // `displayName` is localized by the API, so remapping the previous
+        // response keeps names in the old language. Fetch it again using the
+        // newly selected language instead of requiring a page refresh.
+        if (this.unitId) this.loadServices();
       });
   }
 
@@ -130,6 +131,18 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
     this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
     if (!this.unitId) return;
+    this.loadServices();
+    this.unitsService.getUnitBasicData(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(data => {
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
+      });
+  }
+
+  private loadServices(): void {
     this.isLoading = true;
     this.unitsService.getUnitServices(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -141,14 +154,6 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: () => { this.isLoading = false; }
-      });
-    this.unitsService.getUnitBasicData(this.unitId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
       });
   }
 
@@ -304,7 +309,11 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
         s.isWifiConfigured ||
         s.serviceTypeNameKey.toLowerCase().includes('wifi')
       );
-    if (wifiService?.isWifiConfigured === true) {
+    // The services endpoint only returns services selected for the unit. Wi-Fi
+    // can therefore be a valid returned service even when its credentials have
+    // not been filled in yet (`isWifiConfigured: false`). Hiding it in that
+    // state made a Wi-Fi-only unit look as if it had no services at all.
+    if (wifiService) {
       groups.push(this.buildWifiGroup(wifiService));
     }
 
@@ -390,10 +399,12 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
     const isAr = this.currentLang !== 'en';
     const primary   = isAr ? service.displayNameAr : service.displayNameEn;
     const secondary = isAr ? service.displayNameEn : service.displayNameAr;
-    return primary ?? secondary ?? service.serviceTypeNameKey;
+    return service.displayName ?? primary ?? secondary ?? service.serviceTypeNameKey;
   }
 
   private getServiceLabel(service: UnitServicesServiceItem): string {
+    if (service.displayName?.trim()) return service.displayName;
+
     const isAr = this.currentLang !== 'en';
     const primary   = isAr ? service.displayNameAr : service.displayNameEn;
     const secondary = isAr ? service.displayNameEn : service.displayNameAr;
