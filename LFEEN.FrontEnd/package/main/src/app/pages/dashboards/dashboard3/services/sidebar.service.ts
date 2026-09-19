@@ -102,7 +102,10 @@ export class SidebarService {
       'accounts':         'users',
       'bookings':         'calendar-time',
       'complaints':       'message-exclamation',
-      'client-faq':       'help-circle'
+      'client-faq':       'help-circle',
+      'contact-us':       'mail',
+      'contactus':        'mail',
+      'contact_us':       'mail'
     };
 
     const exactRouteMap: { [key: string]: string } = {
@@ -116,6 +119,9 @@ export class SidebarService {
       'bookings':        '/d3/bookings',
       'complaints':      '/d3/complaints',
       'client-faq':      '/d3/client-faq',
+      'contact-us':      '/d3/contact-us',
+      'contactus':       '/d3/contact-us',
+      'contact_us':      '/d3/contact-us',
       'roles':           '/d3/roles'
     };
 

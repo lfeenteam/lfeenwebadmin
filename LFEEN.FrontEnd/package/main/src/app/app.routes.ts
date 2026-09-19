@@ -584,6 +584,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'contact-us',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/contact-us-management/contact-us-management.component'
+                  ).then((m) => m.ContactUsManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.contactUs.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
                 path: 'client-faq',
                 canActivate: [authGuard],
                 loadComponent: () =>

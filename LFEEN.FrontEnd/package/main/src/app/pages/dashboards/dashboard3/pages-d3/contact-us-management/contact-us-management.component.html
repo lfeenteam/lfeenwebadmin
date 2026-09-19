@@ -1,0 +1,62 @@
+<section class="contact-page" [dir]="dir()">
+  <header class="page-intro">
+    <div><h1><span class="title-icon"><i-tabler name="mail"></i-tabler></span>{{ 'd3.contactUs.title' | translate }}</h1><p>{{ 'd3.contactUs.subtitle' | translate }}</p></div>
+    <span class="total"><strong>{{ totalCount() }}</strong> {{ 'd3.contactUs.total' | translate }}</span>
+  </header>
+
+  <article class="inbox-card">
+    <div class="toolbar">
+      <label class="search-box"><i-tabler name="search"></i-tabler><input [ngModel]="search" (ngModelChange)="onSearch($event)" [placeholder]="'d3.contactUs.search' | translate" /></label>
+      <div class="status-tabs" role="group" [attr.aria-label]="'d3.contactUs.filterLabel' | translate">
+        @for (option of ['all','New','Viewed','Closed']; track option) {
+          <button type="button" [class.active]="status() === option" [attr.aria-pressed]="status() === option" (click)="setStatus($any(option))">{{ (option === 'all' ? 'd3.contactUs.status.all' : statusKey($any(option))) | translate }}</button>
+        }
+      </div>
+    </div>
+
+    @if (loading()) { <app-dashboard-loading variant="table" [rows]="7"></app-dashboard-loading> }
+    @else if (error()) {
+      <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><p>{{ error() }}</p><button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button></div>
+    } @else if (!items().length) {
+      <div class="state"><span class="empty-icon"><i-tabler name="mail-off"></i-tabler></span><h3>{{ 'd3.contactUs.empty.title' | translate }}</h3><p>{{ 'd3.contactUs.empty.text' | translate }}</p></div>
+    } @else {
+      <div class="table-head"><span>{{ 'd3.contactUs.table.sender' | translate }}</span><span>{{ 'd3.contactUs.table.subject' | translate }}</span><span>{{ 'd3.contactUs.table.attachments' | translate }}</span><span>{{ 'd3.contactUs.table.date' | translate }}</span><span>{{ 'd3.contactUs.table.status' | translate }}</span><span></span></div>
+      <div class="rows">
+        @for (item of items(); track item.externalId) {
+          <button class="message-row" type="button" [class.unread]="item.status === 'New'" (click)="open(item, $event)">
+            <span class="sender"><span class="avatar">{{ item.name.charAt(0) }}</span><span class="sender-copy"><strong><i class="unread-dot"></i>{{ item.name }}</strong><small>{{ item.email || item.phone }}</small></span></span>
+            <span class="subject">{{ item.subject }}</span>
+            <span class="attachment-count"><i-tabler name="paperclip"></i-tabler>{{ item.attachmentsCount }}</span>
+            <span class="date"><strong>{{ item.createdAt | date:'dd MMM yyyy' }}</strong><small>{{ item.createdAt | date:'shortTime' }}</small></span>
+            <span><span class="status-pill" [class]="'status-pill ' + item.status.toLowerCase()">{{ statusKey(item.status) | translate }}</span></span>
+            <span class="view"><i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler></span>
+          </button>
+        }
+      </div>
+      <footer class="pagination"><span>{{ 'd3.contactUs.pagination' | translate:{from: ((page()-1)*pageSize+1), to: pageEnd(), total: totalCount()} }}</span><div><button type="button" (click)="changePage(page()-1)" [disabled]="page()===1" [attr.aria-label]="'d3.contactUs.previousPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler></button><b>{{ page() }} / {{ totalPages() }}</b><button type="button" (click)="changePage(page()+1)" [disabled]="page()===totalPages()" [attr.aria-label]="'d3.contactUs.nextPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler></button></div></footer>
+    }
+  </article>
+
+  @if (detailLoading() || selected() || detailError()) {
+    <div class="drawer-backdrop" (click)="closePanel()"></div>
+    <aside class="detail-drawer" role="dialog" aria-modal="true" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" [attr.aria-labelledby]="selected() ? 'contact-detail-title' : null" [attr.aria-label]="selected() ? null : ('d3.contactUs.detail.title' | translate)">
+      <header><div><span class="eyebrow">{{ 'd3.contactUs.detail.title' | translate }}</span>@if (selected()) { <h2 id="contact-detail-title">{{ selected()!.subject }}</h2> }</div><button class="icon-btn" type="button" cdkFocusInitial (click)="closePanel()" [attr.aria-label]="'d3.contactUs.closePanel' | translate"><i-tabler name="x"></i-tabler></button></header>
+      @if (detailLoading()) { <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading> }
+      @else if (detailError()) { <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><p>{{ detailError() }}</p></div> }
+      @else { @if (selected(); as detail) {
+        <div class="drawer-content">
+          <section class="sender-card"><span class="large-avatar">{{ detail.name.charAt(0) }}</span><div><h3>{{ detail.name }}</h3><a [href]="'mailto:'+detail.email">{{ detail.email }}</a><a [href]="'tel:'+detail.phone">{{ detail.phone }}</a></div><span class="status-pill" [class]="'status-pill ' + detail.status.toLowerCase()">{{ statusKey(detail.status) | translate }}</span></section>
+          <section class="message-block"><span class="section-label">{{ 'd3.contactUs.detail.message' | translate }}</span><p>{{ detail.message }}</p></section>
+          @if (detail.attachments.length) { <section><span class="section-label">{{ 'd3.contactUs.detail.attachments' | translate }} ({{ detail.attachments.length }})</span><div class="attachments">@for (file of detail.attachments; track file.url) { <a [href]="file.url" target="_blank" rel="noopener noreferrer"><span><i-tabler name="file"></i-tabler></span><div><strong>{{ file.fileName }}</strong><small>{{ file.contentType }} · {{ formatBytes(file.sizeBytes) }}</small></div><i-tabler name="external-link"></i-tabler></a> }</div></section> }
+          <section class="timeline"><div><i-tabler name="send"></i-tabler><span><strong>{{ 'd3.contactUs.detail.submitted' | translate }}</strong><small>{{ detail.createdAt | date:'medium' }}</small></span></div>@if(detail.viewedAtUtc){<div><i-tabler name="eye"></i-tabler><span><strong>{{ 'd3.contactUs.detail.viewed' | translate }}</strong><small>{{ detail.viewedAtUtc | date:'medium' }} @if(detail.viewedByAdminName){ · {{ detail.viewedByAdminName }} }</small></span></div>}@if(detail.closedAtUtc){<div><i-tabler name="circle-check"></i-tabler><span><strong>{{ 'd3.contactUs.detail.closed' | translate }}</strong><small>{{ detail.closedAtUtc | date:'medium' }}</small></span></div>}</section>
+          @if (detail.closingNote) { <section class="note"><span class="section-label">{{ 'd3.contactUs.detail.closingNote' | translate }}</span><p>{{ detail.closingNote }}</p></section> }
+        </div>
+        @if (detail.status !== 'Closed' && canClose()) { <footer class="drawer-footer"><button type="button" class="primary-btn" (click)="showCloseDialog()"><i-tabler name="circle-check"></i-tabler>{{ 'd3.contactUs.close.button' | translate }}</button></footer> }
+      } }
+    </aside>
+  }
+
+  @if (closeDialogOpen()) {
+    <div class="modal-backdrop"><div class="close-modal" role="dialog" aria-modal="true" aria-labelledby="close-request-title" aria-describedby="close-request-description" cdkTrapFocus [cdkTrapFocusAutoCapture]="true"><span class="modal-icon"><i-tabler name="circle-check"></i-tabler></span><h2 id="close-request-title">{{ 'd3.contactUs.close.title' | translate }}</h2><p id="close-request-description">{{ 'd3.contactUs.close.text' | translate }}</p><label>{{ 'd3.contactUs.close.note' | translate }}<textarea cdkFocusInitial [(ngModel)]="closeNote" rows="4" [placeholder]="'d3.contactUs.close.placeholder' | translate"></textarea></label><div><button class="secondary-btn" type="button" (click)="dismissCloseDialog()">{{ 'd3.contactUs.close.cancel' | translate }}</button><button class="primary-btn" type="button" [disabled]="closing()" (click)="confirmClose()">{{ (closing() ? 'd3.contactUs.close.closing' : 'd3.contactUs.close.confirm') | translate }}</button></div></div></div>
+  }
+</section>

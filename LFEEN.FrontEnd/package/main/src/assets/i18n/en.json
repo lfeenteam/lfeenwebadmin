@@ -2772,6 +2772,15 @@
         }
       }
     },
+    "contactUs": {
+      "title": "Contact messages", "subtitle": "Review and resolve messages received from visitors", "total": "messages", "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
+      "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
+      "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
+      "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
+      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message." },
+      "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note" },
+      "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
+    },
     "faq": {
       "title": "FAQ Management",
       "pageTitle": "FAQ Management",
