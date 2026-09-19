@@ -99,7 +99,7 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
   }
 
   get hasRealServicesData(): boolean {
-    return this.serviceGroups.some(g => g.id !== 'wifi');
+    return this.serviceGroups.length > 0;
   }
 
   constructor(
