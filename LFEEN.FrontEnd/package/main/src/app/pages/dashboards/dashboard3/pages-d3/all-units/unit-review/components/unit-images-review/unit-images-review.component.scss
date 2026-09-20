@@ -159,6 +159,27 @@
   box-shadow: 0 4px 12px rgba(17, 17, 16, 0.12);
 }
 
+.main-photo-crown {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: #F5A623;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(17, 17, 16, 0.08);
+  z-index: 2;
+
+  i-tabler {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .photo-section {
   display: flex;
   flex-direction: column;
@@ -568,6 +589,19 @@ textarea {
     top: 8px;
     right: 8px;
     gap: 6px;
+  }
+
+  .main-photo-crown {
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+
+    i-tabler {
+      width: 14px;
+      height: 14px;
+    }
   }
 
   .photo-action {

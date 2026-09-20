@@ -37,8 +37,7 @@ interface UnitPhotoGroup {
 }
 
 const GROUP_ICON_MAP: Record<string, string> = {
-  MainPhoto:  'star',
-  Bedroom:    'bed',
+  Bedroom:   'bed',
   Kitchen:    'chef-hat',
   LivingRoom: 'sofa',
   Bathroom:   'droplets',
@@ -84,8 +83,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   }
 
   get allPhotos(): UnitReviewPhoto[] {
-    const main = this.mainPhoto ? [this.mainPhoto] : [];
-    return [...main, ...this.photoGroups.flatMap(g => g.photos)];
+    return this.photoGroups.flatMap(g => g.photos);
   }
 
   get hasRejections(): boolean {
@@ -150,16 +148,16 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.totalPhotoCount = response.groups.reduce((sum, g) => sum + g.totalCount, 0);
         this.minRequired = response.minRequired;
-        const mainGroup = response.groups.find(g => g.groupKey === 'MainPhoto');
-        const otherGroups = response.groups.filter(g => g.groupKey !== 'MainPhoto');
-
-        this.mainPhoto = mainGroup?.photos?.length ? this.mapPhoto(mainGroup.photos[0]) : null;
-
-        this.photoGroups = otherGroups.map(group => ({
+        // The main photo no longer comes back as its own "MainPhoto" group — it's a regular
+        // photo (isMainPhoto: true) inside its real group. It's previewed a second time up
+        // top, but as the same object (not a copy), so its decision only ever lives in the
+        // group card and allPhotos doesn't double-count it.
+        this.photoGroups = response.groups.map(group => ({
           title: group.groupLabel,
           icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
           photos: group.photos.map(p => this.mapPhoto(p))
         }));
+        this.mainPhoto = this.photoGroups.flatMap(g => g.photos).find(p => p.isMainPhoto) ?? null;
       },
       error: () => { this.isLoading = false; }
     });

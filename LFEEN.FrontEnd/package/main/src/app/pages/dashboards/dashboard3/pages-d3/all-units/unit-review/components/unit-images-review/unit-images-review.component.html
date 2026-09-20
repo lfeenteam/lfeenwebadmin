@@ -49,14 +49,6 @@
               </div>
             }
             <span class="main-photo-badge">{{ 'd3.unitReview.imagesView.mainPhoto.badge' | translate }}</span>
-              <div class="photo-actions">
-                <button class="photo-action photo-action--reject" type="button" [class.active]="mainPhoto.decision === 'rejected'" [disabled]="isReadOnly || !mainPhoto.canReview" (click)="setDecision(mainPhoto, 'rejected')">
-                  <i-tabler name="x"></i-tabler>
-                </button>
-                <button class="photo-action photo-action--approve" type="button" [class.active]="mainPhoto.decision === 'approved'" [disabled]="isReadOnly || !mainPhoto.canReview" (click)="setDecision(mainPhoto, 'approved')">
-                  <i-tabler name="check"></i-tabler>
-                </button>
-              </div>
           </div>
 
           @if (mainPhoto.isPendingDeletion || mainPhoto.pendingIsMain !== null) {
@@ -66,12 +58,6 @@
               } @else if (mainPhoto.pendingIsMain !== null) {
                 <span>{{ 'Pending main photo review' }}</span>
               }
-            </div>
-          }
-
-          @if (mainPhoto.decision === 'rejected') {
-            <div class="rejection-fields">
-              <input type="text" [(ngModel)]="mainPhoto.rejectionReason" [readonly]="isReadOnly" [placeholder]="'d3.unitReview.imagesView.rejectionReasonPlaceholder' | translate">
             </div>
           }
         </div>
@@ -97,6 +83,11 @@
                     <span>{{ 'd3.unitReview.imagesView.noImageLabel' | translate }}</span>
                   </div>
                 }
+                  @if (photo.isMainPhoto) {
+                    <span class="main-photo-crown" [title]="'d3.unitReview.imagesView.mainPhoto.badge' | translate">
+                      <i-tabler name="crown"></i-tabler>
+                    </span>
+                  }
                   <div class="photo-actions">
                     <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setDecision(photo, 'rejected')">
                       <i-tabler name="x"></i-tabler>
