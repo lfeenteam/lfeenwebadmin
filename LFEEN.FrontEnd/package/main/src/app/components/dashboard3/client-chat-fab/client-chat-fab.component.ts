@@ -7,15 +7,16 @@ import { Subscription, catchError, of } from 'rxjs';
 import { ComplaintService } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/services/complaint.service';
 import { ClientSupportHubService } from 'src/app/pages/dashboards/dashboard3/services/client-support-hub.service';
 import { Complaint } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/interfaces/complaint.model';
+import { ComplaintChatComponent } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/components/complaint-chat/complaint-chat.component';
 
 // Global floating action button (all d3 pages) surfacing the customer-support "Help
 // Center" panel — a short list of active (non-closed) customer chats. Opening an item
-// deep-links into the complaints page's existing chat drawer rather than duplicating
-// the full chat UI here.
+// loads the chat inline, right here in the floating panel, instead of navigating away
+// to the complaints page.
 @Component({
   selector: 'app-client-chat-fab',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, ComplaintChatComponent],
   templateUrl: './client-chat-fab.component.html',
   styleUrl: './client-chat-fab.component.scss',
 })
@@ -29,6 +30,8 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
   panelOpen = signal(false);
   loading = signal(false);
   activeChats = signal<Complaint[]>([]);
+  selectedTicket = signal<Complaint | null>(null);
+  openingTicketId = signal<string | null>(null);
 
   readonly badgeCount = computed(() => this.activeChats().length);
   readonly badgeText = computed(() => (this.badgeCount() > 9 ? '9+' : String(this.badgeCount())));
@@ -83,11 +86,16 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
   togglePanel(): void {
     const opening = !this.panelOpen();
     this.panelOpen.set(opening);
-    if (opening) this.loadActiveChats();
+    if (opening) {
+      this.selectedTicket.set(null);
+      this.loadActiveChats();
+    }
   }
 
   closePanel(): void {
     this.panelOpen.set(false);
+    this.selectedTicket.set(null);
+    this.openingTicketId.set(null);
   }
 
   statusLabelKey(status: Complaint['status']): string {
@@ -137,11 +145,39 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
       .toUpperCase();
   }
 
+  // Loads the full chat thread inline and swaps the panel over to it — the ticket list's
+  // getClientTickets() only carries summary fields, not the message thread, so the detail
+  // (and then the richer chat-level view, which has the full history incl. the bot phase)
+  // has to be fetched before the chat can be shown.
   openTicket(ticket: Complaint): void {
-    this.closePanel();
-    this.router.navigate([this.translate.currentLang || 'ar', 'd3', 'complaints'], {
-      queryParams: { tab: 'customers', openTicket: ticket.id, type: 'customer' },
+    if (this.openingTicketId()) return;
+    this.openingTicketId.set(ticket.id);
+    this.service.getClientTicketById(ticket.id).subscribe({
+      next: detail => {
+        const fallback = this.service.mapClientTicketDetailToComplaint(detail);
+        if (!detail.chatExternalId) {
+          this.openingTicketId.set(null);
+          this.selectedTicket.set(fallback);
+          return;
+        }
+        this.service.getClientChatById(detail.chatExternalId).subscribe({
+          next: chat => {
+            this.openingTicketId.set(null);
+            this.selectedTicket.set(this.service.mapClientChatToComplaint(chat, fallback));
+          },
+          error: () => {
+            this.openingTicketId.set(null);
+            this.selectedTicket.set(fallback);
+          },
+        });
+      },
+      error: () => this.openingTicketId.set(null),
     });
+  }
+
+  backToList(): void {
+    this.selectedTicket.set(null);
+    this.loadActiveChats();
   }
 
   openAllChats(): void {

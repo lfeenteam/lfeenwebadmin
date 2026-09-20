@@ -74,27 +74,25 @@ export class ReviewImageComponent implements OnInit {
     this.buildingService.getPropertyPhotos(this.propertyId).subscribe({
       next: (data) => {
         this.isLoading = false;
-        this.mainPhoto = null;
-        this.photoGroups = [];
         this.minRequired = data.minRequired;
-        for (const g of data.groups) {
-          const localPhotos: LocalPhoto[] = g.photos.map(p => this.mapPhoto(p));
-          if (g.groupKey === 'MainPhoto') {
-            this.mainPhoto = localPhotos[0] ?? null;
-          } else {
-            this.photoGroups.push({ groupKey: g.groupKey, groupLabel: g.groupLabel, photos: localPhotos });
-          }
-        }
+        // The main photo no longer comes back as its own "MainPhoto" group — it's just a
+        // regular photo (isMainPhoto: true) inside its real category group now. It's shown
+        // a second time up top as a read-only preview, but that's the same object, not a
+        // separate copy, so its review decision/rejection reason only ever lives in the
+        // group card and allPhotos (below) doesn't double-count it.
+        this.photoGroups = data.groups.map(g => ({
+          groupKey: g.groupKey,
+          groupLabel: g.groupLabel,
+          photos: g.photos.map(p => this.mapPhoto(p))
+        }));
+        this.mainPhoto = this.photoGroups.flatMap(g => g.photos).find(p => p.isMainPhoto) ?? null;
       },
       error: () => { this.isLoading = false; }
     });
   }
 
   get allPhotos(): LocalPhoto[] {
-    return [
-      ...(this.mainPhoto ? [this.mainPhoto] : []),
-      ...this.photoGroups.flatMap(g => g.photos)
-    ];
+    return this.photoGroups.flatMap(g => g.photos);
   }
 
   get hasRejections(): boolean {
@@ -111,9 +109,6 @@ export class ReviewImageComponent implements OnInit {
 
   get rejectedGroups(): { title: string; reason: string }[] {
     const result: { title: string; reason: string }[] = [];
-    if (this.mainPhoto?.decision === 'Rejected') {
-      result.push({ title: this.mainPhoto.fileName, reason: this.mainPhoto.rejectionReason });
-    }
     for (const g of this.photoGroups) {
       const rejected = g.photos.filter(p => p.decision === 'Rejected');
       if (rejected.length > 0) {

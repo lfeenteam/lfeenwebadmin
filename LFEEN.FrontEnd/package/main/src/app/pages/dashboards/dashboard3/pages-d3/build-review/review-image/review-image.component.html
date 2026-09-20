@@ -34,22 +34,6 @@
             </div>
           }
           <span class="main-photo-badge">{{ 'd3.buildReview.images.mainPhotoBadge' | translate }}</span>
-          @if (!readOnly) {
-          <div class="image-actions">
-            <button class="btn-action btn-reject"
-                    [class.active]="mainPhoto.decision === 'Rejected'"
-                    [disabled]="!mainPhoto.canReview"
-                    (click)="setDecision(mainPhoto, 'Rejected')">
-              <i-tabler name="x"></i-tabler>
-            </button>
-            <button class="btn-action btn-accept"
-                    [class.active]="mainPhoto.decision === 'Approved'"
-                    [disabled]="!mainPhoto.canReview"
-                    (click)="setDecision(mainPhoto, 'Approved')">
-              <i-tabler name="check"></i-tabler>
-            </button>
-          </div>
-          }
         </div>
         <div class="card-footer-main">
           <div class="text-info">
@@ -61,28 +45,7 @@
               <span class="pending-change-label">{{ 'd3.buildReview.images.pendingMainPhotoReview' | translate }}</span>
             }
           </div>
-          <div class="status-info">
-            <span class="status-label" [ngClass]="{
-              'text-danger': mainPhoto.decision === 'Rejected',
-              'text-success': mainPhoto.decision === 'Approved',
-              'text-muted':   mainPhoto.decision === 'Pending'
-            }">
-              {{ (mainPhoto.decision === 'Rejected'
-                    ? 'd3.buildReview.images.statusRejected'
-                    : (mainPhoto.decision === 'Approved'
-                        ? 'd3.buildReview.images.statusAccepted'
-                        : 'd3.buildReview.images.statusPending')) | translate }}
-            </span>
-          </div>
         </div>
-
-        @if (mainPhoto.decision === 'Rejected' && !readOnly) {
-          <div class="rejection-inputs">
-            <input type="text"
-                   [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate"
-                   [(ngModel)]="mainPhoto.rejectionReason">
-          </div>
-        }
       </div>
     </div>
   }
@@ -109,6 +72,11 @@
                   <i-tabler name="photo-off"></i-tabler>
                   <span>{{ 'd3.buildReview.images.noImageLabel' | translate }}</span>
                 </div>
+              }
+              @if (img.isMainPhoto) {
+                <span class="main-photo-crown" [title]="'d3.buildReview.images.mainPhotoBadge' | translate">
+                  <i-tabler name="crown"></i-tabler>
+                </span>
               }
               @if (!readOnly) {
               <div class="image-actions">

@@ -55,7 +55,10 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
         if (this.page() > pages) { this.page.set(pages); this.load(); return; }
         this.items.set(r.data || []); this.totalCount.set(r.totalCount || 0); this.totalPages.set(pages); this.loading.set(false);
       },
-      error: e => { this.error.set(extractApiErrorMessage(e, this.translate.instant('d3.contactUs.errors.load'))); this.loading.set(false); }
+      // The list's own error state only shows the localized fallback text — the raw
+      // backend/network message (e.g. an infra-level "API request failed.") is a
+      // debugging detail, not something to surface on this page.
+      error: () => { this.error.set(this.translate.instant('d3.contactUs.errors.load')); this.loading.set(false); }
     });
   }
   changePage(value: number): void { if (value < 1 || value > this.totalPages() || value === this.page()) return; this.page.set(value); this.load(); }

@@ -16,7 +16,7 @@
 
     @if (loading()) { <app-dashboard-loading variant="table" [rows]="7"></app-dashboard-loading> }
     @else if (error()) {
-      <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><p>{{ error() }}</p><button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button></div>
+      <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button></div>
     } @else if (!items().length) {
       <div class="state"><span class="empty-icon"><i-tabler name="mail-off"></i-tabler></span><h3>{{ 'd3.contactUs.empty.title' | translate }}</h3><p>{{ 'd3.contactUs.empty.text' | translate }}</p></div>
     } @else {

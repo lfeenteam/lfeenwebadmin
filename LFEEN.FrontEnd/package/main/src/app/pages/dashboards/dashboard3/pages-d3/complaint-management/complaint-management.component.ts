@@ -43,6 +43,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   private customerSearchSub?: Subscription;
   private customerSearchSubject = new Subject<string>();
   private langSub?: Subscription;
+  private openTicketSub?: Subscription;
   private currentLangSignal = signal(this.translate.currentLang || this.translate.defaultLang || 'ar');
 
   activeTab         = signal<ComplaintTab>('customers');
@@ -241,13 +242,18 @@ export class ComplaintManagementComponent implements OnDestroy {
       this.loadHostFilterSources();
     });
 
-    const openTicketId = this.route.snapshot.queryParamMap.get('openTicket');
-    if (openTicketId) {
-      const ticketType = this.route.snapshot.queryParamMap.get('type');
+    // Subscribed, not a one-off snapshot read: the FAB deep-links here via query params, and
+    // when the user is already on this page Angular reuses this component instance (same
+    // route, only query params change) — a snapshot read in the constructor would never see
+    // the new ticket id, so clicking another chat would just land back on the normal page.
+    this.openTicketSub = this.route.queryParamMap.subscribe(params => {
+      const openTicketId = params.get('openTicket');
+      if (!openTicketId) return;
+      const ticketType = params.get('type');
       const inferredType: Complaint['type'] =
         ticketType === 'host' || this.activeTab() === 'hosts' ? 'host' : 'customer';
       this.openTicketById(openTicketId, inferredType);
-    }
+    });
   }
 
   private openTicketById(id: string, type: Complaint['type']): void {
@@ -282,6 +288,7 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostSearchSub?.unsubscribe();
     this.customerSearchSub?.unsubscribe();
     this.langSub?.unsubscribe();
+    this.openTicketSub?.unsubscribe();
   }
 
   private watchLiveUpdates(): void {

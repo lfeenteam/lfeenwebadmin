@@ -1,0 +1,96 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: "Cairo", sans-serif;
+}
+
+.ts-root {
+  width: 100%;
+  min-width: 280px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding: 14px;
+}
+
+.ts-period-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.ts-period {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+  height: 36px;
+  line-height: 36px;
+  border: 1.5px solid #e3e3de;
+  border-radius: 8px;
+  background: #fdfdfc;
+  color: #111110;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    border-color: #c7c7c0;
+  }
+
+  &.ts-period-selected {
+    background: #111110;
+    border-color: #111110;
+    color: #fff;
+  }
+}
+
+.ts-hours {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.ts-minutes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 12px;
+  border-top: 1px solid #eeeeea;
+}
+
+.ts-cell {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111110;
+  cursor: pointer;
+  direction: ltr;
+
+  &:hover {
+    background: #f0f0ec;
+  }
+
+  &.ts-cell-selected {
+    background: #111110;
+    color: #fff;
+  }
+}

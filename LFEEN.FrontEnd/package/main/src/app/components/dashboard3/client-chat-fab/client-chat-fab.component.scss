@@ -87,6 +87,71 @@
   overflow: hidden;
   z-index: 1050;
   animation: chatFabIn 0.15s ease-out;
+
+  &.is-chat-view {
+    height: 480px;
+  }
+}
+
+.chat-fab-chat-topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 0;
+}
+
+.chat-fab-back-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f2f3f5;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &:hover {
+    background: #e6e8eb;
+    color: #1a1a1a;
+  }
+}
+
+.chat-fab-chat {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+// complaint-chat's own header is sized for the full complaints page — shrink it here so
+// it doesn't eat most of the floating panel's fixed 480px height. ::ng-deep is scoped by
+// the .chat-fab-chat class, which only appears in this component's template.
+:host ::ng-deep .chat-fab-chat {
+  .chat-header {
+    min-height: auto;
+    padding: 14px 16px 10px;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 11px;
+  }
+
+  .client-name {
+    font-size: 14px;
+    max-width: 150px;
+  }
+
+  .resolve-chat-btn,
+  .resolved-label {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
 }
 
 @keyframes chatFabIn {
@@ -180,6 +245,27 @@
 
   &:hover {
     background: #eef0f2;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+}
+
+.chat-fab-item-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #e4e6e9;
+  border-top-color: #6b7280;
+  display: block;
+  animation: chatFabSpin 0.7s linear infinite;
+}
+
+@keyframes chatFabSpin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
