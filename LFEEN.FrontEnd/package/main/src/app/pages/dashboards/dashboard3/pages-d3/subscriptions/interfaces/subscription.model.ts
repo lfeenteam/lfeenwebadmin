@@ -136,15 +136,12 @@ export interface IntegrationField {
   isEditing?: boolean;
 }
 
-export interface AccountTypeFeeRule {
+export interface ServiceOperationPricing {
   id: number;
-  icon: string;
-  iconImage?: string;
-  name: string;
-  desc: string;
-  adjustmentPercent: number;
-  active: boolean;
-  isEditing?: boolean;
+  nameKey: string;
+  setupFee: number;
+  operationPrice: number;
+  seasonalPrice: number;
 }
 
 export type ServiceSubscriptionPlan = 'annualAdvanced' | 'monthly' | 'annualTrial';
@@ -156,8 +153,8 @@ export interface ServiceSubscribedFacility {
   classificationLabel: string;
   icon: string;
   plan: ServiceSubscriptionPlan;
-  subscribeDate: Date;
   startDate: Date;
+  renewalDate: Date;
   amountPaid: number | null;
   status: ServiceSubscriberStatus;
 }

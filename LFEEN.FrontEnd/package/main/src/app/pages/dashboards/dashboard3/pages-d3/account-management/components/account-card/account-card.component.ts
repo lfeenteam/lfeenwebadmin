@@ -5,6 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { Account } from '../../account-management.component';
+import { LoginService } from '../../../../services/login/login.service';
 
 @Component({
   selector: 'app-account-card',
@@ -19,10 +20,20 @@ export class AccountCardComponent {
 
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private login = inject(LoginService);
 
   goToReview(): void {
     const lang = this.router.url.split('/')[1] || 'ar';
     this.router.navigate([lang, 'd3', 'account-management', 'review', this.account.id]);
+  }
+
+  goToWallet(): void {
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.router.navigate([lang, 'd3', 'wallet', this.account.id]);
+  }
+
+  get canViewWallet(): boolean {
+    return this.login.permissions().some(p => p.toLowerCase() === 'wallet.view');
   }
 
   get statusLabel(): string {

@@ -421,6 +421,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'wallet/:id',
+                canActivate: [authGuard, pageFlagGuard('wallet')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/wallet/wallet.component'
+                  ).then((m) => m.WalletComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.wallet.title',
+                  breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
+                  showBack: true
+                },
+              },
+              {
                 path: 'permissions/:id',
                 canActivate: [authGuard, pageFlagGuard('permissions')],
                 loadComponent: () =>
@@ -674,6 +689,21 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.faq.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'call-scripts',
+                canActivate: [authGuard, pageFlagGuard('call-scripts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/call-scripts/call-scripts.component'
+                  ).then((m) => m.CallScriptsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.callScripts.title',
                   breadcrumbKey: 'd3.header.platform',
                   showLive: false,
                   showDate: true

@@ -4,11 +4,13 @@
 export const PAGE_FLAGS: Record<string, boolean> = {
   permissions: true,
   'permission-groups': false,
+  'call-scripts': true,             // wired to /api/call-scripts (list, create, update)
   dashboard: true,                  // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // platform-settings: all fields are static literals
   settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
+  wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

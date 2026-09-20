@@ -1,0 +1,124 @@
+<div class="cs-page" [dir]="dirSignal()">
+
+  <!-- Hero header -->
+  <div class="cs-hero">
+    <div class="hero-title-block">
+      <div class="hero-title-row">
+        <span class="phone-icon" aria-hidden="true">
+          <i-tabler name="phone-call" class="icon-16"></i-tabler>
+        </span>
+        <h1 class="hero-title">{{ 'd3.callScripts.pageTitle' | translate }}</h1>
+      </div>
+      <p class="hero-subtitle">{{ 'd3.callScripts.pageSubtitle' | translate }}</p>
+    </div>
+
+    <div class="hero-actions">
+      <div class="stats-row">
+        <span class="stat-item">
+          <span class="stat-label">{{ 'd3.callScripts.stats.total' | translate }}</span>
+          <span class="stat-circle stat-circle-total">{{ totalCount() }}</span>
+        </span>
+        <span class="stat-divider"></span>
+        <span class="stat-item">
+          <span class="stat-label">{{ 'd3.callScripts.stats.active' | translate }}</span>
+          <span class="stat-circle stat-circle-active">{{ activeCount() }}</span>
+        </span>
+      </div>
+      @if (canManage()) {
+        <button class="new-version-btn" type="button" (click)="openCreateDialog()">
+          <i-tabler name="plus" class="icon-16"></i-tabler>
+          {{ 'd3.callScripts.newVersion' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+  } @else if (loadError()) {
+    @if (forbidden()) {
+      <app-dashboard-empty icon="lock" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.forbidden"></app-dashboard-empty>
+    } @else {
+      <app-dashboard-empty icon="cloud-off" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.network">
+        <button type="button" class="retry-btn" (click)="load()">
+          <i-tabler name="refresh" class="icon-16"></i-tabler>
+          {{ 'd3.callScripts.errors.retry' | translate }}
+        </button>
+      </app-dashboard-empty>
+    }
+  } @else {
+
+    <div class="cs-card">
+      <div class="cs-table">
+        <div class="table-head">
+          <div class="col-scenario">{{ 'd3.callScripts.table.scenario' | translate }}</div>
+          <div class="col-audio">{{ 'd3.callScripts.table.audio' | translate }}</div>
+          <div class="col-options">{{ 'd3.callScripts.table.options' | translate }}</div>
+          <div class="col-updated">{{ 'd3.callScripts.table.updated' | translate }}</div>
+          <div class="col-status">{{ 'd3.callScripts.table.status' | translate }}</div>
+          <div class="col-actions">{{ 'd3.callScripts.table.actions' | translate }}</div>
+        </div>
+
+        @for (script of sortedScripts(); track script.id) {
+          <div class="table-row">
+
+            <div class="col-scenario">
+              <span class="scenario-chip">{{ script.scenarioType }}</span>
+            </div>
+
+            <div class="col-audio">
+              <a class="audio-link" [href]="script.audioFileUrl" target="_blank" rel="noopener" [title]="script.audioFileUrl">
+                <i-tabler name="music" class="icon-14"></i-tabler>
+                <span class="audio-link-text">{{ script.audioFileUrl }}</span>
+              </a>
+            </div>
+
+            <div class="col-options">
+              <span class="digits-chip">{{ optionDigits(script) }}</span>
+            </div>
+
+            <div class="col-updated">
+              <span class="updated-date">{{ formatDate(script.updatedAt) }}</span>
+            </div>
+
+            <div class="col-status">
+              <span class="status-pill" [class.status-active]="script.isActive" [class.status-inactive]="!script.isActive">
+                {{ (script.isActive ? 'd3.callScripts.status.active' : 'd3.callScripts.status.inactive') | translate }}
+              </span>
+            </div>
+
+            <div class="col-actions">
+              @if (canManage()) {
+                <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+                  <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                </button>
+                <mat-menu #rowMenu="matMenu" class="cs-row-menu">
+                  <button mat-menu-item type="button" (click)="openEditDialog(script)">
+                    <i-tabler name="pencil" class="icon-16"></i-tabler>
+                    {{ 'common.edit' | translate }}
+                  </button>
+                  @if (!script.isActive) {
+                    <button mat-menu-item type="button" class="menu-item-success" (click)="activateScript(script)">
+                      <i-tabler name="circle-check" class="icon-16"></i-tabler>
+                      {{ 'd3.callScripts.menu.activate' | translate }}
+                    </button>
+                  }
+                </mat-menu>
+              }
+            </div>
+
+          </div>
+        }
+
+        @empty {
+          <div class="empty-state">
+            <i-tabler name="file-off" class="icon-32"></i-tabler>
+            <span>{{ 'd3.callScripts.table.empty' | translate }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+</div>

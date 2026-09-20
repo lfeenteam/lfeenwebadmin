@@ -71,6 +71,12 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.platformOffers', icon: 'discount', link: '/d3/platform-offers' });
     }
 
+    // Same as Settlements above: not gated on CallScripts.View yet since the
+    // login response doesn't carry that permission — the API still enforces it.
+    if (PAGE_FLAGS['call-scripts'] && !items.find(i => i.link === '/d3/call-scripts')) {
+      items.push({ translationKey: 'd3.sidebar.callScripts', icon: 'phone-call', link: '/d3/call-scripts' });
+    }
+
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
       const subscriptionChildren: NavItem[] = [
         { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },

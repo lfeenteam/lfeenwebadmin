@@ -7,8 +7,8 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
-  AccountTypeFeeRule,
   IntegrationField,
+  ServiceOperationPricing,
   ServiceSubscribedFacility,
 } from '../interfaces/subscription.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
@@ -73,10 +73,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
 
   get showDurationSettings(): boolean {
     return this.serviceState === 'suspended' || this.serviceState === 'renewalStopped';
-  }
-
-  selectState(state: ServiceState): void {
-    this.serviceState = state;
   }
 
   durationOptions = [
@@ -157,11 +153,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     { id: 3, name: 'رابط الـ Webhook للإشعارات المباشرة', dataType: 'رابط إنترنت (URL Format)', required: false },
   ];
 
-  addIntegrationField(): void {
-    const nextId = Math.max(0, ...this.integrationFields.map(f => f.id)) + 1;
-    this.integrationFields.push({ id: nextId, name: '', dataType: '', required: false, isNew: true });
-  }
-
   editIntegrationField(field: IntegrationField): void {
     field.isEditing = true;
   }
@@ -170,74 +161,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     this.integrationFields = this.integrationFields.filter(f => f.id !== field.id);
   }
 
-  // ── Account type fee rules ─────────────────────────────────
-  accountTypeRules: AccountTypeFeeRule[] = [
-    { id: 1, icon: 'user', name: 'الأفراد وملاك العقار الواحد', desc: 'أصحاب الوحدة السكنية الواحدة', adjustmentPercent: 0, active: true },
-    { id: 2, icon: 'building-skyscraper', name: 'الفنادق والمنتجعات السياحية', desc: 'منشآت فندقية مصنفة رسمياً', adjustmentPercent: 20, active: true },
-    { id: 3, icon: 'briefcase', name: 'المؤسسات والشركات الكبرى', desc: 'إدارة عقارات متعددة المواقع', adjustmentPercent: 15, active: true },
-    { id: 4, icon: 'rocket', name: 'المنشآت الناشئة والمشاريع الصغيرة', desc: 'حديثو التسجيل، أقل من سنة', adjustmentPercent: -10, active: false },
-  ];
-
-  newRuleName = '';
-  newRulePercent = 0;
-  newRuleActive = true;
-  newRuleIconPreview: string | null = null;
-  showNewRuleRow = false;
-
-  toggleAddRuleRow(): void {
-    this.showNewRuleRow = !this.showNewRuleRow;
-    this.newRuleIconPreview = null;
-  }
-
-  onRuleIconSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.newRuleIconPreview = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-    input.value = '';
-  }
-
-  addAccountTypeRule(): void {
-    const name = this.newRuleName.trim();
-    if (!name) return;
-    const nextId = Math.max(0, ...this.accountTypeRules.map(r => r.id)) + 1;
-    this.accountTypeRules.push({
-      id: nextId,
-      icon: 'building',
-      iconImage: this.newRuleIconPreview ?? undefined,
-      name,
-      desc: '',
-      adjustmentPercent: this.newRulePercent,
-      active: this.newRuleActive,
-    });
-    this.newRuleName = '';
-    this.newRulePercent = 0;
-    this.newRuleActive = true;
-    this.newRuleIconPreview = null;
-    this.showNewRuleRow = false;
-  }
-
-  editAccountTypeRule(rule: AccountTypeFeeRule): void {
-    rule.isEditing = true;
-  }
-
-  removeAccountTypeRule(rule: AccountTypeFeeRule): void {
-    this.accountTypeRules = this.accountTypeRules.filter(r => r.id !== rule.id);
-  }
-
-  toggleAccountTypeRule(rule: AccountTypeFeeRule): void {
-    rule.active = !rule.active;
-  }
-
   // ── Subscribed facilities ──────────────────────────────────
   subscribedFacilities: ServiceSubscribedFacility[] = [
-    { id: 1, name: 'فندق الريتز كارلتون', classificationLabel: 'تصنيف فندقي 5 نجوم', icon: 'building-skyscraper', plan: 'annualAdvanced', subscribeDate: new Date(2024, 6, 14), startDate: new Date(2025, 6, 4), amountPaid: 1450, status: 'active' },
-    { id: 2, name: 'شقق لاند مارك الفاخرة', classificationLabel: 'تصنيف شقق مفروشة', icon: 'building', plan: 'monthly', subscribeDate: new Date(2024, 6, 1), startDate: new Date(2025, 6, 1), amountPaid: 150, status: 'active' },
-    { id: 3, name: 'فندق الموسم الدولي', classificationLabel: 'تصنيف فندق 4 نجوم', icon: 'building-skyscraper', plan: 'annualTrial', subscribeDate: new Date(2024, 7, 10), startDate: new Date(2024, 7, 10), amountPaid: null, status: 'trial' },
+    { id: 1, name: 'فندق الريتز كارلتون', classificationLabel: 'تصنيف: فنادق 5 نجوم', icon: 'building-skyscraper', plan: 'annualAdvanced', startDate: new Date(2024, 4, 14), renewalDate: new Date(2025, 4, 14), amountPaid: 1450, status: 'active' },
+    { id: 2, name: 'شقق لاند مارك الفاخرة', classificationLabel: 'تصنيف: منشآت متوسطة', icon: 'building', plan: 'monthly', startDate: new Date(2024, 5, 10), renewalDate: new Date(2025, 5, 10), amountPaid: 150, status: 'active' },
+    { id: 3, name: 'فندق الصفوة الدولي', classificationLabel: 'تصنيف: فنادق 4 نجوم', icon: 'building-skyscraper', plan: 'annualTrial', startDate: new Date(2024, 9, 1), renewalDate: new Date(2024, 9, 15), amountPaid: null, status: 'trial' },
   ];
 
   get filteredFacilities(): ServiceSubscribedFacility[] {
@@ -250,6 +178,24 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     this.facilitySearch = value;
   }
 
+  // ── Operations & subscriptions pricing ─────────────────────
+  operationPricing: ServiceOperationPricing[] = [
+    { id: 1, nameKey: 'd3.subscriptions.serviceSettings.operations.basic', setupFee: 150, operationPrice: 150, seasonalPrice: 150 },
+    { id: 2, nameKey: 'd3.subscriptions.serviceSettings.operations.advanced', setupFee: 150, operationPrice: 150, seasonalPrice: 150 },
+  ];
+
+  operationSearch = '';
+
+  get filteredOperationPricing(): ServiceOperationPricing[] {
+    const q = this.operationSearch.trim();
+    if (!q) return this.operationPricing;
+    return this.operationPricing.filter(p => this.translate.instant(p.nameKey).includes(q));
+  }
+
+  onOperationSearchChange(value: string): void {
+    this.operationSearch = value;
+  }
+
   // ── Default pricing ─────────────────────────────────────────
   defaultMonthlyPrice = 150;
   defaultAnnualPrice = 1450;
@@ -259,6 +205,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   trialEnabled = true;
   trialDurationDays = 14;
   trialDurationOptions = [7, 14, 30];
+  trialSetupFee: number | null = null;
 
   setTrialDuration(days: number): void {
     this.trialDurationDays = days;

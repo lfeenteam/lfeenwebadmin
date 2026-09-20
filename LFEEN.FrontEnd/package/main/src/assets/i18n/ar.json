@@ -175,6 +175,7 @@
       "contactUs": "تواصل معنا",
       "settlements": "التسويات",
       "platformOffers": "عروض المنصة",
+      "callScripts": "سكريبتات المكالمات",
       "subscriptions": "الاشتراكات",
       "subscriptionSettings": "اعدادات الاشتراكات",
       "subscriptionManagement": "ادارة الاشتراكات",
@@ -1403,7 +1404,8 @@
         "idFieldIndividual": "رقم الهوية",
         "actionCompany": "شركة",
         "actionSoleProprietorship": "مؤسسة فردية",
-        "actionIndividual": "أفراد"
+        "actionIndividual": "أفراد",
+        "walletAction": "المحفظة"
       },
       "pagination": {
         "total": "حساب"
@@ -1528,6 +1530,72 @@
         "rejectDoneMessage": "تم إرسال إشعار الرفض للمضيف وتحديث حالة المعاملة في النظام",
         "recordedReason": "سبب الرفض المسجل",
         "rejectionDate": "تاريخ الرفض"
+      }
+    },
+    "wallet": {
+      "title": "محفظة التاجر",
+      "balanceLabel": "الرصيد الحالي",
+      "adjustBtn": "تعديل الرصيد",
+      "searchPlaceholder": "ابحث بالوصف...",
+      "filters": {
+        "all": "كل الأنواع",
+        "topUp": "عمليات الشحن",
+        "callCharge": "رسوم المكالمات",
+        "callRefund": "استرداد المكالمات",
+        "adminAdjustment": "تعديلات الأدمن",
+        "newest": "من الأحدث أولاً",
+        "oldest": "من الأقدم أولاً"
+      },
+      "table": {
+        "date": "التاريخ والوقت",
+        "type": "النوع",
+        "description": "الوصف",
+        "amount": "المبلغ",
+        "balanceAfter": "الرصيد بعد العملية"
+      },
+      "types": {
+        "topUp": "شحن رصيد",
+        "callCharge": "رسوم مكالمة",
+        "callRefund": "استرداد مكالمة",
+        "adminAdjustment": "تعديل من الأدمن"
+      },
+      "errors": {
+        "loadTitle": "تعذّر تحميل المحفظة",
+        "retry": "إعادة المحاولة",
+        "network": "تعذّر الاتصال بالخدمة، حاول مرة أخرى",
+        "forbidden": "غير مصرّح لك بعرض محفظة هذا التاجر",
+        "invalidAmount": "لا يمكن أن يكون المبلغ صفرًا",
+        "insufficientBalance": "مبلغ الخصم أكبر من الرصيد الحالي",
+        "generic": "حدث خطأ غير متوقع، حاول مرة أخرى"
+      },
+      "empty": {
+        "title": "لا توجد حركات",
+        "desc": "لا توجد حركات في المحفظة مطابقة لبحثك حاليًا"
+      },
+      "pagination": {
+        "total": "حركة"
+      },
+      "adjust": {
+        "title": "تعديل يدوي للرصيد",
+        "subtitle": "إضافة رصيد أو خصمه من محفظة هذا التاجر",
+        "credit": "إضافة",
+        "debit": "خصم",
+        "currentBalance": "الرصيد الحالي",
+        "amountLabel": "المبلغ",
+        "reasonLabel": "السبب",
+        "reasonPlaceholder": "اكتب سبب إجراء هذا التعديل...",
+        "reasonHint": "سيتم تسجيل هذا كوصف للعملية في سجل المحفظة",
+        "continueBtn": "متابعة",
+        "backBtn": "رجوع",
+        "creditAmount": "مبلغ الإضافة",
+        "debitAmount": "مبلغ الخصم",
+        "estimatedNewBalance": "الرصيد بعد التعديل",
+        "irreversibleWarning": "لا يمكن التراجع عن هذا التعديل بعد تأكيده — سيتم تسجيله بشكل دائم في سجل المحفظة.",
+        "confirmBtn": "تأكيد التعديل",
+        "successTitle": "تم التعديل بنجاح",
+        "successMessage": "تم تحديث رصيد المحفظة وتسجيل العملية",
+        "newBalance": "الرصيد الجديد",
+        "closeWindowBtn": "إغلاق النافذة"
       }
     },
     "subscriptions": {
@@ -1706,18 +1774,16 @@
         "dataTypePlaceholder": "نص يحتوي نوع البيانات...",
         "fieldNamePlaceholder": "أدخل اسم الحقل..."
       },
-      "rules": {
-        "title": "قواعد الرسوم حسب نوع الحساب",
-        "desc": "تعديل نطاق أسعار الاشتراك بناءً على نسبة السعر المعتمدة أو نسبة مخصصة لكل نوع منشأة",
-        "type": "نوع المنشأة/التصنيف",
-        "adjustment": "نسبة التعديل المطبق",
-        "status": "الحالة",
-        "active": "نشط",
-        "disabled": "معطل",
-        "newTypePlaceholder": "اسم التصنيف الجديد...",
-        "addBtn": "إضافة نوع حساب",
-        "cancelBtn": "إلغاء",
-        "uploadIcon": "رفع أيقونة"
+      "operations": {
+        "title": "تسعير العمليات والاشتراكات",
+        "desc": "مواءمة نموذج التسعير عبر السعر الموسمي وسعر العملية ورسوم التأسيس",
+        "searchPlaceholder": "ابحث عن منشأة...",
+        "type": "نوع الاشتراك / العملية",
+        "setupFee": "رسوم التأسيس",
+        "operationPrice": "سعر العملية",
+        "seasonalPrice": "السعر الموسمي",
+        "basic": "الاشتراك الأساسي",
+        "advanced": "الاشتراك المتقدم"
       },
       "facilities": {
         "title": "المنشآت المشتركة في هذه الخدمة حالياً",
@@ -1726,7 +1792,7 @@
         "facility": "المنشأة والتصنيف",
         "plan": "نوع الباقة",
         "startDate": "تاريخ البدء",
-        "subscribeDate": "تاريخ الاشتراك",
+        "renewalDate": "تاريخ التجديد",
         "amountPaid": "المبلغ المدفوع",
         "status": "الحالة",
         "planType": {
@@ -1754,7 +1820,9 @@
         "durationLabel": "مدة الفترة التجريبية (بالأيام)",
         "days": "يوم",
         "recommended": "(موصى به)",
-        "infoNote": "عند انتهاء فترة التجربة يتم إيقاف الإرسال التلقائي مع إرسال إشعار للمنشأة لسداد الاشتراك ومتابعة الخدمة دون فقدان إعدادات الربط."
+        "infoNote": "عند انتهاء فترة التجربة يتم إيقاف الإرسال التلقائي مع إرسال إشعار للمنشأة لسداد الاشتراك ومتابعة الخدمة دون فقدان إعدادات الربط.",
+        "setupFeeLabel": "مبلغ فترة الإعداد",
+        "setupFeePlaceholder": "أدخل رسوم التأسيس..."
       },
       "footerNote": "يتم حفظ جميع التعديلات هنا على مستوى الخدمة العام، وتؤثر على جميع الحسابات المشتركة.",
       "cancelBtn": "إلغاء التغييرات",
@@ -2903,6 +2971,76 @@
         "updateSuccess": "تم تحديث المقالة بنجاح",
         "deleteSuccess": "تم حذف المقالة بنجاح",
         "statusUpdateSuccess": "تم تحديث حالة المقالة"
+      }
+    },
+    "callScripts": {
+      "title": "سكريبتات المكالمات",
+      "pageTitle": "سكريبتات المكالمات",
+      "pageSubtitle": "السكريبتات الصوتية وقوائم الاستجابة الصوتية التفاعلية (IVR) أثناء مكالمات الحجز",
+      "newVersion": "نسخة جديدة",
+      "stats": {
+        "total": "إجمالي",
+        "active": "نشطة"
+      },
+      "table": {
+        "scenario": "السيناريو",
+        "audio": "الملف الصوتي",
+        "options": "خيارات القائمة",
+        "updated": "آخر تحديث",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "empty": "لا توجد سكريبتات مكالمات بعد"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "معطل"
+      },
+      "menu": {
+        "activate": "تفعيل"
+      },
+      "activateConfirm": {
+        "title": "تأكيد التفعيل",
+        "message": "تفعيل هذه النسخة سيؤدي إلى تعطيل السكريبت النشط حاليًا لهذا السيناريو. هل تريد المتابعة؟"
+      },
+      "dialog": {
+        "addTitle": "نسخة سكريبت جديدة",
+        "editTitle": "تعديل السكريبت",
+        "cancel": "إلغاء",
+        "create": "إنشاء النسخة",
+        "scenarioSection": "السيناريو",
+        "scenarioPlaceholder": "اختر السيناريو",
+        "audioSection": "الملف الصوتي",
+        "audioUrlPlaceholder": "https://cdn.lfeen.com/ivr/script.mp3",
+        "optionsSection": "خيارات القائمة (DTMF)",
+        "addOption": "إضافة خيار",
+        "digit": "الرقم",
+        "digitPlaceholder": "1",
+        "description": "الوصف",
+        "descriptionPlaceholder": "قبول عرض التمديد",
+        "responseUrl": "ملف الرد الصوتي (اختياري)",
+        "responseUrlPlaceholder": "https://cdn.lfeen.com/ivr/response.mp3",
+        "activeLabel": "تعيينه كسكريبت نشط",
+        "activeHint": "تفعيل هذه النسخة سيعطل أي سكريبت آخر نشط حاليًا لهذا السيناريو",
+        "validation": {
+          "scenarioRequired": "السيناريو مطلوب",
+          "audioUrlRequired": "رابط الملف الصوتي مطلوب",
+          "optionsRequired": "مطلوب خيار واحد على الأقل في القائمة"
+        }
+      },
+      "errors": {
+        "loadTitle": "تعذر تحميل سكريبتات المكالمات",
+        "retry": "إعادة المحاولة",
+        "network": "تعذر الوصول إلى الخدمة، حاول مرة أخرى",
+        "forbidden": "لا تملك صلاحية عرض سكريبتات المكالمات",
+        "audioUrlRequired": "رابط الملف الصوتي مطلوب",
+        "optionsRequired": "مطلوب خيار واحد على الأقل في القائمة",
+        "notFound": "هذا السكريبت لم يعد موجودًا",
+        "generic": "حدث خطأ ما، حاول مرة أخرى"
+      },
+      "toast": {
+        "createSuccess": "تم إنشاء نسخة السكريبت بنجاح",
+        "updateSuccess": "تم تحديث السكريبت بنجاح",
+        "activateSuccess": "تم تفعيل السكريبت بنجاح"
       }
     }
   },

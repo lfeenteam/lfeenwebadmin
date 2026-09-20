@@ -173,6 +173,7 @@
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "platformOffers": "Platform Offers",
+      "callScripts": "Call Scripts",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
@@ -2211,7 +2212,8 @@
         "idFieldIndividual": "ID Number",
         "actionCompany": "Company",
         "actionSoleProprietorship": "Sole Proprietorship",
-        "actionIndividual": "Individual"
+        "actionIndividual": "Individual",
+        "walletAction": "Wallet"
       },
       "pagination": {
         "total": "account"
@@ -2336,6 +2338,72 @@
         "rejectDoneMessage": "A rejection notice was sent to the host and the transaction status updated in the system",
         "recordedReason": "Recorded Rejection Reason",
         "rejectionDate": "Rejection Date"
+      }
+    },
+    "wallet": {
+      "title": "Merchant Wallet",
+      "balanceLabel": "Current Balance",
+      "adjustBtn": "Adjust Balance",
+      "searchPlaceholder": "Search by description...",
+      "filters": {
+        "all": "All Types",
+        "topUp": "Top Ups",
+        "callCharge": "Call Charges",
+        "callRefund": "Call Refunds",
+        "adminAdjustment": "Admin Adjustments",
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "table": {
+        "date": "Date & Time",
+        "type": "Type",
+        "description": "Description",
+        "amount": "Amount",
+        "balanceAfter": "Balance After"
+      },
+      "types": {
+        "topUp": "Top Up",
+        "callCharge": "Call Charge",
+        "callRefund": "Call Refund",
+        "adminAdjustment": "Admin Adjustment"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load the wallet",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to view this merchant's wallet",
+        "invalidAmount": "The amount can't be zero",
+        "insufficientBalance": "This debit exceeds the current balance",
+        "generic": "Something went wrong, please try again"
+      },
+      "empty": {
+        "title": "No transactions",
+        "desc": "There are no wallet transactions matching your search"
+      },
+      "pagination": {
+        "total": "transactions"
+      },
+      "adjust": {
+        "title": "Manual Balance Adjustment",
+        "subtitle": "Credit or debit this merchant's wallet",
+        "credit": "Credit",
+        "debit": "Debit",
+        "currentBalance": "Current Balance",
+        "amountLabel": "Amount",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "Explain why this adjustment is being made...",
+        "reasonHint": "This will be recorded as the transaction's description",
+        "continueBtn": "Continue",
+        "backBtn": "Back",
+        "creditAmount": "Credit Amount",
+        "debitAmount": "Debit Amount",
+        "estimatedNewBalance": "Balance After Adjustment",
+        "irreversibleWarning": "This adjustment can't be undone once confirmed — it will be recorded permanently in the wallet ledger.",
+        "confirmBtn": "Confirm Adjustment",
+        "successTitle": "Adjustment Completed Successfully",
+        "successMessage": "The wallet balance has been updated and the transaction recorded",
+        "newBalance": "New Balance",
+        "closeWindowBtn": "Close Window"
       }
     },
     "subscriptions": {
@@ -2514,18 +2582,16 @@
         "dataTypePlaceholder": "Text describing the data type...",
         "fieldNamePlaceholder": "Enter field name..."
       },
-      "rules": {
-        "title": "Fee rules by account type",
-        "desc": "Adjust the subscription price range based on the standard rate or a custom rate per facility type",
-        "type": "Facility type / classification",
-        "adjustment": "Applied adjustment",
-        "status": "Status",
-        "active": "Active",
-        "disabled": "Disabled",
-        "newTypePlaceholder": "New classification name...",
-        "addBtn": "Add account type",
-        "cancelBtn": "Cancel",
-        "uploadIcon": "Upload icon"
+      "operations": {
+        "title": "Operations & subscriptions pricing",
+        "desc": "Align the pricing model across the seasonal price, operation price and setup fee",
+        "searchPlaceholder": "Search for a facility...",
+        "type": "Subscription / operation type",
+        "setupFee": "Setup fee",
+        "operationPrice": "Operation price",
+        "seasonalPrice": "Seasonal price",
+        "basic": "Basic subscription",
+        "advanced": "Advanced subscription"
       },
       "facilities": {
         "title": "Facilities currently subscribed to this service",
@@ -2534,7 +2600,7 @@
         "facility": "Facility & classification",
         "plan": "Plan type",
         "startDate": "Start date",
-        "subscribeDate": "Subscribe date",
+        "renewalDate": "Renewal date",
         "amountPaid": "Amount paid",
         "status": "Status",
         "planType": {
@@ -2562,7 +2628,9 @@
         "durationLabel": "Trial period duration (days)",
         "days": "days",
         "recommended": "(Recommended)",
-        "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings."
+        "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings.",
+        "setupFeeLabel": "Setup period amount",
+        "setupFeePlaceholder": "Enter the setup fee..."
       },
       "footerNote": "All edits here are saved at the global service level and affect all subscribed accounts.",
       "cancelBtn": "Discard changes",
@@ -2901,6 +2969,76 @@
         "updateSuccess": "Article updated successfully",
         "deleteSuccess": "Article deleted successfully",
         "statusUpdateSuccess": "Article status updated"
+      }
+    },
+    "callScripts": {
+      "title": "Call Scripts",
+      "pageTitle": "Call Scripts",
+      "pageSubtitle": "IVR audio scripts and DTMF menus played during checkout calls",
+      "newVersion": "New Version",
+      "stats": {
+        "total": "Total",
+        "active": "Active"
+      },
+      "table": {
+        "scenario": "Scenario",
+        "audio": "Audio File",
+        "options": "Menu Options",
+        "updated": "Last Updated",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No call scripts yet"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate"
+      },
+      "activateConfirm": {
+        "title": "Confirm Activation",
+        "message": "Activating this version will deactivate the currently active script for this scenario. Continue?"
+      },
+      "dialog": {
+        "addTitle": "New Script Version",
+        "editTitle": "Edit Script",
+        "cancel": "Cancel",
+        "create": "Create Version",
+        "scenarioSection": "Scenario",
+        "scenarioPlaceholder": "Select scenario",
+        "audioSection": "Audio File",
+        "audioUrlPlaceholder": "https://cdn.lfeen.com/ivr/script.mp3",
+        "optionsSection": "Menu Options (DTMF)",
+        "addOption": "Add Option",
+        "digit": "Digit",
+        "digitPlaceholder": "1",
+        "description": "Description",
+        "descriptionPlaceholder": "Accept the extension offer",
+        "responseUrl": "Response Audio (optional)",
+        "responseUrlPlaceholder": "https://cdn.lfeen.com/ivr/response.mp3",
+        "activeLabel": "Set as active script",
+        "activeHint": "Activating this deactivates any other script currently active for this scenario",
+        "validation": {
+          "scenarioRequired": "Scenario is required",
+          "audioUrlRequired": "Audio file URL is required",
+          "optionsRequired": "At least one menu option is required"
+        }
+      },
+      "errors": {
+        "loadTitle": "Couldn't load call scripts",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to view call scripts",
+        "audioUrlRequired": "Audio file URL is required",
+        "optionsRequired": "At least one menu option is required",
+        "notFound": "This script no longer exists",
+        "generic": "Something went wrong, please try again"
+      },
+      "toast": {
+        "createSuccess": "Script version created successfully",
+        "updateSuccess": "Script updated successfully",
+        "activateSuccess": "Script activated successfully"
       }
     }
   },

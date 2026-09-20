@@ -32,7 +32,12 @@
         </div>
       </div>
 
-      <div class="card-actions d-flex align-items-center justify-content-end">
+      <div class="card-actions d-flex align-items-center justify-content-end gap-8">
+        @if (canViewWallet) {
+          <button mat-icon-button class="icon-action-btn" [attr.aria-label]="'d3.accountManagement.card.walletAction' | translate" (click)="goToWallet()">
+            <i-tabler name="wallet" class="icon-18"></i-tabler>
+          </button>
+        }
         <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
           <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
         </button>
@@ -86,6 +91,11 @@
       <div class="card-actions d-flex align-items-center justify-content-between">
         <span class="action-type-badge">{{ actionLabel }}</span>
         <div class="d-flex align-items-center gap-8">
+          @if (canViewWallet) {
+            <button mat-icon-button class="icon-action-btn" [attr.aria-label]="'d3.accountManagement.card.walletAction' | translate" (click)="goToWallet()">
+              <i-tabler name="wallet" class="icon-18"></i-tabler>
+            </button>
+          }
           <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
             <i-tabler name="eye" class="icon-18"></i-tabler>
           </button>

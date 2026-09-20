@@ -41,9 +41,9 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   activeTab: 'sysInfo' | 'security' = 'sysInfo';
 
   // System info (static)
-  platformName = 'منصة لفن للضيافة';
-  platformUrl = 'https://lafin.sa';
-  supportEmail = 'support@lafin.sa';
+  platformName = 'منصة لفين للضيافة';
+  platformUrl = 'https://lfeen.sa';
+  supportEmail = 'support@lfeen.sa';
   timezone = '(GMT+03:00) الرياض، المملكة العربية السعودية';
 
   // Notifications
@@ -72,7 +72,7 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
       name: 'iPhone 15 Pro',
       deviceIcon: 'device-mobile',
       location: 'الرياض، المملكة العربية السعودية',
-      browser: 'تطبيق لفن',
+      browser: 'تطبيق لفين',
       isCurrent: false,
       time: 'منذ يومين'
     }
