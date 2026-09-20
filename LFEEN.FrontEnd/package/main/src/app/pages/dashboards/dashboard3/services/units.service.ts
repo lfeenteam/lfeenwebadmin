@@ -6,6 +6,7 @@ import { catchError, expand, map, reduce } from 'rxjs/operators';
 import { AccountItem, PaginatedAccountResponse } from '../interfaces/account.model';
 import { PaginatedPropertyResponse } from '../interfaces/building-card.model';
 import {
+  AccountReviewStatus,
   BuildingWithUnits,
   UnitCardItem,
   UnitApiItem,
@@ -154,6 +155,12 @@ export class UnitsService {
           image:               this.getBuildingImage(u),
           units:               [],
     needsPropertyReview: !['Approved'].includes(u.propertyAdminReviewStatus ?? ''),
+          accountId:           u.accountId,
+          accountName:         u.accountName,
+          accountLogoUrl:      u.accountLogoUrl,
+          accountStatus:       (u.accountAdminReviewStatus as AccountReviewStatus | null) ?? null,
+          // A missing status (older API responses) isn't treated as blocking, unlike the property status.
+          needsAccountReview:  !!u.accountAdminReviewStatus && u.accountAdminReviewStatus !== 'Approved',
         });
       }
       const g = groups.get(u.propertyId)!;

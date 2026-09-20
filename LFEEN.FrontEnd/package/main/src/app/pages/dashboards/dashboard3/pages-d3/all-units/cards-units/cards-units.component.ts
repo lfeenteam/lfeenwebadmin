@@ -43,8 +43,30 @@ export class CardsUnitsComponent {
   goToBuildReview(buildingId: string): void {
     this.router.navigate(['../build-review', buildingId], { relativeTo: this.route });
   }
+  goToAccountReview(accountId: string | undefined): void {
+    if (!accountId) return;
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.router.navigate([lang, 'd3', 'account-management', 'review', accountId]);
+  }
+
   getLocationLabel(building: BuildingWithUnits): string {
   const district = building.units.find(u => u.district)?.district;
   return district ?? building.location;
 }
+
+  getAccountStatusKey(building: BuildingWithUnits): string {
+    switch (building.accountStatus) {
+      case 'Approved': return 'd3.allUnits.cardsUnits.account.status.approved';
+      case 'Rejected': return 'd3.allUnits.cardsUnits.account.status.rejected';
+      default:         return 'd3.allUnits.cardsUnits.account.status.pending';
+    }
+  }
+
+  getAccountStatusClass(building: BuildingWithUnits): string {
+    switch (building.accountStatus) {
+      case 'Approved': return 'account-chip--approved';
+      case 'Rejected': return 'account-chip--rejected';
+      default:         return 'account-chip--pending';
+    }
+  }
 }

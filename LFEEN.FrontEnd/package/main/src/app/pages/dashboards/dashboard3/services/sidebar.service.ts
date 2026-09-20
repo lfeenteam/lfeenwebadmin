@@ -52,6 +52,9 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
+    // The backend doesn't send a Settlements entry in the sidebar payload, so it's added here.
+    // Not gated on the Settlements.View permission yet: the environments' login response
+    // doesn't carry it until the backend ships it — the API itself still answers 403 without it.
     if (PAGE_FLAGS['settlements'] && !items.find(i => i.link === '/d3/settlements')) {
       items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
     }

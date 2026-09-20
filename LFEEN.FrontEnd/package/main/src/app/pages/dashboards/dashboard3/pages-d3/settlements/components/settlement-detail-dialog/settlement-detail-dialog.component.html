@@ -17,7 +17,7 @@
       <div class="detail-card success-card">
         <div class="detail-row">
           <span class="row-label">{{ 'd3.settlements.detail.trxNumber' | translate }}</span>
-          <span class="row-value">{{ trxNumber }}</span>
+          <span class="row-value">{{ trxNumber || emptyValue }}</span>
         </div>
         <div class="detail-row">
           <span class="row-label">{{ 'd3.settlements.detail.transferredAmount' | translate }}</span>
@@ -34,6 +34,13 @@
           <span class="row-value">{{ executionTimeLabel }}</span>
         </div>
       </div>
+
+      @if (receiptUploadFailed) {
+        <p class="success-message">{{ 'd3.settlements.errors.receiptUploadFailed' | translate }}</p>
+        <button type="button" class="btn btn-outline" [disabled]="receiptRetrying" (click)="retryReceiptUpload()">
+          {{ 'd3.settlements.detail.retryReceiptBtn' | translate }}
+        </button>
+      }
 
       <button type="button" class="btn btn-close-window" (click)="finish()">
         {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
@@ -127,15 +134,17 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="detail-actions">
-      <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
-        {{ 'd3.settlements.detail.rejectBtn' | translate }}
-      </button>
-      <button type="button" class="btn btn-accept" (click)="goToConfirmTransfer()">
-        {{ 'd3.settlements.detail.acceptBtn' | translate }}
-      </button>
-    </div>
+    <!-- Actions — only for a payout the backend still accepts execute/fail on, and only with the Execute permission -->
+    @if (data.canExecute) {
+      <div class="detail-actions">
+        <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
+          {{ 'd3.settlements.detail.rejectBtn' | translate }}
+        </button>
+        <button type="button" class="btn btn-accept" (click)="goToConfirmTransfer()">
+          {{ 'd3.settlements.detail.acceptBtn' | translate }}
+        </button>
+      </div>
+    }
 
   } @else if (step === 'confirmReject') {
 
@@ -164,6 +173,7 @@
       <textarea
         class="reject-reason-textarea"
         rows="4"
+        [attr.maxlength]="rejectReasonMax"
         [placeholder]="'d3.settlements.detail.rejectReasonPlaceholder' | translate"
         [(ngModel)]="rejectReason">
       </textarea>
@@ -248,8 +258,7 @@
       <div class="detail-row">
         <span class="row-label">{{ 'd3.settlements.detail.paymentMethod' | translate }}</span>
         <div class="payment-method-value">
-          <i-tabler [name]="data.paymentMethodIconName" class="icon-16"></i-tabler>
-          <span class="row-value">{{ data.paymentMethodKey | translate }}</span>
+          <span class="row-value">{{ emptyValue }}</span>
         </div>
       </div>
     </div>
@@ -268,7 +277,24 @@
             [(ngModel)]="actualAmount" />
           <img [src]="data.currencyIconSrc" alt="" class="field-icon riyal-icon" [class.is-text-currency]="data.isTextCurrency">
         </div>
+        @if (amountExceedsNet) {
+          <span class="reject-reason-hint">* {{ 'd3.settlements.errors.amountExceeds' | translate }}</span>
+        }
       </div>
+
+      @if (isPartialTransfer) {
+        <div class="form-field">
+          <label class="field-label">{{ 'd3.settlements.detail.partialReasonLabel' | translate }}</label>
+          <textarea
+            class="reject-reason-textarea"
+            rows="3"
+            maxlength="2000"
+            [placeholder]="'d3.settlements.detail.partialReasonPlaceholder' | translate"
+            [(ngModel)]="partialReason">
+          </textarea>
+          <span class="reject-reason-hint">* {{ 'd3.settlements.errors.partialReasonRequired' | translate }}</span>
+        </div>
+      }
 
       <div class="form-field">
         <label class="field-label">{{ 'd3.settlements.detail.trxId' | translate }}</label>
@@ -276,6 +302,7 @@
           <input
             type="text"
             class="field-input"
+            [attr.maxlength]="trxReferenceMax"
             [placeholder]="'d3.settlements.detail.trxIdPlaceholder' | translate"
             [(ngModel)]="trxId" />
           <i-tabler name="hash" class="field-icon icon-16"></i-tabler>

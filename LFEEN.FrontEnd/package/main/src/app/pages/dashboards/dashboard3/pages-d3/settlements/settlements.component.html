@@ -18,10 +18,7 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.totalPending' | translate }}</span>
-        <span class="stat-value">
-          {{ fmt(totalPendingAmount) }}
-          <img [src]="currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
-        </span>
+        <span class="stat-value">{{ emptyValue }}</span>
       </div>
     </div>
 
@@ -31,10 +28,7 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.avgRequestValue' | translate }}</span>
-        <span class="stat-value">
-          {{ fmt(avgRequestValue) }}
-          <img [src]="currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
-        </span>
+        <span class="stat-value">{{ emptyValue }}</span>
       </div>
     </div>
 
@@ -44,7 +38,7 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.maxPaymentTime' | translate }}</span>
-        <span class="stat-value">{{ fmt(maxPaymentHours) }} {{ 'd3.settlements.stats.hoursUnit' | translate }}</span>
+        <span class="stat-value">{{ emptyValue }}</span>
       </div>
     </div>
   </div>
@@ -80,6 +74,10 @@
     </mat-select>
   </div>
 
+  @if (loading) {
+    <app-dashboard-loading variant="table" [rows]="8"></app-dashboard-loading>
+  } @else {
+
   <!-- Table -->
   <div class="table-box">
     <div class="table-responsive">
@@ -110,16 +108,19 @@
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.settlements.table.amount' | translate }}</span>
-                <span class="amount-value">
-                  {{ fmtAmount(row.amount) }}
-                  <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
-                </span>
+                @if (row.amount !== null) {
+                  <span class="amount-value">
+                    {{ fmtAmount(row.amount) }}
+                    <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                } @else {
+                  <span class="amount-value">{{ emptyValue }}</span>
+                }
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.settlements.table.paymentMethod' | translate }}</span>
                 <div class="d-flex align-items-center gap-8">
-                  <i-tabler [name]="paymentMethodIcon(row.paymentMethod)" class="icon-16 payment-icon"></i-tabler>
-                  <span class="payment-method-text">{{ paymentMethodLabelKey(row.paymentMethod) | translate }}</span>
+                  <span class="payment-method-text">{{ emptyValue }}</span>
                 </div>
               </td>
               <td class="p-24">
@@ -129,23 +130,19 @@
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.settlements.table.status' | translate }}</span>
                 <div class="status-cell">
-                  <span class="settlement-status" [class]="'status-' + row.status">
+                  <span class="settlement-status" [class]="row.statusClass">
                     <span class="dot"></span>
-                    {{ statusLabelKey(row.status) | translate }}
+                    {{ row.statusKey ? (row.statusKey | translate) : row.status }}
                   </span>
-                  @if (row.rejectionReasonText) {
+                  @if (row.status === 'Failed' && row.rejectionReason !== undefined) {
                     <span class="rejection-reason">
-                      * {{ 'd3.settlements.rejectionReasonPrefix' | translate }}: {{ row.rejectionReasonText }}
-                    </span>
-                  } @else if (row.rejectionReasonKey) {
-                    <span class="rejection-reason">
-                      * {{ 'd3.settlements.rejectionReasonPrefix' | translate }}: {{ row.rejectionReasonKey | translate }}
+                      * {{ 'd3.settlements.rejectionReasonPrefix' | translate }}: {{ row.rejectionReason || emptyValue }}
                     </span>
                   }
                 </div>
               </td>
               <td class="p-24 text-center">
-                <button type="button" class="view-btn" (click)="onView(row)">
+                <button type="button" class="view-btn" [disabled]="viewingId !== null" (click)="onView(row)">
                   <i-tabler name="eye" class="icon-18"></i-tabler>
                 </button>
               </td>
@@ -153,7 +150,16 @@
           } @empty {
             <tr>
               <td colspan="7" class="p-0">
-                <app-dashboard-empty icon="receipt-off" titleKey="d3.settlements.empty.title" descKey="d3.settlements.empty.desc"></app-dashboard-empty>
+                @if (loadError) {
+                  <app-dashboard-empty icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
+                    <button type="button" class="retry-btn" (click)="load()">
+                      <i-tabler name="refresh" class="icon-16"></i-tabler>
+                      {{ 'd3.settlements.errors.retry' | translate }}
+                    </button>
+                  </app-dashboard-empty>
+                } @else {
+                  <app-dashboard-empty icon="receipt-off" titleKey="d3.settlements.empty.title" descKey="d3.settlements.empty.desc"></app-dashboard-empty>
+                }
               </td>
             </tr>
           }
@@ -162,7 +168,9 @@
     </div>
   </div>
 
-  @if (totalPages > 1) {
+  }
+
+  @if (!loading && totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between">
       <span class="pagination-total">
         {{ fmt(totalCount) }} {{ 'd3.settlements.pagination.total' | translate }}

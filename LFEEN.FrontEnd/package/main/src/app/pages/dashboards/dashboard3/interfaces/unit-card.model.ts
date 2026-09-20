@@ -55,7 +55,16 @@ export interface BuildingWithUnits {
   image: string;
   units: UnitCardItem[];
   needsPropertyReview?: boolean;
+  accountId?: string;
+  accountName?: string | null;
+  accountLogoUrl?: string | null;
+  accountStatus?: AccountReviewStatus | null;
+  /** The owner account isn't approved yet — it blocks the property and its units from going live. */
+  needsAccountReview?: boolean;
 }
+
+// Onboarding review status of the account that owns the property (same values as AccountItem.onboardingStatus).
+export type AccountReviewStatus = 'PendingReview' | 'Approved' | 'Rejected';
 
 // 0=Draft, 1=Pending, 2=UnderReview, 3=Approved, 4=Rejected, 5=HasPendingChanges, 6=PendingAfterRejection, null/empty=not reviewed
 export type UnitReviewStatusCode =
@@ -87,6 +96,7 @@ export interface UnitApiItem {
   accountId: string;
   accountName: string | null;
   accountLogoUrl: string | null;
+  accountAdminReviewStatus?: string | null;
   unitTypeName: string;
   floorNumber: number;
   apartmentNumberInFloor: number;

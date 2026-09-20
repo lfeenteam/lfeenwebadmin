@@ -7,7 +7,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   dashboard: true,                  // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // platform-settings: all fields are static literals
-  settlements: true,                // MOCK_SETTLEMENTS const, no settlements API yet
+  settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
 };
 

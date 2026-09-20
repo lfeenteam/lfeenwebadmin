@@ -463,7 +463,17 @@
         "approvedBadge": "Approved",
         "activationNotice": {
           "title": "Activation System Notice",
-          "description": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until final approval is received on the main property's data."
+          "description": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until final approval is received on the main property's data.",
+          "accountDescription": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until the owner account ({{accountName}}) is approved first."
+        },
+        "account": {
+          "awaitingReviewMeta": "Awaiting account review first",
+          "reviewBtn": "Review Account First",
+          "status": {
+            "approved": "Approved",
+            "pending": "Pending review",
+            "rejected": "Rejected"
+          }
         }
       },
       "table": {
@@ -2239,8 +2249,25 @@
       },
       "status": {
         "pending": "Pending Review",
+        "processing": "Processing",
         "approved": "Completed",
+        "partiallyCompleted": "Partially Completed",
         "rejected": "Rejected"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load settlements",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to perform this action",
+        "notFound": "Settlement not found",
+        "stale": "This settlement has already been handled — the page was refreshed",
+        "noBankAccount": "No bank account on file for this merchant — the transfer can't be executed",
+        "amountExceeds": "The transferred amount exceeds the requested amount",
+        "partialReasonRequired": "A reason is required for a partial transfer",
+        "generic": "Something went wrong, please try again",
+        "receiptType": "Unsupported file type (JPG, PNG, PDF only)",
+        "receiptSize": "File exceeds the maximum size (5 MB)",
+        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded."
       },
       "rejectionReasonPrefix": "Rejection reason",
       "rejectionReasons": {
@@ -2281,6 +2308,9 @@
         "amountToTransfer": "Amount to Transfer",
         "paymentMethod": "Payment Method",
         "actualAmount": "Actual Transferred Amount",
+        "partialReasonLabel": "Partial transfer reason",
+        "partialReasonPlaceholder": "Explain why less than the requested amount was transferred...",
+        "retryReceiptBtn": "Re-upload receipt",
         "trxId": "Transaction Reference Number (TRX ID)",
         "trxIdPlaceholder": "Enter the 12-digit bank reference number...",
         "receiptLabel": "Transfer Receipt (Image or PDF)",
