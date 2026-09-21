@@ -1256,8 +1256,8 @@
         "controlTitle": "Features & Controls",
         "smartLockTitle": "Smart Property Lock",
         "smartLockDesc": "Keyless entry via access code",
-        "extraServicesTitle": "Additional Services",
-        "extraServicesDesc": "Includes all added services",
+        "extraServicesTitle": "Allow Guest Requests",
+        "extraServicesDesc": "Allows guests to request extra services from this property",
         "floorsTitle": "Floor & Unit Details",
         "floorsTotalLabel": "Total:",
         "floorsUnit": "floors",
@@ -1747,7 +1747,13 @@
         "pendingStat": "Pending sections",
         "hasRejectionWarning": "There are rejected sections — the unit cannot be approved until they are resolved",
         "readyToApprove": "All sections reviewed — the unit is ready for final approval",
-        "alreadyApproved": "This unit has already been approved"
+        "alreadyApproved": "This unit has already been approved",
+        "errors": {
+          "alreadyApproved": "This unit has already been approved.",
+          "accountNotApproved": "The unit cannot be approved before its owner account is approved.",
+          "sectionsNotApproved": "All review sections must be approved before final approval.",
+          "alreadyRejected": "This unit has already been rejected."
+        }
       },
       "actions": {
         "reject": "Reject Request",
@@ -1782,10 +1788,6 @@
         "depositApproveMessage": "Are you sure you want to approve the security deposit amount set for this unit?",
         "depositRejectTitle": "Reject Security Deposit?",
         "depositRejectMessage": "Are you sure you want to reject this security deposit? Please make sure you have added your notes.",
-        "servicesApproveTitle": "Approve Additional Services?",
-        "servicesApproveMessage": "Are you sure you want to approve the additional services set for this unit?",
-        "servicesRejectTitle": "Reject Additional Services?",
-        "servicesRejectMessage": "Are you sure you want to reject these additional services? Please make sure you have added your notes.",
         "licenseApproveTitle": "Approve unit license?",
         "licenseApproveMessage": "Are you sure you want to approve the license for this unit?",
         "licenseRejectTitle": "Reject unit license?",
@@ -1798,34 +1800,10 @@
         "rejectAction": "Yes, reject"
       },
       "servicesView": {
-        "pageTitle": "Additional Services Review",
-        "subtitle": "Review the services selected by the host and their pricing before final unit approval",
+        "pageTitle": "Additional Services",
+        "subtitle": "Services selected by the host and their pricing — view only",
         "emptyTitle": "No additional services",
         "emptyDescription": "The host has not added any additional services for this unit.",
-        "parking": {
-          "title": "Parking",
-          "desc": "Parking policy for the unit",
-          "itemTitle": "Service Type",
-          "itemDesc": "Dedicated guest parking inside the property"
-        },
-        "food": {
-          "title": "Food Services",
-          "desc": "Available meals and prices",
-          "breakfastTitle": "Breakfast Meal",
-          "breakfastDesc": "Traditional breakfast (fava beans, falafel) or western breakfast (eggs, pancakes)",
-          "dinnerTitle": "Dinner with Family",
-          "dinnerDesc": "Dinner Meal (Not Available)",
-          "lunchTitle": "Lunch with Family",
-          "lunchDesc": "Lunch Meal (Not Available)"
-        },
-        "room": {
-          "title": "Room Services",
-          "desc": "Cleaning and room setup services",
-          "cleaningTitle": "Weekly Room Cleaning",
-          "cleaningDesc": "Includes room tidying, floor cleaning and bathroom cleaning",
-          "beddingTitle": "Bed Sheet Replacement",
-          "beddingDesc": "Provides clean washed sheets and towels"
-        },
         "wifi": {
           "title": "Wi-Fi Connection",
           "desc": "Network details for the unit",
@@ -1843,12 +1821,7 @@
         "price": {
           "paidLabel": "Daily Price",
           "freeLabel": "Service"
-        },
-        "notesLabel": "Review Notes / Rejection Reason",
-        "notesRequiredHint": "Required when rejecting",
-        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
-        "rejectBtn": "Reject Request",
-        "approveBtn": "Approve Additional Services"
+        }
       },
       "licenseView": {
         "pageTitle": "Unit License Document Review",

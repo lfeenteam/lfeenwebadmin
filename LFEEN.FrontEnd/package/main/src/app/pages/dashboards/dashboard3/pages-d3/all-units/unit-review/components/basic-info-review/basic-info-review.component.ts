@@ -74,6 +74,11 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     return this.unitData?.facilities.map(f => f.facilityTypeName) ?? [];
   }
 
+  // Only the Wi-Fi facility carries these — every other facility has them null.
+  get wifiFacility(): { wifiSsid: string | null; wifiPassword: string | null } | undefined {
+    return this.unitData?.facilities.find(f => f.wifiSsid != null || f.wifiPassword != null);
+  }
+
   get unitServices(): UnitBasicDataService[] { return this.unitData?.services ?? []; }
 
   get hasRoomsData(): boolean {
@@ -114,19 +119,7 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   }
 
   getServiceLabel(service: UnitBasicDataService): string {
-    const isKey = (v: string | null) => !v || v.startsWith('ServiceType.');
-
-    if (!isKey(service.displayName)) return service.displayName as string;
-
-    const translated = this.translate.instant(service.serviceTypeNameKey);
-    if (translated !== service.serviceTypeNameKey) return translated;
-
-    return this.fallbackFromServiceTypeKey(service.serviceTypeNameKey);
-  }
-
-  private fallbackFromServiceTypeKey(key: string): string {
-    const match = key.match(/ServiceType\.(\w+)\./);
-    return match?.[1] ?? key;
+    return service.displayName;
   }
 
   onBack(): void {
@@ -223,9 +216,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     ], 'check');
   }
 
-  getServiceIcon(serviceTypeNameKey: string): string {
-    return this.matchIcon(serviceTypeNameKey, [
-      { icon: 'sparkles', keywords: ['cleaning', 'clean', 'نظافة', 'نظافه', 'تنظيف'] },
+  getServiceIcon(displayName: string): string {
+    return this.matchIcon(displayName, [
+      { icon: 'sparkles', keywords: ['cleaning', 'clean', 'نظافة', 'نظافه', 'تنظيف', 'مناشف'] },
       { icon: 'user-circle', keywords: ['concierge', 'كونسيرج', 'استقبال', 'بواب'] },
       { icon: 'coffee', keywords: ['breakfast', 'فطار', 'افطار', 'إفطار'] },
       { icon: 'soup', keywords: ['lunch', 'dinner', 'meal', 'غداء', 'عشاء', 'وجبة', 'وجبه', 'طعام'] },
@@ -250,14 +243,14 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
       }));
 
       const services: UnitAmenityItem[] = room.services.map(s => ({
-        icon:  this.getServiceIcon(s.serviceTypeNameKey),
+        icon:  this.getServiceIcon(s.displayName),
         label: this.getServiceLabel(s)
       }));
 
       const subAreas: UnitSubArea[] = room.subRooms.map(sr => ({
         label:     sr.subRoomTypeName,
         amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName })),
-        services:  sr.services.map(s  => ({ icon: this.getServiceIcon(s.serviceTypeNameKey),  label: this.getServiceLabel(s) }))
+        services:  sr.services.map(s  => ({ icon: this.getServiceIcon(s.displayName),  label: this.getServiceLabel(s) }))
       }));
 
       return {

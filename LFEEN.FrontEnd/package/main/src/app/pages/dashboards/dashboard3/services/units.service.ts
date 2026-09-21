@@ -411,10 +411,6 @@ export class UnitsService {
     return this.http.get<UnitServicesResponse>(`${this.apiUrl}/${unitId}/services`);
   }
 
-  reviewUnitServices(unitId: string, decision: 'Approved' | 'Rejected', rejectionReason: string | null): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${unitId}/services/review`, { decision, rejectionReason });
-  }
-
   getUnitLicense(unitId: string): Observable<UnitLicenseResponse> {
     return this.http.get<UnitLicenseResponse>(`${this.apiUrl}/${unitId}/license`);
   }

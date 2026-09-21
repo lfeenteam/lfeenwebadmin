@@ -214,13 +214,14 @@ export interface PropertyBasicDataViewType {
 }
 
 export interface PropertyBasicDataService {
-  serviceId: number;
+  serviceExternalId: string;
   serviceTypeId: number;
   serviceTypeNameKey: string;
   displayName: string;
   isFree: boolean;
   cost: number | null;
-  costType: string;
+  // Always null now.
+  costType: string | null;
 }
 
 export interface PropertyBasicDataFacility {

@@ -112,6 +112,8 @@ export interface UnitApiItem {
   accessDecision: string;
   cancellationPolicyDecision: string;
   depositDecision: string;
+  // Still returned by the API but meaningless now that services are no longer
+  // part of the approval flow — do not display it.
   servicesDecision: string;
   licenseDecision: string;
   completedSections: number;
@@ -184,7 +186,11 @@ export interface UnitApiDetailItem {
   // this unit but the section is still shown as an informational badge).
   depositSection: UnitApiSection | null;
   hasSecurityDeposit: boolean;
-  servicesSection: UnitApiSection;
+  // Services are no longer part of the approval flow — this is always null now.
+  servicesSection: UnitApiSection | null;
+  // Always false — services never require approval anymore, kept only so a
+  // future business type could reintroduce them without a breaking change.
+  servicesApplicable: boolean;
   // null when the unit's type/business setup doesn't require a license section at all
   // (as opposed to Pending, which means it's required but undecided).
   licenseSection: UnitApiSection | null;
@@ -296,25 +302,26 @@ export interface UnitBasicDataBed {
 export interface UnitBasicDataFacility {
   facilityId: number;
   facilityTypeName: string;
-}
-
-export interface UnitBasicDataService {
-  serviceId: number;
-  serviceExternalId: string;
-  serviceTypeId: number;
-  serviceTypeNameKey: string;
-  displayName: string | null;
-  uiType: string;
-  isFree: boolean;
-  cost: number | null;
-  costType: string | null;
+  // Only populated on the Wi-Fi facility item; null on every other facility.
   wifiSsid: string | null;
   wifiPassword: string | null;
-  isWifiConfigured: boolean;
-  hasPersonAvailable: boolean | null;
+}
+
+// Shared by the basic-data endpoint's services[] (top-level and per-room) and
+// the services endpoint's groups[].services[] — both return the same shape.
+export interface UnitBasicDataService {
+  serviceExternalId: string;
+  serviceTypeId: number;
+  displayName: string;
+  isFree: boolean;
+  cost: number | null;
+  // uiType/costType/hasWifiCredentials/hasPersonOption are now fixed constants
+  // ("pricing"/null/false/false) rather than per-service signals — kept only
+  // for type compatibility, not used to branch UI logic anymore.
+  uiType: string;
+  costType: string | null;
   hasWifiCredentials: boolean;
   hasPersonOption: boolean;
-  allowedCostTypes: string[];
 }
 
 export interface UnitBasicDataSubRoom {
@@ -447,43 +454,19 @@ export interface UnitDepositResponse {
 }
 
 // ── Services endpoint (/units/{id}/services) ─────────────────────────────────
+// Read-only now — services are no longer part of the unit approval flow.
 
-export interface UnitServicesServiceItem {
-  serviceId: number;
-  serviceExternalId: string;
-  serviceTypeId: number;
-  serviceTypeNameKey: string;
-  displayName?: string | null;
-  displayNameAr: string | null;
-  displayNameEn: string | null;
-  uiType: string;
-  isFree: boolean;
-  cost: number | null;
-  costType: string | null;
-  wifiSsid: string | null;
-  wifiPassword: string | null;
-  isWifiConfigured: boolean;
-  hasPersonAvailable: boolean | null;
-  hasWifiCredentials: boolean;
-  hasPersonOption: boolean;
-  allowedCostTypes: string[];
-}
+export type UnitServicesServiceItem = UnitBasicDataService;
 
 export interface UnitServicesGroup {
   groupKey: string;
-  groupNameAr: string;
-  groupNameEn: string;
+  groupName: string;
   services: UnitServicesServiceItem[];
 }
 
 export interface UnitServicesResponse {
   unitId: number;
-  decision: string;
-  rejectionReason: string | null;
-  reviewedAt: string | null;
   groups: UnitServicesGroup[];
-  facilities: UnitBasicDataFacility[];
-  pendingData: unknown;
 }
 
 // ── License endpoint (/units/{id}/license) ───────────────────────────────────

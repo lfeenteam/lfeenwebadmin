@@ -7,6 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
+import { ToastrService } from 'ngx-toastr';
 import { ReviewConfirmDialogComponent } from '../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../services/units.service';
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
@@ -110,7 +111,8 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     private router: Router,
     private unitsService: UnitsService,
     private translate: TranslateService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private toastr: ToastrService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -120,9 +122,16 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // The page is closed for review only once the unit has a final decision.
   // Anything else (Pending, PendingUpdate, HasPendingChanges, PendingAfterRejection)
   // must stay open for review, regardless of which tab/link got you here.
+  // overallStatus flips to 'Approved' as soon as every section is individually
+  // approved — before the admin has submitted final approval (isDisplayed still
+  // false) — so 'Approved' alone doesn't mean there's nothing left to do here;
+  // without the isDisplayed check the final-approve button would vanish exactly
+  // when it's needed (same distinction already made in headerStatusConfig/isFinalApproved).
   get isViewMode(): boolean {
     const status = this.unitDetail?.overallStatus?.trim();
-    return this.forcedViewOnly || status === 'Approved' || status === 'Rejected';
+    return this.forcedViewOnly
+      || (status === 'Approved' && !!this.unitDetail?.isDisplayed)
+      || status === 'Rejected';
   }
 
   ngOnInit(): void {
@@ -188,6 +197,11 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.reviewSections.filter(s => {
       if (s.key === 'license') return !this.unitDetail || this.unitDetail.licenseApplicable;
       if (s.key === 'deposit') return !this.unitDetail || !!this.unitDetail.depositSection;
+      // Services are no longer part of the approval flow — servicesApplicable
+      // is always false today, but the check stays flag-driven (like license)
+      // rather than a hard removal, and defaults to visible for older API
+      // responses that don't send the flag yet.
+      if (s.key === 'services') return !this.unitDetail || this.unitDetail.servicesApplicable;
       return true;
     });
   }
@@ -285,7 +299,8 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
             next: () => {
               this.unitsService.setTab('published');
               this.onBack();
-            }
+            },
+            error: (err) => this.showFinalDecisionError(err)
           });
       });
   }
@@ -309,8 +324,27 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
         if (!confirmed) return;
         this.unitsService.rejectUnit(this.unitId, this.finalNotes)
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({ next: () => this.onBack() });
+          .subscribe({
+            next: () => this.onBack(),
+            error: (err) => this.showFinalDecisionError(err)
+          });
       });
+  }
+
+  // Mirrors the error-code mapping used for the equivalent property final
+  // decision in build-review.component.ts, so a missing-sections error (no
+  // longer including "Services") surfaces the same way for units.
+  private showFinalDecisionError(err: unknown): void {
+    const errorCode = (err as { error?: { code?: string; errorCode?: string } })?.error?.code
+      ?? (err as { error?: { code?: string; errorCode?: string } })?.error?.errorCode;
+    const keyByCode: Record<string, string> = {
+      ALREADY_APPROVED: 'd3.unitReview.finalReview.errors.alreadyApproved',
+      ACCOUNT_NOT_APPROVED: 'd3.unitReview.finalReview.errors.accountNotApproved',
+      SECTIONS_NOT_ALL_APPROVED: 'd3.unitReview.finalReview.errors.sectionsNotApproved',
+      ADMIN_UNIT_SECTIONS_NOT_ALL_APPROVED: 'd3.unitReview.finalReview.errors.sectionsNotApproved',
+      ALREADY_REJECTED: 'd3.unitReview.finalReview.errors.alreadyRejected'
+    };
+    this.toastr.error(this.translate.instant(keyByCode[errorCode ?? ''] ?? 'd3.toast.errorOp'));
   }
 
   onReviewSection(section: UnitReviewSection): void {
@@ -393,7 +427,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       // depositSection is null when the unit's type/business setup doesn't have a
       // deposit section at all (as opposed to Pending, which means it's undecided).
       case 'deposit':      return d.depositSection?.decision ?? 'Pending';
-      case 'services':     return d.servicesSection.decision;
+      case 'services':     return d.servicesSection?.decision ?? 'Pending';
       // licenseSection is null when the unit's type/business setup doesn't require a
       // license at all (as opposed to Pending, which means it's required but undecided).
       case 'license':      return d.licenseSection?.decision ?? 'Pending';
@@ -412,7 +446,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       case 'access':       return d.accessSection.description ?? '';
       case 'cancelPolicy': return d.cancellationPolicySection.description ?? '';
       case 'deposit':      return d.depositSection?.description ?? '';
-      case 'services':     return d.servicesSection.description ?? '';
+      case 'services':     return d.servicesSection?.description ?? '';
       case 'license':      return d.licenseSection?.description ?? '';
       default:             return '';
     }
