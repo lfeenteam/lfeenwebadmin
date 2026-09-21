@@ -1,0 +1,120 @@
+<div class="assign-page" [dir]="currentDir">
+
+  <div class="assign-content">
+    @if (ticketNumber()) {
+      <div class="assign-ticket-badge">
+        <i-tabler name="ticket" class="icon-16"></i-tabler>
+        <span>{{ 'd3.complaints.assignDialog.ticketLabel' | translate }}</span>
+        <strong>{{ ticketNumber() }}</strong>
+      </div>
+    }
+
+    <div class="assign-search">
+      <div class="search-input-wrap">
+        <i-tabler name="search" class="icon-18"></i-tabler>
+        <input
+          type="text"
+          [ngModel]="searchTerm()"
+          (ngModelChange)="onSearchChange($event)"
+          [placeholder]="'d3.complaints.assignDialog.searchPlaceholder' | translate" />
+      </div>
+    </div>
+
+    <div class="assign-table-wrap">
+      <table class="assign-table">
+        <thead>
+          <tr>
+            <th class="col-select">{{ 'd3.complaints.assignDialog.columns.select' | translate }}</th>
+            <th class="col-employee">{{ 'd3.complaints.assignDialog.columns.employee' | translate }}</th>
+            <th class="col-phone">{{ 'd3.complaints.assignDialog.columns.phone' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (employee of employees(); track employee.userId) {
+            <tr [class.selected]="isSelected(employee)" (click)="select(employee)">
+              <td class="col-select">
+                <span class="radio" [class.checked]="isSelected(employee)"></span>
+              </td>
+              <td class="col-employee">
+                <div class="employee-cell">
+                  <div class="avatar-wrap">
+                    @if (employee.avatar) {
+                      <img [src]="employee.avatar" [alt]="employee.fullName" class="employee-avatar" />
+                    } @else {
+                      <div class="initials-avatar">{{ getInitials(employee.fullName) }}</div>
+                    }
+                 
+                  </div>
+                  <div class="employee-meta">
+                    <span class="employee-name">{{ employee.fullName }}</span>
+                    <span class="employee-email">{{ employee.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="col-phone">
+                <span class="phone-cell">
+                  <i-tabler name="phone" class="icon-14"></i-tabler>
+                  {{ employee.phoneNumber || '-' }}
+                </span>
+              </td>
+            </tr>
+          }
+
+          @if (!loadingEmployees() && employees().length === 0) {
+            <tr class="empty-row">
+              <td colspan="3">{{ 'd3.complaints.assignDialog.empty' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="assign-pagination">
+      <div class="pagination-controls">
+        <button
+          class="page-nav-btn"
+          type="button"
+          [disabled]="currentPage() === 1"
+          (click)="changePage(currentPage() - 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+        </button>
+
+        @for (page of visiblePages; track page) {
+          <button
+            class="page-number-btn"
+            type="button"
+            [class.active]="currentPage() === page"
+            (click)="changePage(page)">
+            {{ displayPage(page) }}
+          </button>
+        }
+
+        <button
+          class="page-nav-btn"
+          type="button"
+          [disabled]="currentPage() === totalPages()"
+          (click)="changePage(currentPage() + 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+        </button>
+      </div>
+
+      <span class="pagination-total">{{ paginationSummary }}</span>
+    </div>
+
+    <div class="assign-footer">
+      @if (selected(); as picked) {
+        <p class="assign-confirm-text">
+          {{ 'd3.complaints.assignDialog.confirmTextPrefix' | translate }}
+          <strong>{{ picked.fullName }}</strong>
+          {{ 'd3.complaints.assignDialog.confirmTextSuffix' | translate }}
+        </p>
+      } @else {
+        <p class="assign-confirm-text muted">{{ 'd3.complaints.assignDialog.selectHint' | translate }}</p>
+      }
+      <button class="confirm-btn" type="button" [disabled]="!selected() || submitting()" (click)="confirm()">
+        {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
+      </button>
+    </div>
+  </div>
+
+</div>

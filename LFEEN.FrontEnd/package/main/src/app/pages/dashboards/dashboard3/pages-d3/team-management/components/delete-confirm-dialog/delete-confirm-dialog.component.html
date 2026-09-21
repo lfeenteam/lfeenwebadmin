@@ -1,0 +1,19 @@
+<div class="delete-confirm-container text-center p-32">
+  <div class="icon-wrapper m-b-24 bg-light-danger text-danger">
+    <i-tabler name="trash" class="icon-32"></i-tabler>
+  </div>
+  
+  <h2 class="f-s-24 f-w-900 m-b-12">{{ data.title | translate }}</h2>
+  <p class="text-muted f-s-16 m-b-32 line-height-24">
+    {{ data.message | translate }}
+  </p>
+
+  <div class="d-flex align-items-center justify-content-center gap-16">
+    <button mat-button class="cancel-btn p-x-24" (click)="dialogRef.close(false)">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-flat-button color="warn" class="confirm-btn p-x-24 shadow-none" (click)="dialogRef.close(true)">
+      {{ 'common.confirm' | translate }}
+    </button>
+  </div>
+</div>

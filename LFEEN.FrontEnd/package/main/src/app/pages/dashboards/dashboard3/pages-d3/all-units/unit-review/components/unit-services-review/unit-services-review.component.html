@@ -1,0 +1,65 @@
+<div class="unit-services-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <div class="loading-wrap">
+      <i-tabler name="loader-2" class="spin-icon"></i-tabler>
+    </div>
+  } @else {
+
+  <section class="services-heading">
+    <h2>{{ 'd3.unitReview.servicesView.pageTitle' | translate }}</h2>
+    <p>{{ 'd3.unitReview.servicesView.subtitle' | translate }}</p>
+  </section>
+
+  @if (!hasRealServicesData) {
+    <app-review-empty-state
+      icon="settings-off"
+      titleKey="d3.unitReview.servicesView.emptyTitle"
+      descKey="d3.unitReview.servicesView.emptyDescription">
+    </app-review-empty-state>
+  } @else {
+  <div class="services-list">
+    @for (group of serviceGroups; track group.id) {
+      <section class="service-panel">
+        <div class="panel-head">
+          <span class="panel-icon"><i-tabler name="settings"></i-tabler></span>
+          <div>
+            <h3>{{ group.title }}</h3>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          @for (item of group.items; track item.id) {
+            <article class="service-row">
+              <div class="service-text">
+                <span class="item-icon"><i-tabler [name]="item.icon"></i-tabler></span>
+                <div>
+                  <div class="title-row">
+                    <h4>{{ item.title }}</h4>
+                    <span class="tag-list">
+                      @if (item.isFree) {
+                        <span class="tag tag--free">{{ 'd3.unitReview.servicesView.badges.free' | translate }}</span>
+                      } @else {
+                        <span class="tag tag--paid">{{ 'd3.unitReview.servicesView.badges.paid' | translate }}</span>
+                        <strong class="tag-price">
+                          {{ priceDisplay(item) }}
+                          @if (showCurrency(item)) {
+                            <img [src]="currencyIconSrc" alt="ريال" [class.is-text-currency]="currentLang === 'en'">
+                          }
+                        </strong>
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  </div>
+  }
+
+  }
+
+</div>

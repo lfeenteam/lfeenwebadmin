@@ -2,3 +2,289 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.role-dialog-panel {
+  .mat-mdc-dialog-container {
+    border-radius: 40px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    overflow: hidden !important;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 40px !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-dialog-container .mdc-dialog__surface { border-radius: 28px !important; }
+}
+
+@media (max-width: 360px) {
+  .custom-dialog-container .mdc-dialog__surface { border-radius: 22px !important; }
+}
+
+@media (max-width: 576px) {
+  .cdk-overlay-pane.role-dialog-panel {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+
+  .role-dialog-panel {
+    .mat-mdc-dialog-container,
+    .mdc-dialog__surface {
+      border-radius: 28px !important;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .cdk-overlay-pane.role-dialog-panel {
+    max-width: 98vw !important;
+    width: 98vw !important;
+  }
+}
+.change-password-dialog-panel {
+  .mdc-dialog__surface {
+    border-radius: 20px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    background-color: #fff !important;
+    overflow: hidden !important;
+  }
+
+  .mat-mdc-dialog-content {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .cdk-overlay-pane.change-password-dialog-panel {
+    max-width: 95vw !important;
+    width: 95vw !important;
+  }
+}
+
+.custom-dialog-container {
+  .mdc-dialog__surface {
+    border-radius: 40px !important;
+    box-shadow: 0px 25px 50px -12px #00000040 !important;
+    background-color: #fff !important;
+    padding: 8px !important;
+  }
+
+  .mat-mdc-dialog-content {
+    overflow: visible !important;
+  }
+
+  .close-btn.mat-mdc-icon-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .mat-mdc-button-touch-target {
+      width: 100% !important;
+      height: 100% !important;
+    }
+  }
+}
+
+.cdk-overlay-pane:has(.team-filter-panel),
+.cdk-overlay-pane:has(.permission-group-select-panel) {
+  translate: 0 4px;
+}
+
+html .cdk-overlay-container .permission-group-select-panel.mat-mdc-select-panel {
+  min-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-height: 280px !important;
+  padding: 6px !important;
+  border: 1px solid #E8E8E4 !important;
+  border-radius: 16px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 12px 28px rgba(17, 17, 16, 0.12) !important;
+  scrollbar-width: thin;
+  scrollbar-color: #B9B9B4 transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    margin-block: 10px;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    min-height: 48px;
+    border: 0;
+    border-radius: 999px;
+    background-color: #B9B9B4;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #8F8F8A;
+  }
+
+  .mat-mdc-option {
+    --mat-option-label-text-color: #111110;
+    --mdc-list-list-item-label-text-color: #111110;
+    min-height: 40px;
+    margin-bottom: 4px;
+    padding: 0 12px;
+    border-radius: 10px;
+    color: #111110 !important;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover,
+    &.mat-mdc-option-active {
+      background: #F7F7F5 !important;
+    }
+
+    &.mdc-list-item--selected {
+      --mat-option-label-text-color: #fff;
+      --mdc-list-list-item-label-text-color: #fff;
+      background: #111110 !important;
+      color: #fff !important;
+      font-weight: 700;
+
+      .mat-mdc-option-pseudo-checkbox,
+      .mat-pseudo-checkbox {
+        display: none;
+      }
+    }
+
+    .mdc-list-item__primary-text {
+      width: 100%;
+      color: inherit !important;
+      font-family: 'Cairo', sans-serif;
+      text-align: start;
+    }
+  }
+}
+
+html .cdk-overlay-container .team-filter-panel.mat-mdc-select-panel {
+  min-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-height: 320px !important;
+  padding: 8px 10px !important;
+  border: 1px solid #E8E8E4 !important;
+  border-radius: 14px !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 12px 28px rgba(17, 17, 16, 0.12) !important;
+  scrollbar-width: thin;
+  scrollbar-color: #B9B9B4 transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    margin-block: 10px;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    min-height: 48px;
+    border: 0;
+    border-radius: 999px;
+    background-color: #B9B9B4;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #8F8F8A;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-button:single-button,
+  &::-webkit-scrollbar-button:vertical:decrement,
+  &::-webkit-scrollbar-button:vertical:increment {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .mat-mdc-option {
+    min-height: 40px;
+    margin-bottom: 4px;
+    padding: 0 12px;
+    border-radius: 10px;
+    color: #111110;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover,
+    &.mat-mdc-option-active {
+      background: #F7F7F5 !important;
+    }
+
+    &.mdc-list-item--selected {
+      background: #F1F5F9 !important;
+      color: #111110 !important;
+      font-weight: 700;
+    }
+
+    .mdc-list-item__primary-text {
+      width: 100%;
+      font-family: 'Cairo', sans-serif;
+      text-align: start;
+    }
+  }
+}
+
+// ── Menu direction fix ──────────────────────────────────────────────────────
+// الـ mat-menu overlay بيتفتح خارج شجرة الكومبوننت فمش بيورث الـ dir تلقائيًا
+html[dir="ltr"] .cdk-overlay-container .mat-mdc-menu-panel {
+  direction: ltr;
+}
+
+html[dir="rtl"] .cdk-overlay-container .mat-mdc-menu-panel {
+  direction: rtl;
+}
+
+// ── Menu global styles ──────────────────────────────────────────────────────
+.cdk-overlay-container .mat-mdc-menu-panel {
+  border-radius: 12px !important;
+
+  .mat-mdc-menu-item {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+
+    i-tabler {
+      margin-inline-end: 8px;
+      margin-inline-start: 0;
+    }
+
+    &.text-danger {
+      color: #dc2626 !important;
+      i-tabler { color: #dc2626 !important; }
+    }
+
+    &.text-success {
+      color: #16a34a !important;
+      i-tabler { color: #16a34a !important; }
+    }
+  }
+}

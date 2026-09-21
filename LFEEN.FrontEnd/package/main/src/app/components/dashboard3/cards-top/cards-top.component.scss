@@ -71,8 +71,7 @@
   }
 
   .d3-card {
-    background-color: #FFFFFF;
-    border: 1px solid #F1F5F9;
+    border: 1px solid #e1e3e5;
     border-radius: 16px;
     padding: 20px;
     display: flex;
@@ -81,6 +80,7 @@
     min-height: 150px;
     height: 100%;
     box-sizing: border-box;
+   
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {

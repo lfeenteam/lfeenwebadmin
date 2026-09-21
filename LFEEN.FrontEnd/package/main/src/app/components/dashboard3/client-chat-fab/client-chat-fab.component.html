@@ -1,0 +1,99 @@
+<div class="chat-fab" [dir]="currentDir" [class.is-open]="panelOpen()">
+
+  @if (panelOpen()) {
+    <div class="chat-fab-backdrop" (click)="closePanel()"></div>
+
+    <div class="chat-fab-panel" [class.is-chat-view]="selectedTicket()">
+      @if (selectedTicket(); as ticket) {
+        <div class="chat-fab-chat-topbar">
+          <button type="button" class="chat-fab-back-btn" (click)="backToList()">
+            <i-tabler name="arrow-right" class="icon-18"></i-tabler>
+          </button>
+          <button type="button" class="chat-fab-panel-close" (click)="closePanel()">
+            <i-tabler name="x" class="icon-18"></i-tabler>
+          </button>
+        </div>
+        <app-complaint-chat
+          class="chat-fab-chat"
+          [complaint]="ticket"
+          (close)="backToList()"
+          (resolve)="backToList()">
+        </app-complaint-chat>
+      } @else {
+        <div class="chat-fab-panel-header">
+          <button type="button" class="chat-fab-panel-heading" (click)="openAllChats()">
+            <span class="chat-fab-panel-title">{{ 'd3.chatFab.title' | translate }}</span>
+            <span class="chat-fab-panel-subtitle">
+              {{ 'd3.chatFab.subtitle' | translate: { count: badgeCount() } }}
+            </span>
+          </button>
+          <button type="button" class="chat-fab-panel-close" (click)="closePanel()">
+            <i-tabler name="x" class="icon-18"></i-tabler>
+          </button>
+        </div>
+
+        <div class="chat-fab-panel-body">
+          @if (loading()) {
+            <div class="chat-fab-state">{{ 'd3.chatFab.loading' | translate }}</div>
+          } @else if (activeChats().length === 0) {
+            <div class="chat-fab-state">{{ 'd3.chatFab.empty' | translate }}</div>
+          } @else {
+            @for (ticket of activeChats(); track ticket.id) {
+              <button
+                type="button"
+                class="chat-fab-item"
+                [disabled]="!!openingTicketId()"
+                (click)="openTicket(ticket)">
+                <div class="chat-fab-item-top">
+                  <div class="chat-fab-item-avatar-wrap">
+                    @if (openingTicketId() === ticket.id) {
+                      <span class="chat-fab-item-spinner"></span>
+                    } @else {
+                      <span class="chat-fab-item-avatar">{{ ticket.clientInitials }}</span>
+                    }
+                    <span class="chat-fab-item-dot" [class.is-urgent]="isUrgent(ticket.status)"></span>
+                  </div>
+                  <div class="chat-fab-item-main">
+                    <div class="chat-fab-item-row1">
+                      <span class="chat-fab-item-name">{{ ticket.clientName }}</span>
+                      <span class="chat-fab-item-time">{{ formatListTime(ticket.lastMessageAtUtc) }}</span>
+                    </div>
+                    <div class="chat-fab-item-row2">
+                      <span class="chat-fab-item-preview">{{ ticket.subject || ticket.ticketId }}</span>
+                      <span class="chat-fab-item-pill" [class.is-urgent]="isUrgent(ticket.status)">
+                        {{ statusLabelKey(ticket.status) | translate }}
+                      </span>
+                    </div>
+                    <div class="chat-fab-item-assign">
+                      @if (ticket.assignedAdminName) {
+                        <span class="chat-fab-item-assign-avatar">{{ initials(ticket.assignedAdminName) }}</span>
+                        <span class="chat-fab-item-assign-text">
+                          {{ 'd3.chatFab.assignedByPrefix' | translate }} {{ ticket.assignedAdminName }}
+                        </span>
+                      } @else {
+                        <span class="chat-fab-item-assign-text muted">{{ 'd3.chatFab.unassigned' | translate }}</span>
+                        <i-tabler name="user-plus" class="icon-14"></i-tabler>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </button>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <button
+    type="button"
+    class="chat-fab-btn"
+    (click)="togglePanel()"
+    [attr.aria-label]="'d3.chatFab.title' | translate">
+    @if (badgeCount() > 0) {
+      <span class="chat-fab-badge">{{ badgeText() }}</span>
+    }
+    <i-tabler name="message-circle-2-filled" class="chat-fab-icon"></i-tabler>
+  </button>
+
+</div>

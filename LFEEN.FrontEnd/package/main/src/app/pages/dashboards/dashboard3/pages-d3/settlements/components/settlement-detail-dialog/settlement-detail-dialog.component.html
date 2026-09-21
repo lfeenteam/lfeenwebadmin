@@ -1,0 +1,354 @@
+<div class="settlement-detail-dialog" [dir]="currentDir">
+
+  @if (step === 'success') {
+
+    <!-- Success -->
+    <div class="success-view">
+      <div class="success-icon-wrap">
+        <svg class="check-svg" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle class="check-circle" cx="26" cy="26" r="22"/>
+          <polyline class="check-mark" points="14,27 22,35 38,18"/>
+        </svg>
+      </div>
+
+      <h2 class="success-title">{{ 'd3.settlements.detail.successTitle' | translate }}</h2>
+      <p class="success-message">{{ 'd3.settlements.detail.successMessage' | translate }}</p>
+
+      <div class="detail-card success-card">
+        <div class="detail-row">
+          <span class="row-label">{{ 'd3.settlements.detail.trxNumber' | translate }}</span>
+          <span class="row-value">{{ trxNumber || emptyValue }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="row-label">{{ 'd3.settlements.detail.transferredAmount' | translate }}</span>
+          <span class="amount-value amount-value--accent">
+            {{ formattedTransferredAmount }}
+            <span class="riyal-icon riyal-icon--accent"
+                  [class.is-text-currency]="data.isTextCurrency"
+                  [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                  [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="row-label">{{ 'd3.settlements.detail.executionTime' | translate }}</span>
+          <span class="row-value">{{ executionTimeLabel }}</span>
+        </div>
+      </div>
+
+      @if (receiptUploadFailed) {
+        <p class="success-message">{{ 'd3.settlements.errors.receiptUploadFailed' | translate }}</p>
+        <button type="button" class="btn btn-outline" [disabled]="receiptRetrying" (click)="retryReceiptUpload()">
+          {{ 'd3.settlements.detail.retryReceiptBtn' | translate }}
+        </button>
+      }
+
+      <button type="button" class="btn btn-close-window" (click)="finish()">
+        {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
+      </button>
+    </div>
+
+  } @else {
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div class="header-icon-badge"
+         [class.badge-success]="headerBadgeVariant === 'success'"
+         [class.badge-danger]="headerBadgeVariant === 'danger'">
+      <i-tabler [name]="headerIconName" class="icon-20"></i-tabler>
+    </div>
+    <div class="header-text">
+      <h2>{{ headerTitleKey | translate }}</h2>
+      @if (headerSubtitleKey) {
+        <p>{{ headerSubtitleKey | translate }}</p>
+      }
+    </div>
+    <button type="button" class="close-btn" [attr.aria-label]="'common.cancel' | translate" (click)="close()">
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  @if (isDetailsStep) {
+
+    <!-- Host details -->
+    <div class="detail-card">
+      <div class="detail-card-head">
+        <div class="head-title">
+          <span>{{ 'd3.settlements.detail.hostSection' | translate }}</span>
+          <i-tabler name="user" class="icon-16"></i-tabler>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.accountName' | translate }}</span>
+        <span class="row-value">{{ data.accountName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.hostName' | translate }}</span>
+        <span class="row-value">{{ data.hostName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.phone' | translate }}</span>
+        <span class="row-value">{{ data.phone }}</span>
+      </div>
+
+      <div class="amount-row">
+        <span class="row-label">{{ 'd3.settlements.detail.requestedAmount' | translate }}</span>
+        <span class="amount-value">
+          {{ data.amountFormatted }}
+          <img [src]="data.currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="data.isTextCurrency">
+        </span>
+      </div>
+    </div>
+
+    <!-- Bank details -->
+    <div class="detail-card">
+      <div class="detail-card-head">
+        <div class="head-title">
+          <span>{{ 'd3.settlements.detail.bankSection' | translate }}</span>
+          <i-tabler name="building-bank" class="icon-16"></i-tabler>
+        </div>
+        @if (data.bankVerified) {
+          <span class="verified-badge">
+            <i-tabler name="circle-check" class="icon-14"></i-tabler>
+            {{ 'd3.settlements.detail.verified' | translate }}
+          </span>
+        }
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.accountHolder' | translate }}</span>
+        <span class="row-value">{{ data.bankAccountHolder }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.bankName' | translate }}</span>
+        <span class="row-value">{{ data.bankName }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.accountNumber' | translate }}</span>
+        <span class="row-value">{{ data.bankAccountNumber }}</span>
+      </div>
+
+      <div class="iban-block">
+        <span class="row-label">{{ 'd3.settlements.detail.iban' | translate }}</span>
+        <div class="iban-box">{{ data.iban }}</div>
+      </div>
+    </div>
+
+    <!-- Actions — only for a payout the backend still accepts execute/fail on, and only with the Execute permission -->
+    @if (data.canExecute) {
+      <div class="detail-actions">
+        <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
+          {{ 'd3.settlements.detail.rejectBtn' | translate }}
+        </button>
+        <button type="button" class="btn btn-accept" (click)="goToConfirmTransfer()">
+          {{ 'd3.settlements.detail.acceptBtn' | translate }}
+        </button>
+      </div>
+    }
+
+  } @else if (step === 'confirmReject') {
+
+    <!-- Reject summary -->
+    <div class="detail-card">
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.companyAccount' | translate }}</span>
+        <span class="row-value">{{ data.accountName }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.settlementAmount' | translate }}</span>
+        <span class="amount-value amount-value--danger">
+          {{ data.amountFormatted }}
+          <span class="riyal-icon riyal-icon--danger"
+                [class.is-text-currency]="data.isTextCurrency"
+                [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="reject-reason-field">
+      <label class="field-label">{{ 'd3.settlements.detail.rejectReasonLabel' | translate }}</label>
+      <textarea
+        class="reject-reason-textarea"
+        rows="4"
+        [attr.maxlength]="rejectReasonMax"
+        [placeholder]="'d3.settlements.detail.rejectReasonPlaceholder' | translate"
+        [(ngModel)]="rejectReason">
+      </textarea>
+      <span class="reject-reason-hint">* {{ 'd3.settlements.detail.rejectReasonHint' | translate }}</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+      <button type="button" class="btn btn-outline" (click)="close()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button type="button" class="btn btn-danger" [disabled]="!canConfirmReject" (click)="confirmReject()">
+        {{ 'd3.settlements.detail.confirmRejectBtn' | translate }}
+      </button>
+    </div>
+
+  } @else if (step === 'rejectSuccess') {
+
+    <!-- Reject success -->
+    <div class="success-view">
+      <div class="reject-success-icon-wrap">
+        <div class="reject-success-icon">
+          <i-tabler name="circle-x" class="icon-32"></i-tabler>
+        </div>
+        <span class="reject-success-badge">
+          <i-tabler name="circle-check" class="icon-18"></i-tabler>
+        </span>
+      </div>
+
+      <h2 class="success-title">{{ 'd3.settlements.detail.rejectDoneTitle' | translate }}</h2>
+      <p class="success-message">{{ 'd3.settlements.detail.rejectDoneMessage' | translate }}</p>
+
+      <div class="detail-card success-card">
+        <div class="form-field">
+          <span class="row-label">{{ 'd3.settlements.detail.recordedReason' | translate }}</span>
+          <div class="recorded-reason-box">{{ rejectReason }}</div>
+        </div>
+        <div class="detail-row">
+          <span class="row-label row-label--with-icon">
+            <i-tabler name="clock" class="icon-14"></i-tabler>
+            {{ 'd3.settlements.detail.rejectionDate' | translate }}
+          </span>
+          <span class="row-value">{{ rejectionTimeLabel }}</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-close-window" (click)="finishReject()">
+        {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
+      </button>
+    </div>
+
+  } @else {
+
+    <!-- Transfer summary -->
+    <div class="detail-card">
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.companyAccount' | translate }}</span>
+        <span class="row-value">{{ data.accountName }}</span>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.ibanNumber' | translate }}</span>
+        <div class="iban-copy-value">
+          <span class="row-value iban-value">{{ data.iban }}</span>
+          <button type="button" class="copy-btn" [attr.aria-label]="'common.copy' | translate" (click)="copyIban()">
+            <i-tabler name="copy" class="icon-14"></i-tabler>
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.amountToTransfer' | translate }}</span>
+        <span class="amount-value amount-value--accent">
+          {{ data.amountFormatted }}
+          <span class="riyal-icon riyal-icon--accent"
+                [class.is-text-currency]="data.isTextCurrency"
+                [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+        </span>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.paymentMethod' | translate }}</span>
+        <div class="payment-method-value">
+          <span class="row-value">{{ emptyValue }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transfer confirmation form -->
+    <div class="detail-card">
+      <div class="form-field">
+        <label class="field-label">{{ 'd3.settlements.detail.actualAmount' | translate }}</label>
+        <div class="field-input-wrap">
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            class="field-input"
+            [placeholder]="data.amountFormatted"
+            [(ngModel)]="actualAmount" />
+          <img [src]="data.currencyIconSrc" alt="" class="field-icon riyal-icon" [class.is-text-currency]="data.isTextCurrency">
+        </div>
+        @if (amountExceedsNet) {
+          <span class="reject-reason-hint">* {{ 'd3.settlements.errors.amountExceeds' | translate }}</span>
+        }
+      </div>
+
+      @if (isPartialTransfer) {
+        <div class="form-field">
+          <label class="field-label">{{ 'd3.settlements.detail.partialReasonLabel' | translate }}</label>
+          <textarea
+            class="reject-reason-textarea"
+            rows="3"
+            maxlength="2000"
+            [placeholder]="'d3.settlements.detail.partialReasonPlaceholder' | translate"
+            [(ngModel)]="partialReason">
+          </textarea>
+          <span class="reject-reason-hint">* {{ 'd3.settlements.errors.partialReasonRequired' | translate }}</span>
+        </div>
+      }
+
+      <div class="form-field">
+        <label class="field-label">{{ 'd3.settlements.detail.trxId' | translate }}</label>
+        <div class="field-input-wrap">
+          <input
+            type="text"
+            class="field-input"
+            [attr.maxlength]="trxReferenceMax"
+            [placeholder]="'d3.settlements.detail.trxIdPlaceholder' | translate"
+            [(ngModel)]="trxId" />
+          <i-tabler name="hash" class="field-icon icon-16"></i-tabler>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="field-label">{{ 'd3.settlements.detail.receiptLabel' | translate }}</label>
+
+        <input #fileInput type="file" accept=".jpg,.jpeg,.png,.pdf" hidden (change)="onFileInputChange($event)" />
+
+        @if (!receiptFile) {
+          <div class="upload-dropzone"
+               [class.is-dragging]="isDragging"
+               (click)="fileInput.click()"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave()"
+               (drop)="onDrop($event)">
+            <i-tabler name="cloud-upload" class="icon-28 upload-icon"></i-tabler>
+            <span class="upload-text">{{ 'd3.settlements.detail.uploadHint' | translate }}</span>
+            <span class="upload-subtext">{{ 'd3.settlements.detail.uploadFormats' | translate }}</span>
+          </div>
+        } @else {
+          <div class="uploaded-file-chip">
+            <i-tabler name="file-check" class="icon-18"></i-tabler>
+            <span class="file-name">{{ receiptFile.name }}</span>
+            <button type="button" class="remove-file-btn" [attr.aria-label]="'common.delete' | translate" (click)="removeFile($event)">
+              <i-tabler name="x" class="icon-14"></i-tabler>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+      <button type="button" class="btn btn-outline" (click)="close()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button type="button" class="btn btn-accept" [disabled]="!canConfirmTransfer" (click)="confirmTransfer()">
+        {{ 'd3.settlements.detail.confirmTransferBtn' | translate }}
+      </button>
+    </div>
+
+  }
+
+  }
+
+</div>

@@ -1,0 +1,150 @@
+<div class="cards-units" [dir]="currentDir">
+
+@if (buildings.length === 0) {
+  <app-dashboard-empty
+    [titleKey]="emptyTitleKey"
+    [descKey]="emptyDescKey">
+  </app-dashboard-empty>
+}
+
+<!-- Owner account line: shown once per building, since the account is the same for all its units. -->
+<ng-template #accountLine let-building>
+  @if (building.accountStatus) {
+    <div class="building-account">
+      @if (building.accountLogoUrl) {
+        <img class="account-logo" [src]="building.accountLogoUrl" [alt]="building.accountName">
+      } @else {
+        <i-tabler name="building-store" class="account-icon"></i-tabler>
+      }
+      @if (building.accountName) {
+        <span class="account-name" [title]="building.accountName">{{ building.accountName }}</span>
+      }
+      <span class="account-chip" [ngClass]="getAccountStatusClass(building)">
+        <span class="account-chip__dot"></span>
+        {{ getAccountStatusKey(building) | translate }}
+      </span>
+    </div>
+  }
+</ng-template>
+
+@for (building of buildings; track building.id) {
+  <section class="building-units-group">
+    <!-- The account blocks the property, which blocks the units: only the first blocker is surfaced. -->
+    @if (building.needsAccountReview || building.needsPropertyReview) {
+      <div class="property-review-banner">
+        <div class="banner-right">
+          <div class="building-image">
+            @if (building.image) {
+              <img [src]="building.image" [alt]="building.name">
+            } @else {
+              <span class="building-initials">{{ building.name | slice:0:2 }}</span>
+            }
+          </div>
+          <div class="building-info">
+            <h2 class="building-name">{{ building.name }}</h2>
+     <p class="building-meta">
+  <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+  {{ getLocationLabel(building) }} ·
+  {{ (building.needsAccountReview ? 'd3.allUnits.cardsUnits.account.awaitingReviewMeta' : 'd3.allUnits.cardsUnits.awaitingReviewMeta') | translate }}
+</p>
+            <ng-container *ngTemplateOutlet="accountLine; context: { $implicit: building }"></ng-container>
+          </div>
+        </div>
+        <div class="banner-left">
+          @if (building.needsAccountReview) {
+            <button class="review-btn" type="button" (click)="goToAccountReview(building.accountId)">
+              {{ 'd3.allUnits.cardsUnits.account.reviewBtn' | translate }}
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="btn-icon"></i-tabler>
+            </button>
+          } @else {
+            <button class="review-btn" type="button" (click)="goToBuildReview(building.id)">
+              {{ 'd3.allUnits.cardsUnits.reviewPropertyBtn' | translate }}
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="btn-icon"></i-tabler>
+            </button>
+          }
+        </div>
+      </div>
+    } @else {
+      <header class="building-header">
+        <div class="building-header__right">
+          <div class="building-image">
+            @if (building.image) {
+              <img [src]="building.image" [alt]="building.name">
+            } @else {
+              <span class="building-initials">{{ building.name | slice:0:2 }}</span>
+            }
+          </div>
+          <div class="building-info">
+            <h2 class="building-name">{{ building.name }}</h2>
+         <p class="building-meta">
+  <i-tabler name="map-pin" class="meta-icon"></i-tabler>
+  {{ getLocationLabel(building) }} · 
+  {{ 'd3.allUnits.cardsUnits.publishedUnits' | translate: { count: building.publishedUnits } }}
+</p>
+            <ng-container *ngTemplateOutlet="accountLine; context: { $implicit: building }"></ng-container>
+          </div>
+        </div>
+        <div class="building-header__left">
+          <span class="building-badge">
+            <i-tabler name="discount-check" class="badge-icon"></i-tabler>
+            {{ 'd3.allUnits.cardsUnits.approvedBadge' | translate }}
+          </span>
+          <div class="building-menu">
+            <i-tabler name="dots-vertical"></i-tabler>
+          </div>
+        </div>
+      </header>
+    }
+
+    @if (building.units.length > 0) {
+      @if (viewMode === 'list') {
+        <div class="units-list-table" [class.units-list-table--published]="!isReviewTab">
+          <header class="units-list-table__header">
+            <div class="uh-col uh-num">{{ 'd3.allUnits.table.unitNumber' | translate }}</div>
+            <div class="uh-col uh-info">{{ 'd3.allUnits.table.unitInfo' | translate }}</div>
+            <div class="uh-col uh-type">{{ 'd3.allUnits.table.type' | translate }}</div>
+            <div class="uh-col uh-desc">{{ 'd3.allUnits.table.description' | translate }}</div>
+            <div class="uh-col uh-status">{{ 'd3.allUnits.table.status' | translate }}</div>
+            <div class="uh-col uh-actions"></div>
+          </header>
+          @for (unit of building.units; track unit.id) {
+            @if (isReviewTab) {
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!(building.needsPropertyReview || building.needsAccountReview)" [buildingId]="building.id" [viewMode]="viewMode" [activeTab]="activeTab"></app-unit-card-review>
+            } @else {
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id" [activeTab]="activeTab"></app-unit-card>
+            }
+          }
+        </div>
+      } @else {
+        <div class="units-grid">
+          @for (unit of building.units; track unit.id) {
+            @if (isReviewTab) {
+              <app-unit-card-review [unit]="unit" [forceUnderReviewStyle]="!!(building.needsPropertyReview || building.needsAccountReview)" [buildingId]="building.id" [viewMode]="viewMode" [activeTab]="activeTab"></app-unit-card-review>
+            } @else {
+              <app-unit-card [unit]="unit" [viewMode]="viewMode" [buildingId]="building.id" [activeTab]="activeTab"></app-unit-card>
+            }
+          }
+        </div>
+      }
+    }
+
+    @if (building.needsAccountReview || building.needsPropertyReview) {
+      <div class="activation-notice">
+        <div class="activation-notice__icon">
+          <i-tabler name="alert-triangle"></i-tabler>
+        </div>
+        <div class="activation-notice__content">
+          <h4 class="activation-notice__title">{{ 'd3.allUnits.cardsUnits.activationNotice.title' | translate }}</h4>
+          <p class="activation-notice__desc">
+            @if (building.needsAccountReview) {
+              {{ 'd3.allUnits.cardsUnits.activationNotice.accountDescription' | translate: { buildingName: building.name, accountName: building.accountName || '' } }}
+            } @else {
+              {{ 'd3.allUnits.cardsUnits.activationNotice.description' | translate: { buildingName: building.name } }}
+            }
+          </p>
+        </div>
+      </div>
+    }
+  </section>
+}
+</div>

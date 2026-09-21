@@ -1,0 +1,149 @@
+<div class="unit-access-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
+  } @else {
+
+  <section class="unit-summary-card">
+    <div class="summary-unit">
+      @if (accessData?.mainPhotoUrl && !mainPhotoLoadFailed) {
+        <img [src]="accessData!.mainPhotoUrl" [alt]="unit?.title || ('d3.unitReview.accessView.unitAlt' | translate)" (error)="mainPhotoLoadFailed = true">
+      } @else {
+        <div class="unit-avatar">{{ unitInitials }}</div>
+      }
+      <div>
+        <h2>{{ unit?.title || unitDetail?.name || unitDetail?.propertyName }}</h2>
+        <p>
+          <i-tabler name="map-pin"></i-tabler>
+          {{unit?.district || '-' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="summary-stats">
+      <div>
+        <span>{{ 'd3.unitReview.accessView.unitNumber' | translate }}</span>
+        <strong>{{ accessData?.unitNumber ?? '-' }}</strong>
+      </div>
+      <div>
+        <span>{{ 'd3.unitReview.accessView.floor' | translate }}</span>
+        <strong>{{ accessData?.floorNumber ?? '-' }}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="access-photos-section">
+    <header class="section-heading">
+      <i-tabler name="camera"></i-tabler>
+      <h3>{{ 'd3.unitReview.accessView.photosTitle' | translate }}</h3>
+    </header>
+
+    <p class="section-hint">{{ 'd3.unitReview.accessView.photosHint' | translate }}</p>
+
+    @if (hasStartedReview && pendingCount > 0) {
+      <div class="validation-banner">
+        <i-tabler name="alert-triangle"></i-tabler>
+        <span>{{ 'd3.unitReview.accessView.pendingPhotosWarning' | translate: { count: pendingCount } }}</span>
+      </div>
+    }
+
+    @if (allPhotosFailedToLoad) {
+      <div class="validation-banner">
+        <i-tabler name="alert-triangle"></i-tabler>
+        <span>{{ 'd3.unitReview.accessView.photosFailedToLoadWarning' | translate }}</span>
+      </div>
+    }
+
+    @if (hasNoPhotos) {
+      <app-review-empty-state
+        icon="camera-off"
+        titleKey="d3.unitReview.accessView.emptyTitle"
+        descKey="d3.unitReview.accessView.emptyDescription">
+      </app-review-empty-state>
+    } @else {
+    <div class="access-photos-grid">
+      @for (photo of accessPhotos; track photo.titleKey) {
+        <article class="access-photo-card" [class.is-rejected]="photo.decision === 'rejected'">
+          <div class="photo-frame">
+            @if (!photo.loadFailed) {
+              <img [src]="photo.image" [alt]="photo.titleKey | translate" (error)="photo.loadFailed = true">
+            } @else {
+              <div class="photo-load-error">
+                <i-tabler name="photo-off"></i-tabler>
+                <span>{{ 'd3.unitReview.accessView.noImageLabel' | translate }}</span>
+              </div>
+            }
+            <span class="photo-tag">{{ photo.tagKey | translate }}</span>
+            <div class="photo-actions">
+              <button class="photo-action photo-action--reject" type="button" [class.active]="photo.decision === 'rejected'" [disabled]="isReadOnly || !photo.canReview" (click)="setPhotoDecision(photo, 'rejected')">
+                <i-tabler name="x"></i-tabler>
+              </button>
+              <button class="photo-action photo-action--approve" type="button" [class.active]="photo.decision === 'approved'" [disabled]="isReadOnly || !photo.canReview" (click)="setPhotoDecision(photo, 'approved')">
+                <i-tabler name="check"></i-tabler>
+              </button>
+            </div>
+          </div>
+
+          <strong>{{ photo.titleKey | translate }}</strong>
+
+          <div class="photo-note">
+            <span>{{ 'd3.unitReview.accessView.photoNote' | translate }}</span>
+            <p [class.photo-note--empty]="!photo.note">
+              {{ photo.note || ('d3.unitReview.accessView.noPhotoNote' | translate) }}
+            </p>
+          </div>
+
+          @if (photo.decision === 'rejected') {
+            <div class="rejection-fields">
+              <input type="text" [(ngModel)]="photo.rejectionReason" [readonly]="isReadOnly || !photo.canReview" [placeholder]="'d3.unitReview.imagesView.rejectionReasonPlaceholder' | translate">
+            </div>
+          }
+        </article>
+      }
+    </div>
+    }
+  </section>
+
+  @if (accessData?.accessDescription) {
+    <section class="host-guide-section">
+      <header class="section-heading">
+        <i-tabler name="info-circle"></i-tabler>
+        <h3>{{ 'd3.unitReview.accessView.hostGuideTitle' | translate }}</h3>
+      </header>
+
+      <article class="host-guide-card">
+        <p>{{ accessData!.accessDescription }}</p>
+      </article>
+    </section>
+  }
+
+  @if (!isReadOnly) {
+    <section class="notes-section">
+      <div class="notes-label-row">
+        <span class="notes-title">{{ 'd3.unitReview.accessView.notesTitle' | translate }}</span>
+        <small class="notes-hint">{{ 'd3.unitReview.accessView.notesRequiredHint' | translate }}</small>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="rejectionNote"
+          [placeholder]="'d3.unitReview.accessView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
+
+    <footer class="action-buttons">
+      <button class="btn btn-reject" type="button" [disabled]="!allReviewed || (!hasRejectedPhoto && !rejectionNote.trim())" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button" [disabled]="!allReviewed || hasRejectedPhoto || !!rejectionNote.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.accessView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </footer>
+  }
+
+  } <!-- end @else -->
+</div>

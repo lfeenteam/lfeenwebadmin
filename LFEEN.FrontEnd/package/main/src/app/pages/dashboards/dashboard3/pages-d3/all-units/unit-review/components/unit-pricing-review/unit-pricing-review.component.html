@@ -1,0 +1,206 @@
+<div class="unit-pricing-review" [dir]="currentDir">
+
+  <!-- Header -->
+  <div class="pricing-header">
+    <div class="price-badge">
+      <div class="price-stat">
+        <i-tabler name="tag" class="badge-icon"></i-tabler>
+        <div class="badge-text">
+          <span class="price-label">{{ 'd3.unitReview.pricingView.basePrice' | translate }}</span>
+          <span class="price-value">
+            {{ basePrice ?? '-' }}
+            <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        </div>
+      </div>
+      <span class="badge-divider"></span>
+      <div class="price-stat">
+          <i-tabler name="shield-check" class="badge-icon badge-icon--safety"></i-tabler>
+        <div class="badge-text">
+          <span class="price-label">{{ 'd3.unitReview.pricingView.safetyFloor' | translate }}</span>
+          <span class="price-value price-value--safety">
+            {{ safetyFloorPrice ?? '-' }}
+            <img [src]="currencyIconSrc" alt="ريال" class="riyal-icon riyal-icon--safety" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        </div>
+      
+      </div>
+    </div>
+    <div class="header-text">
+      <h2>{{ 'd3.unitReview.pricingView.title' | translate }}</h2>
+      <p>{{ 'd3.unitReview.pricingView.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Pricing Policies -->
+  <section class="policies-section">
+    @for (policy of pricingPolicies; track policy.titleKey) {
+      @if (policy.visible) {
+      <article class="policy-card" [class.is-disabled]="!policy.enabled">
+        <div class="policy-card-head">
+          <i-tabler [name]="policy.icon" class="policy-head-icon"></i-tabler>
+          <div class="policy-head-text">
+            <strong>{{ policy.titleKey | translate }}</strong>
+            <span>{{ policy.subtitleKey | translate }}</span>
+          </div>
+          <span class="policy-switch" [class.is-on]="policy.enabled" aria-hidden="true"></span>
+        </div>
+
+        <div class="policy-rows">
+          @for (row of policy.rows; track row.labelKey) {
+            <div class="policy-row">
+              <span class="policy-row-label">{{ row.labelKey | translate }}</span>
+              <div class="policy-row-controls">
+                <span class="policy-field policy-field--pct">{{ row.value }}<small>%</small></span>
+                <span class="policy-switch policy-switch--sm" [class.is-on]="row.enabled" aria-hidden="true"></span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+      }
+    }
+
+    <!-- Platform customization -->
+    @if (showChannelPricing) {
+    <article class="policy-card" [class.is-disabled]="!platformPolicy.enabled">
+      <div class="policy-card-head">
+        <i-tabler name="layout-grid" class="policy-head-icon"></i-tabler>
+        <div class="policy-head-text">
+          <strong>{{ 'd3.unitReview.pricingView.policies.platform.title' | translate }}</strong>
+          <span>{{ 'd3.unitReview.pricingView.policies.platform.subtitle' | translate }}</span>
+        </div>
+        <span class="policy-switch" [class.is-on]="platformPolicy.enabled" aria-hidden="true"></span>
+      </div>
+
+      <div class="policy-rows">
+        @for (row of platformPolicy.rows; track row.labelKey) {
+          <div class="policy-row policy-row--platform">
+            <span class="policy-row-label">{{ row.labelKey | translate }}</span>
+            <span class="policy-switch policy-switch--sm" [class.is-on]="row.enabled" aria-hidden="true"></span>
+            <div class="policy-field-group">
+                 <span class="policy-field policy-field--pct">
+                <small class="field-prefix">{{ 'd3.unitReview.pricingView.policies.platform.discountLabel' | translate }}</small>
+                {{ row.discount }}<small>%</small>
+              </span>
+              <span class="policy-field policy-field--price">
+                {{ row.price }}
+                <img [src]="currencyIconSrc" alt="ريال" class="field-riyal" [class.is-text-currency]="currentLang === 'en'">
+              </span>
+          
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+    }
+  </section>
+
+  <!-- Seasonal Periods -->
+  <section class="seasons-section">
+    <h3 class="section-title">{{ 'd3.unitReview.pricingView.seasonalTitle' | translate }}</h3>
+    @if (seasonalPeriods.length > 0) {
+      <div class="seasons-grid">
+        @for (period of seasonalPeriods; track period.label) {
+          <article class="season-card">
+            <div class="season-card-top">
+              <i-tabler name="sun" class="sun-icon"></i-tabler>
+              <span class="period-badge">{{ period.label }}</span>
+            </div>
+            <strong class="season-name">{{ period.name }}</strong>
+            <span class="season-dates">{{ period.dates }}</span>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="calendar-off"
+        titleKey="d3.unitReview.pricingView.emptySeasonalTitle"
+        descKey="d3.unitReview.pricingView.emptySeasonalDescription">
+      </app-review-empty-state>
+    }
+  </section>
+
+  <!-- Calendar -->
+  <section class="calendar-section">
+
+    <!-- Row above the box: title (right) + navigation (left) -->
+    <div class="calendar-header-row">
+    
+      <div class="calendar-title-block">
+        <h3>{{ 'd3.unitReview.pricingView.calendarTitle' | translate }}</h3>
+        <p>{{ 'd3.unitReview.pricingView.calendarSubtitle' | translate }}</p>
+      </div>
+        <div class="month-nav">
+        <button class="nav-btn" type="button" (click)="prevMonth()">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler>
+        </button>
+        <span class="month-label">{{ currentMonthLabel }}</span>
+        <button class="nav-btn" type="button" (click)="nextMonth()">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler>
+        </button>
+      </div>
+    </div>
+
+    <!-- White box: day headers + grid -->
+    <div class="calendar-box">
+      <div class="calendar-grid">
+        <div class="day-header-row">
+          @for (dayKey of dayHeaders; track dayKey) {
+            <div class="day-header">{{ dayKey | translate }}</div>
+          }
+        </div>
+
+        @for (week of calendarWeeks; track $index) {
+          <div class="week-row">
+            @for (cell of week; track $index) {
+              <div class="day-cell" [class.day-cell--empty]="!cell.day" [class.day-cell--available]="cell.available">
+                @if (cell.day) {
+                  <span class="day-number">{{ cell.day }}</span>
+                  @if (cell.price) {
+                    <span class="day-price">
+                      {{ cell.price }}
+                      <img [src]="currencyIconSrc" alt="ريال" class="price-riyal" [class.is-text-currency]="currentLang === 'en'">
+                    </span>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+  </section>
+
+  @if (!isReadOnly) {
+    <!-- Notes -->
+    <section class="notes-section">
+      <div class="notes-label-row">
+        <span class="notes-title">{{ 'd3.unitReview.pricingView.notesTitle' | translate }}</span>
+        <small class="notes-hint">{{ 'd3.unitReview.pricingView.notesRequiredHint' | translate }}</small>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="rejectionNote"
+          [placeholder]="'d3.unitReview.pricingView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-reject" type="button" [disabled]="!rejectionNote.trim()" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.pricingView.rejectBtn' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button" [disabled]="!!rejectionNote.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.pricingView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </div>
+  }
+
+</div>

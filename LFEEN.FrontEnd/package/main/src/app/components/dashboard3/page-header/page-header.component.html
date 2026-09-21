@@ -1,27 +1,66 @@
-<header class="d3-page-header">
-  <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
-    <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
-  </button>
-
-  <div class="d3-page-header-main">
-    <h1 class="d3-page-title">{{ titleKey | translate }}</h1>
-
-    @if (breadcrumbKey) {
-      <span class="d3-page-divider"></span>
-      <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+<header class="d3-page-header" [dir]="dir()">
+  <div class="d3-page-header-right">
+    @if (showBack) {
+      <button class="d3-page-back-btn" type="button" (click)="onBack($event)">
+        <i-tabler [name]="isRtl() ? 'arrow-right' : 'arrow-left'" class="d3-page-icon"></i-tabler>
+      </button>
+    } @else {
+      <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
+        <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
+      </button>
     }
+
+    <div class="d3-page-header-main">
+      @if (breadcrumbKey) {
+        @if (breadcrumbRoute) {
+          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="breadcrumbRoute" [queryParams]="breadcrumbQueryParams">{{ breadcrumbKey | translate }}</a>
+        } @else {
+          <p class="d3-page-breadcrumb">{{ breadcrumbKey | translate }}</p>
+        }
+        <i-tabler [name]="isRtl() ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
+      }
+      @for (crumb of extraCrumbs; track crumb.label) {
+        @if (crumb.onClick) {
+          <button type="button" class="d3-page-breadcrumb d3-page-breadcrumb--link d3-page-breadcrumb--btn" (click)="crumb.onClick()">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</button>
+        } @else if (crumb.route) {
+          <a class="d3-page-breadcrumb d3-page-breadcrumb--link" [routerLink]="crumb.route">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</a>
+        } @else {
+          <p class="d3-page-breadcrumb">{{ crumb.translate ? (crumb.label | translate) : crumb.label }}</p>
+        }
+        <i-tabler [name]="isRtl() ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
+      }
+      <h1 class="d3-page-title">{{ titleOverride || (titleKey | translate) }}</h1>
+    </div>
   </div>
 
   <div class="d3-page-header-meta">
-    @if (showLive) {
-      <div class="d3-page-live-badge">
-        <span class="d3-page-live-dot"></span>
-        <span class="d3-page-live-text">{{ 'd3.header.live' | translate }}</span>
+    @if (actionButton) {
+      <button
+        class="d3-page-action-btn"
+        type="button"
+        [style.background-color]="actionButton.color || '#16803A'"
+        (click)="onAction($event)">
+        @if (actionButton.icon) {
+          <i-tabler [name]="actionButton.icon" class="d3-page-action-icon"></i-tabler>
+        }
+        <span>{{ actionButton.text | translate }}</span>
+      </button>
+    } @else if (statusBadge) {
+      <div class="d3-page-status-badge" [style.background-color]="statusBadge.color + '1A'">
+        <span class="d3-page-status-dot" [style.background-color]="statusBadge.color"></span>
+        <span class="d3-page-status-text" [style.color]="statusBadge.color">{{ statusBadge.text | translate }}</span>
       </div>
-    }
+    } @else {
+      @if (showLive) {
+        <div class="d3-page-live-badge" [class.d3-page-live-badge--offline]="!isOnline">
+          <span class="d3-page-live-dot"></span>
+          <span class="d3-page-live-text">{{ (isOnline ? 'd3.header.online' : 'd3.header.offline') | translate }}</span>
+        </div>
+      }
 
-    @if (showDate) {
-      <span class="d3-page-date-badge">{{ 'd3.header.date' | translate }}</span>
+      @if (showDate) {
+        <span class="d3-page-date-badge">{{ currentDate }}</span>
+      }
     }
   </div>
 </header>

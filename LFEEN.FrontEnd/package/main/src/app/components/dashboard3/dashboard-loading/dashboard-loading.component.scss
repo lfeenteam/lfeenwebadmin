@@ -1,0 +1,142 @@
+:host {
+  display: block;
+}
+
+.logo-loader {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: #050505;
+}
+
+.logo-loader__mark {
+  position: relative;
+  width: 118px;
+  height: 118px;
+  display: grid;
+  place-items: center;
+}
+
+.logo-loader__orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(5, 5, 5, 0.08);
+  border-top-color: #050505;
+  animation: logoLoaderSpin 1s linear infinite;
+}
+
+.logo-loader__orbit--inner {
+  inset: 14px;
+  border-width: 1px;
+  border-top-color: transparent;
+  border-right-color: #050505;
+  animation-duration: 1.55s;
+  animation-direction: reverse;
+  opacity: 0.65;
+}
+
+.logo-loader__logo {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  z-index: 1;
+  filter: drop-shadow(0 10px 16px rgba(5, 5, 5, 0.12));
+}
+
+.logo-loader__path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 96;
+  stroke-dashoffset: 96;
+  animation: logoLoaderTrace 1.6s ease-in-out infinite;
+}
+
+.logo-loader__node {
+  fill: #ffffff;
+  stroke: currentColor;
+  stroke-width: 4.4;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logoLoaderPulse 1.6s ease-in-out infinite;
+}
+
+.logo-loader__node:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+
+.logo-loader__label {
+  color: #111827;
+  font-family: Cairo, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.logo-loader--sm {
+  min-height: 160px;
+  gap: 10px;
+}
+
+.logo-loader--sm .logo-loader__mark {
+  width: 80px;
+  height: 80px;
+}
+
+.logo-loader--sm .logo-loader__logo {
+  width: 46px;
+  height: 46px;
+}
+
+.logo-loader--sm .logo-loader__label {
+  font-size: 12px;
+}
+
+.logo-loader--lg {
+  min-height: 520px;
+}
+
+.logo-loader--lg .logo-loader__mark {
+  width: 150px;
+  height: 150px;
+}
+
+.logo-loader--lg .logo-loader__logo {
+  width: 84px;
+  height: 84px;
+}
+
+@keyframes logoLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes logoLoaderTrace {
+  0% {
+    stroke-dashoffset: 96;
+    opacity: 0.45;
+  }
+  42%, 70% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -96;
+    opacity: 0.45;
+  }
+}
+
+@keyframes logoLoaderPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}

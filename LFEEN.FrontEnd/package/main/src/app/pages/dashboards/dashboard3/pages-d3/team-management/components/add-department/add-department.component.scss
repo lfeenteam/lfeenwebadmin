@@ -1,0 +1,283 @@
+.add-dept-page {
+  padding: 10px;
+  font-family: 'Cairo', sans-serif;
+
+  * {
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .section-bar {
+    display: inline-block;
+    width: 6px;
+    height: 24px;
+    background-color: #111110;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #111110;
+    line-height: 1.4;
+  }
+
+  // ─── Toggle All Buttons ─────────────────────────────────────────
+  .toggle-all-btn {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #E8E8E4 !important;
+    background-color: #F7F7F5;
+    color: #111110;
+
+    &.cancel-all {
+      background-color: #FFFFFF;
+      color: #6B6B67;
+    }
+  }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background-color: #E8E8E4;
+    margin-bottom: 20px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111110;
+    text-align: start;
+  }
+
+  .field-error-msg {
+    font-size: 12px;
+    color: #e53935;
+    text-align: start;
+    margin: 4px 4px 0;
+  }
+
+  // ─── Bilingual Input ─────────────────────────────────────────────
+  .bilingual-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff;
+    border: 1px solid #E8E8E4;
+    border-radius: 16px;
+    padding: 0 12px;
+    height: 52px;
+    transition: border-color 0.2s;
+
+    &:focus-within { border-color: #9E9E9A; }
+    &.is-invalid { border-color: #e53935; }
+
+    &.secondary {
+      background-color: #FAFAFA;
+      border-style: dashed;
+    }
+
+    &.textarea-wrapper {
+      height: auto;
+      padding: 12px;
+      align-items: flex-start;
+    }
+  }
+
+  .bilingual-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111110;
+    height: 100%;
+
+    &::placeholder { color: #9E9E9A; font-weight: 400; }
+  }
+
+  .bilingual-textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111110;
+    line-height: 1.6;
+
+    &::placeholder { color: #9E9E9A; font-weight: 400; }
+  }
+
+  .lang-chip {
+    flex-shrink: 0;
+    background-color: #F4F4F2;
+    border: 1px solid #E8E8E4;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B6B67;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    line-height: 1.4;
+
+    &:hover { border-color: #9E9E9A; color: #111110; }
+    &.active { background-color: #111110; border-color: #111110; color: #fff; }
+    &.static { cursor: default; pointer-events: none; }
+  }
+
+  // ─── Permission Cards ────────────────────────────────────────────
+  .row.g-12 {
+    row-gap: 12px;
+  }
+
+  .perm-card {
+    background: #FCFCFB;
+    border: 1px solid #E8E8E4;
+    border-radius: 18px;
+    padding: 16px;
+    text-align: start;
+    transition: all 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    &.perm-active {
+      background: #FFFFFF;
+      border-color: #D4D4D0;
+      box-shadow: 0px 2px 8px 0px #00000012;
+
+      .perm-icon {
+        color: #111110;
+      }
+
+      .perm-title {
+        color: #111110;
+      }
+    }
+
+    &:not(.perm-active) {
+      opacity: 0.65;
+
+      .perm-icon {
+        color: #9E9E9A;
+      }
+
+      .perm-title {
+        color: #6B6B67;
+      }
+    }
+  }
+
+  .perm-card-top {
+    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .perm-icon-wrap {
+    width: 40px;
+    height: 40px;
+    background-color: #F7F7F5;
+    border: 1px solid #E8E8E4;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .perm-icon {
+    width: 22px !important;
+    height: 22px !important;
+    transition: color 0.2s ease;
+  }
+
+  .perm-title {
+    text-align: start;
+    color: #111110;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .perm-desc {
+    color: #9E9E9A;
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 1.55;
+    text-align: start;
+  }
+
+  // ─── Slide Toggle ────────────────────────────────────────────────
+  ::ng-deep {
+    .perm-toggle {
+      transform: scale(0.85);
+      transform-origin: center;
+
+      &.mat-mdc-slide-toggle {
+        --mdc-switch-selected-track-color: #111110;
+        --mdc-switch-selected-handle-color: #fff;
+        --mdc-switch-unselected-track-color: #EDEDEB;
+        --mdc-switch-unselected-handle-color: #fff;
+
+        .mdc-switch:enabled .mdc-switch__track::after {
+          background-color: #111110 !important;
+        }
+
+        .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+          background-color: #EDEDEB !important;
+          border: 1px solid #E8E8E4;
+        }
+      }
+    }
+  }
+
+  // ─── Action Bar ─────────────────────────────────────────────────
+  .action-bar {
+    padding: 0 4px;
+  }
+
+  .save-btn {
+    background-color: #111110;
+    color: #FFFFFF;
+    border-radius: 14px;
+    height: 46px;
+    padding: 0 28px;
+    font-size: 14px;
+    font-weight: 700;
+
+    ::ng-deep .mdc-button__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    i-tabler, svg {
+      color: #FFFFFF99;
+      width: 16px !important;
+      height: 16px !important;
+      flex-shrink: 0;
+    }
+  }
+
+  .cancel-btn {
+    font-size: 14px;
+    font-weight: 700;
+    color: #6B6B67;
+    padding: 0 16px;
+  }
+}

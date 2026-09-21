@@ -1,0 +1,116 @@
+<div class="review-terms-container">
+  <div class="section-header">
+    <h2 class="section-title">{{ 'd3.buildReview.terms.title' | translate }}</h2>
+    <p class="section-subtitle">{{ 'd3.buildReview.terms.subtitle' | translate }}</p>
+  </div>
+
+  <!-- Time Cards -->
+  <div class="time-cards">
+    <div class="time-card">
+        <div class="card-icon"><i-tabler name="logout"></i-tabler></div>
+        <span class="time-label">{{ 'd3.buildReview.terms.checkInLabel' | translate }}</span>
+        <span class="time-value">{{ checkInTime }}</span>
+    </div>
+    <div class="time-card">
+        <div class="card-icon"><i-tabler name="login"></i-tabler></div>
+        <span class="time-label">{{ 'd3.buildReview.terms.checkOutLabel' | translate }}</span>
+        <span class="time-value">{{ checkOutTime }}</span>
+    </div>
+    <div class="time-card flex-row">
+        <div class="card-icon"><i-tabler name="clock"></i-tabler></div>
+        <div class="early-info">
+            <span class="time-label">{{ 'd3.buildReview.terms.earlyCheckInLabel' | translate }}</span>
+            <span class="status-badge">
+              {{ (earlyCheckIn ? 'd3.buildReview.terms.earlyCheckInAvailable' : 'd3.buildReview.terms.earlyCheckInUnavailable') | translate }}
+              @if (earlyCheckIn && earlyCheckInFrom) {
+                - {{ earlyCheckInFrom }}
+              }
+            </span>
+        </div>
+        <div class="toggle-wrap">
+            <input type="checkbox" id="earlyCheckIn" [checked]="earlyCheckIn" disabled>
+            <label for="earlyCheckIn"></label>
+        </div>
+    </div>
+  </div>
+
+  <!-- General Rules -->
+  @if (generalRules.length > 0) {
+    <div class="rules-section">
+      <div class="section-title-wrapper">
+          <span class="section-indicator"></span>
+          <span class="section-title">{{ 'd3.buildReview.terms.generalRulesTitle' | translate }}</span>
+      </div>
+
+      <div class="rules-grid">
+          @for (rule of generalRules; track rule.id) {
+              <div class="rule-card">
+                  <i-tabler [name]="rule.icon" class="rule-icon"></i-tabler>
+                  <span class="rule-title">{{ rule.title }}</span>
+                  <div class="toggle-wrap">
+                      <input type="checkbox" [id]="'rule-' + rule.id" [checked]="rule.enabled" disabled>
+                      <label [for]="'rule-' + rule.id"></label>
+                  </div>
+              </div>
+          }
+      </div>
+    </div>
+  }
+
+  <!-- Custom Rules -->
+  @if (customRules.length > 0) {
+    <div class="rules-section">
+      <div class="section-title-wrapper">
+          <span class="section-indicator"></span>
+          <span class="section-title">{{ 'd3.buildReview.terms.customRulesTitle' | translate }}</span>
+      </div>
+
+      <div class="custom-rules-card">
+          @for (rule of customRules; track rule; let i = $index) {
+              <div class="rule-text-wrap custom-rule-item">
+                  <span class="rule-index">{{ i + 1 }}</span>
+                  <p class="rule-text">{{ rule }}</p>
+              </div>
+          }
+      </div>
+    </div>
+  }
+
+  @if (!isLoading && generalRules.length === 0 && customRules.length === 0) {
+    <app-review-empty-state
+      icon="checklist"
+      titleKey="d3.buildReview.terms.emptyTitle"
+      descKey="d3.buildReview.terms.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  <!-- Notes -->
+  @if (!readOnly) {
+  <div class="notes-section">
+    <div class="notes-header">
+        <span class="notes-title">{{ 'd3.buildReview.terms.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.terms.notesOptional' | translate }}</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      [placeholder]="'d3.buildReview.terms.notesPlaceholder' | translate"
+      [(ngModel)]="rejectionReason"
+      rows="4"
+    ></textarea>
+  </div>
+  }
+
+  <!-- Actions -->
+  @if (!readOnly) {
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision(1)">
+        <span>{{ 'd3.buildReview.terms.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isLoading || isSubmitting" (click)="confirmDecision(2)">
+        <span>{{ 'd3.buildReview.terms.rejectBtn' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+</div>

@@ -1,0 +1,40 @@
+<div class="employees-table-container border rounded-40 m-b-24">
+  @if (showHeader) {
+    <div class="m-b-32 d-flex align-items-center justify-content-between flex-wrap gap-16 table-header-section">
+      <h3 class="m-0 f-s-20 f-w-900 order-1">{{ title || ('d3.teamManagement.deptEmployees' | translate) }}</h3>
+      <div class="search-wrapper order-2 position-relative">
+        <i-tabler name="search" class="icon-18 search-icon position-absolute"></i-tabler>
+        <input type="text" class="form-control search-input" [(ngModel)]="searchQuery" (ngModelChange)="onSearch($event)" [placeholder]="'d3.teamManagement.searchPlaceholderSimple' | translate">
+      </div>
+    </div>
+  }
+
+  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
+
+  @if (totalPages > 1) {
+    <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">
+      <span class="f-s-13 text-muted">
+        {{ totalCount }} {{ 'd3.teamManagement.pagination.total' | translate }}
+      </span>
+      <div class="d-flex align-items-center gap-4">
+        <button type="button" class="page-nav-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)">
+          <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+        </button>
+        @for (p of pageNumbers; track p) {
+          <button type="button" class="page-number-btn"
+            [class.active]="p === currentPage"
+            (click)="changePage(p)">
+            {{ p }}
+          </button>
+        }
+        <button type="button" class="page-nav-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(currentPage + 1)">
+          <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </div>
+  }
+</div>

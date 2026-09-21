@@ -1,0 +1,81 @@
+<article class="unit-card" [dir]="currentDir"
+  [class.unit-card--list]="viewMode === 'list'"
+  [class.stopped]="unit.status === 'stopped'">
+
+  @if (viewMode === 'grid') {
+    <div class="unit-card__top">
+      <div class="unit-card__id">{{ unit.unitNumber }}</div>
+      <div class="unit-card__status" [ngClass]="'unit-card__status--' + badgeConfig.mod">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ badgeConfig.labelKey | translate }}</span>
+      </div>
+    </div>
+
+    <div class="unit-card__body">
+      <h3 class="unit-card__title">{{ unit.title }}</h3>
+      <!-- <p class="unit-card__location">
+        <i-tabler name="map-pin" class="location-icon"></i-tabler>
+        <span>{{ unit.district || '—' }}</span>
+      </p> -->
+      <p class="unit-card__details">{{ unit.floor }} · {{ unit.capacity }}</p>
+
+      <div class="unit-card__info-container">
+        <div class="info-row">
+          <div class="info-right">
+            <i-tabler name="info-circle" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
+          </div>
+          <span class="info-value">{{ unit.type }}</span>
+        </div>
+        <div class="info-row info-row--desc">
+          <div class="info-right">
+            <i-tabler name="layout-list" class="info-icon"></i-tabler>
+            <span class="info-label">{{ 'd3.allUnits.unitCard.description' | translate }}</span>
+          </div>
+          <span class="info-value info-value--clamp">{{ unit.description || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit-card__footer">
+      <button class="footer-btn eye-btn" type="button" (click)="goToReview()">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+    </div>
+  }
+
+  @if (viewMode === 'list') {
+    <!-- col 1: unit number -->
+    <div class="list-num-col">
+      <span class="unit-num-badge">{{ unit.unitNumber }}</span>
+    </div>
+
+    <!-- col 2: title + floor/capacity -->
+    <div class="list-info-col">
+      <span class="list-title">{{ unit.title }}</span>
+      <span class="list-sub">{{ unit.floor }} · {{ unit.capacity }}</span>
+    </div>
+
+    <!-- col 3: type -->
+    <div class="list-type-col">{{ unit.type }}</div>
+
+    <!-- col 4: description -->
+    <div class="list-desc-col">{{ unit.description }}</div>
+
+    <!-- col 5: status -->
+    <div class="list-status-col">
+      <span class="status-badge" [ngClass]="'status-badge--' + badgeConfig.mod">
+        <span class="status-dot"></span>
+        {{ badgeConfig.labelKey | translate }}
+      </span>
+    </div>
+
+    <!-- col 6: actions -->
+    <div class="list-actions-col">
+      <button class="view-btn" type="button" aria-label="View unit" (click)="goToReview()">
+        <i-tabler name="eye"></i-tabler>
+      </button>
+    </div>
+  }
+
+</article>

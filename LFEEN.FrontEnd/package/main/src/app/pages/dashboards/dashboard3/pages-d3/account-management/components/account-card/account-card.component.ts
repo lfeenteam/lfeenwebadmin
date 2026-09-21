@@ -1,0 +1,85 @@
+import { Component, Input, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MaterialModule } from 'src/app/material.module';
+import { TablerIconsModule } from 'angular-tabler-icons';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { Account } from '../../account-management.component';
+import { LoginService } from '../../../../services/login/login.service';
+
+@Component({
+  selector: 'app-account-card',
+  standalone: true,
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule],
+  templateUrl: './account-card.component.html',
+  styleUrl: './account-card.component.scss'
+})
+export class AccountCardComponent {
+  @Input() account!: Account;
+  @Input() compact = false;
+
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+  private login = inject(LoginService);
+
+  goToReview(): void {
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.router.navigate([lang, 'd3', 'account-management', 'review', this.account.id]);
+  }
+
+  goToWallet(): void {
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.router.navigate([lang, 'd3', 'wallet', this.account.id]);
+  }
+
+  get canViewWallet(): boolean {
+    return this.login.permissions().some(p => p.toLowerCase() === 'wallet.view');
+  }
+
+  get statusLabel(): string {
+    const onboarding = this.account?.onboardingStatus;
+    const onboardingMap: Record<string, string> = {
+      PendingReview: 'd3.accountManagement.card.statusPending',
+      Approved:      'd3.accountManagement.card.statusActive',
+      Rejected:      'd3.accountManagement.card.statusRejected',
+    };
+    if (onboarding && onboardingMap[onboarding]) {
+      return this.translate.instant(onboardingMap[onboarding]);
+    }
+    const fallbackMap: Record<string, string> = {
+      active:       'd3.accountManagement.card.statusActive',
+      under_review: 'd3.accountManagement.card.statusUnderReview',
+      rejected:     'd3.accountManagement.card.statusRejected',
+      suspended:    'd3.accountManagement.card.statusSuspended',
+    };
+    const key = fallbackMap[this.account?.status];
+    return key ? this.translate.instant(key) : '';
+  }
+
+  get idFieldLabel(): string {
+    // مؤسسة فردية لها سجل تجاري زي الشركة، الأفراد فقط بيستخدموا رقم الهوية
+    const key = this.account?.type === 'individual'
+      ? 'd3.accountManagement.card.idFieldIndividual'
+      : 'd3.accountManagement.card.idFieldCompany';
+    return this.translate.instant(key);
+  }
+
+  get actionLabel(): string {
+    const keyByType: Record<Account['type'], string> = {
+      company:             'd3.accountManagement.card.actionCompany',
+      sole_proprietorship: 'd3.accountManagement.card.actionSoleProprietorship',
+      individual:          'd3.accountManagement.card.actionIndividual',
+    };
+    return this.translate.instant(keyByType[this.account?.type] ?? keyByType.individual);
+  }
+
+  get currentDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'ar' ? 'rtl' : 'ltr';
+  }
+
+  get avatarColor(): string {
+    const colors = ['orange', 'blue', 'green', 'purple', 'red'] as const;
+    const code = (this.account?.avatarInitials ?? 'A').charCodeAt(0);
+    return colors[code % colors.length];
+  }
+}

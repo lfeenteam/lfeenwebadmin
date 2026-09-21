@@ -1,0 +1,13 @@
+<section class="offer-confirm" [class]="'offer-confirm ' + data.tone">
+  <span class="confirm-icon"><i-tabler [name]="data.icon"></i-tabler></span>
+  <h2>{{ data.title | translate }}</h2>
+  <p>{{ data.message | translate }}</p>
+  <div class="confirm-actions">
+    <button mat-button type="button" class="cancel-btn" (click)="dialogRef.close(false)">
+      {{ "common.cancel" | translate }}
+    </button>
+    <button mat-flat-button type="button" class="confirm-btn" (click)="dialogRef.close(true)">
+      {{ data.confirmLabel | translate }}
+    </button>
+  </div>
+</section>

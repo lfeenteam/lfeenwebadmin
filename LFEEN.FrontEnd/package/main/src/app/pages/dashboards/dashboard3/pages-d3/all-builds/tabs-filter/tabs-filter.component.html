@@ -1,27 +1,38 @@
 <section class="tabs-filter">
   <div class="tabs-filter-toolbar">
-    <nav class="tabs-row" aria-label="Building tabs">
-      @for (tab of tabs; track tab.id) {
-        <button
-          type="button"
-          class="tab-btn"
-          [class.active]="activeTab === tab.id"
-          (click)="selectTab(tab.id)">
-          {{ tab.labelKey | translate }}
-        </button>
-      }
-    </nav>
+    <div class="tabs-scroll" [class.can-scroll-start]="canScrollStart" [class.can-scroll-end]="canScrollEnd">
+      <button
+        type="button"
+        class="tabs-scroll-arrow tabs-scroll-arrow--start"
+        tabindex="-1"
+        aria-hidden="true"
+        (click)="scrollTabs(-1)">
+        <i-tabler name="chevron-left"></i-tabler>
+      </button>
+
+      <nav #tabsRow class="tabs-row" aria-label="Building tabs" (scroll)="updateTabsScrollState()">
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="activeTab === tab.id"
+            (click)="selectTab(tab.id)">
+            {{ tab.labelKey | translate }}
+          </button>
+        }
+      </nav>
+
+      <button
+        type="button"
+        class="tabs-scroll-arrow tabs-scroll-arrow--end"
+        tabindex="-1"
+        aria-hidden="true"
+        (click)="scrollTabs(1)">
+        <i-tabler name="chevron-left"></i-tabler>
+      </button>
+    </div>
 
     <div class="filters-row">
-      <div class="search-box">
-        <i-tabler name="search" class="search-icon"></i-tabler>
-        <input
-          type="search"
-          class="search-input"
-          [placeholder]="'d3.allBuilds.filters.searchPlaceholder' | translate"
-          [ngModel]="searchQuery"
-          (ngModelChange)="onSearchInput($event)" />
-      </div>
 
       <div class="filter-dropdowns">
         @for (filter of filterOptions; track filter.id) {
@@ -34,8 +45,17 @@
               <span>{{ getFilterLabelKey(filter) | translate }}</span>
             </button>
 
-            <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow">
-              @for (item of filter.items; track item.value) {
+            <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+              @if (filter.items.length > 6) {
+                <div class="filter-search-wrapper" (click)="stopPropagation($event)">
+                  <input
+                    type="text"
+                    class="filter-search-input"
+                    placeholder="بحث..."
+                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                </div>
+              }
+              @for (item of getFilteredItems(filter); track item.value) {
                 <button
                   mat-menu-item
                   type="button"
@@ -49,9 +69,73 @@
         }
       </div>
 
-      <button type="button" class="filter-icon-btn" [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate">
-        <i-tabler name="filter"></i-tabler>
-      </button>
+      @if (showMoreFiltersButton) {
+        <button
+          type="button"
+          class="filter-icon-btn"
+          [class.active]="mobileFilterOpen"
+          [attr.aria-label]="'d3.allBuilds.filters.moreFilters' | translate"
+          (click)="toggleMobileFilter()">
+          <i-tabler name="filter"></i-tabler>
+        </button>
+      }
+
+      <div class="search-box">
+        <i-tabler name="search" class="search-icon"></i-tabler>
+        <input
+          type="search"
+          class="search-input"
+          [placeholder]="searchPlaceholder | translate"
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchInput($event)" />
+      </div>
     </div>
   </div>
+
+  <!-- Mobile filter bottom sheet -->
+  @if (mobileFilterOpen) {
+    <div class="mobile-filter-backdrop" (click)="closeMobileFilter()"></div>
+    <div class="mobile-filter-sheet">
+      <div class="mobile-filter-handle"></div>
+      <div class="mobile-filter-header">
+        <span class="mobile-filter-title">{{ 'd3.allBuilds.filters.moreFilters' | translate }}</span>
+        <button type="button" class="mobile-filter-close" (click)="closeMobileFilter()">
+          <i-tabler name="x"></i-tabler>
+        </button>
+      </div>
+      <div class="mobile-filter-body">
+        @for (filter of filterOptions; track filter.id) {
+          <div class="mobile-filter-row">
+            <button
+              type="button"
+              class="mobile-filter-pill"
+              [matMenuTriggerFor]="mobileMenu">
+              <span>{{ getFilterLabelKey(filter) | translate }}</span>
+              <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
+            </button>
+            <mat-menu #mobileMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
+              @if (filter.items.length > 6) {
+                <div class="filter-search-wrapper" (click)="stopPropagation($event)">
+                  <input
+                    type="text"
+                    class="filter-search-input"
+                    placeholder="بحث..."
+                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                </div>
+              }
+              @for (item of getFilteredItems(filter); track item.value) {
+                <button
+                  mat-menu-item
+                  type="button"
+                  [class.selected]="isFilterSelected(filter.id, item.value)"
+                  (click)="selectFilterOption(filter.id, item.value)">
+                  {{ item.labelKey | translate }}
+                </button>
+              }
+            </mat-menu>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </section>

@@ -1,0 +1,15 @@
+<div class="logo-loader"
+     [class.logo-loader--sm]="size === 'sm' || variant === 'table' || variant === 'review'"
+     [class.logo-loader--lg]="size === 'lg'"
+     role="status" aria-live="polite" [attr.aria-label]="label || 'Loading'">
+  <div class="logo-loader__mark" aria-hidden="true">
+    <span class="logo-loader__orbit logo-loader__orbit--outer"></span>
+    <span class="logo-loader__orbit logo-loader__orbit--inner"></span>
+    <svg class="logo-loader__logo" viewBox="0 0 64 64" focusable="false">
+      <path class="logo-loader__path" d="M10 46 L25 18 L40 42 L54 14" />
+      <circle class="logo-loader__node" cx="10" cy="46" r="4.8" />
+      <circle class="logo-loader__node" cx="54" cy="14" r="4.8" />
+    </svg>
+  </div>
+  <span class="logo-loader__label" *ngIf="label">{{ label }}</span>
+</div>

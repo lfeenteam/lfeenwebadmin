@@ -1,0 +1,56 @@
+@if (loading) {
+  <div class="finance-placeholder">
+    <i-tabler name="loader-2" class="icon-24 spin"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loading' | translate }}</span>
+  </div>
+} @else if (loadError) {
+  <div class="finance-placeholder">
+    <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+    <span>{{ 'd3.bookings.detail.loadError' | translate }}</span>
+  </div>
+} @else {
+
+<section class="detail-section">
+  <h4 class="detail-section-title">
+    {{ 'd3.bookings.detail.servicesTab.currentRequestsTitle' | translate }} ({{ formatAmount(requests.length) }})
+  </h4>
+
+  @if (requests.length) {
+    <div class="service-items">
+      @for (request of requests; track request.name) {
+        <div class="service-item">
+          <div class="service-item-info">
+            <span class="service-item-icon"><i-tabler [name]="request.icon" class="icon-16"></i-tabler></span>
+            <div class="service-item-text">
+              <span class="service-item-name">{{ request.name }}</span>
+              <span class="service-item-sub">{{ request.category }} · {{ request.date }}</span>
+            </div>
+          </div>
+          <span class="service-item-price">
+            @if (request.price !== null) {
+              <span class="service-amount-value">{{ formatAmount(request.price) }}</span>
+              <span class="service-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+            } @else {
+              <span class="service-amount-value">-</span>
+            }
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="service-total-row">
+      <span class="service-total-label">{{ 'd3.bookings.detail.servicesTab.totalLabel' | translate }}</span>
+      <span class="service-item-price service-item-price--lg">
+        <span class="service-amount-value">{{ formatAmount(total) }}</span>
+        <span class="service-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+      </span>
+    </div>
+  } @else {
+    <div class="finance-placeholder">
+      <i-tabler name="clipboard-off" class="icon-24"></i-tabler>
+      <span>{{ 'd3.bookings.detail.servicesTab.empty' | translate }}</span>
+    </div>
+  }
+</section>
+
+}

@@ -2,6 +2,9 @@ import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
 import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
+import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
+import { authGuard } from './guards/auth.guard';
+import { pageFlagGuard } from './guards/page-flag.guard';
 
 export const routes: Routes = [
   {
@@ -12,16 +15,18 @@ export const routes: Routes = [
   },
   {
     path: ':lang',
+    canActivate: [languageSyncGuard],
+    canActivateChild: [languageSyncChildGuard],
     children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'd3/login',
+      },
       {
         path: '',
         component: FullComponent,
         children: [
-          {
-            path: '',
-            redirectTo: 'dashboards/dashboard1',
-            pathMatch: 'full',
-          },
           {
             path: 'starter',
             loadChildren: () =>
@@ -95,11 +100,19 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
-                redirectTo: 'ceo',
+                redirectTo: 'login',
                 pathMatch: 'full',
               },
               {
+                path: 'login',
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/login/login.component'
+                  ).then((m) => m.LoginComponent),
+              },
+              {
                 path: 'ceo',
+                canActivate: [authGuard, pageFlagGuard('dashboard')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/ceo-page/ceo-page.component'
@@ -108,6 +121,7 @@ export const routes: Routes = [
               },
               {
                 path: 'buildings',
+                canActivate: [authGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-builds/all-builds.component'
@@ -116,6 +130,691 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.allBuilds.title',
                   breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'units',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/all-units.component'
+                  ).then((m) => m.AllUnitsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.allUnits.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'build-review',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
+                  ).then((m) => m.BuildReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.buildReview.title',
+                  breadcrumbKey: 'd3.header.platform',
+                },
+              },
+              {
+                path: 'build-review/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
+                  ).then((m) => m.BuildReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.buildReview.title',
+                  breadcrumbKey: 'd3.buildReview.reviewRequestsBC',
+                  breadcrumbRoute: 'buildings',
+                  showBack: true,
+                  statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/basic-info',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/basic-info-review/basic-info-review.component'
+                  ).then((m) => m.BasicInfoReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.basicInfoView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/photos',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-images-review/unit-images-review.component'
+                  ).then((m) => m.UnitImagesReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.imagesView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/terms',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-terms-review/unit-terms-review.component'
+                  ).then((m) => m.UnitTermsReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.termsView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/pricing',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-pricing-review/unit-pricing-review.component'
+                  ).then((m) => m.UnitPricingReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.pricingView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/access',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-access-review/unit-access-review.component'
+                  ).then((m) => m.UnitAccessReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.accessView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/cancel-policy',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/cancel-policy-review/cancel-policy-review.component'
+                  ).then((m) => m.CancelPolicyReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.cancelPolicyView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/deposit',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-deposit-review/unit-deposit-review.component'
+                  ).then((m) => m.UnitDepositReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.depositView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/services',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-services-review/unit-services-review.component'
+                  ).then((m) => m.UnitServicesReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.servicesView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId/license',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-license-review/unit-license-review.component'
+                  ).then((m) => m.UnitLicenseReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.licenseView.pageTitle',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'unit-review/:buildingId/:unitId',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/unit-review.component'
+                  ).then((m) => m.UnitReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.unitReview.title',
+                  breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
+                  breadcrumbRoute: 'units',
+                  showBack: true,
+                },
+              },
+              {
+                path: 'team-management',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
+                  ).then((m) => m.TeamManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.teamManagement.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'team-management/add',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'
+                  ).then((m) => m.AddDepartmentComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.teamManagement.addDept',
+                  breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management',
+                  showBack: true
+                },
+              },
+              {
+                path: 'team-management/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
+                  ).then((m) => m.TeamManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.teamManagement.title',
+                  breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management',
+                  showLive: true,
+                  showDate: true,
+                  showBack: true
+                },
+              },
+              {
+                path: 'settlements',
+                canActivate: [authGuard, pageFlagGuard('settlements')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/settlements/settlements.component'
+                  ).then((m) => m.SettlementsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.settlements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'account-management',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/account-management/account-management.component'
+                  ).then((m) => m.AccountManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.accountManagement.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              {
+                path: 'account-management/review/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/account-management/components/review-account/review-account.component'
+                  ).then((m) => m.ReviewAccountComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.accountManagement.reviewTitle',
+                  breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
+                  showBack: true
+                },
+              },
+              {
+                path: 'wallet/:id',
+                canActivate: [authGuard, pageFlagGuard('wallet')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/wallet/wallet.component'
+                  ).then((m) => m.WalletComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.wallet.title',
+                  breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
+                  showBack: true
+                },
+              },
+              {
+                path: 'permissions/:id',
+                canActivate: [authGuard, pageFlagGuard('permissions')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/permissions.component'
+                  ).then((m) => m.PermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissions.pageTitle',
+                  breadcrumbKey: 'd3.teamManagement.title',
+                  breadcrumbRoute: 'team-management/:id',
+                  showBack: true
+                },
+              },
+              {
+                path: 'permissions/:id/add-role',
+                canActivate: [authGuard, pageFlagGuard('permissions')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
+                  ).then((m) => m.AddRoleComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.addRolePage.title',
+                  breadcrumbKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbRoute: 'permissions/:id',
+                  showBack: true
+                },
+              },
+              {
+                path: 'permissions/:id/role/:roleId',
+                canActivate: [authGuard, pageFlagGuard('permissions')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
+                  ).then((m) => m.RolePermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbKey: 'd3.permissions.pageTitle',
+                  breadcrumbRoute: 'permissions/:id',
+                  showBack: true
+                },
+              },
+              {
+                path: 'roles',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/roles/roles.component'
+                  ).then((m) => m.RolesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.rolesPage.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: true,
+                  showDate: true
+                },
+              },
+              // Permissions & permission-group management pages removed from routing —
+              // permissions come ready from the backend and are not edited in the frontend.
+              // Components kept on disk under pages-d3/all-permissions & pages-d3/permission-groups.
+              {
+                path: 'roles/add',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
+                  ).then((m) => m.AddRoleComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.addRolePage.title',
+                  breadcrumbKey: 'd3.rolesPage.title',
+                  breadcrumbRoute: 'roles',
+                  showBack: true
+                },
+              },
+              {
+                path: 'roles/:roleId',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
+                  ).then((m) => m.RolePermissionsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.permissions.roleSettingsTitle',
+                  breadcrumbKey: 'd3.rolesPage.title',
+                  breadcrumbRoute: 'roles',
+                  showBack: true
+                },
+              },
+              {
+                path: 'complaints/:id/assign',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/assign-employee-page/assign-employee-page.component'
+                  ).then((m) => m.AssignEmployeePageComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.assignDialog.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: false,
+                },
+              },
+              {
+                path: 'complaints/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/host-complaint-detail/host-complaint-detail.component'
+                  ).then((m) => m.HostComplaintDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: true,
+                  actionButton: {
+                    text: 'd3.complaints.chat.resolveBtn',
+                    icon: 'circle-check',
+                    color: '#16803A',
+                    action: 'resolveComplaint'
+                  }
+                },
+              },
+              {
+                path: 'complaints',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/complaint-management.component'
+                  ).then((m) => m.ComplaintManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'bookings',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/all-bookings/all-bookings.component'
+                  ).then((m) => m.AllBookingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.bookings.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'contact-us',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/contact-us-management/contact-us-management.component'
+                  ).then((m) => m.ContactUsManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.contactUs.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'platform-offers',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offers-list.component'
+                  ).then((m) => m.PlatformOffersListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'platform-offers/create',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
+                  ).then((m) => m.PlatformOfferFormComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.form.createTitle',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'platform-offers/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-detail.component'
+                  ).then((m) => m.PlatformOfferDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.title',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'platform-offers/:id/edit',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
+                  ).then((m) => m.PlatformOfferFormComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.platformOffers.form.editTitle',
+                  breadcrumbKey: 'd3.platformOffers.title',
+                  breadcrumbRoute: 'platform-offers',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'client-faq',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/faq-management/faq-management.component'
+                  ).then((m) => m.FaqManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.faq.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'call-scripts',
+                canActivate: [authGuard, pageFlagGuard('call-scripts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/call-scripts/call-scripts.component'
+                  ).then((m) => m.CallScriptsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.callScripts.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/management',
+                canActivate: [authGuard, pageFlagGuard('subscriptions-management')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-management/subscription-management.component'
+                  ).then((m) => m.SubscriptionManagementComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/log',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-log/subscription-log.component'
+                  ).then((m) => m.SubscriptionLogComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptionLog.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/settings',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-settings/subscription-settings.component'
+                  ).then((m) => m.SubscriptionSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.settings.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
+                path: 'subscriptions/settings/:id',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-service-settings/subscription-service-settings.component'
+                  ).then((m) => m.SubscriptionServiceSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptions.serviceSettings.pageTitle',
+                  breadcrumbKey: 'd3.subscriptions.settings.pageTitle',
+                  breadcrumbRoute: 'subscriptions/settings',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true
+                },
+              },
+              {
+                path: 'settings',
+                canActivate: [authGuard, pageFlagGuard('settings')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/platform-settings/platform-settings.component'
+                  ).then((m) => m.PlatformSettingsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.settings.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
+                path: 'profile',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/profile/profile.component'
+                  ).then((m) => m.ProfileComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.profile.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
+                path: 'notifications',
+                canActivate: [authGuard, pageFlagGuard('notifications')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/notifications/notifications.component'
+                  ).then((m) => m.NotificationsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.notifications.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false,
+                  showBack: true,
                 },
               },
             ],

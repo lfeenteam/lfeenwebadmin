@@ -1,0 +1,193 @@
+<div class="review-location-container">
+  <div class="section-header">
+    <h2 class="section-title">{{ 'd3.buildReview.location.title' | translate }}</h2>
+    <p class="section-subtitle">{{ 'd3.buildReview.location.subtitle' | translate }}</p>
+  </div>
+
+  @if (!isLoading && !hasLocationData) {
+    <app-review-empty-state
+      icon="map-pin-off"
+      titleKey="d3.buildReview.location.emptyTitle"
+      descKey="d3.buildReview.location.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (isLoading || hasLocationData) {
+  <div class="location-review-grid">
+    <!-- Map card -->
+    <div class="map-card">
+      <div class="map-container" #mapContainer></div>
+
+      @if (isMapLoading) {
+        <div class="map-state map-loading">
+          <i-tabler name="loader-2" class="spin"></i-tabler>
+          <span>{{ 'd3.buildReview.location.mapLoading' | translate }}</span>
+        </div>
+      }
+
+      @if (mapError) {
+        <div class="map-state map-error">
+          <i-tabler name="alert-triangle"></i-tabler>
+          <span>{{ 'd3.buildReview.location.mapError' | translate }}</span>
+        </div>
+      }
+
+      @if (mapReady) {
+        <div class="map-zoom-controls">
+          <button type="button" class="map-zoom-btn zoom-in" (click)="zoomIn()">
+            <i-tabler name="plus"></i-tabler>
+          </button>
+          <button type="button" class="map-zoom-btn zoom-out" (click)="zoomOut()">
+            <i-tabler name="minus"></i-tabler>
+          </button>
+        </div>
+      }
+
+      @if (vm) {
+        <div class="map-bottom-bar">
+
+          <div class="map-coords-pill">
+            @if (mapReady) {
+              <button type="button" class="coords-locate-btn" (click)="recenter()">
+                <i-tabler name="current-location"></i-tabler>
+              </button>
+            }
+            <div class="coords-text">
+              <span class="coords-label">{{ 'd3.buildReview.location.coordsLabel' | translate }}</span>
+              <span class="coords-value">{{ vm.coordinatesText }}</span>
+            </div>
+          </div>
+            <a class="map-open-btn" [href]="vm.googleMapsLink" target="_blank" rel="noopener">
+             <i-tabler name="external-link"></i-tabler>
+              {{ 'd3.buildReview.location.mapLinkBtn' | translate }}
+           
+          </a>
+        </div>
+      }
+    </div>
+
+    <!-- Address details + review tip -->
+    <div class="location-info-col">
+      <div class="address-card">
+        <div class="address-card-header">
+          <span class="address-card-title">{{ 'd3.buildReview.location.addressDetailsTitle' | translate }}</span>
+          <span class="info-icon" [title]="vm?.fullAddress || ''">
+            <i-tabler name="info-circle"></i-tabler>
+          </span>
+        </div>
+
+        <div class="address-rows">
+          @for (row of vm?.addressRows; track row.label) {
+            <div class="address-row">
+              <span class="row-icon"><i-tabler [name]="row.icon"></i-tabler></span>
+              <div class="row-text">
+                <span class="row-label">{{ row.label }}</span>
+                <span class="row-value">{{ row.value }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="review-tip-card">
+        <div class="tip-header">
+          <span class="tip-icon"><i-tabler name="bulb"></i-tabler></span>
+          <span class="tip-title">{{ 'd3.buildReview.location.reviewTipTitle' | translate }}</span>
+        </div>
+        <p class="tip-text">{{ 'd3.buildReview.location.reviewTipText' | translate }}</p>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Nearby places -->
+  @if (vm && vm.nearbyPlaces.length) {
+  <div class="nearby-places-card">
+    <div class="nearby-places-header">
+      <span class="nearby-places-title">{{ 'd3.buildReview.location.nearbyPlacesTitle' | translate }}</span>
+      <span class="nearby-places-count">{{ vm.nearbyPlaces.length }}</span>
+    </div>
+
+    <div class="nearby-places-list">
+      @for (place of pagedNearbyPlaces; track place.name + place.distanceValue) {
+        <div class="nearby-place-row" [class.is-landmark]="place.isLandmark">
+          <span class="place-icon">
+            <i-tabler [name]="place.icon"></i-tabler>
+          </span>
+          <div class="place-text">
+            <span class="place-name">{{ place.name }}</span>
+            @if (place.rating) {
+              <span class="place-rating">
+                <i-tabler name="star"></i-tabler>
+                {{ place.rating }}
+              </span>
+            }
+          </div>
+          <span class="place-distance">
+            <span class="place-distance-value">{{ place.distanceValue }}</span>
+            <span class="place-distance-unit">{{ place.distanceUnit }}</span>
+          </span>
+        </div>
+      }
+    </div>
+
+    @if (nearbyPlacesTotalPages > 1) {
+      <div class="nearby-places-pagination">
+        <button
+          type="button"
+          class="nearby-page-btn"
+          [disabled]="nearbyPlacesPage === 1"
+          (click)="changeNearbyPlacesPage(nearbyPlacesPage - 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler>
+        </button>
+
+        @for (page of nearbyPlacesVisiblePages; track page) {
+          <button
+            type="button"
+            class="nearby-page-btn"
+            [class.active]="nearbyPlacesPage === page"
+            (click)="changeNearbyPlacesPage(page)">
+            {{ page }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="nearby-page-btn"
+          [disabled]="nearbyPlacesPage === nearbyPlacesTotalPages"
+          (click)="changeNearbyPlacesPage(nearbyPlacesPage + 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler>
+        </button>
+      </div>
+    }
+  </div>
+  }
+
+  <!-- Notes -->
+  @if (!readOnly) {
+  <div class="notes-section">
+    <div class="notes-header">
+      <span class="notes-title">{{ 'd3.buildReview.location.notesTitle' | translate }}</span>
+      <span class="notes-required">{{ 'd3.buildReview.location.notesOptional' | translate }}</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      [placeholder]="'d3.buildReview.location.notesPlaceholder' | translate"
+      [(ngModel)]="rejectionReason"
+      rows="4"
+    ></textarea>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
+      <span>{{ 'd3.buildReview.location.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Rejected')">
+      <span>{{ 'd3.buildReview.location.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+</div>

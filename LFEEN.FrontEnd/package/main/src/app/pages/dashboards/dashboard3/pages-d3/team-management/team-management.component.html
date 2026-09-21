@@ -1,0 +1,128 @@
+<div class="team-management-container">
+
+  <!-- Stats -->
+  <app-stats-row [stats]="stats" [isDeptView]="!!departmentId"></app-stats-row>
+
+  <!-- Header row: tabs (structure) + action button -->
+  <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
+    @if (activeTab === 'structure' && !departmentId) {
+      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-team-header
+        [isBoxed]="false"
+        actionLabel="d3.teamManagement.addDept"
+        actionIcon="plus"
+        [showAction]="false"
+        (action)="onHeaderAction()">
+      </app-team-header>
+    }
+  </div>
+
+  <!-- Employees tab: search header + tabs -->
+  @if (activeTab === 'employees' && !departmentId) {
+    <app-team-header
+      [isBoxed]="true"
+      actionLabel="d3.teamManagement.addEmployee"
+      actionIcon="user-plus"
+      [showFilters]="true"
+      [showAction]="employees.length > 0"
+      [departments]="filterDepartments"
+      [roles]="filterRoles"
+      (search)="onEmployeeSearch($event)"
+      (filterDept)="onFilterDept($event)"
+      (filterRole)="onFilterRole($event)"
+      (action)="onHeaderAction()">
+    </app-team-header>
+
+    <div class="border-bottom-gray m-b-24">
+      <app-tabs-bar [activeTab]="activeTab" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+    </div>
+  }
+
+  <!-- Logs tab: filter header + tabs -->
+  @if (activeTab === 'logs' && !departmentId) {
+    <app-logs-filter
+      [searchQuery]="logsSearchQuery"
+      [actionTypes]="logsActionTypes"
+      [depts]="logsDepts"
+      [dates]="logsDates"
+      (searchQueryChange)="logsSearchQuery = $event"
+      (filterActionChange)="logsFilterAction = $event"
+      (filterDeptChange)="logsFilterDept = $event"
+      (filterDateChange)="logsFilterDate = $event">
+    </app-logs-filter>
+
+    <div class="border-bottom-gray m-b-24">
+      <app-tabs-bar [activeTab]="activeTab" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+    </div>
+  }
+
+  <!-- Content -->
+  @if (activeTab === 'structure' && !departmentId) {
+    @if (isLoadingDepts) {
+      <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+    } @else {
+      <div class="row">
+        @for(dept of departments; track dept.id) {
+          <div class="col-md-6 col-lg-4">
+            <app-dept-card [dept]="dept" [iconMap]="iconMap" [currentLang]="currentLang"></app-dept-card>
+          </div>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="pagination-wrapper d-flex align-items-center justify-content-between m-t-8 m-b-16">
+          <span class="f-s-13 text-muted">
+            {{ totalCount }} {{ 'd3.teamManagement.pagination.total' | translate }}
+          </span>
+          <div class="d-flex align-items-center gap-4">
+            <button type="button" class="page-nav-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)">
+              <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+            </button>
+            @for (p of pageNumbers; track p) {
+              <button type="button" class="page-number-btn"
+                [class.active]="p === currentPage"
+                (click)="changePage(p)">
+                {{ p }}
+              </button>
+            }
+            <button type="button" class="page-nav-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)">
+              <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  } @else if (activeTab === 'employees' || departmentId) {
+    @if (departmentId && selectedDepartment) {
+      <app-manager-card
+        [department]="selectedDepartment"
+        [currentLang]="currentLang"
+        (addEmployee)="onHeaderAction()">
+      </app-manager-card>
+    }
+    @if (isLoadingEmployees) {
+      <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+    } @else {
+      <app-employee-list
+        [employees]="employees"
+        [showHeader]="!!departmentId"
+        [totalPages]="employeeTotalPages"
+        [currentPage]="employeeCurrentPage"
+        [totalCount]="employeeTotalCount"
+        (edit)="onEditEmployee($event)"
+        (delete)="onDeleteEmployee($event)"
+        (toggleStatus)="onToggleStatusEmployee($event)"
+        (pageChange)="changeEmployeePage($event)"
+        (searchChange)="onEmployeeSearch($event)"
+        (addEmployee)="onHeaderAction()">
+      </app-employee-list>
+    }
+  } @else if (activeTab === 'logs') {
+    <app-ops-log-table [logs]="filteredLogs"></app-ops-log-table>
+  }
+
+</div>

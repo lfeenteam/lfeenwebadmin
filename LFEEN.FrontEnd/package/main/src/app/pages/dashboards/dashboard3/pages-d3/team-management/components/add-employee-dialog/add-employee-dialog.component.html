@@ -1,0 +1,164 @@
+<div class="dialog-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <div class="dialog-header d-flex align-items-center justify-content-between">
+    <h2 class="dialog-title m-0">
+      {{ (data.employee ? 'common.edit' : 'd3.teamManagement.addEmployeeDialog.title') | translate }}
+    </h2>
+    <button mat-icon-button (click)="dialogRef.close()" class="close-btn">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <mat-dialog-content class="p-t-24">
+    <form [formGroup]="employeeForm" class="row">
+
+      <!-- Department Dropdown (all-employees mode only) -->
+      @if (data.fromAllEmployees) {
+        <div class="col-12 m-b-20">
+          <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.department' | translate }}</mat-label>
+          <div class="custom-dropdown-container position-relative">
+            <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
+                 (click)="isDeptDropdownOpen = !isDeptDropdownOpen"
+                 [class.has-value]="selectedDept">
+              <span class="flex-grow-1 text-center font-medium">
+                {{ getSelectedDeptName() || ('d3.teamManagement.addEmployeeDialog.departmentPlaceholder' | translate) }}
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 text-warning"></i-tabler>
+            </div>
+
+            @if (isDeptDropdownOpen) {
+              <div class="custom-dropdown-list shadow-lg">
+                @for (dept of departments; track dept.id) {
+                  <div class="dropdown-option text-center" (click)="$event.stopPropagation(); selectDepartment(dept)">
+                    {{ (currentLang === 'ar' ? dept.nameAr : dept.nameEn) ?? dept.name }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Full Name -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.fullName' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="w-100 custom-form-field"
+          [class.field-invalid]="employeeForm.get('fullName')?.invalid && employeeForm.get('fullName')?.touched">
+          <input matInput formControlName="fullName" [placeholder]="'d3.teamManagement.addEmployeeDialog.fullNamePlaceholder' | translate">
+        </mat-form-field>
+        @if (employeeForm.get('fullName')?.invalid && employeeForm.get('fullName')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('fullName')?.hasError('required')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.nameRequired' | translate }}
+            } @else if (employeeForm.get('fullName')?.hasError('minlength')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.nameMinLength' | translate }}
+            }
+          </p>
+        }
+        @if (serverErrors['fullName']) {
+          <p class="field-error-msg">{{ serverErrors['fullName'] }}</p>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.email' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="w-100 custom-form-field"
+          [class.field-invalid]="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+          <input matInput formControlName="email" [placeholder]="'d3.teamManagement.addEmployeeDialog.emailPlaceholder' | translate">
+        </mat-form-field>
+        @if (employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('email')?.hasError('required')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.emailRequired' | translate }}
+            } @else if (employeeForm.get('email')?.hasError('email')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.emailInvalid' | translate }}
+            }
+          </p>
+        }
+        @if (serverErrors['email']) {
+          <p class="field-error-msg">{{ serverErrors['email'] }}</p>
+        }
+      </div>
+
+      <!-- Phone Number -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.phone' | translate }}</mat-label>
+        <div class="phone-input-wrapper"
+             [class.field-invalid]="employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched">
+          <input #phoneInputRef
+                 type="tel"
+                 class="phone-native-input"
+                 formControlName="phoneNumber"
+                 [placeholder]="'d3.teamManagement.addEmployeeDialog.phonePlaceholder' | translate">
+        </div>
+        @if (employeeForm.get('phoneNumber')?.invalid && employeeForm.get('phoneNumber')?.touched) {
+          <p class="field-error-msg">
+            @if (employeeForm.get('phoneNumber')?.hasError('required')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.phoneRequired' | translate }}
+            } @else if (employeeForm.get('phoneNumber')?.hasError('pattern')) {
+              {{ 'd3.teamManagement.addEmployeeDialog.validation.phonePattern' | translate }}
+            }
+          </p>
+        }
+        @if (serverErrors['phoneNumber']) {
+          <p class="field-error-msg">{{ serverErrors['phoneNumber'] }}</p>
+        }
+      </div>
+
+      <!-- Job Role -->
+      <div class="col-md-6 m-b-20">
+        <mat-label class="f-w-600 m-b-8 d-block text-end">{{ 'd3.teamManagement.addEmployeeDialog.jobRole' | translate }}</mat-label>
+        <div class="custom-dropdown-container position-relative">
+          <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
+               (click)="data.fromAllEmployees && !selectedDept ? null : toggleDropdown()"
+               [class.has-value]="employeeForm.get('roleId')?.value"
+               [class.is-invalid]="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched"
+               [style.opacity]="data.fromAllEmployees && !selectedDept ? '0.5' : '1'"
+               [style.cursor]="data.fromAllEmployees && !selectedDept ? 'not-allowed' : 'pointer'">
+            <span class="flex-grow-1 text-center font-medium">
+              {{ getSelectedRoleName() || ('d3.teamManagement.addEmployeeDialog.jobRolePlaceholder' | translate) }}
+            </span>
+            <i-tabler name="chevron-down" class="icon-18 text-warning"></i-tabler>
+          </div>
+
+          @if (isDropdownOpen) {
+            <div class="custom-dropdown-list shadow-lg">
+              @for (role of roles; track role.id) {
+                <div class="dropdown-option d-flex align-items-center justify-content-center gap-6" (click)="$event.stopPropagation(); selectRole(role)">
+                  {{ (currentLang === 'ar' ? role.nameAr : role.nameEn) ?? role.name }}
+                  @if (role.isManagerRole) {
+                    <i-tabler name="crown" class="icon-14" style="color:#B45309"></i-tabler>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+        @if (employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched) {
+          <p class="field-error-msg">
+            {{ 'd3.teamManagement.addEmployeeDialog.validation.roleRequired' | translate }}
+          </p>
+        }
+      </div>
+
+      <!-- Temp Password (add mode only) -->
+      @if (!data.employee) {
+        <div class="col-12 m-b-8">
+          <p class="password-hint text-center m-t-8">{{ 'd3.teamManagement.addEmployeeDialog.passwordHint' | translate }}</p>
+        </div>
+      }
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="p-b-24 d-flex align-items-center justify-content-center gap-24">
+    <button mat-button (click)="dialogRef.close()" class="cancel-btn-text">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button mat-flat-button type="button" color="dark" class="submit-btn" (click)="saveEmployee()" [disabled]="isSubmitting" style="position: relative; z-index: 10;">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      }
+      {{ 'd3.teamManagement.addEmployeeDialog.submit' | translate }}
+    </button>
+  </mat-dialog-actions>
+</div>

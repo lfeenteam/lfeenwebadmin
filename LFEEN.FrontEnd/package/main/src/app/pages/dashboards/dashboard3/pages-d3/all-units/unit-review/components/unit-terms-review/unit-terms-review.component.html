@@ -1,0 +1,134 @@
+<div class="unit-terms-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <div style="display:flex; justify-content:center; align-items:center; padding:4rem;">
+      <i-tabler name="loader-2" style="animation:spin 1s linear infinite;"></i-tabler>
+    </div>
+  } @else {
+
+  <section class="terms-heading">
+    <h2>{{ 'd3.unitReview.termsView.heading' | translate }}</h2>
+    <p>{{ 'd3.unitReview.termsView.subtitle' | translate }}</p>
+  </section>
+
+  <section class="time-grid" aria-label="Unit time rules">
+     <article class="time-card">
+      <span class="standard-chip">{{ 'd3.unitReview.termsView.standardBadge' | translate }}</span>
+      <div class="time-content">
+        <span>{{ 'd3.unitReview.termsView.checkInLabel' | translate }}</span>
+        <strong>{{ formatTime(termsData?.checkInTime) }}</strong>
+      </div>
+      <span class="time-icon">
+        <i-tabler name="tent"></i-tabler>
+      </span>
+    </article>
+    <article class="time-card">
+      <span class="standard-chip">{{ 'd3.unitReview.termsView.standardBadge' | translate }}</span>
+      <div class="time-content">
+        <span>{{ 'd3.unitReview.termsView.checkOutLabel' | translate }}</span>
+        <strong>{{ formatTime(termsData?.checkOutTime) }}</strong>
+      </div>
+      <span class="time-icon">
+        <i-tabler name="login"></i-tabler>
+      </span>
+    </article>
+  </section>
+
+  <article class="early-arrival-card">
+    <label class="switch" for="earlyCheckIn">
+      <input id="earlyCheckIn" type="checkbox" [ngModel]="earlyCheckInEnabled" disabled>
+      <span></span>
+    </label>
+
+    <div class="early-arrival-content">
+      <strong>{{ 'd3.unitReview.termsView.earlyArrivalTitle' | translate }}</strong>
+      <p>{{ 'd3.unitReview.termsView.earlyArrivalDesc' | translate }}</p>
+    </div>
+
+    <div class="early-arrival-time">
+      <span>{{ 'd3.unitReview.termsView.availableLabel' | translate }}</span>
+      <strong>{{ formatTime(termsData?.earlyCheckInFrom) }}</strong>
+    </div>
+
+    <span class="time-icon">
+      <i-tabler name="clock"></i-tabler>
+    </span>
+  </article>
+
+  <section class="rules-section">
+    <div class="section-title-row">
+      <span></span>
+      <h3>{{ 'd3.unitReview.termsView.generalRulesTitle' | translate }}</h3>
+    </div>
+
+    @if (mappedConditions.length > 0) {
+      <div class="rules-grid mt-3">
+        @for (rule of mappedConditions; track $index) {
+          <article class="rule-card" [class.rule-card--rejected]="!rule.approved">
+            <span class="decision-icon">
+              <i-tabler [name]="rule.approved ? 'check' : 'x'"></i-tabler>
+            </span>
+            <div class="rule-label">
+              <span>{{ rule.translationKey | translate }}</span>
+              <i-tabler [name]="rule.icon"></i-tabler>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-review-empty-state
+        icon="checklist"
+        titleKey="d3.unitReview.termsView.emptyTitle"
+        descKey="d3.unitReview.termsView.emptyDescription">
+      </app-review-empty-state>
+    }
+  </section>
+
+  @if (termsData?.customRules?.length) {
+    <section class="rules-section">
+      <div class="section-title-row">
+        <span></span>
+        <h3>{{ 'd3.unitReview.termsView.customRulesTitle' | translate }}</h3>
+      </div>
+
+      @for (rule of termsData!.customRules; track $index) {
+        <article class="host-rule-card">
+          <span class="host-rule-icon">
+            <i-tabler name="file"></i-tabler>
+          </span>
+          <p>{{ rule.description }}</p>
+        </article>
+      }
+    </section>
+  }
+
+  @if (!isReadOnly) {
+    <section class="final-notes-section">
+      <div class="notes-label-row">
+        <span>{{ 'd3.unitReview.termsView.notesTitle' | translate }}</span>
+        <small>{{ 'd3.unitReview.termsView.notesRequiredHint' | translate }}</small>
+      </div>
+      <div class="notes-input-wrap">
+        <i-tabler name="message-2"></i-tabler>
+        <textarea
+          [(ngModel)]="finalNotes"
+          [placeholder]="'d3.unitReview.termsView.notesPlaceholder' | translate"
+          rows="3">
+        </textarea>
+      </div>
+    </section>
+
+    <div class="action-buttons">
+      <button class="btn btn-reject" type="button" [disabled]="!finalNotes.trim()" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+      </button>
+      <button class="btn btn-approve" type="button" [disabled]="!!finalNotes.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.termsView.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+      </button>
+    </div>
+  }
+
+  } <!-- end @else -->
+</div>

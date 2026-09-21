@@ -1,0 +1,381 @@
+<div class="service-settings-container" [dir]="currentDir">
+
+  <!-- Service state control -->
+  <div class="section-card state-control-card">
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div class="d-flex align-items-center gap-16">
+        <span class="service-badge d-flex align-items-center justify-content-center">
+          <i-tabler [name]="serviceIcon" class="icon-20"></i-tabler>
+        </span>
+        <div>
+          <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.state.title' | translate }}</h3>
+          <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.state.desc' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="state-control d-flex align-items-center gap-12">
+        <mat-select
+          class="state-select"
+          [(ngModel)]="serviceState"
+          disableOptionCentering
+          panelClass="duration-select-panel"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.state.currentStatus' | translate">
+          @for (opt of stateOptions; track opt.value) {
+            <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
+          }
+        </mat-select>
+        <span class="current-status-pill d-flex align-items-center gap-8" [class]="'state-' + serviceState">
+          <span class="dot"></span>
+          {{ currentStateOption.labelKey | translate }}
+        </span>
+      </div>
+    </div>
+
+    @if (showDurationSettings) {
+      <div class="duration-settings-row d-flex align-items-center justify-content-between flex-wrap gap-16 m-t-16">
+        <div class="duration-info d-flex align-items-center gap-8 text-end">
+          <span class="duration-icon-wrapper d-flex align-items-center justify-content-center">
+            <i-tabler name="clock" class="icon-16"></i-tabler>
+          </span>
+          <div>
+            <span class="duration-title">{{ 'd3.subscriptions.serviceSettings.state.durationTitle' | translate }}</span>
+            <p class="section-desc m-0">{{ 'd3.subscriptions.serviceSettings.state.durationDesc' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="duration-actions-group d-flex align-items-center gap-12">
+          <mat-select class="duration-select" [(ngModel)]="selectedDurationDays" disableOptionCentering panelClass="duration-select-panel">
+            @for (d of durationOptions; track d.value) {
+              <mat-option [value]="d.value">{{ d.labelKey | translate }}</mat-option>
+            }
+          </mat-select>
+          <button type="button" class="confirm-btn" (click)="confirmDurationChange()">
+            {{ 'd3.subscriptions.serviceSettings.state.confirmBtn' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Integration fields -->
+  <div class="section-card">
+    <div class="card-head">
+      <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.integration.title' | translate }}</h3>
+      <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.integration.desc' | translate }}</p>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="table-responsive">
+      <table class="table section-table section-table--flat m-0">
+        <thead>
+          <tr>
+            <th>{{ 'd3.subscriptions.serviceSettings.integration.fieldName' | translate }}</th>
+            <th>{{ 'd3.subscriptions.serviceSettings.integration.dataType' | translate }}</th>
+            <th>{{ 'd3.subscriptions.serviceSettings.integration.required' | translate }}</th>
+            <th class="text-center">{{ 'd3.subscriptions.serviceSettings.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (field of integrationFields; track field.id) {
+            <tr>
+              @if (field.isEditing) {
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.fieldName' | translate">
+                  <input type="text" class="inline-input" [(ngModel)]="field.name" [placeholder]="'d3.subscriptions.serviceSettings.integration.fieldNamePlaceholder' | translate" />
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.dataType' | translate">
+                  <input type="text" class="inline-input" [(ngModel)]="field.dataType" [placeholder]="'d3.subscriptions.serviceSettings.integration.dataTypePlaceholder' | translate" />
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.required' | translate">
+                  <mat-slide-toggle color="primary" [(ngModel)]="field.required"></mat-slide-toggle>
+                </td>
+              } @else {
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.fieldName' | translate">
+                  <span class="field-name-value">{{ field.name }}</span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.dataType' | translate">
+                  <span class="type-pill">
+                    <span class="dot"></span>
+                    {{ field.dataType }}
+                  </span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.integration.required' | translate">
+                  @if (field.required) {
+                    <span class="required-check d-inline-flex align-items-center justify-content-center">
+                      <i-tabler name="check" class="icon-14"></i-tabler>
+                    </span>
+                  } @else {
+                    <span class="optional-label">{{ 'd3.subscriptions.serviceSettings.integration.optional' | translate }}</span>
+                  }
+                </td>
+              }
+              <td class="text-center mobile-actions-cell">
+                <button type="button" class="row-action-btn" [attr.aria-label]="'d3.subscriptions.serviceSettings.actions' | translate" [matMenuTriggerFor]="fieldMenu">
+                  <i-tabler name="dots-vertical" class="icon-16"></i-tabler>
+                </button>
+                <mat-menu #fieldMenu="matMenu" xPosition="before">
+                  <button mat-menu-item (click)="editIntegrationField(field)">
+                    <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
+                    <span>{{ 'd3.subscriptions.serviceSettings.editRow' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="removeIntegrationField(field)">
+                    <i-tabler name="trash" class="icon-16 menu-icon"></i-tabler>
+                    <span>{{ 'd3.subscriptions.serviceSettings.deleteRow' | translate }}</span>
+                  </button>
+                </mat-menu>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Subscribed facilities -->
+  <div class="section-card">
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div>
+        <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.facilities.title' | translate }}</h3>
+        <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.facilities.desc' | translate }}</p>
+      </div>
+      <div class="search-wrapper">
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'d3.subscriptions.serviceSettings.facilities.searchPlaceholder' | translate"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.facilities.searchPlaceholder' | translate"
+          [value]="facilitySearch"
+          (input)="onFacilitySearchChange($any($event.target).value)" />
+      </div>
+    </div>
+
+    <div class="table-box m-t-16">
+      <div class="table-responsive">
+        <table class="table section-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.facility' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.plan' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.startDate' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.renewalDate' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.amountPaid' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.facilities.status' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (facility of filteredFacilities; track facility.id) {
+              <tr>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.facility' | translate">
+                  <span class="facility-name d-block">{{ facility.name }}</span>
+                  <span class="text-muted-cell">{{ facility.classificationLabel }}</span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.plan' | translate">
+                  <span class="plan-badge" [class]="'plan-' + facility.plan">
+                    {{ ('d3.subscriptions.serviceSettings.facilities.planType.' + facility.plan) | translate }}
+                  </span>
+                </td>
+                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.startDate' | translate">{{ formatDate(facility.startDate) }}</td>
+                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.renewalDate' | translate">{{ formatDate(facility.renewalDate) }}</td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.amountPaid' | translate">
+                  @if (facility.amountPaid === null) {
+                    <span class="free-label">{{ 'd3.subscriptions.detail.free' | translate }}</span>
+                  } @else {
+                    <span class="money-value d-flex align-items-center gap-4">
+                      <span class="currency-icon-sm" [class.currency-icon-en]="currencyIconEn"
+                        [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                        [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                        role="img" [attr.aria-label]="currencyIconAlt"></span>
+                      {{ fmt(facility.amountPaid) }}
+                    </span>
+                  }
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.status' | translate">
+                  <span class="status-badge" [class.status-active]="facility.status === 'active'" [class.status-trial]="facility.status === 'trial'">
+                    {{ ('d3.subscriptions.serviceSettings.facilities.subscriberStatus.' + facility.status) | translate }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center text-muted-cell empty-cell">
+                  {{ 'd3.subscriptions.serviceSettings.facilities.empty' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operations & subscriptions pricing -->
+  <div class="section-card">
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div>
+        <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.operations.title' | translate }}</h3>
+        <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.operations.desc' | translate }}</p>
+      </div>
+      <div class="search-wrapper">
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'d3.subscriptions.serviceSettings.operations.searchPlaceholder' | translate"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.operations.searchPlaceholder' | translate"
+          [value]="operationSearch"
+          (input)="onOperationSearchChange($any($event.target).value)" />
+      </div>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="table-box">
+      <div class="table-responsive">
+        <table class="table section-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.subscriptions.serviceSettings.operations.type' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.operations.setupFee' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.operations.operationPrice' | translate }}</th>
+              <th>{{ 'd3.subscriptions.serviceSettings.operations.seasonalPrice' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredOperationPricing; track row.id) {
+              <tr>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.operations.type' | translate">
+                  <span class="operation-name">{{ row.nameKey | translate }}</span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.operations.setupFee' | translate">
+                  <span class="money-value d-flex align-items-center gap-4">
+                    <span class="currency-icon-sm" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="currencyIconAlt"></span>
+                    {{ fmt(row.setupFee) }}
+                  </span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.operations.operationPrice' | translate">
+                  <span class="money-value d-flex align-items-center gap-4">
+                    <span class="currency-icon-sm" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="currencyIconAlt"></span>
+                    {{ fmt(row.operationPrice) }}
+                  </span>
+                </td>
+                <td [attr.data-label]="'d3.subscriptions.serviceSettings.operations.seasonalPrice' | translate">
+                  <span class="money-value d-flex align-items-center gap-4">
+                    <span class="currency-icon-sm" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="currencyIconAlt"></span>
+                    {{ fmt(row.seasonalPrice) }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted-cell empty-cell">
+                  {{ 'd3.subscriptions.serviceSettings.facilities.empty' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Free trial + default pricing -->
+  <div class="row">
+    <div class="col-lg-6 m-b-20">
+      <div class="section-card pricing-trial-card h-100 m-b-0">
+        <div class="card-head d-flex align-items-center justify-content-between gap-16">
+          <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.trial.title' | translate }}</h3>
+          <mat-slide-toggle color="primary" [(ngModel)]="trialEnabled"></mat-slide-toggle>
+        </div>
+        <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.trial.desc' | translate }}</p>
+
+        <div class="card-divider"></div>
+
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.trial.durationLabel' | translate }}</span>
+        <div class="duration-btn-group d-flex gap-12">
+          @for (opt of trialDurationOptions; track opt) {
+            <button type="button" class="duration-btn" [class.active]="trialDurationDays === opt" (click)="setTrialDuration(opt)">
+              {{ fmt(opt) }} {{ 'd3.subscriptions.serviceSettings.trial.days' | translate }}
+              @if (opt === 14) {
+                {{ 'd3.subscriptions.serviceSettings.trial.recommended' | translate }}
+              }
+            </button>
+          }
+        </div>
+
+        <div class="trial-info-box">
+          {{ 'd3.subscriptions.serviceSettings.trial.infoNote' | translate }}
+        </div>
+
+        <div class="push-bottom">
+          <label class="field-label" for="trial-setup-fee">{{ 'd3.subscriptions.serviceSettings.trial.setupFeeLabel' | translate }}</label>
+          <div class="number-field position-relative">
+            <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+              [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+              [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+            <input
+              id="trial-setup-fee"
+              type="number"
+              class="inline-input inline-input--full"
+              [(ngModel)]="trialSetupFee"
+              [placeholder]="'d3.subscriptions.serviceSettings.trial.setupFeePlaceholder' | translate" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 m-b-20">
+      <div class="section-card pricing-trial-card h-100 m-b-0">
+        <div class="card-head">
+          <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.pricing.title' | translate }}</h3>
+        </div>
+        <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.pricing.desc' | translate }}</p>
+
+        <div class="card-divider"></div>
+
+        <label class="field-label" for="default-monthly-price">{{ 'd3.subscriptions.serviceSettings.pricing.monthlyLabel' | translate }}</label>
+        <div class="number-field position-relative">
+          <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+            [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+            [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+          <input id="default-monthly-price" type="number" class="inline-input inline-input--full" [(ngModel)]="defaultMonthlyPrice" />
+        </div>
+
+        <label class="field-label m-t-20" for="default-annual-price">{{ 'd3.subscriptions.serviceSettings.pricing.annualLabel' | translate }}</label>
+        <div class="number-field number-field--accent position-relative">
+          <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+            [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+            [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+          <input id="default-annual-price" type="number" class="inline-input inline-input--full" [(ngModel)]="defaultAnnualPrice" />
+        </div>
+
+        <div class="push-bottom">
+          <div class="vat-toggle-row d-flex align-items-center justify-content-between gap-10">
+            <div class="vat-toggle-text">
+              <span class="d-block">{{ 'd3.subscriptions.serviceSettings.pricing.vatLabel' | translate }}</span>
+              <span class="text-muted-cell">{{ 'd3.subscriptions.serviceSettings.pricing.vatDesc' | translate }}</span>
+            </div>
+            <mat-slide-toggle color="primary" [(ngModel)]="vatIncluded"></mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer actions -->
+  <div class="footer-actions d-flex align-items-center justify-content-between flex-wrap gap-16">
+    <p class="footer-note m-0">{{ 'd3.subscriptions.serviceSettings.footerNote' | translate }}</p>
+    <div class="d-flex gap-12">
+      <button type="button" class="cancel-btn" (click)="goBack()">{{ 'd3.subscriptions.serviceSettings.cancelBtn' | translate }}</button>
+      <button type="button" class="save-btn" (click)="saveSettings()">{{ 'd3.subscriptions.serviceSettings.saveBtn' | translate }}</button>
+    </div>
+  </div>
+
+</div>

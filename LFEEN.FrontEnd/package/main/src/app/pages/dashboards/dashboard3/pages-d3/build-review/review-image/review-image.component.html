@@ -1,0 +1,195 @@
+<div class="review-image-container">
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
+  } @else {
+
+  @if (hasNoViewablePhotos) {
+    <app-review-empty-state
+      icon="photo-off"
+      titleKey="d3.buildReview.images.emptyTitle"
+      descKey="d3.buildReview.images.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (!hasNoViewablePhotos) {
+
+  <!-- Main Image Section -->
+  @if (mainPhoto) {
+    <div class="section-group">
+      <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">{{ 'd3.buildReview.images.mainImageTitle' | translate }}</span>
+      </div>
+
+      <div class="main-image-card"
+           [class.rejected]="mainPhoto.decision === 'Rejected'"
+           [class.accepted]="mainPhoto.decision === 'Approved'">
+        <div class="image-wrapper image-wrapper--main">
+          @if (!mainPhoto.loadFailed) {
+            <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName" (error)="mainPhoto.loadFailed = true">
+          } @else {
+            <div class="photo-load-error">
+              <i-tabler name="photo-off"></i-tabler>
+              <span>{{ 'd3.buildReview.images.noImageLabel' | translate }}</span>
+            </div>
+          }
+          <span class="main-photo-badge">{{ 'd3.buildReview.images.mainPhotoBadge' | translate }}</span>
+        </div>
+        <div class="card-footer-main">
+          <div class="text-info">
+            <span class="image-name">{{ mainPhoto.fileName }}</span>
+            <span class="image-category">{{ mainPhoto.classificationLabel }}</span>
+            @if (mainPhoto.isPendingDeletion) {
+              <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
+            } @else if (mainPhoto.pendingIsMain !== null) {
+              <span class="pending-change-label">{{ 'd3.buildReview.images.pendingMainPhotoReview' | translate }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dynamic Photo Groups -->
+  @for (group of photoGroups; track group.groupKey) {
+    <div class="section-group">
+      <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">{{ group.groupLabel }}</span>
+        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: group.photos.length } }}</span>
+      </div>
+
+      <div class="image-grid">
+        @for (img of group.photos; track img.mediaId) {
+          <div class="image-card"
+               [class.rejected]="img.decision === 'Rejected'"
+               [class.accepted]="img.decision === 'Approved'">
+            <div class="image-wrapper">
+              @if (!img.loadFailed) {
+                <img class="image-main" [src]="img.url" [alt]="img.fileName" (error)="img.loadFailed = true">
+              } @else {
+                <div class="photo-load-error">
+                  <i-tabler name="photo-off"></i-tabler>
+                  <span>{{ 'd3.buildReview.images.noImageLabel' | translate }}</span>
+                </div>
+              }
+              @if (img.isMainPhoto) {
+                <span class="main-photo-crown" [title]="'d3.buildReview.images.mainPhotoBadge' | translate">
+                  <i-tabler name="crown"></i-tabler>
+                </span>
+              }
+              @if (!readOnly) {
+              <div class="image-actions">
+                <button class="btn-action btn-accept"
+                        [class.active]="img.decision === 'Approved'"
+                        [disabled]="!img.canReview"
+                        (click)="setDecision(img, 'Approved')">
+                  <i-tabler name="check"></i-tabler>
+                </button>
+                <button class="btn-action btn-reject"
+                        [class.active]="img.decision === 'Rejected'"
+                        [disabled]="!img.canReview"
+                        (click)="setDecision(img, 'Rejected')">
+                  <i-tabler name="x"></i-tabler>
+                </button>
+              </div>
+              }
+            </div>
+            <div class="card-footer">
+              <div class="text-info">
+                <span class="image-name">{{ img.fileName }}</span>
+                <span class="image-category">{{ img.classificationLabel }}</span>
+                @if (img.isPendingDeletion) {
+                  <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
+                } @else if (img.pendingIsMain !== null) {
+                  <span class="pending-change-label">{{ 'd3.buildReview.images.pendingMainPhotoReview' | translate }}</span>
+                }
+              </div>
+              <div class="status-info">
+                <span class="status-label" [ngClass]="{
+                  'text-danger': img.decision === 'Rejected',
+                  'text-success': img.decision === 'Approved',
+                  'text-muted':   img.decision === 'Pending'
+                }">
+                  {{ (img.decision === 'Rejected'
+                        ? 'd3.buildReview.images.statusRejected'
+                        : (img.decision === 'Approved'
+                            ? 'd3.buildReview.images.statusAccepted'
+                            : 'd3.buildReview.images.statusPending')) | translate }}
+                </span>
+              </div>
+            </div>
+
+            @if (img.decision === 'Rejected' && !readOnly) {
+              <div class="rejection-inputs">
+                <input type="text"
+                       [placeholder]="'d3.buildReview.images.rejectionReasonPlaceholder' | translate"
+                       [(ngModel)]="img.rejectionReason">
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  }
+
+  <!-- Rejection Summary -->
+  @if (hasRejections) {
+    <div class="rejection-summary">
+      <div class="summary-header">
+        <div class="icon-box">
+          <i-tabler name="clipboard-list"></i-tabler>
+        </div>
+        <div class="summary-text">
+          <h3>{{ 'd3.buildReview.images.rejectionSummaryTitle' | translate }}</h3>
+          <p>{{ 'd3.buildReview.images.rejectionSummarySubtitle' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="rejection-list">
+        @for (item of rejectedGroups; track item.title) {
+          <div class="rejection-item">
+            <div class="item-icon">!</div>
+            <div class="item-content">
+              <span class="item-title">{{ item.title }}</span>
+              <p class="item-reason">{{ item.reason }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Review Notes -->
+  @if (!readOnly) {
+    <div class="notes-section">
+      <div class="notes-header">
+        <span class="notes-title">{{ 'd3.buildReview.images.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.images.notesRequired' | translate }}</span>
+      </div>
+      <textarea
+        class="notes-textarea"
+        [placeholder]="'d3.buildReview.images.notesPlaceholder' | translate"
+        [(ngModel)]="sectionRejectionReason"
+        rows="4"
+      ></textarea>
+    </div>
+  }
+
+  <!-- Action Buttons -->
+  @if (!readOnly) {
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isSubmitting || hasPendingPhotos || hasNoViewablePhotos" (click)="confirmSubmit('Approved')">
+      <span>{{ 'd3.buildReview.images.approveBtn' | translate }}</span>
+      <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isSubmitting" (click)="confirmSubmit('Rejected')">
+      <span>{{ 'd3.buildReview.images.rejectBtn' | translate }}</span>
+      <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+  }
+</div>

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
+import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
 
 interface AppLanguage {
   language: string;
@@ -21,6 +22,9 @@ interface AppLanguage {
 })
 export class HeaderComponent {
   menuOpen = false;
+  isOnline = navigator.onLine;
+  fullName = '';
+  userRole = '';
 
   @Output() sidebarToggle = new EventEmitter<void>();
 
@@ -42,13 +46,22 @@ export class HeaderComponent {
     private eRef: ElementRef,
     private translate: TranslateService,
     private router: Router,
-    private settings: CoreService
+    private settings: CoreService,
+    public loginService: LoginService
   ) {
+    const user = this.loginService.getUser();
+    this.fullName = user?.fullName || '';
+    this.userRole = Array.isArray(user?.roles) ? user.roles.join(', ') : user?.roles || '';
     const urlSegments = this.router.url.split('/').filter(Boolean);
     const langCode = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
       ? urlSegments[0]
       : (this.settings.getOptions().language || 'ar');
     this.selectedLanguage = this.languages.find(l => l.code === langCode) || this.languages[0];
+  }
+
+  get currentDate(): string {
+    const locale = this.selectedLanguage.code === 'ar' ? 'ar-EG' : 'en-US';
+    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
   }
 
   toggleMenu(event: Event): void {
@@ -66,12 +79,11 @@ export class HeaderComponent {
   }
 
   changeLanguage(lang: AppLanguage): void {
-    this.translate.use(lang.code);
     this.selectedLanguage = lang;
 
     const dir = lang.code === 'ar' ? 'rtl' : 'ltr';
     this.settings.setOptions({ language: lang.code, dir }, true);
-    localStorage.setItem('preferred_language', lang.code);
+    this.translate.use(lang.code);
 
     const urlSegments = this.router.url.split('/').filter(Boolean);
     if (urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])) {
@@ -82,10 +94,36 @@ export class HeaderComponent {
     this.router.navigateByUrl('/' + urlSegments.join('/'));
   }
 
+  navigateToProfile(): void {
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
+      ? urlSegments[0]
+      : (this.selectedLanguage.code || 'ar');
+    this.router.navigateByUrl(`/${lang}/d3/profile`);
+  }
+
+  navigateToNotifications(): void {
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
+      ? urlSegments[0]
+      : (this.selectedLanguage.code || 'ar');
+    this.router.navigateByUrl(`/${lang}/d3/notifications`);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.menuOpen && !this.eRef.nativeElement.contains(event.target)) {
       this.menuOpen = false;
     }
+  }
+
+  @HostListener('window:online')
+  onOnline(): void {
+    this.isOnline = true;
+  }
+
+  @HostListener('window:offline')
+  onOffline(): void {
+    this.isOnline = false;
   }
 }

@@ -98,36 +98,239 @@
   "Menu 1": "Menu 1",
   "Menu 2": "Menu 2",
   "Disabled": "Disabled",
+  "common": {
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "copy": "Copy",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "confirm": "Confirm",
+    "deleteConfirmTitle": "Confirm Delete",
+    "deleteConfirmMessage": "Are you sure you want to delete this employee? This action cannot be undone.",
+    "deactivateConfirmTitle": "Confirm Deactivate",
+    "deactivateConfirmMessage": "Are you sure you want to deactivate this employee?",
+    "activateConfirmTitle": "Confirm Activate",
+    "activateConfirmMessage": "Are you sure you want to activate this employee?",
+    "done": "Done",
+    "errorOccurred": "Something went wrong, please try again"
+  },
   "d3": {
     "header": {
       "title": "CEO Dashboard",
       "platform": "Leven Platform · Kingdom of Saudi Arabia",
       "live": "Live",
-      "date": "October 14, 2024",
+      "online": "Online",
+      "offline": "Offline",
+      "teamName": "LFEEN Team",
+      "supervisorTitle": "LFEEN Supervisor",
       "userName": "Hassan Maghfouri",
       "userRole": "Chief Executive Officer"
     },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Manage your personal information and account security preferences",
+      "basicInfo": "Basic Information",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "language": "Interface Language",
+      "security": "Security & Password",
+      "securityDesc": "Update your password regularly to keep your account secure",
+      "changePassword": "Change Password",
+      "notifications": "Notification Preferences",
+      "emailNotifTitle": "Email Notifications",
+      "emailNotifDesc": "Receive a daily summary of operations via email",
+      "browserNotifTitle": "Browser Notifications",
+      "browserNotifDesc": "Receive instant alerts when a new booking is made",
+      "changePasswordDialog": {
+        "title": "Change Password",
+        "subtitle": "Enter your details to update your account security",
+        "currentPassword": "Current Password",
+        "currentPasswordPlaceholder": "Enter your current password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "hint": "Make sure to use a strong password with uppercase, lowercase, numbers and special characters",
+        "mismatch": "Passwords do not match",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "success": "Password changed successfully",
+        "error": "Failed to change password"
+      }
+    },
     "sidebar": {
-      "brand": "Smart Traveler Solutions Co.",
+      "brand": "LFEEN",
       "dashboard": "Dashboard",
       "buildings": "Buildings",
       "units": "Units",
+      "accountManagement": "Account Management",
       "bookings": "Bookings",
       "complaints": "Complaints",
       "customers": "Customers",
-      "settings": "Settings"
+      "faq": "FAQ",
+      "contactUs": "Contact Us",
+      "settlements": "Settlements",
+      "platformOffers": "Platform Offers",
+      "callScripts": "Call Scripts",
+      "subscriptions": "Subscriptions",
+      "subscriptionSettings": "Subscription Settings",
+      "subscriptionManagement": "Subscription Management",
+      "subscriptionLog": "Subscription Log",
+      "settings": "Settings",
+      "notifications": "Notifications",
+      "logout": "Logout"
+    },
+    "toast": {
+      "errorOp": "Error during operation",
+      "successOp": "Operation completed successfully",
+      "fillRequired": "Please fill required fields",
+      "fillAllRequired": "Please fill in all required fields",
+      "deleteError": "Error deleting",
+      "saveError": "Error saving",
+      "deleteEmployeeSuccess": "Employee deleted successfully",
+      "deleteEmployeeError": "Error deleting employee",
+      "activateEmployeeSuccess": "Employee activated successfully",
+      "activateEmployeeError": "Error activating employee",
+      "deactivateEmployeeSuccess": "Employee deactivated successfully",
+      "deactivateEmployeeError": "Error deactivating employee",
+      "selectDeptFirst": "Please select a department first",
+      "addEmployeeSuccess": "Employee added successfully",
+      "updateEmployeeSuccess": "Employee data updated successfully",
+      "addDeptSuccess": "Department and roles added successfully",
+      "addRoleSuccess": "Role added successfully",
+      "editRoleSuccess": "Role updated successfully",
+      "deleteRoleSuccess": "Role deleted successfully",
+      "removePermTitle": "Remove Permission",
+      "removePermMessage": "Remove permission \"{{permName}}\" from this role? This action cannot be undone.",
+      "removePermSuccess": "Permission removed successfully",
+      "removePermError": "Error removing permission",
+      "deleteRoleTitle": "Delete this role?",
+      "deleteRoleMessage": "This action cannot be undone and the role will be permanently deleted from the system.",
+      "addPermissionGroupSuccess": "Permission group added successfully",
+      "editPermissionGroupSuccess": "Permission group updated successfully",
+      "deletePermissionGroupSuccess": "Permission group deleted successfully",
+      "deletePermissionGroupTitle": "Delete this permission group?",
+      "deletePermissionGroupMessage": "This action cannot be undone and the permission group will be permanently deleted from the system.",
+      "deletePermissionGroupContainsPermissionsMessage": "Warning: this group contains {{count}} permission(s). Deleting the group may affect them. Continue?",
+      "deletePermissionGroupInUseError": "This group cannot be deleted because it still contains permissions",
+      "loadPermissionGroupsError": "Error loading permission groups",
+      "addPermissionSuccess": "Permission added successfully",
+      "editPermissionSuccess": "Permission updated successfully",
+      "deletePermissionSuccess": "Permission deleted successfully",
+      "deletePermissionTitle": "Delete this permission?",
+      "deletePermissionMessage": "This action cannot be undone and may affect roles or other permissions that depend on it.",
+      "deletePermissionUsedAsDependencyMessage": "Warning: this permission is used as a dependency by the following permissions: {{codes}}. Deleting it will remove that link from them. Continue?",
+      "deletePermissionInUseError": "This permission cannot be deleted because it is used as a dependency or assigned to a role",
+      "loadPermissionsError": "Error loading permissions",
+      "addDependencySuccess": "Dependency added successfully",
+      "removeDependencySuccess": "Dependency removed successfully",
+      "removeDependencyTitle": "Remove Dependency",
+      "removeDependencyMessage": "Remove this permission's dependency on \"{{code}}\"?",
+      "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
+    },
+    "emptyState": {
+      "builds": {
+        "draft": {
+          "title": "No draft buildings",
+          "desc": "No buildings are currently saved as drafts."
+        },
+        "published": {
+          "title": "No published buildings",
+          "desc": "No buildings have been published yet, or no results match your search."
+        },
+        "new": {
+          "title": "No new building requests",
+          "desc": "There are no new building addition requests at this time."
+        },
+        "underReview": {
+          "title": "No buildings under review",
+          "desc": "All requests have been processed. No buildings are awaiting review."
+        },
+        "pendingChanges": {
+          "title": "No buildings awaiting edits",
+          "desc": "No buildings are currently waiting for change review."
+        },
+        "rejected": {
+          "title": "No rejected buildings",
+          "desc": "No buildings have been rejected yet, or no results match your search."
+        }
+      },
+      "units": {
+        "draft": {
+          "title": "No draft units",
+          "desc": "No units are currently saved as drafts."
+        },
+        "published": {
+          "title": "No published units",
+          "desc": "No units have been published yet, or no results match your search."
+        },
+        "new": {
+          "title": "No new units awaiting review",
+          "desc": "There are no new unit submissions at this time."
+        },
+        "underReview": {
+          "title": "No units under review",
+          "desc": "All units have been processed. No units are awaiting review."
+        },
+        "pendingChanges": {
+          "title": "No units awaiting edits",
+          "desc": "No units are currently waiting for change review."
+        },
+        "rejected": {
+          "title": "No rejected units",
+          "desc": "No units have been rejected yet, or no results match your search."
+        }
+      },
+      "accounts": {
+        "all": {
+          "title": "No accounts found",
+          "desc": "No accounts have been registered yet, or no results match your search."
+        },
+        "active": {
+          "title": "No active accounts",
+          "desc": "There are no active accounts at this time."
+        },
+        "under_review": {
+          "title": "No accounts under review",
+          "desc": "All accounts have been processed. None are awaiting review."
+        },
+        "rejected": {
+          "title": "No rejected accounts",
+          "desc": "No accounts have been rejected yet."
+        }
+      }
     },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
+        "totalBuildings": "Total Buildings",
         "buildingsAvailable": "Available Buildings",
         "activeBuildings": "Active Buildings",
-        "totalUnits": "Total Units",
-        "monthlyUnits": "Monthly Units"
+        "inactiveBuildings": "Inactive Buildings",
+        "underReviewBuildings": "Under Review Buildings",
+        "unpublishedBuildings": "Unpublished"
       },
       "tabs": {
+        "draft": "Draft",
         "published": "Published Buildings",
-        "underReview": "Under Review"
+        "new": "New",
+        "underReview": "Under Review",
+        "pendingChanges": "Pending Changes",
+        "rejected": "Rejected"
+      },
+      "pagination": {
+        "total": "property"
+      },
+      "underReview": {
+        "statusLabel": "Under Review",
+        "sectionTitle": "Under Review",
+        "newSectionTitle": "New Buildings",
+        "newBadge": "New",
+        "pendingChangesSectionTitle": "Pending Changes",
+        "pendingChangesBadge": "Pending Changes",
+        "pendingAfterRejectionBadge": "Changes After Rejection"
       },
       "filters": {
         "searchPlaceholder": "Search by building name or city...",
@@ -152,11 +355,145 @@
         "label": "View mode"
       },
       "buildingCard": {
+        "statusRejected": "Rejected",
         "statusActive": "Active",
+        "statusDraft": "Draft",
         "statusStopped": "Stopped",
         "units": "Units",
         "occupancy": "Occupancy",
         "bookings": "Bookings"
+      },
+      "table": {
+        "buildingHost": "Building / Host",
+        "location": "Location",
+        "lastUpdate": "Last Update",
+        "units": "Units",
+        "occupancy": "Occupancy",
+        "bookings": "Bookings",
+        "status": "Status"
+      },
+      "buildings": {
+        "hotel": "Hotel",
+        "apartments": "Residential Apartments",
+        "villas": "Villas",
+        "chalets": "Chalets",
+        "compounds": "Institutional Units",
+        "rests": "Rest Houses",
+        "commercial": "Commercial Tower"
+      },
+      "buildingNames": {
+        "building1": "Al Waha Riyadh Hotel",
+        "building2": "Nargis Luxury Apartments",
+        "building3": "Naseem Al Dammam Complex",
+        "building4": "Red Sea Chalets",
+        "building5": "Al Marou Luxury Villas",
+        "building6": "Al Wadi Rest Houses",
+        "building7": "Sky Tower Commercial",
+        "building8": "Golden Beach Resort"
+      },
+      "buildingHosts": {
+        "host1": "Reyadah Hotel Group",
+        "host2": "Iwa Real Estate Company",
+        "host3": "Fahad Al Qahtani (Individual)",
+        "host4": "Red Sea Resorts Company",
+        "host5": "Modern Real Estate Developer",
+        "host6": "Facility Owner",
+        "host7": "Sky Real Estate Company",
+        "host8": "Hospitality Group"
+      },
+      "buildingLocations": {
+        "location1": "Riyadh, Al Olaya",
+        "location2": "Jeddah, Al Shati District",
+        "location3": "Dammam, Al Zahoor District",
+        "location4": "Yanbu, Waterfront",
+        "location5": "Khobar, Al Marou District",
+        "location6": "Taif, Shafa",
+        "location7": "Riyadh, Al Olaya",
+        "location8": "Jeddah, Corniche"
+      },
+      "buildingDates": {
+        "date1": "October 14",
+        "date2": "October 12",
+        "date3": "October 8",
+        "date4": "October 5",
+        "date5": "October 1",
+        "date6": "September 25",
+        "date7": "September 20",
+        "date8": "September 15"
+      }
+    },
+    "allUnits": {
+      "title": "All Units",
+      "placeholder": "Units content under development...",
+      "cards": {
+        "totalUnits": "Total Units",
+        "publishedUnits": "Published Properties",
+        "activeUnits": "Active Units",
+        "stoppedUnits": "Stopped Units",
+        "unpublishedUnits": "Unpublished",
+        "underReviewUnits": "Under Review"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by unit name, number, or property...",
+        "allAccounts": "All Accounts",
+        "allProperties": "All Properties",
+        "allStatuses": "All Statuses",
+        "unitType": "Unit Type",
+        "sortNewest": "Newest",
+        "sortOldest": "Oldest",
+        "sortHighestOccupancy": "Highest Occupancy"
+      },
+      "unitCard": {
+        "type": "Type",
+        "description": "Description",
+        "statusApproved": "Active",
+        "statusDraft": "Draft",
+        "statusPending": "New",
+        "statusUnderReview": "Under Review",
+        "statusPendingChanges": "Pending Changes",
+        "statusPendingAfterRejection": "Changes After Rejection",
+        "statusStopped": "Rejected",
+        "servicesPricing": "Services",
+        "servicesPaid": "Paid",
+        "servicesFree": "Free"
+      },
+      "cardsUnits": {
+        "awaitingReviewMeta": "Awaiting property review first",
+        "reviewPropertyBtn": "Review Property First",
+        "publishedUnits": "{{count}} published units",
+        "approvedBadge": "Approved",
+        "activationNotice": {
+          "title": "Activation System Notice",
+          "description": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until final approval is received on the main property's data.",
+          "accountDescription": "Please note that approving any unit belonging to ({{buildingName}}) will not actually publish it on the platform for booking until the owner account ({{accountName}}) is approved first."
+        },
+        "account": {
+          "awaitingReviewMeta": "Awaiting account review first",
+          "reviewBtn": "Review Account First",
+          "status": {
+            "approved": "Approved",
+            "pending": "Pending review",
+            "rejected": "Rejected"
+          }
+        }
+      },
+      "table": {
+        "unitNumber": "No.",
+        "unitInfo": "Unit",
+        "type": "Type",
+        "description": "Description",
+        "status": "Status"
+      },
+      "tabs": {
+        "draft": "Draft",
+        "published": "Published Units",
+        "new": "New",
+        "underReview": "Under Review",
+        "pendingChanges": "Pending Changes",
+        "rejected": "Rejected"
+      },
+      "pagination": {
+        "total": "unit"
       }
     },
     "sections": {
@@ -233,6 +570,2455 @@
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
       "cityKhobar": "Khobar"
+    },
+    "loginPage": {
+      "sidebar": {
+        "title1": "Smart Management",
+        "title2": "For the largest booking platform in the Kingdom",
+        "description": "Full control of properties, hosts, and daily operations with artificial intelligence and extreme accuracy."
+      },
+      "form": {
+        "title": "Admin Login",
+        "subtitle": "Welcome Sultan, please enter your details to continue",
+        "emailLabel": "Admin Email",
+        "passwordLabel": "Password",
+        "forgotPassword": "Forgot password?",
+        "rememberMe": "Remember login details on this device",
+        "submit": "Enter Control Panel",
+        "messages": {
+          "success": "Login Successful",
+          "error": "Login Failed"
+        }
+      }
+    },
+    "teamManagement": {
+      "title": "Team & Administrators Management",
+      "stats": {
+        "totalEmployees": "Total Employees",
+        "departmentCount": "Number of Departments",
+        "activeManagers": "Active Managers",
+        "pendingActivation": "Inactive",
+        "partialOps": "Partial Operations",
+        "rejectedOps": "Rejected Operations",
+        "successfulOps": "Successful Operations",
+        "totalOps": "Total Operations"
+      },
+      "tabs": {
+        "structure": "Department Structure",
+        "allEmployees": "All Employees",
+        "opsLog": "Operations Log"
+      },
+      "searchPlaceholder": "Search by employee name, ID or phone...",
+      "managerBadge": "Manager",
+      "addDept": "Add New Department",
+      "addEmployee": "Add New Employee",
+      "filters": {
+        "allDepts": "All Departments",
+        "allRoles": "All Roles"
+      },
+      "table": {
+        "employee": "Employee",
+        "idNumber": "ID Number",
+        "phone": "Phone Number",
+        "role": "Job Role",
+        "departmentRole": "Department / Role",
+        "status": "Status"
+      },
+      "deptCard": {
+        "active": "Active",
+        "pending": "Pending",
+        "inactive": "Inactive",
+        "manager": "Manager In Charge",
+        "employees": "Employee Count",
+        "permissions": "Department Permissions"
+      },
+      "deptManagerTitle": "{{name}} Manager",
+      "deptEmployees": "Department Employees List",
+      "searchPlaceholderSimple": "Search in the team...",
+      "noEmployees": {
+        "title": "No Employees Added Yet",
+        "description": "Start building your team by adding employees and assigning their permissions in the system",
+        "addFirstBtn": "Add First Employee to Team"
+      },
+      "addEmployeeDialog": {
+        "title": "Add New Employee",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter employee name...",
+        "email": "Email Address",
+        "emailPlaceholder": "example@domain.com",
+        "phone": "Phone Number",
+        "phonePlaceholder": "05xxxxxxxx",
+        "department": "Department",
+        "departmentPlaceholder": "Choose Department",
+        "jobRole": "Job Role",
+        "jobRolePlaceholder": "Choose Job Role",
+        "tempPassword": "Temporary Password",
+        "passwordHint": "This password will be sent to the employee's email automatically.",
+        "submit": "Save and Send",
+        "validation": {
+          "nameRequired": "Name is required",
+          "nameMinLength": "Name must be at least 2 characters",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Invalid email format",
+          "phoneRequired": "Phone number is required",
+          "phonePattern": "Enter a valid phone number",
+          "roleRequired": "Job role is required"
+        }
+      },
+      "pagination": {
+        "total": "employees"
+      },
+      "opsLog": {
+        "filters": {
+          "searchPlaceholder": "Search by employee name, action, or department...",
+          "actionType": "Action Type",
+          "allDepts": "All Departments",
+          "allDates": "All Dates"
+        },
+        "table": {
+          "dateTime": "Date & Time",
+          "user": "User",
+          "action": "Action Performed",
+          "department": "Affected Department",
+          "status": "Status"
+        }
+      }
+    },
+    "addDepartment": {
+      "sectionTitle1": "Department Data and Tasks",
+      "deptName": "Department Name",
+      "deptNamePlaceholder": "Example: Operations Department, Customer Service, Accounts...",
+      "nameRequired": "Department name is required",
+      "nameMinLength": "Name must be at least 2 characters",
+      "deptCode": "Department Code",
+      "deptCodePlaceholder": "e.g. OPS, HR, FINANCE...",
+      "codeRequired": "Department code is required",
+      "tasksDescription": "Tasks and Responsibilities Description",
+      "tasksDescriptionPlaceholder": "Write a summary of the administrative and operational tasks that this department will undertake...",
+      "roleSectionTitle": "Default Job Role",
+      "roleName": "Job Role Name",
+      "roleDescription": "Role Description",
+      "permissionsTitle": "System Permissions Matrix",
+      "enableAll": "Enable All",
+      "disableAll": "Disable All",
+      "save": "Save and Create Department",
+      "cancel": "Cancel",
+      "permissions": {
+        "dashboard": {
+          "title": "Dashboard",
+          "description": "Access to activity updates and intelligence balance"
+        },
+        "buildings": {
+          "title": "Building Management",
+          "description": "Review building list and approve new rental fees"
+        },
+        "units": {
+          "title": "Unit Management",
+          "description": "Control unit properties and financial charges for intelligence"
+        },
+        "reservations": {
+          "title": "Reservations",
+          "description": "Monitor open reservations and manage cancellation requests"
+        },
+        "guests": {
+          "title": "Guests",
+          "description": "Access guest data and building institutions"
+        },
+        "hosts": {
+          "title": "Hosts",
+          "description": "Manage host accounts and maintain their financial records"
+        },
+        "revenue": {
+          "title": "Revenue",
+          "description": "Monitor scheduled orders and financial information privacy"
+        },
+        "reports": {
+          "title": "Reports",
+          "description": "Evaluate detailed and financial reports for all buildings"
+        },
+        "complaints": {
+          "title": "Complaints",
+          "description": "Access technical support issues for users"
+        },
+        "cities": {
+          "title": "Cities",
+          "description": "Manage city details and different responsibility branches"
+        },
+        "team": {
+          "title": "Team Management",
+          "description": "Ability to add new employees and change department course"
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Adjust system settings and automatic operation requirements"
+        }
+      }
+    },
+    "addRolePage": {
+      "title": "Add New Job Role",
+      "subtitle": "Define the new role's details and access permissions within the department",
+      "subtitleGeneric": "Define the new role's details and access permissions",
+      "basicInfoTitle": "Basic Role Information",
+      "roleNameLabel": "Job Role Name",
+      "roleNamePlaceholder": "e.g. Operations Manager, Quality Supervisor...",
+      "departmentLabel": "Department (optional)",
+      "departmentPlaceholder": "No Department",
+      "descriptionLabel": "Role Description",
+      "descriptionPlaceholder": "Write a summary of tasks this role holder can perform...",
+      "permissionsTitle": "Set Role Permissions",
+      "selectAllBtn": "Select all permissions",
+      "deselectAllBtn": "Deselect all",
+      "ungrouped": "Other",
+      "loadError": "Couldn't load permissions",
+      "retry": "Retry",
+      "roleCreatedPermsFailed": "The role was created, but assigning permissions failed. You can edit them from the role page.",
+      "selectedOfTotal": "{{count}} of {{total}} permissions",
+      "lockedHint": "Required by another selected permission — deselect the dependent one first",
+      "pagination": {
+        "total": "{{count}} permission groups"
+      },
+      "selectedCount": "{{count}} permissions enabled",
+      "isManagerRoleLabel": "Manager Role",
+      "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
+      "saveBtn": "Save Job Role",
+      "cancelBtn": "Cancel",
+      "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}",
+      "validation": {
+        "nameRequired": "Role name is required"
+      }
+    },
+    "addRoleDialog": {
+      "titleEdit": "Edit Job Role",
+      "titleAdd": "Add New Role",
+      "subtitle": "These permissions will be assigned to the {{dept}} department",
+      "subtitleGeneric": "These permissions will be assigned to this job role",
+      "roleNameLabel": "Job Role Name",
+      "namePlaceholderAr": "e.g. Booking Auditor, Quality Supervisor...",
+      "descriptionLabel": "Permission Description",
+      "descriptionPlaceholderAr": "Write a summary of tasks this role holder can perform...",
+      "isManagerRoleLabel": "Manager Role",
+      "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Role to System",
+      "validation": {
+        "nameRequired": "Role name is required",
+        "nameMinLength": "Name must be at least 2 characters"
+      }
+    },
+    "rolesPage": {
+      "title": "Job Roles",
+      "description": "Manage all job roles and their permissions across the system, whether linked to a department or not.",
+      "allDepartments": "All Departments",
+      "noDepartment": "No Department",
+      "noRoles": "No job roles added yet",
+      "addRoleBtn": "Add New Job Role",
+      "table": {
+        "role": "Job Role",
+        "department": "Department",
+        "description": "Role Description",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "total": "Role"
+      }
+    },
+    "addPermissionGroupDialog": {
+      "titleEdit": "Edit Permission Group",
+      "titleAdd": "Add New Permission Group",
+      "subtitle": "Groups organize permissions into logical modules across the system",
+      "nameArLabel": "Group Name (Arabic)",
+      "nameArPlaceholder": "مثال: التقارير، المستخدمين...",
+      "nameEnLabel": "Group Name (English)",
+      "nameEnPlaceholder": "e.g. Reports, Users...",
+      "descriptionArLabel": "Group Description (Arabic)",
+      "descriptionEnLabel": "Group Description (English)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً للصلاحيات التي تندرج تحت هذه المجموعة...",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Group to System",
+      "validation": {
+        "nameArRequired": "Arabic group name is required",
+        "nameEnRequired": "English group name is required",
+        "nameEnPattern": "Can only contain letters, numbers, spaces, dots, and hyphens",
+        "nameMinLength": "Name must be at least 2 characters"
+      }
+    },
+    "permissionGroupsPage": {
+      "title": "Permission Groups",
+      "description": "Organize permissions into logical modules across the system. Every permission must belong to exactly one group.",
+      "noGroups": "No permission groups added yet",
+      "addGroupBtn": "Add New Permission Group",
+      "table": {
+        "name": "Group Name",
+        "description": "Description",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "total": "Group"
+      }
+    },
+    "addPermissionDialog": {
+      "titleEdit": "Edit Permission",
+      "titleAdd": "Add New Permission",
+      "subtitle": "Every permission belongs to a group and has a unique code in the format Module.Action",
+      "groupLabel": "Permission Group",
+      "groupPlaceholder": "Select a permission group",
+      "codeLabel": "Permission Code",
+      "codePlaceholder": "e.g. Users.Delete",
+      "nameArLabel": "Permission Name (Arabic)",
+      "nameArPlaceholder": "مثال: حذف المستخدمين",
+      "nameEnLabel": "Permission Name (English)",
+      "nameEnPlaceholder": "e.g. Delete Users",
+      "actionLabel": "Action Type",
+      "actionPlaceholder": "Select action type",
+      "descriptionArLabel": "Description (Arabic)",
+      "descriptionEnLabel": "Description (English)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً لما تسمح به هذه الصلاحية...",
+      "cancelBtn": "Cancel",
+      "saveBtn": "Save Changes",
+      "addBtn": "Add Permission to System",
+      "validation": {
+        "groupRequired": "Permission group is required",
+        "codeRequired": "Permission code is required",
+        "codePattern": "Code must be in the format Module.Action, e.g. Users.Delete",
+        "nameArRequired": "Arabic permission name is required",
+        "nameEnRequired": "English permission name is required",
+        "nameEnPattern": "Can only contain letters, numbers, spaces, dots, and hyphens",
+        "nameMinLength": "Name must be at least 2 characters",
+        "actionRequired": "Action type is required"
+      }
+    },
+    "allPermissionsPage": {
+      "title": "Permissions",
+      "description": "The master catalog of every atomic permission in the system, and how they depend on one another.",
+      "noPermissions": "No permissions added yet",
+      "addPermissionBtn": "Add New Permission",
+      "table": {
+        "name": "Permission Name",
+        "group": "Group",
+        "action": "Action",
+        "actions": "Actions",
+        "dependenciesTooltip": "Manage Dependencies"
+      },
+      "pagination": {
+        "total": "Permission"
+      }
+    },
+    "permissionDependenciesPage": {
+      "title": "Permission Dependencies",
+      "backBtn": "Back to Permissions",
+      "requiredCount": "Requires {{count}} permission(s)",
+      "noDependencies": "This permission doesn't currently depend on any other permission",
+      "removeTooltip": "Remove",
+      "selectPlaceholder": "Select a permission to add as a dependency",
+      "addBtn": "Add Dependency",
+      "fullChainCount": "{{count}} permission(s) in the full dependency chain",
+      "noChain": "No indirect (multi-level) dependencies for this permission",
+      "dependentsCount": "{{count}} permission(s) depend on this",
+      "noDependents": "No other permission depends on this one — safe to delete",
+      "dependentsWarning": "Warning: deleting this permission will affect the following permissions, since they depend on it directly or indirectly",
+      "collapseTooltip": "Collapse",
+      "expandTooltip": "Expand"
+    },
+    "allDependenciesPage": {
+      "title": "All Permission Dependencies",
+      "viewAllBtn": "View All Dependencies",
+      "description": "All dependency relationships between permissions in the system, in one place.",
+      "searchPlaceholder": "Search by permission code or name",
+      "allGroups": "All Groups",
+      "noResults": "No matching dependency relationships",
+      "table": {
+        "source": "Permission",
+        "group": "Group",
+        "count": "Direct Dependencies",
+        "actions": "Actions"
+      }
+    },
+    "permissions": {
+      "pageTitle": "Department Permissions",
+      "roleSettingsTitle": "Permissions & Roles Settings",
+      "description": "Manage bookings, hosts, and residential units directly.",
+      "employeeCount": "Employee Count",
+      "manager": "Responsible Manager",
+      "activePermissionsCount": "{{count}} active permissions",
+      "noPermissions": "No permissions defined for this department",
+      "rolePermsEdit": {
+        "saveBtn": "Save changes",
+        "saveSuccess": "Role permissions updated"
+      },
+      "table": {
+        "department": "Department / Job Title",
+        "description": "Permission Description",
+        "actions": "Actions",
+        "viewTooltip": "View",
+        "editBtn": "Edit",
+        "deleteBtn": "Delete",
+        "addRoleBtn": "Add a Role or new permission to the department",
+        "managerRoleTooltip": "Manager Role"
+      },
+      "alert": {
+        "title": "Important Operational Alert",
+        "message": "Any change in these permissions will be applied immediately to all current employees ({{count}} employees) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department."
+      },
+      "cancelBtn": "Cancel Changes",
+      "saveBtn": "Save and Update Permissions",
+      "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}"
+    },
+    "permCodes": {
+      "Departments": {
+        "Delete": {
+          "name": "Delete Departments",
+          "description": "Delete departments"
+        },
+        "Update": {
+          "name": "Update Departments",
+          "description": "Update existing departments"
+        },
+        "View": {
+          "name": "View Departments",
+          "description": "View departments list"
+        },
+        "Create": {
+          "name": "Create Departments",
+          "description": "Create new departments"
+        }
+      },
+      "CS": {
+        "View": {
+          "name": "View Customer Service",
+          "description": "Access customer service overview"
+        },
+        "Manage": {
+          "name": "Manage Customer Service",
+          "description": "Manage customer service resources"
+        }
+      },
+      "IT": {
+        "View": {
+          "name": "View IT",
+          "description": "Access IT department overview"
+        },
+        "Manage": {
+          "name": "Manage IT",
+          "description": "Manage IT resources and systems"
+        }
+      },
+      "Permissions": {
+        "View": {
+          "name": "View Permissions",
+          "description": "View permissions list"
+        },
+        "Manage": {
+          "name": "Manage Permissions",
+          "description": "Create, update and delete permissions"
+        }
+      },
+      "Roles": {
+        "View": {
+          "name": "View Roles",
+          "description": "View roles list"
+        },
+        "Create": {
+          "name": "Create Roles",
+          "description": "Create new roles"
+        },
+        "Update": {
+          "name": "Update Roles",
+          "description": "Update existing roles"
+        },
+        "Delete": {
+          "name": "Delete Roles",
+          "description": "Delete roles"
+        }
+      },
+      "Dashboard": {
+        "View": {
+          "name": "View Dashboard",
+          "description": "Access the main admin dashboard"
+        }
+      },
+      "Accounts": {
+        "View": {
+          "name": "View Accounts",
+          "description": "View accounts list"
+        },
+        "Manage": {
+          "name": "Manage Accounts",
+          "description": "Manage and review accounts"
+        }
+      },
+      "Buildings": {
+        "View": {
+          "name": "View Buildings",
+          "description": "View buildings list"
+        },
+        "Manage": {
+          "name": "Manage Buildings",
+          "description": "Manage buildings and units"
+        }
+      },
+      "Bookings": {
+        "View": {
+          "name": "View Bookings",
+          "description": "View bookings list"
+        },
+        "Manage": {
+          "name": "Manage Bookings",
+          "description": "Manage bookings and cancellations"
+        }
+      },
+      "Employees": {
+        "View": {
+          "name": "View Employees",
+          "description": "View employees list"
+        },
+        "Manage": {
+          "name": "Manage Employees",
+          "description": "Add, update and delete employees"
+        }
+      }
+    },
+    "buildReview": {
+      "title": "Building Review",
+      "reviewRequestsBC": "Review Requests",
+      "buildingCrumbLabel": "Building",
+      "urgentRequest": "Urgent Request",
+      "buildingInfo": {
+        "imageAlt": "Building Image",
+        "orgLabel": "Operating Organization",
+      "operatorLabelEstablishment": "Operating Establishment",
+      "operatorLabelIndividual": "Operator",
+        "orgName": "Riyadah Hotel Group",
+        "totalUnitsLabel": "Total Units"
+      },
+      "progress": {
+        "statusLabel": "Review Status: {{completed}} of {{total}} sections completed"
+      },
+      "status": {
+        "adminReviewLabel": "Pending Administrative Review",
+        "adopted": "Adopted",
+        "readyToPublish": "Ready to Publish",
+        "rejected": "Rejected",
+        "draftLabel": "Draft",
+        "newLabel": "New",
+        "progressLabel": "Review status",
+        "progressCount": "{{completed}} of {{total}}"
+      },
+      "sections": {
+        "basicInfoTitle": "Basic Property Info",
+        "photosTitle": "Property Photos",
+        "locationTitle": "Geographic Location",
+        "termsTitle": "Property Terms",
+        "licenseTitle": "Property License",
+        "statusAccepted": "Accepted",
+        "statusRejected": "Rejected",
+        "statusPending": "Pending review"
+      },
+      "actions": {
+        "approve": "Final Approval",
+        "reject": "Reject Request",
+        "rejectFinal": "Reject Request Finally",
+        "lockNotice": "All sections above must be reviewed before making a final accept or reject decision"
+      },
+      "finalDecision": {
+        "readyTitle": "Ready for Final Approval",
+        "readyDesc": "All required documents and data have been successfully reviewed. You can now approve the property to activate the host account and start receiving bookings immediately.",
+        "alreadyApprovedTitle": "Already Finally Approved",
+        "alreadyApprovedDesc": "This building has already been approved.",
+        "rejectionSummaryTitle": "Rejection Reasons Summary",
+        "rejectionSummarySubtitle": "Notes summary for the three sections",
+        "sectionNotesPrefix": "Notes for",
+        "finalNotesLabel": "Final Notes (for Host)",
+        "finalNotesPlaceholder": "Write a final summary to be sent to the host clarifying the steps needed to correct the request...",
+        "finalNotesOptionalLabel": "Final notes",
+        "finalNotesOptionalPlaceholder": "Add any final notes for the host...",
+        "finalNotesHint": "Optional to approve, required to reject",
+        "finalNotesHintRejectOnly": "Required to explain the rejection reason",
+        "rejectSuccess": "The property was rejected successfully.",
+        "errors": {
+          "alreadyApproved": "This property has already been approved.",
+          "accountNotApproved": "The property account must be approved first.",
+          "sectionsNotApproved": "All three review sections must be approved before final approval.",
+          "alreadyRejected": "This property has already been rejected."
+        }
+      },
+      "confirm": {
+        "imagesApproveTitle": "Approve property images?",
+        "imagesApproveMessage": "Are you sure you want to approve all property images?",
+        "imagesRejectTitle": "Reject property images?",
+        "imagesRejectMessage": "Are you sure you want to reject the property images with the entered reasons?",
+        "termsApproveTitle": "Approve property terms?",
+        "termsApproveMessage": "Are you sure you want to approve the property terms and conditions?",
+        "termsRejectTitle": "Reject property terms?",
+        "termsRejectMessage": "Are you sure you want to reject the property terms with the entered reason?",
+        "licenseApproveTitle": "Approve property license?",
+        "licenseApproveMessage": "Are you sure you want to approve the property license?",
+        "licenseRejectTitle": "Reject property license?",
+        "licenseRejectMessage": "Are you sure you want to reject the property license with the entered reason?",
+        "basicInfoApproveTitle": "Approve basic property info?",
+        "basicInfoApproveMessage": "Are you sure you want to approve the property's basic information?",
+        "basicInfoRejectTitle": "Reject basic property info?",
+        "basicInfoRejectMessage": "Are you sure you want to reject the property's basic information with the entered reason?",
+        "locationApproveTitle": "Approve property location?",
+        "locationApproveMessage": "Are you sure you want to approve the property's geographic location?",
+        "locationRejectTitle": "Reject property location?",
+        "locationRejectMessage": "Are you sure you want to reject the property's geographic location with the entered reason?",
+        "finalApproveTitle": "Approve this property?",
+        "finalApproveMessage": "All sections are approved. Are you sure you want to give final approval to this property?",
+        "finalRejectTitle": "Reject this property?",
+        "finalRejectMessage": "Are you sure you want to make the final decision to reject this property?",
+        "approveAction": "Yes, approve",
+        "rejectAction": "Yes, reject"
+      },
+      "successModal": {
+        "title": "Building Approved Successfully",
+        "description": "All documents and images of {{buildingName}} have been reviewed and approved. The building is now available on the platform. You can proceed to review the detailed units now.",
+        "reviewUnitsBtn": "Review Units ({{count}}) Now",
+        "laterBtn": "Go to Units Page Later"
+      },
+      "images": {
+        "mainImageTitle": "Main Image (Exterior)",
+        "mainPhotoBadge": "Main Building Photo",
+        "exteriorTitle": "Exterior Building Images",
+        "interiorTitle": "Interior Property Images",
+        "imagesCount": "{{count}} images",
+        "statusRejected": "Rejected",
+        "statusAccepted": "Accepted",
+        "statusPending": "Awaiting Decision",
+        "rejectionReasonPlaceholder": "Rejection reason...",
+        "pendingDeleteReview": "Pending delete review",
+        "pendingMainPhotoReview": "Pending main photo review",
+        "suggestedSolutionPlaceholder": "Suggested solution for host...",
+        "rejectionSummaryTitle": "Rejection Summary",
+        "rejectionSummarySubtitle": "Issues noted in the uploaded images. Please review.",
+        "emptyTitle": "No images uploaded",
+        "emptyDescription": "The host has not added any images for this property yet.",
+        "noImageLabel": "No image",
+        "notesTitle": "Review Notes",
+        "notesRequired": "/ Rejection Reason (Mandatory if rejected)",
+        "notesPlaceholder": "Please write the rejection reasons in detail here to enable the reject option...",
+        "pendingDecisionRequired": "Please review every photo before submitting.",
+        "approveAllRequired": "All photos must be approved before approving the images section.",
+        "rejectedPhotoRequired": "Reject at least one photo before rejecting the images section.",
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo.",
+        "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
+        "approveSuccess": "The photos section was approved successfully. Property status: {{status}}.",
+        "rejectSuccess": "The photos section was rejected successfully. Property status: {{status}}.",
+        "overallStatus": {
+          "Pending": "Pending",
+          "UnderReview": "Under Review",
+          "Approved": "Approved",
+          "Rejected": "Rejected"
+        },
+        "approveBtn": "Approve Property Images",
+        "rejectBtn": "Reject Request"
+      },
+      "license": {
+        "title": "Tourism Ministry License Review",
+        "licenseNumberLabel": "License Number",
+        "subtitle": "Please verify the license number and the expiry date of the attached document.",
+        "previewTitle": "License Preview",
+        "enlargeBtn": "Enlarge Document",
+        "expiredTag": "Expired",
+        "issueDateLabel": "License Issue Date",
+        "expiryDateLabel": "License Expiry Date",
+        "businessTypeLabel": "Facility Activity Type",
+        "verificationStatus": "Automated Verification: Matches Ministry of Commerce data",
+        "emptyTitle": "No license data available",
+        "emptyDescription": "The host has not provided license information or an attachment for this property.",
+        "noImageLabel": "Unable to display image",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the license.",
+        "approveSuccess": "The property license was approved successfully.",
+        "rejectSuccess": "The property license was rejected successfully.",
+        "approveBtn": "Approve Tourism Ministry License Review",
+        "rejectBtn": "Reject Request"
+      },
+      "basicInfo": {
+        "title": "Basic Property Info Review",
+        "subtitle": "Please review the property's core information for accuracy before approving.",
+        "detailsTitle": "Basic Info",
+        "nameLabel": "Property Name",
+        "idLabel": "Property ID",
+        "typeLabel": "Property Type",
+        "usageLabel": "Property Usage",
+        "usageValues": {
+          "IndividualHousing": "Individual Housing"
+        },
+        "viewTypesLabel": "Available Views",
+        "businessTypeLabel": "Business Type",
+        "districtLabel": "Facade Direction",
+        "organizationLabel": "Operating Organization",
+        "totalUnitsLabel": "Total Units",
+        "controlTitle": "Features & Controls",
+        "smartLockTitle": "Smart Property Lock",
+        "smartLockDesc": "Keyless entry via access code",
+        "extraServicesTitle": "Allow Guest Requests",
+        "extraServicesDesc": "Allows guests to request extra services from this property",
+        "floorsTitle": "Floor & Unit Details",
+        "floorsTotalLabel": "Total:",
+        "floorsUnit": "floors",
+        "floorNumberLabel": "Floor Number",
+        "floorNameLabel": "Floor Name",
+        "unitsCountLabel": "Unit Count",
+        "unitsSuffix": "units",
+        "emptyFloorsTitle": "No floor data",
+        "emptyFloorsDescription": "The host has not added floor or unit details for this property.",
+        "floorNames": {
+          "groundLobby": "Ground Floor - Lobby",
+          "servicesFloor": "Services & Facilities Floor",
+          "firstResidential": "First Residential Floor",
+          "secondResidential": "Second Residential Floor",
+          "thirdResidential": "Third Residential Floor"
+        },
+        "amenitiesTitle": "Available Services & Amenities",
+        "emptyAmenitiesTitle": "No services or amenities",
+        "emptyAmenitiesDescription": "The host has not added any services or amenities for this property.",
+        "amenityLabels": {
+          "cleaning": "Regular Cleaning",
+          "smartAssistant": "Smart Assistant",
+          "security": "Security & Guarding",
+          "pool": "Private Pool",
+          "gym": "Gym",
+          "parking": "Smart Parking"
+        },
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the basic info.",
+        "approveSuccess": "The basic property info was approved successfully.",
+        "rejectSuccess": "The basic property info was rejected successfully.",
+        "approveBtn": "Approve Property Data",
+        "rejectBtn": "Reject Request"
+      },
+      "location": {
+        "title": "Geographic Location Review",
+        "subtitle": "Please verify the property's address and map location match the actual site.",
+        "addressLabel": "Full Address",
+        "regionLabel": "Region",
+        "cityLabel": "City",
+        "districtLabel": "District",
+        "streetLabel": "Street",
+        "buildingNumberLabel": "Building Number",
+        "postalCodeLabel": "Postal Code",
+        "mapTitle": "Map Coordinates",
+        "mapLinkBtn": "Open in Google Maps",
+        "mapLoading": "Loading map...",
+        "mapError": "Couldn't load the map",
+        "coordsLabel": "Coordinates",
+        "emptyTitle": "No location data",
+        "emptyDescription": "The host has not added location data for this property.",
+        "addressDetailsTitle": "Address Details",
+        "nearbyPlacesTitle": "Nearby Places",
+        "distanceMetersSuffix": "m",
+        "distanceKmSuffix": "km",
+        "reviewTipTitle": "Review Tip",
+        "reviewTipText": "Make sure the uploaded photos match the surrounding landmarks shown on the map to confirm the location is accurate.",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reason in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the location.",
+        "approveSuccess": "The property location was approved successfully.",
+        "rejectSuccess": "The property location was rejected successfully.",
+        "approveBtn": "Approve Property Location",
+        "rejectBtn": "Reject Request"
+      },
+      "terms": {
+        "title": "Property Terms and Conditions Review",
+        "subtitle": "Please review the check-in/check-out policies and rules set by the host to ensure they comply with LFEEN standards.",
+        "checkInLabel": "Check-in Time",
+        "checkOutLabel": "Check-out Time",
+        "earlyCheckInLabel": "Early Check-in",
+        "earlyCheckInAvailable": "Available",
+        "earlyCheckInUnavailable": "Not available",
+        "generalRulesTitle": "General Rules",
+        "customRulesTitle": "Custom Host Rules",
+        "emptyTitle": "No terms or rules",
+        "emptyDescription": "The host has not added any terms or rules for this property.",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesOptional": "Optional for Approval",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail so the host can make corrections...",
+        "rejectionReasonRequired": "A rejection reason is required when rejecting the terms.",
+        "approveSuccess": "The property terms were approved successfully.",
+        "rejectSuccess": "The property terms were rejected successfully.",
+        "approveBtn": "Approve Property Terms and Conditions Review",
+        "rejectBtn": "Reject Request"
+      }
+    },
+    "unitReview": {
+      "title": "Unit Review",
+      "reviewRequestsBC": "Review Requests",
+      "unitCrumbLabel": "Unit",
+      "unitInfo": {
+        "unitNumberLabel": "Unit Number"
+      },
+      "status": {
+        "adminReviewLabel": "Pending Administrative Review",
+        "progressLabel": "Review status",
+        "progressCount": "{{completed}} of {{total}}",
+        "approved": "Approved",
+        "adopted": "Adopted",
+        "readyToPublish": "Ready to Publish",
+        "rejected": "Rejected",
+        "draftLabel": "Draft",
+        "newLabel": "New"
+      },
+      "sections": {
+        "basicInfo": {
+          "title": "1. Basic Information",
+          "desc": "Includes area, floor, occupancy and unit contents",
+          "btn": "Review Basic Information"
+        },
+        "photos": {
+          "title": "2. Unit Photos",
+          "desc": "Contains 8 high-quality photos covering bedrooms, living room and amenities",
+          "btn": "Review Photos"
+        },
+        "terms": {
+          "title": "3. Unit Terms",
+          "desc": "House rules for guests, booking/cancellation and general tenant obligations",
+          "btn": "Review Terms"
+        },
+        "pricing": {
+          "title": "4. Unit Pricing",
+          "desc": "Base price: 450 SAR/night, special weekend and seasonal pricing",
+          "btn": "Review Pricing"
+        },
+        "smartLock": {
+          "title": "5. Smart Lock",
+          "desc": "The approved entry system for this unit uses codes via the smart device/phone",
+          "infoBadge": "Informational",
+          "activeBadge": "Activated via system"
+        },
+        "access": {
+          "title": "6. Access Method",
+          "desc": "Location guidance, elevator code, and dedicated full-time staff number",
+          "btn": "Review Access"
+        },
+        "cancelPolicy": {
+          "title": "7. Cancellation Policy",
+          "desc": "Selected policy: Flexible (full refund before 24h of check-in)",
+          "btn": "Review Policy"
+        },
+        "deposit": {
+          "title": "8. Security Deposit",
+          "desc": "Required deposit: 500 SAR, charged at booking and refunded 24h after checkout",
+          "btn": "Review Deposit",
+          "infoBadge": "Informational"
+        },
+        "services": {
+          "title": "9. Service Customization",
+          "desc": "Additional services: daily cleaning, home breakfast (50 SAR), airport pickup",
+          "btn": "Review Services"
+        },
+        "license": {
+          "title": "10. Unit License",
+          "desc": "Ministry of Tourism license No: B-9928374-UC, valid until 2026/12/31",
+          "btn": "Preview License"
+        }
+      },
+      "basicInfoView": {
+        "pageTitle": "Unit Basic Information",
+        "backLabel": "Back to review list",
+        "heading": "Unit Contents & Facilities",
+        "subtitle": "Please review each section separately",
+        "smartSystemTitle": "Smart Lock System",
+        "smartBanner": "Smart AC system enabled in the unit",
+        "selfAccessBanner": "Self check-in is available through the Lfeen app",
+        "contentsLabel": "Contents",
+        "servicesLabel": "Services",
+        "privateFacilitiesLabel": "Private Facilities",
+        "stats": {
+          "capacity": "Guest Capacity",
+          "area": "Area",
+          "floor": "Floor Number",
+          "type": "Unit Type"
+        },
+        "badges": {
+          "new": "New",
+          "kingBed": "King Bed",
+          "singleBed": "Single Bed"
+        },
+        "rooms": {
+          "mainHall": {
+            "title": "1. Main Hall",
+            "desc": "Elegant seating area with private balcony"
+          },
+          "masterBedroom": {
+            "title": "2. Master Bedroom",
+            "desc": "King bed, fully en-suite bathroom"
+          },
+          "secondaryBedroom": {
+            "title": "3. Secondary Bedroom (Single Bed)",
+            "desc": "Cozy room, bathroom shared with hallway"
+          }
+        },
+        "subAreas": {
+          "balcony": "Outdoor Balcony"
+        },
+        "amenities": {
+          "smartAc": "Remote-controlled smart AC system",
+          "fiberInternet": "500 Mbps fiber internet",
+          "diningTable": "Wooden dining table for 4",
+          "smartTv": "65\" smart TV + Netflix",
+          "smartTvSmall": "43\" smart TV",
+          "kingBed": "Hotel-grade king bed",
+          "singleBed": "Hotel-grade single bed",
+          "outdoorSeating": "Outdoor seating set (rattan)",
+          "nightLighting": "Soft night lighting",
+          "noExtraSystem": "No additional system in those details"
+        },
+        "facilitiesSummary": {
+          "title": "4. General Unit Facilities & Equipment",
+          "desc": "Essential safety and comfort equipment",
+          "location": "Location",
+          "locationValue": "Beachfront",
+          "internet": "Internet",
+          "internetValue": "500 Mbps fiber",
+          "security": "Security",
+          "securityValue": "Smoke detector - fire alarm",
+          "cleaning": "Cleaning & Setup",
+          "cleaningValue": "Smart central cleaning"
+        },
+        "emptyTitle": "No unit data",
+        "emptyDescription": "The host has not added room, facility, or service details for this unit."
+      },
+      "termsView": {
+        "pageTitle": "Unit Terms Review",
+        "heading": "Review Housing Rules and Policies",
+        "subtitle": "Please review all dates and rules set by the host to ensure they match platform standards.",
+        "standardBadge": "Standard",
+        "checkInLabel": "Check-in time",
+        "checkInTime": "04:00 PM",
+        "checkOutLabel": "Check-out time",
+        "checkOutTime": "11:00 AM",
+        "earlyArrivalTitle": "Early Arrival Registration",
+        "earlyArrivalDesc": "Allow guests to arrive before the official time",
+        "availableLabel": "Available",
+        "earlyArrivalTime": "07:00 AM",
+        "generalRulesTitle": "General Flexible Unit Rules",
+        "customRulesTitle": "Additional Host Conditions",
+        "emptyTitle": "No terms or rules",
+        "emptyDescription": "The host has not added any terms or rules for this unit.",
+        "generalRules": {
+          "children": "Suitable for children",
+          "parties": "Hosting parties"
+        },
+        "conditions": {
+          "SmokingForbidden": "Smoking Forbidden inside the Unit",
+          "PetsNotAllowed": "Pets Not Allowed",
+          "PartiesForbidden": "Parties or Events Forbidden",
+          "RequiresIdIdentification": "National ID identification is mandatory",
+          "AllowChildren": "Children Allowed"
+        },
+        "hostRuleText": "Please note that the residential compound applies a quiet-hours policy after 10:00 PM. Shared pool access is not allowed after this time. Please make sure the smart access card is returned at checkout to the allocated box beside the main elevator.",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "approveBtn": "Approve Unit Terms"
+      },
+      "accessView": {
+        "pageTitle": "Access Method Review",
+        "unitAlt": "Unit photo",
+        "unitNumber": "Unit Number",
+        "floor": "Floor",
+        "photosTitle": "Access Route Photos",
+        "photosHint": "Please verify photo quality and that each image matches the actual access route.",
+        "emptyTitle": "No access route photos",
+        "emptyDescription": "The host has not added any photos showing the access route for this unit.",
+        "noImageLabel": "No image",
+        "photoNote": "Host note",
+        "noPhotoNote": "No notes",
+        "tags": {
+          "external": "External",
+          "inside": "Inside",
+          "floor": "Floor",
+          "unit": "Unit"
+        },
+        "photos": {
+          "street": "Building from outside / street",
+          "mainEntrance": "Main building entrance",
+          "corridor": "Rooms and floor corridor",
+          "unitDoor": "Residential unit door"
+        },
+        "hostGuideTitle": "Uploaded Host Explanation",
+        "hostGuideText": "Please enter from the main gate of Retaj Tower, then head to the elevators on the right. Go up to the fourth floor; the unit is at the end of the corridor on the left. The unit key is inside the smart box beside the door, and the passcode is 4455.",
+        "hostGuideMeta": "Explanation written by the host (Mohammed Al-Harthi)",
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "approveBtn": "Approve Access Method",
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "photosFailedToLoadWarning": "Access photos were uploaded but could not be loaded. Review each one and make your decision — it must still be submitted even if the image doesn't display."
+      },
+      "pricingView": {
+        "pageTitle": "Pricing Policy Review",
+        "title": "Pricing Policy Review",
+        "subtitle": "Please review the daily prices and seasonal periods set by the host",
+        "basePrice": "Base Price",
+        "safetyFloor": "Safety Minimum",
+        "perNight": "/ night",
+        "policies": {
+          "stayDurationSubtitle": "Discounts based on length of stay",
+          "dayFraction": {
+            "title": "Day Fraction",
+            "quarterDay": "Quarter-day discount",
+            "halfDay": "Half-day discount"
+          },
+          "longStay": {
+            "title": "Long-stay Discount",
+            "weekPlus": "One week or more discount",
+            "monthPlus": "One month or more discount"
+          },
+          "platform": {
+            "title": "Platform Customization",
+            "subtitle": "Set your unit pricing for Lfeen and other platforms",
+            "lfeen": "Lfeen platform",
+            "others": "Other platforms",
+            "discountLabel": "Discount"
+          }
+        },
+        "seasonalTitle": "Seasonal Pricing Periods",
+        "emptySeasonalTitle": "No seasonal pricing periods",
+        "emptySeasonalDescription": "The host has not added any seasonal pricing periods for this unit.",
+        "seasons": {
+          "period1": "Pricing Period 1",
+          "period2": "Pricing Period 2",
+          "period3": "Pricing Period 3",
+          "summerName": "Summer Season",
+          "summerDates": "Jun 15 - Aug 15"
+        },
+        "calendarTitle": "Availability & Daily Prices Calendar",
+        "calendarSubtitle": "Review available prices for each day independently",
+        "days": {
+          "sun": "Sun",
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat"
+        },
+        "notesTitle": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Unit Price"
+      },
+      "imagesView": {
+        "pageTitle": "Unit Photos Review",
+        "heading": "Review Unit Photos",
+        "reviewState": "Review status: {{count}} photos uploaded",
+        "mainPhoto": {
+          "badge": "Main Unit Photo",
+          "name": "Main unit photo",
+          "category": "Living room and bedroom preview"
+        },
+        "groups": {
+          "living": "Living Room Photos",
+          "kitchen": "Kitchen Photos",
+          "bedrooms": "Bedroom Photos"
+        },
+        "photos": {
+          "livingDining": "Dining table",
+          "livingCorridor": "Main corridor cleanliness",
+          "livingMain": "Main living area",
+          "kitchenFull": "Full kitchen photo",
+          "secondaryBedroom": "Secondary bedroom",
+          "masterBedroom": "Master bedroom"
+        },
+        "categories": {
+          "livingDiningCategory": "Section 1 - Dining area",
+          "livingCorridorCategory": "Second floor - internal corridor",
+          "livingMainCategory": "Second floor - living area",
+          "kitchenCategory": "Kitchen equipment and appliances",
+          "secondaryBedroomCategory": "Single bed - secondary room",
+          "masterBedroomCategory": "King bed - master room"
+        },
+        "classificationCategory": {
+          "MainPhoto": "Main Photo",
+          "Room": "Room",
+          "Bedroom": "Bedroom",
+          "Bathroom": "Bathroom",
+          "Kitchen": "Kitchen",
+          "LivingRoom": "Living Room",
+          "Other": "Other"
+        },
+        "rejectionReasonPlaceholder": "Rejection reason...",
+        "suggestedSolutionPlaceholder": "Suggested correction for host...",
+        "rejectionSummaryTitle": "Rejection Reasons Summary",
+        "rejectionSummarySubtitle": "Notes found in the uploaded photos. Please review before approval.",
+        "defaultRejectionReason": "Photo needs to be replaced or clarified.",
+        "emptyTitle": "No images uploaded",
+        "emptyDescription": "The host has not added any images for this unit yet.",
+        "noImageLabel": "No image",
+        "requiredOnReject": "Required on rejection",
+        "optionalOnApprove": "Optional on approval",
+        "approveBtn": "Approve Unit Photos",
+        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo."
+      },
+      "cancelPolicyView": {
+        "pageTitle": "Cancellation Policy Review",
+        "heading": "Host-Selected Policy",
+        "subtitle": "Please review the refund rules and their mapped cancellation reasons before approval.",
+        "emptyTitle": "No cancellation policy",
+        "emptyDescription": "The host has not selected a cancellation policy for this unit.",
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Cancellation Policy",
+        "percentSuffix": "% of booking value",
+        "yes": "Yes",
+        "no": "No",
+        "policyNameLabel": "Policy name",
+        "ruleTypeLabel": "Rule type",
+        "refundValueLabel": "Refund value",
+        "fixedAmountDesc": "A fixed amount refunded to the guest regardless of the booking value.",
+        "refundPerPeriod": "Per period",
+        "refundPerPeriodDesc": "The refund rate varies by the time window before check-in.",
+        "loadErrorTitle": "Couldn't load the cancellation policy",
+        "loadErrorDescription": "Something went wrong while fetching the data. Please try again.",
+        "retry": "Retry",
+        "priorityLabel": "Priority",
+        "priorityDesc": "Order in which the rule is applied (lowest first).",
+        "requiresNoteLabel": "Requires a note",
+        "reasonsLabel": "Mapped cancellation reasons",
+        "periodsLabel": "Time periods",
+        "periodRefundLabel": "Refund rate",
+        "percentShort": "%",
+        "fallbackTag": "Fallback period",
+        "periodWindow": {
+          "between": "Between {{min}} and {{max}} hours before check-in",
+          "after": "{{min}} hours or more before check-in",
+          "before": "Up to {{max}} hours before check-in",
+          "any": "Any time before check-in"
+        },
+        "noRulesTitle": "No refund rules",
+        "noRulesDescription": "The host has not added any refund rule to this policy.",
+        "ruleType": {
+          "fullRefund": "Full refund",
+          "flexible": "Flexible refund",
+          "nonRefundable": "Non-refundable"
+        },
+        "pendingUpdate": {
+          "banner": "The host has edited the cancellation policy. Review the changes before approving or rejecting.",
+          "currentLabel": "Current policy",
+          "pendingLabel": "Proposed change"
+        },
+        "warnings": {
+          "UNMAPPED_REASON": "A cancellation reason isn't assigned to any rule.",
+          "DUPLICATE_REASON": "The same reason is assigned to more than one rule.",
+          "OTHER_REASON_WITHOUT_NOTE": "\"Other reason\" is assigned to a rule that doesn't require a note.",
+          "INCOMPLETE_NAMES": "A rule is missing its Arabic or English name.",
+          "FLEXIBLE_PERIOD_WITHOUT_FALLBACK": "A flexible rule has no fallback period.",
+          "OVERLAPPING_FLEXIBLE_PERIODS": "Two periods in the same flexible rule overlap in time."
+        }
+      },
+      "finalNotes": {
+        "label": "Final Notes Added",
+        "rejectionReasonLabel": "Rejection Reason",
+        "optionalHint": "Optional when approving, required when rejecting",
+        "requiredHint": "Required when rejecting",
+        "placeholder": "Write your notes here to be sent to the host explaining the steps required to correct the request..."
+      },
+      "depositView": {
+        "pageTitle": "Security Deposit Review",
+        "emptyTitle": "No security deposit",
+        "emptyDescription": "The host has not set a security deposit amount for this unit.",
+        "amountLabel": "Selected security deposit for the unit",
+        "notice": "This amount is collected before the guest is allowed to check in. If no damage or issues are reported, the amount is automatically refunded 24 hours after checkout.",
+        "systemCheck": "The amount is verified by the platform's financial system",
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve Security Deposit"
+      },
+      "finalReview": {
+        "title": "Final Review",
+        "approvedStat": "Approved sections",
+        "rejectedStat": "Rejected sections",
+        "pendingStat": "Pending sections",
+        "hasRejectionWarning": "There are rejected sections — the unit cannot be approved until they are resolved",
+        "readyToApprove": "All sections reviewed — the unit is ready for final approval",
+        "alreadyApproved": "This unit has already been approved",
+        "errors": {
+          "alreadyApproved": "This unit has already been approved.",
+          "accountNotApproved": "The unit cannot be approved before its owner account is approved.",
+          "sectionsNotApproved": "All review sections must be approved before final approval.",
+          "alreadyRejected": "This unit has already been rejected."
+        }
+      },
+      "actions": {
+        "reject": "Reject Request",
+        "approve": "Approve Final Decision"
+      },
+      "confirm": {
+        "basicInfoApproveTitle": "Approve Basic Info?",
+        "basicInfoApproveMessage": "Are you sure you want to approve the basic information for this unit?",
+        "basicInfoRejectTitle": "Reject Basic Info?",
+        "basicInfoRejectMessage": "Are you sure you want to reject the basic information with the entered notes?",
+        "photosApproveTitle": "Approve Unit Photos?",
+        "photosApproveMessage": "Are you sure you want to approve all unit photos?",
+        "photosRejectTitle": "Reject Unit Photos?",
+        "photosRejectMessage": "Are you sure you want to reject the unit photos with the entered reasons?",
+        "termsApproveTitle": "Approve Unit Terms?",
+        "termsApproveMessage": "Are you sure you want to approve the terms and conditions of this unit?",
+        "termsRejectTitle": "Reject Unit Terms?",
+        "termsRejectMessage": "Are you sure you want to reject the unit terms with the entered reason?",
+        "pricingApproveTitle": "Approve Unit Pricing?",
+        "pricingApproveMessage": "Are you sure you want to approve the pricing for this unit?",
+        "pricingRejectTitle": "Reject Unit Pricing?",
+        "pricingRejectMessage": "Are you sure you want to reject the unit pricing with the entered notes?",
+        "accessApproveTitle": "Approve Access Method?",
+        "accessApproveMessage": "Are you sure you want to approve the access method and all attached photos for this unit?",
+        "accessRejectTitle": "Reject Access Method?",
+        "accessRejectMessage": "Are you sure you want to reject the access method based on the photo-level reasons provided?",
+        "cancelPolicyApproveTitle": "Approve Cancellation Policy?",
+        "cancelPolicyApproveMessage": "Are you sure you want to approve the cancellation policy selected by the host?",
+        "cancelPolicyRejectTitle": "Reject Cancellation Policy?",
+        "cancelPolicyRejectMessage": "Are you sure you want to reject this cancellation policy? Please make sure you have added your notes.",
+        "depositApproveTitle": "Approve Security Deposit?",
+        "depositApproveMessage": "Are you sure you want to approve the security deposit amount set for this unit?",
+        "depositRejectTitle": "Reject Security Deposit?",
+        "depositRejectMessage": "Are you sure you want to reject this security deposit? Please make sure you have added your notes.",
+        "licenseApproveTitle": "Approve unit license?",
+        "licenseApproveMessage": "Are you sure you want to approve the license for this unit?",
+        "licenseRejectTitle": "Reject unit license?",
+        "licenseRejectMessage": "Are you sure you want to reject the unit license? Please make sure you have added a rejection reason.",
+        "finalApproveTitle": "Approve Unit Finally?",
+        "finalApproveMessage": "Are you sure you want to give final approval for this unit? The unit will be published for bookings.",
+        "finalRejectTitle": "Reject Unit Finally?",
+        "finalRejectMessage": "Are you sure you want to reject this unit? The host will be notified with the written notes.",
+        "approveAction": "Yes, approve",
+        "rejectAction": "Yes, reject"
+      },
+      "servicesView": {
+        "pageTitle": "Additional Services",
+        "subtitle": "Services selected by the host and their pricing — view only",
+        "emptyTitle": "No additional services",
+        "emptyDescription": "The host has not added any additional services for this unit.",
+        "wifi": {
+          "title": "Wi-Fi Connection",
+          "desc": "Network details for the unit",
+          "passwordTitle": "Password",
+          "passwordValue": "royal12345",
+          "networkTitle": "Network Name (SSID)",
+          "networkValue": "NazilSoft_Guest_101"
+        },
+        "badges": {
+          "enabled": "Enabled",
+          "free": "Free",
+          "paid": "Paid",
+          "unavailable": "Not available"
+        },
+        "price": {
+          "paidLabel": "Daily Price",
+          "freeLabel": "Service"
+        }
+      },
+      "licenseView": {
+        "pageTitle": "Unit License Document Review",
+        "subtitle": "Please review the data and verify it matches the document below.",
+        "fullScreenBtn": "View full size",
+        "documentTitle": "Attached License Document",
+        "documentAlt": "Unit license document",
+        "owner": {
+          "title": "Property Owner Details",
+          "name": "Rehla Hotel Group",
+          "subtitle": "Commercial registry system",
+          "id": "430029387",
+          "profileBtn": "View profile and financial file"
+        },
+        "details": {
+          "title": "License Details",
+          "numberLabel": "Unified License Number",
+          "numberValue": "LIC-2024-00874",
+          "verifiedBadge": "Verified",
+          "statusLabel": "Document Status",
+          "statusValue": "",
+          "statusBadge": "Valid and Correct",
+          "issueDateLabel": "Issue Date",
+          "issueDateValue": "May 12, 2023",
+          "expiryDateLabel": "Expiry Date",
+          "expiryDateValue": "Dec 31, 2026",
+          "sourceLabel": "Issuing Authority",
+          "sourceValue": "Ministry of Tourism - Kingdom of Saudi Arabia",
+          "categoryLabel": "License Category",
+          "categoryValue": "Management and operation of tourist hospitality facilities"
+        },
+        "notesLabel": "Review Notes / Rejection Reason",
+        "notesRequiredHint": "Required when rejecting",
+        "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Approve License",
+        "emptyTitle": "No license data available",
+        "emptyDescription": "The host has not provided license information or an attachment for this unit."
+      }
+    },
+    "complaints": {
+      "title": "Complaint Management",
+      "tabs": {
+        "customers": "Customer Support",
+        "hosts": "Host Support",
+        "resolved": "Resolved"
+      },
+      "table": {
+        "searchPlaceholder": "Search by name, complaint ID...",
+        "ticket": "Ticket #",
+        "client": "Client",
+        "status": "Status",
+        "date": "Date",
+        "assign": "Assign",
+        "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
+        "assignDelayedMsg": "No activity for a while — you can reassign this complaint",
+        "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
+        "allStatuses": "All statuses",
+        "allTypes": "All types",
+        "typeClient": "Client",
+        "typeMerchant": "Host",
+        "resolveBtn": "Mark as resolved",
+        "empty": "No complaints found",
+        "totalPrefix": "Showing 1 of",
+        "totalSuffix": "complaints"
+      },
+      "status": {
+        "new": "New",
+        "inProgress": "In Progress",
+        "closed": "Closed",
+        "pending": "Pending",
+        "replied": "Replied"
+      },
+      "hostFilters": {
+        "searchPlaceholder": "Search by subject, ticket number...",
+        "property": "Building name",
+        "department": "Department",
+        "priority": "Priority",
+        "notAssigned": "Not assigned",
+        "allPriorities": "All priorities",
+        "allDepartments": "All departments",
+        "status": {
+          "new": "New",
+          "pendingAdminReply": "Awaiting admin reply"
+        },
+        "allProperties": "All buildings",
+        "allEmployees": "All employees",
+        "dateFrom": "Date from",
+        "dateTo": "Date to",
+        "reset": "Reset filters",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "errorMsg": "Something went wrong while loading tickets.",
+        "emptyFiltered": "No tickets match the current filters",
+        "clearFilters": "Clear filters",
+        "dateRangeError": "\"Date from\" must not be after \"Date to\""
+      },
+      "clientStatus": {
+        "open": "Open",
+        "pending": "Pending",
+        "resolved": "Resolved",
+        "closed": "Closed"
+      },
+      "customerFilters": {
+        "dept": {
+          "general": "General",
+          "booking": "Booking",
+          "payment": "Payment",
+          "technical": "Technical",
+          "account": "Account"
+        },
+        "priority": {
+          "low": "Low",
+          "normal": "Normal",
+          "high": "High",
+          "urgent": "Urgent"
+        }
+      },
+      "chat": {
+        "supportName": "Support",
+        "attachmentLabel": "Attachment",
+        "online": "Online now",
+        "typing": "Typing...",
+        "noMessages": "No messages yet",
+        "placeholder": "Type here...",
+        "resolveBtn": "Close & Resolve"
+      },
+      "hostDetail": {
+        "submittedAt": "Submitted at",
+        "submittedDate": "14 November 2023",
+        "lastUpdate": "Last update",
+        "lastUpdateValue": "15 minutes ago",
+        "followedBy": "Followed by employee",
+        "followedByValue": "14 November 2023 - 9:45 AM",
+        "issueType": "Issue type",
+        "issueTypeValue": "Payout issue",
+        "hostName": "Fahad Al-Sayf",
+        "hostSubtitle": "Host - Bab Al-Bahr Residential Hotel",
+        "problemTitle": "Issue Subject",
+        "problemBody": "Hello LFEEN team, I have an issue updating November prices. I changed the price in the host app, but the update does not appear in search results. Please help urgently as this affects upcoming bookings.",
+        "problemAttachmentNote": "I attached a screenshot showing the issue from my dashboard.",
+        "attachmentsTitle": "Attached files ({{count}})",
+        "attachmentMeta": "Word Document - 1.2 MB",
+        "kb": "KB",
+        "mb": "MB",
+        "unknownFile": "Unknown file",
+        "openFile": "Open file",
+        "fileUnavailable": "This file is unavailable",
+        "removeAttachment": "Remove attachment",
+        "replyTitle": "Official technical support reply",
+        "replyPlaceholder": "Write the official reply to the host here...",
+        "sendReply": "Send official reply",
+        "supportReplyTitle": "Technical support team (Ahmed)",
+        "supportReplyStatus": "Received",
+        "supportReplyTime": "09:40 PM",
+        "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
+        "supportReplySentNotice": "This reply was sent by email and app notifications",
+        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
+      },
+      "assignDialog": {
+        "title": "Assign Complaint to Employee",
+        "ticketLabel": "Ticket",
+        "searchPlaceholder": "Search by employee name or email...",
+        "columns": {
+          "select": "Select",
+          "employee": "Employee",
+          "phone": "Phone"
+        },
+        "empty": "No matching employees",
+        "selectHint": "Choose an employee from the list to follow up this complaint.",
+        "confirmTextPrefix": "You selected",
+        "confirmTextSuffix": "to follow up this complaint. An instant notification will be sent to the assigned employee.",
+        "confirmBtn": "Confirm Assignment",
+        "success": "Employee assigned successfully"
+      }
+    },
+    "chatFab": {
+      "title": "Help Center",
+      "subtitle": "You have {{count}} active conversations",
+      "loading": "Loading...",
+      "empty": "No active conversations right now",
+      "viewAll": "View all chats",
+      "unassigned": "Not assigned",
+      "assignedByPrefix": "By:",
+      "yesterday": "Yesterday"
+    },
+    "bookings": {
+      "title": "Bookings Record",
+      "cards": {
+        "totalBookings": "Total Bookings",
+        "confirmed": "Confirmed Bookings",
+        "awaitingArrival": "Awaiting Arrival",
+        "todayRevenue": "Today's Revenue"
+      },
+      "filters": {
+        "searchPlaceholder": "Search by booking #, client name...",
+        "checkIn": "Check-in Date",
+        "checkOut": "Check-out Date",
+        "clear": "Clear Filters",
+        "moreFilters": "Filters",
+        "dateRangeError": "Check-out date can't be before the check-in date.",
+        "checkOutClearedHint": "Check-out date was cleared because it fell before the check-in date."
+      },
+      "origin": {
+        "all": "All Sources",
+        "clientPortal": "Client Portal",
+        "merchant": "Host"
+      },
+      "status": {
+        "all": "All Statuses",
+        "confirmed": "Confirmed",
+        "checkedIn": "Checked In",
+        "awaitingCheckin": "Awaiting Check-in",
+        "awaitingCheckout": "Awaiting Check-out",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "pending": "Pending",
+        "unconfirmed": "Unconfirmed",
+        "onHold": "On Hold",
+        "awaitingAck": "Awaiting Customer Acknowledgement",
+        "blocked": "Blocked",
+        "noShow": "No Show",
+        "expired": "Expired",
+        "unknown": "Unknown"
+      },
+      "table": {
+        "bookingNum": "Booking #",
+        "client": "Client",
+        "unit": "Unit / Property",
+        "dates": "Check-in / Check-out",
+        "amount": "Amount",
+        "status": "Status",
+        "empty": "No bookings found"
+      },
+      "actions": {
+        "view": "View Details",
+        "changeUnit": "Change Unit",
+        "cancel": "Cancel Booking",
+        "menuLabel": "Booking actions"
+      },
+      "changeUnitDialog": {
+        "title": "Change Unit",
+        "unitLabel": "Select the new unit",
+        "unitPlaceholder": "Pick a unit from the list...",
+        "unitLoading": "Loading units...",
+        "unitEmpty": "No published units available",
+        "unitHint": "Only published units are shown.",
+        "reasonLabel": "Reason for change (optional)",
+        "reasonPlaceholder": "Write the reason for changing the unit here...",
+        "cancelBtn": "Back",
+        "confirmBtn": "Confirm Change"
+      },
+      "cancelBookingDialog": {
+        "title": "Cancel Booking",
+        "warningTitle": "Are you sure you want to cancel this booking?",
+        "warningDesc": "This action will cancel the booking and automatically process the refund to the customer.",
+        "reasonLabel": "Reason for cancellation",
+        "reasonPlaceholder": "Write the reason for cancellation here...",
+        "reasonRequiredError": "Please enter the reason for cancellation.",
+        "dismissBtn": "Back",
+        "confirmBtn": "Confirm Cancellation"
+      },
+      "detail": {
+        "title": "Booking Details",
+        "tabs": {
+          "services": "Services",
+          "log": "History",
+          "finance": "Finance",
+          "details": "Details"
+        },
+        "bookingNumberLabel": "Booking #",
+        "guestInfoTitle": "Guest Information",
+        "guestSection": {
+          "guestName": "Guest Name",
+          "phone": "Phone Number",
+          "companions": "Companions"
+        },
+        "unitSection": {
+          "title": "Unit Information",
+          "unitNumber": "Unit Number",
+          "unitType": "Unit Type",
+          "location": "Location"
+        },
+        "staySection": {
+          "title": "Stay Dates",
+          "checkOut": "Check-out",
+          "checkIn": "Check-in",
+          "duration": "Stay Duration",
+          "nights": "nights",
+          "actualCheckIn": "Actual check-in",
+          "actualCheckOut": "Actual check-out",
+          "notCheckedInYet": "Guest hasn't checked in yet",
+          "notCheckedOutYet": "Guest hasn't checked out yet"
+        },
+        "financeTab": {
+          "currency": "SAR",
+          "rentSummaryTitle": "Rent Summary",
+          "nightlyRate": "Nightly Rate",
+          "totalRent": "Total Rent",
+          "nightsBreakdown": "{{nights}} nights × {{rate}} SAR",
+          "remainingAmount": "Remaining Amount",
+          "paidAmount": "Paid Amount",
+          "depositTitle": "Deposit Amount",
+          "depositRemaining": "Remaining",
+          "depositPaid": "Paid",
+          "depositTotal": "Total Deposit"
+        },
+        "servicesTab": {
+          "currentRequestsTitle": "Current Requests",
+          "totalLabel": "Total",
+          "empty": "No current requests"
+        },
+        "logTab": {
+          "recentActivityTitle": "Last {{count}} Activities",
+          "byLabel": "By",
+          "empty": "No activity log",
+          "source": {
+            "admin": "Admin",
+            "merchant": "Merchant",
+            "guest": "Guest",
+            "system": "System"
+          }
+        },
+        "loading": "Loading booking details...",
+        "loadError": "Failed to load booking details"
+      }
+    },
+    "accountManagement": {
+      "title": "Account Management",
+      "reviewTitle": "Review Account",
+      "noResults": "No matching accounts found",
+      "searchPlaceholder": "Search by account name or tax number",
+      "stats": {
+        "total": "Total Accounts",
+        "active": "Active",
+        "underReview": "Under Review",
+        "rejected": "Rejected"
+      },
+      "tabs": {
+        "all": "All",
+        "active": "Active Accounts",
+        "rejected": "Rejected Accounts",
+        "underReview": "Accounts Under Review"
+      },
+      "filters": {
+        "all": "All Accounts",
+        "status": "All Statuses",
+        "newest": "Newest First",
+        "oldest": "Oldest First"
+      },
+      "card": {
+        "requestDate": "Request Date",
+        "joinDate": "Join Date",
+        "propertyCount": "Number of Properties",
+        "statusActive": "Active",
+        "statusUnderReview": "Under Review",
+        "statusPending": "Pending Review",
+        "statusRejected": "Rejected",
+        "statusSuspended": "Suspended",
+        "idFieldCompany": "Commercial Register",
+        "idFieldIndividual": "ID Number",
+        "actionCompany": "Company",
+        "actionSoleProprietorship": "Sole Proprietorship",
+        "actionIndividual": "Individual",
+        "walletAction": "Wallet"
+      },
+      "pagination": {
+        "total": "account"
+      }
+    },
+    "settlements": {
+      "title": "Settlements",
+      "subtitle": "Track payment settlement requests with accounts",
+      "tabs": {
+        "current": "Current Settlements",
+        "previous": "Previous Settlements"
+      },
+      "stats": {
+        "maxPaymentTime": "Max Payment Time",
+        "avgRequestValue": "Average Request Value",
+        "totalPending": "Total Pending Amount",
+        "hoursUnit": "hours"
+      },
+      "filters": {
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "searchPlaceholder": "Search by request number, account name...",
+      "table": {
+        "account": "Transaction / Account",
+        "accountName": "Account Name",
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "requestDate": "Date & Time",
+        "status": "Status"
+      },
+      "paymentMethods": {
+        "bankTransfer": "Bank Transfer",
+        "mada": "Mada Network"
+      },
+      "status": {
+        "pending": "Pending Review",
+        "processing": "Processing",
+        "approved": "Completed",
+        "partiallyCompleted": "Partially Completed",
+        "rejected": "Rejected"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load settlements",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to perform this action",
+        "notFound": "Settlement not found",
+        "stale": "This settlement has already been handled — the page was refreshed",
+        "noBankAccount": "No bank account on file for this merchant — the transfer can't be executed",
+        "amountExceeds": "The transferred amount exceeds the requested amount",
+        "partialReasonRequired": "A reason is required for a partial transfer",
+        "generic": "Something went wrong, please try again",
+        "receiptType": "Unsupported file type (JPG, PNG, PDF only)",
+        "receiptSize": "File exceeds the maximum size (5 MB)",
+        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded."
+      },
+      "rejectionReasonPrefix": "Rejection reason",
+      "rejectionReasons": {
+        "unclearImage": "Receipt image is unclear",
+        "accountMismatch": "Bank account details do not match"
+      },
+      "dateLabels": {
+        "today": "Today",
+        "yesterday": "Yesterday"
+      },
+      "empty": {
+        "title": "No settlements",
+        "desc": "There are no settlement requests matching your search"
+      },
+      "pagination": {
+        "total": "requests"
+      },
+      "detail": {
+        "title": "Settlement Request Details",
+        "subtitle": "Review the bank account details and available balance",
+        "hostSection": "Host Details",
+        "accountName": "Account Name",
+        "hostName": "Host Name",
+        "phone": "Phone Number",
+        "requestedAmount": "Requested Settlement Amount",
+        "bankSection": "Bank Details",
+        "verified": "Verified",
+        "accountHolder": "Account Holder",
+        "bankName": "Bank Name",
+        "accountNumber": "Account Number",
+        "iban": "IBAN Number",
+        "acceptBtn": "Accept & Transfer Amount",
+        "rejectBtn": "Reject Request",
+        "ibanCopied": "IBAN number copied",
+        "confirmTransferTitle": "Confirm Transfer & Upload Receipt",
+        "companyAccount": "Company / Account",
+        "ibanNumber": "Account / IBAN Number",
+        "amountToTransfer": "Amount to Transfer",
+        "paymentMethod": "Payment Method",
+        "actualAmount": "Actual Transferred Amount",
+        "partialReasonLabel": "Partial transfer reason",
+        "partialReasonPlaceholder": "Explain why less than the requested amount was transferred...",
+        "retryReceiptBtn": "Re-upload receipt",
+        "trxId": "Transaction Reference Number (TRX ID)",
+        "trxIdPlaceholder": "Enter the 12-digit bank reference number...",
+        "receiptLabel": "Transfer Receipt (Image or PDF)",
+        "uploadHint": "Click to upload the receipt or drag the file here",
+        "uploadFormats": "Supports JPG, PNG, PDF (max 5MB)",
+        "confirmTransferBtn": "Confirm & Accept Settlement",
+        "successTitle": "Settlement Completed Successfully",
+        "successMessage": "The transfer request has been processed and notifications sent to the relevant parties",
+        "trxNumber": "Transaction Number",
+        "transferredAmount": "Transferred Amount",
+        "executionTime": "Execution Time",
+        "now": "Now, {{time}}",
+        "closeWindowBtn": "Close Window",
+        "confirmRejectTitle": "Confirm Settlement Rejection",
+        "settlementAmount": "Settlement Amount",
+        "rejectReasonLabel": "Rejection Reason",
+        "rejectReasonPlaceholder": "Please write the reason for rejecting the settlement to be sent to the host...",
+        "rejectReasonHint": "This reason will be visible to the host in their control panel",
+        "confirmRejectBtn": "Confirm Rejection",
+        "rejectSuccessTitle": "Request Rejected Successfully",
+        "rejectSuccessSubtitle": "The request status was updated and the host notified",
+        "rejectDoneTitle": "Rejection Completed Successfully",
+        "rejectDoneMessage": "A rejection notice was sent to the host and the transaction status updated in the system",
+        "recordedReason": "Recorded Rejection Reason",
+        "rejectionDate": "Rejection Date"
+      }
+    },
+    "wallet": {
+      "title": "Merchant Wallet",
+      "balanceLabel": "Current Balance",
+      "adjustBtn": "Adjust Balance",
+      "searchPlaceholder": "Search by description...",
+      "filters": {
+        "all": "All Types",
+        "topUp": "Top Ups",
+        "callCharge": "Call Charges",
+        "callRefund": "Call Refunds",
+        "adminAdjustment": "Admin Adjustments",
+        "newest": "Newest first",
+        "oldest": "Oldest first"
+      },
+      "table": {
+        "date": "Date & Time",
+        "type": "Type",
+        "description": "Description",
+        "amount": "Amount",
+        "balanceAfter": "Balance After"
+      },
+      "types": {
+        "topUp": "Top Up",
+        "callCharge": "Call Charge",
+        "callRefund": "Call Refund",
+        "adminAdjustment": "Admin Adjustment"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load the wallet",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to view this merchant's wallet",
+        "invalidAmount": "The amount can't be zero",
+        "insufficientBalance": "This debit exceeds the current balance",
+        "generic": "Something went wrong, please try again"
+      },
+      "empty": {
+        "title": "No transactions",
+        "desc": "There are no wallet transactions matching your search"
+      },
+      "pagination": {
+        "total": "transactions"
+      },
+      "adjust": {
+        "title": "Manual Balance Adjustment",
+        "subtitle": "Credit or debit this merchant's wallet",
+        "credit": "Credit",
+        "debit": "Debit",
+        "currentBalance": "Current Balance",
+        "amountLabel": "Amount",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "Explain why this adjustment is being made...",
+        "reasonHint": "This will be recorded as the transaction's description",
+        "continueBtn": "Continue",
+        "backBtn": "Back",
+        "creditAmount": "Credit Amount",
+        "debitAmount": "Debit Amount",
+        "estimatedNewBalance": "Balance After Adjustment",
+        "irreversibleWarning": "This adjustment can't be undone once confirmed — it will be recorded permanently in the wallet ledger.",
+        "confirmBtn": "Confirm Adjustment",
+        "successTitle": "Adjustment Completed Successfully",
+        "successMessage": "The wallet balance has been updated and the transaction recorded",
+        "newBalance": "New Balance",
+        "closeWindowBtn": "Close Window"
+      }
+    },
+    "subscriptions": {
+      "pageTitle": "Subscription Management",
+      "listTitle": "Subscribers Accounts List",
+      "listSubtitle": "Manage active service details and fees for each facility",
+      "searchPlaceholder": "Search for a facility...",
+      "stats": {
+        "annual": "Annual",
+        "annualDesc": "Annual Income",
+        "monthly": "Monthly",
+        "monthlyDesc": "Expected Income",
+        "active": "Currently Active",
+        "activeDesc": "Active Subscriptions",
+        "total": "Total Subscribers",
+        "growth": "growth",
+        "growthBadge": "+{{percent}}% growth"
+      },
+      "classification": {
+        "hotel": "Hotel",
+        "resort": "Resort",
+        "apartments": "Furnished Apartments",
+        "villas": "Villas"
+      },
+      "category": {
+        "communication": "Communication Services",
+        "analytics": "Independence & Wellbeing",
+        "bookings": "Booking Management"
+      },
+      "table": {
+        "facility": "Facility / Classification",
+        "activeServices": "Active Services",
+        "fees": "Fees",
+        "status": "Status",
+        "actions": "Actions",
+        "others": "+{{count}} more",
+        "viewBtn": "View",
+        "editBtn": "Edit",
+        "expandTooltip": "Show details",
+        "collapseTooltip": "Hide details",
+        "moreActions": "More actions"
+      },
+      "period": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "free": "Free"
+      },
+      "status": {
+        "active": "Active",
+        "suspended": "Suspended",
+        "expired": "Expired"
+      },
+      "detail": {
+        "title": "Services & Subscriptions Details",
+        "subtitle": "List of all active services and their due dates for the facility",
+        "serviceName": "Service Name",
+        "category": "Service Type",
+        "price": "Price",
+        "subscriptionType": "Subscription Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "free": "Free"
+      },
+      "empty": {
+        "title": "No subscribers yet",
+        "desc": "No subscriber accounts have been registered yet, or no results match your search."
+      },
+      "pagination": {
+        "total": "subscriber",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page"
+      },
+      "settings": {
+        "pageTitle": "Subscription Settings",
+        "title": "Platform Services & Subscriptions Package",
+        "subtitle": "Enable or disable each service, and adjust its details and prices set in Saudi Riyal",
+        "searchPlaceholder": "Search for a service name...",
+        "configureBtn": "Service settings",
+        "monthlyPrice": "Monthly Price",
+        "annualPrice": "Annual Price",
+        "filters": {
+          "all": "All"
+        },
+        "status": {
+          "enabled": "Enabled",
+          "disabled": "Disabled"
+        },
+        "empty": {
+          "title": "No services found",
+          "desc": "No services match your search or the selected filter."
+        },
+        "services": {
+          "whatsappMuqam": {
+            "name": "WhatsApp for Business (Muqam Platform)",
+            "badge": "Permanent free discount",
+            "desc": "Manage direct communication channels with guests through the unified national platform for hospitality services",
+            "feature1": "Automatic sync of unit data",
+            "feature2": "Compatible with the hospitality portal system"
+          },
+          "rasd": {
+            "name": "Rasd Platform (Field Oversight)",
+            "badge": "3-day free trial",
+            "desc": "A comprehensive platform for field monitoring, quality control, and tracking actual visits to the facility",
+            "feature1": "Periodic inspection and complaint intake",
+            "feature2": "Instant alerts when violations are detected"
+          },
+          "whatsappBusiness": {
+            "name": "WhatsApp for Business",
+            "badge": "14-day free trial",
+            "desc": "Send instant booking notifications and welcome messages, and receive guest requests automatically and interactively",
+            "feature1": "Instant integration via the official account API",
+            "feature2": "Unlimited message and confirmation templates"
+          },
+          "zatca": {
+            "name": "E-Invoicing (ZATCA)",
+            "badge": "6-day free trial",
+            "desc": "Issue simplified tax invoices with a QR code compliant with the Zakat, Tax and Customs Authority",
+            "feature1": "Fully compliant with e-invoicing requirements",
+            "feature2": "Automatic archiving of all issued invoices"
+          },
+          "payments": {
+            "name": "Fast Electronic Payment Gateway",
+            "badge": "No setup fees for the first 30 days",
+            "desc": "Receive payments instantly via mada, Apple Pay, and credit cards with high speed and no delay",
+            "feature1": "High transfer speed and competitive fees",
+            "feature2": "Secured with 3D Secure standards"
+          },
+          "sms": {
+            "name": "Smart SMS Notification Service",
+            "badge": "Welcome credit - 50 messages",
+            "desc": "Send SMS messages to confirm bookings, OTP verification codes, and due invoice alerts",
+            "feature1": "Easily customizable messages",
+            "feature2": "High and reliable delivery rate"
+          }
+        }
+      },
+      "serviceSettings": {
+      "pageTitle": "Service Settings",
+      "backBtn": "Back to services list",
+      "serviceStatusLabel": "Service status",
+      "title": "Settings & customization for {{service}}",
+      "activeNow": "Service currently active",
+      "inactiveNow": "Service currently inactive",
+      "headerDesc": "Customize integration data sources, fee rules by facility classification, free trial terms, and the list of subscribed facilities",
+      "actions": "Actions",
+      "editRow": "Edit",
+      "deleteRow": "Delete",
+      "state": {
+        "title": "Service Status Control",
+        "desc": "Manage the platform's operating status and customize renewal and subscription behavior for all linked facilities.",
+        "currentStatus": "Current status",
+        "stopped": "Permanently stopped",
+        "stoppedDesc": "Fully close the service for all facilities",
+        "renewalStopped": "Renewal stopped",
+        "renewalStoppedDesc": "Prevent auto-renewal of current subscriptions",
+        "suspended": "Temporarily suspended",
+        "suspendedDesc": "Pause the service with the ability to resume",
+        "active": "Fully active",
+        "activeDesc": "The service runs at full capacity for all subscribers",
+        "confirmBtn": "Confirm change",
+        "oneWeek": "One week",
+        "twoWeeks": "Two weeks",
+        "oneMonth": "One month",
+        "durationTitle": "Duration Settings",
+        "durationDesc": "Specify the required period to apply the selected status"
+      },
+      "integration": {
+        "title": "Integration data fields",
+        "desc": "The data and keys required to connect directly with the client to activate each service",
+        "addBtn": "Add new field",
+        "fieldName": "Field name",
+        "dataType": "Data type",
+        "required": "Required",
+        "optional": "Optional",
+        "dataTypePlaceholder": "Text describing the data type...",
+        "fieldNamePlaceholder": "Enter field name..."
+      },
+      "operations": {
+        "title": "Operations & subscriptions pricing",
+        "desc": "Align the pricing model across the seasonal price, operation price and setup fee",
+        "searchPlaceholder": "Search for a facility...",
+        "type": "Subscription / operation type",
+        "setupFee": "Setup fee",
+        "operationPrice": "Operation price",
+        "seasonalPrice": "Seasonal price",
+        "basic": "Basic subscription",
+        "advanced": "Advanced subscription"
+      },
+      "facilities": {
+        "title": "Facilities currently subscribed to this service",
+        "desc": "List of facilities with this service enabled, their subscription dates, and fees paid",
+        "searchPlaceholder": "Search for a facility...",
+        "facility": "Facility & classification",
+        "plan": "Plan type",
+        "startDate": "Start date",
+        "renewalDate": "Renewal date",
+        "amountPaid": "Amount paid",
+        "status": "Status",
+        "planType": {
+          "annualAdvanced": "Annual - advanced",
+          "monthly": "Monthly",
+          "annualTrial": "Annual - trial"
+        },
+        "subscriberStatus": {
+          "active": "Active",
+          "trial": "Trial"
+        },
+        "empty": "No facilities are subscribed to this service yet."
+      },
+      "pricing": {
+        "title": "Default standard pricing for the service",
+        "desc": "Applied when no custom pricing rules exist above",
+        "monthlyLabel": "Standard monthly price (SAR)",
+        "annualLabel": "Standard annual price (SAR)",
+        "vatLabel": "Includes VAT (15%)",
+        "vatDesc": "The tax invoice is issued automatically once the subscription is confirmed"
+      },
+      "trial": {
+        "title": "Free trial period settings",
+        "desc": "Grant new facilities access to test the service before subscription and billing begin",
+        "durationLabel": "Trial period duration (days)",
+        "days": "days",
+        "recommended": "(Recommended)",
+        "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings.",
+        "setupFeeLabel": "Setup period amount",
+        "setupFeePlaceholder": "Enter the setup fee..."
+      },
+      "footerNote": "All edits here are saved at the global service level and affect all subscribed accounts.",
+      "cancelBtn": "Discard changes",
+      "saveBtn": "Save & update settings"
+      }
+    },
+    "subscriptionLog": {
+      "pageTitle": "Subscription Log",
+      "title": "Subscription Activity Log",
+      "subtitle": "Track all operations and actions performed on the facility's subscriptions",
+      "searchPlaceholder": "Search for a facility...",
+      "filters": {
+        "all": "All"
+      },
+      "table": {
+        "refNumber": "Reference No.",
+        "actionType": "Action Type",
+        "service": "Service",
+        "actor": "By",
+        "date": "Date",
+        "status": "Status"
+      },
+      "action": {
+        "renew": "Renewal",
+        "add": "Addition",
+        "cancel": "Cancellation"
+      },
+      "status": {
+        "completed": "Completed",
+        "processing": "Processing",
+        "cancelled": "Cancelled"
+      },
+      "empty": {
+        "title": "No operations yet",
+        "desc": "No subscription operations have been recorded yet, or no results match your search."
+      },
+      "pagination": {
+        "total": "operation",
+        "prev": "Previous page",
+        "next": "Next page",
+        "page": "Page"
+      }
+    },
+    "businessCategories": {
+      "Hotel": "Hotel",
+      "HotelVillas": "Hotel Villas",
+      "Apartments": "Apartments",
+      "Villas": "Villas",
+      "Chalets": "Chalets",
+      "Resorts": "Resorts",
+      "Rests": "Rest Houses",
+      "Commercial": "Commercial Tower",
+      "Compounds": "Residential Compounds"
+    },
+    "reviewAccount": {
+      "facilityInfo": {
+        "cardTitle": "Facility Information",
+        "unifiedNumber": "Unified Number",
+        "dataStatus": "Data Status",
+        "dataVerified": "Data Verified",
+        "dataNotVerified": "Not Verified",
+        "businessCategory": "Business Category",
+        "legalEntityName": "Legal Entity Name",
+        "companyNumber": "Commercial Registration Number",
+        "nationalCategory": "National Category",
+        "businessSubcategory": "Business Subcategory",
+        "commercialExpiryDate": "Commercial Registration Expiry"
+      },
+      "tradeName": {
+        "cardTitle": "Commercial Identity",
+        "logoLabel": "Facility Logo",
+        "nameLabel": "Trade Name",
+        "documentLabel": "Brand Documentation",
+        "crCertificateLabel": "Commercial Registration Certificate"
+      },
+      "taxAddress": {
+        "cardTitle": "Tax and National Address",
+        "regionLabel": "Region Prince",
+        "shortNationalAddress": "Short National Address",
+        "taxNumber": "Tax Number",
+        "region": "Region",
+        "city": "City",
+        "postalCode": "Postal Code",
+        "district": "District",
+        "buildingNumber": "Building Number",
+        "streetName": "Street Name",
+        "vatNumber": "VAT Number",
+        "taxRate": "Tax Rate",
+        "vatCertificate": "VAT Certificate",
+        "vatCertificateYes": "Available",
+        "vatCertificateNo": "Not Available"
+      },
+      "contactInfo": {
+        "cardTitle": "Contact Information",
+        "mobile": "Mobile Number",
+        "email": "Email Address",
+        "phoneVerified": "Verified"
+      },
+      "bankInfo": {
+        "cardTitle": "Bank Account Information",
+        "iban": "IBAN Number",
+        "bankVerified": "Bank Account Verified",
+        "beneficiaryName": "Beneficiary Name",
+        "swiftCode": "SWIFT Code"
+      },
+      "accountOverview": {
+        "cardTitle": "Account Overview",
+        "disabled": "Account Disabled",
+        "referenceCode": "Reference Code",
+        "idNumber": "ID Number",
+        "birthDate": "Birth Date",
+        "memberCount": "Member Count",
+        "propertyCount": "Property Count",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated",
+        "businessInfoStatus": "Business Info Status",
+        "bankInfoStatus": "Bank Info Status",
+        "taxInfoStatus": "Tax Info Status",
+        "documentsStatus": "Documents Status",
+        "previousRejectionReason": "Previous Rejection Reason"
+      },
+      "sectionStatus": {
+        "Draft": "Draft",
+        "PendingReview": "Pending Review",
+        "Approved": "Approved",
+        "Rejected": "Rejected"
+      },
+      "decision": {
+        "cardTitle": "Make Decision on Request",
+        "basicNameLabel": "Facility's Approved Basic Name",
+        "basicNameHint": "This name will be officially used once the account is activated",
+        "basicNamePlaceholder": "e.g. Traveler Solutions Est.",
+        "basicNameRequired": "Please enter the basic name in Arabic and English before accepting",
+        "notesLabel": "Rejection Notes",
+        "notesRequired": "(Required if rejecting)",
+        "notesPlaceholder": "Please enter rejection reasons in detail so the host can make corrections...",
+        "invalidUnifiedNumberLabel": "Unified Number Is Invalid",
+        "invalidUnifiedNumberHint": "Enable this if the rejection reason is an invalid facility unified number",
+        "rejectBtn": "Reject Request",
+        "approveBtn": "Accept and Activate Account",
+        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",
+        "acceptSuccess": "Account has been accepted and activated successfully",
+        "rejectSuccess": "Account request has been rejected successfully",
+        "rejectionRequired": "Please enter a rejection reason before proceeding",
+        "confirm": {
+          "approveTitle": "Confirm Account Approval",
+          "approveMessage": "Are you sure you want to accept and activate this account?",
+          "approveAction": "Yes, Accept & Activate",
+          "rejectTitle": "Confirm Account Rejection",
+          "rejectMessage": "Are you sure you want to reject this request?",
+          "rejectAction": "Yes, Reject Request"
+        }
+      }
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "subtitle": "Manage platform details, account preferences, security settings and integrations",
+      "saveBtn": "Save Changes",
+      "tabs": {
+        "sysInfo": "System Information",
+        "security": "Security & Privacy"
+      },
+      "sysInfo": {
+        "sectionTitle": "Basic System Information",
+        "platformName": "Platform Name",
+        "platformUrl": "Official Platform URL",
+        "supportEmail": "Support Email",
+        "timezone": "Timezone",
+        "notifSection": "Notification Preferences",
+        "notifSectionSub": "Automatic notifications from the platform",
+        "emailNotif": "Email Notifications",
+        "emailNotifDesc": "Send notifications for new service applications",
+        "urgentBookings": "Urgent Booking Alerts",
+        "urgentBookingsDesc": "Send an SMS when an upcoming booking is within 2 hours",
+        "monthlyReports": "Monthly Performance Reports",
+        "monthlyReportsDesc": "Download and send a comprehensive PDF report at the end of each calendar month",
+        "apiSection": "Access Keys (API)",
+        "apiSectionLink": "Developers only",
+        "secretKey": "Secret Access Key",
+        "webhookUrl": "Webhook URL",
+        "webhookDesc": "Use this URL to receive real-time notifications in your system when any booking or cancellation occurs",
+        "generateNew": "Generate New",
+        "copy": "Copy"
+      },
+      "security": {
+        "sectionTitle": "Security & Privacy",
+        "sectionSub": "Control access settings and protect your admin account data",
+        "twoFa": "Two-Factor Authentication (2FA)",
+        "twoFaDesc": "Add an extra layer of security when logging in. You will need to enter a code sent to your phone or authentication app",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "activeSessions": "Active Sessions",
+        "logoutAll": "Logout from all sessions",
+        "currentSession": "Current",
+        "sessionNow": "Just now",
+        "loginLog": "Login Activity Log",
+        "logEvent": "Event",
+        "logDateTime": "Date & Time",
+        "logIp": "IP Address",
+        "logLocation": "Location"
+      },
+      "heroTitle": "Platform Settings"
+    },
+    "notifications": {
+      "pageTitle": "Notifications & Alerts",
+      "empty": "No notifications",
+      "loadMore": "Show older tickets",
+      "tabs": {
+        "all": "All",
+        "complaints": "Complaints",
+        "propertyReview": "Property Review",
+        "inquiries": "Inquiries"
+      },
+      "types": {
+        "complaint": "Complaint",
+        "propertyReview": "Property Review",
+        "inquiry": "Inquiry"
+      },
+      "mock": {
+        "complaint1": {
+          "title": "Complaint - with Host #358",
+          "subtitle": "Guest: Summer Hotel · Prices not updated for 24 hours",
+          "time": "2 hours ago"
+        },
+        "propertyReview1": {
+          "title": "Property Review #354",
+          "subtitle": "New building approval request: Laqtadar Complex",
+          "time": "2 hours ago"
+        },
+        "inquiry1": {
+          "title": "Technical Inquiry #25",
+          "subtitle": "Inquiry about smart phone lock system",
+          "time": "Yesterday, 11:35 PM"
+        },
+        "complaint2": {
+          "title": "Complaint #28000",
+          "subtitle": "Delay in settling September payments",
+          "time": "Yesterday, 11:25 PM"
+        }
+      }
+    },
+    "platformOffers": {
+      "title": "Platform Offers", "subtitle": "Admin-owned offers that apply platform-wide, to any unit regardless of merchant", "add": "Add Offer", "cancel": "Cancel", "edit": "Edit", "viewDetails": "View Details", "activate": "Activate", "deactivate": "Deactivate", "delete": "Delete", "retry": "Try again", "total": "offers", "automatic": "Automatic", "saved": "Offer saved successfully", "deleted": "Offer deleted successfully", "confirmStatus": "Are you sure you want to change this offer's status?", "confirmDelete": "Are you sure you want to delete this offer? This cannot be undone.", "allUnits": "Applies to all units", "noData": "No data yet", "pickDate": "Pick a date", "pickTime": "Pick a time",
+      "filters": { "search": "Search by name or code", "allTriggers": "All trigger types", "allStatuses": "All statuses", "min": "Min discount", "max": "Max discount", "reset": "Reset filters" },
+      "status": { "active": "Active", "inactive": "Inactive", "expired": "Expired", "scheduled": "Scheduled" },
+      "confirm": { "deleteTitle": "Delete this offer?", "deleteMessage": "This offer will be permanently deleted. This action cannot be undone.", "deleteAction": "Delete offer", "activateTitle": "Activate this offer?", "activateMessage": "The offer will become available whenever its configured rules and dates are met.", "activateAction": "Activate offer", "deactivateTitle": "Deactivate this offer?", "deactivateMessage": "The offer will stop applying to new bookings until it is activated again.", "deactivateAction": "Deactivate offer" },
+      "enums": { "Automatic": "Automatic", "Coupon": "Coupon", "Percentage": "Percentage", "FixedAmount": "Fixed amount", "FinalPrice": "Final price", "AllUnits": "All units", "SpecificUnits": "Specific units", "All": "All", "Merchant": "Merchant", "Client": "Client", "ByDate": "By date", "ByUsageLimit": "By usage limit", "WhicheverFirst": "Whichever occurs first", "None": "Success message", "NotFound": "Offer not found", "NotStarted": "Offer has not started", "Expired": "Offer expired", "UsageLimitReached": "Usage limit reached", "UserUsageLimitReached": "User usage limit reached", "InvalidUnit": "Unit not eligible", "StayPeriodMismatch": "Stay period mismatch", "MinDaysBeforeArrivalNotMet": "Minimum advance booking not met", "MinStayDaysNotMet": "Minimum stay not met", "MaxStayDaysExceeded": "Maximum stay exceeded", "PaymentMethodNotAllowed": "Payment method not allowed", "ExclusionPeriodConflict": "Excluded period conflict", "MinAmountNotMet": "Minimum amount not met", "DayOfWeekMismatch": "Offer day mismatch", "HappyHourMismatch": "Happy hour mismatch", "ChannelMMismatch": "Display channel mismatch", "StayDayOfWeekMismatch": "Stay day mismatch" },
+      "table": { "offer": "Offer", "code": "Code", "discount": "Discount", "validity": "Validity", "status": "Status", "uses": "uses", "actions": "Actions" },
+      "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
+      "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
+      "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
+      "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
+      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
+      "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
+      "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
+      "form": { "createTitle": "Create Platform Offer", "editTitle": "Edit Platform Offer", "subtitle": "Configure an offer that applies across the platform, regardless of merchant.", "preview": "Preview", "unnamed": "Unnamed offer", "save": "Save Offer", "saving": "Saving…", "addExclusion": "Add Exclusion Period", "addMessage": "Add Message", "addTerm": "Add Term" }
+    },
+    "contactUs": {
+      "title": "Contact Us", "subtitle": "Review and resolve messages received from visitors", "total": "messages", "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
+      "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
+      "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
+      "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
+      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message." },
+      "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
+      "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
+    },
+    "faq": {
+      "title": "FAQ Management",
+      "pageTitle": "FAQ Management",
+      "pageSubtitle": "Articles available to view in support apps",
+      "help": "Help",
+      "addArticle": "Add New Article",
+      "listTitle": "Articles List",
+      "stats": {
+        "total": "Total",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "filter": {
+        "all": "All",
+        "byDepartment": "Filter by department"
+      },
+      "table": {
+        "articleTitle": "Title",
+        "department": "Department",
+        "order": "Order",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No articles found"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Confirm Delete",
+        "message": "Are you sure you want to delete this article? This action cannot be undone."
+      },
+      "toggle": {
+        "activateTitle": "Confirm Activation",
+        "activateMessage": "Are you sure you want to activate this article?",
+        "deactivateTitle": "Confirm Deactivation",
+        "deactivateMessage": "Are you sure you want to deactivate this article?"
+      },
+      "dialog": {
+        "addTitle": "Create New Article",
+        "editTitle": "Edit Article",
+        "cancel": "Cancel",
+        "sectionTitle": "Title",
+        "sectionContent": "Text / Answer",
+        "englishLabel": "ENGLISH",
+        "arabicLabel": "Arabic",
+        "titleEnPlaceholder": "How to make a booking?",
+        "titleArPlaceholder": "كيف يمكنني إجراء حجز؟",
+        "contentEnPlaceholder": "Answer in English...",
+        "contentArPlaceholder": "الإجابة بالعربية...",
+        "department": "Department",
+        "departmentPlaceholder": "Select department",
+        "noDepartment": "No department",
+        "order": "Order",
+        "orderHint": "Ascending (1 = first)",
+        "clear": "Clear",
+        "create": "Create Article",
+        "validation": {
+          "titleRequired": "Title is required in both languages",
+          "orderRequired": "Order is required"
+        }
+      },
+      "toast": {
+        "addSuccess": "Article added successfully",
+        "updateSuccess": "Article updated successfully",
+        "deleteSuccess": "Article deleted successfully",
+        "statusUpdateSuccess": "Article status updated"
+      }
+    },
+    "callScripts": {
+      "title": "Call Scripts",
+      "pageTitle": "Call Scripts",
+      "pageSubtitle": "IVR audio scripts and DTMF menus played during checkout calls",
+      "newVersion": "New Version",
+      "stats": {
+        "total": "Total",
+        "active": "Active"
+      },
+      "table": {
+        "scenario": "Scenario",
+        "audio": "Audio File",
+        "options": "Menu Options",
+        "updated": "Last Updated",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No call scripts yet"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate"
+      },
+      "activateConfirm": {
+        "title": "Confirm Activation",
+        "message": "Activating this version will deactivate the currently active script for this scenario. Continue?"
+      },
+      "dialog": {
+        "addTitle": "New Script Version",
+        "editTitle": "Edit Script",
+        "cancel": "Cancel",
+        "create": "Create Version",
+        "scenarioSection": "Scenario",
+        "scenarioPlaceholder": "Select scenario",
+        "audioSection": "Audio File",
+        "audioUrlPlaceholder": "https://cdn.lfeen.com/ivr/script.mp3",
+        "optionsSection": "Menu Options (DTMF)",
+        "addOption": "Add Option",
+        "digit": "Digit",
+        "digitPlaceholder": "1",
+        "description": "Description",
+        "descriptionPlaceholder": "Accept the extension offer",
+        "responseUrl": "Response Audio (optional)",
+        "responseUrlPlaceholder": "https://cdn.lfeen.com/ivr/response.mp3",
+        "activeLabel": "Set as active script",
+        "activeHint": "Activating this deactivates any other script currently active for this scenario",
+        "validation": {
+          "scenarioRequired": "Scenario is required",
+          "audioUrlRequired": "Audio file URL is required",
+          "optionsRequired": "At least one menu option is required"
+        }
+      },
+      "errors": {
+        "loadTitle": "Couldn't load call scripts",
+        "retry": "Try again",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You are not allowed to view call scripts",
+        "audioUrlRequired": "Audio file URL is required",
+        "optionsRequired": "At least one menu option is required",
+        "notFound": "This script no longer exists",
+        "generic": "Something went wrong, please try again"
+      },
+      "toast": {
+        "createSuccess": "Script version created successfully",
+        "updateSuccess": "Script updated successfully",
+        "activateSuccess": "Script activated successfully"
+      }
     }
+  },
+  "notFound": {
+    "title": "Something went wrong",
+    "subtitle": "Sorry, it looks like the link you followed is broken or the page has been moved.",
+    "refreshButton": "Refresh Page",
+    "homeButton": "Back to Home"
   }
 }

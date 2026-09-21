@@ -1,0 +1,242 @@
+<div class="basic-info-review" [dir]="currentDir">
+
+  @if (isLoading) {
+    <div style="display:flex; justify-content:center; align-items:center; padding:4rem;">
+      <i-tabler name="loader-2" style="animation:spin 1s linear infinite;"></i-tabler>
+    </div>
+  } @else {
+
+  <section class="unit-hero">
+    <div class="unit-title-block">
+      <h2>{{ unitTitle }}</h2>
+      <p>{{ unitLocation }}</p>
+    </div>
+
+    <div class="unit-stats-row">
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}</span>
+        <strong>{{ unitNumber }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.type' | translate }}</span>
+        <strong>{{ unitType }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.floor' | translate }}</span>
+        <strong>{{ unitFloor }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.area' | translate }}</span>
+        <strong>{{ unitArea }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.capacity' | translate }}</span>
+        <strong>{{ unitCapacity }}</strong>
+      </div>
+    </div>
+  </section>
+
+  @if (hasLock) {
+    <section class="smart-system-card">
+      <span class="smart-system-toggle" aria-hidden="true"></span>
+      <div>
+        <strong>{{ 'd3.unitReview.basicInfoView.smartSystemTitle' | translate }}</strong>
+        <span>{{ 'd3.unitReview.basicInfoView.selfAccessBanner' | translate }}</span>
+      </div>
+      <i-tabler name="check" class="smart-system-check"></i-tabler>
+    </section>
+  }
+
+  <section class="section-title-row">
+    <h2>{{ 'd3.unitReview.basicInfoView.heading' | translate }}</h2>
+  </section>
+
+  @if (!hasRoomsData) {
+    <app-review-empty-state
+      icon="home-off"
+      titleKey="d3.unitReview.basicInfoView.emptyTitle"
+      descKey="d3.unitReview.basicInfoView.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  @if (hasRoomsData) {
+  <div class="rooms-list">
+    @for (room of dynamicRooms; track $index) {
+      <article class="room-card" [class.room-card--closed]="!room.isOpen">
+        <button class="room-toggle" type="button" (click)="toggleRoom(room)">
+          <i-tabler [name]="room.isOpen ? 'chevron-up' : 'chevron-down'"></i-tabler>
+        </button>
+
+        <div class="room-content">
+          <header class="room-header">
+            <span class="room-icon">
+              <i-tabler [name]="room.icon"></i-tabler>
+            </span>
+            <div>
+              <h3>
+                {{ room.title }}
+                @if (room.badge) {
+                  <span class="room-badge">{{ room.badge }}</span>
+                }
+              </h3>
+              @if (room.desc) {
+                <p>{{ room.desc }}</p>
+              }
+            </div>
+          </header>
+
+          @if (room.isOpen) {
+            <div class="room-body">
+              @if (room.amenities.length > 0) {
+                <div class="detail-group">
+                  <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
+                  <div class="amenity-chips">
+                    @for (item of room.amenities; track item.label) {
+                      <span class="amenity-chip">
+                        <i-tabler [name]="item.icon"></i-tabler>
+                        {{ item.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (room.services.length > 0) {
+                <div class="detail-group">
+                  <span class="group-label">{{ 'd3.unitReview.basicInfoView.servicesLabel' | translate }}</span>
+                  <div class="amenity-chips">
+                    @for (item of room.services; track item.label) {
+                      <span class="amenity-chip">
+                        <i-tabler [name]="item.icon"></i-tabler>
+                        {{ item.label }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @for (sub of room.subAreas ?? []; track sub.label) {
+                <div class="private-title">
+                  <span>{{ 'd3.unitReview.basicInfoView.privateFacilitiesLabel' | translate }}</span>
+                  <strong>{{ sub.label }}</strong>
+                </div>
+
+                @if (sub.amenities.length > 0) {
+                  <div class="detail-group detail-group--inline">
+                    <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
+                    <div class="amenity-chips amenity-chips--compact">
+                      @for (item of sub.amenities; track item.label) {
+                        <span class="plain-feature">
+                          <i-tabler [name]="item.icon"></i-tabler>
+                          {{ item.label }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (sub.services.length > 0) {
+                  <div class="detail-group detail-group--inline">
+                    <span class="group-label">{{ 'd3.unitReview.basicInfoView.servicesLabel' | translate }}</span>
+                    <div class="amenity-chips amenity-chips--compact">
+                      @for (item of sub.services; track item.label) {
+                        <span class="plain-feature">
+                          <i-tabler [name]="item.icon"></i-tabler>
+                          {{ item.label }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      </article>
+    }
+
+    <article class="summary-card">
+      <header class="room-header">
+        <span class="room-icon">
+          <i-tabler name="shield-check"></i-tabler>
+        </span>
+        <div>
+          <h3>{{ 'd3.unitReview.basicInfoView.facilitiesSummary.title' | translate }}</h3>
+          <p>{{ 'd3.unitReview.basicInfoView.facilitiesSummary.desc' | translate }}</p>
+        </div>
+      </header>
+
+      @if (unitFacilities.length > 0) {
+        <div class="detail-group">
+          <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
+          <div class="amenity-chips">
+            @for (facility of unitData!.facilities; track facility.facilityId) {
+              <span class="amenity-chip">
+                <i-tabler [name]="getFacilityIcon(facility.facilityTypeName)"></i-tabler>
+                {{ facility.facilityTypeName }}
+              </span>
+            }
+          </div>
+        </div>
+
+        @if (wifiFacility) {
+          <div class="detail-group">
+            <span class="group-label">{{ 'd3.unitReview.servicesView.wifi.title' | translate }}</span>
+            <div class="amenity-chips">
+              <span class="amenity-chip">
+                <i-tabler name="wifi"></i-tabler>
+                {{ 'd3.unitReview.servicesView.wifi.networkTitle' | translate }}: {{ wifiFacility.wifiSsid || '—' }}
+              </span>
+              <span class="amenity-chip">
+                <i-tabler name="key"></i-tabler>
+                {{ 'd3.unitReview.servicesView.wifi.passwordTitle' | translate }}: {{ wifiFacility.wifiPassword || '—' }}
+              </span>
+            </div>
+          </div>
+        }
+      }
+
+      @if (unitServices.length > 0) {
+        <div class="detail-group">
+          <span class="group-label">{{ 'd3.unitReview.basicInfoView.servicesLabel' | translate }}</span>
+          <div class="amenity-chips">
+            @for (service of unitServices; track service.serviceExternalId) {
+              <span class="amenity-chip">
+                <i-tabler [name]="getServiceIcon(service.displayName)"></i-tabler>
+                {{ getServiceLabel(service) }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+    </article>
+  </div>
+  }
+
+  @if (!isReadOnly) {
+    <section class="final-notes-section">
+      <div class="notes-label-row">
+        <span class="input-label">{{ 'd3.unitReview.finalNotes.label' | translate }}</span>
+        <small class="notes-hint">{{ 'd3.unitReview.finalNotes.requiredHint' | translate }}</small>
+      </div>
+      <textarea
+        [(ngModel)]="finalNotes"
+        [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+        rows="3">
+      </textarea>
+    </section>
+
+    <footer class="action-buttons">
+      <button class="btn btn-approve" type="button" [disabled]="!!finalNotes.trim()" (click)="submitDecision('approved')">
+        <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+        <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+      </button>
+      <button class="btn btn-reject" type="button" [disabled]="!finalNotes.trim()" (click)="submitDecision('rejected')">
+        <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+        <i-tabler name="x" class="btn-icon"></i-tabler>
+      </button>
+    </footer>
+  }
+
+  } <!-- end @else -->
+</div>

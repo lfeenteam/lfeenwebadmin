@@ -1,0 +1,258 @@
+<div class="add-role-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+
+  <!-- Page Title -->
+  <div class="page-title-block m-b-24">
+    <h1 class="f-s-24 f-w-900 m-b-4">{{ 'd3.addRolePage.title' | translate }}</h1>
+    <p class="page-subtitle m-0">{{ (deptId ? 'd3.addRolePage.subtitle' : 'd3.addRolePage.subtitleGeneric') | translate }}</p>
+  </div>
+
+  <form [formGroup]="roleForm">
+
+    <!-- Section 1: Basic Info -->
+    <mat-card class="info-card m-b-24">
+      <mat-card-content class="p-32">
+        <div class="section-header d-flex align-items-center gap-8 m-b-24">
+          <span class="section-bar"></span>
+          <span class="section-title">{{ 'd3.addRolePage.basicInfoTitle' | translate }}</span>
+        </div>
+
+        <!-- Role Name -->
+        <div class="field-group m-b-20">
+          <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.roleNameLabel' | translate }}</label>
+          <div class="bilingual-input-wrapper"
+            [class.is-invalid]="roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched">
+            <input class="bilingual-input"
+              [formControlName]="currentLang === 'ar' ? 'nameAr' : 'nameEn'"
+              [placeholder]="'d3.addRolePage.roleNamePlaceholder' | translate">
+            <button type="button" class="lang-chip" [class.active]="showNameSecondary"
+              (click)="showNameSecondary = !showNameSecondary">
+              {{ currentLang === 'ar' ? 'English' : 'عربي' }}
+            </button>
+          </div>
+          @if (roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched) {
+            <p class="field-error m-t-4">
+              {{ 'd3.addRolePage.validation.nameRequired' | translate }}
+            </p>
+          }
+          @if (showNameSecondary) {
+            <div class="bilingual-input-wrapper secondary m-t-8"
+              [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
+              <input class="bilingual-input"
+                [formControlName]="currentLang === 'ar' ? 'nameEn' : 'nameAr'"
+                [placeholder]="currentLang === 'ar' ? 'e.g. Quality Supervisor' : 'مثال: مشرف الجودة'">
+              <span class="lang-chip static">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Department (optional, only when not scoped to a department already) -->
+        @if (!deptId) {
+          <div class="field-group m-b-20">
+            <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.departmentLabel' | translate }}</label>
+            <div class="bilingual-input-wrapper select-wrapper">
+              <mat-select
+                class="bilingual-input dept-select"
+                formControlName="departmentId"
+                disableOptionCentering
+                panelClass="permission-group-select-panel">
+                <mat-option value="">{{ 'd3.addRolePage.departmentPlaceholder' | translate }}</mat-option>
+                @for (dept of departments; track dept.id) {
+                  <mat-option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</mat-option>
+                }
+              </mat-select>
+            </div>
+          </div>
+        }
+
+        <!-- Manager Role Toggle -->
+        <div class="field-group m-b-20">
+          <div class="manager-toggle-row d-flex align-items-center justify-content-between p-16 rounded-8 bg-light-primary">
+            <div>
+              <label class="field-label d-block">{{ 'd3.addRolePage.isManagerRoleLabel' | translate }}</label>
+              <p class="f-s-12 text-muted m-0">{{ 'd3.addRolePage.isManagerRoleHint' | translate }}</p>
+            </div>
+            <mat-slide-toggle formControlName="isManagerRole" color="primary"></mat-slide-toggle>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="field-group">
+          <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.descriptionLabel' | translate }}</label>
+          <div class="bilingual-input-wrapper textarea-wrapper">
+            <textarea class="bilingual-textarea"
+              [formControlName]="currentLang === 'ar' ? 'descriptionAr' : 'descriptionEn'"
+              rows="4"
+              [placeholder]="'d3.addRolePage.descriptionPlaceholder' | translate"></textarea>
+            <button type="button" class="lang-chip align-self-start m-t-8"
+              [class.active]="showDescSecondary" (click)="showDescSecondary = !showDescSecondary">
+              {{ currentLang === 'ar' ? 'English' : 'عربي' }}
+            </button>
+          </div>
+          @if (showDescSecondary) {
+            <div class="bilingual-input-wrapper textarea-wrapper secondary m-t-8"
+              [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
+              <textarea class="bilingual-textarea"
+                [formControlName]="currentLang === 'ar' ? 'descriptionEn' : 'descriptionAr'"
+                rows="3"
+                [placeholder]="currentLang === 'ar' ? 'Describe the tasks this role holder can perform...' : 'صف المهام التي يمكن لشاغل هذا الدور أداؤها...'"></textarea>
+              <span class="lang-chip static align-self-start m-t-8">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
+            </div>
+          }
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section 2: Permissions -->
+    <mat-card class="perms-card m-b-24">
+      <mat-card-content class="p-0">
+
+        <div class="perms-card-header p-x-24 p-y-20 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-8">
+            <span class="section-bar"></span>
+            <span class="section-title">{{ 'd3.addRolePage.permissionsTitle' | translate }}</span>
+          </div>
+          @if (!isLoadingPerms && !permsLoadError && groupedPermissions.length > 0) {
+            <div class="d-flex align-items-center flex-wrap gap-8">
+              <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6"
+                (click)="toggleSelectAll()" [disabled]="permissions.length === 0">
+                <i-tabler [name]="allPermissionsSelected ? 'square-off' : 'checkbox'" class="icon-16"></i-tabler>
+                {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
+              </button>
+              <span class="selected-badge">
+                {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="perms-divider"></div>
+
+        @if (isLoadingPerms) {
+          <div class="d-flex justify-content-center p-40">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+        } @else if (permsLoadError) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="alert-triangle" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-b-16">{{ 'd3.addRolePage.loadError' | translate }}</p>
+            <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6" (click)="retryLoad()">
+              <i-tabler name="refresh" class="icon-16"></i-tabler>
+              {{ 'd3.addRolePage.retry' | translate }}
+            </button>
+          </div>
+        } @else if (groupedPermissions.length === 0) {
+          <div class="perms-empty text-center p-40">
+            <i-tabler name="shield-off" class="icon-40 m-b-12"></i-tabler>
+            <p class="m-0">{{ 'd3.permissions.noPermissions' | translate }}</p>
+          </div>
+        } @else {
+          @for (section of pagedGroups; track section.id) {
+            <div class="perm-group">
+              <div class="perm-group-header d-flex align-items-center justify-content-between p-x-24 p-y-16"
+                role="button" tabindex="0"
+                [attr.aria-expanded]="!isGroupCollapsed(section.id)"
+                (click)="toggleGroupCollapse(section.id)"
+                (keydown.enter)="toggleGroupCollapse(section.id)"
+                (keydown.space)="$event.preventDefault(); toggleGroupCollapse(section.id)">
+                <div class="d-flex align-items-center gap-10">
+                  <i-tabler [name]="isGroupCollapsed(section.id) ? 'chevron-down' : 'chevron-up'" class="icon-18 group-chevron"></i-tabler>
+                  <span class="group-name">{{ section.name }}</span>
+                  <span class="group-count">({{ section.perms.length }} / {{ selectedInGroup(section) }})</span>
+                </div>
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="groupState(section) === 'all'"
+                  [class.is-indeterminate]="groupState(section) === 'some'"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleGroup(section)">
+                </mat-slide-toggle>
+              </div>
+
+              @if (!isGroupCollapsed(section.id)) {
+                <div class="perm-group-body">
+                  @for (perm of section.perms; track perm.id) {
+                    <div class="perm-row d-flex align-items-center justify-content-between gap-8" [class.is-locked]="isLocked(perm)">
+                      <div class="perm-info">
+                        <span class="perm-name d-flex align-items-center gap-6">
+                          {{ permDisplayName(perm) }}
+                          @if (isLocked(perm)) {
+                            <i-tabler name="lock" class="icon-14 perm-lock"
+                              [matTooltip]="'d3.addRolePage.lockedHint' | translate"></i-tabler>
+                          }
+                        </span>
+                        <span class="perm-desc d-block">{{ permDisplayDescription(perm) }}</span>
+                      </div>
+                      <mat-slide-toggle
+                        color="primary"
+                        [checked]="perm.selected"
+                        [disabled]="isLocked(perm)"
+                        (change)="togglePermission(perm, $event.checked)">
+                      </mat-slide-toggle>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          @if (totalPages > 1) {
+            <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
+              <span class="f-s-13 text-muted">
+                {{ 'd3.addRolePage.pagination.total' | translate: { count: groupedPermissions.length } }}
+              </span>
+              <div class="d-flex align-items-center gap-4">
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === 1"
+                  (click)="changePage(currentPage - 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+                </button>
+                @for (p of pageNumbers; track p) {
+                  <button type="button" class="page-number-btn"
+                    [class.active]="p === currentPage"
+                    (click)="changePage(p)">
+                    {{ p }}
+                  </button>
+                }
+                <button type="button" class="page-nav-btn"
+                  [disabled]="currentPage === totalPages"
+                  (click)="changePage(currentPage + 1)">
+                  <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+                </button>
+              </div>
+            </div>
+          }
+        }
+
+      </mat-card-content>
+    </mat-card>
+
+  </form>
+
+  <!-- Alert Box -->
+  @if (deptId) {
+    <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
+      <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
+      <div>
+        <h4 class="m-b-4">{{ 'd3.permissions.alert.title' | translate }}</h4>
+        <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Actions -->
+  <div class="d-flex gap-16 justify-content-end">
+    <button mat-stroked-button class="cancel-btn" (click)="cancel()">
+      {{ 'd3.addRolePage.cancelBtn' | translate }}
+    </button>
+    <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="isSubmitting">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+      } @else {
+        <i-tabler name="check" class="icon-16"></i-tabler>
+      }
+      {{ 'd3.addRolePage.saveBtn' | translate }}
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,112 @@
+<div class="all-employees-container">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="employees" class="w-100">
+
+        <!-- Employee Column -->
+        <ng-container matColumnDef="employee">
+          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.employee' | translate }}</th>
+          <td mat-cell *matCellDef="let element">
+            <div class="d-flex align-items-center gap-12 p-y-12">
+              @if (element.avatar) {
+                <img [src]="element.avatar" class="employee-avatar" />
+              } @else {
+                <div class="initials-avatar d-flex align-items-center justify-content-center">
+                  {{ getInitials(element.fullName) }}
+                </div>
+              }
+              <div>
+                <div class="d-flex align-items-center gap-6">
+                  <h6 class="m-0 employee-name" dir="auto">{{ element.fullName }}</h6>
+                  @if (element.roles?.[0]?.isManagerRole) {
+                    <i-tabler name="crown" class="crown-icon"></i-tabler>
+                  }
+                </div>
+                <span class="f-s-12 text-muted" dir="auto">{{ element.email }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.phone' | translate }}</th>
+          <td mat-cell *matCellDef="let element" class="f-s-14"
+              [attr.data-label]="'d3.teamManagement.table.phone' | translate">{{ element.phoneNumber || '---' }}</td>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.departmentRole' | translate }}</th>
+          <td mat-cell *matCellDef="let element"
+              [attr.data-label]="'d3.teamManagement.table.departmentRole' | translate">
+            <div class="department-role">
+              <span class="department-name" dir="auto">{{ getDepartmentName(element) }}</span>
+              <span class="role-name" dir="auto">{{ getRoleName(element) }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.status' | translate }}</th>
+          <td mat-cell *matCellDef="let element"
+              [attr.data-label]="'d3.teamManagement.table.status' | translate">
+            <span class="status-badge" [class.active]="element.isActive" [class.inactive]="!element.isActive">
+              <span class="dot"></span> {{ (element.isActive ? 'd3.teamManagement.deptCard.active' : 'd3.teamManagement.deptCard.inactive') | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Action Column -->
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-icon-button [matMenuTriggerFor]="menu" #trigger="matMenuTrigger"
+                    class="action-btn" [class.menu-open]="trigger.menuOpen">
+              <i-tabler name="dots-vertical" class="icon-18 icon-muted"></i-tabler>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="before">
+              <button mat-menu-item (click)="onEdit(element)">
+                <i-tabler name="edit" class="icon-18"></i-tabler>
+                <span>{{ 'common.edit' | translate }}</span>
+              </button>
+              <mat-divider></mat-divider>
+              @if (element.isActive) {
+                <button mat-menu-item class="text-danger" (click)="onToggleStatus(element)">
+                  <i-tabler name="user-off" class="icon-18"></i-tabler>
+                  <span>{{ 'common.deactivate' | translate }}</span>
+                </button>
+              } @else {
+                <button mat-menu-item class="text-success" (click)="onToggleStatus(element)">
+                  <i-tabler name="user-check" class="icon-18"></i-tabler>
+                  <span>{{ 'common.activate' | translate }}</span>
+                </button>
+              }
+              <mat-divider></mat-divider>
+              <button mat-menu-item class="text-danger" (click)="onDelete(element)">
+                <i-tabler name="trash" class="icon-18"></i-tabler>
+                <span>{{ 'common.delete' | translate }}</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row empty-state-row" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length" class="empty-state-cell">
+            <div class="empty-state">
+              <img src="assets/images/backgrounds/employee.jpg" alt="no employees" class="empty-state-img" />
+              <h5>{{ 'd3.teamManagement.noEmployees.title' | translate }}</h5>
+              <p>{{ 'd3.teamManagement.noEmployees.description' | translate }}</p>
+              <button class="add-first-btn" (click)="onAddEmployee()">
+                <i-tabler name="plus" class="icon-18"></i-tabler>
+                {{ 'd3.teamManagement.noEmployees.addFirstBtn' | translate }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+</div>

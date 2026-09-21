@@ -1,0 +1,41 @@
+<div class="logs-filter-box d-flex align-items-center gap-16 flex-wrap m-b-24">
+
+  <!-- Search -->
+  <div class="logs-search-wrapper position-relative flex-grow-1">
+    <i-tabler name="search" class="icon-18 logs-search-icon"></i-tabler>
+    <input type="text" class="logs-search-input"
+           [placeholder]="'d3.teamManagement.opsLog.filters.searchPlaceholder' | translate"
+           [value]="searchQuery"
+           (input)="searchQueryChange.emit($any($event.target).value)" />
+  </div>
+
+  <!-- Action Type -->
+  <select class="filter-select-native" (change)="filterActionChange.emit($any($event.target).value)">
+    <option value="">{{ 'd3.teamManagement.opsLog.filters.actionType' | translate }}</option>
+    @for (opt of actionTypes; track opt) {
+      <option [value]="opt">{{ opt }}</option>
+    }
+  </select>
+
+  <!-- Departments -->
+  <select class="filter-select-native" (change)="filterDeptChange.emit($any($event.target).value)">
+    <option value="">{{ 'd3.teamManagement.opsLog.filters.allDepts' | translate }}</option>
+    @for (opt of depts; track opt) {
+      <option [value]="opt">{{ opt }}</option>
+    }
+  </select>
+
+  <!-- Dates -->
+  <select class="filter-select-native" (change)="filterDateChange.emit($any($event.target).value)">
+    <option value="">{{ 'd3.teamManagement.opsLog.filters.allDates' | translate }}</option>
+    @for (opt of dates; track opt) {
+      <option [value]="opt">{{ opt }}</option>
+    }
+  </select>
+
+  <!-- Filter Icon -->
+  <div class="filter-icon-btn d-flex align-items-center justify-content-center">
+    <i-tabler name="adjustments-horizontal" class="icon-18"></i-tabler>
+  </div>
+
+</div>

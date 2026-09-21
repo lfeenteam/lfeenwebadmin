@@ -1,0 +1,179 @@
+<div class="chat-panel">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-top">
+      <button class="close-btn" [class.mobile-only]="!viewOnly" type="button" (click)="close.emit()">
+        <i-tabler name="x" class="icon-20"></i-tabler>
+      </button>
+
+      <div class="client-summary">
+             <div class="avatar" [class]="'avatar-' + avatarColor">
+          {{ complaint.clientInitials }}
+        </div>
+        <div class="client-meta">
+          <span class="client-name">{{ displayClientName }}</span>
+          @if (clientOnline()) {
+            <span class="client-online">
+              <span class="online-dot"></span>
+              {{ 'd3.complaints.chat.online' | translate }}
+            </span>
+          }
+        </div>
+
+      </div>
+    </div>
+
+    @if (!viewOnly) {
+      <button class="resolve-chat-btn" type="button" (click)="onResolve()">
+        <i-tabler name="circle-check" class="icon-18"></i-tabler>
+        {{ resolveButtonLabel }}
+      </button>
+    } @else {
+      <span class="resolved-label">
+        <i-tabler name="circle-check" class="icon-16"></i-tabler>
+        تم الرد والحل
+      </span>
+    }
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" #messagesContainer (scroll)="onMessagesScroll()">
+    @if (loadingOlderMessages()) {
+      <div class="older-messages-loading">
+        <span class="reply-spinner"></span>
+      </div>
+    }
+
+    @if (complaint.messages.length > 0) {
+      <div class="date-separator">
+        {{ dateSeparatorLabel }}
+      </div>
+    }
+
+    @if (complaint.messages.length === 0) {
+      <div class="no-messages">
+        <i-tabler name="message-2" class="icon-32"></i-tabler>
+        <span>{{ 'd3.complaints.chat.noMessages' | translate }}</span>
+      </div>
+    }
+
+    @for (msg of complaint.messages; track msg.id) {
+      <div
+        class="msg-row"
+        [class.msg-client]="msg.senderRole === 'client'"
+        [class.msg-support]="msg.senderRole !== 'client'">
+
+        @if (msg.senderRole !== 'client') {
+          <div class="msg-avatar avatar-support">
+            <i-tabler name="headset" class="icon-16"></i-tabler>
+          </div>
+        }
+
+        <div class="msg-content">
+          @if (msg.senderRole !== 'client') {
+            <span class="msg-sender">{{ 'd3.complaints.chat.supportName' | translate }}</span>
+          }
+          <div class="msg-bubble" [class.bubble-support]="msg.senderRole !== 'client'">
+            @if (msg.attachment) {
+              @if (isImageAttachment(msg.attachment)) {
+                <a class="msg-attachment-image-link" [href]="msg.attachment.url" target="_blank" rel="noopener">
+                  <img [src]="msg.attachment.url" [alt]="msg.attachment.fileName" class="msg-attachment-image" />
+                </a>
+              } @else {
+                <a class="msg-attachment-file" [href]="msg.attachment.url" target="_blank" rel="noopener">
+                  <i-tabler name="paperclip" class="icon-14"></i-tabler>
+                  <span>{{ msg.attachment.fileName }}</span>
+                </a>
+              }
+            }
+            @if (displayMessageContent(msg)) {
+              <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+            }
+          </div>
+          <span class="msg-time">{{ displayMessageTime(msg) }}</span>
+        </div>
+
+      </div>
+    }
+
+    @if (clientTyping()) {
+      <div class="typing-row">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-text">{{ 'd3.complaints.chat.typing' | translate }}</span>
+      </div>
+    }
+
+    <div #messagesEnd></div>
+  </div>
+
+  <!-- Input -->
+  @if (!viewOnly) {
+  <div class="chat-composer">
+    <div class="chat-footer">
+      <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
+        <i-tabler name="send-2" class="icon-22"></i-tabler>
+      </button>
+      <input
+        type="text"
+        class="msg-input"
+        [(ngModel)]="messageText"
+        [placeholder]="composerPlaceholder"
+        (keydown)="onKeydown($event)"
+        (input)="onComposerInput()"
+        (blur)="onComposerBlur()" />
+    </div>
+  </div>
+  }
+
+  <!-- Close & resolve dialog -->
+  @if (showCloseDialog()) {
+    <div class="dialog-backdrop" (click)="cancelClose()">
+      <div class="close-dialog" (click)="$event.stopPropagation()">
+
+        <div class="close-dialog-header">
+          <span class="close-dialog-icon">
+            <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+          </span>
+          <div>
+            <h2>إغلاق الشكوى ومعالجتها</h2>
+            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+          </div>
+        </div>
+
+        <div class="close-dialog-note">
+          <label>ملاحظة <span>(اختياري)</span></label>
+          <textarea
+            [(ngModel)]="closeNote"
+            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+        </div>
+
+        @if (closeError()) {
+          <p class="close-error">{{ closeError() }}</p>
+        }
+
+        <div class="close-dialog-actions">
+          <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
+            إلغاء
+          </button>
+          <button
+            class="dialog-confirm-btn"
+            type="button"
+            [disabled]="closingTicket()"
+            (click)="confirmClose()">
+            @if (closingTicket()) {
+              <span class="reply-spinner"></span>
+            } @else {
+              <i-tabler name="circle-check" class="icon-16"></i-tabler>
+            }
+            تأكيد الإغلاق
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

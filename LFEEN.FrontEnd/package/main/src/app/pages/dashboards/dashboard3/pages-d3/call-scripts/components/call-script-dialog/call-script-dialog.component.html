@@ -1,0 +1,106 @@
+<div class="cs-dialog" dir="rtl">
+
+  <div class="cs-dialog-header">
+    <span class="title-accent"></span>
+    <div class="header-text-block">
+      <h2 class="dialog-title">{{ (isEditMode ? 'd3.callScripts.dialog.editTitle' : 'd3.callScripts.dialog.addTitle') | translate }}</h2>
+      @if (isEditMode) {
+        <span class="scenario-badge">{{ data.script?.scenarioType }}</span>
+      }
+    </div>
+    <button class="cancel-link" type="button" (click)="dialogRef.close()">
+      {{ 'd3.callScripts.dialog.cancel' | translate }}
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  <mat-dialog-content class="cs-dialog-body">
+    <form [formGroup]="form">
+
+      @if (!isEditMode) {
+        <div class="field-section">
+          <p class="section-label">{{ 'd3.callScripts.dialog.scenarioSection' | translate }}</p>
+          <select class="cs-input" dir="ltr" formControlName="scenarioType">
+            <option value="" disabled>{{ 'd3.callScripts.dialog.scenarioPlaceholder' | translate }}</option>
+            @for (scenario of data.scenarios; track scenario) {
+              <option [value]="scenario">{{ scenario }}</option>
+            }
+          </select>
+          @if (form.get('scenarioType')?.invalid && form.get('scenarioType')?.touched) {
+            <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.scenarioRequired' | translate }}</p>
+          }
+        </div>
+      }
+
+      <div class="field-section">
+        <p class="section-label">{{ 'd3.callScripts.dialog.audioSection' | translate }}</p>
+        <input class="cs-input" type="text" dir="ltr" formControlName="audioFileUrl"
+          [placeholder]="'d3.callScripts.dialog.audioUrlPlaceholder' | translate">
+        @if (form.get('audioFileUrl')?.invalid && form.get('audioFileUrl')?.touched) {
+          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.audioUrlRequired' | translate }}</p>
+        }
+      </div>
+
+      <div class="field-section">
+        <div class="section-head-row">
+          <p class="section-label">{{ 'd3.callScripts.dialog.optionsSection' | translate }}</p>
+          <button class="add-option-btn" type="button" (click)="addOption()">
+            <i-tabler name="plus" class="icon-14"></i-tabler>
+            {{ 'd3.callScripts.dialog.addOption' | translate }}
+          </button>
+        </div>
+
+        <div class="options-list" formArrayName="options">
+          @for (option of options.controls; track $index) {
+            <div class="option-row" [formGroupName]="$index">
+              <div class="option-row-fields">
+                <div class="option-field digit-field">
+                  <label class="lang-label">{{ 'd3.callScripts.dialog.digit' | translate }}</label>
+                  <input class="cs-input" type="text" dir="ltr" formControlName="digit" maxlength="4"
+                    [placeholder]="'d3.callScripts.dialog.digitPlaceholder' | translate">
+                </div>
+                <div class="option-field desc-field">
+                  <label class="lang-label">{{ 'd3.callScripts.dialog.description' | translate }}</label>
+                  <input class="cs-input" type="text" formControlName="description"
+                    [placeholder]="'d3.callScripts.dialog.descriptionPlaceholder' | translate">
+                </div>
+                <button class="remove-option-btn" type="button" [disabled]="options.length <= 1" (click)="removeOption($index)">
+                  <i-tabler name="trash" class="icon-16"></i-tabler>
+                </button>
+              </div>
+              <div class="option-field response-field">
+                <label class="lang-label">{{ 'd3.callScripts.dialog.responseUrl' | translate }}</label>
+                <input class="cs-input" type="text" dir="ltr" formControlName="responseMessageFileUrl"
+                  [placeholder]="'d3.callScripts.dialog.responseUrlPlaceholder' | translate">
+              </div>
+            </div>
+          }
+        </div>
+        @if (form.get('options')?.invalid && form.get('options')?.touched) {
+          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.optionsRequired' | translate }}</p>
+        }
+      </div>
+
+      <div class="field-section active-section">
+        <div class="active-toggle-row">
+          <div class="active-toggle-text">
+            <p class="section-label no-margin">{{ 'd3.callScripts.dialog.activeLabel' | translate }}</p>
+            <span class="active-hint">{{ 'd3.callScripts.dialog.activeHint' | translate }}</span>
+          </div>
+          <mat-slide-toggle formControlName="isActive"></mat-slide-toggle>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="cs-dialog-footer">
+    <button class="submit-btn" type="button" (click)="save()">
+      {{ (isEditMode ? 'common.save' : 'd3.callScripts.dialog.create') | translate }}
+    </button>
+    <button class="clear-btn" type="button" (click)="dialogRef.close()">
+      {{ 'd3.callScripts.dialog.cancel' | translate }}
+    </button>
+  </div>
+
+</div>

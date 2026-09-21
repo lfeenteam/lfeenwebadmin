@@ -1,75 +1,37 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Component, OnInit, computed } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { BidiModule } from '@angular/cdk/bidi';
 import { CoreService } from './services/core.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet],
+    imports: [RouterOutlet, BidiModule],
     templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   title = 'Modernize Angular Admin Tempplate';
   options = this.settings.getOptions();
 
-  constructor(private settings: CoreService, private translate: TranslateService, private router: Router) {
+  // Bound to a [dir] host so Angular CDK's Directionality service (used by
+  // mat-menu/select/tooltip overlays) reacts live to language switches —
+  // its root singleton otherwise only reads dir once at bootstrap.
+  dir = computed(() => this.settings.getOptionsSignal()().dir);
+
+  constructor(private settings: CoreService, private translate: TranslateService) {
+    // Bootstrap default; the ':lang' route's languageSyncGuard keeps CoreService
+    // and ngx-translate in sync with the URL from then on (early enough that the
+    // AuthInterceptor's Accept-Language header is correct on the first request).
     this.translate.use(this.settings.getOptions().language);
-
-    // مراقبة تغييرات الـ route
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        const urlLang = event.urlAfterRedirects.split('/')[1];
-        if (['ar', 'en'].includes(urlLang)) {
-          // تحديث اللغة والاتجاه
-          if (urlLang === 'ar') {
-            this.settings.setOptions({ language: urlLang, dir: 'rtl' });
-            this.options.dir = 'rtl';
-          } else {
-            this.settings.setOptions({ language: urlLang, dir: 'ltr' });
-            this.options.dir = 'ltr';
-          }
-
-          // حفظ اللغة المفضلة إذا كانت من user
-          if (this.settings.isLanguageFromUser()) {
-            localStorage.setItem('preferred_language', urlLang);
-            localStorage.setItem('app_settings', JSON.stringify({ ...this.options, language: urlLang, dir: this.options.dir }));
-          }
-        }
-      }
-    });
-
-    // مراقبة تغييرات browser language
-    this.settings.watchBrowserLanguageChanges();
-    
-    // مراقبة تغييرات browser language كل 10 ثوان
-    setInterval(() => {
-      this.checkBrowserLanguageChanges();
-    }, 10000);
   }
 
   ngOnInit() {
-    // تحديث اللغة من browser إذا لم يكن هناك preferred language
     if (!this.settings.hasPreferredLanguage()) {
       this.settings.updateFromBrowserLanguage();
     }
 
-    // مراقبة تغييرات browser language عند تحميل الصفحة
-    this.checkBrowserLanguageChanges();
-
-    // مراقبة تغييرات browser language عند تحميل الصفحة
-    window.addEventListener('load', () => {
-      this.checkBrowserLanguageChanges();
-    });
-  }
-
-  // دالة جديدة للتحقق من تغييرات browser language
-  private checkBrowserLanguageChanges(): void {
-    const currentBrowserLang = this.settings.getBrowserLanguage();
-    const storedBrowserLang = localStorage.getItem('browser_language');
-    
-    // إذا تغيرت لغة browser ولم يكن هناك preferred language
-    if (storedBrowserLang && storedBrowserLang !== currentBrowserLang && !this.settings.hasPreferredLanguage()) {
-      this.settings.updateFromBrowserLanguage();
-    }
+    // App bootstrapped successfully, so a future chunk-load error is a
+    // fresh occurrence and should be allowed to trigger another reload.
+    sessionStorage.removeItem('chunk-load-error-reloaded');
   }
 }

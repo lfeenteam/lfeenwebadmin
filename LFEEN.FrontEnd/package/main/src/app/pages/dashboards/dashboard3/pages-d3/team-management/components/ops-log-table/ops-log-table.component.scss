@@ -1,0 +1,281 @@
+.ops-log-wrapper {
+  border: 1px solid #E8E8E4;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.ops-log-table {
+  ::ng-deep {
+    .mat-mdc-header-row {
+      background: #FAFAFA;
+    }
+    .mat-mdc-header-cell {
+      font-size: 12px;
+      font-weight: 900;
+      color: #9E9E9A;
+      font-family: 'Cairo', sans-serif;
+      border-bottom: 1px solid #E8E8E4;
+    }
+    .mat-mdc-cell {
+      border-bottom: 1px solid #F1F1EE;
+    }
+  }
+
+  .log-row:hover {
+    background: #FAFAFA;
+    transition: background 0.15s;
+  }
+}
+
+.log-date-cell {
+  padding: 14px 0;
+}
+
+.log-date-text {
+  color: #111110;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 16px;
+  font-family: 'Cairo', sans-serif;
+}
+.log-time {
+  color: #6B6B67;
+  font-size: 11px;
+  font-family: 'Cairo', sans-serif;
+}
+.log-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #E8E8E4;
+  flex-shrink: 0;
+}
+
+.log-initials-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.log-crown-icon {
+  color: #B45309;
+  flex-shrink: 0;
+}
+.text-role {
+  color: #6B6B67;
+  font-size: 11px;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 700;
+}
+.log-action-icon {
+  width: 28px;
+  height: 28px;
+  color: #9E9E9A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &.failed {
+    color: #EF4444;
+  }
+}
+
+.dept-log-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: #F7F7F5;
+  color:#111110;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid #E8E8E4;
+  white-space: nowrap;
+}
+
+.log-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &.completed {
+    background: #F0FDF4;
+    color: #16A34A;
+    border: 1px solid #DCFCE7;
+    .dot { background: #16A34A; }
+  }
+
+  &.failed {
+    background: #FEF2F2;
+    color: #EF4444;
+    border: 1px solid #FEE2E2;
+    .dot { background: #EF4444; }
+  }
+
+  &.pending {
+    background: #FFFBEB;
+    color: #D97706;
+    border: 1px solid #FEF3C7;
+    .dot { background: #D97706; }
+  }
+}
+
+.expand-row-btn {
+  color: #9E9E9A;
+}
+
+.text-danger {
+  color: #ef4444 !important;
+}
+
+@media (max-width: 767.98px) {
+  .ops-log-wrapper {
+    border: none;
+    border-radius: 12px;
+    background: #F5F5F3;
+    padding: 12px;
+  }
+
+  .ops-log-table {
+    display: block;
+    background: transparent !important;
+
+    ::ng-deep thead {
+      display: none !important;
+    }
+
+    ::ng-deep tbody {
+      display: flex !important;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  tr.mat-mdc-row.log-row {
+    display: block !important;
+    height: auto !important;
+    border-radius: 16px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  td.mat-mdc-cell {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 16px !important;
+    border-bottom: 1px solid #F0F0EE !important;
+    font-size: 13px;
+    min-height: 36px;
+    box-sizing: border-box;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 11px;
+      color: #9E9E9A;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      padding-inline-end: 12px;
+      max-width: 50%;
+    }
+  }
+
+  // User column = card header (avatar + name), like employee in all-employees
+  td.mat-column-user {
+    background: #FCFCFB;
+    padding: 10px 16px !important;
+    border-bottom: 1px solid #E8E8E4 !important;
+    min-height: auto;
+    justify-content: flex-start;
+
+    &::before {
+      display: none;
+    }
+
+    .f-s-16 {
+      font-size: 13px !important;
+    }
+
+    .text-role {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: block;
+    }
+  }
+
+  // Expand button = bottom of card, no label
+  td.mat-column-expand {
+    justify-content: flex-end;
+    border-bottom: none !important;
+    padding: 2px 8px !important;
+    min-height: 32px;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  // Action column - prevent long text from overflowing
+  td.mat-column-action {
+    align-items: center;
+
+    .d-flex {
+      min-width: 0;
+    }
+
+    .f-s-14 {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  // DateTime value aligned to end
+  .log-date-cell {
+    text-align: end;
+  }
+
+  .expand-row-btn.mat-mdc-icon-button {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+  }
+}
+
+:host-context([dir="rtl"]) {
+  @media (max-width: 767.98px) {
+    td.mat-mdc-cell::before {
+      letter-spacing: 0;
+    }
+  }
+}

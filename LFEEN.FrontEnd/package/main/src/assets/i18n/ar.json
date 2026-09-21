@@ -98,38 +98,241 @@
   "Menu 1": "قائمة 1",
   "Menu 2": "قائمة 2",
   "Disabled": "معطل",
-  "APPS":"تطبيقات",
-  "Profile":"الملف الشخصي",
+  "APPS": "تطبيقات",
+  "Profile": "الملف الشخصي",
+  "common": {
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "copy": "نسخ",
+    "activate": "تفعيل",
+    "deactivate": "تعطيل",
+    "save": "حفظ",
+    "confirm": "تأكيد",
+    "deleteConfirmTitle": "تأكيد الحذف",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا الموظف؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deactivateConfirmTitle": "تأكيد التعطيل",
+    "deactivateConfirmMessage": "هل أنت متأكد من تعطيل هذا الموظف؟",
+    "activateConfirmTitle": "تأكيد التفعيل",
+    "activateConfirmMessage": "هل أنت متأكد من تفعيل هذا الموظف؟",
+    "done": "تمت العملية",
+    "errorOccurred": "حدث خطأ، حاول مجدداً"
+  },
   "d3": {
     "header": {
       "title": "لوحة تحكم المدير التنفيذي",
       "platform": "منصة لفين · المملكة العربية السعودية",
       "live": "مباشر",
-      "date": "١٤ أكتوبر ٢٠٢٤",
+      "online": "متصل",
+      "offline": "غير متصل",
+      "teamName": "فريق لفين",
+      "supervisorTitle": "مشرف لفين",
       "userName": "حسن مغفوري",
       "userRole": "المدير التنفيذي"
     },
+    "profile": {
+      "title": "الملف الشخصي",
+      "subtitle": "إدارة معلوماتك الشخصية وتفضيلات الأمان بحسابك",
+      "basicInfo": "المعلومات الأساسية",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "language": "لغة الواجهة",
+      "security": "الأمان وكلمة المرور",
+      "securityDesc": "قم بتحديث كلمة المرور الخاصة بك بانتظام للحفاظ على أمان حسابك",
+      "changePassword": "تعديل كلمة المرور",
+      "notifications": "تفضيلات الإشعارات",
+      "emailNotifTitle": "إشعارات البريد",
+      "emailNotifDesc": "استلام ملخص العمليات اليومي عبر البريد",
+      "browserNotifTitle": "إشعارات المتصفح",
+      "browserNotifDesc": "استلام تنبيهات فورية عند وجود حجز جديد",
+      "changePasswordDialog": {
+        "title": "تغيير كلمة المرور",
+        "subtitle": "أدخل بياناتك لتحديث أمان حسابك",
+        "currentPassword": "كلمة المرور الحالية",
+        "currentPasswordPlaceholder": "أدخل كلمة المرور الحالية",
+        "newPassword": "كلمة المرور الجديدة",
+        "confirmPassword": "تأكيد كلمة المرور",
+        "hint": "تأكد من استخدام كلمة مرور قوية تحتوي على حروف كبيرة وصغيرة وأرقام ورموز خاصة",
+        "mismatch": "كلمتا المرور غير متطابقتين",
+        "save": "حفظ التغييرات",
+        "saving": "جارٍ الحفظ...",
+        "cancel": "إلغاء",
+        "success": "تم تغيير كلمة المرور بنجاح",
+        "error": "حدث خطأ أثناء تغيير كلمة المرور"
+      }
+    },
     "sidebar": {
-      "brand": "مؤسسة حلول المسافر الذكي",
+      "brand": "LFEEN",
       "dashboard": "لوحة التحكم",
       "buildings": "المباني",
       "units": "الوحدات",
+      "accountManagement": "إدارة الحسابات",
       "bookings": "الحجوزات",
       "complaints": "شكوى",
       "customers": "العملاء",
-      "settings": "الإعدادات"
+      "faq": "الأسئلة الشائعة",
+      "contactUs": "تواصل معنا",
+      "settlements": "التسويات",
+      "platformOffers": "عروض المنصة",
+      "callScripts": "سكريبتات المكالمات",
+      "subscriptions": "الاشتراكات",
+      "subscriptionSettings": "اعدادات الاشتراكات",
+      "subscriptionManagement": "ادارة الاشتراكات",
+      "subscriptionLog": "سجل الاشتراكات",
+      "settings": "الإعدادات",
+      "notifications": "التنبيهات",
+      "logout": "تسجيل الخروج"
+    },
+    "toast": {
+      "errorOp": "حدث خطأ أثناء العملية",
+      "successOp": "تمت العملية بنجاح",
+      "fillRequired": "يرجى تعبئة الحقول المطلوبة",
+      "fillAllRequired": "يرجى تعبئة جميع الحقول المطلوبة",
+      "deleteError": "حدث خطأ أثناء الحذف",
+      "saveError": "حدث خطأ أثناء الحفظ",
+      "deleteEmployeeSuccess": "تم حذف الموظف بنجاح",
+      "deleteEmployeeError": "حدث خطأ أثناء حذف الموظف",
+      "activateEmployeeSuccess": "تم تفعيل الموظف بنجاح",
+      "activateEmployeeError": "حدث خطأ أثناء تفعيل الموظف",
+      "deactivateEmployeeSuccess": "تم تعطيل الموظف بنجاح",
+      "deactivateEmployeeError": "حدث خطأ أثناء تعطيل الموظف",
+      "selectDeptFirst": "يرجى اختيار القسم أولاً",
+      "addEmployeeSuccess": "تم إضافة الموظف بنجاح",
+      "updateEmployeeSuccess": "تم تحديث بيانات الموظف بنجاح",
+      "addDeptSuccess": "تم إضافة القسم والأدوار بنجاح",
+      "addRoleSuccess": "تم إضافة الدور بنجاح",
+      "editRoleSuccess": "تم تعديل الدور بنجاح",
+      "deleteRoleSuccess": "تم حذف الدور بنجاح",
+      "removePermTitle": "إزالة الصلاحية",
+      "removePermMessage": "هل تريد إزالة صلاحية \"{{permName}}\" من هذا الدور؟ لا يمكن التراجع عن هذا الإجراء.",
+      "removePermSuccess": "تم إزالة الصلاحية بنجاح",
+      "removePermError": "حدث خطأ أثناء إزالة الصلاحية",
+      "deleteRoleTitle": "هل أنت متأكد من حذف هذا الدور؟",
+      "deleteRoleMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم حذف الدور نهائياً من النظام.",
+      "deleteRoleMessageWithEmployees": "هذا الدور معيّن حالياً لـ {{count}} موظف. حذفه سيؤدي لإزالة صلاحياته من هؤلاء الموظفين فوراً، ولا يمكن التراجع عن هذا الإجراء.",
+      "addPermissionGroupSuccess": "تم إضافة مجموعة الصلاحيات بنجاح",
+      "editPermissionGroupSuccess": "تم تعديل مجموعة الصلاحيات بنجاح",
+      "deletePermissionGroupSuccess": "تم حذف مجموعة الصلاحيات بنجاح",
+      "deletePermissionGroupTitle": "هل أنت متأكد من حذف هذه المجموعة؟",
+      "deletePermissionGroupMessage": "لا يمكن التراجع عن هذا الإجراء، وسيتم حذف مجموعة الصلاحيات نهائياً من النظام.",
+      "deletePermissionGroupContainsPermissionsMessage": "تحذير: هذه المجموعة تحتوي على {{count}} صلاحية. حذف المجموعة قد يؤثر على هذه الصلاحيات. هل تريد المتابعة؟",
+      "deletePermissionGroupInUseError": "لا يمكن حذف هذه المجموعة لأنها لا تزال تحتوي على صلاحيات مرتبطة بها",
+      "loadPermissionGroupsError": "حدث خطأ أثناء تحميل مجموعات الصلاحيات",
+      "addPermissionSuccess": "تم إضافة الصلاحية بنجاح",
+      "editPermissionSuccess": "تم تعديل الصلاحية بنجاح",
+      "deletePermissionSuccess": "تم حذف الصلاحية بنجاح",
+      "deletePermissionTitle": "هل أنت متأكد من حذف هذه الصلاحية؟",
+      "deletePermissionMessage": "لا يمكن التراجع عن هذا الإجراء، وقد يؤثر حذفها على الأدوار أو الصلاحيات الأخرى التي تعتمد عليها.",
+      "deletePermissionUsedAsDependencyMessage": "تحذير: هذه الصلاحية مستخدمة كاعتمادية للصلاحيات التالية: {{codes}}. حذفها سيزيل هذا الارتباط منها. هل تريد المتابعة؟",
+      "deletePermissionInUseError": "لا يمكن حذف هذه الصلاحية لأنها مستخدمة كاعتمادية أو معيّنة لدور",
+      "loadPermissionsError": "حدث خطأ أثناء تحميل الصلاحيات",
+      "addDependencySuccess": "تم إضافة الاعتمادية بنجاح",
+      "removeDependencySuccess": "تم إزالة الاعتمادية بنجاح",
+      "removeDependencyTitle": "إزالة الاعتمادية",
+      "removeDependencyMessage": "هل تريد إزالة اعتماد هذه الصلاحية على \"{{code}}\"؟"
+    },
+    "emptyState": {
+      "builds": {
+        "draft": {
+          "title": "لا توجد مباني في المسودات",
+          "desc": "لا توجد مباني محفوظة كمسودة حاليًا."
+        },
+        "published": {
+          "title": "لا توجد مباني منشورة",
+          "desc": "لم يتم نشر أي مبنى حتى الآن، أو لا توجد نتائج مطابقة لبحثك."
+        },
+        "new": {
+          "title": "لا توجد طلبات مباني جديدة",
+          "desc": "لم يتم تقديم أي طلبات إضافة مباني جديدة في الوقت الحالي."
+        },
+        "underReview": {
+          "title": "لا توجد مباني قيد المراجعة",
+          "desc": "جميع الطلبات تمت معالجتها، ولا يوجد أي مبنى ينتظر مراجعته حالياً."
+        },
+        "pendingChanges": {
+          "title": "لا توجد مباني تنتظر تعديلات",
+          "desc": "لا يوجد أي مبنى يحتاج إلى مراجعة التعديلات في الوقت الحالي."
+        },
+        "rejected": {
+          "title": "لا توجد مباني مرفوضة",
+          "desc": "لم يتم رفض أي مبنى حتى الآن، أو لا توجد نتائج مطابقة لبحثك."
+        }
+      },
+      "units": {
+        "draft": {
+          "title": "لا توجد وحدات في المسودات",
+          "desc": "لا توجد وحدات محفوظة كمسودة حاليًا."
+        },
+        "published": {
+          "title": "لا توجد وحدات منشورة",
+          "desc": "لم يتم نشر أي وحدة حتى الآن، أو لا توجد نتائج مطابقة لبحثك."
+        },
+        "new": {
+          "title": "لا توجد وحدات جديدة بانتظار المراجعة",
+          "desc": "لم يتم تقديم أي وحدات جديدة في الوقت الحالي."
+        },
+        "underReview": {
+          "title": "لا توجد وحدات قيد المراجعة",
+          "desc": "جميع الوحدات تمت معالجتها، ولا توجد وحدات تنتظر المراجعة."
+        },
+        "pendingChanges": {
+          "title": "لا توجد وحدات تنتظر تعديلات",
+          "desc": "لا توجد وحدات تحتاج إلى مراجعة التعديلات في الوقت الحالي."
+        },
+        "rejected": {
+          "title": "لا توجد وحدات مرفوضة",
+          "desc": "لم يتم رفض أي وحدة حتى الآن، أو لا توجد نتائج مطابقة لبحثك."
+        }
+      },
+      "accounts": {
+        "all": {
+          "title": "لا توجد حسابات",
+          "desc": "لم يتم تسجيل أي حسابات بعد، أو لا توجد نتائج مطابقة لبحثك."
+        },
+        "active": {
+          "title": "لا توجد حسابات نشطة",
+          "desc": "لا يوجد أي حساب نشط في الوقت الحالي."
+        },
+        "under_review": {
+          "title": "لا توجد حسابات قيد المراجعة",
+          "desc": "جميع الحسابات تمت معالجتها، ولا توجد حسابات تنتظر المراجعة."
+        },
+        "rejected": {
+          "title": "لا توجد حسابات مرفوضة",
+          "desc": "لم يتم رفض أي حساب حتى الآن."
+        }
+      }
     },
     "allBuilds": {
       "title": "كل المباني",
       "cards": {
+        "totalBuildings": "إجمالي المباني",
         "buildingsAvailable": "مباني متوفرة",
         "activeBuildings": "مباني نشطة",
-        "totalUnits": "إجمالي الوحدات",
-        "monthlyUnits": "وحدات المراجعة"
+        "inactiveBuildings": "مباني غير نشطة",
+        "underReviewBuildings": "مباني تحت المراجعة",
+        "unpublishedBuildings": "غير منشورة"
       },
       "tabs": {
+        "draft": "مسودة",
         "published": "مباني منشورة",
-        "underReview": "تحت المراجعة"
+        "new": "جديد",
+        "underReview": "تحت المراجعة",
+        "pendingChanges": "تعديلات قيد المراجعة",
+        "rejected": "مرفوض"
+      },
+      "pagination": {
+        "total": "مبنى"
+      },
+      "underReview": {
+        "statusLabel": "تحت المراجعة",
+        "sectionTitle": "تحت المراجعة",
+        "newSectionTitle": "مباني جديدة",
+        "newBadge": "جديد",
+        "pendingChangesSectionTitle": "تعديلات قيد المراجعة",
+        "pendingChangesBadge": "تعديلات قيد المراجعة",
+        "pendingAfterRejectionBadge": "تعديلات بعد الرفض"
       },
       "filters": {
         "searchPlaceholder": "بحث باسم المبنى أو المدينة...",
@@ -154,7 +357,9 @@
         "label": "طريقة العرض"
       },
       "buildingCard": {
+        "statusRejected": "مرفوض",
         "statusActive": "نشط",
+        "statusDraft": "مسودة",
         "statusStopped": "متوقف",
         "units": "وحدات",
         "occupancy": "إشغال",
@@ -168,6 +373,129 @@
         "occupancy": "الإشغال",
         "bookings": "حجوزات",
         "status": "الحالة"
+      },
+      "buildings": {
+        "hotel": "فندق",
+        "apartments": "شقق سكنية",
+        "villas": "فلل",
+        "chalets": "شاليهات",
+        "compounds": "وحدات مؤسسية",
+        "rests": "استراحات",
+        "commercial": "برج تجاري"
+      },
+      "buildingNames": {
+        "building1": "فندق واحة الرياض",
+        "building2": "شقق نرجس الفاخرة",
+        "building3": "مجمع نسيم الدمام",
+        "building4": "شاليهات البحر الأحمر",
+        "building5": "فلل المروج الفاخرة",
+        "building6": "استراحات الوادي",
+        "building7": "برج السماء التجاري",
+        "building8": "منتجع الشاطئ الذهبي"
+      },
+      "buildingHosts": {
+        "host1": "مجموعة ريادة الفندقية",
+        "host2": "شركة إيواء للمباني",
+        "host3": "فهد القحطاني (فرد)",
+        "host4": "شركة البحر للمنتجعات",
+        "host5": "مطوّر المباني الحديث",
+        "host6": "صاحب المنشأة",
+        "host7": "شركة سكاى للمباني",
+        "host8": "مجموعة الضيافة"
+      },
+      "buildingLocations": {
+        "location1": "الرياض، حي العليا",
+        "location2": "جدة، حي الشاطئ",
+        "location3": "الدمام، حي الزهور",
+        "location4": "ينبع، الواجهة البحرية",
+        "location5": "الخبر، حي المروج",
+        "location6": "الطائف، شفا",
+        "location7": "الرياض، العليا",
+        "location8": "جدة، الكورنيش"
+      },
+      "buildingDates": {
+        "date1": "١٤ أكتوبر",
+        "date2": "١٢ أكتوبر",
+        "date3": "٠٨ أكتوبر",
+        "date4": "٠٥ أكتوبر",
+        "date5": "٠١ أكتوبر",
+        "date6": "٢٥ سبتمبر",
+        "date7": "٢٠ سبتمبر",
+        "date8": "١٥ سبتمبر"
+      }
+    },
+    "allUnits": {
+      "title": "كل الوحدات",
+      "placeholder": "محتوى الوحدات قيد التطوير...",
+      "cards": {
+        "totalUnits": "إجمالي الوحدات",
+        "publishedUnits": "مباني منشورة",
+        "activeUnits": "وحدات نشطة",
+        "stoppedUnits": "وحدات متوقفة",
+        "unpublishedUnits": "غير منشورة",
+        "underReviewUnits": "تحت المراجعة"
+      },
+      "filters": {
+        "searchPlaceholder": "بحث باسم الوحدة، رقمها، أو المبنى...",
+        "allAccounts": "كل الحسابات",
+        "allProperties": "كل المباني",
+        "allStatuses": "كل الحالات",
+        "unitType": "نوع الوحدة",
+        "sortNewest": "الأحدث",
+        "sortOldest": "الأقدم",
+        "sortHighestOccupancy": "أعلى إشغال"
+      },
+      "unitCard": {
+        "type": "النوع",
+        "description": "الوصف",
+        "statusApproved": "نشط",
+        "statusDraft": "مسودة",
+        "statusPending": "جديد",
+        "statusUnderReview": "قيد المراجعة",
+        "statusPendingChanges": "تعديلات قيد المراجعة",
+        "statusPendingAfterRejection": "تعديلات بعد الرفض",
+        "statusStopped": "مرفوض",
+        "servicesPricing": "نوع الخدمات",
+        "servicesPaid": "مدفوعة",
+        "servicesFree": "مجانية"
+      },
+      "cardsUnits": {
+        "awaitingReviewMeta": "بانتظار مراجعة المبنى أولاً",
+        "reviewPropertyBtn": "مراجعة المبنى أولاً",
+        "publishedUnits": "{{count}} وحدة منشورة",
+        "approvedBadge": "معتمد",
+        "activationNotice": {
+          "title": "تنبيه نظام التفعيل",
+          "description": "يرجى العلم أنه في حال الموافقة على أي وحدة سكنية تابعة لـ ({{buildingName}})، لن يتم نشرها فعليًا في المنصة للحجز، إلا بعد الحصول على الموافقة النهائية على بيانات المبنى الرئيسي أولاً.",
+          "accountDescription": "يرجى العلم أنه في حال الموافقة على أي وحدة سكنية تابعة لـ ({{buildingName}})، لن يتم نشرها فعليًا في المنصة للحجز، إلا بعد الموافقة على حساب المالك ({{accountName}}) أولاً."
+        },
+        "account": {
+          "awaitingReviewMeta": "بانتظار مراجعة الحساب أولاً",
+          "reviewBtn": "مراجعة الحساب أولاً",
+          "status": {
+            "approved": "معتمد",
+            "pending": "قيد المراجعة",
+            "rejected": "مرفوض"
+          }
+        }
+      },
+      "table": {
+        "unitNumber": "رقم",
+        "unitInfo": "الوحدة",
+        "type": "النوع",
+        "description": "الوصف",
+        "status": "الحالة"
+      },
+      "tabs": {
+        "draft": "مسودة",
+        "published": "وحدات منشورة",
+        "new": "جديد",
+        "underReview": "تحت المراجعة",
+        "pendingChanges": "تعديلات قيد المراجعة",
+        "rejected": "مرفوض"
+      },
+      "pagination": {
+        "total": "وحدة"
       }
     },
     "sections": {
@@ -244,6 +572,2455 @@
       "cityMakkah": "مكة المكرمة",
       "cityMadinah": "المدينة المنورة",
       "cityKhobar": "الخبر"
+    },
+    "loginPage": {
+      "sidebar": {
+        "title1": "إدارة ذكية",
+        "title2": "لأكبر منصة حجوزات في المملكة",
+        "description": "تحكم كامل في المباني، المضيفين، والعمليات اليومية بذكاء اصطناعي ودقة متناهية."
+      },
+      "form": {
+        "title": "تسجيل دخول الإدارة",
+        "subtitle": "أهلا بك سلطان، يرجى إدخال بياناتك للمتابعة",
+        "emailLabel": "البريد الإلكتروني للإدارة",
+        "passwordLabel": "كلمة المرور",
+        "forgotPassword": "نسيت كلمة المرور؟",
+        "rememberMe": "تذكر بيانات الدخول على هذا الجهاز",
+        "submit": "دخول لوحة التحكم",
+        "messages": {
+          "success": "تم تسجيل الدخول بنجاح",
+          "error": "فشل تسجيل الدخول"
+        }
+      }
+    },
+    "teamManagement": {
+      "title": "إدارة الفريق والمسؤولين",
+      "stats": {
+        "totalEmployees": "إجمالي الموظفين",
+        "departmentCount": "عدد الأقسام",
+        "activeManagers": "المدراء النشطون",
+        "pendingActivation": "غير نشط",
+        "partialOps": "تشبيات جزئية",
+        "rejectedOps": "عمليات مرفوضة",
+        "successfulOps": "عمليات ناجحة",
+        "totalOps": "إجمالي العمليات"
+      },
+      "tabs": {
+        "structure": "هيكل الأقسام",
+        "allEmployees": "كل الموظفين",
+        "opsLog": "سجل العمليات"
+      },
+      "searchPlaceholder": "بحث باسم الموظف، رقم الهوية أو الهاتف...",
+      "managerBadge": "مدير",
+      "addDept": "إضافة قسم جديد",
+      "addEmployee": "إضافة موظف جديد",
+      "filters": {
+        "allDepts": "كل الأقسام",
+        "allRoles": "كل الأدوار"
+      },
+      "table": {
+        "employee": "الموظف",
+        "idNumber": "رقم الهوية",
+        "phone": "رقم الهاتف",
+        "role": "الدور الوظيفي",
+        "departmentRole": "القسم / الدور",
+        "status": "الحالة"
+      },
+      "deptCard": {
+        "active": "نشط",
+        "pending": "قيد التفعيل",
+        "inactive": "غير نشط",
+        "manager": "المدير المسؤول",
+        "employees": "عدد الموظفين",
+        "permissions": "صلاحيات القسم"
+      },
+      "deptManagerTitle": "مدير {{name}}",
+      "deptEmployees": "قائمة موظفي القسم",
+      "searchPlaceholderSimple": "ابحث في فريق العمل...",
+      "noEmployees": {
+        "title": "لا يوجد موظفون مضافون حالياً",
+        "description": "ابدأ بناء فريق عملك وتوزيع المهام من خلال إضافة الموظفين وتحديد صلاحياتهم في النظام",
+        "addFirstBtn": "إضافة أول موظف للفريق"
+      },
+      "opsLog": {
+        "filters": {
+          "searchPlaceholder": "بحث باسم الموظف، الإجراء، أو القسم...",
+          "actionType": "نوع الإجراء",
+          "allDepts": "كل الأقسام",
+          "allDates": "كل التواريخ"
+        },
+        "table": {
+          "dateTime": "التاريخ والوقت",
+          "user": "المستخدم",
+          "action": "الإجراء المنفذ",
+          "department": "القسم المتأثر",
+          "status": "الحالة"
+        }
+      },
+      "addEmployeeDialog": {
+        "title": "إضافة موظف جديد",
+        "fullName": "الاسم الكامل",
+        "fullNamePlaceholder": "أدخل اسم الموظف...",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "example@domain.com",
+        "phone": "رقم الهاتف",
+        "phonePlaceholder": "05xxxxxxxx",
+        "department": "القسم",
+        "departmentPlaceholder": "اختر القسم",
+        "jobRole": "الدور الوظيفي",
+        "jobRolePlaceholder": "اختر الدور الوظيفي",
+        "tempPassword": "كلمة المرور المؤقتة",
+        "passwordHint": "سيتم إرسال كلمة المرور هذه إلى البريد الإلكتروني للموظف تلقائياً.",
+        "submit": "حفظ وإرسال",
+        "validation": {
+          "nameRequired": "الاسم مطلوب",
+          "nameMinLength": "الاسم لا يقل عن حرفين",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phonePattern": "أدخل رقم هاتف صحيح",
+          "roleRequired": "الدور الوظيفي مطلوب"
+        }
+      },
+      "pagination": {
+        "total": "موظف"
+      }
+    },
+    "addDepartment": {
+      "sectionTitle1": "بيانات القسم والمهام",
+      "deptName": "اسم القسم",
+      "deptNamePlaceholder": "مثال: قسم التشغيل، خدمة العملاء، القيمسات...",
+      "nameRequired": "اسم القسم مطلوب",
+      "nameMinLength": "الاسم لا يقل عن حرفين",
+      "deptCode": "كود القسم",
+      "deptCodePlaceholder": "مثال: OPS، HR، FINANCE...",
+      "codeRequired": "كود القسم مطلوب",
+      "tasksDescription": "وصف المهام والمسؤوليات",
+      "tasksDescriptionPlaceholder": "اكتب ملخصًا للمهام الإدارية والتشغيلية التي سيتولاها هذا القسم...",
+      "roleSectionTitle": "الدور الوظيفي الافتراضي",
+      "roleName": "اسم الدور الوظيفي",
+      "roleDescription": "وصف الدور",
+      "permissionsTitle": "مصفوفة صلاحيات النظام",
+      "enableAll": "تحديث الكل",
+      "disableAll": "إلغاء الكل",
+      "save": "حفظ وإنشاء القسم",
+      "cancel": "إلغاء",
+      "permissions": {
+        "dashboard": {
+          "title": "لوحة التحكم",
+          "description": "الوصول لتحديثات الأنشطة وأرصدة الذكاء"
+        },
+        "buildings": {
+          "title": "إدارة المباني",
+          "description": "مراجعة قائمة المباني واعتماد الإيجارات الجديدة"
+        },
+        "units": {
+          "title": "إدارة الوحدات",
+          "description": "التحكم في خصائص الوحدات والرسوم المالية للذكاء"
+        },
+        "reservations": {
+          "title": "الحجوزات",
+          "description": "متابعة الحجوزات المفتوحة وإدارة طلبات الإلغاء"
+        },
+        "guests": {
+          "title": "الضيوف",
+          "description": "الوصول لبيانات الضيوف ومؤسسات المباني"
+        },
+        "hosts": {
+          "title": "المضيفون",
+          "description": "إدارة حسابات المضيفين وصيانة ملفاتهم المالية"
+        },
+        "revenue": {
+          "title": "الإيرادات",
+          "description": "مراقبة الطلبات المجدولة وخصوصية المعلومات المالية"
+        },
+        "reports": {
+          "title": "التقارير",
+          "description": "تقييم التقارير التفصيلية والمالية لكافة المباني"
+        },
+        "complaints": {
+          "title": "الشكاوى",
+          "description": "الوصول لمسائل الدعم الفني للمستخدمين"
+        },
+        "cities": {
+          "title": "المدن",
+          "description": "إدارة تفاصيل المدن وفروع المسؤولية المختلفة"
+        },
+        "team": {
+          "title": "إدارة الفرق",
+          "description": "صلاحية إضافة موظفين جدد وتغيير مجرى القسم"
+        },
+        "settings": {
+          "title": "الإعدادات",
+          "description": "ضبط إعدادات النظام ومتطلبات التشغيل الآلي"
+        }
+      }
+    },
+    "addRolePage": {
+      "title": "إضافة دور وظيفي جديد",
+      "subtitle": "قم بتحديد بيانات الدور الجديد وصلاحيات الوصول الخاصة به داخل القسم",
+      "subtitleGeneric": "قم بتحديد بيانات الدور الجديد وصلاحيات الوصول الخاصة به",
+      "basicInfoTitle": "معلومات الدور الأساسية",
+      "roleNameLabel": "اسم الدور الوظيفي",
+      "roleNamePlaceholder": "مثال: مدير عمليات، مشرف جودة...",
+      "departmentLabel": "القسم (اختياري)",
+      "departmentPlaceholder": "بدون قسم",
+      "descriptionLabel": "وصف الدور",
+      "descriptionPlaceholder": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
+      "permissionsTitle": "تحديد صلاحيات الدور",
+      "selectAllBtn": "تحديد كل الصلاحيات",
+      "deselectAllBtn": "إلغاء تحديد الكل",
+      "ungrouped": "أخرى",
+      "loadError": "تعذّر تحميل الصلاحيات",
+      "retry": "إعادة المحاولة",
+      "roleCreatedPermsFailed": "تم إنشاء الدور، لكن تعذّر تعيين الصلاحيات. يمكنك تعديلها من صفحة الدور.",
+      "selectedOfTotal": "{{count}} من أصل {{total}} صلاحية",
+      "lockedHint": "مطلوبة لصلاحية أخرى محدَّدة — ألغِ تحديد الصلاحية المعتمِدة عليها أولاً",
+      "pagination": {
+        "total": "{{count}} مجموعة صلاحيات"
+      },
+      "selectedCount": "تم تفعيل {{count}} صلاحيات",
+      "isManagerRoleLabel": "دور مدير",
+      "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
+      "saveBtn": "حفظ الدور الوظيفي",
+      "cancelBtn": "إلغاء",
+      "dependencyBlocked": "لا يمكن إلغاء هذه الصلاحية لأنها مطلوبة لصلاحية: {{names}}",
+      "validation": {
+        "nameRequired": "اسم الدور مطلوب"
+      }
+    },
+    "addRoleDialog": {
+      "titleEdit": "تعديل الدور الوظيفي",
+      "titleAdd": "إضافة دور جديد",
+      "subtitle": "سيتم تخصيص هذه الصلاحيات لقسم {{dept}}",
+      "subtitleGeneric": "سيتم تخصيص هذه الصلاحيات لهذا الدور الوظيفي",
+      "roleNameLabel": "اسم الدور الوظيفي",
+      "namePlaceholderAr": "مثال: مدقق حجوزات، مشرف جودة...",
+      "descriptionLabel": "وصف الصلاحية",
+      "descriptionPlaceholderAr": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
+      "isManagerRoleLabel": "دور مدير",
+      "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة الدور للنظام",
+      "validation": {
+        "nameRequired": "اسم الدور مطلوب",
+        "nameMinLength": "الاسم لا يقل عن حرفين"
+      }
+    },
+    "rolesPage": {
+      "title": "الأدوار الوظيفية",
+      "description": "إدارة كل الأدوار الوظيفية وصلاحياتها في النظام، سواء كانت تابعة لقسم أو غير مرتبطة بقسم.",
+      "allDepartments": "كل الأقسام",
+      "noDepartment": "بدون قسم",
+      "noRoles": "لا توجد أدوار وظيفية مضافة حالياً",
+      "addRoleBtn": "إضافة دور وظيفي جديد",
+      "table": {
+        "role": "الدور الوظيفي",
+        "department": "القسم",
+        "description": "وصف الدور",
+        "actions": "الإجراءات"
+      },
+      "pagination": {
+        "total": "دور وظيفي"
+      }
+    },
+    "addPermissionGroupDialog": {
+      "titleEdit": "تعديل مجموعة الصلاحيات",
+      "titleAdd": "إضافة مجموعة صلاحيات جديدة",
+      "subtitle": "المجموعات تنظّم الصلاحيات في وحدات منطقية داخل النظام",
+      "nameArLabel": "اسم المجموعة (عربي)",
+      "nameArPlaceholder": "مثال: التقارير، المستخدمين...",
+      "nameEnLabel": "اسم المجموعة (إنجليزي)",
+      "nameEnPlaceholder": "e.g. Reports, Users...",
+      "descriptionArLabel": "وصف المجموعة (عربي)",
+      "descriptionEnLabel": "وصف المجموعة (إنجليزي)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً للصلاحيات التي تندرج تحت هذه المجموعة...",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة المجموعة للنظام",
+      "validation": {
+        "nameArRequired": "اسم المجموعة بالعربي مطلوب",
+        "nameEnRequired": "اسم المجموعة بالإنجليزي مطلوب",
+        "nameEnPattern": "يمكن أن يحتوي على أحرف وأرقام ومسافات ونقاط وشرطات فقط",
+        "nameMinLength": "الاسم لا يقل عن حرفين"
+      }
+    },
+    "permissionGroupsPage": {
+      "title": "مجموعات الصلاحيات",
+      "description": "تنظيم الصلاحيات في مجموعات منطقية داخل النظام، كل صلاحية يجب أن تنتمي لمجموعة واحدة.",
+      "noGroups": "لا توجد مجموعات صلاحيات مضافة حالياً",
+      "addGroupBtn": "إضافة مجموعة صلاحيات جديدة",
+      "table": {
+        "name": "اسم المجموعة",
+        "description": "الوصف",
+        "actions": "الإجراءات"
+      },
+      "pagination": {
+        "total": "مجموعة"
+      }
+    },
+    "addPermissionDialog": {
+      "titleEdit": "تعديل الصلاحية",
+      "titleAdd": "إضافة صلاحية جديدة",
+      "subtitle": "كل صلاحية تنتمي لمجموعة، وتُحدَّد بكود فريد بصيغة Module.Action",
+      "groupLabel": "مجموعة الصلاحيات",
+      "groupPlaceholder": "اختر مجموعة الصلاحيات",
+      "codeLabel": "كود الصلاحية",
+      "codePlaceholder": "e.g. Users.Delete",
+      "nameArLabel": "اسم الصلاحية (عربي)",
+      "nameArPlaceholder": "مثال: حذف المستخدمين",
+      "nameEnLabel": "اسم الصلاحية (إنجليزي)",
+      "nameEnPlaceholder": "e.g. Delete Users",
+      "actionLabel": "نوع الإجراء",
+      "actionPlaceholder": "اختر نوع الإجراء",
+      "descriptionArLabel": "الوصف (عربي)",
+      "descriptionEnLabel": "الوصف (إنجليزي)",
+      "descriptionPlaceholder": "اكتب وصفاً موجزاً لما تسمح به هذه الصلاحية...",
+      "cancelBtn": "إلغاء",
+      "saveBtn": "حفظ التعديلات",
+      "addBtn": "إضافة الصلاحية للنظام",
+      "validation": {
+        "groupRequired": "مجموعة الصلاحيات مطلوبة",
+        "codeRequired": "كود الصلاحية مطلوب",
+        "codePattern": "الكود يجب أن يكون بصيغة Module.Action مثل Users.Delete",
+        "nameArRequired": "اسم الصلاحية بالعربي مطلوب",
+        "nameEnRequired": "اسم الصلاحية بالإنجليزي مطلوب",
+        "nameEnPattern": "يمكن أن يحتوي على أحرف وأرقام ومسافات ونقاط وشرطات فقط",
+        "nameMinLength": "الاسم لا يقل عن حرفين",
+        "actionRequired": "نوع الإجراء مطلوب"
+      }
+    },
+    "allPermissionsPage": {
+      "title": "الصلاحيات",
+      "description": "الكتالوج الأساسي لكل الصلاحيات الذرية في النظام، وربطها باعتماديات بعضها البعض.",
+      "noPermissions": "لا توجد صلاحيات مضافة حالياً",
+      "addPermissionBtn": "إضافة صلاحية جديدة",
+      "table": {
+        "name": "اسم الصلاحية",
+        "group": "المجموعة",
+        "action": "الإجراء",
+        "actions": "الإجراءات",
+        "dependenciesTooltip": "إدارة الاعتماديات"
+      },
+      "pagination": {
+        "total": "صلاحية"
+      }
+    },
+    "permissionDependenciesPage": {
+      "title": "اعتماديات الصلاحية",
+      "backBtn": "الرجوع للصلاحيات",
+      "requiredCount": "يتطلب {{count}} صلاحيات",
+      "noDependencies": "هذه الصلاحية لا تعتمد على أي صلاحية أخرى حالياً",
+      "removeTooltip": "إزالة",
+      "selectPlaceholder": "اختر صلاحية لإضافتها كاعتمادية",
+      "addBtn": "إضافة اعتمادية",
+      "fullChainCount": "{{count}} صلاحية ضمن السلسلة الكاملة للاعتماديات",
+      "noChain": "لا توجد اعتماديات غير مباشرة (متعددة المستويات) لهذه الصلاحية",
+      "dependentsCount": "{{count}} صلاحية تعتمد على هذه الصلاحية",
+      "noDependents": "لا توجد صلاحية أخرى تعتمد على هذه الصلاحية — يمكن حذفها بأمان",
+      "dependentsWarning": "تنبيه: حذف هذه الصلاحية سيؤثر على الصلاحيات التالية لأنها تعتمد عليها بشكل مباشر أو غير مباشر",
+      "collapseTooltip": "طي",
+      "expandTooltip": "توسيع"
+    },
+    "allDependenciesPage": {
+      "title": "كل اعتماديات الصلاحيات",
+      "viewAllBtn": "عرض كل الاعتماديات",
+      "description": "كل علاقات الاعتماد بين الصلاحيات في النظام في مكان واحد.",
+      "searchPlaceholder": "ابحث بكود أو اسم الصلاحية",
+      "allGroups": "كل المجموعات",
+      "noResults": "لا توجد علاقات اعتماد مطابقة",
+      "table": {
+        "source": "الصلاحية",
+        "group": "المجموعة",
+        "count": "عدد الاعتماديات المباشرة",
+        "actions": "الإجراءات"
+      }
+    },
+    "permissions": {
+      "pageTitle": "صلاحيات القسم",
+      "roleSettingsTitle": "إعدادات الصلاحيات والأدوار",
+      "description": "إدارة الحجوزات، المضيفين، والوحدات السكنية بشكل مباشر.",
+      "employeeCount": "عدد الموظفين",
+      "manager": "المدير المسؤول",
+      "activePermissionsCount": "تم تفعيل {{count}} صلاحيات",
+      "noPermissions": "لا توجد صلاحيات مضافة لهذا الدور",
+      "rolePermsEdit": {
+        "saveBtn": "حفظ التغييرات",
+        "saveSuccess": "تم تحديث صلاحيات الدور"
+      },
+      "table": {
+        "department": "القسم / الوظيفة",
+        "description": "وصف الصلاحية",
+        "actions": "الإجراءات",
+        "viewTooltip": "عرض",
+        "editBtn": "تعديل",
+        "deleteBtn": "حذف",
+        "addRoleBtn": "إضافة دور (Role) أو صلاحية جديدة للقسم",
+        "managerRoleTooltip": "دور مدير"
+      },
+      "alert": {
+        "title": "تنبيه تشغيلي هام",
+        "message": "أي تغيير في هذه الصلاحيات سيطبق فوراً على جميع الموظفين الحاليين ({{count}} موظف) التابعين لقسم {{dept}}، يرجى التأكد من أن التغييرات تتماشى مع المهام الوظيفية لكل قسم."
+      },
+      "cancelBtn": "إلغاء التغييرات",
+      "saveBtn": "حفظ وتحديث الصلاحيات",
+      "dependencyBlocked": "لا يمكن إلغاء هذه الصلاحية لأنها مطلوبة لصلاحية: {{names}}"
+    },
+    "permCodes": {
+      "Departments": {
+        "Delete": {
+          "name": "حذف الأقسام",
+          "description": "حذف الأقسام من النظام"
+        },
+        "Update": {
+          "name": "تحديث الأقسام",
+          "description": "تحديث الأقسام الموجودة"
+        },
+        "View": {
+          "name": "عرض الأقسام",
+          "description": "عرض قائمة الأقسام"
+        },
+        "Create": {
+          "name": "إنشاء الأقسام",
+          "description": "إنشاء أقسام جديدة"
+        }
+      },
+      "CS": {
+        "View": {
+          "name": "عرض خدمة العملاء",
+          "description": "الاطلاع على نظرة عامة لقسم خدمة العملاء"
+        },
+        "Manage": {
+          "name": "إدارة خدمة العملاء",
+          "description": "إدارة موارد قسم خدمة العملاء"
+        }
+      },
+      "IT": {
+        "View": {
+          "name": "عرض تقنية المعلومات",
+          "description": "الاطلاع على نظرة عامة لقسم تقنية المعلومات"
+        },
+        "Manage": {
+          "name": "إدارة تقنية المعلومات",
+          "description": "إدارة موارد وأنظمة تقنية المعلومات"
+        }
+      },
+      "Permissions": {
+        "View": {
+          "name": "عرض الصلاحيات",
+          "description": "عرض قائمة الصلاحيات"
+        },
+        "Manage": {
+          "name": "إدارة الصلاحيات",
+          "description": "إنشاء وتعديل وحذف الصلاحيات"
+        }
+      },
+      "Roles": {
+        "View": {
+          "name": "عرض الأدوار",
+          "description": "عرض قائمة الأدوار"
+        },
+        "Create": {
+          "name": "إنشاء الأدوار",
+          "description": "إنشاء أدوار جديدة"
+        },
+        "Update": {
+          "name": "تحديث الأدوار",
+          "description": "تحديث الأدوار الموجودة"
+        },
+        "Delete": {
+          "name": "حذف الأدوار",
+          "description": "حذف الأدوار من النظام"
+        }
+      },
+      "Dashboard": {
+        "View": {
+          "name": "عرض لوحة التحكم",
+          "description": "الوصول للوحة التحكم الرئيسية"
+        }
+      },
+      "Accounts": {
+        "View": {
+          "name": "عرض الحسابات",
+          "description": "عرض قائمة الحسابات"
+        },
+        "Manage": {
+          "name": "إدارة الحسابات",
+          "description": "إدارة الحسابات ومراجعتها"
+        }
+      },
+      "Buildings": {
+        "View": {
+          "name": "عرض المباني",
+          "description": "عرض قائمة المباني"
+        },
+        "Manage": {
+          "name": "إدارة المباني",
+          "description": "إدارة المباني والوحدات"
+        }
+      },
+      "Bookings": {
+        "View": {
+          "name": "عرض الحجوزات",
+          "description": "عرض قائمة الحجوزات"
+        },
+        "Manage": {
+          "name": "إدارة الحجوزات",
+          "description": "إدارة الحجوزات وطلبات الإلغاء"
+        }
+      },
+      "Employees": {
+        "View": {
+          "name": "عرض الموظفين",
+          "description": "عرض قائمة الموظفين"
+        },
+        "Manage": {
+          "name": "إدارة الموظفين",
+          "description": "إضافة وتعديل وحذف الموظفين"
+        }
+      }
+    },
+    "complaints": {
+      "title": "إدارة الشكاوى",
+      "tabs": {
+        "customers": "دعم العملاء",
+        "hosts": "دعم المضيفين",
+        "resolved": "تم الحل"
+      },
+      "table": {
+        "searchPlaceholder": "ابحث بإسم المشتكي، رقم الشكوى...",
+        "ticket": "رقم التذكرة",
+        "client": "العميل",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "assign": "تعيين",
+        "assignLockedMsg": "هذه الشكوى معينة بالفعل، يجب على الموظف المعين الرد عليها أو حلها",
+        "assignDelayedMsg": "لا يوجد نشاط منذ فترة — يمكنك إعادة تعيين هذه الشكوى",
+        "assignHint": "تنبيه: إرسال رد على شكوى غير معينة سيؤدي لتعيينها لك تلقائيًا",
+        "allStatuses": "كل الحالات",
+        "allTypes": "كل الأنواع",
+        "typeClient": "عميل",
+        "typeMerchant": "مضيف",
+        "resolveBtn": "تمييز كمحلولة",
+        "empty": "لا توجد شكاوى",
+        "totalPrefix": "عرض 1 من",
+        "totalSuffix": "شكوى"
+      },
+      "status": {
+        "new": "جديدة",
+        "inProgress": "قيد المعالجة",
+        "closed": "مغلقة",
+        "pending": "قيد الانتظار",
+        "replied": "تم الرد"
+      },
+      "hostFilters": {
+        "searchPlaceholder": "ابحث بالموضوع، رقم التذكرة...",
+        "property": "اسم المبنى",
+        "department": "القسم",
+        "priority": "الأولوية",
+        "notAssigned": "غير معيّنة",
+        "allPriorities": "كل الأولويات",
+        "allDepartments": "كل الأقسام",
+        "status": {
+          "new": "جديدة",
+          "pendingAdminReply": "بانتظار رد الإدارة"
+        },
+        "allProperties": "كل المباني",
+        "allEmployees": "كل الموظفين",
+        "dateFrom": "من تاريخ",
+        "dateTo": "إلى تاريخ",
+        "reset": "إعادة تعيين الفلاتر",
+        "refresh": "تحديث",
+        "retry": "إعادة المحاولة",
+        "errorMsg": "حدث خطأ أثناء تحميل التذاكر.",
+        "emptyFiltered": "لا توجد تذاكر مطابقة للفلاتر الحالية",
+        "clearFilters": "مسح الفلاتر",
+        "dateRangeError": "يجب ألا يكون تاريخ البداية بعد تاريخ النهاية"
+      },
+      "clientStatus": {
+        "open": "مفتوحة",
+        "pending": "قيد الانتظار",
+        "resolved": "تم الحل",
+        "closed": "مغلقة"
+      },
+      "customerFilters": {
+        "dept": {
+          "general": "عام",
+          "booking": "الحجوزات",
+          "payment": "الدفع",
+          "technical": "تقني",
+          "account": "الحساب"
+        },
+        "priority": {
+          "low": "منخفضة",
+          "normal": "عادية",
+          "high": "عالية",
+          "urgent": "عاجلة"
+        }
+      },
+      "chat": {
+        "supportName": "فريق الدعم",
+        "attachmentLabel": "مرفق",
+        "online": "متصل الآن",
+        "typing": "يكتب الآن...",
+        "noMessages": "لا توجد رسائل بعد",
+        "placeholder": "اكتب هنا...",
+        "resolveBtn": "إغلاق وحل الشكوى"
+      },
+      "hostDetail": {
+        "submittedAt": "تاريخ التقديم",
+        "submittedDate": "١٤ نوفمبر ٢٠٢٣",
+        "lastUpdate": "آخر تحديث",
+        "lastUpdateValue": "منذ ١٥ دقيقة",
+        "followedBy": "تحت المتابعة بواسطة الموظف",
+        "followedByValue": "١٤ نوفمبر ٢٠٢٣ - ٩:٤٥ ص",
+        "issueType": "نوع المشكلة",
+        "issueTypeValue": "مشكلة دفعات",
+        "hostName": "فهد السيف",
+        "hostSubtitle": "مضيف - فندق باب البحر السكني",
+        "problemTitle": "موضوع المشكلة",
+        "problemBody": "السلام عليكم فريق لفيين، عندي مشكلة في تحديث الأسعار لشهر نوفمبر. قمت بتغيير السعر في تطبيق المضيفين، ولكن لا يظهر التغيير في نتائج البحث. أرجو المساعدة فوراً لأن هذا يؤثر على الحجوزات القادمة.",
+        "problemAttachmentNote": "مرفق لكم لقطة شاشة توضح المشكلة من لوحة التحكم الخاصة بي.",
+        "attachmentsTitle": "الملفات المرفقة ({{count}})",
+        "attachmentMeta": "Word Document - 1.2 MB",
+        "kb": "كيلوبايت",
+        "mb": "ميجابايت",
+        "unknownFile": "ملف غير معروف",
+        "openFile": "فتح الملف",
+        "fileUnavailable": "هذا الملف غير متاح",
+        "removeAttachment": "إزالة المرفق",
+        "replyTitle": "الرد الرسمي للدعم الفني",
+        "replyPlaceholder": "اكتب الرد الرسمي للمضيف هنا...",
+        "sendReply": "إرسال الرد الرسمي",
+        "supportReplyTitle": "فريق الدعم الفني (أحمد)",
+        "supportReplyStatus": "تم الاستلام",
+        "supportReplyTime": "09:40 م",
+        "supportReplyBody": "وعليكم السلام أستاذ فهد، نعتذر عن هذا الإزعاج. قمنا برصد المشكلة وهي ناتجة عن خلل في المزامنة اللحظية. فريقنا التقني يعمل على حلها الآن، سنقوم بتحديثك خلال أقل من ساعة.",
+        "supportReplySentNotice": "تم إرسال هذا الرد عبر البريد الإلكتروني وتنبيهات التطبيق",
+        "notice": "سيتم إرسال الرد النهائي إلى المضيف، وإغلاق التذكرة عند إرسال الرد."
+      },
+      "assignDialog": {
+        "title": "تعيين الشكوى لموظف",
+        "ticketLabel": "تذكرة",
+        "searchPlaceholder": "بحث عن موظف أو بريد إلكتروني...",
+        "columns": {
+          "select": "تحديد",
+          "employee": "الموظف",
+          "phone": "رقم الجوال"
+        },
+        "empty": "لا يوجد موظفون مطابقون",
+        "selectHint": "اختر موظفاً من القائمة لمتابعة هذه الشكوى.",
+        "confirmTextPrefix": "لقد اخترت الموظف",
+        "confirmTextSuffix": "لمتابعة هذه الشكوى. سيتم إرسال إشعار فوري للموظف المعين للمعالجة.",
+        "confirmBtn": "تأكيد التعيين",
+        "success": "تم تعيين الموظف بنجاح"
+      }
+    },
+    "chatFab": {
+      "title": "مركز المساعدة",
+      "subtitle": "لديك {{count}} محادثات نشطة",
+      "loading": "جارٍ التحميل...",
+      "empty": "لا توجد محادثات نشطة حاليًا",
+      "viewAll": "عرض جميع المحادثات",
+      "unassigned": "لم يتم التعيين",
+      "assignedByPrefix": "بواسطة:",
+      "yesterday": "أمس"
+    },
+    "bookings": {
+      "title": "سجل الحجوزات",
+      "cards": {
+        "totalBookings": "إجمالي الحجوزات",
+        "confirmed": "حجوزات مؤكدة",
+        "awaitingArrival": "بانتظار الوصول",
+        "todayRevenue": "إيرادات اليوم"
+      },
+      "filters": {
+        "searchPlaceholder": "البحث بـ رقم الحجز، اسم العميل...",
+        "checkIn": "تاريخ الدخول",
+        "checkOut": "تاريخ الخروج",
+        "clear": "مسح الفلاتر",
+        "moreFilters": "الفلاتر",
+        "dateRangeError": "تاريخ الخروج لا يمكن أن يكون قبل تاريخ الدخول.",
+        "checkOutClearedHint": "تم مسح تاريخ الخروج لأنه أصبح قبل تاريخ الدخول."
+      },
+      "origin": {
+        "all": "كل المصادر",
+        "clientPortal": "بوابة العميل",
+        "merchant": "مضيف"
+      },
+      "status": {
+        "all": "كل الحالات",
+        "confirmed": "مؤكد",
+        "checkedIn": "مسجل دخول",
+        "awaitingCheckin": "بانتظار تسجيل الدخول",
+        "awaitingCheckout": "بانتظار تسجيل الخروج",
+        "completed": "مكتمل",
+        "cancelled": "ملغي",
+        "pending": "قيد الانتظار",
+        "unconfirmed": "غير مؤكد",
+        "onHold": "معلّق",
+        "awaitingAck": "بانتظار موافقة العميل",
+        "blocked": "محظور",
+        "noShow": "لم يحضر",
+        "expired": "منتهي",
+        "unknown": "غير معروف"
+      },
+      "table": {
+        "bookingNum": "رقم الحجز",
+        "client": "العميل",
+        "unit": "الوحدة / المبنى",
+        "dates": "تاريخ الدخول / الخروج",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "empty": "لا توجد حجوزات"
+      },
+      "actions": {
+        "view": "عرض التفاصيل",
+        "changeUnit": "تغيير الوحدة",
+        "cancel": "إلغاء الحجز",
+        "menuLabel": "إجراءات الحجز"
+      },
+      "changeUnitDialog": {
+        "title": "تغيير الوحدة",
+        "unitLabel": "اختر الوحدة الجديدة",
+        "unitPlaceholder": "اختر وحدة من القائمة...",
+        "unitLoading": "جارٍ تحميل الوحدات...",
+        "unitEmpty": "لا توجد وحدات منشورة متاحة",
+        "unitHint": "يتم عرض الوحدات المنشورة فقط.",
+        "reasonLabel": "سبب التغيير (اختياري)",
+        "reasonPlaceholder": "اكتب سبب تغيير الوحدة هنا...",
+        "cancelBtn": "تراجع",
+        "confirmBtn": "تأكيد التغيير"
+      },
+      "cancelBookingDialog": {
+        "title": "إلغاء الحجز",
+        "warningTitle": "هل أنت متأكد من إلغاء هذا الحجز؟",
+        "warningDesc": "هذا الإجراء سيقوم بإلغاء الحجز ومعالجة عملية استرداد الأموال للعميل بشكل آلي.",
+        "reasonLabel": "سبب الإلغاء",
+        "reasonPlaceholder": "اكتب سبب الإلغاء هنا...",
+        "reasonRequiredError": "يرجى كتابة سبب الإلغاء.",
+        "dismissBtn": "تراجع",
+        "confirmBtn": "تأكيد الإلغاء"
+      },
+      "detail": {
+        "title": "تفاصيل الحجز",
+        "tabs": {
+          "services": "الخدمات",
+          "log": "السجل",
+          "finance": "المالية",
+          "details": "تفاصيل"
+        },
+        "bookingNumberLabel": "رقم الحجز",
+        "guestInfoTitle": "بيانات الضيف",
+        "guestSection": {
+          "guestName": "اسم الضيف",
+          "phone": "رقم الجوال",
+          "companions": "المرافقين"
+        },
+        "unitSection": {
+          "title": "بيانات الوحدة",
+          "unitNumber": "رقم الوحدة",
+          "unitType": "نوع الوحدة",
+          "location": "الموقع"
+        },
+        "staySection": {
+          "title": "مواعيد الإقامة",
+          "checkOut": "تسجيل الخروج",
+          "checkIn": "تسجيل الدخول",
+          "duration": "مدة الإقامة",
+          "nights": "ليالي",
+          "actualCheckIn": "وقت الدخول الفعلي",
+          "actualCheckOut": "وقت الخروج الفعلي",
+          "notCheckedInYet": "لم يسجل الضيف الدخول بعد",
+          "notCheckedOutYet": "لم يسجل الضيف الخروج بعد"
+        },
+        "financeTab": {
+          "currency": "ريال",
+          "rentSummaryTitle": "ملخص الإيجار",
+          "nightlyRate": "سعر الليلة",
+          "totalRent": "إجمالي الإيجار",
+          "nightsBreakdown": "{{nights}} ليالي × {{rate}} ريال",
+          "remainingAmount": "المبلغ المتبقي",
+          "paidAmount": "المبلغ المدفوع",
+          "depositTitle": "مبلغ التأمين",
+          "depositRemaining": "المتبقي",
+          "depositPaid": "المدفوع",
+          "depositTotal": "إجمالي التأمين"
+        },
+        "servicesTab": {
+          "currentRequestsTitle": "الطلبات الحالية",
+          "totalLabel": "الإجمالي",
+          "empty": "لا توجد طلبات حالية"
+        },
+        "logTab": {
+          "recentActivityTitle": "آخر {{count}} عملية",
+          "byLabel": "بواسطة",
+          "empty": "لا يوجد سجل نشاط",
+          "source": {
+            "admin": "الإدارة",
+            "merchant": "التاجر",
+            "guest": "الضيف",
+            "system": "النظام"
+          }
+        },
+        "loading": "جاري تحميل تفاصيل الحجز...",
+        "loadError": "تعذر تحميل تفاصيل الحجز"
+      }
+    },
+    "accountManagement": {
+      "title": "إدارة الحسابات",
+      "reviewTitle": "مراجعة الحساب",
+      "noResults": "لا توجد حسابات مطابقة",
+      "searchPlaceholder": "ابحث باسم الحساب أو الرقم الضريبي",
+      "stats": {
+        "total": "إجمالي الحسابات",
+        "active": "نشط",
+        "underReview": "تحت المراجعة",
+        "rejected": "مرفوض"
+      },
+      "tabs": {
+        "all": "الكل",
+        "active": "الحسابات النشطة",
+        "rejected": "الحسابات المرفوضة",
+        "underReview": "حسابات تحت المراجعة"
+      },
+      "filters": {
+        "all": "كل الحسابات",
+        "status": "كل الحالات",
+        "newest": "الأحدث أولاً",
+        "oldest": "الأقدم أولاً"
+      },
+      "card": {
+        "requestDate": "تاريخ الطلب",
+        "joinDate": "تاريخ الانضمام",
+        "propertyCount": "عدد المباني",
+        "statusActive": "نشط",
+        "statusUnderReview": "تحت المراجعة",
+        "statusPending": "قيد المراجعة",
+        "statusRejected": "مرفوض",
+        "statusSuspended": "موقوف",
+        "idFieldCompany": "السجل التجاري",
+        "idFieldIndividual": "رقم الهوية",
+        "actionCompany": "شركة",
+        "actionSoleProprietorship": "مؤسسة فردية",
+        "actionIndividual": "أفراد",
+        "walletAction": "المحفظة"
+      },
+      "pagination": {
+        "total": "حساب"
+      }
+    },
+    "settlements": {
+      "title": "التسويات",
+      "subtitle": "متابعة طلبات تسوية المدفوعات مع الحسابات",
+      "tabs": {
+        "current": "التسويات الحالية",
+        "previous": "التسويات السابقة"
+      },
+      "stats": {
+        "maxPaymentTime": "أقصى وقت سداد",
+        "avgRequestValue": "متوسط قيمة الطلب",
+        "totalPending": "إجمالي المبالغ المعلقة",
+        "hoursUnit": "ساعة"
+      },
+      "filters": {
+        "newest": "من الأحدث أولاً",
+        "oldest": "من الأقدم أولاً"
+      },
+      "searchPlaceholder": "ابحث برقم الشريحة، اسم الحساب...",
+      "table": {
+        "account": "الحركة / الحساب",
+        "accountName": "اسم الحساب",
+        "amount": "المبلغ",
+        "paymentMethod": "طريقة الدفع",
+        "requestDate": "التاريخ والوقت",
+        "status": "الحالة"
+      },
+      "paymentMethods": {
+        "bankTransfer": "تحويل بنكي",
+        "mada": "شبكة مدى"
+      },
+      "status": {
+        "pending": "بانتظار المراجعة",
+        "processing": "قيد التحويل",
+        "approved": "تمت بنجاح",
+        "partiallyCompleted": "مكتملة جزئيًا",
+        "rejected": "مرفوضة"
+      },
+      "errors": {
+        "loadTitle": "تعذّر تحميل التسويات",
+        "retry": "إعادة المحاولة",
+        "network": "تعذّر الاتصال بالخدمة، حاول مرة أخرى",
+        "forbidden": "غير مصرّح لك بتنفيذ هذا الإجراء",
+        "notFound": "التسوية غير موجودة",
+        "stale": "التسوية تم التعامل معها بالفعل — تم تحديث الصفحة",
+        "noBankAccount": "لا يوجد حساب بنكي مسجّل للتاجر — لا يمكن تنفيذ التحويل",
+        "amountExceeds": "المبلغ المحوّل أكبر من المبلغ المطلوب",
+        "partialReasonRequired": "سبب التحويل الجزئي مطلوب",
+        "generic": "حدث خطأ غير متوقع، حاول مرة أخرى",
+        "receiptType": "صيغة الملف غير مدعومة (JPG, PNG, PDF فقط)",
+        "receiptSize": "حجم الملف يتجاوز الحد الأقصى (5 ميجابايت)",
+        "receiptUploadFailed": "تم تنفيذ التسوية، لكن تعذّر رفع الإيصال."
+      },
+      "rejectionReasonPrefix": "سبب الرفض",
+      "rejectionReasons": {
+        "unclearImage": "صورة الإيصال غير واضحة",
+        "accountMismatch": "بيانات الحساب البنكي غير مطابقة"
+      },
+      "dateLabels": {
+        "today": "اليوم",
+        "yesterday": "أمس"
+      },
+      "empty": {
+        "title": "لا توجد تسويات",
+        "desc": "لا توجد طلبات تسوية مطابقة لبحثك حاليًا"
+      },
+      "pagination": {
+        "total": "طلب تسوية"
+      },
+      "detail": {
+        "title": "تفاصيل طلب التسوية",
+        "subtitle": "مراجعة بيانات الحساب البنكي والرصيد المتاح",
+        "hostSection": "بيانات المضيف",
+        "accountName": "اسم الحساب",
+        "hostName": "اسم المضيف",
+        "phone": "رقم الهاتف",
+        "requestedAmount": "مبلغ التسوية المطلوب",
+        "bankSection": "البيانات البنكية",
+        "verified": "تم التحقق",
+        "accountHolder": "صاحب الحساب",
+        "bankName": "اسم البنك",
+        "accountNumber": "رقم الحساب",
+        "iban": "رقم الآيبان (IBAN)",
+        "acceptBtn": "قبول وتحويل المبلغ",
+        "rejectBtn": "رفض الطلب",
+        "ibanCopied": "تم نسخ رقم الآيبان",
+        "confirmTransferTitle": "تأكيد التحويل ورفع الإيصال",
+        "companyAccount": "الشركة / الحساب",
+        "ibanNumber": "رقم الحساب/الآيبان",
+        "amountToTransfer": "المبلغ المطلوب تحويله",
+        "paymentMethod": "طريقة الدفع",
+        "actualAmount": "المبلغ المحول فعليًا",
+        "partialReasonLabel": "سبب التحويل الجزئي",
+        "partialReasonPlaceholder": "اكتب سبب تحويل مبلغ أقل من المبلغ المطلوب...",
+        "retryReceiptBtn": "إعادة رفع الإيصال",
+        "trxId": "رقم مرجع العملية (TRX ID)",
+        "trxIdPlaceholder": "أدخل رقم المرجع البنكي المكون من 12 خانة...",
+        "receiptLabel": "إيصال التحويل (صورة أو PDF)",
+        "uploadHint": "انقر لرفع الإيصال أو اسحب الملف هنا",
+        "uploadFormats": "يدعم الصيغ JPG, PNG, PDF (الحد الأقصى 5 ميجابايت)",
+        "confirmTransferBtn": "تأكيد وقبول التسوية",
+        "successTitle": "تم تنفيذ التسوية بنجاح",
+        "successMessage": "تمت معالجة طلب التحويل وإرسال الإشعارات للأطراف المعنية",
+        "trxNumber": "رقم العملية",
+        "transferredAmount": "المبلغ المحول",
+        "executionTime": "وقت التنفيذ",
+        "now": "الآن، {{time}}",
+        "closeWindowBtn": "إغلاق النافذة",
+        "confirmRejectTitle": "تأكيد رفض التسوية",
+        "settlementAmount": "مبلغ التسوية",
+        "rejectReasonLabel": "سبب الرفض",
+        "rejectReasonPlaceholder": "يرجى كتابة سبب رفض التسوية ليتم إرساله للمضيف...",
+        "rejectReasonHint": "سيظهر هذا السبب للمضيف في لوحة التحكم الخاصة به",
+        "confirmRejectBtn": "تأكيد رفض الطلب",
+        "rejectSuccessTitle": "تم رفض الطلب بنجاح",
+        "rejectSuccessSubtitle": "تم تحديث حالة الطلب وإشعار المضيف",
+        "rejectDoneTitle": "تمت عملية الرفض بنجاح",
+        "rejectDoneMessage": "تم إرسال إشعار الرفض للمضيف وتحديث حالة المعاملة في النظام",
+        "recordedReason": "سبب الرفض المسجل",
+        "rejectionDate": "تاريخ الرفض"
+      }
+    },
+    "wallet": {
+      "title": "محفظة التاجر",
+      "balanceLabel": "الرصيد الحالي",
+      "adjustBtn": "تعديل الرصيد",
+      "searchPlaceholder": "ابحث بالوصف...",
+      "filters": {
+        "all": "كل الأنواع",
+        "topUp": "عمليات الشحن",
+        "callCharge": "رسوم المكالمات",
+        "callRefund": "استرداد المكالمات",
+        "adminAdjustment": "تعديلات الأدمن",
+        "newest": "من الأحدث أولاً",
+        "oldest": "من الأقدم أولاً"
+      },
+      "table": {
+        "date": "التاريخ والوقت",
+        "type": "النوع",
+        "description": "الوصف",
+        "amount": "المبلغ",
+        "balanceAfter": "الرصيد بعد العملية"
+      },
+      "types": {
+        "topUp": "شحن رصيد",
+        "callCharge": "رسوم مكالمة",
+        "callRefund": "استرداد مكالمة",
+        "adminAdjustment": "تعديل من الأدمن"
+      },
+      "errors": {
+        "loadTitle": "تعذّر تحميل المحفظة",
+        "retry": "إعادة المحاولة",
+        "network": "تعذّر الاتصال بالخدمة، حاول مرة أخرى",
+        "forbidden": "غير مصرّح لك بعرض محفظة هذا التاجر",
+        "invalidAmount": "لا يمكن أن يكون المبلغ صفرًا",
+        "insufficientBalance": "مبلغ الخصم أكبر من الرصيد الحالي",
+        "generic": "حدث خطأ غير متوقع، حاول مرة أخرى"
+      },
+      "empty": {
+        "title": "لا توجد حركات",
+        "desc": "لا توجد حركات في المحفظة مطابقة لبحثك حاليًا"
+      },
+      "pagination": {
+        "total": "حركة"
+      },
+      "adjust": {
+        "title": "تعديل يدوي للرصيد",
+        "subtitle": "إضافة رصيد أو خصمه من محفظة هذا التاجر",
+        "credit": "إضافة",
+        "debit": "خصم",
+        "currentBalance": "الرصيد الحالي",
+        "amountLabel": "المبلغ",
+        "reasonLabel": "السبب",
+        "reasonPlaceholder": "اكتب سبب إجراء هذا التعديل...",
+        "reasonHint": "سيتم تسجيل هذا كوصف للعملية في سجل المحفظة",
+        "continueBtn": "متابعة",
+        "backBtn": "رجوع",
+        "creditAmount": "مبلغ الإضافة",
+        "debitAmount": "مبلغ الخصم",
+        "estimatedNewBalance": "الرصيد بعد التعديل",
+        "irreversibleWarning": "لا يمكن التراجع عن هذا التعديل بعد تأكيده — سيتم تسجيله بشكل دائم في سجل المحفظة.",
+        "confirmBtn": "تأكيد التعديل",
+        "successTitle": "تم التعديل بنجاح",
+        "successMessage": "تم تحديث رصيد المحفظة وتسجيل العملية",
+        "newBalance": "الرصيد الجديد",
+        "closeWindowBtn": "إغلاق النافذة"
+      }
+    },
+    "subscriptions": {
+      "pageTitle": "ادارة الاشتراكات",
+      "listTitle": "قائمة حسابات المشتركين",
+      "listSubtitle": "إدارة تفاصيل الخدمات المفعلة والرسوم لكل منشأة",
+      "searchPlaceholder": "البحث عن منشأة...",
+      "stats": {
+        "annual": "السنوي",
+        "annualDesc": "الدخل السنوي",
+        "monthly": "الشهري",
+        "monthlyDesc": "الدخل المتوقع",
+        "active": "نشط حاليا",
+        "activeDesc": "الاشتراكات النشطة",
+        "total": "اجمالي المشتركين",
+        "growth": "نمو",
+        "growthBadge": "+{{percent}}٪ نمو"
+      },
+      "classification": {
+        "hotel": "فندق",
+        "resort": "منتجع",
+        "apartments": "شقق مفروشة",
+        "villas": "فلل"
+      },
+      "category": {
+        "communication": "خدمات التواصل",
+        "analytics": "الاستقلال والرفاهية",
+        "bookings": "إدارة الحجوزات"
+      },
+      "table": {
+        "facility": "المنشأة/التصنيف",
+        "activeServices": "الخدمات المفعلة",
+        "fees": "الرسوم",
+        "status": "الحالة",
+        "actions": "الاجراءات",
+        "others": "+{{count}} اخرى",
+        "viewBtn": "عرض",
+        "editBtn": "تعديل",
+        "expandTooltip": "عرض التفاصيل",
+        "collapseTooltip": "إخفاء التفاصيل",
+        "moreActions": "إجراءات إضافية"
+      },
+      "period": {
+        "monthly": "شهريا",
+        "annual": "سنوي",
+        "free": "مجاني"
+      },
+      "status": {
+        "active": "نشط",
+        "suspended": "موقوف",
+        "expired": "منتهي"
+      },
+      "detail": {
+        "title": "تفاصيل الخدمات والاشتراكات",
+        "subtitle": "قائمة بجميع الخدمات المفعلة وتواريخ استحقاقها للمنشأة",
+        "serviceName": "اسم الخدمة",
+        "category": "نوع الخدمة",
+        "price": "الصيغة",
+        "subscriptionType": "نوع الاشتراك",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "free": "مجاني"
+      },
+      "empty": {
+        "title": "لا يوجد مشتركون",
+        "desc": "لم يتم تسجيل أي حسابات مشتركة بعد، أو لا توجد نتائج مطابقة لبحثك."
+      },
+      "pagination": {
+        "total": "مشترك",
+        "prev": "الصفحة السابقة",
+        "next": "الصفحة التالية",
+        "page": "صفحة"
+      },
+      "settings": {
+        "pageTitle": "اعدادات الاشتراكات",
+        "title": "باقة خدمات واشتراكات المنصة",
+        "subtitle": "تحكم في تفعيل أو إيقاف كل خدمة، واضبط تفاصيلها والأسعار المعتمدة بالريال السعودي",
+        "searchPlaceholder": "ابحث عن اسم الخدمة...",
+        "configureBtn": "إعدادات الخدمة",
+        "monthlyPrice": "السعر الشهري",
+        "annualPrice": "السعر السنوي",
+        "filters": {
+          "all": "الكل"
+        },
+        "status": {
+          "enabled": "مفعل",
+          "disabled": "غير مفعل"
+        },
+        "empty": {
+          "title": "لا توجد خدمات",
+          "desc": "لا توجد خدمات مطابقة لبحثك أو الفلتر المحدد."
+        },
+        "services": {
+          "whatsappMuqam": {
+            "name": "واتساب للأعمال (منصة مقام)",
+            "badge": "خصم مجاني دائم",
+            "desc": "إدارة قنوات التواصل المباشر مع الضيوف عبر المنصة الوطنية الموحدة لخدمات الضيافة السياحية",
+            "feature1": "تحديث تلقائي لبيانات الوحدة",
+            "feature2": "متوافق مع نظام موقع الضيافة"
+          },
+          "rasd": {
+            "name": "منصة رصد (الرقابة الميدانية)",
+            "badge": "فترة تجربة مجانية - 3 أيام",
+            "desc": "منصة شاملة للمراقبة الميدانية وضبط الجودة ومتابعة الزيارات الفعلية للمنشأة",
+            "feature1": "فحص دوري واستقبال للشكاوى",
+            "feature2": "إشعارات فورية عند رصد مخالفات"
+          },
+          "whatsappBusiness": {
+            "name": "واتساب للأعمال (WhatsApp)",
+            "badge": "تجربة مجانية ١٤ يوم",
+            "desc": "إرسال إشعارات الحجز اللحظية ورسائل الترحيب واستقبال طلبات النزلاء بشكل آلي وتفاعلي",
+            "feature1": "ربط فوري عبر API الحسابي الرسمي",
+            "feature2": "قوالب رسائل وتأكيدات غير محدودة"
+          },
+          "zatca": {
+            "name": "الفوترة الإلكترونية (ZATCA)",
+            "badge": "فترة تجربة مجانية - ٦ أيام",
+            "desc": "إصدار الفواتير الضريبية المبسطة وربط رمز الاستجابة السريع QR المعتمد من هيئة الزكاة والضريبة",
+            "feature1": "متوافق بالكامل مع متطلبات الفوترة الإلكترونية",
+            "feature2": "أرشفة آلية لجميع الفواتير الصادرة"
+          },
+          "payments": {
+            "name": "بوابة الدفع الإلكتروني السريع",
+            "badge": "بدون رسوم تأسيس أول 30 يوم",
+            "desc": "استقبال المدفوعات فوريًا عبر مدى وApple Pay والبطاقات الائتمانية بسرعة عالية وبدون تأخير",
+            "feature1": "سرعة تحويل عالية وعمولات تنافسية",
+            "feature2": "أمان معتمد بمعايير 3D Secure"
+          },
+          "sms": {
+            "name": "خدمة التنبيهات الذكية SMS",
+            "badge": "رصيد ترحيبي - 50 رسالة",
+            "desc": "إرسال رسائل SMS لتأكيد الحجوزات وأكواد التحقق OTP وتنبيهات الفواتير المستحقة",
+            "feature1": "رسائل مخصصة بسهولة",
+            "feature2": "معدل تسليم عالٍ وموثوق"
+          }
+        }
+      },
+      "serviceSettings": {
+      "pageTitle": "إعدادات الخدمة",
+      "backBtn": "الرجوع لقائمة الخدمات",
+      "serviceStatusLabel": "حالة الخدمة",
+      "title": "إعدادات وتخصيص خدمة {{service}}",
+      "activeNow": "الخدمة مفعلة حالياً",
+      "inactiveNow": "الخدمة غير مفعلة حالياً",
+      "headerDesc": "تخصيص مصادر بيانات التكامل، قواعد الرسوم حسب تصنيف المنشأة، شروط التجربة المجانية، وقائمة المنشآت المشتركة",
+      "actions": "الإجراءات",
+      "editRow": "تعديل",
+      "deleteRow": "حذف",
+      "state": {
+        "title": "التحكم في حالة الخدمة",
+        "desc": "إدارة الحالة التشغيلية للمنصة وتخصيص سلوك التجديد والاشتراكات لجميع المنشآت المرتبطة.",
+        "currentStatus": "الحالة الحالية",
+        "stopped": "إيقاف نهائي",
+        "stoppedDesc": "إغلاق الخدمة بالكامل لجميع المنشآت",
+        "renewalStopped": "إيقاف التجديد",
+        "renewalStoppedDesc": "منع التجديد التلقائي للاشتراكات الحالية",
+        "suspended": "تعليق مؤقت",
+        "suspendedDesc": "إيقاف مؤقت للخدمة مع إمكانية العودة",
+        "active": "نشط بالكامل",
+        "activeDesc": "الخدمة تعمل بكامل طاقتها لجميع المشتركين",
+        "confirmBtn": "تأكيد التغيير",
+        "oneWeek": "أسبوع واحد",
+        "twoWeeks": "أسبوعين",
+        "oneMonth": "شهر واحد",
+        "durationTitle": "إعدادات المدة الزمنية",
+        "durationDesc": "حدد الفترة المطلوبة لتطبيق الحالة المختارة"
+      },
+      "integration": {
+        "title": "حقول بيانات التكامل",
+        "desc": "البيانات والمفاتيح اللازمة للربط المباشر مع العميل لتفعيل كل خدمة",
+        "addBtn": "إضافة حقل جديد",
+        "fieldName": "اسم الحقل",
+        "dataType": "نوع البيانات",
+        "required": "إلزامي",
+        "optional": "اختياري",
+        "dataTypePlaceholder": "نص يحتوي نوع البيانات...",
+        "fieldNamePlaceholder": "أدخل اسم الحقل..."
+      },
+      "operations": {
+        "title": "تسعير العمليات والاشتراكات",
+        "desc": "مواءمة نموذج التسعير عبر السعر الموسمي وسعر العملية ورسوم التأسيس",
+        "searchPlaceholder": "ابحث عن منشأة...",
+        "type": "نوع الاشتراك / العملية",
+        "setupFee": "رسوم التأسيس",
+        "operationPrice": "سعر العملية",
+        "seasonalPrice": "السعر الموسمي",
+        "basic": "الاشتراك الأساسي",
+        "advanced": "الاشتراك المتقدم"
+      },
+      "facilities": {
+        "title": "المنشآت المشتركة في هذه الخدمة حالياً",
+        "desc": "قائمة بالمنشآت المفعلة لهذه الخدمة وتواريخ الاشتراك والرسوم المدفوعة",
+        "searchPlaceholder": "ابحث عن منشأة...",
+        "facility": "المنشأة والتصنيف",
+        "plan": "نوع الباقة",
+        "startDate": "تاريخ البدء",
+        "renewalDate": "تاريخ التجديد",
+        "amountPaid": "المبلغ المدفوع",
+        "status": "الحالة",
+        "planType": {
+          "annualAdvanced": "سنوي متقدم",
+          "monthly": "شهري",
+          "annualTrial": "سنوي مبدئي"
+        },
+        "subscriberStatus": {
+          "active": "نشط",
+          "trial": "تجربة"
+        },
+        "empty": "لا توجد منشآت مشتركة في هذه الخدمة بعد."
+      },
+      "pricing": {
+        "title": "الأسعار القياسية الافتراضية للخدمة",
+        "desc": "تطبق حال عدم وجود أي قواعد تسعير مخصصة أعلاه",
+        "monthlyLabel": "السعر الشهري القياسي (ر.س)",
+        "annualLabel": "السعر السنوي القياسي (ر.س)",
+        "vatLabel": "شامل ضريبة القيمة المضافة (VAT 15%)",
+        "vatDesc": "إصدار الفاتورة الضريبية تلقائياً عند تحديد الاشتراك"
+      },
+      "trial": {
+        "title": "إعدادات فترة التجربة المجانية",
+        "desc": "منح المنشآت الجديدة صلاحية اختبار الخدمة قبل بدء الاشتراك والفوترة",
+        "durationLabel": "مدة الفترة التجريبية (بالأيام)",
+        "days": "يوم",
+        "recommended": "(موصى به)",
+        "infoNote": "عند انتهاء فترة التجربة يتم إيقاف الإرسال التلقائي مع إرسال إشعار للمنشأة لسداد الاشتراك ومتابعة الخدمة دون فقدان إعدادات الربط.",
+        "setupFeeLabel": "مبلغ فترة الإعداد",
+        "setupFeePlaceholder": "أدخل رسوم التأسيس..."
+      },
+      "footerNote": "يتم حفظ جميع التعديلات هنا على مستوى الخدمة العام، وتؤثر على جميع الحسابات المشتركة.",
+      "cancelBtn": "إلغاء التغييرات",
+      "saveBtn": "حفظ وتحديث الإعدادات"
+      }
+    },
+    "subscriptionLog": {
+      "pageTitle": "سجل الاشتراكات",
+      "title": "سجل نشاط الاشتراكات",
+      "subtitle": "تتبع كافة العمليات والإجراءات التي تمت على اشتراكات المنشأة",
+      "searchPlaceholder": "البحث عن منشأة...",
+      "filters": {
+        "all": "الكل"
+      },
+      "table": {
+        "refNumber": "الرقم المرجعي",
+        "actionType": "نوع الإجراء",
+        "service": "الخدمة",
+        "actor": "بواسطة",
+        "date": "التاريخ",
+        "status": "الحالة"
+      },
+      "action": {
+        "renew": "تجديد",
+        "add": "إضافة",
+        "cancel": "إلغاء"
+      },
+      "status": {
+        "completed": "مكتمل",
+        "processing": "قيد المعالجة",
+        "cancelled": "ملغي"
+      },
+      "empty": {
+        "title": "لا توجد عمليات",
+        "desc": "لم يتم تسجيل أي عمليات على الاشتراكات بعد، أو لا توجد نتائج مطابقة لبحثك."
+      },
+      "pagination": {
+        "total": "عملية",
+        "prev": "الصفحة السابقة",
+        "next": "الصفحة التالية",
+        "page": "صفحة"
+      }
+    },
+    "businessCategories": {
+      "Hotel": "فندق",
+      "HotelVillas": "فلل فندقية",
+      "Apartments": "شقق سكنية",
+      "Villas": "فلل",
+      "Chalets": "شاليهات",
+      "Resorts": "منتجعات",
+      "Rests": "استراحات",
+      "Commercial": "برج تجاري",
+      "Compounds": "مجمعات سكنية"
+    },
+    "reviewAccount": {
+      "facilityInfo": {
+        "cardTitle": "معلومات المنشأة",
+        "unifiedNumber": "الرقم الموحد",
+        "dataStatus": "حالة البيانات",
+        "dataVerified": "تم التحقق من البيانات",
+        "dataNotVerified": "لم يتم التحقق",
+        "businessCategory": "فئة الأعمال",
+        "legalEntityName": "الاسم القانوني للمنشأة",
+        "companyNumber": "رقم السجل التجاري",
+        "nationalCategory": "التصنيف الوطني",
+        "businessSubcategory": "الفئة الفرعية للنشاط",
+        "commercialExpiryDate": "تاريخ انتهاء السجل التجاري"
+      },
+      "tradeName": {
+        "cardTitle": "الهوية التجارية",
+        "logoLabel": "شعار المنشأة",
+        "nameLabel": "الاسم التجاري",
+        "documentLabel": "وثيقة توثيق العلامة التجارية",
+        "crCertificateLabel": "شهادة السجل التجاري"
+      },
+      "taxAddress": {
+        "cardTitle": "الضريبة والعنوان الوطني",
+        "regionLabel": "أمير المنطقة",
+        "shortNationalAddress": "الرمز المختصر",
+        "taxNumber": "الرقم الضريبي",
+        "region": "المنطقة",
+        "city": "المدينة",
+        "postalCode": "الرمز البريدي",
+        "district": "الحي",
+        "buildingNumber": "رقم المبنى",
+        "streetName": "اسم الشارع",
+        "vatNumber": "الرقم الضريبي (VAT)",
+        "taxRate": "نسبة الضريبة",
+        "vatCertificate": "شهادة ضريبة القيمة المضافة",
+        "vatCertificateYes": "متوفرة",
+        "vatCertificateNo": "غير متوفرة"
+      },
+      "contactInfo": {
+        "cardTitle": "بيانات التواصل",
+        "mobile": "رقم الجوال",
+        "email": "البريد الإلكتروني",
+        "phoneVerified": "تم التحقق"
+      },
+      "bankInfo": {
+        "cardTitle": "بيانات الحساب البنكي",
+        "iban": "رقم الآيبان (IBAN)",
+        "bankVerified": "تم التحقق من الحساب البنكي",
+        "beneficiaryName": "اسم المستفيد",
+        "swiftCode": "رمز السويفت (SWIFT)"
+      },
+      "accountOverview": {
+        "cardTitle": "بيانات الحساب",
+        "disabled": "الحساب معطّل",
+        "referenceCode": "الرقم المرجعي",
+        "idNumber": "رقم الهوية",
+        "birthDate": "تاريخ الميلاد",
+        "memberCount": "عدد الأعضاء",
+        "propertyCount": "عدد المباني",
+        "createdAt": "تاريخ الإنشاء",
+        "updatedAt": "آخر تحديث",
+        "businessInfoStatus": "حالة بيانات المنشأة",
+        "bankInfoStatus": "حالة البيانات البنكية",
+        "taxInfoStatus": "حالة البيانات الضريبية",
+        "documentsStatus": "حالة المستندات",
+        "previousRejectionReason": "سبب الرفض السابق"
+      },
+      "sectionStatus": {
+        "Draft": "مسودة",
+        "PendingReview": "قيد المراجعة",
+        "Approved": "مقبول",
+        "Rejected": "مرفوض"
+      },
+      "decision": {
+        "cardTitle": "اتخاذ قرار بشأن الطلب",
+        "basicNameLabel": "الاسم الأساسي المعتمد للمنشأة",
+        "basicNameHint": "سيتم اعتماد هذا الاسم رسمياً عند تفعيل الحساب",
+        "basicNamePlaceholder": "مثال: مؤسسة حلول المسافر",
+        "basicNameRequired": "يرجى إدخال الاسم الأساسي بالعربي والإنجليزي قبل القبول",
+        "notesLabel": "ملاحظات الرفض",
+        "notesRequired": "(إلزامية في حال الرفض)",
+        "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "invalidUnifiedNumberLabel": "الرقم الموحد غير صحيح",
+        "invalidUnifiedNumberHint": "فعّل هذا الخيار إذا كان سبب الرفض هو خطأ في الرقم الموحد للمنشأة",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "قبول وتفعيل الحساب",
+        "lockNotice": "بسبب الشروط من صدد التسهيلات المقدمة والمتعلقة بقرار التأهيل الشوامل للمنشأة",
+        "acceptSuccess": "تم قبول الحساب وتفعيله بنجاح",
+        "rejectSuccess": "تم رفض طلب الحساب بنجاح",
+        "rejectionRequired": "يرجى إدخال سبب الرفض قبل المتابعة",
+        "confirm": {
+          "approveTitle": "تأكيد قبول الحساب",
+          "approveMessage": "هل أنت متأكد من قبول وتفعيل هذا الحساب؟",
+          "approveAction": "نعم، قبول وتفعيل",
+          "rejectTitle": "تأكيد رفض الحساب",
+          "rejectMessage": "هل أنت متأكد من رفض هذا الطلب؟",
+          "rejectAction": "نعم، رفض الطلب"
+        }
+      }
+    },
+    "buildReview": {
+      "title": "مراجعة المبنى",
+      "reviewRequestsBC": "طلبات المراجعة",
+      "buildingCrumbLabel": "مبنى",
+      "urgentRequest": "طلب عاجل",
+      "buildingInfo": {
+        "imageAlt": "صورة المبنى",
+        "orgLabel": "المؤسسة المشغّلة",
+      "operatorLabelEstablishment": "المنشأة المشغّلة",
+      "operatorLabelIndividual": "المُشغِّل",
+        "orgName": "مجموعة ريادة الفندقية",
+        "totalUnitsLabel": "إجمالي الوحدات"
+      },
+      "progress": {
+        "statusLabel": "حالة المراجعة: {{completed}} من {{total}} أقسام مكتملة"
+      },
+      "status": {
+        "adminReviewLabel": "قيد المراجعة الإدارية",
+        "adopted": "تم الاعتماد",
+        "readyToPublish": "جاهزة للنشر",
+        "rejected": "تم الرفض",
+        "draftLabel": "مسودة",
+        "newLabel": "جديد",
+        "progressLabel": "حالة المراجعة",
+        "progressCount": "{{completed}} من {{total}}"
+      },
+      "sections": {
+        "basicInfoTitle": "البيانات الأساسية",
+        "photosTitle": "صور المبنى",
+        "locationTitle": "الموقع الجغرافي",
+        "termsTitle": "شروط المبنى",
+        "licenseTitle": "ترخيص المبنى",
+        "statusAccepted": "تم القبول",
+        "statusRejected": "تم الرفض",
+        "statusPending": "قيد المراجعة"
+      },
+      "actions": {
+        "approve": "اعتماد الموافقة النهائية",
+        "reject": "رفض الطلب",
+        "rejectFinal": "رفض الطلب نهائياً",
+        "lockNotice": "يجب إتمام مراجعة كافة الأقسام أعلاه قبل اتخاذ قرار القبول أو الرفض النهائي"
+      },
+      "finalDecision": {
+        "readyTitle": "جاهز للاعتماد النهائي",
+        "readyDesc": "لقد تمت مراجعة كافة المستندات والبيانات المطلوبة بنجاح يمكنك الآن اعتماد المبنى ليتم تفعيل حساب المضيف والبدء باستقبال الحجوزات فوراً",
+        "alreadyApprovedTitle": "تم الاعتماد النهائي بالفعل",
+        "alreadyApprovedDesc": "تم اعتماد هذا المبنى بالفعل.",
+        "rejectionSummaryTitle": "ملخص أسباب الرفض",
+        "rejectionSummarySubtitle": "موجز الملاحظات للأقسام الثلاثة",
+        "sectionNotesPrefix": "ملاحظات",
+        "finalNotesLabel": "الملاحظات النهائية (للمضيف)",
+        "finalNotesPlaceholder": "اكتب هنا ملخصاً نهائياً ليتم إرساله للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب...",
+        "finalNotesOptionalLabel": "الملاحظات النهائية",
+        "finalNotesOptionalPlaceholder": "أضف أي ملاحظات نهائية للمضيف...",
+        "finalNotesHint": "اختياري في حالة الاعتماد، إلزامي في حالة الرفض",
+        "finalNotesHintRejectOnly": "إلزامي لتوضيح سبب الرفض",
+        "rejectSuccess": "تم رفض المبنى بنجاح.",
+        "errors": {
+          "alreadyApproved": "تم اعتماد هذا المبنى مسبقًا.",
+          "accountNotApproved": "يجب اعتماد حساب المبنى أولًا.",
+          "sectionsNotApproved": "يجب قبول أقسام المراجعة الثلاثة قبل الاعتماد النهائي.",
+          "alreadyRejected": "تم رفض هذا المبنى مسبقًا."
+        }
+      },
+      "confirm": {
+        "imagesApproveTitle": "اعتماد صور المبنى؟",
+        "imagesApproveMessage": "هل أنت متأكد من اعتماد جميع صور المبنى؟",
+        "imagesRejectTitle": "رفض صور المبنى؟",
+        "imagesRejectMessage": "هل أنت متأكد من رفض صور المبنى بالأسباب المكتوبة؟",
+        "termsApproveTitle": "اعتماد شروط المبنى؟",
+        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين المبنى؟",
+        "termsRejectTitle": "رفض شروط المبنى؟",
+        "termsRejectMessage": "هل أنت متأكد من رفض شروط المبنى بالسبب المكتوب؟",
+        "licenseApproveTitle": "اعتماد ترخيص المبنى؟",
+        "licenseApproveMessage": "هل أنت متأكد من اعتماد ترخيص المبنى؟",
+        "licenseRejectTitle": "رفض ترخيص المبنى؟",
+        "licenseRejectMessage": "هل أنت متأكد من رفض ترخيص المبنى بالسبب المكتوب؟",
+        "basicInfoApproveTitle": "اعتماد البيانات الأساسية؟",
+        "basicInfoApproveMessage": "هل أنت متأكد من اعتماد البيانات الأساسية للمبنى؟",
+        "basicInfoRejectTitle": "رفض البيانات الأساسية؟",
+        "basicInfoRejectMessage": "هل أنت متأكد من رفض البيانات الأساسية للمبنى بالسبب المكتوب؟",
+        "locationApproveTitle": "اعتماد الموقع الجغرافي؟",
+        "locationApproveMessage": "هل أنت متأكد من اعتماد الموقع الجغرافي للمبنى؟",
+        "locationRejectTitle": "رفض الموقع الجغرافي؟",
+        "locationRejectMessage": "هل أنت متأكد من رفض الموقع الجغرافي للمبنى بالسبب المكتوب؟",
+        "finalApproveTitle": "اعتماد المبنى نهائيًا؟",
+        "finalApproveMessage": "تم قبول جميع الأقسام. هل أنت متأكد من الاعتماد النهائي لهذا المبنى؟",
+        "finalRejectTitle": "رفض المبنى نهائيًا؟",
+        "finalRejectMessage": "هل أنت متأكد من اتخاذ قرار الرفض النهائي لهذا المبنى؟",
+        "approveAction": "نعم، اعتماد",
+        "rejectAction": "نعم، رفض"
+      },
+      "successModal": {
+        "title": "تم اعتماد المبنى بنجاح",
+        "description": "لقد تمت مراجعة كافة مستندات وصور {{buildingName}} والموافقة عليها. المبنى الآن متاح للظهور في المنصة، يمكنك الانتقال لمراجعة الوحدات التفصيلية الآن.",
+        "reviewUnitsBtn": "مراجعة الوحدات ({{count}}) الآن",
+        "laterBtn": "الذهاب لصفحة الوحدات لاحقا"
+      },
+      "images": {
+        "mainImageTitle": "الصورة الرئيسية (الخارجية)",
+        "mainPhotoBadge": "الصورة الرئيسية للمبنى",
+        "exteriorTitle": "الصور الخارجية للمبنى",
+        "interiorTitle": "الصور الداخلية للمبنى",
+        "imagesCount": "{{count}} صور",
+        "statusRejected": "مرفوضة",
+        "statusAccepted": "مقبولة",
+        "statusPending": "بانتظار القرار",
+        "rejectionReasonPlaceholder": "سبب الرفض...",
+        "pendingDeleteReview": "مراجعة حذف الصورة",
+        "pendingMainPhotoReview": "مراجعة تغيير الصورة الرئيسية",
+        "suggestedSolutionPlaceholder": "الحل المقترح للمضيف...",
+        "rejectionSummaryTitle": "ملخص أسباب الرفض",
+        "rejectionSummarySubtitle": "تم رصد الملاحظات الصور المرفوعة نرجو الاعتماد تالياً",
+        "emptyTitle": "لا توجد صور مرفوعة",
+        "emptyDescription": "لم يقم المضيف بإضافة أي صور لهذا المبنى بعد.",
+        "noImageLabel": "لا توجد صورة",
+        "notesTitle": "ملاحظات المراجعة",
+        "notesRequired": "/ سبب الرفض (إلزامي في حال الرفض)",
+        "notesPlaceholder": "يرجى كتابة أسباب الرفض بالتفصيل هنا لتفعيل خيار الرفض...",
+        "pendingDecisionRequired": "يرجى مراجعة واتخاذ قرار لكل صورة قبل الإرسال.",
+        "approveAllRequired": "يجب قبول جميع الصور قبل اعتماد قسم الصور.",
+        "rejectedPhotoRequired": "يجب رفض صورة واحدة على الأقل قبل رفض قسم الصور.",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة.",
+        "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
+        "approveSuccess": "تم قبول قسم الصور بنجاح. حالة المبنى الآن: {{status}}.",
+        "rejectSuccess": "تم رفض قسم الصور بنجاح. حالة المبنى الآن: {{status}}.",
+        "overallStatus": {
+          "Pending": "قيد الانتظار",
+          "UnderReview": "تحت المراجعة",
+          "Approved": "مقبول",
+          "Rejected": "مرفوض"
+        },
+        "approveBtn": "اعتماد صور المبنى",
+        "rejectBtn": "رفض الطلب"
+      },
+      "license": {
+        "title": "مراجعة ترخيص وزارة السياحة",
+        "licenseNumberLabel": "رقم الترخيص المميز",
+        "subtitle": "يرجى التحقق من صحة الرقم الترخيص وتاريخ انتهاء الوثيقة المرفقة.",
+        "previewTitle": "معاينة الترخيص",
+        "enlargeBtn": "تكبير الوثيقة",
+        "expiredTag": "منتهي",
+        "issueDateLabel": "تاريخ إصدار الترخيص",
+        "expiryDateLabel": "تاريخ انتهاء الترخيص",
+        "businessTypeLabel": "نوع نشاط المنشأة",
+        "verificationStatus": "نظام التحقق الآلي: مطابق مع بيانات وزارة التجارة",
+        "emptyTitle": "لا توجد بيانات للترخيص",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الترخيص أو إرفاق مستند لهذا المبنى.",
+        "noImageLabel": "تعذر عرض الصورة",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الترخيص.",
+        "approveSuccess": "تم قبول ترخيص المبنى بنجاح.",
+        "rejectSuccess": "تم رفض ترخيص المبنى بنجاح.",
+        "approveBtn": "اعتماد مراجعة ترخيص وزارة السياحة",
+        "rejectBtn": "رفض الطلب"
+      },
+      "basicInfo": {
+        "title": "مراجعة البيانات الأساسية",
+        "subtitle": "يرجى مراجعة البيانات الأساسية للمبنى والتأكد من صحتها قبل الاعتماد.",
+        "detailsTitle": "البيانات الأساسية",
+        "nameLabel": "اسم المبنى",
+        "idLabel": "رقم المبنى",
+        "typeLabel": "نوع المبنى",
+        "usageLabel": "استخدام المبنى",
+        "usageValues": {
+          "IndividualHousing": "سكن فردي"
+        },
+        "viewTypesLabel": "الإطلالات المتاحة",
+        "businessTypeLabel": "نوع النشاط",
+        "districtLabel": "اتجاه الواجهة",
+        "organizationLabel": "المؤسسة المشغّلة",
+        "totalUnitsLabel": "إجمالي الوحدات",
+        "controlTitle": "الخصائص والتحكم",
+        "smartLockTitle": "قفل ذكي للمبنى",
+        "smartLockDesc": "يمكن الدخول دون مفتاح عبر رمز",
+        "extraServicesTitle": "السماح بطلبات الضيف",
+        "extraServicesDesc": "يسمح للضيوف بطلب خدمات إضافية من هذا العقار",
+        "floorsTitle": "تفاصيل الطوابق والوحدات",
+        "floorsTotalLabel": "إجمالي:",
+        "floorsUnit": "طوابق",
+        "floorNumberLabel": "رقم الطابق",
+        "floorNameLabel": "اسم الطابق",
+        "unitsCountLabel": "عدد الوحدات",
+        "unitsSuffix": "وحدات",
+        "emptyFloorsTitle": "لا توجد بيانات طوابق",
+        "emptyFloorsDescription": "لم يقم المضيف بإضافة تفاصيل الطوابق والوحدات لهذا المبنى.",
+        "floorNames": {
+          "groundLobby": "الطابق الأرضي - اللوبي",
+          "servicesFloor": "طابق الخدمات والمرافق",
+          "firstResidential": "الطابق السكني الأول",
+          "secondResidential": "الطابق السكني الثاني",
+          "thirdResidential": "الطابق السكني الثالث"
+        },
+        "amenitiesTitle": "الخدمات والمرافق المتوفرة",
+        "emptyAmenitiesTitle": "لا توجد خدمات أو مرافق",
+        "emptyAmenitiesDescription": "لم يقم المضيف بإضافة أي خدمات أو مرافق لهذا المبنى.",
+        "amenityLabels": {
+          "cleaning": "تنظيف دوري",
+          "smartAssistant": "مساعد ذكية",
+          "security": "أمن وحراسة",
+          "pool": "مسبح خاص",
+          "gym": "نادي رياضي",
+          "parking": "مواقف ذكية"
+        },
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض البيانات الأساسية.",
+        "approveSuccess": "تم قبول البيانات الأساسية بنجاح.",
+        "rejectSuccess": "تم رفض البيانات الأساسية بنجاح.",
+        "approveBtn": "اعتماد بيانات المبنى",
+        "rejectBtn": "رفض الطلب"
+      },
+      "location": {
+        "title": "مراجعة الموقع الجغرافي",
+        "subtitle": "يرجى التحقق من عنوان المبنى وموقعه على الخريطة ومطابقته للموقع الفعلي.",
+        "addressLabel": "العنوان الكامل",
+        "regionLabel": "المنطقة",
+        "cityLabel": "المدينة",
+        "districtLabel": "الحي",
+        "streetLabel": "الشارع",
+        "buildingNumberLabel": "رقم المبنى",
+        "postalCodeLabel": "الرمز البريدي",
+        "mapTitle": "إحداثيات الموقع",
+        "mapLinkBtn": "فتح في جوجل",
+        "mapLoading": "جاري تحميل الخريطة...",
+        "mapError": "تعذر تحميل الخريطة",
+        "coordsLabel": "الإحداثيات",
+        "emptyTitle": "لا توجد بيانات موقع",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الموقع الجغرافي لهذا المبنى.",
+        "addressDetailsTitle": "تفاصيل العنوان",
+        "nearbyPlacesTitle": "الأماكن القريبة",
+        "distanceMetersSuffix": "م",
+        "distanceKmSuffix": "كم",
+        "reviewTipTitle": "نصيحة للمراجعة",
+        "reviewTipText": "تأكد من مطابقة الصور المرفوعة مع المعالم المحيطة الظاهرة في الخريطة لضمان دقة الموقع الصحيح عنه.",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة السبب بالتفصيل هنا ليتمكن المضيف من تعديله...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الموقع الجغرافي.",
+        "approveSuccess": "تم قبول الموقع الجغرافي بنجاح.",
+        "rejectSuccess": "تم رفض الموقع الجغرافي بنجاح.",
+        "approveBtn": "اعتماد موقع المبنى",
+        "rejectBtn": "رفض الطلب"
+      },
+      "terms": {
+        "title": "مراجعة شروط وقوانين المبنى",
+        "subtitle": "يرجى مراجعة سياسات الدخول والخروج والقواعد التي وضعها المضيف لضمان توافقها مع معايير لفين.",
+        "checkInLabel": "موعد الدخول",
+        "checkOutLabel": "موعد الخروج",
+        "earlyCheckInLabel": "دخول مبكر",
+        "earlyCheckInAvailable": "متاح",
+        "earlyCheckInUnavailable": "غير متاح",
+        "generalRulesTitle": "القوانين العامة",
+        "customRulesTitle": "شروط مخصصة من المضيف",
+        "emptyTitle": "لا توجد شروط أو قوانين",
+        "emptyDescription": "لم يقم المضيف بإضافة أي شروط أو قوانين لهذا المبنى.",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesOptional": "اختياري للموافقة",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض عند رفض الشروط.",
+        "approveSuccess": "تم قبول شروط المبنى بنجاح.",
+        "rejectSuccess": "تم رفض شروط المبنى بنجاح.",
+        "approveBtn": "اعتماد مراجعة الشروط وقوانين المبنى",
+        "rejectBtn": "رفض الطلب"
+      }
+    },
+    "unitReview": {
+      "title": "مراجعة الوحدة",
+      "reviewRequestsBC": "طلبات المراجعة",
+      "unitCrumbLabel": "وحدة",
+      "unitInfo": {
+        "unitNumberLabel": "رقم الوحدة"
+      },
+      "status": {
+        "adminReviewLabel": "قيد المراجعة الإدارية",
+        "progressLabel": "حالة المراجعة",
+        "progressCount": "{{completed}} من {{total}}",
+        "approved": "تم القبول",
+        "adopted": "تم الاعتماد",
+        "readyToPublish": "جاهزة للنشر",
+        "rejected": "تم الرفض",
+        "draftLabel": "مسودة",
+        "newLabel": "جديد"
+      },
+      "sections": {
+        "basicInfo": {
+          "title": "١. البيانات الأساسية",
+          "desc": "تشمل المساحة، الدور، سعة الأشخاص ومحتويات الوحدة",
+          "btn": "مراجعة البيانات الاساسية"
+        },
+        "photos": {
+          "title": "٢. صور الوحدة",
+          "desc": "تحتوي على ٨ صور عالية الجودة تغطي غرف النوم والصالة والمرافق العامة",
+          "btn": "مراجعة الصور"
+        },
+        "terms": {
+          "title": "٣. شروط الوحدة",
+          "desc": "قواعد السكن للنزلاء، الحجوزات الالغاء والإلزامات العامة للمستأجر",
+          "btn": "مراجعة الشروط"
+        },
+        "pricing": {
+          "title": "٤. تسعير الوحدة",
+          "desc": "السعر الاساسي: ٤٥٠ ريال/ليلة أسعار مغطاة لنهاية الأسبوع والموسم المحدد",
+          "btn": "مراجعة الأسعار"
+        },
+        "smartLock": {
+          "title": "٥. القفل الذكي",
+          "desc": "نظام الدخول المعتمد لهذه الوحدة يتم بالأكواد عبر الهاتف عن الجهاز الذكي",
+          "infoBadge": "معلوماتية",
+          "activeBadge": "مفعّل عبر النظام"
+        },
+        "access": {
+          "title": "٦. طريقة الوصول",
+          "desc": "إرشادات الموقع، كود المصعد، ورقم الموظف الخاص بالوحدة (بدوام كامل)",
+          "btn": "مراجعة الوصول"
+        },
+        "cancelPolicy": {
+          "title": "٧. سياسة الإلغاء",
+          "desc": "السياسة المختارة: مرنة (استرداد كامل قبل ٢٤ ساعة من موعد الدخول)",
+          "btn": "مراجعة السياسة"
+        },
+        "deposit": {
+          "title": "٨. مبلغ التأمين",
+          "desc": "مبلغ التأمين المطلوب: ٥٠٠ ريال، يتم تحديده عند الحجز وإعادته بعد انتهاء الحجز ب ٢٤ ساعة",
+          "btn": "مراجعة التأمين",
+          "infoBadge": "معلوماتية"
+        },
+        "services": {
+          "title": "٩. تخصيص الخدمات",
+          "desc": "خدمات إضافية: تنظيف يومي، فطور منزلي (٥٠ ريال)، استقبال مطار",
+          "btn": "مراجعة الخدمات"
+        },
+        "license": {
+          "title": "١٠. ترخيص الوحدة",
+          "desc": "رخصة وزارة السياحة رقم: B-9928374-UC، صالحة حتى ٢٠٢٦/١٢/٣١",
+          "btn": "معاينة الترخيص"
+        }
+      },
+      "basicInfoView": {
+        "pageTitle": "البيانات الأساسية للوحدة",
+        "backLabel": "رجوع لقائمة المراجعة",
+        "heading": "محتويات ومرافق الوحدة",
+        "subtitle": "يرجى مراجعة كل قسم على حدة",
+        "smartSystemTitle": "نظام القفل الذكي",
+        "smartBanner": "نظام تكييف ذكي مفعّل بالوحدة",
+        "selfAccessBanner": "إتاحة الدخول الذاتي عبر تطبيق لفين",
+        "contentsLabel": "المحتويات",
+        "servicesLabel": "الخدمات",
+        "privateFacilitiesLabel": "المرافق الخاصة",
+        "stats": {
+          "capacity": "سعة الأفراد",
+          "area": "المساحة",
+          "floor": "رقم الدور",
+          "type": "نوع الوحدة"
+        },
+        "badges": {
+          "new": "جديد",
+          "kingBed": "سرير كينج",
+          "singleBed": "سرير مفرد"
+        },
+        "rooms": {
+          "mainHall": {
+            "title": "١. الصالة الرئيسية",
+            "desc": "مساحة جلوس أنيقة وشرفة خاصة"
+          },
+          "masterBedroom": {
+            "title": "٢. غرفة النوم الرئيسية (Master)",
+            "desc": "سرير كينج، حمام خاص متكامل"
+          },
+          "secondaryBedroom": {
+            "title": "٣. غرفة نوم الإضافية (Single Bed)",
+            "desc": "غرفة مريحة، حمام مشترك مع رواق"
+          }
+        },
+        "subAreas": {
+          "balcony": "بلكونة خارجية"
+        },
+        "amenities": {
+          "smartAc": "نظام تكييف ذكي يعمل بالتحكم عن بعد",
+          "fiberInternet": "إنترنت ألياف بسرعة ٥٠٠ ميجا",
+          "diningTable": "طاولة طعام خشبية لـ ٤ أشخاص",
+          "smartTv": "شاشة ذكية ٦٥ بوصة + Netflix",
+          "smartTvSmall": "شاشة ذكية ٤٣ بوصة",
+          "kingBed": "سرير كينج مقاس فندقي",
+          "singleBed": "سرير مفرد مقاس فندقي",
+          "outdoorSeating": "طقم جلسة خارجية (إبرين)",
+          "nightLighting": "إضاءة ليلية هادئة",
+          "noExtraSystem": "نظام آخر ذكي للبيانات"
+        },
+        "facilitiesSummary": {
+          "title": "٤. المرافق والتجهيزات العامة للوحدة",
+          "desc": "تجهيزات الأمان والراحة الأساسية",
+          "location": "الموقع",
+          "locationValue": "مباشرة على البحر",
+          "internet": "الإنترنت",
+          "internetValue": "فايبر ٥٠٠ ميجا",
+          "security": "الأمان",
+          "securityValue": "كاشف دخان - إنذار حريق",
+          "cleaning": "تجهيز ونظافة",
+          "cleaningValue": "تنظيف مركزي ذكي"
+        },
+        "emptyTitle": "لا توجد بيانات للوحدة",
+        "emptyDescription": "لم يقم المضيف بإضافة تفاصيل الغرف أو المرافق أو الخدمات لهذه الوحدة."
+      },
+      "termsView": {
+        "pageTitle": "مراجعة شروط الوحدة",
+        "heading": "مراجعة شروط سياسات وقواعد السكن",
+        "subtitle": "يرجى مراجعة كافة المواعيد والقوانين التي حددها المضيف للتأكد من توافقها مع معايير المنصة.",
+        "standardBadge": "قياسي",
+        "checkInLabel": "موعد تسجيل الدخول",
+        "checkInTime": "٠٤:٠٠ م",
+        "checkOutLabel": "موعد تسجيل الخروج",
+        "checkOutTime": "١١:٠٠ ص",
+        "earlyArrivalTitle": "تسجيل الوصول المبكر",
+        "earlyArrivalDesc": "السماح للضيف بالوصول قبل الموعد الرسمي",
+        "availableLabel": "الموعد المتاح",
+        "earlyArrivalTime": "٠٧:٠٠ ص",
+        "generalRulesTitle": "القوانين العامة للوحدة المرونة من المبنى",
+        "customRulesTitle": "شروط إضافية من المضيف",
+        "emptyTitle": "لا توجد شروط أو قوانين",
+        "emptyDescription": "لم يقم المضيف بإضافة أي شروط أو قوانين لهذه الوحدة.",
+        "generalRules": {
+          "children": "مناسب للأطفال",
+          "parties": "إقامة الحفلات"
+        },
+        "conditions": {
+          "SmokingForbidden": "ممنوع التدخين داخل الوحدة",
+          "PetsNotAllowed": "الحيوانات الأليفة غير مسموح بها",
+          "PartiesForbidden": "ممنوع إقامة الحفلات أو الفعاليات",
+          "RequiresIdIdentification": "بطاقة الهوية الوطنية إلزامية",
+          "AllowChildren": "الأطفال مسموح بهم"
+        },
+        "hostRuleText": "يرجى العلم أن مجمع ريتاج السكني يتبع نظام هدوء صارم بعد الساعة ١٠ مساءً. يمنع استخدام المسبح المشترك بعد هذا الوقت. كما يرجى التأكد من تسليم بطاقة الدخول الذكية عند المغادرة في الصندوق المخصص بجانب المصعد الرئيسي.",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "approveBtn": "اعتماد شروط الوحدة"
+      },
+      "accessView": {
+        "pageTitle": "مراجعة طريقة الوصول",
+        "unitAlt": "صورة الوحدة",
+        "unitNumber": "رقم الوحدة",
+        "floor": "الدور",
+        "photosTitle": "صور مسار الوصول",
+        "photosHint": "يرجى التحقق من جودة الصور ومطابقتها للمسار الفعلي.",
+        "emptyTitle": "لا توجد صور لمسار الوصول",
+        "emptyDescription": "لم يقم المضيف بإضافة أي صور توضح مسار الوصول لهذه الوحدة.",
+        "noImageLabel": "لا توجد صورة",
+        "photoNote": "ملاحظة المضيف",
+        "noPhotoNote": "لا توجد ملاحظات",
+        "tags": {
+          "external": "خارجي",
+          "inside": "داخل",
+          "floor": "الطابق",
+          "unit": "الوحدة"
+        },
+        "photos": {
+          "street": "المبنى من الخارج / الشارع",
+          "mainEntrance": "مدخل المبنى الرئيسي",
+          "corridor": "ممر الغرف والطابق",
+          "unitDoor": "باب الوحدة السكنية"
+        },
+        "hostGuideTitle": "شرح المضيف المرفوع",
+        "hostGuideText": "يرجى الدخول من البوابة الرئيسية لبرج رتاج، ثم التوجه إلى المصاعد على اليمين. اصعد للدور الرابع، ستجد الوحدة في نهاية الممر على اليسار. مفتاح الوحدة موجود داخل الصندوق الذكي بجانب الباب، الرقم السري هو 4455.",
+        "hostGuideMeta": "تم كتابة الشرح من قبل المضيف (محمد الحارثي)",
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "approveBtn": "اعتماد طريقة الوصول",
+        "pendingPhotosWarning": "{{count}} صورة لم تتم مراجعتها بعد. يرجى مراجعة جميع الصور قبل الإرسال.",
+        "photosFailedToLoadWarning": "يوجد صور وصول مرفوعة لكن تعذّر تحميلها. راجع كل صورة واتخذ قرارك؛ قرارك عليها لازم يُرسل حتى لو لم تظهر."
+      },
+      "pricingView": {
+        "pageTitle": "مراجعة سياسات التسعير",
+        "title": "مراجعة سياسات التسعير",
+        "subtitle": "يرجى مراجعة الأسعار اليومية ومواعيد الدورة المحددة من قبل المضيف",
+        "basePrice": "السعر الأساسي",
+        "safetyFloor": "الحد الأدنى للأمان",
+        "perNight": "/ ليلة",
+        "policies": {
+          "stayDurationSubtitle": "خصومات حسب مدة الإقامة",
+          "dayFraction": {
+            "title": "تجزئة اليوم",
+            "quarterDay": "خصم ربع يوم",
+            "halfDay": "خصم نصف يوم"
+          },
+          "longStay": {
+            "title": "خصم الإقامة الطويلة",
+            "weekPlus": "خصم أسبوع أو أكثر",
+            "monthPlus": "خصم شهر أو أكثر"
+          },
+          "platform": {
+            "title": "تخصيص المنصات",
+            "subtitle": "حدد تسعير وحدتك على منصة لفين والمنصات الأخرى",
+            "lfeen": "منصة لفين",
+            "others": "المنصات الأخرى",
+            "discountLabel": "خصم"
+          }
+        },
+        "seasonalTitle": "فترات التسعير الموسمية",
+        "emptySeasonalTitle": "لا توجد فترات تسعير موسمية",
+        "emptySeasonalDescription": "لم يقم المضيف بإضافة أي فترات تسعير موسمية لهذه الوحدة.",
+        "seasons": {
+          "period1": "فترة التسعير ١",
+          "period2": "فترة التسعير ٢",
+          "period3": "فترة التسعير ٣",
+          "summerName": "فترة الصيف",
+          "summerDates": "١٥ يونيو - ١٥ أغسطس"
+        },
+        "calendarTitle": "تقويم التوافر والأسعار اليومية",
+        "calendarSubtitle": "مراجعة الأسعار المتاحة لكل يوم بشكل مستقل",
+        "days": {
+          "sun": "الأحد",
+          "mon": "الاثنين",
+          "tue": "الثلاثاء",
+          "wed": "الأربعاء",
+          "thu": "الخميس",
+          "fri": "الجمعة",
+          "sat": "السبت"
+        },
+        "notesTitle": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "اعتماد السعر لوحدة"
+      },
+      "imagesView": {
+        "pageTitle": "مراجعة صور الوحدة",
+        "heading": "مراجعة صور الوحدة",
+        "reviewState": "حالة المراجعة: {{count}} صورة مرفوعة",
+        "mainPhoto": {
+          "badge": "الصورة الرئيسية للوحدة",
+          "name": "الصورة الرئيسية للوحدة",
+          "category": "معاينة الصالة وغرفة النوم"
+        },
+        "groups": {
+          "living": "صور الصالة",
+          "kitchen": "صور المطبخ",
+          "bedrooms": "صور غرف النوم"
+        },
+        "photos": {
+          "livingDining": "طاولة الطعام",
+          "livingCorridor": "نظافة الممر الرئيسي",
+          "livingMain": "منطقة الجلوس الرئيسية",
+          "kitchenFull": "المطبخ مصور بالكامل",
+          "secondaryBedroom": "غرفة النوم الفرعية",
+          "masterBedroom": "غرفة النوم الرئيسية"
+        },
+        "categories": {
+          "livingDiningCategory": "قسم ١ - الطعام",
+          "livingCorridorCategory": "الطابق الثاني - الممر الداخلي",
+          "livingMainCategory": "الطابق الثاني - الجلسة الرئيسية",
+          "kitchenCategory": "أجهزة ومعدات المطبخ",
+          "secondaryBedroomCategory": "سرير مفرد - غرفة جانبية",
+          "masterBedroomCategory": "سرير كينج - غرفة ماستر"
+        },
+        "classificationCategory": {
+          "MainPhoto": "الصورة الرئيسية",
+          "Room": "غرفة",
+          "Bedroom": "غرفة نوم",
+          "Bathroom": "حمام",
+          "Kitchen": "مطبخ",
+          "LivingRoom": "صالة",
+          "Other": "أخرى"
+        },
+        "rejectionReasonPlaceholder": "سبب الرفض...",
+        "suggestedSolutionPlaceholder": "الحل المقترح للمضيف...",
+        "rejectionSummaryTitle": "ملخص أسباب الرفض",
+        "rejectionSummarySubtitle": "تم رصد ملاحظات في الصور المرفوعة، نرجو مراجعتها قبل الاعتماد.",
+        "defaultRejectionReason": "الصورة تحتاج إلى استبدال أو توضيح.",
+        "emptyTitle": "لا توجد صور مرفوعة",
+        "emptyDescription": "لم يقم المضيف بإضافة أي صور لهذه الوحدة بعد.",
+        "noImageLabel": "لا توجد صورة",
+        "requiredOnReject": "إلزامي عند الرفض",
+        "optionalOnApprove": "اختياري عند الموافقة",
+        "approveBtn": "اعتماد صور الوحدة",
+        "pendingPhotosWarning": "تبقّى {{count}} صورة لم تتم مراجعتها، يرجى مراجعة جميع الصور قبل الإرسال.",
+        "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة."
+      },
+      "cancelPolicyView": {
+        "pageTitle": "مراجعة سياسة الاسترجاع",
+        "heading": "السياسة المختارة من المضيف",
+        "subtitle": "يرجى مراجعة قواعد الاسترداد وأسباب الإلغاء المرتبطة بها قبل الاعتماد.",
+        "emptyTitle": "لا توجد سياسة استرجاع",
+        "emptyDescription": "لم يقم المضيف باختيار سياسة استرجاع لهذه الوحدة.",
+        "notesLabel": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "اعتماد سياسة الاسترجاع",
+        "percentSuffix": "٪ من قيمة الحجز",
+        "yes": "نعم",
+        "no": "لا",
+        "policyNameLabel": "اسم السياسة",
+        "ruleTypeLabel": "نوع القاعدة",
+        "refundValueLabel": "قيمة الاسترداد",
+        "fixedAmountDesc": "مبلغ ثابت يُسترد للضيف بغض النظر عن قيمة الحجز.",
+        "refundPerPeriod": "حسب الفترات",
+        "refundPerPeriodDesc": "نسبة الاسترداد بتختلف حسب الفترة الزمنية قبل الوصول.",
+        "loadErrorTitle": "تعذّر تحميل سياسة الاسترجاع",
+        "loadErrorDescription": "حصل خطأ أثناء جلب البيانات. حاول مرة أخرى.",
+        "retry": "إعادة المحاولة",
+        "priorityLabel": "الأولوية",
+        "priorityDesc": "ترتيب تطبيق القاعدة (الأصغر أولاً).",
+        "requiresNoteLabel": "يتطلب ملاحظة",
+        "reasonsLabel": "أسباب الإلغاء المرتبطة",
+        "periodsLabel": "الفترات الزمنية",
+        "periodRefundLabel": "نسبة الاسترداد",
+        "percentShort": "٪",
+        "fallbackTag": "فترة احتياطية",
+        "periodWindow": {
+          "between": "بين {{min}} و {{max}} ساعة قبل الوصول",
+          "after": "قبل الوصول بـ {{min}} ساعة أو أكثر",
+          "before": "حتى {{max}} ساعة قبل الوصول",
+          "any": "في أي وقت قبل الوصول"
+        },
+        "noRulesTitle": "لا توجد قواعد استرداد",
+        "noRulesDescription": "لم يقم المضيف بإضافة أي قاعدة استرداد لهذه السياسة.",
+        "ruleType": {
+          "fullRefund": "استرداد كامل",
+          "flexible": "استرداد مرن",
+          "nonRefundable": "غير قابل للاسترداد"
+        },
+        "pendingUpdate": {
+          "banner": "قام المضيف بتعديل سياسة الاسترجاع. راجع التغييرات قبل الاعتماد أو الرفض.",
+          "currentLabel": "السياسة الحالية",
+          "pendingLabel": "التعديل المقترح"
+        },
+        "warnings": {
+          "UNMAPPED_REASON": "يوجد سبب إلغاء غير مرتبط بأي قاعدة استرداد.",
+          "DUPLICATE_REASON": "نفس سبب الإلغاء مرتبط بأكثر من قاعدة.",
+          "OTHER_REASON_WITHOUT_NOTE": "سبب «سبب آخر» مرتبط بقاعدة لا تتطلب كتابة ملاحظة.",
+          "INCOMPLETE_NAMES": "إحدى القواعد ينقصها الاسم العربي أو الإنجليزي.",
+          "FLEXIBLE_PERIOD_WITHOUT_FALLBACK": "قاعدة استرداد مرنة بدون فترة احتياطية.",
+          "OVERLAPPING_FLEXIBLE_PERIODS": "يوجد تداخل زمني بين فترتين في نفس القاعدة المرنة."
+        }
+      },
+      "finalNotes": {
+        "label": "الملاحظات النهائية المضافة",
+        "rejectionReasonLabel": "سبب الرفض",
+        "optionalHint": "اختياري في حالة الاعتماد، إلزامي في حالة الرفض",
+        "requiredHint": "إلزامي في حالة الرفض",
+        "placeholder": "اكتب هنا ملاحظاتك ليتم إرسالها للمضيف وتوضيح الخطوات المطلوبة لتصحيح الطلب..."
+      },
+      "finalReview": {
+        "title": "المراجعة النهائية",
+        "approvedStat": "أقسام مقبولة",
+        "rejectedStat": "أقسام مرفوضة",
+        "pendingStat": "أقسام معلقة",
+        "hasRejectionWarning": "يوجد أقسام مرفوضة — لا يمكن اعتماد الوحدة حتى تتم معالجتها",
+        "readyToApprove": "جميع الأقسام تمت مراجعتها — يمكن اعتماد الوحدة الآن",
+        "alreadyApproved": "تم اعتماد هذه الوحدة بالفعل",
+        "errors": {
+          "alreadyApproved": "تم اعتماد هذه الوحدة بالفعل.",
+          "accountNotApproved": "لا يمكن اعتماد الوحدة قبل اعتماد الحساب المالك لها.",
+          "sectionsNotApproved": "يجب اعتماد جميع أقسام المراجعة قبل الاعتماد النهائي.",
+          "alreadyRejected": "تم رفض هذه الوحدة بالفعل."
+        }
+      },
+      "actions": {
+        "reject": "رفض الطلب",
+        "approve": "اعتماد الموافقة النهائية"
+      },
+      "confirm": {
+        "basicInfoApproveTitle": "اعتماد البيانات الأساسية؟",
+        "basicInfoApproveMessage": "هل أنت متأكد من اعتماد البيانات الأساسية لهذه الوحدة؟",
+        "basicInfoRejectTitle": "رفض البيانات الأساسية؟",
+        "basicInfoRejectMessage": "هل أنت متأكد من رفض البيانات الأساسية مع الملاحظات المكتوبة؟",
+        "photosApproveTitle": "اعتماد صور الوحدة؟",
+        "photosApproveMessage": "هل أنت متأكد من اعتماد جميع صور الوحدة؟",
+        "photosRejectTitle": "رفض صور الوحدة؟",
+        "photosRejectMessage": "هل أنت متأكد من رفض صور الوحدة بالأسباب المكتوبة؟",
+        "termsApproveTitle": "اعتماد شروط الوحدة؟",
+        "termsApproveMessage": "هل أنت متأكد من اعتماد شروط وقوانين هذه الوحدة؟",
+        "termsRejectTitle": "رفض شروط الوحدة؟",
+        "termsRejectMessage": "هل أنت متأكد من رفض شروط الوحدة بالسبب المكتوب؟",
+        "pricingApproveTitle": "اعتماد تسعير الوحدة؟",
+        "pricingApproveMessage": "هل أنت متأكد من اعتماد تسعير هذه الوحدة؟",
+        "pricingRejectTitle": "رفض تسعير الوحدة؟",
+        "pricingRejectMessage": "هل أنت متأكد من رفض تسعير الوحدة مع الملاحظات المكتوبة؟",
+        "accessApproveTitle": "اعتماد طريقة الوصول؟",
+        "accessApproveMessage": "هل أنت متأكد من اعتماد طريقة الوصول وجميع الصور المرفقة لهذه الوحدة؟",
+        "accessRejectTitle": "رفض طريقة الوصول؟",
+        "accessRejectMessage": "هل أنت متأكد من رفض طريقة الوصول بالأسباب المحددة في الصور؟",
+        "cancelPolicyApproveTitle": "اعتماد سياسة الاسترجاع؟",
+        "cancelPolicyApproveMessage": "هل أنت متأكد من اعتماد سياسة الاسترجاع المختارة من المضيف؟",
+        "cancelPolicyRejectTitle": "رفض سياسة الاسترجاع؟",
+        "cancelPolicyRejectMessage": "هل أنت متأكد من رفض سياسة الاسترجاع هذه؟ تأكد من إضافة ملاحظاتك أولاً.",
+        "depositApproveTitle": "اعتماد مبلغ التأمين؟",
+        "depositApproveMessage": "هل أنت متأكد من اعتماد مبلغ التأمين المحدد لهذه الوحدة؟",
+        "depositRejectTitle": "رفض مبلغ التأمين؟",
+        "depositRejectMessage": "هل أنت متأكد من رفض مبلغ التأمين هذا؟ تأكد من إضافة ملاحظاتك أولاً.",
+        "licenseApproveTitle": "اعتماد ترخيص الوحدة؟",
+        "licenseApproveMessage": "هل أنت متأكد من اعتماد ترخيص هذه الوحدة؟",
+        "licenseRejectTitle": "رفض ترخيص الوحدة؟",
+        "licenseRejectMessage": "هل أنت متأكد من رفض ترخيص الوحدة؟ تأكد من إضافة سبب الرفض أولاً.",
+        "finalApproveTitle": "اعتماد الوحدة نهائيًا؟",
+        "finalApproveMessage": "هل أنت متأكد من اعتماد هذه الوحدة نهائيًا؟ سيتم نشر الوحدة للحجوزات.",
+        "finalRejectTitle": "رفض الوحدة نهائيًا؟",
+        "finalRejectMessage": "هل أنت متأكد من رفض هذه الوحدة؟ سيتم إبلاغ المضيف بالملاحظات المكتوبة.",
+        "approveAction": "نعم، اعتماد",
+        "rejectAction": "نعم، رفض"
+      },
+      "depositView": {
+        "pageTitle": "مراجعة مبلغ التأمين",
+        "emptyTitle": "لا يوجد مبلغ تأمين",
+        "emptyDescription": "لم يقم المضيف بتحديد مبلغ تأمين لهذه الوحدة.",
+        "amountLabel": "مبلغ التأمين المحدد للوحدة",
+        "notice": "يستلم هذا المبلغ من قبل المنصة قانونياً للاستئمان حتى موعد الخروج. في حال عدم وجود أضرار، يتم رد المبلغ تلقائياً بعد ٢٤ ساعة من موعد المغادرة المحدد.",
+        "systemCheck": "تم التحقق من صحة القيمة المالية وفقاً لسياسات المنصة",
+        "notesLabel": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "اعتماد مبلغ التأمين"
+      },
+      "servicesView": {
+        "pageTitle": "الخدمات الإضافية",
+        "subtitle": "الخدمات التي حددها المضيف وتكلفتها — للاطلاع فقط",
+        "emptyTitle": "لا توجد خدمات إضافية",
+        "emptyDescription": "لم يقم المضيف بإضافة أي خدمات إضافية لهذه الوحدة.",
+        "wifi": {
+          "title": "اتصال واي فاي (Wi-Fi)",
+          "desc": "بيانات الشبكة الخاصة بالوحدة",
+          "passwordTitle": "كلمة المرور",
+          "passwordValue": "royal12345",
+          "networkTitle": "اسم الشبكة (SSID)",
+          "networkValue": "NazilSoft_Guest_101"
+        },
+        "badges": {
+          "enabled": "مفعل",
+          "free": "مجانية",
+          "paid": "مدفوعة",
+          "unavailable": "غير متاح"
+        },
+        "price": {
+          "paidLabel": "السعر اليومي",
+          "freeLabel": "الخدمة"
+        }
+      },
+      "licenseView": {
+        "pageTitle": "مراجعة وثيقة ترخيص الوحدة",
+        "subtitle": "يرجى مراجعة البيانات ومطابقتها مع الوثيقة أدناه.",
+        "fullScreenBtn": "عرض بالحجم الكامل",
+        "documentTitle": "وثيقة الترخيص المرفقة",
+        "documentAlt": "وثيقة ترخيص الوحدة",
+        "owner": {
+          "title": "بيانات مالك المبنى",
+          "name": "مجموعة رحلة الفندقية",
+          "subtitle": "نظام السجل التجاري",
+          "id": "٤٣٠٠٢٩٣٨٧",
+          "profileBtn": "عرض الملف التعريفي والمالي"
+        },
+        "details": {
+          "title": "تفاصيل بيانات الترخيص",
+          "numberLabel": "رقم الترخيص الموحد",
+          "numberValue": "LIC-2024-00874",
+          "verifiedBadge": "موثق",
+          "statusLabel": "حالة الوثيقة",
+          "statusValue": "",
+          "statusBadge": "ساري المفعول وصحيح",
+          "issueDateLabel": "تاريخ الإصدار",
+          "issueDateValue": "١٢ مايو ٢٠٢٣",
+          "expiryDateLabel": "تاريخ الانتهاء",
+          "expiryDateValue": "٣١ ديسمبر ٢٠٢٦",
+          "sourceLabel": "جهة الإصدار",
+          "sourceValue": "وزارة السياحة - المملكة العربية السعودية",
+          "categoryLabel": "فئة الترخيص",
+          "categoryValue": "إدارة وتشغيل مرافق الضيافة السياحية"
+        },
+        "notesLabel": "ملاحظات المراجعة / سبب الرفض",
+        "notesRequiredHint": "إلزامي في حالة الرفض",
+        "notesPlaceholder": "في حال الرفض، يرجى كتابة الأسباب بالتفصيل هنا ليتمكن المضيف من تعديلها...",
+        "rejectBtn": "رفض الطلب",
+        "approveBtn": "اعتماد الترخيص للتأمين",
+        "emptyTitle": "لا توجد بيانات للترخيص",
+        "emptyDescription": "لم يقم المضيف بإضافة بيانات الترخيص أو إرفاق مستند لهذه الوحدة."
+      }
+    },
+    "settings": {
+      "title": "الإعدادات العامة",
+      "subtitle": "إدارة تفاصيل المنصة وتفضيلات الحساب وإعدادات الأمان والتكامل",
+      "saveBtn": "حفظ التغييرات",
+      "tabs": {
+        "sysInfo": "معلومات النظام",
+        "security": "الأمان والخصوصية"
+      },
+      "sysInfo": {
+        "sectionTitle": "معلومات النظام الأساسية",
+        "platformName": "اسم المنصة",
+        "platformUrl": "رابط المنصة الرسمي",
+        "supportEmail": "بريد الدعم الفني",
+        "timezone": "التوقيت الزمني",
+        "notifSection": "تفضيلات الإشعارات",
+        "notifSectionSub": "تلقائي إشعارات حالية من المنصة",
+        "emailNotif": "إشعارات البريد الإلكتروني",
+        "emailNotifDesc": "إرسال مزيد لأذهاب تطبيقات الخدمة الجديدة",
+        "urgentBookings": "تنبيهات الحجوزات العاجلة",
+        "urgentBookingsDesc": "إرسال رسالة نصية (SMS) عند وجود حجز وشيك خلال ساعتين فأكثر",
+        "monthlyReports": "تقارير الأداء الشهرية",
+        "monthlyReportsDesc": "تحميل وإرسال تقرير PDF شامل في نهاية كل شهر ميلادي",
+        "apiSection": "مفاتيح الوصول (API)",
+        "apiSectionLink": "للمطورين فقط",
+        "secretKey": "مفتاح الوصول السري (Secret Key)",
+        "webhookUrl": "رابط Webhook",
+        "webhookDesc": "استخدم هذا الرابط لتلقي الإشعارات الفورية في نظامك عند حدوث أي حجز أو إلغاء",
+        "generateNew": "توليد جديد",
+        "copy": "نسخ"
+      },
+      "security": {
+        "sectionTitle": "الأمان والخصوصية",
+        "sectionSub": "تحكمي في إعدادات الوصول وحماية بيانات حسابك الإداري",
+        "twoFa": "المصادقة الثنائية (2FA)",
+        "twoFaDesc": "أضف طبقة إضافية من الأمان عند تسجيل الدخول ستحتاج إلى إدخال رمز مرسل إلى هاتفك أو تطبيق المصادقة",
+        "enabled": "مفعّل",
+        "disabled": "معطّل",
+        "activeSessions": "الجلسات النشطة",
+        "logoutAll": "تسجيل الخروج من كافة الجلسات",
+        "currentSession": "قيد الدورة",
+        "sessionNow": "منذ الآن",
+        "loginLog": "سجل نشاط تسجيل الدخول",
+        "logEvent": "الحدث",
+        "logDateTime": "التاريخ والوقت",
+        "logIp": "عنوان IP",
+        "logLocation": "الموقع"
+      },
+      "heroTitle": "إعدادات المنصة"
+    },
+    "notifications": {
+      "pageTitle": "الإشعارات والتنبيهات",
+      "empty": "لا توجد إشعارات",
+      "loadMore": "عرض التذاكر الأقدم",
+      "tabs": {
+        "all": "الكل",
+        "complaints": "الشكاوى",
+        "propertyReview": "مراجعة مباني",
+        "inquiries": "الاستفسارات"
+      },
+      "types": {
+        "complaint": "شكوى",
+        "propertyReview": "مراجعة مبنى",
+        "inquiry": "استفسار"
+      },
+      "mock": {
+        "complaint1": {
+          "title": "شكوى - مع مالك #٣٥٨",
+          "subtitle": "الضيف: فندق الصيف · لم يتم تحديث الأسعار منذ ٢٤ ساعة",
+          "time": "منذ ٢ ساعات"
+        },
+        "propertyReview1": {
+          "title": "مراجعة مبنى #٣٥٤",
+          "subtitle": "طلب اعتماد مبنى جديد: مجمع لاقتدر",
+          "time": "منذ ساعتين"
+        },
+        "inquiry1": {
+          "title": "استفسار تقني #٢٥",
+          "subtitle": "استفسار حول نظام القفل الذكي بالهاتف",
+          "time": "أمس، ١١:٣٥ م"
+        },
+        "complaint2": {
+          "title": "شكوى #٢٨٠٠٠",
+          "subtitle": "تأخر في تسوية دفعات سبتمبر",
+          "time": "أمس، ١١:٢٥ م"
+        }
+      }
+    },
+    "platformOffers": {
+      "title": "عروض المنصة", "subtitle": "عروض تملكها الإدارة وتُطبَّق على مستوى المنصة بالكامل، لأي وحدة بغض النظر عن التاجر المالك لها", "add": "إضافة عرض", "cancel": "إلغاء", "edit": "تعديل", "viewDetails": "عرض التفاصيل", "activate": "تفعيل", "deactivate": "إيقاف", "delete": "حذف", "retry": "إعادة المحاولة", "total": "عرض", "automatic": "تلقائي", "saved": "تم حفظ العرض بنجاح", "deleted": "تم حذف العرض بنجاح", "confirmStatus": "هل أنت متأكد من تغيير حالة هذا العرض؟", "confirmDelete": "هل أنت متأكد من حذف هذا العرض؟ لا يمكن التراجع عن هذا الإجراء.", "allUnits": "يُطبَّق على جميع الوحدات", "noData": "لا توجد بيانات بعد", "pickDate": "اختر تاريخ", "pickTime": "اختر وقت",
+      "filters": { "search": "البحث بالاسم أو الكود", "allTriggers": "كل أنواع التفعيل", "allStatuses": "كل الحالات", "min": "أقل خصم", "max": "أعلى خصم", "reset": "إعادة تعيين الفلاتر" },
+      "status": { "active": "نشط", "inactive": "غير نشط", "expired": "منتهي", "scheduled": "مجدول" },
+      "confirm": { "deleteTitle": "حذف هذا العرض؟", "deleteMessage": "سيتم حذف هذا العرض نهائيًا، ولا يمكن التراجع عن هذا الإجراء.", "deleteAction": "حذف العرض", "activateTitle": "تفعيل هذا العرض؟", "activateMessage": "سيصبح العرض متاحًا عند تحقق القواعد والتواريخ المحددة له.", "activateAction": "تفعيل العرض", "deactivateTitle": "إيقاف هذا العرض؟", "deactivateMessage": "سيتوقف تطبيق العرض على الحجوزات الجديدة حتى يتم تفعيله مرة أخرى.", "deactivateAction": "إيقاف العرض" },
+      "enums": { "Automatic": "تلقائي", "Coupon": "كوبون", "Percentage": "نسبة مئوية", "FixedAmount": "مبلغ ثابت", "FinalPrice": "سعر نهائي", "AllUnits": "كل الوحدات", "SpecificUnits": "وحدات محددة", "All": "الكل", "Merchant": "التاجر", "Client": "العميل", "ByDate": "حسب التاريخ", "ByUsageLimit": "حسب حد الاستخدام", "WhicheverFirst": "أيهما يحدث أولاً", "None": "رسالة النجاح", "NotFound": "العرض غير موجود", "NotStarted": "العرض لم يبدأ بعد", "Expired": "انتهت صلاحية العرض", "UsageLimitReached": "تم بلوغ حد الاستخدام", "UserUsageLimitReached": "تم بلوغ حد استخدام العميل", "InvalidUnit": "الوحدة غير مؤهلة", "StayPeriodMismatch": "فترة الإقامة غير مطابقة", "MinDaysBeforeArrivalNotMet": "لم يتحقق الحد الأدنى للحجز المسبق", "MinStayDaysNotMet": "لم يتحقق الحد الأدنى للإقامة", "MaxStayDaysExceeded": "تم تجاوز الحد الأقصى للإقامة", "PaymentMethodNotAllowed": "طريقة الدفع غير مسموحة", "ExclusionPeriodConflict": "التاريخ ضمن فترة استثناء", "MinAmountNotMet": "لم يتحقق الحد الأدنى للمبلغ", "DayOfWeekMismatch": "يوم العرض غير مطابق", "HappyHourMismatch": "الوقت خارج الساعات المحددة", "ChannelMMismatch": "قناة العرض غير مطابقة", "StayDayOfWeekMismatch": "يوم الإقامة غير مطابق" },
+      "table": { "offer": "العرض", "code": "الكود", "discount": "الخصم", "validity": "الصلاحية", "status": "الحالة", "uses": "استخدام", "actions": "الإجراءات" },
+      "empty": { "title": "لا توجد عروض بعد", "text": "ستظهر هنا عروض المنصة التي تنشئها." },
+      "errors": { "title": "تعذر تحميل العروض", "load": "تعذر تحميل عروض المنصة.", "detail": "تعذر تحميل تفاصيل العرض.", "action": "تعذر إتمام هذا الإجراء.", "save": "تعذر حفظ هذا العرض." },
+      "tabs": { "overview": "نظرة عامة", "rules": "القواعد", "units": "الوحدات", "content": "المحتوى", "statistics": "الإحصائيات" },
+      "stats": { "redemptions": "مرات الاستخدام", "sales": "إجمالي المبيعات", "customers": "عملاء فريدون", "discounts": "إجمالي الخصومات", "growth": "النمو", "unused": "لم يُستخدم هذا العرض في أي حجز فعلي بعد." },
+      "sections": { "basics": "البيانات الأساسية", "discount": "الخصم", "scope": "النطاق", "timing": "التوقيت", "stay": "شروط الإقامة", "usage": "حدود الاستخدام", "settings": "إعدادات", "exclusions": "فترات الاستثناء", "messages": "رسائل مخصصة", "terms": "الشروط والأحكام" },
+      "fields": { "internalAr": "الاسم الداخلي (عربي)", "internalEn": "الاسم الداخلي (إنجليزي)", "externalAr": "اسم العرض للعميل (عربي)", "externalEn": "اسم العرض للعميل (إنجليزي)", "descriptionAr": "الوصف (عربي)", "descriptionEn": "الوصف (إنجليزي)", "banner": "صورة البانر", "changeBanner": "تغيير صورة البانر", "trigger": "نوع التفعيل", "code": "كود الكوبون", "discountType": "نوع الخصم", "value": "قيمة الخصم", "maxDiscount": "الحد الأقصى لمبلغ الخصم", "appliedTo": "يُطبَّق على", "unitIds": "الوحدات", "start": "تاريخ البداية", "end": "تاريخ النهاية", "days": "أيام الأسبوع", "happyStart": "بداية الساعة الذهبية", "happyEnd": "نهاية الساعة الذهبية", "stayStart": "بداية فترة الإقامة", "stayEnd": "نهاية فترة الإقامة", "stayDays": "أيام الإقامة", "minArrival": "أقل عدد أيام قبل الوصول", "minStay": "أقل مدة إقامة", "maxStay": "أقصى مدة إقامة", "maxTotal": "أقصى استخدام إجمالي", "maxDaily": "أقصى استخدام يومي", "maxDailyUser": "أقصى استخدام يومي للمستخدم", "maxTotalUser": "أقصى استخدام إجمالي للمستخدم", "payment": "طرق الدفع المسموحة", "minBooking": "أقل قيمة حجز", "channel": "قناة العرض", "expiration": "سياسة الانتهاء", "points": "مضاعف نقاط الولاء", "combined": "يمكن دمجه مع عروض أخرى", "reason": "السبب" },
+      "code": { "idle": "", "checking": "جارٍ التحقق من التوفر…", "ok": "الكود متاح", "taken": "هذا الكود مستخدم بالفعل" },
+      "form": { "createTitle": "إنشاء عرض منصة", "editTitle": "تعديل عرض المنصة", "subtitle": "إعداد عرض يُطبَّق على مستوى المنصة، بغض النظر عن التاجر.", "preview": "معاينة", "unnamed": "عرض بدون اسم", "save": "حفظ العرض", "saving": "جارٍ الحفظ…", "addExclusion": "إضافة فترة استثناء", "addMessage": "إضافة رسالة", "addTerm": "إضافة شرط" }
+    },
+    "contactUs": {
+      "title": "تواصل معنا", "subtitle": "مراجعة ومعالجة الرسائل الواردة من الزوار", "total": "رسالة", "search": "البحث بالاسم أو الهاتف أو البريد أو الموضوع", "filterLabel": "تصفية حسب الحالة", "retry": "إعادة المحاولة", "closePanel": "إغلاق التفاصيل", "previousPage": "الصفحة السابقة", "nextPage": "الصفحة التالية", "pagination": "عرض {{from}}–{{to}} من {{total}}",
+      "status": { "all": "الكل", "new": "جديد", "viewed": "تمت المشاهدة", "closed": "مغلق" },
+      "table": { "sender": "المرسل", "subject": "الموضوع", "attachments": "المرفقات", "date": "تاريخ الاستلام", "status": "الحالة" },
+      "empty": { "title": "لا توجد رسائل", "text": "ستظهر رسائل التواصل الجديدة هنا." },
+      "errors": { "title": "تعذر تحميل الرسائل", "load": "تعذر تحميل رسائل التواصل.", "detail": "تعذر تحميل تفاصيل الرسالة.", "close": "تعذر إغلاق الرسالة." },
+      "detail": { "title": "تفاصيل الرسالة", "message": "نص الرسالة", "attachments": "المرفقات", "submitted": "تم الإرسال", "viewed": "تمت المشاهدة", "closed": "تم الإغلاق", "closingNote": "ملاحظة الإغلاق الداخلية", "previewImage": "معاينة الصورة", "openFile": "فتح المرفق", "imagePreview": "معاينة الصورة", "closePreview": "إغلاق معاينة الصورة" },
+      "close": { "button": "إغلاق الطلب", "title": "إغلاق هذا الطلب؟", "text": "سيتم اعتبار الرسالة معالجة، ولا يمكن إعادة فتحها.", "note": "ملاحظة داخلية (اختياري)", "placeholder": "ما الذي تم أو لماذا يتم إغلاق الطلب؟", "cancel": "إلغاء", "confirm": "تأكيد الإغلاق", "closing": "جارٍ الإغلاق...", "success": "تم إغلاق طلب التواصل بنجاح" }
+    },
+    "faq": {
+      "title": "إدارة الأسئلة الشائعة",
+      "pageTitle": "إدارة الأسئلة الشائعة",
+      "pageSubtitle": "المقالات التي يمكن الاطلاع عليها في تطبيقات الدعم",
+      "help": "مساعدة",
+      "addArticle": "إضافة مقالة جديدة",
+      "listTitle": "قائمة المقالات",
+      "stats": {
+        "total": "إجمالي",
+        "active": "نشطة",
+        "inactive": "معطلة"
+      },
+      "filter": {
+        "all": "الكل",
+        "byDepartment": "تصفية حسب القسم"
+      },
+      "table": {
+        "articleTitle": "العنوان",
+        "department": "القسم",
+        "order": "الترتيب",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "empty": "لا توجد مقالات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "معطل"
+      },
+      "menu": {
+        "activate": "تفعيل",
+        "deactivate": "تعطيل",
+        "delete": "حذف"
+      },
+      "delete": {
+        "title": "تأكيد الحذف",
+        "message": "هل أنت متأكد من حذف هذه المقالة؟ لا يمكن التراجع عن هذا الإجراء."
+      },
+      "toggle": {
+        "activateTitle": "تأكيد التفعيل",
+        "activateMessage": "هل أنت متأكد من تفعيل هذه المقالة؟",
+        "deactivateTitle": "تأكيد التعطيل",
+        "deactivateMessage": "هل أنت متأكد من تعطيل هذه المقالة؟"
+      },
+      "dialog": {
+        "addTitle": "إنشاء مقالة جديدة",
+        "editTitle": "تعديل المقالة",
+        "cancel": "إلغاء",
+        "sectionTitle": "العنوان",
+        "sectionContent": "النص / الإجابة",
+        "englishLabel": "ENGLISH",
+        "arabicLabel": "العربية",
+        "titleEnPlaceholder": "How to make a booking?",
+        "titleArPlaceholder": "كيف يمكنني إجراء حجز؟",
+        "contentEnPlaceholder": "Answer in English...",
+        "contentArPlaceholder": "الإجابة بالعربية...",
+        "department": "القسم",
+        "departmentPlaceholder": "اختر القسم",
+        "noDepartment": "بدون قسم",
+        "order": "الترتيب",
+        "orderHint": "تصاعدي (1 = أول)",
+        "clear": "مسح",
+        "create": "إنشاء المقالة",
+        "validation": {
+          "titleRequired": "العنوان مطلوب باللغتين",
+          "orderRequired": "الترتيب مطلوب"
+        }
+      },
+      "toast": {
+        "addSuccess": "تمت إضافة المقالة بنجاح",
+        "updateSuccess": "تم تحديث المقالة بنجاح",
+        "deleteSuccess": "تم حذف المقالة بنجاح",
+        "statusUpdateSuccess": "تم تحديث حالة المقالة"
+      }
+    },
+    "callScripts": {
+      "title": "سكريبتات المكالمات",
+      "pageTitle": "سكريبتات المكالمات",
+      "pageSubtitle": "السكريبتات الصوتية وقوائم الاستجابة الصوتية التفاعلية (IVR) أثناء مكالمات الحجز",
+      "newVersion": "نسخة جديدة",
+      "stats": {
+        "total": "إجمالي",
+        "active": "نشطة"
+      },
+      "table": {
+        "scenario": "السيناريو",
+        "audio": "الملف الصوتي",
+        "options": "خيارات القائمة",
+        "updated": "آخر تحديث",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "empty": "لا توجد سكريبتات مكالمات بعد"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "معطل"
+      },
+      "menu": {
+        "activate": "تفعيل"
+      },
+      "activateConfirm": {
+        "title": "تأكيد التفعيل",
+        "message": "تفعيل هذه النسخة سيؤدي إلى تعطيل السكريبت النشط حاليًا لهذا السيناريو. هل تريد المتابعة؟"
+      },
+      "dialog": {
+        "addTitle": "نسخة سكريبت جديدة",
+        "editTitle": "تعديل السكريبت",
+        "cancel": "إلغاء",
+        "create": "إنشاء النسخة",
+        "scenarioSection": "السيناريو",
+        "scenarioPlaceholder": "اختر السيناريو",
+        "audioSection": "الملف الصوتي",
+        "audioUrlPlaceholder": "https://cdn.lfeen.com/ivr/script.mp3",
+        "optionsSection": "خيارات القائمة (DTMF)",
+        "addOption": "إضافة خيار",
+        "digit": "الرقم",
+        "digitPlaceholder": "1",
+        "description": "الوصف",
+        "descriptionPlaceholder": "قبول عرض التمديد",
+        "responseUrl": "ملف الرد الصوتي (اختياري)",
+        "responseUrlPlaceholder": "https://cdn.lfeen.com/ivr/response.mp3",
+        "activeLabel": "تعيينه كسكريبت نشط",
+        "activeHint": "تفعيل هذه النسخة سيعطل أي سكريبت آخر نشط حاليًا لهذا السيناريو",
+        "validation": {
+          "scenarioRequired": "السيناريو مطلوب",
+          "audioUrlRequired": "رابط الملف الصوتي مطلوب",
+          "optionsRequired": "مطلوب خيار واحد على الأقل في القائمة"
+        }
+      },
+      "errors": {
+        "loadTitle": "تعذر تحميل سكريبتات المكالمات",
+        "retry": "إعادة المحاولة",
+        "network": "تعذر الوصول إلى الخدمة، حاول مرة أخرى",
+        "forbidden": "لا تملك صلاحية عرض سكريبتات المكالمات",
+        "audioUrlRequired": "رابط الملف الصوتي مطلوب",
+        "optionsRequired": "مطلوب خيار واحد على الأقل في القائمة",
+        "notFound": "هذا السكريبت لم يعد موجودًا",
+        "generic": "حدث خطأ ما، حاول مرة أخرى"
+      },
+      "toast": {
+        "createSuccess": "تم إنشاء نسخة السكريبت بنجاح",
+        "updateSuccess": "تم تحديث السكريبت بنجاح",
+        "activateSuccess": "تم تفعيل السكريبت بنجاح"
+      }
     }
+  },
+  "notFound": {
+    "title": "حدث خطأ غير متوقع",
+    "subtitle": "نعتذر، ولكن يبدو أن الرابط الذي اتبعته معطل أو أن الصفحة تم نقلها.",
+    "refreshButton": "تحديث الصفحة",
+    "homeButton": "العودة للرئيسية"
   }
-} 
+}

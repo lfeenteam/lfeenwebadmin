@@ -1,0 +1,832 @@
+.service-settings-container {
+  padding: 50px 24px;
+  font-family: 'Cairo', sans-serif !important;
+
+  h2, h3, h4, span, p, button, input, label, table, th, td {
+    font-family: 'Cairo', sans-serif !important;
+  }
+}
+
+.h-100 { height: 100%; box-sizing: border-box; }
+
+// ── Section card shell ──────────────────────────────────────
+.section-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 32px;
+  padding: 32px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 28px;
+  color: #0F172B;
+}
+
+.section-desc {
+  font-size: 12px;
+  font-weight: 500;
+  color: #62748E;
+  margin: 4px 0 0;
+  max-width: 640px;
+}
+
+.card-divider {
+  border-top: 1px solid #F1F5F9;
+  margin: 20px 0;
+}
+
+// ── Service state control ──────────────────────────────────
+.state-control-card {
+  margin-bottom: 20px;
+}
+
+.service-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background-color: #22C55E;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.state-control {
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid #F1F5F9;
+  background-color: #FAFAFA;
+}
+
+.state-select {
+  width: auto !important;
+  min-width: 170px;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  flex: 0 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1px solid #E2E8F0;
+  background-color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  color: #0F172B;
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+
+  ::ng-deep .mat-mdc-select-trigger {
+    width: 100%;
+    height: 100%;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+  }
+
+  ::ng-deep .mat-mdc-select-value,
+  ::ng-deep .mat-mdc-select-value-text,
+  ::ng-deep .mat-mdc-select-min-line {
+    color: #0F172B !important;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: nowrap !important;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: #90A1B9 !important;
+  }
+}
+
+.current-status-pill {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: currentColor;
+  }
+
+  &.state-active {
+    color: #16a34a;
+    background-color: #F0FDF4;
+    border-color: #BBF7D0;
+  }
+
+  &.state-stopped {
+    color: #dc2626;
+    background-color: #FEF2F2;
+    border-color: #FECACA;
+  }
+
+  &.state-renewalStopped {
+    color: #d97706;
+    background-color: #FFFBEB;
+    border-color: #FDE68A;
+  }
+
+  &.state-suspended {
+    color: #62748E;
+    background-color: #F1F5F9;
+    border-color: #E2E8F0;
+  }
+}
+
+.duration-settings-row {
+  padding: 20px 24px;
+  background: #FAFAFACC;
+  border: 1px solid #E4E4E799;
+  border-radius: 24px;
+  box-sizing: border-box;
+}
+
+.confirm-btn {
+  all: unset;
+  box-sizing: border-box;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background-color: #111110;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background-color: #2a2a28; }
+}
+
+.duration-select {
+  width: auto !important;
+  min-width: 180px;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  flex: 0 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  color: #111110;
+  outline: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+
+  &.mat-mdc-select-focused {
+    border-color: #111110;
+  }
+
+  ::ng-deep .mat-mdc-select-trigger {
+    width: 100%;
+    height: 100%;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  ::ng-deep .mat-mdc-select-value,
+  ::ng-deep .mat-mdc-select-value-text,
+  ::ng-deep .mat-mdc-select-min-line {
+    color: #111110 !important;
+    font-family: 'Cairo', sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: nowrap !important;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: #6B6B67 !important;
+  }
+}
+
+::ng-deep .duration-select-panel {
+  min-width: 180px !important;
+  border-radius: 12px !important;
+  border: 1px solid #E2E8F0;
+
+  .mat-mdc-option {
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 8px;
+    min-height: 38px;
+    white-space: nowrap;
+
+    .mdc-list-item__primary-text {
+      white-space: nowrap;
+    }
+  }
+}
+
+.duration-info {
+  color: #111110;
+}
+
+.duration-title {
+  font-size: 12px;
+  font-weight: 800;
+  display: block;
+}
+
+.duration-icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background-color: #fff;
+  border: 1px solid #E2E8F0;
+  color: #6B6B67;
+  flex-shrink: 0;
+}
+
+// ── Table box + table ───────────────────────────────────────
+.table-box {
+  background-color: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.section-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead {
+    background-color: #F8FAFC;
+
+    th {
+      font-weight: 600;
+      font-size: 12px;
+      text-align: start;
+      color: #62748E;
+      padding: 16px 24px;
+      border: none;
+      white-space: nowrap;
+    }
+  }
+
+  tbody td {
+    text-align: start;
+    vertical-align: middle;
+    padding: 20px 24px;
+    border-bottom: 1px solid #F1F5F9;
+    border-top: none;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  // Standalone table (no surrounding box): the header becomes a rounded bar.
+  &--flat {
+    thead th {
+      &:first-child {
+        border-start-start-radius: 14px;
+        border-end-start-radius: 14px;
+      }
+
+      &:last-child {
+        border-start-end-radius: 14px;
+        border-end-end-radius: 14px;
+      }
+    }
+
+    tbody td { padding: 28px 24px; }
+  }
+}
+
+.empty-cell {
+  padding: 32px 24px !important;
+}
+
+.text-muted-cell {
+  color: #62748E;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.date-cell {
+  color: #62748E;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.optional-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #90A1B9;
+}
+
+.field-name-value {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  color: #0F172B;
+}
+
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: #F0FDF4;
+  border: 1px solid #DCFCE7;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 700;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.required-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #16a34a;
+}
+
+::ng-deep .menu-icon {
+  margin-inline-end: 8px;
+  color: #6B6B67;
+}
+
+::ng-deep .mat-mdc-menu-panel button.mat-mdc-menu-item {
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+// ── Row actions ─────────────────────────────────────────────
+.row-action-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #90A1B9;
+  cursor: pointer;
+
+  &:hover {
+    color: #0F172B;
+    background-color: #F1F5F9;
+  }
+}
+
+// ── Inline inputs ───────────────────────────────────────────
+.inline-input {
+  height: 38px;
+  width: 100%;
+  min-width: 100px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  font-size: 12px;
+  font-family: 'Cairo', sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  color: #111110;
+
+  &::placeholder { color: #90A1B9; }
+
+  &:focus {
+    border-color: #111110;
+  }
+
+  &--full {
+    height: 52px;
+    padding-left: 44px;
+    padding-right: 18px;
+    font-size: 14px;
+    font-weight: 800;
+    border-radius: 16px;
+    background-color: #F8FAFC;
+    text-align: right;
+    direction: rtl;
+
+    &::placeholder {
+      font-size: 13px;
+      font-weight: 500;
+    }
+  }
+}
+
+// ── Subscribed facilities ───────────────────────────────────
+.facility-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F172B;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &.plan-annualAdvanced {
+    background-color: #fff;
+    color: #16a34a;
+    border: 1px solid #4ADE80;
+  }
+
+  &.plan-monthly {
+    background-color: #F0FDF4;
+    color: #16a34a;
+    border: 1px solid #BBF7D0;
+  }
+
+  &.plan-annualTrial {
+    background-color: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  user-select: none;
+  border: 1px solid transparent;
+
+  &.status-active {
+    background-color: #0F172B;
+    color: #fff;
+  }
+
+  &.status-trial {
+    background-color: #F1F5F9;
+    color: #62748E;
+  }
+}
+
+.money-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172B;
+}
+
+.free-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.operation-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0F172B;
+}
+
+.search-wrapper {
+  min-width: 260px;
+
+  .search-input {
+    height: 44px;
+    width: 100%;
+    padding: 0 18px;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    background-color: #F8FAFC;
+    font-size: 12px;
+    font-family: 'Cairo', sans-serif;
+    outline: none;
+    box-sizing: border-box;
+    color: #0F172B;
+
+    &::placeholder { color: #90A1B9; }
+
+    &:focus { border-color: #111110; }
+  }
+}
+
+// ── Currency icon (mask technique) ─────────────────────────
+.currency-icon-sm {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &.currency-icon-en {
+    width: 26px;
+    height: 12px;
+  }
+}
+
+// ── Pricing / trial cards ───────────────────────────────────
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172B;
+  margin-bottom: 10px;
+}
+
+.number-field {
+  .field-currency {
+    position: absolute;
+    left: 16px;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #0F172B;
+    pointer-events: none;
+  }
+
+  &--accent {
+    .field-currency { color: #16a34a; }
+    .inline-input { color: #16a34a; }
+  }
+}
+
+.pricing-trial-card {
+  display: flex;
+  flex-direction: column;
+
+  // Pins the last block of each card to the bottom so both columns end level.
+  .push-bottom {
+    margin-top: auto;
+    padding-top: 20px;
+  }
+}
+
+.vat-toggle-row {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F172B;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  box-sizing: border-box;
+
+  .text-muted-cell {
+    font-weight: 500;
+    margin-top: 2px;
+  }
+}
+
+.vat-toggle-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.duration-btn-group {
+  margin-bottom: 20px;
+}
+
+.duration-btn {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #0F172B;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover { border-color: #C7CED9; }
+
+  &.active {
+    background-color: #111110;
+    color: #fff;
+    border-color: #111110;
+  }
+}
+
+.trial-info-box {
+  padding: 16px 18px;
+  border-radius: 16px;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #B45309;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  box-sizing: border-box;
+}
+
+// ─── Toggle color override → #111110 ───
+::ng-deep .service-settings-container {
+  .mat-mdc-slide-toggle {
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-hover-track-color: #333330;
+    --mdc-switch-selected-focus-track-color: #111110;
+    --mdc-switch-selected-pressed-track-color: #111110;
+    --mdc-switch-selected-handle-color: #ffffff;
+    --mdc-switch-selected-hover-handle-color: #ffffff;
+    --mdc-switch-selected-focus-handle-color: #ffffff;
+    --mdc-switch-selected-pressed-handle-color: #ffffff;
+    --mdc-switch-selected-icon-color: #111110;
+    --mdc-switch-selected-focus-state-layer-color: #111110;
+    --mdc-switch-selected-hover-state-layer-color: #111110;
+    --mdc-switch-selected-pressed-state-layer-color: #111110;
+
+    --mdc-switch-unselected-track-color: #E2E8F0;
+    --mdc-switch-unselected-hover-track-color: #E2E8F0;
+    --mdc-switch-unselected-focus-track-color: #E2E8F0;
+    --mdc-switch-unselected-pressed-track-color: #E2E8F0;
+    --mdc-switch-unselected-track-outline-color: transparent;
+    --mdc-switch-unselected-hover-track-outline-color: transparent;
+    --mdc-switch-unselected-focus-track-outline-color: transparent;
+    --mdc-switch-unselected-pressed-track-outline-color: transparent;
+    --mdc-switch-unselected-handle-color: #ffffff;
+    --mdc-switch-unselected-hover-handle-color: #ffffff;
+    --mdc-switch-unselected-focus-handle-color: #ffffff;
+    --mdc-switch-unselected-pressed-handle-color: #ffffff;
+    --mdc-switch-unselected-icon-color: #E2E8F0;
+  }
+}
+
+// ── Footer ──────────────────────────────────────────────────
+.footer-actions {
+  padding: 20px 24px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 32px;
+}
+
+.footer-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: #62748E;
+  max-width: 520px;
+}
+
+.cancel-btn {
+  all: unset;
+  box-sizing: border-box;
+  padding: 12px 28px;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  background-color: #fff;
+  color: #0F172B;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover { background-color: #F8FAFC; }
+}
+
+.save-btn {
+  all: unset;
+  box-sizing: border-box;
+  padding: 12px 32px;
+  border-radius: 16px;
+  background-color: #111110;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 8px 16px -6px rgba(15, 23, 43, 0.35);
+
+  &:hover { background-color: #2a2a28; }
+}
+
+@media (max-width: 767px) {
+  .service-settings-container { padding: 24px 16px; }
+
+  .section-card { padding: 20px 16px; border-radius: 24px; }
+  .footer-actions { padding: 16px; border-radius: 24px; flex-direction: column; align-items: stretch !important; }
+  .footer-actions .d-flex.gap-12 { flex-direction: column; }
+  .cancel-btn, .save-btn { width: 100%; }
+
+  .state-control { width: 100%; justify-content: space-between; }
+  .state-select { min-width: 0; flex: 1 1 auto; }
+
+  .duration-settings-row { flex-direction: column; align-items: stretch !important; }
+  .duration-info { text-align: start !important; }
+  .duration-actions-group { flex-direction: column; align-items: stretch !important; }
+  .duration-select { min-width: 0; width: 100% !important; }
+  .confirm-btn { width: 100%; text-align: center; }
+
+  .search-wrapper { min-width: 0; width: 100%; }
+
+  .duration-btn-group { flex-wrap: wrap; }
+  .duration-btn { white-space: normal; flex: 1 1 calc(50% - 12px); }
+
+  .vat-toggle-row { flex-wrap: wrap; }
+
+  // ── Tables → stacked cards (no horizontal scroll) ──────────
+  .table-box,
+  .table-box .table-responsive {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .table-responsive { overflow-x: visible; }
+
+  .section-table {
+    min-width: 0;
+    width: 100%;
+
+    thead { display: none; }
+
+    tbody, tr, td { display: block; width: 100%; }
+
+    tr {
+      position: relative;
+      background-color: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+
+    tr:last-child { margin-bottom: 0; }
+
+    td,
+    &--flat tbody td {
+      border: none !important;
+      padding: 8px 0 !important;
+      text-align: start !important;
+    }
+
+    td:first-child {
+      padding-inline-end: 40px !important;
+    }
+
+    td[data-label]::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: #90A1B9;
+      margin-bottom: 4px;
+    }
+
+    td.mobile-actions-cell {
+      position: absolute;
+      top: 12px;
+      inset-inline-end: 12px;
+      width: auto;
+      padding: 0 !important;
+    }
+  }
+}

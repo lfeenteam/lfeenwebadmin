@@ -1,0 +1,44 @@
+<div class="ts-root">
+  <div class="ts-period-row">
+    <button
+      type="button"
+      class="ts-period"
+      [class.ts-period-selected]="selectedPeriod === 'AM'"
+      (click)="pickPeriod('AM')"
+    >
+      {{ amLabel }}
+    </button>
+    <button
+      type="button"
+      class="ts-period"
+      [class.ts-period-selected]="selectedPeriod === 'PM'"
+      (click)="pickPeriod('PM')"
+    >
+      {{ pmLabel }}
+    </button>
+  </div>
+  <div class="ts-hours">
+    @for (h of hours; track h) {
+      <button
+        type="button"
+        class="ts-cell"
+        [class.ts-cell-selected]="h === selectedHour"
+        (click)="pickHour(h)"
+      >
+        {{ h }}
+      </button>
+    }
+  </div>
+  <div class="ts-minutes">
+    @for (m of minutes; track m) {
+      <button
+        type="button"
+        class="ts-cell"
+        [class.ts-cell-selected]="m === selectedMinute"
+        (click)="pickMinute(m)"
+      >
+        {{ m }}
+      </button>
+    }
+  </div>
+</div>

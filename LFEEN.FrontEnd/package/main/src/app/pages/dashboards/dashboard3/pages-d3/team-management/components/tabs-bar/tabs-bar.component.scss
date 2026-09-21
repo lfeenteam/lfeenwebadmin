@@ -1,0 +1,42 @@
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 48px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+
+  @media (max-width: 575.98px) {
+    gap: 4px;
+  }
+  &::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #9E9E9A;
+    padding: 0 4px;
+    min-width: unset !important;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Cairo', sans-serif;
+    position: relative;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+
+    ::ng-deep .mdc-button__label {
+      padding: 0;
+      letter-spacing: normal;
+    }
+
+    &.active {
+      color: #111110;
+      font-weight: 900;
+      border-bottom-color: #111110;
+    }
+  }
+}

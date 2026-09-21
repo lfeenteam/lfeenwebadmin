@@ -1,16 +1,31 @@
-<div class="blank-layout-container justify-content-center">
-  <div class="row">
-    <div class="col-12 text-center">
-      <img src="/assets/images/backgrounds/errorimg.svg" alt="error-bg" />
-      <h2 class="auth-title f-w-600">Opps!!!</h2>
-      <h6 class="f-s-20 f-w-600 m-y-30">
-        This page you are looking for could not be found.
-      </h6>
-      <a
-        mat-flat-button
-        [routerLink]="['/dashboards/dashboard1']"
-        >Go back to Home</a
-      >
+<div class="not-found-page" [dir]="currentDir">
+  <div class="not-found-card">
+    <div class="illustration">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g transform="rotate(45 30 29)">
+          <rect x="18" y="20" width="24" height="16" rx="3" stroke="#1F2937" stroke-width="2"/>
+          <line x1="24" y1="20" x2="24" y2="10" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+          <line x1="36" y1="20" x2="36" y2="10" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+          <line x1="42" y1="28" x2="56" y2="28" stroke="#1F2937" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <path d="M48 46 L58 56 L52 62 L66 74" stroke="#1F2937" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="106" cy="94" r="24" stroke="#1F2937" stroke-width="2"/>
+        <line x1="123" y1="111" x2="142" y2="130" stroke="#1F2937" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <h1 class="error-code">404</h1>
+    <h2 class="error-title">{{ 'notFound.title' | translate }}</h2>
+    <p class="error-subtitle">{{ 'notFound.subtitle' | translate }}</p>
+
+    <div class="actions">
+      <button type="button" class="btn-outline" (click)="refreshPage()">
+        {{ 'notFound.refreshButton' | translate }}
+      </button>
+      <a class="btn-solid" [routerLink]="homeLink">
+        <span>{{ 'notFound.homeButton' | translate }}</span>
+        <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
+      </a>
     </div>
   </div>
 </div>

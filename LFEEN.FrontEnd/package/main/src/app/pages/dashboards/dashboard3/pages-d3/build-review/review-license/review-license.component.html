@@ -1,0 +1,110 @@
+<div class="review-license-container">
+  <div class="section-header">
+    <div class="header-main">
+        <h2 class="section-title">{{ 'd3.buildReview.license.title' | translate }}</h2>
+        @if (license?.licenseNumber) {
+        <div class="license-badge">
+            <span class="badge-label">{{ 'd3.buildReview.license.licenseNumberLabel' | translate }}</span>
+            <span class="badge-value">{{ license?.licenseNumber }}</span>
+        </div>
+        }
+    </div>
+    <p class="section-subtitle">{{ 'd3.buildReview.license.subtitle' | translate }}</p>
+  </div>
+
+  @if (!isLoading && license && !hasLicenseData) {
+    <app-review-empty-state
+      icon="file-off"
+      titleKey="d3.buildReview.license.emptyTitle"
+      descKey="d3.buildReview.license.emptyDescription">
+    </app-review-empty-state>
+  }
+
+  <!-- License Document Preview -->
+  @if (license?.licenseAttachmentUrl) {
+  <div class="document-section">
+    <div class="section-title-wrapper">
+        <span class="section-indicator"></span>
+        <span class="section-title">{{ 'd3.buildReview.license.previewTitle' | translate }}</span>
+        <button class="btn-text" (click)="openAttachment()"><i-tabler name="external-link"></i-tabler> {{ 'd3.buildReview.license.enlargeBtn' | translate }}</button>
+    </div>
+
+    <div class="document-preview">
+        @if (safeDocumentUrl) {
+          <iframe [src]="safeDocumentUrl" width="100%" height="600" style="border:none;display:block;"></iframe>
+        } @else {
+          <div class="photo-load-error">
+            <i-tabler name="file-off"></i-tabler>
+            <span>{{ 'd3.buildReview.license.noImageLabel' | translate }}</span>
+          </div>
+        }
+        <!-- Optional Overlay if rejected/expired -->
+        <div class="expired-overlay" *ngIf="isExpired">
+            <span class="expired-tag">{{ 'd3.buildReview.license.expiredTag' | translate }}</span>
+        </div>
+    </div>
+  </div>
+  }
+
+  <!-- License Details -->
+  @if (hasLicenseDetails) {
+  <div class="license-meta-grid">
+    @if (license?.issueDate) {
+    <div class="meta-item">
+        <span class="meta-label">{{ 'd3.buildReview.license.issueDateLabel' | translate }}</span>
+        <span class="meta-value">{{ license?.issueDate | date:'yyyy/MM/dd' }}</span>
+    </div>
+    }
+    @if (license?.expiryDate) {
+    <div class="meta-item">
+        <span class="meta-label">{{ 'd3.buildReview.license.expiryDateLabel' | translate }}</span>
+        <span class="meta-value" [class.text-danger]="isExpired">{{ license?.expiryDate | date:'yyyy/MM/dd' }}</span>
+    </div>
+    }
+    @if (license?.facilityName || license?.classification) {
+    <div class="meta-item full-width">
+        <span class="meta-label">{{ 'd3.buildReview.license.businessTypeLabel' | translate }}</span>
+        <span class="meta-value">
+          {{ license?.facilityName || license?.classification }}
+        </span>
+        @if (license?.licenseStatusName || license?.documentStatus) {
+        <div class="verification-status">
+            <i-tabler name="circle-check" class="verify-icon"></i-tabler>
+            <span>{{ license?.licenseStatusName || license?.documentStatus }}</span>
+        </div>
+        }
+    </div>
+    }
+  </div>
+  }
+
+  <!-- Notes -->
+  @if (!readOnly) {
+  <div class="notes-section">
+    <div class="notes-header">
+        <span class="notes-title">{{ 'd3.buildReview.license.notesTitle' | translate }}</span>
+        <span class="notes-required">{{ 'd3.buildReview.license.notesOptional' | translate }}</span>
+    </div>
+    <textarea
+      class="notes-textarea"
+      [placeholder]="'d3.buildReview.license.notesPlaceholder' | translate"
+      [(ngModel)]="rejectionReason"
+      rows="4"
+    ></textarea>
+  </div>
+  }
+
+  <!-- Actions -->
+  @if (!readOnly) {
+  <div class="action-buttons">
+    <button class="btn btn-approve" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Approved')">
+        <span>{{ 'd3.buildReview.license.approveBtn' | translate }}</span>
+        <i-tabler name="circle-check"></i-tabler>
+    </button>
+    <button class="btn btn-reject" [disabled]="isLoading || isSubmitting" (click)="confirmDecision('Rejected')">
+        <span>{{ 'd3.buildReview.license.rejectBtn' | translate }}</span>
+        <i-tabler name="circle-x"></i-tabler>
+    </button>
+  </div>
+  }
+</div>

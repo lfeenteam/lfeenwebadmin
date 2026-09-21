@@ -1,0 +1,838 @@
+<section class="offers-page offer-form-page" [dir]="dir()">
+  <header class="page-intro">
+    <div class="page-intro-heading">
+      <span class="title-icon"><i-tabler name="discount"></i-tabler></span>
+      <div>
+        <h1>
+          {{
+            (id
+              ? "d3.platformOffers.form.editTitle"
+              : "d3.platformOffers.form.createTitle"
+            ) | translate
+          }}
+        </h1>
+        <p>{{ "d3.platformOffers.form.subtitle" | translate }}</p>
+      </div>
+    </div>
+  </header>
+  @if (loading()) {
+    <div class="state"><span class="spinner"></span></div>
+  } @else if (error()) {
+    <div class="state error">
+      <p>{{ error() }}</p>
+      <button (click)="load()">
+        {{ "d3.platformOffers.retry" | translate }}
+      </button>
+    </div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <main class="form-layout">
+        <div class="accordion">
+          @for (
+            s of [
+              { k: "basics", i: "info-circle" },
+              { k: "discount", i: "percentage" },
+              { k: "scope", i: "building" },
+              { k: "timing", i: "calendar-time" },
+              { k: "stay", i: "bed" },
+              { k: "usage", i: "users" },
+              { k: "settings", i: "adjustments" },
+              { k: "exclusions", i: "calendar-x" },
+              { k: "messages", i: "message" },
+              { k: "terms", i: "file-text" },
+            ];
+            track s.k
+          ) {
+            <section class="form-section">
+              <button type="button" class="section-head" (click)="toggle(s.k)">
+                <span>
+                  <i-tabler [name]="s.i"></i-tabler>
+                  <strong>
+                    {{ "d3.platformOffers.sections." + s.k | translate }}
+                  </strong>
+                </span>
+                <i-tabler
+                  [name]="isOpen(s.k) ? 'chevron-up' : 'chevron-down'"
+                ></i-tabler>
+              </button>
+              @if (isOpen(s.k)) {
+                <div class="section-body">
+                  @switch (s.k) {
+                    @case ("basics") {
+                      <div class="fields two">
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.internalAr" | translate
+                          }}*
+                          <input formControlName="internalNameAr" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.internalEn" | translate
+                          }}*
+                          <input formControlName="internalNameEn" dir="ltr" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.externalAr" | translate
+                          }}
+                          <input formControlName="externalNameAr" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.externalEn" | translate
+                          }}
+                          <input formControlName="externalNameEn" dir="ltr" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.descriptionAr" | translate
+                          }}
+                          <textarea formControlName="descriptionAr"></textarea>
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.descriptionEn" | translate
+                          }}
+                          <textarea
+                            formControlName="descriptionEn"
+                            dir="ltr"
+                          ></textarea>
+                        </label>
+                      </div>
+                      <label class="upload" [class.has-image]="!!preview()">
+                        @if (preview()) {
+                          <img [src]="preview()" alt="" />
+                        }
+                        <span class="upload-cta">
+                          <i-tabler name="upload"></i-tabler>
+                          {{
+                            (preview()
+                              ? "d3.platformOffers.fields.changeBanner"
+                              : "d3.platformOffers.fields.banner"
+                            ) | translate
+                          }}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          (change)="file($event)"
+                        />
+                      </label>
+                    }
+                    @case ("discount") {
+                      <div class="fields two">
+                        <label>
+                          {{ "d3.platformOffers.fields.trigger" | translate }}
+                          <mat-select
+                            formControlName="triggerType"
+                            panelClass="d3-offer-select-panel"
+                          >
+                            <mat-option value="Automatic">{{ enumLabel("Automatic") }}</mat-option>
+                            <mat-option value="Coupon">{{ enumLabel("Coupon") }}</mat-option>
+                          </mat-select>
+                        </label>
+                        @if (form.value.triggerType === "Coupon") {
+                          <label>
+                            {{ "d3.platformOffers.fields.code" | translate }}*
+                            <input
+                              formControlName="code"
+                              dir="ltr"
+                              (input)="codeChanged($any($event.target).value)"
+                            />
+                            <small [class.ok]="codeState() === 'ok'">
+                              {{
+                                "d3.platformOffers.code." + codeState()
+                                  | translate
+                              }}
+                            </small>
+                          </label>
+                        }
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.discountType" | translate
+                          }}
+                          <mat-select
+                            formControlName="discountType"
+                            panelClass="d3-offer-select-panel"
+                          >
+                            <mat-option value="Percentage"
+                              >{{ enumLabel("Percentage") }}</mat-option
+                            >
+                            <mat-option value="FixedAmount"
+                              >{{ enumLabel("FixedAmount") }}</mat-option
+                            >
+                            <mat-option value="FinalPrice"
+                              >{{ enumLabel("FinalPrice") }}</mat-option
+                            >
+                          </mat-select>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.value" | translate }}*
+                          <input
+                            type="number"
+                            formControlName="discountValue"
+                          />
+                        </label>
+                        @if (form.value.discountType === "Percentage") {
+                          <label>
+                            {{
+                              "d3.platformOffers.fields.maxDiscount" | translate
+                            }}
+                            <input
+                              type="number"
+                              formControlName="maxDiscountAmount"
+                            />
+                          </label>
+                        }
+                      </div>
+                    }
+                    @case ("scope") {
+                      <div class="fields two">
+                        <label>
+                          {{ "d3.platformOffers.fields.appliedTo" | translate }}
+                          <mat-select
+                            formControlName="appliedTo"
+                            panelClass="d3-offer-select-panel"
+                          >
+                            <mat-option value="AllUnits">{{ enumLabel("AllUnits") }}</mat-option>
+                            <mat-option value="SpecificUnits"
+                              >{{ enumLabel("SpecificUnits") }}</mat-option
+                            >
+                          </mat-select>
+                        </label>
+                        @if (form.value.appliedTo === "SpecificUnits") {
+                          <label>
+                            {{ "d3.platformOffers.fields.unitIds" | translate }}
+                            <mat-select
+                              formControlName="unitIds"
+                              multiple
+                              panelClass="d3-offer-select-panel"
+                            >
+                              @for (u of units(); track u.id) {
+                                <mat-option [value]="u.id">{{
+                                  u.name
+                                }}</mat-option>
+                              }
+                            </mat-select>
+                          </label>
+                        }
+                      </div>
+                    }
+                    @case ("timing") {
+                      <div class="fields two">
+                        <label>
+                          {{ "d3.platformOffers.fields.start" | translate }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="offerStartMenu"
+                          >
+                            <i-tabler
+                              name="calendar"
+                              class="date-icon"
+                            ></i-tabler>
+                            <span class="date-label">
+                              {{
+                                dateTimeLabel(form.controls.offerStartDate) ||
+                                  ("d3.platformOffers.pickDate" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #offerStartMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <div
+                                class="date-time-popover"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <app-single-date-calendar
+                                  [value]="
+                                    datePart(form.controls.offerStartDate)
+                                  "
+                                  (dateSelected)="
+                                    setDatePart(
+                                      form.controls.offerStartDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-single-date-calendar>
+                                <app-time-select
+                                  [value]="
+                                    timePart(form.controls.offerStartDate)
+                                  "
+                                  (timeSelected)="
+                                    setTimePart(
+                                      form.controls.offerStartDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-time-select>
+                              </div>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.end" | translate }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="offerEndMenu"
+                          >
+                            <i-tabler
+                              name="calendar"
+                              class="date-icon"
+                            ></i-tabler>
+                            <span class="date-label">
+                              {{
+                                dateTimeLabel(form.controls.offerEndDate) ||
+                                  ("d3.platformOffers.pickDate" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #offerEndMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <div
+                                class="date-time-popover"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <app-single-date-calendar
+                                  [value]="datePart(form.controls.offerEndDate)"
+                                  (dateSelected)="
+                                    setDatePart(
+                                      form.controls.offerEndDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-single-date-calendar>
+                                <app-time-select
+                                  [value]="timePart(form.controls.offerEndDate)"
+                                  (timeSelected)="
+                                    setTimePart(
+                                      form.controls.offerEndDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-time-select>
+                              </div>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.days" | translate }}
+                          <input
+                            formControlName="offerDaysOfWeek"
+                            placeholder="Sat,Sun,Mon"
+                            dir="ltr"
+                          />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.happyStart" | translate
+                          }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="happyStartMenu"
+                          >
+                            <i-tabler name="clock" class="date-icon"></i-tabler>
+                            <span class="date-label">
+                              {{
+                                timeLabel(form.controls.happyHourStart.value) ||
+                                  ("d3.platformOffers.pickTime" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #happyStartMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <app-time-select
+                                (click)="$event.stopPropagation()"
+                                [value]="form.controls.happyHourStart.value"
+                                (timeSelected)="
+                                  form.controls.happyHourStart.setValue($event)
+                                "
+                              ></app-time-select>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.happyEnd" | translate }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="happyEndMenu"
+                          >
+                            <i-tabler name="clock" class="date-icon"></i-tabler>
+                            <span class="date-label">
+                              {{
+                                timeLabel(form.controls.happyHourEnd.value) ||
+                                  ("d3.platformOffers.pickTime" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #happyEndMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <app-time-select
+                                (click)="$event.stopPropagation()"
+                                [value]="form.controls.happyHourEnd.value"
+                                (timeSelected)="
+                                  form.controls.happyHourEnd.setValue($event)
+                                "
+                              ></app-time-select>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                      </div>
+                    }
+                    @case ("stay") {
+                      <div class="fields three">
+                        <label>
+                          {{ "d3.platformOffers.fields.stayStart" | translate }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="stayStartMenu"
+                          >
+                            <i-tabler
+                              name="calendar"
+                              class="date-icon"
+                            ></i-tabler>
+                            <span class="date-label">
+                              {{
+                                dateTimeLabel(form.controls.stayStartDate) ||
+                                  ("d3.platformOffers.pickDate" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #stayStartMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <div
+                                class="date-time-popover"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <app-single-date-calendar
+                                  [value]="
+                                    datePart(form.controls.stayStartDate)
+                                  "
+                                  (dateSelected)="
+                                    setDatePart(
+                                      form.controls.stayStartDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-single-date-calendar>
+                                <app-time-select
+                                  [value]="
+                                    timePart(form.controls.stayStartDate)
+                                  "
+                                  (timeSelected)="
+                                    setTimePart(
+                                      form.controls.stayStartDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-time-select>
+                              </div>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.stayEnd" | translate }}
+                          <button
+                            type="button"
+                            class="date-pill"
+                            [matMenuTriggerFor]="stayEndMenu"
+                          >
+                            <i-tabler
+                              name="calendar"
+                              class="date-icon"
+                            ></i-tabler>
+                            <span class="date-label">
+                              {{
+                                dateTimeLabel(form.controls.stayEndDate) ||
+                                  ("d3.platformOffers.pickDate" | translate)
+                              }}
+                            </span>
+                          </button>
+                          <mat-menu
+                            #stayEndMenu="matMenu"
+                            class="single-date-calendar-menu"
+                          >
+                            <ng-template matMenuContent>
+                              <div
+                                class="date-time-popover"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <app-single-date-calendar
+                                  [value]="datePart(form.controls.stayEndDate)"
+                                  (dateSelected)="
+                                    setDatePart(
+                                      form.controls.stayEndDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-single-date-calendar>
+                                <app-time-select
+                                  [value]="timePart(form.controls.stayEndDate)"
+                                  (timeSelected)="
+                                    setTimePart(
+                                      form.controls.stayEndDate,
+                                      $event
+                                    )
+                                  "
+                                ></app-time-select>
+                              </div>
+                            </ng-template>
+                          </mat-menu>
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.stayDays" | translate }}
+                          <input formControlName="stayDaysOfWeek" dir="ltr" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.minArrival" | translate
+                          }}
+                          <input
+                            type="number"
+                            formControlName="minDaysBeforeArrival"
+                          />
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.minStay" | translate }}
+                          <input type="number" formControlName="minStayDays" />
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.maxStay" | translate }}
+                          <input type="number" formControlName="maxStayDays" />
+                        </label>
+                      </div>
+                    }
+                    @case ("usage") {
+                      <div class="fields two">
+                        <label>
+                          {{ "d3.platformOffers.fields.maxTotal" | translate }}
+                          <input
+                            type="number"
+                            formControlName="maxTotalUsage"
+                          />
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.maxDaily" | translate }}
+                          <input
+                            type="number"
+                            formControlName="maxDailyUsage"
+                          />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.maxDailyUser" | translate
+                          }}
+                          <input
+                            type="number"
+                            formControlName="maxDailyUsagePerUser"
+                          />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.maxTotalUser" | translate
+                          }}
+                          <input
+                            type="number"
+                            formControlName="maxTotalUsagePerUser"
+                          />
+                        </label>
+                      </div>
+                    }
+                    @case ("settings") {
+                      <div class="fields two">
+                        <label>
+                          {{ "d3.platformOffers.fields.payment" | translate }}
+                          <input formControlName="allowedPaymentMethods" />
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.minBooking" | translate
+                          }}
+                          <input
+                            type="number"
+                            formControlName="minBookingAmount"
+                          />
+                        </label>
+                        <label>
+                          {{ "d3.platformOffers.fields.channel" | translate }}
+                          <mat-select
+                            formControlName="displayChannel"
+                            panelClass="d3-offer-select-panel"
+                          >
+                            <mat-option value="All">{{ enumLabel("All") }}</mat-option>
+                            <mat-option value="Merchant">{{ enumLabel("Merchant") }}</mat-option>
+                            <mat-option value="Client">{{ enumLabel("Client") }}</mat-option>
+                          </mat-select>
+                        </label>
+                        <label>
+                          {{
+                            "d3.platformOffers.fields.expiration" | translate
+                          }}
+                          <mat-select
+                            formControlName="expirationPolicy"
+                            panelClass="d3-offer-select-panel"
+                          >
+                            <mat-option value="WhicheverFirst"
+                              >{{ enumLabel("WhicheverFirst") }}</mat-option
+                            >
+                            <mat-option value="ByDate">{{ enumLabel("ByDate") }}</mat-option>
+                            <mat-option value="ByUsageLimit"
+                              >{{ enumLabel("ByUsageLimit") }}</mat-option
+                            >
+                          </mat-select>
+                        </label>
+                        <label class="check settings-check">
+                          <input
+                            type="checkbox"
+                            formControlName="canBeCombined"
+                          />
+                          {{ "d3.platformOffers.fields.combined" | translate }}
+                        </label>
+                      </div>
+                    }
+                    @case ("exclusions") {
+                      <div formArrayName="exclusionPeriods" class="repeat">
+                        @for (row of exclusions.controls; track $index) {
+                          <div [formGroupName]="$index" class="repeat-row">
+                            <button
+                              type="button"
+                              class="date-pill"
+                              [matMenuTriggerFor]="exclusionStartMenu"
+                            >
+                              <i-tabler
+                                name="calendar"
+                                class="date-icon"
+                              ></i-tabler>
+                              <span class="date-label">
+                                {{
+                                  dateTimeLabel(row.get("startDate")) ||
+                                    ("d3.platformOffers.pickDate" | translate)
+                                }}
+                              </span>
+                            </button>
+                            <mat-menu
+                              #exclusionStartMenu="matMenu"
+                              class="single-date-calendar-menu"
+                            >
+                              <ng-template matMenuContent>
+                                <div
+                                  class="date-time-popover"
+                                  (click)="$event.stopPropagation()"
+                                >
+                                  <app-single-date-calendar
+                                    [value]="datePart(row.get('startDate'))"
+                                    (dateSelected)="
+                                      setDatePart(row.get('startDate'), $event)
+                                    "
+                                  ></app-single-date-calendar>
+                                  <app-time-select
+                                    [value]="timePart(row.get('startDate'))"
+                                    (timeSelected)="
+                                      setTimePart(row.get('startDate'), $event)
+                                    "
+                                  ></app-time-select>
+                                </div>
+                              </ng-template>
+                            </mat-menu>
+                            <button
+                              type="button"
+                              class="date-pill"
+                              [matMenuTriggerFor]="exclusionEndMenu"
+                            >
+                              <i-tabler
+                                name="calendar"
+                                class="date-icon"
+                              ></i-tabler>
+                              <span class="date-label">
+                                {{
+                                  dateTimeLabel(row.get("endDate")) ||
+                                    ("d3.platformOffers.pickDate" | translate)
+                                }}
+                              </span>
+                            </button>
+                            <mat-menu
+                              #exclusionEndMenu="matMenu"
+                              class="single-date-calendar-menu"
+                            >
+                              <ng-template matMenuContent>
+                                <div
+                                  class="date-time-popover"
+                                  (click)="$event.stopPropagation()"
+                                >
+                                  <app-single-date-calendar
+                                    [value]="datePart(row.get('endDate'))"
+                                    (dateSelected)="
+                                      setDatePart(row.get('endDate'), $event)
+                                    "
+                                  ></app-single-date-calendar>
+                                  <app-time-select
+                                    [value]="timePart(row.get('endDate'))"
+                                    (timeSelected)="
+                                      setTimePart(row.get('endDate'), $event)
+                                    "
+                                  ></app-time-select>
+                                </div>
+                              </ng-template>
+                            </mat-menu>
+                            <input
+                              formControlName="reason"
+                              [placeholder]="
+                                'd3.platformOffers.fields.reason' | translate
+                              "
+                            />
+                            <button
+                              type="button"
+                              (click)="exclusions.removeAt($index)"
+                            >
+                              <i-tabler name="trash"></i-tabler>
+                            </button>
+                          </div>
+                        }
+                        <button
+                          type="button"
+                          class="add-line"
+                          (click)="exclusions.push(exclusion())"
+                        >
+                          <i-tabler name="plus"></i-tabler>
+                          {{
+                            "d3.platformOffers.form.addExclusion" | translate
+                          }}
+                        </button>
+                      </div>
+                    }
+                    @case ("messages") {
+                      <div formArrayName="customMessages" class="repeat">
+                        @for (row of messages.controls; track $index) {
+                          <div
+                            [formGroupName]="$index"
+                            class="repeat-row messages"
+                          >
+                            <mat-select
+                              formControlName="type"
+                              panelClass="d3-offer-select-panel"
+                            >
+                              @for (type of messageTypes; track type) {
+                                <mat-option [value]="type">{{ enumLabel(type) }}</mat-option>
+                              }
+                            </mat-select>
+                            <input formControlName="messageAr" />
+                            <input formControlName="messageEn" dir="ltr" />
+                            <button
+                              type="button"
+                              (click)="messages.removeAt($index)"
+                            >
+                              <i-tabler name="trash"></i-tabler>
+                            </button>
+                          </div>
+                        }
+                        <button
+                          type="button"
+                          class="add-line"
+                          (click)="messages.push(message())"
+                        >
+                          <i-tabler name="plus"></i-tabler>
+                          {{ "d3.platformOffers.form.addMessage" | translate }}
+                        </button>
+                      </div>
+                    }
+                    @case ("terms") {
+                      <div formArrayName="offerTerms" class="repeat">
+                        @for (row of terms.controls; track $index) {
+                          <div [formGroupName]="$index" class="repeat-row">
+                            <input formControlName="termAr" />
+                            <input formControlName="termEn" dir="ltr" />
+                            <input type="number" formControlName="order" />
+                            <button
+                              type="button"
+                              (click)="terms.removeAt($index)"
+                            >
+                              <i-tabler name="trash"></i-tabler>
+                            </button>
+                          </div>
+                        }
+                        <button
+                          type="button"
+                          class="add-line"
+                          (click)="terms.push(term())"
+                        >
+                          <i-tabler name="plus"></i-tabler>
+                          {{ "d3.platformOffers.form.addTerm" | translate }}
+                        </button>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </section>
+          }
+        </div>
+        <aside class="summary">
+          <span>{{ "d3.platformOffers.form.preview" | translate }}</span>
+          @if (preview()) {
+            <img [src]="preview()" alt="" />
+          }
+          <h3>
+            {{
+              dir() === "rtl"
+                ? form.value.externalNameAr || form.value.internalNameAr
+                : form.value.externalNameEn ||
+                  form.value.internalNameEn ||
+                  ("d3.platformOffers.form.unnamed" | translate)
+            }}
+          </h3>
+          <div>
+            <small>{{ "d3.platformOffers.fields.value" | translate }}</small>
+            <strong dir="ltr">
+              {{ form.value.discountValue || 0
+              }}{{ form.value.discountType === "Percentage" ? "%" : "" }}
+            </strong>
+          </div>
+          <div>
+            <small>{{ "d3.platformOffers.fields.trigger" | translate }}</small>
+            <strong>{{ enumLabel(form.value.triggerType) }}</strong>
+          </div>
+          <div>
+            <small>
+              {{ "d3.platformOffers.fields.appliedTo" | translate }}
+            </small>
+            <strong>{{ enumLabel(form.value.appliedTo) }}</strong>
+          </div>
+        </aside>
+      </main>
+      <footer class="sticky-actions">
+        <a class="secondary-btn" [routerLink]="listLink()">
+          {{ "d3.platformOffers.cancel" | translate }}
+        </a>
+        <button class="primary-btn" type="submit" [disabled]="saving()">
+          <span *ngIf="saving()" class="spinner small"></span>
+          {{
+            (saving()
+              ? "d3.platformOffers.form.saving"
+              : "d3.platformOffers.form.save"
+            ) | translate
+          }}
+        </button>
+      </footer>
+    </form>
+  }
+</section>

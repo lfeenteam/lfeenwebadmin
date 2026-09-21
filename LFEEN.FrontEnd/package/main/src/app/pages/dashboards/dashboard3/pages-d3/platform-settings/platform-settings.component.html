@@ -1,0 +1,229 @@
+<div class="settings-page" [dir]="currentDir">
+
+  <!-- Title + Subtitle + Tabs + Save button -->
+  <div class="settings-hero">
+    <h2 class="settings-hero-title">{{ 'd3.settings.heroTitle' | translate }}</h2>
+    <p class="settings-subtitle">{{ 'd3.settings.subtitle' | translate }}</p>
+    <div class="settings-tabs-save-row">
+      <div class="settings-tabs">
+        <button class="stab" [class.active]="activeTab === 'sysInfo'" (click)="setTab('sysInfo')">
+          {{ 'd3.settings.tabs.sysInfo' | translate }}
+        </button>
+        <button class="stab" [class.active]="activeTab === 'security'" (click)="setTab('security')">
+          {{ 'd3.settings.tabs.security' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+  @if (activeTab === 'sysInfo') {
+
+    <div class="settings-card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <span class="card-icon-box"><i-tabler name="info-circle" class="icon-18 text-muted"></i-tabler></span>
+          <h3>{{ 'd3.settings.sysInfo.sectionTitle' | translate }}</h3>
+        </div>
+        <button mat-flat-button class="save-btn" (click)="onSave()">
+          <i-tabler name="check" class="icon-18"></i-tabler>
+          {{ 'd3.settings.saveBtn' | translate }}
+        </button>
+      </div>
+      <div class="info-grid">
+        <div class="info-field">
+          <label>{{ 'd3.settings.sysInfo.platformName' | translate }}</label>
+          <span class="info-val">{{ platformName }}</span>
+        </div>
+        <div class="info-field">
+          <label>{{ 'd3.settings.sysInfo.platformUrl' | translate }}</label>
+          <span class="info-val">{{ platformUrl }}</span>
+        </div>
+        <div class="info-field">
+          <label>{{ 'd3.settings.sysInfo.supportEmail' | translate }}</label>
+          <span class="info-val">{{ supportEmail }}</span>
+        </div>
+        <div class="info-field">
+          <label>{{ 'd3.settings.sysInfo.timezone' | translate }}</label>
+          <span class="info-val timezone-val">
+            {{ timezone }}
+            <i-tabler name="external-link" class="icon-14 tz-icon"></i-tabler>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <span class="card-icon-box"><i-tabler name="bell" class="icon-18 text-muted"></i-tabler></span>
+          <div>
+            <h3>{{ 'd3.settings.sysInfo.notifSection' | translate }}</h3>
+            <p class="card-head-sub">{{ 'd3.settings.sysInfo.notifSectionSub' | translate }}</p>
+          </div>
+        </div>
+     
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-text">
+          <span class="notif-name">{{ 'd3.settings.sysInfo.emailNotif' | translate }}</span>
+          <span class="notif-desc">{{ 'd3.settings.sysInfo.emailNotifDesc' | translate }}</span>
+        </div>
+        <mat-slide-toggle [(ngModel)]="notifEmail" color="primary"></mat-slide-toggle>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notif-row">
+        <div class="notif-text">
+          <span class="notif-name">{{ 'd3.settings.sysInfo.urgentBookings' | translate }}</span>
+          <span class="notif-desc">{{ 'd3.settings.sysInfo.urgentBookingsDesc' | translate }}</span>
+        </div>
+        <mat-slide-toggle [(ngModel)]="notifUrgentBookings" color="primary"></mat-slide-toggle>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="notif-row">
+        <div class="notif-text">
+          <span class="notif-name">{{ 'd3.settings.sysInfo.monthlyReports' | translate }}</span>
+          <span class="notif-desc">{{ 'd3.settings.sysInfo.monthlyReportsDesc' | translate }}</span>
+        </div>
+        <mat-slide-toggle [(ngModel)]="notifMonthlyReports" color="primary"></mat-slide-toggle>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <span class="card-icon-box"><i-tabler name="code" class="icon-18 text-muted"></i-tabler></span>
+          <h3>{{ 'd3.settings.sysInfo.apiSection' | translate }}</h3>
+        </div>
+        <span class="dev-badge">{{ 'd3.settings.sysInfo.apiSectionLink' | translate }}</span>
+      </div>
+
+      <div class="api-field">
+        <label class="api-label">{{ 'd3.settings.sysInfo.secretKey' | translate }}</label>
+        <div class="api-input-row">
+          <div class="api-value-with-copy">
+            <span class="api-key-text">{{ maskedSecretKey }}</span>
+            <button class="api-copy-btn" (click)="copySecretKey()" [title]="'d3.settings.sysInfo.copy' | translate">
+              <i-tabler name="copy" class="icon-16"></i-tabler>
+            </button>
+          </div>
+          <button mat-stroked-button class="api-gen-btn" (click)="generateNewKey()">
+            {{ 'd3.settings.sysInfo.generateNew' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="api-field">
+        <label class="api-label">{{ 'd3.settings.sysInfo.webhookUrl' | translate }}</label>
+        <span class="api-value webhook-val">{{ webhookUrl }}</span>
+        <p class="webhook-note">{{ 'd3.settings.sysInfo.webhookDesc' | translate }}</p>
+      </div>
+    </div>
+
+  }
+
+  @if (activeTab === 'security') {
+
+    <div class="mt-4">
+      <h2 class="sec-title">{{ 'd3.settings.security.sectionTitle' | translate }}</h2>
+      <p class="sec-sub">{{ 'd3.settings.security.sectionSub' | translate }}</p>
+
+      <!-- 2FA -->
+      <div class="twofa-card" [class.twofa-enabled]="twoFaEnabled">
+        <div class="twofa-left">
+          <div class="twofa-shield" [class.enabled]="twoFaEnabled">
+            <i-tabler name="shield-check" class="icon-22"></i-tabler>
+          </div>
+          <div class="twofa-info">
+            <div class="twofa-title-row">
+              <span class="twofa-name">{{ 'd3.settings.security.twoFa' | translate }}</span>
+            </div>
+            <p class="twofa-desc">{{ 'd3.settings.security.twoFaDesc' | translate }}</p>
+          </div>
+        </div>
+        <div class="twofa-toggle-group">
+        
+          <mat-slide-toggle [(ngModel)]="twoFaEnabled" color="primary"></mat-slide-toggle>
+          <span class="twofa-status-lbl">
+            {{ (twoFaEnabled ? 'd3.settings.security.enabled' : 'd3.settings.security.disabled') | translate }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Active Sessions -->
+      <div class="sessions-section">
+        <div class="sessions-header-row">
+          <h3 class="sessions-title">{{ 'd3.settings.security.activeSessions' | translate }}</h3>
+          <button class="logout-all-btn" (click)="logoutAll()">
+            {{ 'd3.settings.security.logoutAll' | translate }}
+          </button>
+        </div>
+
+        <div class="sessions-table">
+          @for (session of activeSessions; track session.id) {
+            <div class="session-row">
+              <div class="session-row-start">
+                <i-tabler [name]="session.deviceIcon" class="session-device icon-24"></i-tabler>
+                <div class="session-info">
+                  <div class="session-name-row">
+                    <span class="session-name">{{ session.name }}</span>
+                    @if (session.isCurrent) {
+                      <span class="session-current">{{ 'd3.settings.security.currentSession' | translate }}</span>
+                    }
+                  </div>
+                  <span class="session-detail">{{ session.location }} · {{ session.browser }}</span>
+                </div>
+              </div>
+              <div class="session-row-end">
+                @if (session.isCurrent) {
+                  <span class="session-now-lbl">{{ 'd3.settings.security.sessionNow' | translate }}</span>
+                } @else {
+                  <button class="session-logout-btn" (click)="logoutSession(session.id)">
+                    <i-tabler name="logout" class="icon-18"></i-tabler>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Login Activity Log -->
+      <div class="login-log-section">
+        <h3 class="log-title">{{ 'd3.settings.security.loginLog' | translate }}</h3>
+        @if (showLogTable) {
+        <table mat-table [dataSource]="loginLogs" class="login-log-table w-100" [dir]="currentDir">
+
+          <ng-container matColumnDef="event">
+            <th mat-header-cell *matHeaderCellDef>{{ 'd3.settings.security.logEvent' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="log-dot" [class]="'dot-' + row.type"></span>
+              {{ row.event }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="dateTime">
+            <th mat-header-cell *matHeaderCellDef>{{ 'd3.settings.security.logDateTime' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.dateTime }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="ip">
+            <th mat-header-cell *matHeaderCellDef>{{ 'd3.settings.security.logIp' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.ip }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef>{{ 'd3.settings.security.logLocation' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.location }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="logColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: logColumns;"></tr>
+        </table>
+        }
+      </div>
+
+    </div>
+
+  }
+
+</div>

@@ -1,0 +1,313 @@
+<div class="host-detail-page" [dir]="currentDir">
+
+  <!-- Summary strip -->
+  <section class="summary-strip">
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="calendar" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.submittedAt' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-md"></span>
+      } @else {
+        <strong>{{ ticket() ? formatDate(ticket()!.initialMessage.createdAt) : '-' }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="clock" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.lastUpdate' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-md"></span>
+      } @else {
+        <strong>{{ ticket() ? lastUpdateDate : '-' }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="user-check" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.followedBy' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ ticket()?.assignedAdminName ?? '-' }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="tag" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.issueType' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ ticket()?.departmentName ?? '-' }}</strong>
+      }
+    </div>
+  </section>
+
+  <!-- Host profile -->
+  <section class="host-profile">
+    @if (loading()) {
+      <div class="host-profile-item">
+        <div class="host-avatar skel-avatar"></div>
+        <div class="skel-profile-lines">
+          <span class="skel skel-text skel-lg"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+        </div>
+      </div>
+      <div class="host-profile-item">
+        <div class="host-avatar skel-avatar"></div>
+        <div class="skel-profile-lines">
+          <span class="skel skel-text skel-lg"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+        </div>
+      </div>
+    } @else if (ticket()) {
+      <div class="host-profile-item">
+        <div class="host-avatar">{{ getInitials(accountDisplayName) }}</div>
+        <div>
+          <h2>{{ accountDisplayName }}</h2>
+          <p>{{ hostSubtitle }}</p>
+        </div>
+      </div>
+      <div class="host-profile-item">
+        <div class="host-avatar host-avatar-alt">{{ getInitials(ticket()!.initialMessage.senderName) }}</div>
+        <div>
+          <h2>{{ ticket()!.initialMessage.senderName }}</h2>
+          <p>{{ ticket()!.initialMessage.senderTypeName }}</p>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Reusable attachment card, used for the initial message, each reply, and the legacy attachments section -->
+  <ng-template #attachmentCard let-att="att">
+    <div class="attachment-card">
+      @if (isImageAttachment(att.contentType) && att.fileUrl) {
+        <img
+          [src]="att.fileUrl"
+          [alt]="att.fileName"
+          class="attachment-thumb"
+          (error)="onThumbnailError($event)"
+          (click)="openAttachment(att)" />
+      } @else {
+        <i-tabler [name]="getFileIcon(att.contentType)" class="icon-24"></i-tabler>
+      }
+      <div class="attachment-meta">
+        <strong>{{ att.fileName || ('d3.complaints.hostDetail.unknownFile' | translate) }}</strong>
+        <span>{{ formatBytes(att.sizeBytes) }}</span>
+      </div>
+      <button
+        type="button"
+        class="download-btn"
+        [disabled]="!att.fileUrl"
+        [attr.aria-label]="'d3.complaints.hostDetail.openFile' | translate"
+        (click)="openAttachment(att)">
+        <i-tabler name="download" class="icon-16"></i-tabler>
+      </button>
+    </div>
+  </ng-template>
+
+  <!-- Initial message card -->
+  <section class="message-card">
+    @if (loading()) {
+      <span class="skel skel-text skel-md" style="margin-bottom:14px"></span>
+      <span class="skel skel-text" style="width:100%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:85%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:60%"></span>
+    } @else if (ticket()) {
+      <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}: {{ ticket()!.subject }}</h3>
+      <p>{{ ticket()!.initialMessage.body }}</p>
+      @if (ticket()!.initialMessage.attachment) {
+        <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: ticket()!.initialMessage.attachment }"></ng-container>
+      }
+    }
+  </section>
+
+  <!-- Attachments -->
+  @if (loading()) {
+    <section class="attachment-section">
+      <span class="skel skel-text skel-sm" style="margin-bottom:12px"></span>
+      <div class="attachment-card">
+        <span class="skel skel-icon"></span>
+        <div class="attachment-meta">
+          <span class="skel skel-text skel-md"></span>
+          <span class="skel skel-text skel-sm" style="margin-top:4px"></span>
+        </div>
+      </div>
+    </section>
+  } @else if (ticket() && legacyAttachments(ticket()!).length > 0) {
+    <section class="attachment-section">
+      <h3>{{ 'd3.complaints.hostDetail.attachmentsTitle' | translate: { count: legacyAttachments(ticket()!).length } }}</h3>
+      @for (att of legacyAttachments(ticket()!); track trackById($index, att)) {
+        <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att }"></ng-container>
+      }
+    </section>
+  }
+
+  <!-- Admin reply cards -->
+  @if (loading()) {
+    <section class="support-reply-card">
+      <div class="support-reply-header">
+        <div class="support-reply-agent">
+          <span class="support-avatar skel-avatar"></span>
+          <div>
+            <span class="skel skel-text skel-md" style="margin-bottom:6px"></span>
+            <span class="skel skel-text skel-sm"></span>
+          </div>
+        </div>
+        <span class="skel skel-text skel-sm"></span>
+      </div>
+      <span class="skel skel-text" style="width:100%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:70%"></span>
+    </section>
+  } @else {
+    @for (msg of adminMessages; track trackById($index, msg)) {
+      <section class="support-reply-card">
+        <div class="support-reply-header">
+          <div class="support-reply-agent">
+            <span class="support-avatar">
+              <i-tabler name="headset" class="icon-22"></i-tabler>
+            </span>
+            <div>
+              <h3>{{ msg.senderName }}</h3>
+              <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
+            </div>
+          </div>
+          <time>{{ formatDate(msg.createdAt) }}</time>
+        </div>
+
+        <p>{{ msg.body }}</p>
+
+        @if (msg.attachment) {
+          <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: msg.attachment }"></ng-container>
+        }
+
+        <div class="support-reply-footer">
+          <i-tabler name="circle-check" class="icon-14"></i-tabler>
+          {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
+        </div>
+      </section>
+    }
+  }
+
+  <!-- Reply input -->
+  @if (!viewOnly) {
+    <section class="reply-section">
+      <h3>
+        <i-tabler name="corner-up-left" class="icon-16"></i-tabler>
+        {{ 'd3.complaints.hostDetail.replyTitle' | translate }}
+      </h3>
+      <textarea
+        [(ngModel)]="replyText"
+        [placeholder]="'d3.complaints.hostDetail.replyPlaceholder' | translate"></textarea>
+
+      @if (selectedFile(); as file) {
+        <div class="attachment-card selected-attachment">
+          @if (isImageAttachment(file.type)) {
+            <i-tabler name="photo" class="icon-24"></i-tabler>
+          } @else {
+            <i-tabler [name]="getFileIcon(file.type)" class="icon-24"></i-tabler>
+          }
+          <div class="attachment-meta">
+            <strong>{{ file.name }}</strong>
+            <span>{{ formatBytes(file.size) }}</span>
+          </div>
+          <button
+            type="button"
+            class="download-btn"
+            [attr.aria-label]="'d3.complaints.hostDetail.removeAttachment' | translate"
+            (click)="clearSelectedFile()">
+            <i-tabler name="x" class="icon-16"></i-tabler>
+          </button>
+        </div>
+      }
+
+      <div class="reply-footer">
+        <button
+          class="send-reply-btn"
+          type="button"
+          [disabled]="loading() || sendingReply() || !canSendReply"
+          (click)="sendReply()">
+          @if (sendingReply()) {
+            <span class="reply-spinner"></span>
+          } @else {
+            <i-tabler name="send-2" class="icon-16"></i-tabler>
+          }
+          {{ 'd3.complaints.hostDetail.sendReply' | translate }}
+        </button>
+        <input #fileInput type="file" hidden (change)="onFileSelected($event)" />
+        <button class="attach-reply-btn" type="button" (click)="fileInput.click()">
+          <i-tabler name="paperclip" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (viewOnly) {
+    <div class="resolved-notice-bar">
+      <i-tabler name="circle-check" class="icon-16"></i-tabler>
+      تم الرد على هذه الشكوى وإغلاقها بنجاح
+    </div>
+  } @else {
+    <div class="notice-bar">
+      <i-tabler name="info-circle" class="icon-14"></i-tabler>
+      {{ 'd3.complaints.hostDetail.notice' | translate }}
+    </div>
+  }
+
+  <!-- Close dialog — داخل الـ root div عشان ما يتقطعش -->
+  @if (showCloseDialog()) {
+    <div class="dialog-backdrop" (click)="cancelClose()">
+      <div class="close-dialog" [dir]="currentDir" (click)="$event.stopPropagation()">
+
+        <div class="close-dialog-header">
+          <span class="close-dialog-icon">
+            <i-tabler name="alert-circle" class="icon-24"></i-tabler>
+          </span>
+          <div>
+            <h2>إغلاق الشكوى ومعالجتها</h2>
+            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+          </div>
+        </div>
+
+        <div class="close-dialog-note">
+          <label>ملاحظة <span>(اختياري)</span></label>
+          <textarea
+            [(ngModel)]="closeNote"
+            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+        </div>
+
+        @if (closeError()) {
+          <p class="close-error">{{ closeError() }}</p>
+        }
+
+        <div class="close-dialog-actions">
+          <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
+            إلغاء
+          </button>
+          <button
+            class="dialog-confirm-btn"
+            type="button"
+            [disabled]="closingTicket()"
+            (click)="confirmClose()">
+            @if (closingTicket()) {
+              <span class="reply-spinner"></span>
+            } @else {
+              <i-tabler name="circle-check" class="icon-16"></i-tabler>
+            }
+            تأكيد الإغلاق
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

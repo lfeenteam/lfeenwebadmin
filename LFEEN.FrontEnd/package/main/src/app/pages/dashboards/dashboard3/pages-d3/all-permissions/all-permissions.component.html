@@ -1,0 +1,130 @@
+<div class="permissions-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <!-- Header Card -->
+  <mat-card class="m-b-24 header-card">
+    <mat-card-content class="p-24 header-content">
+      <div class="permissions-summary">
+        <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
+          <i-tabler name="lock" class="icon-32"></i-tabler>
+        </div>
+        <div class="permissions-details">
+          <h2 class="f-s-20 f-w-900 m-b-4">{{ 'd3.allPermissionsPage.title' | translate }}</h2>
+          <p class="permissions-description m-0">{{ 'd3.allPermissionsPage.description' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-12 flex-wrap">
+        <button mat-stroked-button class="view-deps-btn" [routerLink]="['/', currentLang, 'd3', 'all-permissions-dependencies']">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            <i-tabler name="hierarchy-3" class="icon-18"></i-tabler>
+            {{ 'd3.allDependenciesPage.viewAllBtn' | translate }}
+          </div>
+        </button>
+        <button mat-flat-button class="add-perm-btn" (click)="openAddPermission()">
+          <div class="d-flex align-items-center justify-content-center gap-8">
+            <i-tabler name="plus" class="icon-18"></i-tabler>
+            {{ 'd3.allPermissionsPage.addPermissionBtn' | translate }}
+          </div>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Permissions Table -->
+  <mat-card class="shadow-none table-card m-b-24">
+    <mat-card-content class="p-0">
+      <div class="table-responsive">
+        <table class="table permissions-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.allPermissionsPage.table.name' | translate }}</th>
+              <th>{{ 'd3.allPermissionsPage.table.group' | translate }}</th>
+              <th>{{ 'd3.allPermissionsPage.table.action' | translate }}</th>
+              <th class="text-center actions-header-wide">{{ 'd3.allPermissionsPage.table.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (isLoading) {
+              <tr>
+                <td colspan="4" class="p-24 text-center">
+                  <mat-spinner diameter="32" class="m-auto"></mat-spinner>
+                </td>
+              </tr>
+            } @else if (permissions.length === 0) {
+              <tr>
+                <td colspan="4" class="p-24 text-center text-muted">
+                  {{ 'd3.allPermissionsPage.noPermissions' | translate }}
+                </td>
+              </tr>
+            } @else {
+              @for (permission of permissions; track permission.id) {
+                <tr>
+                  <td class="p-24">
+                    <span class="f-s-14 f-w-900">{{ displayName(permission) }}</span>
+                  </td>
+                  <td class="p-24">
+                    <span class="dept-badge">{{ permission.permissionGroupName }}</span>
+                  </td>
+                  <td class="p-24">
+                    <span class="perm-desc">{{ permission.action }}</span>
+                  </td>
+                  <td class="p-24 text-center actions-col-wide">
+                    @if (deletingId === permission.id) {
+                      <mat-spinner diameter="20" class="m-auto"></mat-spinner>
+                    } @else {
+                      <div class="d-flex align-items-center justify-content-center gap-4">
+                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                        </button>
+                      </div>
+                      <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
+                        <button mat-menu-item (click)="editPermission(permission)">
+                          <span class="menu-item-row">
+                            <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
+                            <span>{{ 'd3.permissions.table.editBtn' | translate }}</span>
+                          </span>
+                        </button>
+                        <button mat-menu-item class="delete-item" (click)="deletePermission(permission)">
+                          <span class="menu-item-row">
+                            <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
+                            <span>{{ 'd3.permissions.table.deleteBtn' | translate }}</span>
+                          </span>
+                        </button>
+                      </mat-menu>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
+          <span class="f-s-13 text-muted">
+            {{ totalCount }} {{ 'd3.allPermissionsPage.pagination.total' | translate }}
+          </span>
+          <div class="d-flex align-items-center gap-4">
+            <button mat-icon-button class="page-nav-btn"
+              [disabled]="currentPage === 1"
+              (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+            @for (p of pageNumbers; track p) {
+              <button class="page-number-btn"
+                [class.active]="p === currentPage"
+                (click)="changePage(p)">
+                {{ p }}
+              </button>
+            }
+            <button mat-icon-button class="page-nav-btn"
+              [disabled]="currentPage === totalPages"
+              (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,10 +1,12 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideZoneChangeDetection,
   importProvidersFrom,
 } from '@angular/core';
 import {
   HttpClient,
+  HTTP_INTERCEPTORS,
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
@@ -14,13 +16,15 @@ import {
   withComponentInputBinding,
   withInMemoryScrolling,
 } from '@angular/router';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideClientHydration } from '@angular/platform-browser';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
+import { AuthInterceptor } from './guards/auth.interceptor';
+import { ChunkLoadErrorHandler } from './guards/chunk-load-error.handler';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -50,6 +54,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(), // required animations providers
     provideToastr(), // Toastr providers
     provideZoneChangeDetection({ eventCoalescing: true }),
+    { provide: ErrorHandler, useClass: ChunkLoadErrorHandler },
     provideHighlightOptions({
       coreLibraryLoader: () => import('highlight.js/lib/core'),
       lineNumbersLoader: () => import('ngx-highlightjs/line-numbers'), // Optional, add line numbers if needed
@@ -67,12 +72,20 @@ export const appConfig: ApplicationConfig = {
       }),
       withComponentInputBinding()
     ),
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
     provideHttpClient(withInterceptorsFromDi()),
-    provideClientHydration(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
     provideAnimationsAsync(),
     importProvidersFrom(
       FormsModule,
-      ToastrModule.forRoot(),
+      ToastrModule.forRoot({
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+      }),
       ReactiveFormsModule,
       MaterialModule,
       NgxPermissionsModule.forRoot(),

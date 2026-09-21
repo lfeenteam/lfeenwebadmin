@@ -1,0 +1,278 @@
+<section class="offers-page" [dir]="dir()">
+  <header class="page-intro">
+    <div class="page-intro-heading">
+      <span class="title-icon"><i-tabler name="discount"></i-tabler></span>
+      <div>
+        <h1>{{ "d3.platformOffers.title" | translate }}</h1>
+        <p>{{ "d3.platformOffers.subtitle" | translate }}</p>
+      </div>
+    </div>
+    <a class="primary-btn" [routerLink]="createLink()">
+      <i-tabler name="plus"></i-tabler>
+      {{ "d3.platformOffers.add" | translate }}
+    </a>
+  </header>
+  <article class="panel">
+    <div class="filters">
+      <label class="search">
+        <i-tabler name="search"></i-tabler>
+        <input
+          [ngModel]="search"
+          (ngModelChange)="onSearch($event)"
+          [placeholder]="'d3.platformOffers.filters.search' | translate"
+        />
+      </label>
+      <mat-select
+        [(ngModel)]="triggerType"
+        (selectionChange)="apply()"
+        panelClass="d3-offer-select-panel"
+        [attr.aria-label]="'d3.platformOffers.filters.allTriggers' | translate"
+      >
+        <mat-option value="">
+          {{ "d3.platformOffers.filters.allTriggers" | translate }}
+        </mat-option>
+        <mat-option value="Automatic">{{ enumLabel("Automatic") }}</mat-option>
+        <mat-option value="Coupon">{{ enumLabel("Coupon") }}</mat-option>
+      </mat-select>
+      <mat-select
+        [(ngModel)]="offerStatus"
+        (selectionChange)="apply()"
+        panelClass="d3-offer-select-panel"
+        [attr.aria-label]="'d3.platformOffers.filters.allStatuses' | translate"
+      >
+        <mat-option value="">
+          {{ "d3.platformOffers.filters.allStatuses" | translate }}
+        </mat-option>
+        <mat-option value="active">
+          {{ "d3.platformOffers.status.active" | translate }}
+        </mat-option>
+        <mat-option value="scheduled">
+          {{ "d3.platformOffers.status.scheduled" | translate }}
+        </mat-option>
+        <mat-option value="expired">
+          {{ "d3.platformOffers.status.expired" | translate }}
+        </mat-option>
+      </mat-select>
+      <input
+        type="number"
+        [(ngModel)]="minDiscount"
+        (change)="apply()"
+        [placeholder]="'d3.platformOffers.filters.min' | translate"
+      />
+      <input
+        type="number"
+        [(ngModel)]="maxDiscount"
+        (change)="apply()"
+        [placeholder]="'d3.platformOffers.filters.max' | translate"
+      />
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="reset()"
+        [attr.aria-label]="'d3.platformOffers.filters.reset' | translate"
+      >
+        <i-tabler name="filter-x"></i-tabler>
+      </button>
+    </div>
+    @if (loading()) {
+      <app-dashboard-loading variant="table" [rows]="7"></app-dashboard-loading>
+    } @else if (error()) {
+      <div class="state error">
+        <i-tabler name="alert-circle"></i-tabler>
+        <h3>{{ "d3.platformOffers.errors.title" | translate }}</h3>
+        <button (click)="load()">
+          {{ "d3.platformOffers.retry" | translate }}
+        </button>
+      </div>
+    } @else if (!items().length) {
+      <div class="state">
+        <span class="empty-icon">
+          <i-tabler name="discount-off"></i-tabler>
+        </span>
+        <h3>{{ "d3.platformOffers.empty.title" | translate }}</h3>
+        <p>{{ "d3.platformOffers.empty.text" | translate }}</p>
+      </div>
+    } @else {
+      <div class="offer-table">
+        <div class="table-head">
+          <span>{{ "d3.platformOffers.table.offer" | translate }}</span>
+          <span>{{ "d3.platformOffers.table.code" | translate }}</span>
+          <span>{{ "d3.platformOffers.table.discount" | translate }}</span>
+          <span>{{ "d3.platformOffers.table.validity" | translate }}</span>
+          <span>{{ "d3.platformOffers.table.status" | translate }}</span>
+          <span>{{ "d3.platformOffers.table.uses" | translate }}</span>
+          <span></span>
+        </div>
+        @for (item of items(); track item.id) {
+          <article
+            class="offer-row"
+            (click)="open(item.id)"
+            tabindex="0"
+            (keydown.enter)="open(item.id)"
+          >
+            <div class="offer-name">
+              @if (item.banner) {
+                <img [src]="item.banner" alt="" />
+              } @else {
+                <span class="banner-fallback">
+                  <i-tabler name="photo"></i-tabler>
+                </span>
+              }
+              <span>
+                <strong>
+                  {{
+                    dir() === "rtl" ? item.internalNameAr : item.internalNameEn
+                  }}
+                </strong>
+                <small>
+                  {{
+                    dir() === "rtl" ? item.externalNameAr : item.externalNameEn
+                  }}
+                </small>
+              </span>
+            </div>
+            <span class="mono">
+              {{
+                item.triggerType === "Coupon"
+                  ? item.code
+                  : enumLabel("Automatic")
+              }}
+            </span>
+            <strong class="mono">{{ discount(item) }}</strong>
+            <span class="dates">
+              <b>
+                {{
+                  item.offerStartDate
+                    ? formatListDate(item.offerStartDate)
+                    : "—"
+                }}
+              </b>
+              <small>
+                {{
+                  item.offerEndDate
+                    ? formatListDate(item.offerEndDate)
+                    : "—"
+                }}
+              </small>
+            </span>
+            <span>
+              <i class="status" [class]="'status ' + status(item)">
+                {{ "d3.platformOffers.status." + status(item) | translate }}
+              </i>
+            </span>
+            <span class="mono">{{ item.totalRedemptions }}</span>
+            <div class="actions" (click)="$event.stopPropagation()">
+              <button
+                mat-icon-button
+                class="action-btn"
+                [matMenuTriggerFor]="menu"
+                #trigger="matMenuTrigger"
+                [class.menu-open]="trigger.menuOpen"
+                [disabled]="busyId() === item.id"
+                [attr.aria-label]="
+                  'd3.platformOffers.table.actions' | translate
+                "
+              >
+                <i-tabler name="dots-vertical"></i-tabler>
+              </button>
+              <mat-menu
+                #menu="matMenu"
+                class="offer-row-menu"
+                [xPosition]="dir() === 'rtl' ? 'before' : 'after'"
+              >
+                <button mat-menu-item (click)="open(item.id)">
+                  <i-tabler name="eye"></i-tabler>
+                  <span>{{ "d3.platformOffers.viewDetails" | translate }}</span>
+                </button>
+                <button mat-menu-item [routerLink]="editLink(item.id)">
+                  <i-tabler name="edit"></i-tabler>
+                  <span>{{ "d3.platformOffers.edit" | translate }}</span>
+                </button>
+                <mat-divider></mat-divider>
+                @if (item.isActive) {
+                  <button
+                    mat-menu-item
+                    class="text-danger"
+                    (click)="toggle(item)"
+                  >
+                    <i-tabler name="player-pause"></i-tabler>
+                    <span>{{
+                      "d3.platformOffers.deactivate" | translate
+                    }}</span>
+                  </button>
+                } @else {
+                  <button
+                    mat-menu-item
+                    class="text-success"
+                    (click)="toggle(item)"
+                  >
+                    <i-tabler name="player-play"></i-tabler>
+                    <span>{{ "d3.platformOffers.activate" | translate }}</span>
+                  </button>
+                }
+                <mat-divider></mat-divider>
+                <button
+                  mat-menu-item
+                  class="text-danger"
+                  (click)="remove(item)"
+                >
+                  <i-tabler name="trash"></i-tabler>
+                  <span>{{ "d3.platformOffers.delete" | translate }}</span>
+                </button>
+              </mat-menu>
+            </div>
+          </article>
+        }
+      </div>
+      <footer class="pagination-wrapper">
+        <span class="pagination-total">
+          {{ total() }} {{ "d3.platformOffers.total" | translate }}
+        </span>
+        <nav class="pagination-controls" aria-label="Pagination">
+          <button
+            type="button"
+            class="page-nav-btn"
+            [attr.aria-label]="'d3.contactUs.previousPage' | translate"
+            [disabled]="page() === 1"
+            (click)="goto(page() - 1)"
+          >
+            <i-tabler
+              [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'"
+            ></i-tabler>
+          </button>
+          @for (item of visiblePages; track $index) {
+            @if (item === "...") {
+              <span class="page-ellipsis" aria-hidden="true">...</span>
+            } @else {
+              <button
+                type="button"
+                class="page-number-btn"
+                [class.active]="page() === item"
+                [attr.aria-current]="page() === item ? 'page' : null"
+                [attr.aria-label]="
+                  ('d3.subscriptionLog.pagination.page' | translate) +
+                  ' ' +
+                  item
+                "
+                (click)="goto($any(item))"
+              >
+                {{ item }}
+              </button>
+            }
+          }
+          <button
+            type="button"
+            class="page-nav-btn"
+            [attr.aria-label]="'d3.contactUs.nextPage' | translate"
+            [disabled]="page() === pages()"
+            (click)="goto(page() + 1)"
+          >
+            <i-tabler
+              [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'"
+            ></i-tabler>
+          </button>
+        </nav>
+      </footer>
+    }
+  </article>
+</section>

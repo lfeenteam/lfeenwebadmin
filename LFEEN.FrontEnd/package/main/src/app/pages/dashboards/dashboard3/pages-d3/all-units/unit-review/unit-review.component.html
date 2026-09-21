@@ -1,0 +1,175 @@
+<div class="unit-review" [dir]="currentDir">
+  @if (isLoading) {
+    <app-dashboard-loading variant="review" [rows]="4"></app-dashboard-loading>
+  } @else {
+
+  <div class="review-header">
+    <div class="title-block">
+      <h1 class="unit-title">{{ unit?.title }}</h1>
+      <p class="unit-meta">
+        @if (unitDetail?.propertyName) {
+          {{ unitDetail?.propertyName }}
+          <span class="meta-sep">·</span>
+        }
+        {{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}: {{ unit?.unitNumber }}
+        <span class="meta-sep">·</span>
+        {{unit?.district || '-' }}
+      </p>
+    </div>
+
+    <div class="status-progress-row">
+      <span class="status-badge" [ngClass]="'status-badge--' + headerStatusConfig.mod">
+        <i-tabler [name]="headerStatusConfig.icon" class="status-icon"></i-tabler>
+        {{ headerStatusConfig.labelKey | translate }}
+      </span>
+
+      <div class="progress-section">
+        <span class="progress-title">{{ 'd3.unitReview.status.progressLabel' | translate }}</span>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" [style.width.%]="progressPercent"></div>
+        </div>
+        <span class="progress-count">{{ 'd3.unitReview.status.progressCount' | translate: { completed: completedCount, total: totalCount } }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-sections-grid">
+    @for (section of visibleSections; track section.titleKey) {
+      <div
+        class="unit-review-card"
+        [class.unit-review-card--decided]="isSectionDecided(section.key)"
+        [class.unit-review-card--approved]="isSectionApproved(section.key)"
+        [class.unit-review-card--rejected]="isSectionRejected(section.key)">
+        <div class="card-top-row">
+          <span class="icon-box">
+            <i-tabler [name]="isSectionDecided(section.key) ? 'help' : section.icon"></i-tabler>
+          </span>
+          @if (isInformationalSection(section)) {
+            <span class="info-tag">{{ infoBadgeKey(section) | translate }}</span>
+          } @else if (isSectionApproved(section.key)) {
+            <span class="decision-badge decision-badge--approved">
+              <i-tabler name="circle-check" class="decision-icon"></i-tabler>
+              {{ 'd3.unitReview.status.approved' | translate }}
+            </span>
+          } @else if (isSectionRejected(section.key)) {
+            <span class="decision-badge decision-badge--rejected">
+              <i-tabler name="circle-x" class="decision-icon"></i-tabler>
+              {{ 'd3.unitReview.status.rejected' | translate }}
+            </span>
+          } @else {
+            <span class="checkbox-circle"></span>
+          }
+        </div>
+
+        <div class="title-stack">
+          <span class="title">{{ section.titleKey | translate }}</span>
+          <p class="desc">{{ getSectionDescription(section.key) || (section.descKey | translate) }}</p>
+        </div>
+
+        @if (isInformationalSection(section)) {
+          <span class="active-badge">
+            <i-tabler name="check" class="active-icon"></i-tabler>
+            {{ activeBadgeKey | translate }}
+          </span>
+        } @else {
+          <button class="review-btn" [class.review-btn--icon]="isSectionDecided(section.key)" type="button" (click)="onReviewSection(section)">
+            @if (shouldShowReviewButtonLabel(section.key)) {
+              {{ (section.reviewBtnKey ?? '') | translate }}
+            }
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="review-btn-icon"></i-tabler>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="final-review-section">
+    <div class="final-review-header">
+      <span class="final-review-title">{{ 'd3.unitReview.finalReview.title' | translate }}</span>
+    </div>
+
+    <div class="final-review-stats">
+      <div class="review-stat review-stat--approved">
+        <i-tabler name="circle-check" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ approvedCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.approvedStat' | translate }}</span>
+        </div>
+      </div>
+      <div class="review-stat review-stat--pending" [class.review-stat--zero]="pendingCount === 0">
+        <i-tabler name="clock" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ pendingCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.pendingStat' | translate }}</span>
+        </div>
+      </div>
+      <div class="review-stat review-stat--rejected" [class.review-stat--zero]="rejectedCount === 0">
+        <i-tabler name="circle-x" class="stat-icon"></i-tabler>
+        <div class="stat-info">
+          <span class="stat-count">{{ rejectedCount }}</span>
+          <span class="stat-label">{{ 'd3.unitReview.finalReview.rejectedStat' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    @if (hasAnyRejectedSection) {
+      <div class="final-review-alert final-review-alert--warning">
+        <i-tabler name="alert-circle" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.hasRejectionWarning' | translate }}</span>
+      </div>
+    } @else if (isViewMode && allSectionsDecided && !isFinalApproved) {
+      <div class="final-review-alert final-review-alert--success">
+        <i-tabler name="circle-check" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.alreadyApproved' | translate }}</span>
+      </div>
+    } @else if (allSectionsDecided && !isFinalApproved) {
+      <div class="final-review-alert final-review-alert--success">
+        <i-tabler name="circle-check" class="alert-icon"></i-tabler>
+        <span>{{ 'd3.unitReview.finalReview.readyToApprove' | translate }}</span>
+      </div>
+    }
+  </div>
+
+  @if (!isFinalApproved || finalNotes.trim()) {
+  <div class="final-notes-section">
+    <div class="notes-label-row">
+      <span class="input-label">
+        {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
+      </span>
+      @if (!isViewMode) {
+        <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
+      }
+    </div>
+    <textarea
+      [(ngModel)]="finalNotes"
+      [readonly]="isViewMode"
+      [class.is-readonly]="isViewMode"
+      [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
+      rows="3">
+    </textarea>
+  </div>
+  }
+
+  @if (!isViewMode) {
+  <div class="action-buttons">
+    <button
+      class="btn btn-approve"
+      type="button"
+      [disabled]="isApproveDisabled"
+      (click)="onApprove()">
+      <span>{{ 'd3.unitReview.actions.approve' | translate }}</span>
+      <i-tabler name="circle-check" class="btn-icon"></i-tabler>
+    </button>
+    <button
+      class="btn btn-reject"
+      type="button"
+      [disabled]="isRejectDisabled"
+      (click)="onReject()">
+      <span>{{ 'd3.unitReview.actions.reject' | translate }}</span>
+      <i-tabler name="circle-x" class="btn-icon"></i-tabler>
+    </button>
+  </div>
+  }
+
+  }
+</div>

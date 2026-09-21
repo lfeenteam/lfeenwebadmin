@@ -1,0 +1,204 @@
+<div class="settlements-container" [dir]="currentDir">
+
+  <!-- Tabs -->
+  <div class="settlement-tabs">
+    <button type="button" class="tab-btn" [class.active]="activeTab === 'previous'" (click)="setActiveTab('previous')">
+      {{ 'd3.settlements.tabs.previous' | translate }}
+    </button>
+    <button type="button" class="tab-btn" [class.active]="activeTab === 'current'" (click)="setActiveTab('current')">
+      {{ 'd3.settlements.tabs.current' | translate }}
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon-wrapper bg-light-primary text-primary">
+        <i-tabler name="credit-card" class="icon-24"></i-tabler>
+      </div>
+      <div class="stat-text">
+        <span class="stat-label">{{ 'd3.settlements.stats.totalPending' | translate }}</span>
+        <span class="stat-value">{{ emptyValue }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper bg-light-success text-success">
+        <i-tabler name="chart-bar" class="icon-24"></i-tabler>
+      </div>
+      <div class="stat-text">
+        <span class="stat-label">{{ 'd3.settlements.stats.avgRequestValue' | translate }}</span>
+        <span class="stat-value">{{ emptyValue }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper bg-light-warning text-warning">
+        <i-tabler name="clock" class="icon-24"></i-tabler>
+      </div>
+      <div class="stat-text">
+        <span class="stat-label">{{ 'd3.settlements.stats.maxPaymentTime' | translate }}</span>
+        <span class="stat-value">{{ emptyValue }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar d-flex align-items-center gap-16 flex-wrap">
+    <div class="search-wrapper position-relative flex-grow-1">
+      <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+      <input
+        type="text"
+        class="search-input"
+        [placeholder]="'d3.settlements.searchPlaceholder' | translate"
+        [attr.aria-label]="'d3.settlements.searchPlaceholder' | translate"
+        [value]="searchQuery"
+        (input)="onSearchChange($any($event.target).value)" />
+    </div>
+
+    <mat-select
+      class="filter-select-native"
+      [value]="newestFirst"
+      disableOptionCentering
+      panelClass="settlements-filter-panel"
+      (selectionChange)="onSortChange($event.value)">
+      <mat-select-trigger>
+        <span class="d-flex align-items-center gap-6">
+          <i-tabler name="arrows-sort" class="icon-16"></i-tabler>
+          {{ selectedSortLabelKey | translate }}
+        </span>
+      </mat-select-trigger>
+      @for (opt of sortOptions; track opt.value) {
+        <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
+      }
+    </mat-select>
+  </div>
+
+  @if (loading) {
+    <app-dashboard-loading variant="table" [rows]="8"></app-dashboard-loading>
+  } @else {
+
+  <!-- Table -->
+  <div class="table-box">
+    <div class="table-responsive">
+      <table class="table settlements-table m-0">
+        <thead>
+          <tr>
+            <th>{{ 'd3.settlements.table.account' | translate }}</th>
+            <th>{{ 'd3.settlements.table.accountName' | translate }}</th>
+            <th>{{ 'd3.settlements.table.amount' | translate }}</th>
+            <th>{{ 'd3.settlements.table.paymentMethod' | translate }}</th>
+            <th>{{ 'd3.settlements.table.requestDate' | translate }}</th>
+            <th>{{ 'd3.settlements.table.status' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of pagedSettlements; track row.id) {
+            <tr class="settlement-row">
+              <td class="p-24">
+                <div class="d-flex align-items-center gap-8">
+                  <span class="account-avatar d-flex align-items-center justify-content-center">{{ row.accountInitials }}</span>
+                  <span class="account-name-text">{{ row.partyName }}</span>
+                </div>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.settlements.table.accountName' | translate }}</span>
+                <span class="account-name-text">{{ row.ownerName }}</span>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.settlements.table.amount' | translate }}</span>
+                @if (row.amount !== null) {
+                  <span class="amount-value">
+                    {{ fmtAmount(row.amount) }}
+                    <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                } @else {
+                  <span class="amount-value">{{ emptyValue }}</span>
+                }
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.settlements.table.paymentMethod' | translate }}</span>
+                <div class="d-flex align-items-center gap-8">
+                  <span class="payment-method-text">{{ emptyValue }}</span>
+                </div>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.settlements.table.requestDate' | translate }}</span>
+                <span class="request-date">{{ formatRequestDate(row.requestDate) }}</span>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.settlements.table.status' | translate }}</span>
+                <div class="status-cell">
+                  <span class="settlement-status" [class]="row.statusClass">
+                    <span class="dot"></span>
+                    {{ row.statusKey ? (row.statusKey | translate) : row.status }}
+                  </span>
+                  @if (row.status === 'Failed' && row.rejectionReason !== undefined) {
+                    <span class="rejection-reason">
+                      * {{ 'd3.settlements.rejectionReasonPrefix' | translate }}: {{ row.rejectionReason || emptyValue }}
+                    </span>
+                  }
+                </div>
+              </td>
+              <td class="p-24 text-center">
+                <button type="button" class="view-btn" [disabled]="viewingId !== null" (click)="onView(row)">
+                  <i-tabler name="eye" class="icon-18"></i-tabler>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="p-0">
+                @if (loadError) {
+                  <app-dashboard-empty icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
+                    <button type="button" class="retry-btn" (click)="load()">
+                      <i-tabler name="refresh" class="icon-16"></i-tabler>
+                      {{ 'd3.settlements.errors.retry' | translate }}
+                    </button>
+                  </app-dashboard-empty>
+                } @else {
+                  <app-dashboard-empty icon="receipt-off" titleKey="d3.settlements.empty.title" descKey="d3.settlements.empty.desc"></app-dashboard-empty>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  }
+
+  @if (!loading && totalPages > 1) {
+    <div class="pagination-wrapper d-flex align-items-center justify-content-between">
+      <span class="pagination-total">
+        {{ fmt(totalCount) }} {{ 'd3.settlements.pagination.total' | translate }}
+      </span>
+      <div class="pagination-controls d-flex align-items-center gap-4">
+        <button class="page-nav-btn"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+        </button>
+        @for (item of visiblePages; track $index) {
+          @if (item === '...') {
+            <span class="page-ellipsis">...</span>
+          } @else {
+            <button class="page-number-btn"
+              [class.active]="currentPage === item"
+              (click)="changePage($any(item))">
+              {{ fmt($any(item)) }}
+            </button>
+          }
+        }
+        <button class="page-nav-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(currentPage + 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </div>
+  }
+
+</div>

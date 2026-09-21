@@ -1,0 +1,53 @@
+<div class="change-unit-dialog" [dir]="currentDir">
+  <button mat-icon-button type="button" class="close-btn" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ 'd3.bookings.changeUnitDialog.title' | translate }}</h2>
+  </div>
+
+  <div class="dialog-body">
+
+    <!-- New unit -->
+    <label class="field-label">{{ 'd3.bookings.changeUnitDialog.unitLabel' | translate }}</label>
+    <div class="select-wrapper">
+      <i-tabler name="building-community" class="field-icon"></i-tabler>
+      <mat-select
+        class="unit-select"
+        [(value)]="selectedUnitId"
+        [disabled]="loadingUnits"
+        disableOptionCentering
+        panelClass="permission-group-select-panel"
+        [placeholder]="(loadingUnits ? 'd3.bookings.changeUnitDialog.unitLoading' : 'd3.bookings.changeUnitDialog.unitPlaceholder') | translate">
+        @for (unit of units; track unit.id) {
+          <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+        }
+        @if (!loadingUnits && units.length === 0) {
+          <mat-option [disabled]="true">{{ 'd3.bookings.changeUnitDialog.unitEmpty' | translate }}</mat-option>
+        }
+      </mat-select>
+    </div>
+    <p class="field-hint">{{ 'd3.bookings.changeUnitDialog.unitHint' | translate }}</p>
+
+    <!-- Reason -->
+    <label class="field-label m-t-20">{{ 'd3.bookings.changeUnitDialog.reasonLabel' | translate }}</label>
+    <div class="textarea-wrapper">
+      <textarea
+        class="reason-textarea"
+        rows="3"
+        [(ngModel)]="reason"
+        [placeholder]="'d3.bookings.changeUnitDialog.reasonPlaceholder' | translate"></textarea>
+    </div>
+
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="confirm-btn" [disabled]="selectedUnitId == null || submitting" (click)="confirm()">
+      {{ 'd3.bookings.changeUnitDialog.confirmBtn' | translate }}
+    </button>
+    <button type="button" class="cancel-btn" (click)="dialogRef.close()">
+      {{ 'd3.bookings.changeUnitDialog.cancelBtn' | translate }}
+    </button>
+  </div>
+</div>

@@ -16,12 +16,102 @@
   padding-bottom: 0;
 }
 
+.tabs-scroll {
+  position: relative;
+  min-width: 0;
+}
+
 .tabs-row {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 28px;
   flex-shrink: 0;
+}
+
+// Overflow affordance for the scrolling tab strip — a soft fade on whichever edge still
+// has hidden tabs, plus a floating chevron button. Only rendered inside the mobile
+// breakpoint below (the only place `.tabs-row` actually scrolls); inert everywhere else.
+%tabs-scroll-fade {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 48px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tabs-scroll::before {
+  @extend %tabs-scroll-fade;
+  inset-inline-start: 0;
+  background: linear-gradient(to left, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll::after {
+  @extend %tabs-scroll-fade;
+  inset-inline-end: 0;
+  background: linear-gradient(to right, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll-arrow {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e8e8e4;
+  box-shadow: 0 1px 5px rgba(17, 17, 16, 0.16);
+  color: #111110;
+  cursor: pointer;
+  line-height: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  ::ng-deep svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+  }
+}
+
+.tabs-scroll-arrow--start {
+  inset-inline-start: 2px;
+
+  i-tabler { transform: rotate(180deg); }
+}
+
+.tabs-scroll-arrow--end {
+  inset-inline-end: 2px;
+}
+
+:host-context([dir='ltr']) {
+  .tabs-scroll::before {
+    background: linear-gradient(to right, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll::after {
+    background: linear-gradient(to left, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll-arrow--start i-tabler { transform: none; }
+  .tabs-scroll-arrow--end i-tabler { transform: rotate(180deg); }
 }
 
 .tab-btn {
@@ -55,31 +145,30 @@
 .filters-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
   padding-bottom: 10px;
-  order: 1;
 }
 
 .search-box {
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: 100%;
-  height: 42px;
+  flex: 1;
+  height: 47px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 12px;
+  padding: 0 16px;
   border: 1px solid #E8E8E4;
   border-radius: 12px;
   background: #FFFFFF;
+  box-shadow: 0px 1px 3px 0px #0000001A;
   box-sizing: border-box;
+  order: 1;
 
   .search-icon {
     flex-shrink: 0;
     color: #9a9a96;
+    order: 2;
 
     ::ng-deep svg {
       width: 20px;
@@ -90,6 +179,7 @@
 
   .search-input {
     flex: 1;
+    order: 1;
     min-width: 0;
     border: none;
     outline: none;
@@ -98,6 +188,7 @@
     font-size: 14px;
     font-weight: 600;
     color: #111110;
+    text-align: start;
 
     &::placeholder {
       color: #b0b0aa;
@@ -106,15 +197,19 @@
   }
 }
 
+:host-context([dir='ltr']) {
+  .search-box {
+    .search-icon { order: 1; }
+    .search-input { order: 2; }
+  }
+}
+
 .filter-dropdowns {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
-}
-
-.filter-dropdown {
-  position: relative;
+  order: 2;
 }
 
 .filter-pill {
@@ -123,9 +218,11 @@
   cursor: pointer;
   min-width: 111px;
   height: 47px;
-  padding: 10px 20px 10px 32px;
+  padding: 10px 20px;
   border: 1px solid #E8E8E4;
   border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0px 1px 2px -1px #0000001A;
  
   display: inline-flex;
   align-items: center;
@@ -153,11 +250,15 @@
   border: 1px solid #e8e8e4;
   border-radius: 12px;
   background: #ffffff;
-  display: inline-flex;
+  box-shadow: 0px 1px 2px -1px #0000001A;
+  // Mobile-only affordance — the inline filter pills already cover every filter on
+  // wider screens, so the funnel + its bottom sheet stay hidden until the pills are.
+  display: none;
   align-items: center;
   justify-content: center;
   color: #111110;
   flex-shrink: 0;
+  order: 3;
   transition: background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
@@ -172,6 +273,14 @@
   }
 }
 
+// The bottom sheet only has layout inside the mobile breakpoint below — keep it out of
+// the flow everywhere else so a lingering `mobileFilterOpen` can't dump unstyled markup
+// into the page on desktop.
+.mobile-filter-backdrop,
+.mobile-filter-sheet {
+  display: none;
+}
+
 @media (max-width: 992px) {
   .tabs-filter-toolbar {
     flex-direction: column;
@@ -179,8 +288,11 @@
     gap: 16px;
   }
 
-  .tabs-row {
+  .tabs-scroll {
     order: 1;
+  }
+
+  .tabs-row {
     border-bottom: none;
     padding-bottom: 4px;
   }
@@ -212,22 +324,286 @@
   }
 }
 
-::ng-deep .d3-builds-filter-menu {
-  .mat-mdc-menu-content {
-    padding: 6px;
+// ════════════════════════════════════════
+// Mobile
+// ════════════════════════════════════════
+@media (max-width: 768px) {
+  .tabs-filter {
+    margin-top: 0;
   }
 
-  .mat-mdc-menu-item {
-    min-height: 40px;
-    border-radius: 8px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+  .tabs-row {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 6px;
+    padding-bottom: 2px;
 
-    &.selected {
-      background: #f7f7f5;
-      color: #111110;
-      font-weight: 800;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .tab-btn {
+    height: 52px;
+    font-size: 14px;
+    padding: 10px 4px;
+    flex-shrink: 0;
+  }
+
+  .tabs-scroll.can-scroll-start::before,
+  .tabs-scroll.can-scroll-end::after {
+    opacity: 1;
+  }
+
+  .tabs-scroll.can-scroll-start .tabs-scroll-arrow--start,
+  .tabs-scroll.can-scroll-end .tabs-scroll-arrow--end {
+    display: flex;
+  }
+
+  .filter-dropdowns { display: none; }
+
+  .filters-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+
+  .search-box {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    height: 42px;
+  }
+
+  .filter-icon-btn {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+
+    &.active {
+      background: #111110;
+      border-color: #111110;
+      color: #ffffff;
     }
   }
+
+  // ── Bottom sheet ──────────────────────
+  .mobile-filter-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 17, 16, 0.4);
+    z-index: 200;
+    animation: backdropIn 0.25s ease forwards;
+  }
+
+  .mobile-filter-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 32px rgba(17, 17, 16, 0.12);
+    z-index: 201;
+    max-height: 75vh;
+    overflow: hidden;
+    animation: sheetUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  .mobile-filter-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #E8E8E4;
+    margin: 12px auto 4px;
+    flex-shrink: 0;
+  }
+
+  .mobile-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E8E8E4;
+    flex-shrink: 0;
+    direction: inherit;
+  }
+
+  .mobile-filter-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: #111110;
+  }
+
+  .mobile-filter-close {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b6b67;
+    transition: background 0.2s ease;
+
+    &:hover { background: #f7f7f5; }
+
+    ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2; }
+  }
+
+  .mobile-filter-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .mobile-filter-pill {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 100%;
+    height: 48px;
+    padding: 12px 16px;
+    border: 1px solid #E8E8E4;
+    border-radius: 14px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111110;
+    direction: inherit;
+    transition: background 0.2s ease, border-color 0.2s ease;
+
+    &:hover { background: #f7f7f5; border-color: #deded8; }
+
+    .pill-chevron {
+      display: inline-flex;
+      align-items: center;
+      color: #9E9E9A;
+
+      ::ng-deep svg { width: 16px; height: 16px; stroke-width: 2; }
+    }
+  }
+
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  @keyframes backdropIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu {
+  min-width: 220px;
+  max-width: min(320px, calc(100vw - 32px));
+  max-height: min(300px, calc(100vh - 120px));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  border-radius: 14px;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-content {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #B45309 #F7F7F5;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-content::-webkit-scrollbar-track {
+  background: #F7F7F5;
+  border-radius: 999px;
+  margin: 8px 0;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-content::-webkit-scrollbar-thumb {
+  background: #C8C8C4;
+  border: 2px solid #F7F7F5;
+  border-radius: 999px;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-content::-webkit-scrollbar-thumb:hover {
+  background: #B45309;
+}
+
+::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu .mat-mdc-menu-item {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+
+  .mat-mdc-menu-item-text {
+    width: 100%;
+    overflow: hidden;
+    text-align: start;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.selected {
+    background: #f7f7f5;
+    color: #111110;
+    font-weight: 800;
+  }
+}
+
+.filter-search-wrapper {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 0 8px;
+  background: #ffffff;
+  flex-shrink: 0;
+  border-bottom: 1px solid #f0f0ee;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.filter-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #e8e8e4;
+  border-radius: 8px;
+  background: #f7f7f5;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+  outline: none;
+  text-align: right;
+  direction: rtl;
+
+  &::placeholder { color: #b0b0aa; font-weight: 500; }
+  &:focus { border-color: #c8c8c4; background: #fff; }
 }
