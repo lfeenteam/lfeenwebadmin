@@ -106,27 +106,20 @@ jobs:
 
       - name: Deploy Admin
 
-
         run: |
 
-          ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << EOF
+          ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
 
             set -e
 
-
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-
+            echo "Connected successfully"
 
             cd /opt/lfeen
 
-
             docker compose pull admin-web
-
 
             docker compose up -d --no-deps admin-web
 
-
             docker compose ps
-
 
           EOF
