@@ -2212,7 +2212,6 @@
       "searchPlaceholder": "Search by request number, account name...",
       "table": {
         "account": "Transaction / Account",
-        "accountName": "Account Name",
         "amount": "Amount",
         "paymentMethod": "Payment Method",
         "requestDate": "Date & Time",
@@ -2332,7 +2331,45 @@
         "type": "Type",
         "description": "Description",
         "amount": "Amount",
-        "balanceAfter": "Balance After"
+        "balanceAfter": "Balance After",
+        "category": "Category",
+        "by": "By",
+        "edited": "Edited",
+        "attachments": "Attachments",
+        "edit": "Edit entry",
+        "correct": "Correct this entry"
+      },
+      "categoryHints": {
+        "Compensation": "The platform compensates the merchant for a problem on our side (e.g. a service outage). Adds to the balance.",
+        "Refund": "The merchant was actually charged and we're returning it (e.g. a duplicate or failed-service charge). Adds to the balance.",
+        "Penalty": "A punitive deduction for violating platform policies. Deducts from the balance.",
+        "Correction": "Fixes a mistake in a previous entry — the only way to correct an amount. Mention the original entry in the reason.",
+        "Other": "Any reason not covered above (e.g. a promotional credit). The reason is required."
+      },
+      "files": {
+        "label": "Attachments (optional)",
+        "uploadHint": "Click to upload a receipt or agreement, or drag files here",
+        "uploadFormats": "JPG, PNG, WEBP, PDF — up to 5 files, 10 MB each",
+        "typeError": "Unsupported file type (JPG, PNG, WEBP, PDF only)",
+        "sizeError": "A file exceeds the maximum size (10 MB)",
+        "countError": "A maximum of 5 attachments is allowed per entry"
+      },
+      "correct": {
+        "title": "Correct Entry",
+        "subtitle": "Adds a new correcting entry — the original stays in the ledger",
+        "originalAmount": "Recorded amount",
+        "correctAmountLabel": "Correct amount",
+        "shouldNotExist": "This entry should never have been made",
+        "noChange": "The correct amount equals the recorded amount — nothing to correct",
+        "reasonTemplate": "Correction of entry {{id}} dated {{date}}",
+        "successTitle": "Correction Recorded"
+      },
+      "edit": {
+        "title": "Edit Entry",
+        "subtitle": "The amount can't be changed — use a correction for that",
+        "amountReadOnly": "Amount (read-only)",
+        "restore": "Undo",
+        "success": "The entry was updated"
       },
       "types": {
         "topUp": "Top Up",
@@ -2347,6 +2384,10 @@
         "forbidden": "You are not allowed to view this merchant's wallet",
         "invalidAmount": "The amount can't be zero",
         "insufficientBalance": "This debit exceeds the current balance",
+        "invalidFile": "The file is invalid or corrupted",
+        "maxAttachments": "A maximum of 5 attachments is allowed per entry",
+        "notEditable": "This entry can't be edited",
+        "entryNotFound": "Entry not found — refresh the page",
         "generic": "Something went wrong, please try again"
       },
       "empty": {
@@ -2363,9 +2404,12 @@
         "debit": "Debit",
         "currentBalance": "Current Balance",
         "amountLabel": "Amount",
+        "categoryLabel": "Category",
+        "categoryPlaceholder": "Select a category",
         "reasonLabel": "Reason",
         "reasonPlaceholder": "Explain why this adjustment is being made...",
         "reasonHint": "This will be recorded as the transaction's description",
+        "reasonRequiredHint": "A reason is required for this category",
         "continueBtn": "Continue",
         "backBtn": "Back",
         "creditAmount": "Credit Amount",

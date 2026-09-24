@@ -23,32 +23,50 @@ import {
   WalletAdjustDialogData,
   WalletAdjustDialogResult,
 } from './components/wallet-adjust-dialog/wallet-adjust-dialog.component';
-import { WalletBalance, WalletLedgerEntry, WalletLedgerEntryType } from './interfaces/wallet.model';
+import {
+  WalletEditEntryDialogComponent,
+  WalletEditEntryDialogData,
+  WalletEditEntryDialogResult,
+} from './components/wallet-edit-entry-dialog/wallet-edit-entry-dialog.component';
+import {
+  MANUAL_ENTRY_TYPE,
+  WalletAttachment,
+  WalletBalance,
+  WalletCategory,
+  WalletEntryType,
+  WalletLedgerEntry,
+} from './interfaces/wallet.model';
 import { resolveWalletError } from './interfaces/wallet-error.util';
 import { WalletService } from './services/wallet.service';
 
-type TypeFilter = 'all' | WalletLedgerEntryType;
+type TypeFilter = 'all' | WalletEntryType;
 type TypeClass = 'type-topup' | 'type-charge' | 'type-refund' | 'type-adjustment' | '';
 
 interface WalletLedgerRow {
   id: string;
+  entry: WalletLedgerEntry;
   type: string;
   typeKey: string | null;
   typeIcon: string;
   typeClass: TypeClass;
+  categoryName: string;
   amount: number;
   isCredit: boolean;
   balanceAfter: number;
   description: string;
   date: Date | null;
+  createdBy: string | null;
+  wasEdited: boolean;
+  attachments: WalletAttachment[];
+  isManual: boolean;
   searchText: string;
 }
 
 const PAGE_SIZE = 8;
 const EMPTY = '-';
 
-// Backend ledger type → icon/pill color + translation key. Anything unrecognized
-// falls back to a neutral pill rather than being hidden.
+// Backend ledger type → icon/pill color + translation key. The API doesn't localize
+// `type`, and unrecognized values must never break the screen — they render as-is.
 const TYPE_META: Record<string, { key: string; icon: string; cls: TypeClass }> = {
   TopUp: { key: 'topUp', icon: 'arrow-down-circle', cls: 'type-topup' },
   CallCharge: { key: 'callCharge', icon: 'phone-outgoing', cls: 'type-charge' },
@@ -75,6 +93,7 @@ export class WalletComponent implements OnInit, OnDestroy {
   private pageTitleOverride = inject(PageTitleOverrideService);
 
   readonly canAdjust = computed(() => this.hasPermission('wallet.adjust'));
+  readonly canEditEntry = computed(() => this.hasPermission('wallet.editentry'));
 
   currentLang = this.translate.currentLang || 'ar';
   merchantAccountId = '';
@@ -86,6 +105,7 @@ export class WalletComponent implements OnInit, OnDestroy {
 
   balance = 0;
   currencyCode = 'SAR';
+  categories: WalletCategory[] = [];
 
   searchQuery = '';
   typeFilter: TypeFilter = 'all';
@@ -116,12 +136,16 @@ export class WalletComponent implements OnInit, OnDestroy {
   constructor() {
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(event => { this.currentLang = event.lang; });
+      .subscribe(event => {
+        this.currentLang = event.lang;
+        this.rebuildRows();
+      });
   }
 
   ngOnInit(): void {
     this.merchantAccountId = this.route.snapshot.paramMap.get('id') || '';
     this.loadAccountName();
+    this.loadCategories();
     this.load();
   }
 
@@ -162,8 +186,12 @@ export class WalletComponent implements OnInit, OnDestroy {
     });
   }
 
+  formatSize(bytes: number): string {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
   // Best-effort: the wallet screen still works fine if this fails, it just falls
-  // back to showing the raw account id instead of a trade name.
+  // back to showing no trade name.
   private loadAccountName(): void {
     if (!this.merchantAccountId) return;
     this.accountService.getAccountById(this.merchantAccountId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -174,6 +202,15 @@ export class WalletComponent implements OnInit, OnDestroy {
         this.merchantName = name.trim() || EMPTY;
         this.pageTitleOverride.set(this.merchantName !== EMPTY ? this.merchantName : null);
       },
+      error: () => {},
+    });
+  }
+
+  // Needed only by the adjust/edit forms; if it fails the buttons stay available and
+  // retry the (uncached-on-error) request when opened.
+  private loadCategories(): void {
+    this.service.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: list => { this.categories = list; },
       error: () => {},
     });
   }
@@ -256,44 +293,104 @@ export class WalletComponent implements OnInit, OnDestroy {
   }
 
   openAdjustDialog(): void {
-    if (!this.canAdjust()) return;
-    const dialogRef = this.dialog.open(WalletAdjustDialogComponent, {
-      width: '440px',
-      maxWidth: '92vw',
-      panelClass: 'wallet-adjust-panel',
-      data: {
-        merchantAccountId: this.merchantAccountId,
-        currentBalance: this.balance,
-        currencyIconSrc: this.currencyIconSrc,
-        isTextCurrency: this.isTextCurrency,
-      } as WalletAdjustDialogData
-    });
+    this.openAdjust();
+  }
 
-    // The response only carries the new balance, not the new ledger row, so the
-    // ledger is re-fetched to show the adjustment immediately.
-    dialogRef.afterClosed().subscribe((result?: WalletAdjustDialogResult) => {
-      if (!result) return;
-      this.balance = result.newBalance;
-      this.load();
+  openCorrectionDialog(row: WalletLedgerRow): void {
+    this.openAdjust({
+      entryId: row.id,
+      signedAmount: row.isCredit ? row.amount : -row.amount,
+      createdAtUtc: row.entry.createdAtUtc,
+    });
+  }
+
+  private openAdjust(correction?: WalletAdjustDialogData['correction']): void {
+    if (!this.canAdjust()) return;
+    this.withCategories(categories => {
+      const dialogRef = this.dialog.open(WalletAdjustDialogComponent, {
+        width: '640px',
+        maxWidth: '94vw',
+        panelClass: 'wallet-adjust-panel',
+        data: {
+          merchantAccountId: this.merchantAccountId,
+          currentBalance: this.balance,
+          currencyIconSrc: this.currencyIconSrc,
+          isTextCurrency: this.isTextCurrency,
+          categories,
+          correction,
+        } as WalletAdjustDialogData
+      });
+
+      // The response carries the new balance and the new entry's id, not the ledger
+      // itself, so the ledger is re-fetched to show the entry immediately.
+      dialogRef.afterClosed().subscribe((result?: WalletAdjustDialogResult) => {
+        if (!result) return;
+        this.balance = result.newBalance;
+        this.load();
+      });
+    });
+  }
+
+  openEditDialog(row: WalletLedgerRow): void {
+    if (!this.canEditEntry() || !row.isManual) return;
+    this.withCategories(categories => {
+      const dialogRef = this.dialog.open(WalletEditEntryDialogComponent, {
+        width: '640px',
+        maxWidth: '94vw',
+        panelClass: 'wallet-adjust-panel',
+        data: {
+          merchantAccountId: this.merchantAccountId,
+          entry: row.entry,
+          categories,
+        } as WalletEditEntryDialogData
+      });
+
+      // The PUT returns the whole updated entry — swap the row in place, no refetch.
+      dialogRef.afterClosed().subscribe((updated?: WalletEditEntryDialogResult) => {
+        if (!updated) return;
+        this.allEntries = this.allEntries.map(r => (r.id === updated.id ? this.toRow(updated) : r));
+        this.applyFilters();
+      });
+    });
+  }
+
+  private withCategories(open: (categories: WalletCategory[]) => void): void {
+    if (this.categories.length) { open(this.categories); return; }
+    this.service.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: list => { this.categories = list; open(list); },
+      error: err => this.toastr.error(resolveWalletError(err, this.translate)),
     });
   }
 
   private toRow(e: WalletLedgerEntry): WalletLedgerRow {
     const meta = TYPE_META[e.type];
     const description = e.description?.trim() || EMPTY;
+    const categoryName = (this.currentLang === 'en' ? e.categoryNameEn : e.categoryNameAr) || EMPTY;
     return {
       id: e.id,
+      entry: e,
       type: e.type,
       typeKey: meta ? `d3.wallet.types.${meta.key}` : null,
       typeIcon: meta?.icon ?? 'receipt',
       typeClass: meta?.cls ?? '',
+      categoryName,
       amount: e.amount,
-      isCredit: e.amount >= 0,
+      isCredit: e.direction === 'Credit',
       balanceAfter: e.balanceAfterOperation,
       description,
       date: parseApiUtc(e.createdAtUtc),
+      createdBy: e.createdBy?.trim() || null,
+      wasEdited: !!e.updatedAtUtc,
+      attachments: e.attachments ?? [],
+      isManual: e.type === MANUAL_ENTRY_TYPE,
       searchText: description.toLowerCase(),
     };
+  }
+
+  // The category name follows the UI language, so rows are rebuilt on a language switch.
+  private rebuildRows(): void {
+    this.allEntries = this.allEntries.map(r => this.toRow(r.entry));
+    this.applyFilters();
   }
 
   private applyFilters(): void {

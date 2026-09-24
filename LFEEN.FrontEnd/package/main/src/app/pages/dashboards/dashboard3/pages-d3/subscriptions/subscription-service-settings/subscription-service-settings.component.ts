@@ -162,11 +162,9 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   }
 
   // ── Subscribed facilities ──────────────────────────────────
-  subscribedFacilities: ServiceSubscribedFacility[] = [
-    { id: 1, name: 'فندق الريتز كارلتون', classificationLabel: 'تصنيف: فنادق 5 نجوم', icon: 'building-skyscraper', plan: 'annualAdvanced', startDate: new Date(2024, 4, 14), renewalDate: new Date(2025, 4, 14), amountPaid: 1450, status: 'active' },
-    { id: 2, name: 'شقق لاند مارك الفاخرة', classificationLabel: 'تصنيف: منشآت متوسطة', icon: 'building', plan: 'monthly', startDate: new Date(2024, 5, 10), renewalDate: new Date(2025, 5, 10), amountPaid: 150, status: 'active' },
-    { id: 3, name: 'فندق الصفوة الدولي', classificationLabel: 'تصنيف: فنادق 4 نجوم', icon: 'building-skyscraper', plan: 'annualTrial', startDate: new Date(2024, 9, 1), renewalDate: new Date(2024, 9, 15), amountPaid: null, status: 'trial' },
-  ];
+  // No backend endpoint currently returns per-service subscriber lists (see subscriptions API
+  // guide) — left empty so the template's existing empty state renders instead of fake data.
+  subscribedFacilities: ServiceSubscribedFacility[] = [];
 
   get filteredFacilities(): ServiceSubscribedFacility[] {
     const q = this.facilitySearch.trim();
@@ -179,10 +177,9 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   }
 
   // ── Operations & subscriptions pricing ─────────────────────
-  operationPricing: ServiceOperationPricing[] = [
-    { id: 1, nameKey: 'd3.subscriptions.serviceSettings.operations.basic', setupFee: 150, operationPrice: 150, seasonalPrice: 150 },
-    { id: 2, nameKey: 'd3.subscriptions.serviceSettings.operations.advanced', setupFee: 150, operationPrice: 150, seasonalPrice: 150 },
-  ];
+  // The pricing API only exposes one setup/usage fee per (service, tier, period) — there's no
+  // per-operation-type breakdown to back this table, so it's left empty (existing empty state).
+  operationPricing: ServiceOperationPricing[] = [];
 
   operationSearch = '';
 

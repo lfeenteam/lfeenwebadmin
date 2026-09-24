@@ -1,0 +1,29 @@
+<div class="file-picker">
+  <input #fileInput type="file" multiple [accept]="accept" hidden (change)="onInputChange($event)" />
+
+  @if (remainingSlots > 0 && !disabled) {
+    <div class="upload-dropzone"
+         [class.is-dragging]="isDragging"
+         (click)="fileInput.click()"
+         (dragover)="onDragOver($event)"
+         (dragleave)="isDragging = false"
+         (drop)="onDrop($event)">
+      <i-tabler name="cloud-upload" class="icon-24 upload-icon"></i-tabler>
+      <div class="upload-texts">
+        <span class="upload-text">{{ 'd3.wallet.files.uploadHint' | translate }}</span>
+        <span class="upload-subtext">{{ 'd3.wallet.files.uploadFormats' | translate }}</span>
+      </div>
+    </div>
+  }
+
+  @for (file of files; track $index) {
+    <div class="uploaded-file-chip">
+      <i-tabler [name]="file.type === 'application/pdf' ? 'file-type-pdf' : 'photo'" class="icon-18"></i-tabler>
+      <span class="file-name">{{ file.name }}</span>
+      <span class="file-size">{{ formatSize(file.size) }}</span>
+      <button type="button" class="remove-file-btn" [attr.aria-label]="'common.delete' | translate" [disabled]="disabled" (click)="remove($index)">
+        <i-tabler name="x" class="icon-14"></i-tabler>
+      </button>
+    </div>
+  }
+</div>

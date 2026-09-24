@@ -85,7 +85,6 @@
         <thead>
           <tr>
             <th>{{ 'd3.settlements.table.account' | translate }}</th>
-            <th>{{ 'd3.settlements.table.accountName' | translate }}</th>
             <th>{{ 'd3.settlements.table.amount' | translate }}</th>
             <th>{{ 'd3.settlements.table.paymentMethod' | translate }}</th>
             <th>{{ 'd3.settlements.table.requestDate' | translate }}</th>
@@ -101,10 +100,6 @@
                   <span class="account-avatar d-flex align-items-center justify-content-center">{{ row.accountInitials }}</span>
                   <span class="account-name-text">{{ row.partyName }}</span>
                 </div>
-              </td>
-              <td class="p-24">
-                <span class="mobile-field-label">{{ 'd3.settlements.table.accountName' | translate }}</span>
-                <span class="account-name-text">{{ row.ownerName }}</span>
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.settlements.table.amount' | translate }}</span>
@@ -149,7 +144,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="p-0">
+              <td colspan="6" class="p-0">
                 @if (loadError) {
                   <app-dashboard-empty icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
                     <button type="button" class="retry-btn" (click)="load()">

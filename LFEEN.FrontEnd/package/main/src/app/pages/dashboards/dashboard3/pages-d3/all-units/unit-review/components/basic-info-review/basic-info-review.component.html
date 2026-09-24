@@ -175,25 +175,19 @@
                 <i-tabler [name]="getFacilityIcon(facility.facilityTypeName)"></i-tabler>
                 {{ facility.facilityTypeName }}
               </span>
+              @if (facility === wifiFacility) {
+                <span class="amenity-chip">
+                  <i-tabler name="wifi"></i-tabler>
+                  {{ 'd3.unitReview.servicesView.wifi.networkTitle' | translate }}: {{ facility.wifiSsid || '—' }}
+                </span>
+                <span class="amenity-chip">
+                  <i-tabler name="key"></i-tabler>
+                  {{ 'd3.unitReview.servicesView.wifi.passwordTitle' | translate }}: {{ facility.wifiPassword || '—' }}
+                </span>
+              }
             }
           </div>
         </div>
-
-        @if (wifiFacility) {
-          <div class="detail-group">
-            <span class="group-label">{{ 'd3.unitReview.servicesView.wifi.title' | translate }}</span>
-            <div class="amenity-chips">
-              <span class="amenity-chip">
-                <i-tabler name="wifi"></i-tabler>
-                {{ 'd3.unitReview.servicesView.wifi.networkTitle' | translate }}: {{ wifiFacility.wifiSsid || '—' }}
-              </span>
-              <span class="amenity-chip">
-                <i-tabler name="key"></i-tabler>
-                {{ 'd3.unitReview.servicesView.wifi.passwordTitle' | translate }}: {{ wifiFacility.wifiPassword || '—' }}
-              </span>
-            </div>
-          </div>
-        }
       }
 
       @if (unitServices.length > 0) {

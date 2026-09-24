@@ -6,8 +6,8 @@
 
 .wallet-adjust-dialog {
   width: 100%;
-  max-width: 440px;
-  padding: 24px;
+  max-width: 640px;
+  padding: 20px 24px;
   background: #fff;
   font-family: 'Cairo', sans-serif;
 
@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .header-icon-badge {
@@ -77,10 +77,79 @@
 }
 
 // ── Direction toggle ────────────────────────────────────────
+.form-scroll {
+  margin-bottom: 16px;
+}
+
+.form-card {
+  padding: 18px 20px;
+  gap: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  align-items: start;
+
+  .span-2 { grid-column: 1 / -1; }
+}
+
+.readonly-box {
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #F1F5F9;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+// Small screens can't fit two columns without cramping, so the form stacks and scrolls.
+@media (max-width: 560px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .form-scroll { max-height: 62vh; overflow-y: auto; }
+}
+
 .direction-toggle {
   display: flex;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.field-select {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+  display: flex;
+  align-items: center;
+
+  ::ng-deep .mat-mdc-select-trigger { width: 100%; }
+  ::ng-deep .mat-mdc-select-value { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; }
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  cursor: pointer;
+
+  input { accent-color: #dc2626; width: 16px; height: 16px; }
 }
 
 .direction-btn {
@@ -88,18 +157,20 @@
   box-sizing: border-box;
   cursor: pointer;
   flex: 1 1 50%;
-  height: 46px;
+  height: 52px;
   border-radius: 14px;
-  border: 1px solid #E2E8F0;
+  border: 1.5px solid #E2E8F0;
   background: #fff;
   color: #6B6B67;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 
   &--credit.active {
     background: #f0fdf4;
@@ -122,8 +193,8 @@
   background: #F8FAFC;
   border: 1px solid #F1F5F9;
   border-radius: 24px;
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
 
   &:last-of-type { margin-bottom: 0; }
 }
@@ -319,7 +390,7 @@ img.riyal-icon {
   box-sizing: border-box;
   cursor: pointer;
   flex: 1 1 auto;
-  height: 56px;
+  height: 52px;
   border-radius: 16px;
   display: flex;
   align-items: center;

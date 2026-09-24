@@ -11,7 +11,7 @@
         </svg>
       </div>
 
-      <h2 class="success-title">{{ 'd3.wallet.adjust.successTitle' | translate }}</h2>
+      <h2 class="success-title">{{ (isCorrection ? 'd3.wallet.correct.successTitle' : 'd3.wallet.adjust.successTitle') | translate }}</h2>
       <p class="success-message">{{ 'd3.wallet.adjust.successMessage' | translate }}</p>
 
       <div class="detail-card success-card">
@@ -35,12 +35,12 @@
 
   <!-- Header -->
   <div class="detail-header">
-    <div class="header-icon-badge" [class.badge-success]="direction === 'credit'" [class.badge-danger]="direction === 'debit'">
-      <i-tabler name="cash-banknote" class="icon-20"></i-tabler>
+    <div class="header-icon-badge" [class.badge-success]="direction === 'Credit'" [class.badge-danger]="direction === 'Debit'">
+      <i-tabler [name]="isCorrection ? 'arrow-back-up' : 'cash-banknote'" class="icon-20"></i-tabler>
     </div>
     <div class="header-text">
-      <h2>{{ 'd3.wallet.adjust.title' | translate }}</h2>
-      <p>{{ 'd3.wallet.adjust.subtitle' | translate }}</p>
+      <h2>{{ (isCorrection ? 'd3.wallet.correct.title' : 'd3.wallet.adjust.title') | translate }}</h2>
+      <p>{{ (isCorrection ? 'd3.wallet.correct.subtitle' : 'd3.wallet.adjust.subtitle') | translate }}</p>
     </div>
     <button type="button" class="close-btn" [attr.aria-label]="'common.cancel' | translate" (click)="close()">
       <i-tabler name="x" class="icon-16"></i-tabler>
@@ -49,62 +49,113 @@
 
   @if (step === 'form') {
 
-    <!-- Direction toggle -->
-    <div class="direction-toggle">
-      <button type="button" class="direction-btn direction-btn--credit" [class.active]="direction === 'credit'" (click)="setDirection('credit')">
-        <i-tabler name="plus" class="icon-16"></i-tabler>
-        {{ 'd3.wallet.adjust.credit' | translate }}
-      </button>
-      <button type="button" class="direction-btn direction-btn--debit" [class.active]="direction === 'debit'" (click)="setDirection('debit')">
-        <i-tabler name="minus" class="icon-16"></i-tabler>
-        {{ 'd3.wallet.adjust.debit' | translate }}
-      </button>
-    </div>
+    <div class="form-scroll">
+      <div class="detail-card form-card">
+        <div class="form-grid">
 
-    <div class="detail-card">
-      <div class="detail-row">
-        <span class="row-label">{{ 'd3.wallet.adjust.currentBalance' | translate }}</span>
-        <span class="row-value">{{ fmt(data.currentBalance) }}</span>
-      </div>
+          <!-- Direction toggle: its own full-width row -->
+          <div class="direction-toggle span-2" [class.is-locked]="!!forcedDirection">
+            <button type="button" class="direction-btn direction-btn--credit" [class.active]="direction === 'Credit'"
+                    [disabled]="!!forcedDirection && forcedDirection !== 'Credit'" (click)="setDirection('Credit')">
+              <i-tabler name="plus" class="icon-16"></i-tabler>
+              {{ 'd3.wallet.adjust.credit' | translate }}
+            </button>
+            <button type="button" class="direction-btn direction-btn--debit" [class.active]="direction === 'Debit'"
+                    [disabled]="!!forcedDirection && forcedDirection !== 'Debit'" (click)="setDirection('Debit')">
+              <i-tabler name="minus" class="icon-16"></i-tabler>
+              {{ 'd3.wallet.adjust.debit' | translate }}
+            </button>
+          </div>
 
-      <div class="form-field">
-        <label class="field-label">{{ 'd3.wallet.adjust.amountLabel' | translate }}</label>
-        <div class="field-input-wrap">
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            class="field-input"
-            placeholder="0.00"
-            [(ngModel)]="amount" />
-          <img [src]="data.currencyIconSrc" alt="" class="field-icon riyal-icon" [class.is-text-currency]="data.isTextCurrency">
+          @if (isCorrection) {
+            <label class="check-row span-2">
+              <input type="checkbox" [(ngModel)]="shouldNotExist" />
+              <span>{{ 'd3.wallet.correct.shouldNotExist' | translate }}</span>
+            </label>
+
+            <div class="form-field">
+              <span class="field-label">{{ 'd3.wallet.correct.originalAmount' | translate }}</span>
+              <div class="readonly-box">
+                <span class="amount-value" [class.amount-value--accent]="originalSigned > 0" [class.amount-value--danger]="originalSigned < 0">
+                  {{ originalSigned > 0 ? '+' : '−' }}{{ fmt(originalSigned) }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="form-field">
+              <label class="field-label">{{ 'd3.wallet.adjust.categoryLabel' | translate }}</label>
+              <mat-select
+                class="field-select"
+                [(ngModel)]="category"
+                (selectionChange)="onCategoryChange()"
+                disableOptionCentering
+                [placeholder]="'d3.wallet.adjust.categoryPlaceholder' | translate">
+                @for (c of data.categories; track c.value) {
+                  <mat-option [value]="c.value">{{ categoryLabel(c) }}</mat-option>
+                }
+              </mat-select>
+            </div>
+          }
+
+          @if (!shouldNotExist) {
+            <div class="form-field">
+              <label class="field-label">{{ (isCorrection ? 'd3.wallet.correct.correctAmountLabel' : 'd3.wallet.adjust.amountLabel') | translate }}</label>
+              <div class="field-input-wrap">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="field-input"
+                  placeholder="0.00"
+                  [(ngModel)]="amount" />
+                <img [src]="data.currencyIconSrc" alt="" class="field-icon riyal-icon" [class.is-text-currency]="data.isTextCurrency">
+              </div>
+            </div>
+          }
+
+          @if (categoryHintKey && !isCorrection) {
+            <span class="field-hint span-2">{{ categoryHintKey | translate }}</span>
+          }
+
+          <span class="field-hint span-2">{{ 'd3.wallet.adjust.currentBalance' | translate }}: {{ fmt(data.currentBalance) }}</span>
+
+          @if (noChangeNeeded) {
+            <span class="field-hint field-hint--danger span-2">* {{ 'd3.wallet.correct.noChange' | translate }}</span>
+          }
+          @if (exceedsBalance) {
+            <span class="field-hint field-hint--danger span-2">* {{ 'd3.wallet.errors.insufficientBalance' | translate }}</span>
+          }
+
+          <div class="form-field span-2">
+            <label class="field-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</label>
+            <textarea
+              class="reason-textarea"
+              rows="2"
+              [attr.maxlength]="reasonMax"
+              [placeholder]="'d3.wallet.adjust.reasonPlaceholder' | translate"
+              [(ngModel)]="reason">
+            </textarea>
+            <span class="field-hint" [class.field-hint--danger]="reasonRequired && !reason.trim()">
+              * {{ (reasonRequired ? 'd3.wallet.adjust.reasonRequiredHint' : 'd3.wallet.adjust.reasonHint') | translate }}
+            </span>
+          </div>
+
+          <div class="form-field span-2">
+            <label class="field-label">{{ 'd3.wallet.files.label' | translate }}</label>
+            <app-wallet-file-picker [(files)]="files" [slots]="maxFiles"></app-wallet-file-picker>
+          </div>
+
         </div>
-        @if (exceedsBalance) {
-          <span class="field-hint field-hint--danger">* {{ 'd3.wallet.errors.insufficientBalance' | translate }}</span>
-        }
-      </div>
-
-      <div class="form-field">
-        <label class="field-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</label>
-        <textarea
-          class="reason-textarea"
-          rows="4"
-          [attr.maxlength]="reasonMax"
-          [placeholder]="'d3.wallet.adjust.reasonPlaceholder' | translate"
-          [(ngModel)]="reason">
-        </textarea>
-        <span class="field-hint">* {{ 'd3.wallet.adjust.reasonHint' | translate }}</span>
       </div>
     </div>
-
     <!-- Actions -->
     <div class="detail-actions">
       <button type="button" class="btn btn-outline" (click)="close()">
         {{ 'common.cancel' | translate }}
       </button>
       <button type="button" class="btn"
-        [class.btn-accept]="direction === 'credit'"
-        [class.btn-danger]="direction === 'debit'"
+        [class.btn-accept]="direction === 'Credit'"
+        [class.btn-danger]="direction === 'Debit'"
         [disabled]="!canContinue"
         (click)="goToConfirm()">
         {{ 'd3.wallet.adjust.continueBtn' | translate }}
@@ -121,11 +172,16 @@
       </div>
 
       <div class="detail-row">
+        <span class="row-label">{{ 'd3.wallet.adjust.categoryLabel' | translate }}</span>
+        <span class="row-value">{{ selectedCategoryLabel }}</span>
+      </div>
+
+      <div class="detail-row">
         <span class="row-label">
-          {{ direction === 'credit' ? ('d3.wallet.adjust.creditAmount' | translate) : ('d3.wallet.adjust.debitAmount' | translate) }}
+          {{ (isCredit ? 'd3.wallet.adjust.creditAmount' : 'd3.wallet.adjust.debitAmount') | translate }}
         </span>
-        <span class="amount-value" [class.amount-value--accent]="direction === 'credit'" [class.amount-value--danger]="direction === 'debit'">
-          {{ direction === 'credit' ? '+' : '-' }}{{ fmt(amount || 0) }}
+        <span class="amount-value" [class.amount-value--accent]="isCredit" [class.amount-value--danger]="!isCredit">
+          {{ isCredit ? '+' : '−' }}{{ fmt(signedAmount) }}
         </span>
       </div>
 
@@ -135,12 +191,22 @@
       </div>
     </div>
 
-    <div class="detail-card">
-      <div class="form-field">
-        <span class="row-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</span>
-        <div class="recorded-reason-box">{{ reason }}</div>
+    @if (reason.trim() || files.length) {
+      <div class="detail-card">
+        @if (reason.trim()) {
+          <div class="form-field">
+            <span class="row-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</span>
+            <div class="recorded-reason-box">{{ reason }}</div>
+          </div>
+        }
+        @if (files.length) {
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.wallet.files.label' | translate }}</span>
+            <span class="row-value">{{ files.length }}</span>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <p class="warning-note">
       <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
@@ -153,8 +219,8 @@
         {{ 'd3.wallet.adjust.backBtn' | translate }}
       </button>
       <button type="button" class="btn"
-        [class.btn-accept]="direction === 'credit'"
-        [class.btn-danger]="direction === 'debit'"
+        [class.btn-accept]="isCredit"
+        [class.btn-danger]="!isCredit"
         [disabled]="submitting"
         (click)="confirm()">
         {{ 'd3.wallet.adjust.confirmBtn' | translate }}

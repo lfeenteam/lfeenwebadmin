@@ -1,0 +1,96 @@
+.file-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'Cairo', sans-serif;
+
+  span, button { font-family: 'Cairo', sans-serif; }
+}
+
+.upload-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  text-align: start;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover, &.is-dragging {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+}
+
+.upload-icon { color: #9E9E9A; flex-shrink: 0; }
+
+.upload-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.upload-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.upload-subtext {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+.uploaded-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #dcfce7;
+  border-radius: 14px;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.file-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B6B67;
+  direction: ltr;
+}
+
+.remove-file-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  color: #6B6B67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &:hover { background: #dcfce7; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

@@ -50,10 +50,15 @@ export interface SubscriptionOrderItem {
   serviceKey: string;
   serviceName: string;
   requestTypeLabel: string;
-  periodLabel: string;
+  periodLabel: string | null;
   amount: number;
-  propertyId: string | null;
+  setupFeeAmount: number;
+  discountAmount: number;
+  discountCode: string | null;
+  propertyId: number | null;
   propertyName: string | null;
+  tierKey: string | null;
+  tierName: string | null;
 }
 
 export interface SubscriptionOrder {
@@ -94,13 +99,29 @@ export interface SubscriptionPricingItem {
   subscriptionServiceId: number;
   serviceKey: string;
   serviceName: string;
-  period: SubscriptionPricingPeriod;
-  periodLabel: string;
+  period: SubscriptionPricingPeriod | null;
+  periodLabel: string | null;
   price: number;
   currencyCode: string;
   isActive: boolean;
   effectiveFrom: string;
   effectiveTo: string | null;
+}
+
+export interface SetSubscriptionPriceRequest {
+  subscriptionServiceId: number;
+  period: SubscriptionPricingPeriod;
+  price: number;
+  currencyCode?: string;
+}
+
+// ── /api/subscriptions/overview ─────────────────────────────────
+export interface SubscriptionOverview {
+  activeSubscriptionsCount: number;
+  totalMerchantsWithActiveSubscription: number;
+  monthlyRevenue: number;
+  annualRevenue: number;
+  currencyCode: string;
 }
 
 export type SubscriptionOfferTone = 'green' | 'blue' | 'purple' | 'orange';

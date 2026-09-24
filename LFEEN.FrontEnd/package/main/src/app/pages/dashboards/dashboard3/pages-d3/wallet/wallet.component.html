@@ -77,19 +77,23 @@
     <div class="table-responsive">
       <table class="table wallet-table m-0">
         <colgroup>
-          <col style="width: 17%">
-          <col style="width: 17%">
-          <col style="width: 32%">
-          <col style="width: 17%">
-          <col style="width: 17%">
+          <col style="width: 16%">
+          <col style="width: 13%">
+          <col style="width: 11%">
+          <col style="width: 20%">
+          <col style="width: 12%">
+          <col style="width: 12%">
+          <col style="width: 16%">
         </colgroup>
         <thead>
           <tr>
             <th>{{ 'd3.wallet.table.date' | translate }}</th>
             <th>{{ 'd3.wallet.table.type' | translate }}</th>
+            <th>{{ 'd3.wallet.table.category' | translate }}</th>
             <th>{{ 'd3.wallet.table.description' | translate }}</th>
             <th>{{ 'd3.wallet.table.amount' | translate }}</th>
             <th>{{ 'd3.wallet.table.balanceAfter' | translate }}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -98,6 +102,12 @@
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.wallet.table.date' | translate }}</span>
                 <span class="entry-date">{{ formatEntryDate(row.date) }}</span>
+                @if (row.createdBy) {
+                  <span class="entry-meta">{{ 'd3.wallet.table.by' | translate }} {{ row.createdBy }}</span>
+                }
+                @if (row.wasEdited) {
+                  <span class="entry-edited">{{ 'd3.wallet.table.edited' | translate }}</span>
+                }
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.wallet.table.type' | translate }}</span>
@@ -107,13 +117,17 @@
                 </span>
               </td>
               <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.table.category' | translate }}</span>
+                <span class="entry-category">{{ row.categoryName }}</span>
+              </td>
+              <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.wallet.table.description' | translate }}</span>
                 <span class="entry-description" [title]="row.description">{{ row.description }}</span>
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.wallet.table.amount' | translate }}</span>
                 <span class="amount-value" [class.amount-credit]="row.isCredit" [class.amount-debit]="!row.isCredit">
-                  {{ row.isCredit ? '+' : '-' }}{{ fmtAmount(row.amount) }}
+                  {{ row.isCredit ? '+' : '−' }}{{ fmtAmount(row.amount) }}
                   <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="isTextCurrency">
                 </span>
               </td>
@@ -124,10 +138,41 @@
                   <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="isTextCurrency">
                 </span>
               </td>
+              <td class="p-24">
+                <div class="row-actions">
+                  @if (row.attachments.length) {
+                    <button type="button" class="row-action-btn" [matMenuTriggerFor]="attachmentsMenu"
+                            [attr.aria-label]="'d3.wallet.table.attachments' | translate">
+                      <i-tabler name="paperclip" class="icon-16"></i-tabler>
+                      <span class="attach-count">{{ row.attachments.length }}</span>
+                    </button>
+                    <mat-menu #attachmentsMenu="matMenu">
+                      @for (a of row.attachments; track a.id) {
+                        <a mat-menu-item [href]="a.url" target="_blank" rel="noopener">
+                          <i-tabler [name]="a.contentType === 'application/pdf' ? 'file-type-pdf' : 'photo'" class="icon-16"></i-tabler>
+                          <span>{{ a.fileName }} ({{ formatSize(a.size) }})</span>
+                        </a>
+                      }
+                    </mat-menu>
+                  }
+                  @if (row.isManual && canEditEntry()) {
+                    <button type="button" class="row-action-btn" [title]="'d3.wallet.table.edit' | translate"
+                            [attr.aria-label]="'d3.wallet.table.edit' | translate" (click)="openEditDialog(row)">
+                      <i-tabler name="pencil" class="icon-16"></i-tabler>
+                    </button>
+                  }
+                  @if (row.isManual && canAdjust()) {
+                    <button type="button" class="row-action-btn" [title]="'d3.wallet.table.correct' | translate"
+                            [attr.aria-label]="'d3.wallet.table.correct' | translate" (click)="openCorrectionDialog(row)">
+                      <i-tabler name="arrow-back-up" class="icon-16"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5" class="p-0">
+              <td colspan="7" class="p-0">
                 @if (loadError) {
                   @if (forbidden) {
                     <app-dashboard-empty icon="lock" titleKey="d3.wallet.errors.loadTitle" descKey="d3.wallet.errors.forbidden"></app-dashboard-empty>

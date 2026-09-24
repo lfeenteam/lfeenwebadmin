@@ -28,7 +28,6 @@ interface SettlementRow {
   /** '-' when the backend didn't return a merchant name. */
   accountInitials: string;
   partyName: string;
-  ownerName: string;
   amount: number | null;
   requestDate: Date | null;
   status: string;
@@ -270,7 +269,6 @@ export class SettlementsComponent implements OnInit {
       id: s.id,
       accountInitials: name ? this.initialsOf(name) : EMPTY,
       partyName: name || EMPTY,
-      ownerName: EMPTY,
       amount: typeof s.netAmount === 'number' ? s.netAmount : null,
       requestDate: parseApiUtc(s.createdAtUtc),
       status: s.status,

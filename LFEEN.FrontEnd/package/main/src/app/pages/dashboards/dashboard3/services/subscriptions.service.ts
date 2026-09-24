@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus, SubscriptionPricingItem, SubscriptionPricingPeriod } from '../pages-d3/subscriptions/interfaces/subscription.model';
+import { SetSubscriptionPriceRequest, SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus, SubscriptionOverview, SubscriptionPricingItem, SubscriptionPricingPeriod } from '../pages-d3/subscriptions/interfaces/subscription.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +20,13 @@ export class SubscriptionsService {
     return this.http.get<SubscriptionPricingItem[]>(`${this.apiUrl}/pricing`);
   }
 
-  setPrice(subscriptionServiceId: number, period: SubscriptionPricingPeriod, price: number): Observable<SubscriptionPricingItem> {
-    return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, { subscriptionServiceId, period, price });
+  setPrice(subscriptionServiceId: number, period: SubscriptionPricingPeriod, price: number, currencyCode = 'SAR'): Observable<SubscriptionPricingItem> {
+    const body: SetSubscriptionPriceRequest = { subscriptionServiceId, period, price, currencyCode };
+    return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, body);
+  }
+
+  getOverview(): Observable<SubscriptionOverview> {
+    return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);
   }
 
   getRequestsByStatus(status: SubscriptionOrderStatus): Observable<SubscriptionOrder[]> {
