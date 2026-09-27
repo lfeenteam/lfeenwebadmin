@@ -197,6 +197,8 @@
       "subscriptionSettings": "اعدادات الاشتراكات",
       "subscriptionManagement": "ادارة الاشتراكات",
       "subscriptionLog": "سجل الاشتراكات",
+      "subscriptionRequests": "طلبات الاشتراك",
+      "discountCodes": "أكواد الخصم",
       "settings": "الإعدادات",
       "notifications": "التنبيهات",
       "logout": "تسجيل الخروج"
@@ -2058,20 +2060,38 @@
       "subtitle": "تتبع كافة العمليات والإجراءات التي تمت على اشتراكات المنشأة",
       "searchPlaceholder": "البحث عن منشأة...",
       "filters": {
-        "all": "الكل"
+        "all": "الكل",
+        "allServices": "كل الخدمات"
       },
       "table": {
         "refNumber": "الرقم المرجعي",
+        "merchant": "التاجر",
         "actionType": "نوع الإجراء",
         "service": "الخدمة",
         "actor": "بواسطة",
         "date": "التاريخ",
-        "status": "الحالة"
+        "status": "الحالة",
+        "details": "التفاصيل"
       },
       "action": {
         "renew": "تجديد",
         "add": "إضافة",
         "cancel": "إلغاء"
+      },
+      "actions": {
+        "Requested": "طلب اشتراك",
+        "Approved": "موافقة",
+        "Rejected": "رفض",
+        "Activated": "تفعيل",
+        "Deactivated": "إيقاف",
+        "Renewed": "تجديد",
+        "Cancelled": "إلغاء",
+        "Expired": "انتهاء"
+      },
+      "actor": {
+        "Admin": "الأدمن",
+        "Merchant": "التاجر",
+        "System": "النظام"
       },
       "status": {
         "completed": "مكتمل",
@@ -2088,6 +2108,148 @@
         "next": "الصفحة التالية",
         "page": "صفحة"
       }
+    },
+    "subscriptionRequests": {
+      "pageTitle": "طلبات الاشتراك",
+      "title": "طلبات الاشتراك",
+      "subtitle": "مراجعة طلبات التجار والموافقة عليها أو رفضها",
+      "tabs": {
+        "all": "الكل",
+        "rejected": "مرفوض",
+        "approved": "مقبول",
+        "underReview": "قيد المراجعة"
+      },
+      "table": {
+        "merchant": "التاجر",
+        "services": "الخدمات المطلوبة",
+        "date": "تاريخ الطلب",
+        "total": "الإجمالي",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "reviewBtn": "مراجعة",
+      "detailsBtn": "تفاصيل",
+      "retry": "إعادة المحاولة",
+      "empty": {
+        "title": "لا توجد طلبات",
+        "desc": "لا توجد طلبات اشتراك في هذا التبويب حاليًا."
+      },
+      "error": {
+        "title": "تعذّر تحميل الطلبات",
+        "desc": "حدث خطأ أثناء جلب طلبات الاشتراك، حاول مرة أخرى."
+      },
+      "pagination": {
+        "total": "طلب"
+      },
+      "detail": {
+        "title": "تفاصيل الطلب",
+        "close": "إغلاق",
+        "processedAt": "تاريخ المعالجة",
+        "requestType": "نوع الطلب",
+        "tier": "الباقة",
+        "period": "المدة",
+        "scope": "النطاق",
+        "allProperties": "كل العقارات",
+        "subscriptionFee": "رسوم الاشتراك",
+        "setupFee": "رسوم التأسيس",
+        "discount": "خصم",
+        "code": "كود",
+        "serviceTotal": "إجمالي الخدمة",
+        "subtotal": "المجموع قبل الضريبة",
+        "vat": "ضريبة القيمة المضافة",
+        "total": "الإجمالي",
+        "approve": "موافقة",
+        "reject": "رفض",
+        "back": "رجوع",
+        "noteLabel": "ملاحظة (اختياري)",
+        "notePlaceholder": "أضف ملاحظة على الموافقة...",
+        "reasonLabel": "سبب الرفض",
+        "reasonPlaceholder": "وضّح للتاجر سبب رفض الطلب...",
+        "confirmApprove": "تأكيد الموافقة",
+        "confirmReject": "تأكيد الرفض",
+        "saving": "جارٍ الحفظ...",
+        "approvedToast": "تمت الموافقة على الطلب",
+        "rejectedToast": "تم رفض الطلب"
+      }
+    },
+    "discountCodes": {
+      "pageTitle": "أكواد الخصم",
+      "title": "أكواد الخصم",
+      "subtitle": "إنشاء وإدارة أكواد الخصم للتجار",
+      "createBtn": "إنشاء كود خصم",
+      "allServices": "كل الخدمات",
+      "subscriptionFee": "رسوم الاشتراك",
+      "setupFee": "رسوم التأسيس",
+      "separator": "،",
+      "maxCap": "بحد أقصى {{amount}} ريال",
+      "usedTimes": "{{count}} استخدام",
+      "openEnded": "مفتوحة",
+      "copied": "تم نسخ الكود",
+      "immutableNote": "لا يمكن تعديل أو حذف الكود بعد إنشائه. لتغيير كود: عطّله وأنشئ كودًا جديدًا.",
+      "table": {
+        "code": "الكود",
+        "service": "الخدمة",
+        "discount": "الخصم",
+        "appliesTo": "يطبق على",
+        "usage": "الاستخدام",
+        "validity": "الصلاحية",
+        "status": "الحالة",
+        "enabled": "تفعيل"
+      },
+      "state": {
+        "active": "نشط",
+        "scheduled": "مجدول",
+        "exhausted": "مستنفد",
+        "expired": "منتهي",
+        "disabled": "معطّل"
+      },
+      "empty": {
+        "title": "لا توجد أكواد خصم",
+        "desc": "لم يتم إنشاء أي كود خصم بعد."
+      },
+      "error": {
+        "title": "تعذّر تحميل الأكواد",
+        "desc": "حدث خطأ أثناء جلب أكواد الخصم، حاول مرة أخرى."
+      },
+      "confirmDeactivate": {
+        "title": "تعطيل كود الخصم؟",
+        "message": "لن يتمكن التجار من استخدام هذا الكود حتى تتم إعادة تفعيله.",
+        "action": "تعطيل"
+      },
+      "create": {
+        "title": "إنشاء كود خصم",
+        "code": "الكود",
+        "generate": "توليد تلقائي",
+        "service": "الخدمة",
+        "type": "نوع الخصم",
+        "percentage": "نسبة مئوية",
+        "fixed": "مبلغ ثابت",
+        "value": "قيمة الخصم",
+        "maxDiscount": "الحد الأقصى للخصم (اختياري)",
+        "appliesTo": "يطبق على",
+        "maxRedemptions": "الحد الأقصى للاستخدام (اختياري)",
+        "unlimitedPlaceholder": "فاضي = غير محدود",
+        "validFrom": "تاريخ البداية (اختياري)",
+        "validTo": "تاريخ النهاية (اختياري)",
+        "pickDate": "اختر التاريخ",
+        "submit": "إنشاء الكود",
+        "submitting": "جارٍ الإنشاء...",
+        "errors": {
+          "codeFormat": "الكود يجب أن يحتوي على حروف إنجليزية كبيرة وأرقام و - أو _ فقط",
+          "valuePositive": "القيمة يجب أن تكون أكبر من صفر",
+          "percentMax": "النسبة لا يمكن أن تتجاوز 100%",
+          "redemptionsMin": "الحد الأقصى يجب أن يكون رقمًا صحيحًا 1 أو أكثر",
+          "appliesTo": "اختر نوع رسوم واحد على الأقل",
+          "dates": "لا يمكن اختيار تاريخ فات، وتاريخ النهاية يجب أن يكون بعد تاريخ البداية"
+        }
+      }
+    },
+    "subscriptionErrors": {
+      "network": "حدث خطأ في الخادم، حاول مرة أخرى",
+      "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
+      "notFound": "العنصر غير موجود",
+      "stale": "تم تعديل هذا العنصر مسبقًا، تم تحديث القائمة",
+      "generic": "حدث خطأ أثناء العملية"
     },
     "businessCategories": {
       "Hotel": "فندق",

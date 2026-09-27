@@ -8,6 +8,8 @@ interface CalendarDay {
   inCurrentMonth: boolean;
   isToday: boolean;
   isSelected: boolean;
+  /** Before `minDate` — shown greyed out and not selectable. */
+  isBlocked: boolean;
 }
 
 const YEARS_PER_PAGE = 12;
@@ -21,6 +23,8 @@ const YEARS_PER_PAGE = 12;
 })
 export class SingleDateCalendarComponent implements OnChanges {
   @Input() value: string | null = null;
+  /** Optional 'YYYY-MM-DD' lower bound; earlier days, months and years can't be picked. */
+  @Input() minDate: string | null = null;
   @Output() dateSelected = new EventEmitter<string>();
 
   private translate = inject(TranslateService);
@@ -71,6 +75,7 @@ export class SingleDateCalendarComponent implements OnChanges {
     const m = this.viewMonth.getMonth();
     const startOffset = new Date(year, m, 1).getDay();
     const today = this.stripTime(new Date());
+    const min = this.min;
 
     return Array.from({ length: 42 }, (_, i) => {
       const date = new Date(year, m, 1 - startOffset + i);
@@ -79,12 +84,28 @@ export class SingleDateCalendarComponent implements OnChanges {
         inCurrentMonth: date.getMonth() === m,
         isToday: this.stripTime(date).getTime() === today.getTime(),
         isSelected: this.isSameDay(date, this.selected),
+        isBlocked: !!min && date < min,
       };
     });
   }
 
+  private get min(): Date | null {
+    return this.minDate ? this.parseIsoDate(this.minDate) : null;
+  }
+
+  /** A whole month is blocked only when its last day is still before the minimum. */
+  isMonthBlocked(index: number): boolean {
+    const min = this.min;
+    return !!min && new Date(this.viewMonth.getFullYear(), index + 1, 0) < min;
+  }
+
+  isYearBlocked(year: number): boolean {
+    const min = this.min;
+    return !!min && year < min.getFullYear();
+  }
+
   selectDay(day: CalendarDay): void {
-    if (!day.inCurrentMonth) return;
+    if (!day.inCurrentMonth || day.isBlocked) return;
     this.selected = day.date;
     this.dateSelected.emit(this.toIsoDate(day.date));
   }
@@ -139,6 +160,7 @@ export class SingleDateCalendarComponent implements OnChanges {
   }
 
   selectMonth(index: number): void {
+    if (this.isMonthBlocked(index)) return;
     this.viewMonth = new Date(this.viewMonth.getFullYear(), index, 1);
     this.view = 'days';
   }
@@ -173,6 +195,7 @@ export class SingleDateCalendarComponent implements OnChanges {
   }
 
   selectYear(year: number): void {
+    if (this.isYearBlocked(year)) return;
     this.viewMonth = new Date(year, this.viewMonth.getMonth(), 1);
     this.view = 'months';
   }

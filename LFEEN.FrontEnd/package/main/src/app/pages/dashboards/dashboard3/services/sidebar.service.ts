@@ -86,8 +86,11 @@ export class SidebarService {
     }
 
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
+      // Order follows the design: settings, management, requests, discount codes, log.
       const subscriptionChildren: NavItem[] = [
         { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
+        { translationKey: 'd3.sidebar.subscriptionRequests', icon: 'file-invoice', link: '/d3/subscriptions/requests' },
+        { translationKey: 'd3.sidebar.discountCodes', icon: 'discount', link: '/d3/subscriptions/discount-codes' },
         { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
       ];
       if (PAGE_FLAGS['subscriptions-management']) {

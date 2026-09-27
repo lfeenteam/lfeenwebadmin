@@ -1,0 +1,278 @@
+:host ::ng-deep .mat-mdc-dialog-container {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.create-code-dialog {
+  padding: 24px;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+
+  h2, span, button, label, input {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+.dialog-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111110;
+}
+
+.form-scroll {
+  max-height: 64vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 2px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+
+  .span-2 { grid-column: 1 / -1; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.field-input,
+.field-select {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+  outline: none;
+
+  &:focus { border-color: #94a3b8; }
+  &::placeholder { color: #9E9E9A; }
+}
+
+.field-select {
+  display: flex;
+  align-items: center;
+
+  ::ng-deep .mat-mdc-select-trigger { width: 100%; }
+  ::ng-deep .mat-mdc-select-value { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; }
+}
+
+.code-row {
+  display: flex;
+  gap: 8px;
+
+  .code-input { flex: 1 1 auto; letter-spacing: 0.5px; }
+}
+
+.ghost-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover { background: #F8FAFC; }
+}
+
+.segmented {
+  display: flex;
+  gap: 8px;
+}
+
+.segment {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex: 1 1 0;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.active { background: #111110; color: #fff; border-color: #111110; }
+}
+
+.field-input-wrap {
+  position: relative;
+
+  .field-input { padding-inline-end: 40px; }
+}
+
+.field-suffix,
+.field-suffix-icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 14px;
+  transform: translateY(-50%);
+  color: #9E9E9A;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.field-suffix-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+}
+
+.date-pill-wrap {
+  position: relative;
+}
+
+.date-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: start;
+  padding-inline-end: 36px;
+
+  .date-icon { color: #9E9E9A; flex-shrink: 0; }
+}
+
+.date-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.is-placeholder { color: #9E9E9A; }
+}
+
+.date-clear {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 10px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9E9E9A;
+
+  &:hover { background: #F1F5F9; color: #111110; }
+}
+
+// The calendar menu renders in the overlay, outside this component — same panel
+// styling the bookings filter uses.
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu {
+  max-width: none;
+  border-radius: 16px;
+}
+
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu .mat-mdc-menu-content {
+  padding: 0;
+}
+
+.check-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.check-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  cursor: pointer;
+
+  input { accent-color: #111110; width: 16px; height: 16px; }
+}
+
+.field-error {
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.server-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+
+  > button { flex: 1 1 0; }
+}
+
+%btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-primary {
+  @extend %btn;
+  background: #111110;
+  color: #fff;
+}
+
+.btn-outline {
+  @extend %btn;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+}
+
+@media (max-width: 480px) {
+  .create-code-dialog { padding: 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+}

@@ -7,26 +7,15 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionOfferTone, SubscriptionPricingItem } from '../interfaces/subscription.model';
+import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionPricingItem } from '../interfaces/subscription.model';
+import { categoryKeyFromLabel, serviceVisual } from '../interfaces/service-visual.util';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
+import { LoginService } from '../../../services/login/login.service';
+import { ToastrService } from 'ngx-toastr';
+import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 
 type StatusFilter = 'all' | 'enabled' | 'disabled';
-
-// The catalog's categoryLabel is the only data-driven signal available for icon/tone —
-// there's no per-service branding field in the API.
-const CATEGORY_META: Record<string, { icon: string; tone: SubscriptionOfferTone }> = {
-  Compliance: { icon: 'receipt', tone: 'purple' },
-  SmartLock: { icon: 'lock', tone: 'orange' },
-  GovernmentPlatform: { icon: 'building-bank', tone: 'blue' },
-  Maps: { icon: 'map-pin', tone: 'blue' },
-  ChannelManager: { icon: 'link', tone: 'orange' },
-  Messaging: { icon: 'brand-whatsapp', tone: 'green' },
-  Erp: { icon: 'building-warehouse', tone: 'purple' },
-  Payments: { icon: 'credit-card', tone: 'blue' },
-  Other: { icon: 'apps', tone: 'orange' },
-};
-const DEFAULT_CATEGORY_META = CATEGORY_META['Other'];
 
 @Component({
   selector: 'app-subscription-settings',
@@ -37,6 +26,8 @@ const DEFAULT_CATEGORY_META = CATEGORY_META['Other'];
 })
 export class SubscriptionSettingsComponent implements OnInit {
   private subscriptionsService = inject(SubscriptionsService);
+  private login = inject(LoginService);
+  private toastr = inject(ToastrService);
 
   constructor(private translate: TranslateService, private router: Router) {}
 
@@ -45,6 +36,10 @@ export class SubscriptionSettingsComponent implements OnInit {
   statusFilter: StatusFilter = 'all';
 
   offers: SubscriptionOfferCard[] = [];
+  togglingId: string | null = null;
+
+  /** Keyed by offer.id (the catalog key) — the PUT needs the full original item. */
+  private catalogByKey = new Map<string, SubscriptionCatalogItem>();
 
   statusFilterOptions: { value: StatusFilter; labelKey: string }[] = [
     { value: 'all', labelKey: 'd3.subscriptions.settings.filters.all' },
@@ -88,7 +83,10 @@ export class SubscriptionSettingsComponent implements OnInit {
       pricing: this.subscriptionsService.getPricing(),
     }).subscribe({
       next: ({ catalog, pricing }) => {
-        this.offers = catalog.map(item => this.mapCatalogItemToOffer(item, pricing));
+        this.catalogByKey = new Map(catalog.map(item => [item.key, item]));
+        this.offers = [...catalog]
+          .sort((a, b) => a.displayOrder - b.displayOrder)
+          .map(item => this.mapCatalogItemToOffer(item, pricing));
         this.isLoading = false;
       },
       error: () => {
@@ -99,7 +97,7 @@ export class SubscriptionSettingsComponent implements OnInit {
   }
 
   private mapCatalogItemToOffer(item: SubscriptionCatalogItem, pricing: SubscriptionPricingItem[]): SubscriptionOfferCard {
-    const meta = CATEGORY_META[item.categoryLabel] ?? DEFAULT_CATEGORY_META;
+    const meta = serviceVisual(item.key, item.categoryLabel);
     const monthlyPrice = this.findActivePrice(pricing, item.id, 'Monthly');
     const annualPrice = this.findActivePrice(pricing, item.id, 'Yearly');
 
@@ -144,6 +142,50 @@ export class SubscriptionSettingsComponent implements OnInit {
 
   onFilterChange(value: StatusFilter): void {
     this.statusFilter = value;
+  }
+
+  get canManageCatalog(): boolean {
+    return this.login.permissions().some(p => p.toLowerCase() === 'subscriptions.managecatalog');
+  }
+
+  logoUrl(offer: SubscriptionOfferCard): string | null {
+    return this.catalogByKey.get(offer.id)?.logoUrl ?? null;
+  }
+
+  // PUT /catalog/{id} is a full replace: every field is resent from the loaded item,
+  // otherwise omitted ones (e.g. displayOrder) would be reset server-side.
+  toggleActive(offer: SubscriptionOfferCard): void {
+    const item = this.catalogByKey.get(offer.id);
+    if (!item || !this.canManageCatalog || this.togglingId) return;
+    this.togglingId = offer.id;
+
+    this.subscriptionsService.updateCatalogItem(item.id, {
+      nameAr: item.nameAr,
+      nameEn: item.nameEn,
+      category: this.rawCategory(item.categoryLabel),
+      logoUrl: item.logoUrl,
+      isAvailable: item.isAvailable,
+      isActive: !item.isActive,
+      displayOrder: item.displayOrder,
+    }).subscribe({
+      next: updated => {
+        this.togglingId = null;
+        this.catalogByKey.set(updated.key ?? item.key, { ...item, ...updated });
+        offer.active = updated.isActive;
+      },
+      error: err => {
+        this.togglingId = null;
+        this.toastr.error(resolveSubscriptionError(err, this.translate));
+      },
+    });
+  }
+
+  // The catalog only returns the translated categoryLabel, not the raw category. Known labels
+  // (Arabic or English) are sent as their raw key; an unknown one goes back unchanged —
+  // never null, which could wipe the category (a mismatch fails loudly with a 400 instead).
+  private rawCategory(label: string | null | undefined): string | null {
+    if (!label) return null;
+    return categoryKeyFromLabel(label) ?? label;
   }
 
   openServiceSettings(offer: SubscriptionOfferCard): void {

@@ -1,0 +1,150 @@
+<div class="subscription-requests-container" [dir]="currentDir">
+
+  <mat-card class="shadow-none list-card">
+    <mat-card-content class="p-0">
+
+      <div class="list-header d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div>
+          <h3 class="m-0 f-s-18 f-w-800">{{ 'd3.subscriptionRequests.title' | translate }}</h3>
+          <p class="m-0 list-subtitle">{{ 'd3.subscriptionRequests.subtitle' | translate }}</p>
+        </div>
+
+        <div class="tabs-bar d-flex align-items-center gap-8" role="tablist">
+          @for (tab of tabs; track tab.value) {
+            <button type="button" class="tab-btn" role="tab"
+              [class.active]="activeTab === tab.value"
+              [attr.aria-selected]="activeTab === tab.value"
+              (click)="setTab(tab.value)">
+              {{ tab.labelKey | translate }}
+              @if (tab.value === 'underReview' && underReviewCount > 0) {
+                <span class="tab-count">{{ fmt(underReviewCount) }}</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="p-24">
+          <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+        </div>
+      } @else {
+
+      <div class="table-box">
+        <div class="table-responsive">
+          <table class="table requests-table m-0">
+            <thead>
+              <tr>
+                <th>{{ 'd3.subscriptionRequests.table.merchant' | translate }}</th>
+                <th>{{ 'd3.subscriptionRequests.table.services' | translate }}</th>
+                <th>{{ 'd3.subscriptionRequests.table.date' | translate }}</th>
+                <th>{{ 'd3.subscriptionRequests.table.total' | translate }}</th>
+                <th>{{ 'd3.subscriptionRequests.table.status' | translate }}</th>
+                <th>{{ 'd3.subscriptionRequests.table.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of pagedRows; track row.order.orderId) {
+                <tr class="request-row">
+                  <td>
+                    <span class="merchant-name">{{ row.merchantName }}</span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.services' | translate }}</span>
+                    <div class="service-icons d-flex align-items-center">
+                      @for (svc of row.services.slice(0, maxServiceIcons); track $index) {
+                        <span class="service-icon" [matTooltip]="svc.name">
+                          @if (svc.logoUrl && !brokenLogos.has(svc.logoUrl)) {
+                            <img [src]="svc.logoUrl" [alt]="svc.name" (error)="brokenLogos.add(svc.logoUrl)" />
+                          } @else {
+                            <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                          }
+                        </span>
+                      }
+                      @if (row.services.length > maxServiceIcons) {
+                        <span class="service-more">+{{ fmt(row.services.length - maxServiceIcons) }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.date' | translate }}</span>
+                    <span class="request-date">{{ formatDate(row) }}</span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.total' | translate }}</span>
+                    <span class="request-total d-inline-flex align-items-center gap-4">
+                      {{ fmtAmount(row.order.totalAmount) }}
+                      <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
+                        [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                        [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                        role="img" [attr.aria-label]="row.order.currencyCode"></span>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
+                    <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
+                  </td>
+                  <td>
+                    <button type="button" class="row-action-btn" (click)="openDetail(row)">
+                      {{ (row.kind === 'underReview' ? 'd3.subscriptionRequests.reviewBtn' : 'd3.subscriptionRequests.detailsBtn') | translate }}
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="p-0">
+                    @if (loadError) {
+                      <app-dashboard-empty icon="alert-circle" titleKey="d3.subscriptionRequests.error.title" descKey="d3.subscriptionRequests.error.desc"></app-dashboard-empty>
+                      <div class="retry-wrap">
+                        <button type="button" class="row-action-btn" (click)="reload()">{{ 'd3.subscriptionRequests.retry' | translate }}</button>
+                      </div>
+                    } @else {
+                      <app-dashboard-empty icon="file-invoice" titleKey="d3.subscriptionRequests.empty.title" descKey="d3.subscriptionRequests.empty.desc"></app-dashboard-empty>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      @if (totalPages > 1) {
+        <div class="pagination-wrapper d-flex align-items-center justify-content-between">
+          <span class="pagination-total">
+            {{ fmt(totalCount) }} {{ 'd3.subscriptionRequests.pagination.total' | translate }}
+          </span>
+          <div class="pagination-controls d-flex align-items-center gap-4">
+            <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="page-ellipsis">...</span>
+              } @else {
+                <button class="page-number-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+  <app-request-detail-drawer
+    [order]="selectedOrder"
+    [logoByServiceId]="logoByServiceId"
+    [canApprove]="canApprove"
+    [canReject]="canReject"
+    (closed)="onDrawerClosed($event)">
+  </app-request-detail-drawer>
+
+</div>

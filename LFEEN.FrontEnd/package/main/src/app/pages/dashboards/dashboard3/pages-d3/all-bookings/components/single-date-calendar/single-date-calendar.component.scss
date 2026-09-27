@@ -101,7 +101,16 @@
 
   &:disabled {
     cursor: default;
+  }
+
+  // Padding cells from the neighbouring months stay invisible; days before minDate stay visible but muted.
+  &.sdc-day-empty {
     visibility: hidden;
+  }
+
+  &.sdc-day-blocked {
+    color: #c8c8c3;
+    cursor: not-allowed;
   }
 
   &.sdc-day-today:not(.sdc-day-selected) {
@@ -132,7 +141,12 @@
   cursor: pointer;
   border-radius: 8px;
 
-  &:hover { background: #f0f0ec; }
+  &:hover:not(:disabled) { background: #f0f0ec; }
+
+  &:disabled {
+    color: #c8c8c3;
+    cursor: not-allowed;
+  }
 
   &.sdc-year-selected {
     background: #111110;

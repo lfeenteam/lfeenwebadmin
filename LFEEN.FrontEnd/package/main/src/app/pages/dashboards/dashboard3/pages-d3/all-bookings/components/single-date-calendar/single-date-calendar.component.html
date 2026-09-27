@@ -30,7 +30,8 @@
             [class.sdc-day-empty]="!day.inCurrentMonth"
             [class.sdc-day-today]="day.isToday"
             [class.sdc-day-selected]="day.isSelected"
-            [disabled]="!day.inCurrentMonth"
+            [class.sdc-day-blocked]="day.inCurrentMonth && day.isBlocked"
+            [disabled]="!day.inCurrentMonth || day.isBlocked"
             (click)="selectDay(day)">
             @if (day.inCurrentMonth) { {{ dayNumberLabel(day.date) }} }
           </button>
@@ -44,6 +45,7 @@
             type="button"
             class="sdc-year"
             [class.sdc-year-selected]="isSelectedMonth(month.index)"
+            [disabled]="isMonthBlocked(month.index)"
             (click)="selectMonth(month.index)">
             {{ month.label }}
           </button>
@@ -57,6 +59,7 @@
             type="button"
             class="sdc-year"
             [class.sdc-year-selected]="isSelectedYear(year)"
+            [disabled]="isYearBlocked(year)"
             (click)="selectYear(year)">
             {{ yearLabel(year) }}
           </button>

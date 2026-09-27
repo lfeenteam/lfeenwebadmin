@@ -219,6 +219,18 @@
     color: #dc2626;
     border: 1px solid #fee2e2;
   }
+
+  &.action-neutral {
+    background-color: #f3f3ef;
+    color: #6b6b67;
+    border: 1px solid #e8e8e4;
+  }
+}
+
+.log-details {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B6B67;
 }
 
 .log-status {

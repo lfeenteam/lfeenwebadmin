@@ -754,6 +754,36 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'subscriptions/requests',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-requests/subscription-requests.component'
+                  ).then((m) => m.SubscriptionRequestsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptionRequests.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/discount-codes',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-discount-codes/subscription-discount-codes.component'
+                  ).then((m) => m.SubscriptionDiscountCodesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.discountCodes.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
                 path: 'subscriptions/settings',
                 canActivate: [authGuard],
                 loadComponent: () =>

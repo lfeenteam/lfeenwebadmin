@@ -1,0 +1,147 @@
+<div class="discount-codes-container" [dir]="currentDir">
+
+  <mat-card class="shadow-none list-card">
+    <mat-card-content class="p-0">
+
+      <div class="list-header d-flex align-items-center justify-content-between flex-wrap gap-16">
+        <div>
+          <h3 class="m-0 f-s-18 f-w-800">{{ 'd3.discountCodes.title' | translate }}</h3>
+          <p class="m-0 list-subtitle">{{ 'd3.discountCodes.subtitle' | translate }}</p>
+        </div>
+
+        @if (canManage) {
+          <button type="button" class="create-btn" (click)="openCreate()">
+            + {{ 'd3.discountCodes.createBtn' | translate }}
+          </button>
+        }
+      </div>
+
+      @if (loading) {
+        <div class="p-24">
+          <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+        </div>
+      } @else {
+
+      <div class="table-box">
+        <div class="table-responsive">
+          <table class="table codes-table m-0">
+            <thead>
+              <tr>
+                <th>{{ 'd3.discountCodes.table.code' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.service' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.discount' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.appliesTo' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.usage' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.validity' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.status' | translate }}</th>
+                <th>{{ 'd3.discountCodes.table.enabled' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows; track row.code.id) {
+                <tr class="code-row">
+                  <td>
+                    <span class="code-cell d-inline-flex align-items-center gap-6">
+                      <span class="code-text">{{ row.code.code }}</span>
+                      <button type="button" class="copy-btn" [attr.aria-label]="'common.copy' | translate" (click)="copyCode(row)">
+                        <i-tabler name="copy" class="icon-14"></i-tabler>
+                      </button>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.service' | translate }}</span>
+                    <span class="cell-text">{{ row.serviceName ?? ('d3.discountCodes.allServices' | translate) }}</span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.discount' | translate }}</span>
+                    <div class="discount-cell">
+                      @if (row.isPercentage) {
+                        <span class="discount-value">{{ fmt(row.code.discountValue) }}%</span>
+                        @if (row.code.maxDiscountAmount != null) {
+                          <span class="discount-cap">{{ 'd3.discountCodes.maxCap' | translate: { amount: fmtAmount(row.code.maxDiscountAmount) } }}</span>
+                        }
+                      } @else {
+                        <span class="discount-value d-inline-flex align-items-center gap-4">
+                          {{ fmtAmount(row.code.discountValue) }}
+                          <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
+                            [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                            [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.appliesTo' | translate }}</span>
+                    <span class="cell-muted">
+                      @if (row.code.appliesToSubscriptionFee) { {{ 'd3.discountCodes.subscriptionFee' | translate }} }
+                      @if (row.code.appliesToSubscriptionFee && row.code.appliesToSetupFee) { {{ 'd3.discountCodes.separator' | translate }} }
+                      @if (row.code.appliesToSetupFee) { {{ 'd3.discountCodes.setupFee' | translate }} }
+                      @if (!row.code.appliesToSubscriptionFee && !row.code.appliesToSetupFee) { - }
+                    </span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.usage' | translate }}</span>
+                    @if (row.usagePercent !== null) {
+                      <div class="usage-cell">
+                        <span class="usage-count">{{ fmt(row.code.redemptionCount) }} / {{ fmt(row.code.maxRedemptions!) }}</span>
+                        <span class="usage-track"><span class="usage-fill" [style.width.%]="row.usagePercent"></span></span>
+                      </div>
+                    } @else {
+                      <span class="cell-muted">{{ 'd3.discountCodes.usedTimes' | translate: { count: fmt(row.code.redemptionCount) } }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.validity' | translate }}</span>
+                    <span class="cell-muted">
+                      @if (!row.code.validFrom && !row.code.validTo) {
+                        {{ 'd3.discountCodes.openEnded' | translate }}
+                      } @else {
+                        {{ formatDate(row.code.validFrom) ?? '' }} — {{ formatDate(row.code.validTo) ?? '' }}
+                      }
+                    </span>
+                  </td>
+                  <td>
+                    <span class="mobile-field-label">{{ 'd3.discountCodes.table.status' | translate }}</span>
+                    <span class="state-pill" [class]="'state-pill state-' + row.state">
+                      {{ ('d3.discountCodes.state.' + row.state) | translate }}
+                      <span class="dot"></span>
+                    </span>
+                  </td>
+                  <td>
+                    <button type="button" class="switch" role="switch"
+                      [class.on]="row.code.isActive"
+                      [attr.aria-checked]="row.code.isActive"
+                      [attr.aria-label]="'d3.discountCodes.table.enabled' | translate"
+                      [disabled]="!canManage || togglingId === row.code.id"
+                      (click)="toggleActive(row)">
+                      <span class="knob"></span>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="8" class="p-0">
+                    @if (loadError) {
+                      <app-dashboard-empty icon="alert-circle" titleKey="d3.discountCodes.error.title" descKey="d3.discountCodes.error.desc"></app-dashboard-empty>
+                    } @else {
+                      <app-dashboard-empty icon="discount" titleKey="d3.discountCodes.empty.title" descKey="d3.discountCodes.empty.desc"></app-dashboard-empty>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="footer-note">
+        <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
+        {{ 'd3.discountCodes.immutableNote' | translate }}
+      </p>
+
+      }
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

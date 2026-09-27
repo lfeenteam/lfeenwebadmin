@@ -43,6 +43,9 @@ export interface SubscriptionLogEntry {
 }
 
 // ── /api/subscriptions/requests ──────────────────────────────
+// Only UnderReview (the endpoint's default) is confirmed by the backend; the rest are the
+// expected EQAMATIK values. Raw status can also arrive as a numeric string, so logic must
+// treat anything unknown defensively.
 export type SubscriptionOrderStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected';
 
 export interface SubscriptionOrderItem {
@@ -64,12 +67,12 @@ export interface SubscriptionOrderItem {
 export interface SubscriptionOrder {
   orderId: string;
   accountId: string;
-  merchantName: string;
+  merchantName: string | null;
   subtotalAmount: number;
   taxAmount: number;
   totalAmount: number;
   currencyCode: string;
-  status: SubscriptionOrderStatus;
+  status: string | null;
   statusLabel: string;
   requestedAt: string;
   processedAt: string | null;
@@ -114,6 +117,105 @@ export interface SetSubscriptionPriceRequest {
   price: number;
   currencyCode?: string;
 }
+
+/** PUT /catalog/{id} is a full replace — every field must be sent, including unchanged ones. */
+export interface UpdateSubscriptionServiceRequest {
+  nameAr: string;
+  nameEn: string;
+  category: string | null;
+  logoUrl: string | null;
+  isAvailable: boolean;
+  isActive: boolean;
+  displayOrder: number;
+}
+
+// ── /api/subscriptions/tiers ──────────────────────────────────
+export interface SubscriptionTier {
+  id: number;
+  subscriptionServiceId: number;
+  serviceKey: string;
+  serviceName: string;
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  trialDays: number;
+}
+
+// ── /api/subscriptions/discount-codes ─────────────────────────
+export type SubscriptionDiscountType = 'Percentage' | 'FixedAmount';
+
+export interface SubscriptionDiscountCode {
+  id: number;
+  code: string;
+  /** null = valid for every service. */
+  subscriptionServiceId: number | null;
+  serviceName: string | null;
+  discountType: string | null;
+  discountValue: number;
+  maxDiscountAmount: number | null;
+  appliesToSubscriptionFee: boolean;
+  appliesToSetupFee: boolean;
+  maxRedemptions: number | null;
+  redemptionCount: number;
+  validFrom: string | null;
+  validTo: string | null;
+  isActive: boolean;
+}
+
+export interface CreateSubscriptionDiscountCodeRequest {
+  code: string;
+  subscriptionServiceId: number | null;
+  discountType: SubscriptionDiscountType;
+  discountValue: number;
+  maxDiscountAmount: number | null;
+  appliesToSubscriptionFee: boolean;
+  appliesToSetupFee: boolean;
+  maxRedemptions: number | null;
+  validFrom: string | null;
+  validTo: string | null;
+}
+
+/** Computed client-side — the API only returns isActive + the raw dates/counters. */
+export type DiscountCodeState = 'active' | 'scheduled' | 'exhausted' | 'expired' | 'disabled';
+
+// ── /api/subscriptions/activity-log ───────────────────────────
+export interface SubscriptionAuditLog {
+  id: number;
+  accountId: string;
+  merchantName: string | null;
+  subscriptionServiceId: number | null;
+  serviceName: string | null;
+  subscriptionOrderId: string | null;
+  subscriptionRequestId: number | null;
+  action: string | null;
+  actorType: string | null;
+  actorUserId: string | null;
+  details: string | null;
+  createdAt: string;
+}
+
+export interface SubscriptionActivityLogQuery {
+  accountId?: string;
+  subscriptionServiceId?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface SubscriptionPaginated<T> {
+  data: T[];
+  totalCount: number;
+  page: number;
+  /** Lowercase "p" as the backend sends it; null on the last page. */
+  nextpage: number | null;
+  totalPages: number;
+}
+
+/** What the admin actually pays for one order line — `amount` alone is only the subscription fee. */
+export const subscriptionLineTotal = (i: SubscriptionOrderItem): number =>
+  i.amount + i.setupFeeAmount - i.discountAmount;
 
 // ── /api/subscriptions/overview ─────────────────────────────────
 export interface SubscriptionOverview {

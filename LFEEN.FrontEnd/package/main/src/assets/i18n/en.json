@@ -195,6 +195,8 @@
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
       "subscriptionLog": "Subscription Log",
+      "subscriptionRequests": "Subscription Requests",
+      "discountCodes": "Discount Codes",
       "settings": "Settings",
       "notifications": "Notifications",
       "logout": "Logout"
@@ -2839,20 +2841,38 @@
       "subtitle": "Track all operations and actions performed on the facility's subscriptions",
       "searchPlaceholder": "Search for a facility...",
       "filters": {
-        "all": "All"
+        "all": "All",
+        "allServices": "All services"
       },
       "table": {
         "refNumber": "Reference No.",
+        "merchant": "Merchant",
         "actionType": "Action Type",
         "service": "Service",
         "actor": "By",
         "date": "Date",
-        "status": "Status"
+        "status": "Status",
+        "details": "Details"
       },
       "action": {
         "renew": "Renewal",
         "add": "Addition",
         "cancel": "Cancellation"
+      },
+      "actions": {
+        "Requested": "Requested",
+        "Approved": "Approved",
+        "Rejected": "Rejected",
+        "Activated": "Activated",
+        "Deactivated": "Deactivated",
+        "Renewed": "Renewed",
+        "Cancelled": "Cancelled",
+        "Expired": "Expired"
+      },
+      "actor": {
+        "Admin": "Admin",
+        "Merchant": "Merchant",
+        "System": "System"
       },
       "status": {
         "completed": "Completed",
@@ -2869,6 +2889,148 @@
         "next": "Next page",
         "page": "Page"
       }
+    },
+    "subscriptionRequests": {
+      "pageTitle": "Subscription Requests",
+      "title": "Subscription Requests",
+      "subtitle": "Review merchant requests and approve or reject them",
+      "tabs": {
+        "all": "All",
+        "rejected": "Rejected",
+        "approved": "Approved",
+        "underReview": "Under review"
+      },
+      "table": {
+        "merchant": "Merchant",
+        "services": "Requested services",
+        "date": "Request date",
+        "total": "Total",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "reviewBtn": "Review",
+      "detailsBtn": "Details",
+      "retry": "Retry",
+      "empty": {
+        "title": "No requests",
+        "desc": "There are no subscription requests in this tab right now."
+      },
+      "error": {
+        "title": "Couldn't load requests",
+        "desc": "Something went wrong while fetching subscription requests. Please try again."
+      },
+      "pagination": {
+        "total": "requests"
+      },
+      "detail": {
+        "title": "Request details",
+        "close": "Close",
+        "processedAt": "Processed on",
+        "requestType": "Request type",
+        "tier": "Tier",
+        "period": "Period",
+        "scope": "Scope",
+        "allProperties": "All properties",
+        "subscriptionFee": "Subscription fee",
+        "setupFee": "Setup fee",
+        "discount": "Discount",
+        "code": "code",
+        "serviceTotal": "Service total",
+        "subtotal": "Subtotal before tax",
+        "vat": "VAT",
+        "total": "Total",
+        "approve": "Approve",
+        "reject": "Reject",
+        "back": "Back",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "Add a note to the approval...",
+        "reasonLabel": "Rejection reason",
+        "reasonPlaceholder": "Tell the merchant why the request was rejected...",
+        "confirmApprove": "Confirm approval",
+        "confirmReject": "Confirm rejection",
+        "saving": "Saving...",
+        "approvedToast": "Request approved",
+        "rejectedToast": "Request rejected"
+      }
+    },
+    "discountCodes": {
+      "pageTitle": "Discount Codes",
+      "title": "Discount Codes",
+      "subtitle": "Create and manage discount codes for merchants",
+      "createBtn": "Create discount code",
+      "allServices": "All services",
+      "subscriptionFee": "Subscription fee",
+      "setupFee": "Setup fee",
+      "separator": ",",
+      "maxCap": "Up to {{amount}} SAR",
+      "usedTimes": "{{count}} uses",
+      "openEnded": "Open-ended",
+      "copied": "Code copied",
+      "immutableNote": "Codes can't be edited or deleted after creation. To change a code, deactivate it and create a new one.",
+      "table": {
+        "code": "Code",
+        "service": "Service",
+        "discount": "Discount",
+        "appliesTo": "Applies to",
+        "usage": "Usage",
+        "validity": "Validity",
+        "status": "Status",
+        "enabled": "Enabled"
+      },
+      "state": {
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "exhausted": "Used up",
+        "expired": "Expired",
+        "disabled": "Disabled"
+      },
+      "empty": {
+        "title": "No discount codes",
+        "desc": "No discount codes have been created yet."
+      },
+      "error": {
+        "title": "Couldn't load codes",
+        "desc": "Something went wrong while fetching discount codes. Please try again."
+      },
+      "confirmDeactivate": {
+        "title": "Deactivate this code?",
+        "message": "Merchants won't be able to use this code until it's activated again.",
+        "action": "Deactivate"
+      },
+      "create": {
+        "title": "Create discount code",
+        "code": "Code",
+        "generate": "Generate",
+        "service": "Service",
+        "type": "Discount type",
+        "percentage": "Percentage",
+        "fixed": "Fixed amount",
+        "value": "Discount value",
+        "maxDiscount": "Max discount (optional)",
+        "appliesTo": "Applies to",
+        "maxRedemptions": "Max uses (optional)",
+        "unlimitedPlaceholder": "Empty = unlimited",
+        "validFrom": "Start date (optional)",
+        "validTo": "End date (optional)",
+        "pickDate": "Pick a date",
+        "submit": "Create code",
+        "submitting": "Creating...",
+        "errors": {
+          "codeFormat": "Use only uppercase letters, digits, - or _",
+          "valuePositive": "Value must be greater than zero",
+          "percentMax": "Percentage can't exceed 100%",
+          "redemptionsMin": "Max uses must be a whole number, 1 or more",
+          "appliesTo": "Select at least one fee type",
+          "dates": "Dates can't be in the past, and the end date must be after the start date"
+        }
+      }
+    },
+    "subscriptionErrors": {
+      "network": "A server error occurred, please try again",
+      "forbidden": "You don't have permission to do this",
+      "notFound": "Item not found",
+      "stale": "This item was already changed — the list has been refreshed",
+      "generic": "Something went wrong"
     },
     "businessCategories": {
       "Hotel": "Hotel",

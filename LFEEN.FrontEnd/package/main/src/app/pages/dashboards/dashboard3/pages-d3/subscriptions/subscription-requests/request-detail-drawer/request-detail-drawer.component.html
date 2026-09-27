@@ -1,0 +1,162 @@
+@if (order) {
+  <div class="drawer-backdrop" (click)="close()"></div>
+  <aside class="request-drawer" [dir]="currentDir" role="dialog" aria-modal="true">
+
+    <header class="drawer-header">
+      <h2 class="drawer-title">{{ 'd3.subscriptionRequests.detail.title' | translate }}</h2>
+      <button type="button" class="drawer-close-btn" [disabled]="submitting" (click)="close()">
+        <i-tabler name="x" class="icon-16"></i-tabler>
+        <span>{{ 'd3.subscriptionRequests.detail.close' | translate }}</span>
+      </button>
+    </header>
+
+    <div class="drawer-body">
+
+      <!-- Merchant summary -->
+      <section class="summary-card">
+        <div class="summary-top">
+          <span class="summary-merchant">{{ order.merchantName?.trim() || '-' }}</span>
+          <span class="summary-date">{{ requestedAtLabel }}</span>
+        </div>
+        <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
+        @if (processedAtLabel) {
+          <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.processedAt' | translate }}: {{ processedAtLabel }}</span>
+        }
+      </section>
+
+      <!-- Order lines -->
+      @for (item of order.items; track $index) {
+        <section class="item-card">
+          <div class="item-head">
+            <span class="item-logo">
+              @if (logoOf(item); as logo) {
+                <img [src]="logo" [alt]="item.serviceName" />
+              } @else {
+                <i-tabler [name]="iconOf(item)" class="icon-18"></i-tabler>
+              }
+            </span>
+            <span class="item-name">{{ item.serviceName }}</span>
+          </div>
+
+          <div class="item-meta-grid">
+            <div class="meta-cell">
+              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.requestType' | translate }}</span>
+              <span class="meta-value">{{ item.requestTypeLabel || '-' }}</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.tier' | translate }}</span>
+              <span class="meta-value">{{ item.tierName || '-' }}</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.period' | translate }}</span>
+              <span class="meta-value">{{ item.periodLabel || '-' }}</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.scope' | translate }}</span>
+              <span class="meta-value">{{ item.propertyId === null ? ('d3.subscriptionRequests.detail.allProperties' | translate) : (item.propertyName || '-') }}</span>
+            </div>
+          </div>
+
+          <div class="fee-rows">
+            <div class="fee-row">
+              <span>{{ 'd3.subscriptionRequests.detail.subscriptionFee' | translate }}</span>
+              <ng-container *ngTemplateOutlet="money; context: { $implicit: item.amount }"></ng-container>
+            </div>
+            <div class="fee-row">
+              <span>{{ 'd3.subscriptionRequests.detail.setupFee' | translate }}</span>
+              <ng-container *ngTemplateOutlet="money; context: { $implicit: item.setupFeeAmount }"></ng-container>
+            </div>
+            @if (item.discountAmount > 0) {
+              <div class="fee-row fee-row--discount">
+                <span>
+                  {{ 'd3.subscriptionRequests.detail.discount' | translate }}
+                  @if (item.discountCode) { ({{ 'd3.subscriptionRequests.detail.code' | translate }} {{ item.discountCode }}) }
+                </span>
+                <ng-container *ngTemplateOutlet="money; context: { $implicit: item.discountAmount, sign: '−' }"></ng-container>
+              </div>
+            }
+          </div>
+
+          <div class="item-total">
+            <span>{{ 'd3.subscriptionRequests.detail.serviceTotal' | translate }}</span>
+            <ng-container *ngTemplateOutlet="money; context: { $implicit: lineTotal(item), large: true }"></ng-container>
+          </div>
+        </section>
+      }
+
+      <!-- Totals (server numbers are the source of truth) -->
+      <section class="totals-card">
+        <div class="fee-row">
+          <span>{{ 'd3.subscriptionRequests.detail.subtotal' | translate }}</span>
+          <ng-container *ngTemplateOutlet="money; context: { $implicit: order.subtotalAmount }"></ng-container>
+        </div>
+        <div class="fee-row">
+          <span>
+            {{ 'd3.subscriptionRequests.detail.vat' | translate }}
+            @if (taxPercent !== null) { ({{ taxPercent }}%) }
+          </span>
+          <ng-container *ngTemplateOutlet="money; context: { $implicit: order.taxAmount }"></ng-container>
+        </div>
+        <div class="item-total">
+          <span>{{ 'd3.subscriptionRequests.detail.total' | translate }}</span>
+          <ng-container *ngTemplateOutlet="money; context: { $implicit: order.totalAmount, large: true }"></ng-container>
+        </div>
+      </section>
+
+      <!-- Review actions -->
+      @if (showActions) {
+        @switch (step) {
+          @case ('approve') {
+            <section class="decision-card">
+              <label class="field-label" for="approve-note">{{ 'd3.subscriptionRequests.detail.noteLabel' | translate }}</label>
+              <textarea id="approve-note" class="field-textarea" rows="3" [attr.maxlength]="noteMax"
+                [placeholder]="'d3.subscriptionRequests.detail.notePlaceholder' | translate"
+                [(ngModel)]="approveNote"></textarea>
+              <div class="actions-row">
+                <button type="button" class="btn-outline" [disabled]="submitting" (click)="setStep('details')">{{ 'd3.subscriptionRequests.detail.back' | translate }}</button>
+                <button type="button" class="btn-approve" [disabled]="submitting" (click)="confirmApprove()">
+                  {{ (submitting ? 'd3.subscriptionRequests.detail.saving' : 'd3.subscriptionRequests.detail.confirmApprove') | translate }}
+                </button>
+              </div>
+            </section>
+          }
+          @case ('reject') {
+            <section class="decision-card">
+              <label class="field-label" for="reject-reason">{{ 'd3.subscriptionRequests.detail.reasonLabel' | translate }} *</label>
+              <textarea id="reject-reason" class="field-textarea" rows="3" [attr.maxlength]="noteMax"
+                [placeholder]="'d3.subscriptionRequests.detail.reasonPlaceholder' | translate"
+                [(ngModel)]="rejectReason"></textarea>
+              <div class="actions-row">
+                <button type="button" class="btn-outline" [disabled]="submitting" (click)="setStep('details')">{{ 'd3.subscriptionRequests.detail.back' | translate }}</button>
+                <button type="button" class="btn-reject-solid" [disabled]="!canConfirmReject" (click)="confirmReject()">
+                  {{ (submitting ? 'd3.subscriptionRequests.detail.saving' : 'd3.subscriptionRequests.detail.confirmReject') | translate }}
+                </button>
+              </div>
+            </section>
+          }
+          @default {
+            <div class="actions-row">
+              @if (canApprove) {
+                <button type="button" class="btn-approve" (click)="setStep('approve')">{{ 'd3.subscriptionRequests.detail.approve' | translate }}</button>
+              }
+              @if (canReject) {
+                <button type="button" class="btn-reject" (click)="setStep('reject')">{{ 'd3.subscriptionRequests.detail.reject' | translate }}</button>
+              }
+            </div>
+          }
+        }
+      }
+
+    </div>
+  </aside>
+}
+
+<ng-template #money let-value let-sign="sign" let-large="large">
+  <span class="money" [class.money--large]="large">
+    {{ sign ?? '' }}{{ fmtAmount(value) }}
+    <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
+      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+      role="img" [attr.aria-label]="order?.currencyCode"></span>
+  </span>
+</ng-template>

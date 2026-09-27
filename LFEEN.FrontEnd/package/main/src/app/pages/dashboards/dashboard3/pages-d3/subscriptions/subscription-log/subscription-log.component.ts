@@ -1,26 +1,34 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { Subscription, catchError, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionLogActionType, SubscriptionLogEntry, SubscriptionOrder } from '../interfaces/subscription.model';
+import { formatApiDateLocal } from 'src/app/utils/date-format.util';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
+import { SubscriptionAuditLog, SubscriptionCatalogItem } from '../interfaces/subscription.model';
+import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 
-const SERVICE_ICON_BY_KEY: Record<string, string> = {
-  'ntmp-compliance': 'receipt',
-  'whatsapp-business': 'brand-whatsapp',
-  'rasd': 'map-pin',
-  'zatca': 'receipt',
-  'payments': 'credit-card',
-  'sms': 'message-2',
-  'erp-connect': 'plug',
-};
-const DEFAULT_SERVICE_ICON = 'apps';
+type ActionTone = 'add' | 'renew' | 'cancel' | 'neutral';
 
-const PAGE_SIZE = 10;
+interface LogRow {
+  id: number;
+  merchantName: string;
+  actionLabel: string;
+  actionTone: ActionTone;
+  serviceName: string;
+  actorLabel: string;
+  actorInitial: string;
+  date: string;
+  details: string;
+}
+
+const PAGE_SIZE = 20;
 
 @Component({
   selector: 'app-subscription-log',
@@ -30,137 +38,123 @@ const PAGE_SIZE = 10;
   styleUrl: './subscription-log.component.scss'
 })
 export class SubscriptionLogComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private translate = inject(TranslateService);
+  private toastr = inject(ToastrService);
   private subscriptionsService = inject(SubscriptionsService);
 
   isLoading = true;
-  searchQuery = '';
-  actionFilter: SubscriptionLogActionType | 'all' = 'all';
+  /** null = all services. */
+  serviceFilter: number | null = null;
   currentPage = 1;
+  totalPages = 1;
+  totalCount = 0;
 
-  private allEntries: SubscriptionLogEntry[] = [];
+  entries: LogRow[] = [];
+  services: SubscriptionCatalogItem[] = [];
 
-  actionFilterOptions: { value: SubscriptionLogActionType | 'all'; labelKey: string }[] = [
-    { value: 'all', labelKey: 'd3.subscriptionLog.filters.all' },
-    { value: 'renew', labelKey: 'd3.subscriptionLog.action.renew' },
-    { value: 'add', labelKey: 'd3.subscriptionLog.action.add' },
-    { value: 'cancel', labelKey: 'd3.subscriptionLog.action.cancel' },
-  ];
+  private pageRequest?: Subscription;
 
-  get selectedFilterLabelKey(): string {
-    return this.actionFilterOptions.find(o => o.value === this.actionFilter)?.labelKey ?? 'd3.subscriptionLog.filters.all';
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
+
+  get selectedServiceLabel(): string {
+    const s = this.services.find(x => x.id === this.serviceFilter);
+    return s ? this.serviceName(s) : this.translate.instant('d3.subscriptionLog.filters.allServices');
   }
 
   fmt(value: number): string {
-    return formatLocalizedNumber(value, this.translate.currentLang);
+    return formatLocalizedNumber(value, this.currentLang);
   }
 
-  formatDate(date: Date): string {
-    return date.toLocaleDateString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  serviceName(s: SubscriptionCatalogItem): string {
+    return this.currentLang === 'en' ? s.nameEn : s.nameAr;
   }
 
   ngOnInit(): void {
-    this.subscriptionsService.getAllRequests().subscribe({
-      next: (orders) => {
-        this.allEntries = this.mapOrdersToEntries(orders);
+    this.subscriptionsService.getCatalog()
+      .pipe(catchError(() => of([] as SubscriptionCatalogItem[])), takeUntilDestroyed(this.destroyRef))
+      .subscribe(catalog => {
+        this.services = [...catalog].sort((a, b) => a.displayOrder - b.displayOrder);
+      });
+    this.loadPage();
+  }
+
+  private loadPage(): void {
+    this.pageRequest?.unsubscribe();
+    this.isLoading = true;
+    this.pageRequest = this.subscriptionsService.getActivityLog({
+      subscriptionServiceId: this.serviceFilter ?? undefined,
+      pageNumber: this.currentPage,
+      pageSize: PAGE_SIZE,
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: res => {
+        this.entries = (res.data ?? []).map(e => this.toRow(e));
+        this.totalCount = res.totalCount ?? this.entries.length;
+        this.totalPages = Math.max(1, res.totalPages ?? 1);
         this.isLoading = false;
       },
-      error: () => {
-        this.allEntries = [];
+      error: err => {
+        this.entries = [];
+        this.totalCount = 0;
+        this.totalPages = 1;
         this.isLoading = false;
+        this.toastr.error(resolveSubscriptionError(err, this.translate));
       }
     });
   }
 
-  private mapOrdersToEntries(orders: SubscriptionOrder[]): SubscriptionLogEntry[] {
-    const entries: SubscriptionLogEntry[] = [];
-    for (const order of orders) {
-      const status = this.mapStatus(order.status);
-      const dateSource = order.processedAt ?? order.requestedAt;
-      for (const item of order.items) {
-        entries.push({
-          id: entries.length + 1,
-          refNumber: '#' + order.orderId.slice(0, 8).toUpperCase(),
-          actionType: this.classifyActionType(item.requestTypeLabel),
-          actionLabel: item.requestTypeLabel,
-          serviceName: item.serviceName,
-          serviceIcon: SERVICE_ICON_BY_KEY[item.serviceKey] ?? DEFAULT_SERVICE_ICON,
-          actorName: '-',
-          actorInitial: '-',
-          date: new Date(dateSource),
-          status,
-        });
-      }
-    }
-    return entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+  private toRow(e: SubscriptionAuditLog): LogRow {
+    const actor = this.labelFor('actor', e.actorType);
+    return {
+      id: e.id,
+      merchantName: e.merchantName?.trim() || '-',
+      actionLabel: this.labelFor('actions', e.action),
+      actionTone: this.actionTone(e.action),
+      serviceName: e.serviceName?.trim() || '-',
+      actorLabel: actor,
+      actorInitial: actor !== '-' ? actor.charAt(0).toUpperCase() : '-',
+      date: formatApiDateLocal(e.createdAt, this.currentLang, true) ?? '-',
+      details: e.details?.trim() || '-',
+    };
   }
 
-  // requestTypeLabel is a free-text display string from the API, not a fixed enum,
-  // so this only picks a badge color — the visible text always comes from actionLabel.
-  private classifyActionType(label: string): SubscriptionLogActionType {
-    const normalized = label.toLowerCase();
-    if (normalized.includes('renew')) return 'renew';
-    if (normalized.includes('unsub') || normalized.includes('cancel')) return 'cancel';
-    return 'add';
+  // action/actorType have no Label fields and their value lists aren't confirmed yet —
+  // known values get our translation, anything else is shown as the raw value.
+  private labelFor(group: 'actions' | 'actor', raw: string | null): string {
+    if (!raw) return '-';
+    const key = `d3.subscriptionLog.${group}.${raw}`;
+    const translated = this.translate.instant(key);
+    return translated === key ? raw : translated;
   }
 
-  private mapStatus(status: SubscriptionOrder['status']): SubscriptionLogEntry['status'] {
-    switch (status) {
-      case 'Approved': return 'completed';
-      case 'Rejected': return 'cancelled';
-      default: return 'processing'; // Pending and UnderReview both read as "in progress" here
-    }
-  }
-
-  private get filteredBeforePaging(): SubscriptionLogEntry[] {
-    let list = this.allEntries;
-    if (this.actionFilter !== 'all') {
-      list = list.filter(e => e.actionType === this.actionFilter);
-    }
-    const q = this.searchQuery.trim();
-    if (q) {
-      list = list.filter(e => e.serviceName.includes(q) || e.refNumber.includes(q));
-    }
-    return list;
-  }
-
-  get filteredEntries(): SubscriptionLogEntry[] {
-    const start = (this.currentPage - 1) * PAGE_SIZE;
-    return this.filteredBeforePaging.slice(start, start + PAGE_SIZE);
-  }
-
-  get totalCount(): number {
-    return this.filteredBeforePaging.length;
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalCount / PAGE_SIZE));
+  // Only picks a badge color — the text always comes from the raw value / its translation.
+  private actionTone(action: string | null): ActionTone {
+    const a = (action ?? '').toLowerCase();
+    if (a.includes('renew')) return 'renew';
+    if (a.includes('reject') || a.includes('cancel') || a.includes('deactiv') || a.includes('suspend') || a.includes('expire')) return 'cancel';
+    if (a.includes('approv') || a.includes('activ') || a.includes('creat') || a.includes('request') || a.includes('subscrib')) return 'add';
+    return 'neutral';
   }
 
   get currentDir(): 'rtl' | 'ltr' {
-    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+    return this.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
   get visiblePages(): (number | '...')[] {
     return getVisiblePages(this.currentPage, this.totalPages);
   }
 
-  onSearchChange(value: string): void {
-    this.searchQuery = value;
+  onServiceFilterChange(value: number | null): void {
+    this.serviceFilter = value;
     this.currentPage = 1;
-  }
-
-  onFilterChange(value: SubscriptionLogActionType | 'all'): void {
-    this.actionFilter = value;
-    this.currentPage = 1;
+    this.loadPage();
   }
 
   changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.currentPage = page;
+    this.loadPage();
   }
 }

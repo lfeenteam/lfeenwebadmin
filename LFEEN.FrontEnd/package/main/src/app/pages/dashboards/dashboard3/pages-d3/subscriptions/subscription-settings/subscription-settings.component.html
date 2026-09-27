@@ -52,10 +52,25 @@
 
             <div class="offer-top-row d-flex align-items-start justify-content-between">
               <div class="offer-icon-wrapper d-flex align-items-center justify-content-center" [class]="'tone-' + offer.tone">
-                <i-tabler [name]="offer.icon" class="icon-26"></i-tabler>
+                @if (logoUrl(offer); as logo) {
+                  <img [src]="logo" [alt]="offerName(offer)" class="offer-logo" />
+                } @else {
+                  <i-tabler [name]="offer.icon" class="icon-26"></i-tabler>
+                }
               </div>
 
               <div class="offer-controls d-flex align-items-center gap-8">
+                <div class="active-toggle d-flex align-items-center gap-6">
+                  <span class="active-toggle-label">{{ (offer.active ? 'd3.subscriptions.settings.status.enabled' : 'd3.subscriptions.settings.status.disabled') | translate }}</span>
+                  <button type="button" class="switch" role="switch"
+                    [class.on]="offer.active"
+                    [attr.aria-checked]="offer.active"
+                    [attr.aria-label]="offerName(offer)"
+                    [disabled]="!canManageCatalog || togglingId === offer.id"
+                    (click)="toggleActive(offer)">
+                    <span class="knob"></span>
+                  </button>
+                </div>
                 <button type="button" class="gear-btn" [attr.aria-label]="'d3.subscriptions.settings.configureBtn' | translate" (click)="openServiceSettings(offer)">
                   <i-tabler name="settings" class="icon-16"></i-tabler>
                 </button>
