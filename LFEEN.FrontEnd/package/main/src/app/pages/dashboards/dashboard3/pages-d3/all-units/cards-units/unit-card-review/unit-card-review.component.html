@@ -42,6 +42,13 @@
     </div>
 
     <div class="unit-card__footer">
+      @if (unit.canBan) {
+        <app-ban-listing-button
+          kind="unit"
+          [listingId]="unit.id"
+          [listingName]="unit.title"
+          (changed)="onBanChanged()" />
+      }
       <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
         <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
       </button>
@@ -83,6 +90,14 @@
 
     <!-- col 6: actions -->
     <div class="list-actions-col">
+      @if (unit.canBan) {
+        <app-ban-listing-button
+          kind="unit"
+          size="sm"
+          [listingId]="unit.id"
+          [listingName]="unit.title"
+          (changed)="onBanChanged()" />
+      }
       <button type="button" class="view-btn" *ngIf="!isLockedDisplay" aria-label="View unit review">
         <i-tabler name="eye"></i-tabler>
       </button>

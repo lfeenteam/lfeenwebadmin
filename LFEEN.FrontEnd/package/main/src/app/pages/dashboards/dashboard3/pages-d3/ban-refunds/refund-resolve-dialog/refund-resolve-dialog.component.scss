@@ -1,0 +1,130 @@
+// Same layout as ban-listing-dialog, in green. Classes prefixed "rr-".
+$green: #00A63E;
+$text:  #0F172B;
+$muted: #62748E;
+$label: #90A1B9;
+
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mdc-dialog__surface {
+  border-radius: 32px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.rr {
+  width: min(480px, 95vw);
+  box-sizing: border-box;
+  padding: 32px;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+}
+
+.rr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rr-heading { display: flex; align-items: center; gap: 14px; }
+
+.rr-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: $green;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px -4px rgba(0, 166, 62, 0.35);
+
+  i-tabler { display: flex; width: 24px; height: 24px; }
+}
+
+.rr-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 900;
+  color: $text;
+}
+
+.rr-close {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F8FAFC;
+  color: $label;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler { display: flex; width: 20px; height: 20px; }
+}
+
+.rr-desc {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: $muted;
+}
+
+.rr-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $label;
+}
+
+.rr-textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  background: #F8FAFC;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  color: $text;
+  line-height: 1.7;
+
+  &:focus { border-color: #9AA4B2; }
+  &::placeholder { color: $label; }
+}
+
+.rr-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.rr-cancel,
+.rr-confirm {
+  height: 52px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 800;
+  transition: filter 0.18s ease;
+
+  &:hover { filter: brightness(0.95); }
+}
+
+.rr-cancel  { background: #F1F5F9; color: #45556C; }
+.rr-confirm { background: $green; color: #fff; box-shadow: 0 10px 20px -6px rgba(0, 166, 62, 0.4); }
+
+@media (max-width: 480px) {
+  .rr { padding: 20px; }
+}

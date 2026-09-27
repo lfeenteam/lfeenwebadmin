@@ -38,6 +38,14 @@
     </div>
 
     <div class="unit-card__footer">
+      @if (unit.canBan) {
+        <app-ban-listing-button
+          kind="unit"
+          size="sm"
+          [listingId]="unit.id"
+          [listingName]="unit.title"
+          (changed)="onBanChanged()" />
+      }
       <button class="footer-btn eye-btn" type="button" (click)="goToReview()">
         <i-tabler name="eye"></i-tabler>
       </button>
@@ -72,6 +80,14 @@
 
     <!-- col 6: actions -->
     <div class="list-actions-col">
+      @if (unit.canBan) {
+        <app-ban-listing-button
+          kind="unit"
+          size="sm"
+          [listingId]="unit.id"
+          [listingName]="unit.title"
+          (changed)="onBanChanged()" />
+      }
       <button class="view-btn" type="button" aria-label="View unit" (click)="goToReview()">
         <i-tabler name="eye"></i-tabler>
       </button>

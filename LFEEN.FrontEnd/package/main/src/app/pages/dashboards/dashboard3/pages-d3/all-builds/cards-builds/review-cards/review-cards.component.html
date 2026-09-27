@@ -41,9 +41,18 @@
 
     <div class="card-footer">
       <span class="type-tag">{{ building.typeLabel | translate }}</span>
-      <button type="button" class="action-btn back-btn" aria-label="View build review" (click)="goToBuildReview()">
-        <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
-      </button>
+      <div class="footer-actions">
+        @if (building.canBan) {
+          <app-ban-listing-button
+            kind="property"
+            [listingId]="building.id"
+            [listingName]="building.title"
+            (changed)="onBanChanged()" />
+        }
+        <button type="button" class="action-btn back-btn" aria-label="View build review" (click)="goToBuildReview()">
+          <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
+        </button>
+      </div>
     </div>
   }
 
@@ -94,6 +103,14 @@
 
     <!-- col 7: actions -->
     <div class="list-actions-col">
+      @if (building.canBan) {
+        <app-ban-listing-button
+          kind="property"
+          size="sm"
+          [listingId]="building.id"
+          [listingName]="building.title"
+          (changed)="onBanChanged()" />
+      }
       <button type="button" class="action-btn view-btn" aria-label="View build review" (click)="goToBuildReview()">
         <i-tabler name="eye"></i-tabler>
       </button>

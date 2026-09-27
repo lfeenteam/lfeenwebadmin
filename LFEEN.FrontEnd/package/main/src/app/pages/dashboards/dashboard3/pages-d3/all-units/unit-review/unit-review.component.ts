@@ -14,6 +14,8 @@ import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../int
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
+import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
+import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
 
 interface UnitReviewSection {
   key: string;
@@ -27,7 +29,7 @@ interface UnitReviewSection {
 @Component({
   selector: 'app-unit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent, ListingBanBannerComponent, BanListingButtonComponent],
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
@@ -87,6 +89,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // originTab (the ?tab= query param the unit lists pass along) disambiguates them.
   get headerStatusConfig(): { labelKey: string; icon: string; mod: string } {
     const status = this.unitDetail?.overallStatus?.trim();
+    if (status === 'Banned') return { labelKey: 'd3.listingBan.card.badge', icon: 'ban', mod: 'rejected' };
     // overallStatus flips to 'Approved' as soon as every section is approved, but the
     // unit isn't actually live until the final approval action is submitted (isDisplayed).
     // Labeling that in-between state "Approved" reads as done when it isn't yet.
@@ -127,11 +130,17 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   // false) — so 'Approved' alone doesn't mean there's nothing left to do here;
   // without the isDisplayed check the final-approve button would vanish exactly
   // when it's needed (same distinction already made in headerStatusConfig/isFinalApproved).
+  // A banned unit rejects every review/approve/reject call (LISTING_BANNED), so it's locked too.
   get isViewMode(): boolean {
     const status = this.unitDetail?.overallStatus?.trim();
     return this.forcedViewOnly
+      || this.isBanned
       || (status === 'Approved' && !!this.unitDetail?.isDisplayed)
       || status === 'Rejected';
+  }
+
+  get isBanned(): boolean {
+    return this.unitDetail?.overallStatus?.trim() === 'Banned';
   }
 
   ngOnInit(): void {
@@ -141,6 +150,14 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     this.originTab = this.route.snapshot.queryParamMap.get('tab') ?? '';
 
     this.isLoading = true;
+    this.loadUnit();
+
+    this.unitsService.getReviewDecisions().subscribe(decisions => {
+      this.reviewDecisions = decisions;
+    });
+  }
+
+  private loadUnit(): void {
     this.unitsService.getUnitById(this.unitId).subscribe({
       next: data => {
         this.unitDetail = data;
@@ -177,10 +194,17 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
 
-    this.unitsService.getReviewDecisions().subscribe(decisions => {
-      this.reviewDecisions = decisions;
-    });
+  // Same statuses the list cards allow a ban from (see UnitsService.mapToUnitCard).
+  get canBan(): boolean {
+    return ['Approved', 'HasPendingChanges', 'UnderReview'].includes(this.unitDetail?.overallStatus?.trim() ?? '');
+  }
+
+  // After ban/edit/unban: refresh this page (it locks/unlocks itself) and the list behind it.
+  onBanChanged(): void {
+    this.loadUnit();
+    this.unitsService.reload();
   }
 
   ngOnDestroy(): void {
@@ -342,7 +366,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       ACCOUNT_NOT_APPROVED: 'd3.unitReview.finalReview.errors.accountNotApproved',
       SECTIONS_NOT_ALL_APPROVED: 'd3.unitReview.finalReview.errors.sectionsNotApproved',
       ADMIN_UNIT_SECTIONS_NOT_ALL_APPROVED: 'd3.unitReview.finalReview.errors.sectionsNotApproved',
-      ALREADY_REJECTED: 'd3.unitReview.finalReview.errors.alreadyRejected'
+      ALREADY_REJECTED: 'd3.unitReview.finalReview.errors.alreadyRejected',
+      // Also returned when only the parent property is banned.
+      LISTING_BANNED: 'd3.listingBan.errors.listingBanned'
     };
     this.toastr.error(this.translate.instant(keyByCode[errorCode ?? ''] ?? 'd3.toast.errorOp'));
   }

@@ -1,0 +1,64 @@
+<div class="bh" [dir]="currentDir">
+  <div class="bh-header">
+    <div class="bh-heading">
+      <span class="bh-heading-icon">
+        <i-tabler name="history"></i-tabler>
+      </span>
+      <div class="bh-heading-text">
+        <h2 class="bh-title">{{ 'd3.listingBan.history.title' | translate }}</h2>
+        @if (data.name) {
+          <p class="bh-subtitle">{{ data.name }}</p>
+        }
+      </div>
+    </div>
+    <button type="button" class="bh-close" (click)="close()">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <div class="bh-body">
+    @if (loadError && items.length === 0) {
+      <div class="bh-state">
+        <p>{{ 'd3.listingBan.history.loadError' | translate }}</p>
+        <button type="button" class="bh-link-btn" (click)="load(1)">{{ 'd3.listingBan.history.retry' | translate }}</button>
+      </div>
+    } @else if (!loading && items.length === 0) {
+      <div class="bh-state">
+        <p>{{ 'd3.listingBan.history.empty' | translate }}</p>
+      </div>
+    } @else {
+      <ol class="bh-list">
+        @for (item of items; track $index) {
+          <li class="bh-item" [class]="'bh-item bh-item--' + meta(item).mod">
+            <span class="bh-dot">
+              <i-tabler [name]="meta(item).icon"></i-tabler>
+            </span>
+            <div class="bh-item-body">
+              <div class="bh-item-top">
+                <span class="bh-action">{{ meta(item).key | translate }}</span>
+                <span class="bh-date">{{ date(item) }}</span>
+              </div>
+              @if (item.reason) {
+                <p class="bh-reason">{{ item.reason }}</p>
+              }
+              <p class="bh-meta">
+                {{ 'd3.listingBan.history.by' | translate }} {{ item.adminName || '—' }}
+                @if (item.triggeredByPropertyId) {
+                  <span class="bh-chip">{{ 'd3.listingBan.history.byProperty' | translate: { id: item.triggeredByPropertyId } }}</span>
+                }
+              </p>
+            </div>
+          </li>
+        }
+      </ol>
+
+      @if (loading) {
+        <div class="bh-state"><mat-spinner diameter="24"></mat-spinner></div>
+      } @else if (hasMore) {
+        <button type="button" class="bh-more" (click)="loadMore()">
+          {{ 'd3.listingBan.history.loadMore' | translate }}
+        </button>
+      }
+    }
+  </div>
+</div>

@@ -29,8 +29,9 @@
 
 @for (building of buildings; track building.id) {
   <section class="building-units-group">
-    <!-- The account blocks the property, which blocks the units: only the first blocker is surfaced. -->
-    @if (building.needsAccountReview || building.needsPropertyReview) {
+    <!-- The account blocks the property, which blocks the units: only the first blocker is surfaced.
+         Not on the banned tab: there the property/account review state isn't what's blocking the units. -->
+    @if (!isBannedTab && (building.needsAccountReview || building.needsPropertyReview)) {
       <div class="property-review-banner">
         <div class="banner-right">
           <div class="building-image">
@@ -97,7 +98,23 @@
     }
 
     @if (building.units.length > 0) {
-      @if (viewMode === 'list') {
+      @if (isBannedTab) {
+        <div class="banned-units-grid">
+          @for (unit of building.units; track unit.id) {
+            <app-banned-listing-card
+              kind="unit"
+              [listingId]="unit.id"
+              [title]="unit.title"
+              [subtitle]="unit.floor + ' · ' + unit.capacity"
+              [bannedAt]="unit.bannedAt ?? null"
+              [banReason]="unit.banReason ?? null"
+              [bannedByProperty]="!!unit.bannedByProperty"
+              [propertyBanned]="!!unit.propertyBanned"
+              [propertyId]="building.id"
+              (changed)="onBanChanged()" />
+          }
+        </div>
+      } @else if (viewMode === 'list') {
         <div class="units-list-table" [class.units-list-table--published]="!isReviewTab">
           <header class="units-list-table__header">
             <div class="uh-col uh-num">{{ 'd3.allUnits.table.unitNumber' | translate }}</div>
@@ -128,7 +145,7 @@
       }
     }
 
-    @if (building.needsAccountReview || building.needsPropertyReview) {
+    @if (!isBannedTab && (building.needsAccountReview || building.needsPropertyReview)) {
       <div class="activation-notice">
         <div class="activation-notice__icon">
           <i-tabler name="alert-triangle"></i-tabler>

@@ -59,6 +59,14 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
     }
 
+    // The backend doesn't send a Ban Refunds entry either (per the listing-ban handoff, the
+    // frontend adds it). Unlike Settlements it's gated: BanRefunds.View ships in the login
+    // response. Reading permissions() here also makes the effect rebuild when they change.
+    const canViewBanRefunds = this.loginService.permissions().some(p => p.toLowerCase() === 'banrefunds.view');
+    if (canViewBanRefunds && !items.find(i => i.link === '/d3/ban-refunds')) {
+      items.push({ translationKey: 'd3.sidebar.banRefunds', icon: 'receipt-refund', link: '/d3/ban-refunds' });
+    }
+
     // Temporary fixed entry so the Contact Us page can be previewed before the
     // backend starts returning it in the permission-driven sidebar payload.
     if (!items.find(i => i.link === '/d3/contact-us')) {

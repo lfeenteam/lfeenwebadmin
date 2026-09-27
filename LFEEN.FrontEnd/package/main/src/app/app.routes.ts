@@ -391,6 +391,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'ban-refunds',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/ban-refunds/ban-refunds.component'
+                  ).then((m) => m.BanRefundsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.banRefunds.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'account-management',
                 canActivate: [authGuard],
                 loadComponent: () =>

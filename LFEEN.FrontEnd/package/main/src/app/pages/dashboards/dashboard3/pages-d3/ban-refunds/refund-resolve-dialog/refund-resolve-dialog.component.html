@@ -1,0 +1,29 @@
+<div class="rr" [dir]="currentDir">
+  <div class="rr-header">
+    <div class="rr-heading">
+      <span class="rr-icon"><i-tabler name="check"></i-tabler></span>
+      <h2 class="rr-title">{{ 'd3.banRefunds.resolveDialog.title' | translate }}</h2>
+    </div>
+    <button type="button" class="rr-close" (click)="close()">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="rr-desc">
+    {{ 'd3.banRefunds.resolveDialog.desc' | translate: { booking: data.bookingNumber || '—', amount: data.amount } }}
+  </p>
+
+  <label class="rr-label" for="refund-note">{{ 'd3.banRefunds.resolveDialog.noteLabel' | translate }}</label>
+  <textarea
+    id="refund-note"
+    class="rr-textarea"
+    rows="4"
+    [maxlength]="maxLength"
+    [(ngModel)]="note"
+    [placeholder]="'d3.banRefunds.resolveDialog.notePlaceholder' | translate"></textarea>
+
+  <div class="rr-actions">
+    <button type="button" class="rr-cancel" (click)="close()">{{ 'd3.listingBan.dialog.cancelBtn' | translate }}</button>
+    <button type="button" class="rr-confirm" (click)="confirm()">{{ 'd3.banRefunds.resolveDialog.confirmBtn' | translate }}</button>
+  </div>
+</div>

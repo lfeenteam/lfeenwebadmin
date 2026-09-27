@@ -19,6 +19,21 @@ export function parseApiUtc(iso: string | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+/**
+ * Formats a UTC API timestamp in the viewer's local time zone (unlike formatLocalizedDateTime,
+ * which keeps UTC). Returns null if invalid.
+ */
+export function formatApiDateLocal(iso: string | null | undefined, lang: string, withTime = false): string | null {
+  const d = parseApiUtc(iso);
+  if (!d) return null;
+  return d.toLocaleString(lang === 'en' ? 'en-US' : 'ar-EG', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    ...(withTime ? { hour: 'numeric', minute: '2-digit' } : {}),
+  });
+}
+
 /** Formats a UTC ISO string into localized "D Month YYYY" / "HH:mm" parts, or null if invalid. */
 export function formatLocalizedDateTime(
   iso: string | null | undefined,

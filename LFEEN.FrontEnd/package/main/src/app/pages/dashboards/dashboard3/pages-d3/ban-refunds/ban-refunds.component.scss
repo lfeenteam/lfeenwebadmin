@@ -1,0 +1,339 @@
+// Visual language follows settlements.component.scss; classes are prefixed "br-".
+$text:   #0F172B;
+$muted:  #45556C;
+$label:  #90A1B9;
+$line:   #E2E8F0;
+
+.br {
+  font-family: 'Cairo', sans-serif;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+}
+
+.br-intro {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #62748E;
+}
+
+// ── Tabs ─────────────────────────────────────────────────
+.br-tabs {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid $line;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.br-tab {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 14px 2px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9E9E9A;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease;
+
+  &:hover { color: #6B6B67; }
+
+  &.active {
+    color: #111110;
+    font-weight: 800;
+    border-bottom-color: #111110;
+  }
+}
+
+.br-refresh {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B67;
+
+  i-tabler { display: flex; width: 18px; height: 18px; }
+  &:hover:not(:disabled) { background: #F8FAFC; color: #111110; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// ── Table ────────────────────────────────────────────────
+.br-table-box {
+  background: #fff;
+  border: 1px solid $line;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  padding: 10px;
+  transition: opacity 0.2s ease;
+
+  &.is-refreshing { opacity: 0.6; }
+}
+
+.br-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: #F8FAFC;
+    border-bottom: 1px solid $line;
+
+    th {
+      padding: 16px 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: start;
+      text-transform: uppercase;
+      color: $label;
+      white-space: nowrap;
+    }
+  }
+
+  td {
+    padding: 18px 20px;
+    text-align: start;
+    vertical-align: middle;
+  }
+}
+
+.br-row { border-bottom: 1px solid #F1F5F9; }
+.br-row:last-child { border-bottom: none; }
+
+.br-label { display: none; }
+
+// Booking numbers are digits only, so they read correctly in RTL as-is. Don't force
+// direction: ltr on this block — it flips text-align:start and pulls it away from the sub-line.
+.br-booking {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+}
+
+.br-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: $label;
+}
+
+.br-text {
+  font-size: 13px;
+  color: $muted;
+}
+
+.br-amount {
+  font-size: 14px;
+  font-weight: 800;
+  color: $text;
+  white-space: nowrap;
+}
+
+.br-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B6B67;
+  white-space: nowrap;
+}
+
+// ── Status ───────────────────────────────────────────────
+.br-status-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.br-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .br-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  &.st-pending { color: #d97706; background: #fffbeb; border: 1px solid #fef3c7; }
+  &.st-success { color: #16a34a; background: #f0fdf4; border: 1px solid #dcfce7; }
+  &.st-danger  { color: #dc2626; background: #fef2f2; border: 1px solid #fee2e2; }
+  &.st-neutral { color: #475569; background: #F1F5F9; border: 1px solid #E2E8F0; }
+}
+
+.br-error {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+
+  .br-error-icon { display: flex; width: 14px; height: 14px; }
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; border-radius: 4px; }
+}
+
+// Technical gateway message — keep it readable but clearly secondary.
+.br-error-text {
+  margin: 2px 0 0;
+  max-width: 320px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #991B1B;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.br-note {
+  max-width: 220px;
+  font-size: 11px;
+  color: $muted;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Actions ──────────────────────────────────────────────
+.br-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.br-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: filter 0.18s ease;
+
+  &:hover:not(:disabled) { filter: brightness(0.96); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $text; outline-offset: 2px; }
+}
+
+.br-btn-icon { display: flex; width: 16px; height: 16px; }
+
+.br-btn--retry   { background: #F1F5F9; color: $text; }
+.br-btn--resolve { background: #F0FDF4; color: #008236; }
+
+.br-empty-cell { padding: 0 !important; }
+.br-empty-retry { margin-top: 16px; }
+
+// ── Pagination ───────────────────────────────────────────
+.br-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 4px 0;
+}
+
+.br-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9E9E9A;
+}
+
+.br-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.br-page-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #E8E8E4;
+  background: #fff;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &:not(:disabled):hover { background: #f5f5f5; }
+  &.active { background: #111110; color: #fff; border-color: #111110; }
+}
+
+.br-ellipsis {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: #9E9E9A;
+}
+
+// ── Mobile: rows become cards ────────────────────────────
+@media (max-width: 767px) {
+  .br-table-box { border: none; box-shadow: none; background: transparent; padding: 0; }
+
+  .br-table {
+    display: block;
+
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 10px; }
+  }
+
+  .br-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid $line !important;
+    border-radius: 16px;
+    background: #fff;
+
+    td { padding: 10px 14px; }
+    td:nth-child(1), td:nth-child(5), td:nth-child(7) { grid-column: 1 / -1; }
+    td:nth-child(7):empty { display: none; }
+  }
+
+  .br-label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #9E9E9A;
+  }
+
+  .br-actions { justify-content: stretch; .br-btn { flex: 1; justify-content: center; } }
+
+  .br-pagination { justify-content: center; }
+}

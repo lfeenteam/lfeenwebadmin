@@ -1,7 +1,7 @@
-export type BuildingTab = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type BuildingTab = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges' | 'banned';
 export type BuildingViewMode = 'grid' | 'list';
 export type BuildingStatus = 'active' | 'stopped';
-export type PropertyAdminReviewStatus = 'Draft' | 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges' | 'PendingAfterRejection';
+export type PropertyAdminReviewStatus = 'Draft' | 'Pending' | 'UnderReview' | 'Approved' | 'Rejected' | 'HasPendingChanges' | 'PendingAfterRejection' | 'Banned';
 export type AdminReviewStatus = 'Pending' | 'Approved' | 'Rejected';
 // A section can also come back as one of these when the host edits it after it
 // was already decided (mirrors the property-level HasPendingChanges/PendingAfterRejection status).
@@ -32,6 +32,11 @@ export interface BuildingCardItem {
   tab: BuildingTab;
   mainPhotoUrl: string | null;
   pendingChangesReason?: PendingChangesReason;
+  /** Status allows a ban (Approved / HasPendingChanges / UnderReview). Permission is checked separately. */
+  canBan: boolean;
+  banReason: string | null;
+  /** Raw UTC timestamp from the API (no trailing Z). */
+  bannedAt: string | null;
 }
 
 export interface PropertyApiItem {
@@ -58,6 +63,8 @@ export interface PropertyApiItem {
   occupancyCount: number;
   activeBookingsCount: number;
   isActive: boolean;
+  banReason?: string | null;
+  bannedAt?: string | null;
 }
 
 export interface PropertyApiStats {
@@ -65,6 +72,7 @@ export interface PropertyApiStats {
   activeOrPublished: number;
   pendingOrRejected: number;
   underReview: number;
+  banned?: number;
 }
 
 export interface PaginatedPropertyResponse {
@@ -386,4 +394,7 @@ export interface PropertyDetailResponse {
   // approved — the property doesn't go live until the final approval action is
   // submitted, so isDisplayed is the reliable "final approval already done" signal.
   isDisplayed: boolean;
+  // Set while overallStatus === 'Banned'; bannedAt is UTC without a Z.
+  banReason?: string | null;
+  bannedAt?: string | null;
 }

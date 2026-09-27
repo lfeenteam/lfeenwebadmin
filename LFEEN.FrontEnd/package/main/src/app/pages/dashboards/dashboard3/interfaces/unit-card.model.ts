@@ -1,5 +1,5 @@
-export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft';
-export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft' | 'banned';
+export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges' | 'banned';
 export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
 export type UnitServicesPricingType = 'paid' | 'free';
 
@@ -18,6 +18,16 @@ export interface UnitCardItem {
   area?: string;
   cancelPolicyType?: CancelPolicyType;
   servicesPricingType?: UnitServicesPricingType;
+  /** Status allows a ban (Approved / HasPendingChanges / UnderReview). Permission is checked separately. */
+  canBan?: boolean;
+  propertyId?: string;
+  banReason?: string | null;
+  /** Raw UTC timestamp from the API (no trailing Z). */
+  bannedAt?: string | null;
+  /** Banned as a side effect of its property's ban — reason is edited from the property. */
+  bannedByProperty?: boolean;
+  /** The parent property itself is banned — the unit can't be unbanned on its own. */
+  propertyBanned?: boolean;
 }
 
 export interface UnitAmenityItem {
@@ -82,6 +92,7 @@ export type UnitReviewStatusCode =
   | 'Rejected'
   | 'HasPendingChanges'
   | 'PendingAfterRejection'
+  | 'Banned'
   | ''
   | null;
 
@@ -119,6 +130,9 @@ export interface UnitApiItem {
   completedSections: number;
   createdAt: string;
   updatedAt: string;
+  banReason?: string | null;
+  bannedAt?: string | null;
+  bannedByProperty?: boolean;
 }
 
 export interface UnitApiStats {
@@ -126,6 +140,7 @@ export interface UnitApiStats {
   activeOrPublished: number;
   pendingOrRejected: number;
   underReview: number;
+  banned?: number;
 }
 
 export interface PaginatedUnitResponse {
@@ -169,6 +184,10 @@ export interface UnitApiDetailItem {
   // has been approved — the unit doesn't go live until the final approval action
   // is submitted, so isDisplayed is the reliable "final approval already done" signal.
   isDisplayed: boolean;
+  // Set while overallStatus === 'Banned'; bannedAt is UTC without a Z.
+  banReason?: string | null;
+  bannedAt?: string | null;
+  bannedByProperty?: boolean;
   finalNotes: string | null;
   createdAt: string;
   updatedAt: string;

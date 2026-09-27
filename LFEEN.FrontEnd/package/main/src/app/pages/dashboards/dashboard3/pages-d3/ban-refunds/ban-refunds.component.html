@@ -1,0 +1,157 @@
+<div class="br" [dir]="currentDir">
+
+  <p class="br-intro">{{ 'd3.banRefunds.intro' | translate }}</p>
+
+  <!-- Tabs -->
+  <div class="br-tabs" role="tablist">
+    @for (tab of tabs; track tab.id) {
+      <button type="button" role="tab" class="br-tab"
+        [class.active]="activeTab === tab.id"
+        [attr.aria-selected]="activeTab === tab.id"
+        (click)="setTab(tab.id)">
+        {{ tab.labelKey | translate }}
+      </button>
+    }
+    <button type="button" class="br-refresh" [disabled]="loading" (click)="load()"
+      [matTooltip]="'d3.banRefunds.refresh' | translate"
+      [attr.aria-label]="'d3.banRefunds.refresh' | translate">
+      <i-tabler name="refresh"></i-tabler>
+    </button>
+  </div>
+
+  @if (loading && rows.length === 0) {
+    <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+  } @else {
+    <div class="br-table-box" [class.is-refreshing]="loading">
+      <table class="br-table">
+        <thead>
+          <tr>
+            <th>{{ 'd3.banRefunds.table.booking' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.guest' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.amount' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.attempts' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.status' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.date' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track row.id) {
+            <tr class="br-row">
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.booking' | translate }}</span>
+                <span class="br-booking">{{ row.bookingNumber || '—' }}</span>
+                @if (row.unitId || row.propertyId) {
+                  <span class="br-sub">
+                    @if (row.propertyId) { {{ 'd3.banRefunds.table.property' | translate: { id: row.propertyId } }} }
+                    @if (row.unitId) { · {{ 'd3.banRefunds.table.unit' | translate: { id: row.unitId } }} }
+                  </span>
+                }
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.guest' | translate }}</span>
+                <span class="br-text">{{ row.guestName || '—' }}</span>
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.amount' | translate }}</span>
+                <span class="br-amount">{{ fmtAmount(row) }}</span>
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.attempts' | translate }}</span>
+                <span class="br-text">{{ fmt(row.attempts) }}</span>
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.status' | translate }}</span>
+                <div class="br-status-cell">
+                  <span class="br-status" [ngClass]="statusMeta(row).cls">
+                    <span class="br-dot"></span>
+                    {{ (retryingIds.has(row.id) && row.status === 'Pending' ? 'd3.banRefunds.status.retrying' : statusMeta(row).key) | translate }}
+                  </span>
+                  @if (row.lastError) {
+                    <button type="button" class="br-error"
+                      [attr.aria-expanded]="expandedErrorIds.has(row.id)"
+                      (click)="toggleError(row.id)">
+                      <i-tabler name="alert-circle" class="br-error-icon"></i-tabler>
+                      {{ 'd3.banRefunds.lastError' | translate }}
+                      <i-tabler [name]="expandedErrorIds.has(row.id) ? 'chevron-up' : 'chevron-down'" class="br-error-icon"></i-tabler>
+                    </button>
+                    @if (expandedErrorIds.has(row.id)) {
+                      <p class="br-error-text">{{ row.lastError }}</p>
+                    }
+                  }
+                  @if (row.status === 'Pending' && row.nextAttemptAt) {
+                    <span class="br-sub">{{ 'd3.banRefunds.nextAttempt' | translate: { date: fmtDate(row.nextAttemptAt) } }}</span>
+                  }
+                  @if (row.status === 'Resolved') {
+                    <span class="br-sub">
+                      {{ 'd3.banRefunds.resolvedBy' | translate: { name: row.resolvedByAdminName || '—' } }}
+                    </span>
+                    @if (row.resolutionNote) {
+                      <span class="br-note" [title]="row.resolutionNote">{{ row.resolutionNote }}</span>
+                    }
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.date' | translate }}</span>
+                <span class="br-date">{{ fmtDate(row.status === 'Resolved' ? row.resolvedAt : (row.lastAttemptAt || row.createdAt)) }}</span>
+              </td>
+              <td class="br-actions-cell">
+                @if (row.status === 'ManualReview' && canManage()) {
+                  <div class="br-actions">
+                    <button type="button" class="br-btn br-btn--retry" [disabled]="busyIds.has(row.id)" (click)="retry(row)">
+                      <i-tabler name="refresh" class="br-btn-icon"></i-tabler>
+                      {{ 'd3.banRefunds.actions.retry' | translate }}
+                    </button>
+                    <button type="button" class="br-btn br-btn--resolve" [disabled]="busyIds.has(row.id)" (click)="resolve(row)">
+                      <i-tabler name="check" class="br-btn-icon"></i-tabler>
+                      {{ 'd3.banRefunds.actions.resolve' | translate }}
+                    </button>
+                  </div>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="br-empty-cell">
+                @if (loadError) {
+                  <app-dashboard-empty icon="cloud-off" titleKey="d3.banRefunds.errors.loadTitle" descKey="d3.banRefunds.errors.loadDesc">
+                    <button type="button" class="br-btn br-btn--retry br-empty-retry" (click)="load()">
+                      <i-tabler name="refresh" class="br-btn-icon"></i-tabler>
+                      {{ 'd3.banRefunds.refresh' | translate }}
+                    </button>
+                  </app-dashboard-empty>
+                } @else {
+                  <app-dashboard-empty icon="receipt-refund" titleKey="d3.banRefunds.empty.title" descKey="d3.banRefunds.empty.desc"></app-dashboard-empty>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading && totalPages > 1) {
+    <div class="br-pagination">
+      <span class="br-total">{{ fmt(totalCount) }} {{ 'd3.banRefunds.pagination.total' | translate }}</span>
+      <div class="br-pages">
+        <button class="br-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+        </button>
+        @for (item of visiblePages; track $index) {
+          @if (item === '...') {
+            <span class="br-ellipsis">...</span>
+          } @else {
+            <button class="br-page-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
+              {{ fmt($any(item)) }}
+            </button>
+          }
+        }
+        <button class="br-page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </div>
+  }
+</div>

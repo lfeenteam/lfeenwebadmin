@@ -189,6 +189,7 @@
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "platformOffers": "Platform Offers",
+      "banRefunds": "Ban Refunds",
       "callScripts": "Call Scripts",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
@@ -271,6 +272,10 @@
         "rejected": {
           "title": "No rejected buildings",
           "desc": "No buildings have been rejected yet, or no results match your search."
+        },
+        "banned": {
+          "title": "No banned buildings",
+          "desc": "No buildings have been banned yet, or no results match your search."
         }
       },
       "units": {
@@ -297,6 +302,10 @@
         "rejected": {
           "title": "No rejected units",
           "desc": "No units have been rejected yet, or no results match your search."
+        },
+        "banned": {
+          "title": "No banned units",
+          "desc": "No units have been banned yet, or no results match your search."
         }
       },
       "accounts": {
@@ -318,6 +327,144 @@
         }
       }
     },
+    "banRefunds": {
+      "title": "Ban Refunds",
+      "intro": "Guest refunds for bookings cancelled because a building or unit was banned. Refunds run automatically; failures land here under “Needs manual review”.",
+      "refresh": "Refresh",
+      "lastError": "Failure reason",
+      "nextAttempt": "Next attempt: {{date}}",
+      "resolvedBy": "Handled by {{name}}",
+      "tabs": {
+        "all": "All"
+      },
+      "status": {
+        "pending": "Refund in progress",
+        "retrying": "Retrying…",
+        "succeeded": "Refunded",
+        "manualReview": "Needs manual review",
+        "resolved": "Handled manually"
+      },
+      "table": {
+        "booking": "Booking no.",
+        "property": "Building #{{id}}",
+        "unit": "Unit #{{id}}",
+        "guest": "Guest",
+        "amount": "Amount",
+        "attempts": "Attempts",
+        "status": "Status",
+        "date": "Last update"
+      },
+      "actions": {
+        "retry": "Retry",
+        "resolve": "Mark handled"
+      },
+      "resolveDialog": {
+        "title": "Confirm manual handling",
+        "desc": "Use this after {{amount}} for booking {{booking}} was refunded outside the system (e.g. from the payment gateway dashboard). The system won't try to refund it again.",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "e.g. Refunded manually from the gateway dashboard",
+        "confirmBtn": "Confirm"
+      },
+      "toast": {
+        "retryQueued": "Retry scheduled — the status will update in a few seconds",
+        "resolved": "Refund marked as handled"
+      },
+      "empty": {
+        "title": "No refunds here",
+        "desc": "There are no refunds with this status right now."
+      },
+      "pagination": {
+        "total": "refunds"
+      },
+      "errors": {
+        "notInManualReview": "This refund was already handled — the list has been refreshed",
+        "notFound": "Refund not found",
+        "loadTitle": "Couldn't load refunds",
+        "loadDesc": "Check your connection and try again."
+      }
+    },
+    "listingBan": {
+      "button": {
+        "property": "Ban building",
+        "unit": "Ban unit"
+      },
+      "dialog": {
+        "reasonLabel": "Ban reason",
+        "reasonPlaceholder": "Write the ban reason here...",
+        "cancelBtn": "Cancel",
+        "ban": {
+          "titleProperty": "Confirm building ban",
+          "titleUnit": "Confirm unit ban",
+          "descProperty": "Are you sure you want to ban this building? All active operations linked to it will stop immediately. Please enter the ban reason for documentation and follow-up.",
+          "descUnit": "Are you sure you want to ban this unit? All active operations linked to it will stop immediately. Please enter the ban reason for documentation and follow-up.",
+          "confirmBtn": "Confirm ban",
+          "success": "Banned",
+          "bookingsDetail": "{{count}} booking(s) cancelled",
+          "unitsDetail": "{{count}} unit(s) banned"
+        },
+        "editReason": {
+          "titleProperty": "Edit building ban reason",
+          "titleUnit": "Edit unit ban reason",
+          "descProperty": "The ban reason will be updated, and the new reason will also apply to units banned because of this building.",
+          "descUnit": "The ban reason for this unit will be updated.",
+          "confirmBtn": "Save reason",
+          "success": "Reason updated",
+          "unitsDetail": "applied to {{count}} unit(s)"
+        },
+        "unban": {
+          "titleProperty": "Unban building",
+          "titleUnit": "Unban unit",
+          "descProperty": "The building will go back to under review and won't be visible to guests until approved. Units banned because of it will be unbanned too. Cancelled bookings won't come back.",
+          "descUnit": "The unit will go back to under review and won't be visible to guests until approved. Cancelled bookings won't come back.",
+          "confirmBtn": "Unban",
+          "success": "Unbanned",
+          "unitsDetail": "{{count}} unit(s) unbanned"
+        }
+      },
+      "banner": {
+        "titleProperty": "This building is banned",
+        "titleUnit": "This unit is banned",
+        "hint": "Review, approval and rejection are locked while it's banned. To republish, unban it, then review it again.",
+        "hintByProperty": "This unit is banned because its building is. Review stays locked until the building is unbanned."
+      },
+      "history": {
+        "title": "Ban history",
+        "short": "History",
+        "by": "By",
+        "byProperty": "Via building #{{id}}",
+        "empty": "No ban actions recorded.",
+        "loadError": "Couldn't load the history.",
+        "retry": "Try again",
+        "loadMore": "Show more",
+        "actions": {
+          "ban": "Banned",
+          "updateReason": "Reason updated",
+          "unban": "Unbanned"
+        }
+      },
+      "card": {
+        "badge": "Banned",
+        "bannedAt": "Ban date",
+        "reason": "Ban reason details",
+        "editReason": "Edit reason",
+        "unban": "Unban",
+        "bannedByProperty": "Banned by building",
+        "editFromProperty": "Edited from the building",
+        "unbanPropertyFirst": "Unban the building first"
+      },
+      "errors": {
+        "cannotBan": "This item can't be banned in its current status",
+        "notBanned": "This item isn't banned, refresh the page",
+        "parentPropertyBanned": "Unban the building first",
+        "bannedByProperty": "Edit the reason from the building",
+        "listingBanned": "This item is banned and can't be modified",
+        "targetUnitBanned": "Can't move to this unit because it or its building is banned",
+        "reasonRequired": "Ban reason is required",
+        "notFound": "Item not found",
+        "forbidden": "You're not allowed to perform this action",
+        "serviceUnavailable": "Couldn't reach the service, please try again"
+      }
+    },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
@@ -334,7 +481,8 @@
         "new": "New",
         "underReview": "Under Review",
         "pendingChanges": "Pending Changes",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "banned": "Banned Buildings"
       },
       "pagination": {
         "total": "property"
@@ -506,7 +654,8 @@
         "new": "New",
         "underReview": "Under Review",
         "pendingChanges": "Pending Changes",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "banned": "Banned Units"
       },
       "pagination": {
         "total": "unit"

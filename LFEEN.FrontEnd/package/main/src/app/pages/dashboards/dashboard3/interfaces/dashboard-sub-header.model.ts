@@ -8,6 +8,8 @@ export interface MetricCard {
 export interface TabOption {
   id: string;
   labelKey: string;
+  /** Optional badge next to the label; hidden when null/undefined or 0. */
+  count?: number | null;
 }
 
 export type ViewMode = 'grid' | 'list';
