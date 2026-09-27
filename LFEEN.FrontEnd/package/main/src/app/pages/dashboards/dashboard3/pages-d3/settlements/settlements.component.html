@@ -18,7 +18,14 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.totalPending' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.totalPendingAmount != null) {
+          <span class="stat-value">
+            {{ fmtAmount(summary!.totalPendingAmount!) }}
+            <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
 
@@ -28,7 +35,14 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.avgRequestValue' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.averageNetAmount != null) {
+          <span class="stat-value">
+            {{ fmtAmount(summary!.averageNetAmount!) }}
+            <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
 
@@ -38,7 +52,13 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.maxPaymentTime' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.oldestOutstandingPayoutAgeHours != null) {
+          <span class="stat-value">
+            {{ fmtHours(summary!.oldestOutstandingPayoutAgeHours!) }} {{ 'd3.settlements.stats.hoursUnit' | translate }}
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
   </div>

@@ -16,7 +16,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { SettlementDetailDialogComponent, SettlementDetailDialogData, SettlementDialogResult } from './components/settlement-detail-dialog/settlement-detail-dialog.component';
-import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail } from './interfaces/settlement.model';
+import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
 
@@ -93,8 +93,10 @@ export class SettlementsComponent implements OnInit {
     { value: false, labelKey: 'd3.settlements.filters.oldest' },
   ];
 
-  // The stats cards have no backend source yet — they render "-" (see template).
   readonly emptyValue = EMPTY;
+
+  /** Stats cards data — comes with the list response; null until loaded. */
+  summary: SettlementSummary | null = null;
 
   constructor() {
     this.translate.onLangChange
@@ -131,6 +133,10 @@ export class SettlementsComponent implements OnInit {
     });
   }
 
+  fmtHours(value: number): string {
+    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 1 });
+  }
+
   load(): void {
     this.listRequest?.unsubscribe();
     this.loading = true;
@@ -138,12 +144,14 @@ export class SettlementsComponent implements OnInit {
 
     const statuses = this.activeTab === 'current' ? CURRENT_TAB_STATUSES : PREVIOUS_TAB_STATUSES;
     this.listRequest = this.service.listAllByStatuses(statuses).subscribe({
-      next: items => {
+      next: ({ items, summary }) => {
+        this.summary = summary;
         this.allSettlements = items.map(s => this.toRow(s));
         this.loading = false;
         this.applyFilters();
       },
       error: err => {
+        this.summary = null;
         this.allSettlements = [];
         this.loading = false;
         this.loadError = true;
