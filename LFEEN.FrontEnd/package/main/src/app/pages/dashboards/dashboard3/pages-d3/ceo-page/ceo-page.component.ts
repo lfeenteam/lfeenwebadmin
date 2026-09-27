@@ -4,11 +4,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { CardsTopComponent } from '../../../../../components/dashboard3/cards-top/cards-top.component';
 import { ChartComponent } from '../../../../../components/dashboard3/chart/chart.component';
 import { InsightsComponent } from '../../../../../components/dashboard3/insights/insights.component';
+import { PeriodFilterComponent } from '../../../../../components/dashboard3/period-filter/period-filter.component';
 
 @Component({
   selector: 'app-ceo-page',
   standalone: true,
-  imports: [CommonModule, CardsTopComponent, ChartComponent, InsightsComponent],
+  imports: [CommonModule, PeriodFilterComponent, CardsTopComponent, ChartComponent, InsightsComponent],
   templateUrl: './ceo-page.component.html',
   styleUrl: './ceo-page.component.scss'
 })

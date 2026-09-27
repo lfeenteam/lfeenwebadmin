@@ -1,0 +1,172 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Cairo', sans-serif;
+}
+
+.d3-period-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+}
+
+.d3-period-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.d3-period-chip {
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  background-color: #F1F5F9;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #E2E8F0;
+  }
+
+  &.active {
+    background-color: #0F172B;
+    color: #FFFFFF;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0F172B;
+    outline-offset: 2px;
+  }
+}
+
+// Same "date-pill" look as the bookings check-in/check-out filter
+// (all-bookings.component.scss), so the two filters read as one system.
+.date-pill {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  background: #FFFFFF;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
+
+  &.active {
+    border-color: #0F172B;
+    background: #F1F5F9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0F172B;
+    outline-offset: 2px;
+  }
+
+  // Sized and flex-centered on the icon's own host, not just the parent: an
+  // <i-tabler> host defaults to inline display, so its box can sit a few
+  // pixels off the text baseline inside a flex row unless it's given an
+  // explicit box to be centered within.
+  .date-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: #62748E;
+    ::ng-deep svg { width: 16px; height: 16px; stroke-width: 2; }
+  }
+
+  .date-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0F172B;
+    font-family: 'Cairo', sans-serif;
+    white-space: nowrap;
+  }
+}
+
+.d3-period-clear {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: #B91C1C;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover { background: #FEF2F2; }
+
+  &:focus-visible {
+    outline: 2px solid #0F172B;
+    outline-offset: 2px;
+  }
+}
+
+.d3-period-clear-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  ::ng-deep svg { width: 14px; height: 14px; stroke-width: 2; }
+}
+
+.d3-period-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.d3-period-current {
+  color: #62748E;
+  font-weight: 600;
+}
+
+.d3-period-error {
+  color: #B91C1C;
+  font-weight: 700;
+}
+
+// Same calendar popover styling as all-bookings.component.scss. Angular only
+// injects a component's ::ng-deep rules once that component has actually been
+// instantiated, so this can't rely on the bookings page having been visited —
+// it's duplicated here to guarantee the popover looks right from the CEO page too.
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu {
+  max-width: none;
+  border-radius: 16px;
+}
+
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu .mat-mdc-menu-content {
+  padding: 0;
+}

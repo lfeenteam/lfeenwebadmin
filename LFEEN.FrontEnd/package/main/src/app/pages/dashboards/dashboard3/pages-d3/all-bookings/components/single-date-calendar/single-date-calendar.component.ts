@@ -10,6 +10,8 @@ interface CalendarDay {
   isSelected: boolean;
 }
 
+const YEARS_PER_PAGE = 12;
+
 @Component({
   selector: 'app-single-date-calendar',
   standalone: true,
@@ -26,10 +28,19 @@ export class SingleDateCalendarComponent implements OnChanges {
   viewMonth = this.startOfMonth(new Date());
   selected: Date | null = null;
 
+  /** 'days' is the normal calendar grid. Clicking the header drills up to
+   *  'months' (pick a month within a year) and then 'years' (pick a year
+   *  itself), so a far-off date doesn't need clicking the month arrow dozens
+   *  of times. */
+  view: 'days' | 'months' | 'years' = 'days';
+  private yearRangeStart = this.startOfYearPage(this.viewMonth.getFullYear());
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['value']) {
       this.selected = this.value ? this.parseIsoDate(this.value) : null;
       this.viewMonth = this.startOfMonth(this.selected ?? new Date());
+      this.view = 'days';
+      this.yearRangeStart = this.startOfYearPage(this.viewMonth.getFullYear());
     }
   }
 
@@ -84,6 +95,90 @@ export class SingleDateCalendarComponent implements OnChanges {
 
   nextMonth(): void {
     this.viewMonth = new Date(this.viewMonth.getFullYear(), this.viewMonth.getMonth() + 1, 1);
+  }
+
+  // Drills up one level: days -> months (pick a month in the current year) ->
+  // years (pick the year itself). The header text is the only affordance —
+  // there's no separate caret icon to click.
+  drillUp(): void {
+    if (this.view === 'days') {
+      this.view = 'months';
+    } else if (this.view === 'months') {
+      this.yearRangeStart = this.startOfYearPage(this.viewMonth.getFullYear());
+      this.view = 'years';
+    }
+  }
+
+  headerNavPrev(): void {
+    if (this.view === 'years') this.prevYearPage();
+    else if (this.view === 'months') this.shiftYear(-1);
+    else this.prevMonth();
+  }
+
+  headerNavNext(): void {
+    if (this.view === 'years') this.nextYearPage();
+    else if (this.view === 'months') this.shiftYear(1);
+    else this.nextMonth();
+  }
+
+  get headerLabel(): string {
+    if (this.view === 'years') return this.yearRangeLabel;
+    if (this.view === 'months') return this.yearLabel(this.viewMonth.getFullYear());
+    return this.monthLabel;
+  }
+
+  get monthOptions(): { index: number; label: string }[] {
+    return Array.from({ length: 12 }, (_, i) => ({
+      index: i,
+      label: new Intl.DateTimeFormat(this.locale, { month: 'short' }).format(new Date(2023, i, 1)),
+    }));
+  }
+
+  isSelectedMonth(index: number): boolean {
+    return index === this.viewMonth.getMonth();
+  }
+
+  selectMonth(index: number): void {
+    this.viewMonth = new Date(this.viewMonth.getFullYear(), index, 1);
+    this.view = 'days';
+  }
+
+  get yearOptions(): number[] {
+    return Array.from({ length: YEARS_PER_PAGE }, (_, i) => this.yearRangeStart + i);
+  }
+
+  get yearRangeLabel(): string {
+    const fmt = new Intl.NumberFormat(this.locale, { useGrouping: false });
+    return `${fmt.format(this.yearRangeStart)} – ${fmt.format(this.yearRangeStart + YEARS_PER_PAGE - 1)}`;
+  }
+
+  yearLabel(year: number): string {
+    return new Intl.NumberFormat(this.locale, { useGrouping: false }).format(year);
+  }
+
+  isSelectedYear(year: number): boolean {
+    return year === this.viewMonth.getFullYear();
+  }
+
+  private prevYearPage(): void {
+    this.yearRangeStart -= YEARS_PER_PAGE;
+  }
+
+  private nextYearPage(): void {
+    this.yearRangeStart += YEARS_PER_PAGE;
+  }
+
+  private shiftYear(delta: number): void {
+    this.viewMonth = new Date(this.viewMonth.getFullYear() + delta, this.viewMonth.getMonth(), 1);
+  }
+
+  selectYear(year: number): void {
+    this.viewMonth = new Date(year, this.viewMonth.getMonth(), 1);
+    this.view = 'months';
+  }
+
+  private startOfYearPage(year: number): number {
+    return year - (year % YEARS_PER_PAGE);
   }
 
   private parseIsoDate(value: string): Date {

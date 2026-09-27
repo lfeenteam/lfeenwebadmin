@@ -119,6 +119,22 @@
     "errorOccurred": "حدث خطأ، حاول مجدداً"
   },
   "d3": {
+    "state": {
+      "loadError": "تعذر تحميل البيانات",
+      "retry": "إعادة المحاولة"
+    },
+    "filters": {
+      "ariaLabel": "اختيار فترة لوحة التحكم",
+      "thisMonth": "هذا الشهر",
+      "lastMonth": "الشهر الماضي",
+      "last90Days": "آخر 90 يوم",
+      "customFrom": "من",
+      "customTo": "إلى",
+      "rangeTooLong": "أقصى مدة للفترة 366 يوم",
+      "toClearedHint": "تم مسح تاريخ \"إلى\" لأنه أصبح قبل تاريخ \"من\".",
+      "rangeOrderError": "تاريخ \"إلى\" لا يمكن أن يكون قبل تاريخ \"من\".",
+      "clear": "مسح"
+    },
     "header": {
       "title": "لوحة تحكم المدير التنفيذي",
       "platform": "منصة لفين · المملكة العربية السعودية",
@@ -518,7 +534,10 @@
       "hostRetention": "معدل احتفاظ المضيفين",
       "trendUpLastMonth": "عن الشهر الماضي",
       "stable": "مستقر",
-      "concerningIncrease": "زيادة مقلقة"
+      "concerningIncrease": "زيادة مقلقة",
+      "unavailable": "غير متاح",
+      "points": "نقطة",
+      "requiredSource": "المصدر المطلوب"
     },
     "chart": {
       "title": "تحليل نمو المنصة",
@@ -536,10 +555,13 @@
       "rowRating": "التقييم",
       "rowCancelRate": "معدل الإلغاء",
       "rowOpenComplaints": "شكاوى مفتوحة",
-      "distributionTitle": "توزيع فئات المضيفين",
+      "distributionTitle": "توزيع الضيوف حسب الجنس",
       "segHotels": "فنادق (45%)",
       "segIndividuals": "أفراد (35%)",
-      "segCompanies": "مؤسسات (20%)"
+      "segCompanies": "مؤسسات (20%)",
+      "rowDownloads": "التحميلات",
+      "segMale": "ذكور",
+      "segFemale": "إناث"
     },
     "insights": {
       "topCities": "أعلى 6 مدن سعودية",
@@ -571,7 +593,15 @@
       "cityDammam": "الدمام",
       "cityMakkah": "مكة المكرمة",
       "cityMadinah": "المدينة المنورة",
-      "cityKhobar": "الخبر"
+      "cityKhobar": "الخبر",
+      "unit": "وحدة",
+      "noCities": "لا توجد حجوزات مرتبطة بمدن خلال الفترة",
+      "noDecisions": "لا توجد قرارات مطلوبة حالياً",
+      "severityCritical": "حرج",
+      "severityWarning": "تحذير",
+      "severityOpportunity": "فرصة",
+      "severityInfo": "معلومة",
+      "viewDetails": "عرض التفاصيل"
     },
     "loginPage": {
       "sidebar": {

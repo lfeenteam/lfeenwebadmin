@@ -1,34 +1,68 @@
 <div class="sdc-root" [dir]="currentDir">
 
   <div class="sdc-header">
-    <button type="button" class="sdc-nav-btn" (click)="prevMonth()">
+    <button type="button" class="sdc-nav-btn" (click)="headerNavPrev()">
       <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
     </button>
-    <span class="sdc-month-title">{{ monthLabel }}</span>
-    <button type="button" class="sdc-nav-btn" (click)="nextMonth()">
+    <!-- The label itself is the only affordance to drill up (days -> months -> years) —
+         no separate caret icon, and years has nothing further to drill into. -->
+    <button type="button" class="sdc-month-title" [disabled]="view === 'years'" (click)="drillUp()">
+      {{ headerLabel }}
+    </button>
+    <button type="button" class="sdc-nav-btn" (click)="headerNavNext()">
       <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
     </button>
   </div>
 
-  <div class="sdc-weekdays">
-    @for (wd of weekdayLabels; track wd) {
-      <span class="sdc-weekday">{{ wd }}</span>
-    }
-  </div>
+  @switch (view) {
+    @case ('days') {
+      <div class="sdc-weekdays">
+        @for (wd of weekdayLabels; track wd) {
+          <span class="sdc-weekday">{{ wd }}</span>
+        }
+      </div>
 
-  <div class="sdc-days-grid">
-    @for (day of days; track day.date.getTime()) {
-      <button
-        type="button"
-        class="sdc-day"
-        [class.sdc-day-empty]="!day.inCurrentMonth"
-        [class.sdc-day-today]="day.isToday"
-        [class.sdc-day-selected]="day.isSelected"
-        [disabled]="!day.inCurrentMonth"
-        (click)="selectDay(day)">
-        @if (day.inCurrentMonth) { {{ dayNumberLabel(day.date) }} }
-      </button>
+      <div class="sdc-days-grid">
+        @for (day of days; track day.date.getTime()) {
+          <button
+            type="button"
+            class="sdc-day"
+            [class.sdc-day-empty]="!day.inCurrentMonth"
+            [class.sdc-day-today]="day.isToday"
+            [class.sdc-day-selected]="day.isSelected"
+            [disabled]="!day.inCurrentMonth"
+            (click)="selectDay(day)">
+            @if (day.inCurrentMonth) { {{ dayNumberLabel(day.date) }} }
+          </button>
+        }
+      </div>
     }
-  </div>
+    @case ('months') {
+      <div class="sdc-years-grid">
+        @for (month of monthOptions; track month.index) {
+          <button
+            type="button"
+            class="sdc-year"
+            [class.sdc-year-selected]="isSelectedMonth(month.index)"
+            (click)="selectMonth(month.index)">
+            {{ month.label }}
+          </button>
+        }
+      </div>
+    }
+    @case ('years') {
+      <div class="sdc-years-grid">
+        @for (year of yearOptions; track year) {
+          <button
+            type="button"
+            class="sdc-year"
+            [class.sdc-year-selected]="isSelectedYear(year)"
+            (click)="selectYear(year)">
+            {{ yearLabel(year) }}
+          </button>
+        }
+      </div>
+    }
+  }
 
 </div>

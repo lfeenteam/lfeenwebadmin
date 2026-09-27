@@ -8,11 +8,13 @@
         </div>
         <p class="d3-growth-subtitle">{{ 'd3.chart.subtitle' | translate }}</p>
       </div>
-      <div class="d3-growth-tabs">
+      <div class="d3-growth-tabs" role="tablist" [attr.aria-label]="'d3.chart.title' | translate">
         @for (tab of tabs; track tab; let i = $index) {
           <button type="button"
+                  role="tab"
                   class="d3-tab"
-                  [class.active]="activeTab === i"
+                  [class.active]="activeTab() === i"
+                  [attr.aria-selected]="activeTab() === i"
                   (click)="setTab(i)">
             {{ tab | translate }}
           </button>
@@ -21,20 +23,38 @@
     </div>
 
     <div class="d3-chart-area">
-      <apx-chart
-        #chart
-        [series]="chartOptions.series"
-        [chart]="chartOptions.chart"
-        [xaxis]="chartOptions.xaxis"
-        [yaxis]="chartOptions.yaxis"
-        [stroke]="chartOptions.stroke"
-        [fill]="chartOptions.fill"
-        [grid]="chartOptions.grid"
-        [dataLabels]="chartOptions.dataLabels"
-        [tooltip]="chartOptions.tooltip"
-        [markers]="chartOptions.markers"
-        [colors]="chartOptions.colors">
-      </apx-chart>
+      @if (growth.error() && !growth.data()) {
+        <div class="d3-panel-error" role="alert">
+          <span>{{ 'd3.state.loadError' | translate }}</span>
+          <button type="button" class="d3-retry-btn" (click)="growth.reload()">{{ 'd3.state.retry' | translate }}</button>
+        </div>
+      } @else if (growth.initialLoading()) {
+        <div class="d3-skeleton d3-chart-skeleton"></div>
+      } @else {
+        <apx-chart
+          [series]="chartOptions().series"
+          [chart]="chartOptions().chart"
+          [xaxis]="chartOptions().xaxis"
+          [yaxis]="chartOptions().yaxis"
+          [stroke]="chartOptions().stroke"
+          [fill]="chartOptions().fill"
+          [grid]="chartOptions().grid"
+          [dataLabels]="chartOptions().dataLabels"
+          [tooltip]="chartOptions().tooltip"
+          [markers]="chartOptions().markers"
+          [colors]="chartOptions().colors">
+        </apx-chart>
+
+        <!-- Text alternative for the chart data -->
+        <table class="d3-sr-only">
+          <caption>{{ tabs[activeTab()] | translate }}</caption>
+          <tbody>
+            @for (point of growthPoints(); track point.startUtc) {
+              <tr><th scope="row">{{ point.label }}</th><td>{{ formatCount(point[activeKey()]) }}</td></tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
   </div>
   <!-- Right: Detailed Comparison -->
@@ -50,7 +70,16 @@
         <span class="d3-col-hosts">{{ 'd3.chart.colHosts' | translate }}</span>
       </div>
 
-      @for (row of comparisonRows; track row.label) {
+      @if (summary.error() && !summary.data()) {
+        <div class="d3-panel-error" role="alert">
+          <span>{{ 'd3.state.loadError' | translate }}</span>
+          <button type="button" class="d3-retry-btn" (click)="summary.reload()">{{ 'd3.state.retry' | translate }}</button>
+        </div>
+      } @else if (summary.initialLoading()) {
+        <div class="d3-skeleton d3-table-skeleton"></div>
+      }
+
+      @for (row of comparisonRows(); track row.label) {
         <div class="d3-comparison-row">
           <span class="d3-col-label">{{ row.label | translate }}</span>
           <span class="d3-col-guests" [style.color]="row.guestsColor || '#0F172B'">{{ row.guests }}</span>
@@ -59,20 +88,22 @@
       }
     </div>
 
-    <div class="d3-distribution">
-      <div class="d3-distribution-title">{{ 'd3.chart.distributionTitle' | translate }}</div>
-      <div class="d3-distribution-bar">
-        @for (seg of distributionSegments; track seg.label) {
-          <div class="d3-seg" [style.width.%]="seg.value" [style.background-color]="seg.color"></div>
-        }
+    @if (distributionSegments().length) {
+      <div class="d3-distribution">
+        <div class="d3-distribution-title">{{ 'd3.chart.distributionTitle' | translate }}</div>
+        <div class="d3-distribution-bar">
+          @for (seg of distributionSegments(); track seg.label) {
+            <div class="d3-seg" [style.width.%]="seg.value" [style.background-color]="seg.color"></div>
+          }
+        </div>
+        <div class="d3-distribution-legend">
+          @for (seg of distributionSegments(); track seg.label) {
+            <span class="d3-legend-item">
+              {{ seg.label | translate }} ({{ formatPercent(seg.value) }})
+            </span>
+          }
+        </div>
       </div>
-      <div class="d3-distribution-legend">
-        @for (seg of distributionSegments; track seg.label) {
-          <span class="d3-legend-item">
-            {{ seg.label | translate }}
-          </span>
-        }
-      </div>
-    </div>
+    }
   </div>
 </div>

@@ -1,5 +1,20 @@
 <div class="d3-cards-wrapper">
 
+  @if (summary.error() && !summary.data()) {
+    <div class="d3-panel-error" role="alert">
+      <span>{{ 'd3.state.loadError' | translate }}</span>
+      <button type="button" class="d3-retry-btn" (click)="summary.reload()">{{ 'd3.state.retry' | translate }}</button>
+    </div>
+  }
+
+  <!--
+    dataQuality banner intentionally hidden: the backend's dataQuality[].message
+    text isn't localized to Arabic and reads as unpolished/technical to admins.
+    The signal below is still populated — flip this back on (or filter it) once
+    the backend either localizes the messages or a whitelist of user-facing
+    codes is agreed on.
+  -->
+
   <!-- Section 1: Platform Performance -->
   <section class="d3-section">
     <div class="d3-section-header">
@@ -8,7 +23,12 @@
     </div>
 
     <div class="d3-cards-grid">
-      @for (card of platformCards; track card.title) {
+      @if (summary.initialLoading()) {
+        @for (i of skeletons; track i) {
+          <div class="d3-card d3-skeleton"></div>
+        }
+      }
+      @for (card of platformCards(); track card.title) {
         <div class="d3-card">
           <div class="d3-card-top">
             <span class="d3-card-title">{{ card.title | translate }}</span>
@@ -32,19 +52,20 @@
             }
           </div>
 
-          @if (card.trendPrefix || card.trendSuffixKey) {
+          @if (card.trend) {
             <div class="d3-card-trend"
-                 [class.up]="card.trendType === 'up'"
-                 [class.warn]="card.trendType === 'warn'">
-              <i-tabler [name]="card.trendType === 'up' ? 'trending-up' : 'arrow-down'"></i-tabler>
+                 [class.up]="trendClass(card) === 'up'"
+                 [class.warn]="trendClass(card) === 'warn'">
+              @if (card.trend.direction !== 'flat') {
+                <i-tabler [name]="card.trend.direction === 'up' ? 'trending-up' : 'arrow-down'"></i-tabler>
+              }
               <span>
-                @if (card.trendPrefix) { {{ card.trendPrefix }} }
-                @if (card.trendSuffixKey) { {{ card.trendSuffixKey | translate }} }
+                <span dir="ltr">{{ card.trend.text }}</span>
+                @if (card.trend.direction !== 'flat' || card.trend.text !== '—') {
+                  {{ (card.trendIsPoints ? 'd3.cards.points' : 'd3.cards.trendUpLastMonth') | translate }}
+                }
               </span>
             </div>
-          }
-          @if (card.trendNote) {
-            <div class="d3-card-note">{{ card.trendNote | translate }}</div>
           }
         </div>
       }
@@ -65,37 +86,45 @@
     </div>
 
     <div class="d3-split-grid">
-      <!-- Hosts cards (right) -->
+      <!-- Hosts (merchant) app cards -->
       <div class="d3-cards-grid d3-half-grid">
-        @for (card of hostsCards; track card.title) {
+        @if (summary.initialLoading()) {
+          @for (i of skeletons; track i) {
+            <div class="d3-card d3-card-sm d3-skeleton"></div>
+          }
+        }
+        @for (card of hostsCards(); track card.title) {
           <div class="d3-card d3-card-sm">
             <div class="d3-card-top">
               <span class="d3-card-title">{{ card.title | translate }}</span>
             </div>
             <div class="d3-card-body">
               <span class="d3-card-value"
-                    [class.green]="card.trendType === 'up'"
-                    [class.blue]="card.trendType === 'blue'">{{ card.value }}</span>
-              @if (card.iconName === 'star') {
-                <i-tabler name="star" class="d3-star-icon"></i-tabler>
-              }
+                    [class.green]="card.valueTone === 'up'"
+                    [class.blue]="card.valueTone === 'blue'">{{ card.value }}</span>
             </div>
           </div>
         }
       </div>
 
-      <!-- Guests cards (left) -->
+      <!-- Guests app cards -->
       <div class="d3-cards-grid d3-half-grid">
-        @for (card of guestsCards; track card.title) {
+        @if (summary.initialLoading()) {
+          @for (i of skeletons; track i) {
+            <div class="d3-card d3-card-sm d3-skeleton"></div>
+          }
+        }
+        @for (card of guestsCards(); track card.title) {
           <div class="d3-card d3-card-sm">
             <div class="d3-card-top">
               <span class="d3-card-title">{{ card.title | translate }}</span>
             </div>
             <div class="d3-card-body">
               <span class="d3-card-value"
-                    [class.green]="card.trendType === 'up'"
-                    [class.blue]="card.trendType === 'blue'">{{ card.value }}</span>
-              @if (card.iconName === 'star') {
+                    [attr.title]="card.unavailableHint ? ('d3.cards.requiredSource' | translate) + ': ' + card.unavailableHint : null"
+                    [class.green]="card.valueTone === 'up'"
+                    [class.blue]="card.valueTone === 'blue'">{{ card.value }}</span>
+              @if (card.iconName === 'star' && card.value !== '—') {
                 <i-tabler name="star" class="d3-star-icon"></i-tabler>
               }
             </div>

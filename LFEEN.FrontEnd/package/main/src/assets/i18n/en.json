@@ -117,6 +117,22 @@
     "errorOccurred": "Something went wrong, please try again"
   },
   "d3": {
+    "state": {
+      "loadError": "Could not load data",
+      "retry": "Retry"
+    },
+    "filters": {
+      "ariaLabel": "Select the dashboard period",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "last90Days": "Last 90 days",
+      "customFrom": "From",
+      "customTo": "To",
+      "rangeTooLong": "The maximum range is 366 days",
+      "toClearedHint": "The \"to\" date was cleared because it fell before the \"from\" date.",
+      "rangeOrderError": "The \"to\" date can't be before the \"from\" date.",
+      "clear": "Clear"
+    },
     "header": {
       "title": "CEO Dashboard",
       "platform": "Leven Platform · Kingdom of Saudi Arabia",
@@ -516,7 +532,10 @@
       "hostRetention": "Host Retention Rate",
       "trendUpLastMonth": "vs last month",
       "stable": "Stable",
-      "concerningIncrease": "concerning increase"
+      "concerningIncrease": "concerning increase",
+      "unavailable": "Unavailable",
+      "points": "pts",
+      "requiredSource": "Required source"
     },
     "chart": {
       "title": "Platform Growth Analysis",
@@ -534,10 +553,13 @@
       "rowRating": "Rating",
       "rowCancelRate": "Cancellation Rate",
       "rowOpenComplaints": "Open Complaints",
-      "distributionTitle": "Hosts Category Distribution",
+      "distributionTitle": "Guests Gender Distribution",
       "segHotels": "Hotels (45%)",
       "segIndividuals": "Individuals (35%)",
-      "segCompanies": "Companies (20%)"
+      "segCompanies": "Companies (20%)",
+      "rowDownloads": "Downloads",
+      "segMale": "Male",
+      "segFemale": "Female"
     },
     "insights": {
       "topCities": "Top 6 Saudi Cities",
@@ -569,7 +591,15 @@
       "cityDammam": "Dammam",
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
-      "cityKhobar": "Khobar"
+      "cityKhobar": "Khobar",
+      "unit": "unit",
+      "noCities": "No bookings are linked to cities in this period",
+      "noDecisions": "No decisions required right now",
+      "severityCritical": "Critical",
+      "severityWarning": "Warning",
+      "severityOpportunity": "Opportunity",
+      "severityInfo": "Info",
+      "viewDetails": "View details"
     },
     "loginPage": {
       "sidebar": {

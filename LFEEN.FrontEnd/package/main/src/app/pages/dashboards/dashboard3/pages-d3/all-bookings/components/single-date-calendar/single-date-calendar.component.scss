@@ -17,9 +17,30 @@
 }
 
 .sdc-month-title {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 13px;
   font-weight: 800;
   color: #111110;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 2px 6px;
+
+  &:hover:not(:disabled) { background: #f7f7f5; }
+
+  &:focus-visible {
+    outline: 2px solid #111110;
+    outline-offset: 2px;
+  }
+
+  // The years view has nothing further to drill into, so the label stops
+  // acting like a button there instead of drilling up into a dead end.
+  &:disabled {
+    cursor: default;
+  }
 }
 
 .sdc-nav-btn {
@@ -88,6 +109,32 @@
   }
 
   &.sdc-day-selected {
+    background: #111110;
+    color: #fff;
+  }
+}
+
+.sdc-years-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px 0 2px;
+}
+
+.sdc-year {
+  all: unset;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111110;
+  cursor: pointer;
+  border-radius: 8px;
+
+  &:hover { background: #f0f0ec; }
+
+  &.sdc-year-selected {
     background: #111110;
     color: #fff;
   }

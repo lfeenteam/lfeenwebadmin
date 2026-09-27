@@ -1,0 +1,59 @@
+<div class="d3-period-filter" role="group" [attr.aria-label]="'d3.filters.ariaLabel' | translate">
+  <div class="d3-period-presets">
+    @for (preset of presets; track preset.key) {
+      <button
+        type="button"
+        class="d3-period-chip"
+        [class.active]="activePreset() === preset.key"
+        (click)="selectPreset(preset.key)">
+        {{ preset.labelKey | translate }}
+      </button>
+    }
+
+    <!-- From -->
+    <button type="button" class="date-pill" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger" [class.active]="activePreset() === 'custom' && customFrom()">
+      <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <span class="date-label">{{ customFrom() ? formatPlainDate(customFrom()!) : ('d3.filters.customFrom' | translate) }}</span>
+    </button>
+    <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+      <ng-template matMenuContent>
+        <app-single-date-calendar
+          (click)="$event.stopPropagation()"
+          [value]="customFrom()"
+          (dateSelected)="onFromSelect($event); fromMenuTrigger.closeMenu()">
+        </app-single-date-calendar>
+      </ng-template>
+    </mat-menu>
+
+    <!-- To -->
+    <button type="button" class="date-pill" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger" [class.active]="activePreset() === 'custom' && customTo()">
+      <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <span class="date-label">{{ customTo() ? formatPlainDate(customTo()!) : ('d3.filters.customTo' | translate) }}</span>
+    </button>
+    <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+      <ng-template matMenuContent>
+        <app-single-date-calendar
+          (click)="$event.stopPropagation()"
+          [value]="customTo()"
+          (dateSelected)="onToSelect($event); toMenuTrigger.closeMenu()">
+        </app-single-date-calendar>
+      </ng-template>
+    </mat-menu>
+
+    @if (activePreset() === 'custom') {
+      <button type="button" class="d3-period-clear" (click)="clearCustomRange()">
+        <i-tabler name="x" class="d3-period-clear-icon"></i-tabler>
+        {{ 'd3.filters.clear' | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="d3-period-status">
+    @if (currentRangeLabel(); as label) {
+      <span class="d3-period-current">{{ label }}</span>
+    }
+    @if (rangeTooLong()) {
+      <span class="d3-period-error" role="alert">{{ 'd3.filters.rangeTooLong' | translate }}</span>
+    }
+  </div>
+</div>
