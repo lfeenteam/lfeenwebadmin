@@ -15,6 +15,7 @@ import { PageBackOverrideService } from './services/page-back-override.service';
 import { PageTitleOverrideService } from './services/page-title-override.service';
 import { PageBreadcrumbTrailService } from './services/page-breadcrumb-trail.service';
 import { ClientSupportHubService } from './services/client-support-hub.service';
+import { AdminNotificationsStore } from './services/admin-notifications-store.service';
 import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -70,6 +71,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     private pageTitleOverride: PageTitleOverrideService,
     private pageBreadcrumbTrail: PageBreadcrumbTrailService,
     private clientSupportHub: ClientSupportHubService,
+    private notificationsStore: AdminNotificationsStore,
     private titleService: Title,
     private translate: TranslateService
   ) {}
@@ -101,6 +103,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   private connectHubIfAuthenticated(): void {
     if (!this.isLoginRoute) {
       this.clientSupportHub.connect();
+      this.notificationsStore.connect();
     }
   }
 
@@ -108,6 +111,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
     this.languageSub?.unsubscribe();
     this.clientSupportHub.disconnect();
+    this.notificationsStore.disconnect();
   }
 
   private updateBrowserTitle(): void {

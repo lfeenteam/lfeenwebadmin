@@ -46,6 +46,8 @@ export interface BanHistoryResponse {
 
 export type RefundStatus = 'Pending' | 'Succeeded' | 'ManualReview' | 'Resolved';
 
+export type RefundFailureReasonCode = 'GATEWAY_ERROR' | 'REQUIRES_MANUAL_REVIEW' | 'MAX_ATTEMPTS_REACHED' | 'UNKNOWN';
+
 export interface ListingBanRefund {
   id: number;
   bookingId: string;
@@ -59,6 +61,10 @@ export interface ListingBanRefund {
   attempts: number;
   // Technical message; show it in a tooltip, not inline.
   lastError: string | null;
+  // Stable code for the last failure — map on this, not on the text.
+  failureReasonCode: RefundFailureReasonCode | string | null;
+  // The same failure, localized by the backend (Accept-Language) — safe to show inline.
+  failureReason: string | null;
   status: RefundStatus;
   createdAt: string;
   lastAttemptAt: string | null;

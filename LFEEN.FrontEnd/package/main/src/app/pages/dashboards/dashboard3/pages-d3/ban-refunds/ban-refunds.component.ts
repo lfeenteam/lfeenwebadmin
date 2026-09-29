@@ -30,6 +30,14 @@ const STATUS_META: Record<RefundStatus, { key: string; cls: string }> = {
   Resolved:     { key: 'd3.banRefunds.status.resolved',     cls: 'st-neutral'  },
 };
 
+// failureReasonCode → translation key; fallback for when the backend sends no localized failureReason.
+const FAILURE_REASON_KEYS: Record<string, string> = {
+  GATEWAY_ERROR:          'd3.banRefunds.failureReasons.gatewayError',
+  REQUIRES_MANUAL_REVIEW: 'd3.banRefunds.failureReasons.requiresManualReview',
+  MAX_ATTEMPTS_REACHED:   'd3.banRefunds.failureReasons.maxAttemptsReached',
+  UNKNOWN:                'd3.banRefunds.failureReasons.unknown',
+};
+
 // errorCode → translation key; all of these mean the row changed underneath us, so reload.
 const ERROR_KEYS: Record<string, string> = {
   REFUND_NOT_IN_MANUAL_REVIEW: 'd3.banRefunds.errors.notInManualReview',
@@ -71,8 +79,6 @@ export class BanRefundsComponent implements OnInit {
   busyIds = new Set<number>();
   /** Rows retried in this session and waiting for the background attempt. */
   retryingIds = new Set<number>();
-  /** Rows whose lastError is expanded inline (it's a long technical message, so it's collapsed by default). */
-  expandedErrorIds = new Set<number>();
 
   private loadSub?: Subscription;
 
@@ -90,6 +96,10 @@ export class BanRefundsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    // failureReason comes back localized (Accept-Language), so the rows must be refetched.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.load());
   }
 
   setTab(tab: RefundTab): void {
@@ -177,11 +187,6 @@ export class BanRefundsComponent implements OnInit {
       });
   }
 
-  toggleError(id: number): void {
-    if (this.expandedErrorIds.has(id)) this.expandedErrorIds.delete(id);
-    else this.expandedErrorIds.add(id);
-  }
-
   private replaceRow(updated: ListingBanRefund): void {
     this.rows = this.rows.map(r => (r.id === updated.id ? { ...r, ...updated } : r));
   }
@@ -208,6 +213,14 @@ export class BanRefundsComponent implements OnInit {
 
   statusMeta(row: ListingBanRefund) {
     return STATUS_META[row.status] ?? { key: row.status, cls: 'st-neutral' };
+  }
+
+  /** Readable failure reason: the backend's localized text, else ours by code, else nothing. */
+  failureLabel(row: ListingBanRefund): string | null {
+    if (row.failureReason?.trim()) return row.failureReason;
+    const key = FAILURE_REASON_KEYS[row.failureReasonCode ?? ''];
+    if (key) return this.translate.instant(key);
+    return row.failureReasonCode ? this.translate.instant(FAILURE_REASON_KEYS['UNKNOWN']) : null;
   }
 
   fmtDate(iso: string | null): string {

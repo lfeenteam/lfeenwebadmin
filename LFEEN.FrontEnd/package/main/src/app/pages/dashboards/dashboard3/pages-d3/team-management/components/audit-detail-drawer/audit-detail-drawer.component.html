@@ -1,0 +1,161 @@
+<div class="audit-drawer d-flex flex-column">
+
+  <!-- Header -->
+  <div class="drawer-header d-flex align-items-center justify-content-between">
+    <h3 class="drawer-title m-0">{{ 'd3.teamManagement.opsLog.details.title' | translate }}</h3>
+    <button mat-icon-button type="button" class="drawer-close" (click)="close()"
+            [attr.aria-label]="'d3.teamManagement.opsLog.details.close' | translate">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+
+    <!-- Summary -->
+    <div class="summary-card">
+      <div class="d-flex align-items-center gap-10 m-b-12">
+        <div class="action-icon" [ngClass]="statusClass">
+          <i-tabler [name]="actionIcon" class="icon-18"></i-tabler>
+        </div>
+        <div class="min-w-0">
+          <span class="summary-action d-block" dir="auto">{{ item.actionText || item.actionCode }}</span>
+          @if (item.entityDisplayName) {
+            <span class="summary-sub d-block" dir="auto">{{ item.entityDisplayName }}</span>
+          }
+        </div>
+      </div>
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
+        <span class="log-status-badge" [ngClass]="statusClass">
+          <span class="dot"></span>
+          <span>{{ statusKey | translate }}</span>
+        </span>
+        <span class="summary-sub">{{ occurred.date }} · {{ occurred.time }}</span>
+      </div>
+    </div>
+
+    <!-- Actor -->
+    <section class="drawer-section">
+      <h4 class="section-title">{{ 'd3.teamManagement.opsLog.details.actor' | translate }}</h4>
+      <div class="d-flex align-items-center gap-10 m-b-12">
+        <div class="initials-avatar d-flex align-items-center justify-content-center">{{ initials }}</div>
+        <div class="min-w-0">
+          <span class="f-w-900 d-block" dir="auto">{{ item.actorName }}</span>
+          @if (item.actorEmail) {
+            <span class="summary-sub d-block" dir="ltr">{{ item.actorEmail }}</span>
+          }
+        </div>
+      </div>
+
+      @if (item.actorRoles.length) {
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.roles' | translate }}</span>
+          <div class="chips">
+            @for (role of item.actorRoles; track role.id) {
+              <span class="chip" dir="auto">{{ role.name }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (item.actorDepartments.length) {
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.actorDepartments' | translate }}</span>
+          <div class="chips">
+            @for (dept of item.actorDepartments; track dept.id) {
+              <span class="chip" dir="auto">{{ dept.name }}</span>
+            }
+          </div>
+        </div>
+      }
+      <p class="snapshot-hint m-0">{{ 'd3.teamManagement.opsLog.details.snapshotHint' | translate }}</p>
+    </section>
+
+    <!-- Operation -->
+    <section class="drawer-section">
+      <h4 class="section-title">{{ 'd3.teamManagement.opsLog.details.operation' | translate }}</h4>
+
+      <div class="field">
+        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.actionCode' | translate }}</span>
+        <span class="field-value mono" dir="ltr">{{ item.actionCode }}</span>
+      </div>
+      <div class="field">
+        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.entity' | translate }}</span>
+        <span class="field-value mono" dir="ltr">{{ item.entityType }}{{ item.entityId ? ' · ' + item.entityId : '' }}</span>
+      </div>
+      <div class="field">
+        <span class="field-label">{{ 'd3.teamManagement.opsLog.table.department' | translate }}</span>
+        <span class="field-value" dir="auto">{{ departmentName || '—' }}</span>
+      </div>
+      <div class="field">
+        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.duration' | translate }}</span>
+        <span class="field-value" dir="ltr">{{ item.durationMilliseconds }} ms</span>
+      </div>
+
+      @if (entityRoute) {
+        <button mat-stroked-button type="button" class="entity-link m-t-8" (click)="openEntity()">
+          <i-tabler name="external-link" class="icon-16"></i-tabler>
+          {{ 'd3.teamManagement.opsLog.details.openEntity' | translate }}
+        </button>
+      }
+    </section>
+
+    <!-- Trace (lazy) -->
+    <section class="drawer-section">
+      <h4 class="section-title d-flex align-items-center gap-6">
+        <i-tabler name="shield-lock" class="icon-16"></i-tabler>
+        {{ 'd3.teamManagement.opsLog.details.trace' | translate }}
+      </h4>
+
+      @if (isLoading()) {
+        <div class="trace-loading d-flex justify-content-center">
+          <mat-spinner diameter="28"></mat-spinner>
+        </div>
+      } @else if (loadFailed()) {
+        <div class="trace-error d-flex align-items-center justify-content-between gap-8">
+          <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+          <button mat-stroked-button type="button" (click)="load()">
+            {{ 'd3.teamManagement.opsLog.retry' | translate }}
+          </button>
+        </div>
+      } @else if (detail()) {
+        @let d = detail()!;
+        @if (d.errorCode) {
+          <div class="field">
+            <span class="field-label">{{ 'd3.teamManagement.opsLog.details.errorCode' | translate }}</span>
+            <span class="field-value mono text-danger" dir="ltr">{{ d.errorCode }}</span>
+          </div>
+        }
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.request' | translate }}</span>
+          <span class="field-value mono" dir="ltr">{{ d.httpMethod || '—' }} {{ d.requestPath || '' }}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.ipAddress' | translate }}</span>
+          <span class="field-value mono" dir="ltr">{{ d.ipAddress || '—' }}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.userAgent' | translate }}</span>
+          <span class="field-value mono small" dir="ltr">{{ d.userAgent || '—' }}</span>
+        </div>
+        <div class="field">
+          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.correlationId' | translate }}</span>
+          <span class="field-value mono" dir="ltr">{{ d.correlationId || '—' }}</span>
+        </div>
+
+        @if (metadataEntries.length) {
+          <div class="field">
+            <span class="field-label">{{ 'd3.teamManagement.opsLog.details.metadata' | translate }}</span>
+            <div class="metadata-box" dir="ltr">
+              @for (entry of metadataEntries; track entry.key) {
+                <div class="metadata-row">
+                  <span class="metadata-key">{{ entry.key }}</span>
+                  <span class="metadata-value">{{ entry.value }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+  </div>
+</div>

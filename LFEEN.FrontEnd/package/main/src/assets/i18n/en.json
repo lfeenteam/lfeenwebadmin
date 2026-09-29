@@ -333,7 +333,12 @@
       "title": "Ban Refunds",
       "intro": "Guest refunds for bookings cancelled because a building or unit was banned. Refunds run automatically; failures land here under “Needs manual review”.",
       "refresh": "Refresh",
-      "lastError": "Failure reason",
+      "failureReasons": {
+        "gatewayError": "The payment gateway refund failed",
+        "requiresManualReview": "The payment gateway requires a manual review",
+        "maxAttemptsReached": "Maximum retry attempts reached",
+        "unknown": "The refund failed for an unknown reason"
+      },
       "nextAttempt": "Next attempt: {{date}}",
       "resolvedBy": "Handled by {{name}}",
       "tabs": {
@@ -779,7 +784,7 @@
         "departmentCount": "Number of Departments",
         "activeManagers": "Active Managers",
         "pendingActivation": "Inactive",
-        "partialOps": "Partial Operations",
+        "failedOps": "Failed Operations",
         "rejectedOps": "Rejected Operations",
         "successfulOps": "Successful Operations",
         "totalOps": "Total Operations"
@@ -851,10 +856,16 @@
       },
       "opsLog": {
         "filters": {
-          "searchPlaceholder": "Search by employee name, action, or department...",
+          "searchPlaceholder": "Search by employee name, email, or entity...",
           "actionType": "Action Type",
           "allDepts": "All Departments",
-          "allDates": "All Dates"
+          "allStatuses": "All Statuses",
+          "allDates": "All Dates",
+          "dates": {
+            "today": "Today",
+            "week": "Last 7 days",
+            "month": "Last 30 days"
+          }
         },
         "table": {
           "dateTime": "Date & Time",
@@ -862,7 +873,58 @@
           "action": "Action Performed",
           "department": "Affected Department",
           "status": "Status"
-        }
+        },
+        "status": {
+          "Succeeded": "Completed",
+          "Failed": "System Error",
+          "Denied": "Denied"
+        },
+        "actions": {
+          "UserRoleAssigned": "Role assigned to employee",
+          "UserRoleRemoved": "Role removed from employee",
+          "EmployeeEnrolled": "Employee enrolled in department",
+          "EmployeeActivated": "Employee activated",
+          "EmployeeDeactivated": "Employee deactivated",
+          "EmployeeDeleted": "Employee deleted",
+          "BookingCancelled": "Booking cancelled",
+          "BookingUnitChanged": "Booking unit changed",
+          "SettlementExecuted": "Settlement executed",
+          "SettlementHeld": "Settlement held",
+          "SettlementFailed": "Settlement failed",
+          "SettlementRetried": "Settlement retried",
+          "SubscriptionOrderApproved": "Subscription order approved",
+          "SubscriptionOrderRejected": "Subscription order rejected",
+          "WalletBalanceAdjusted": "Wallet balance adjusted",
+          "WalletLedgerEntryUpdated": "Wallet ledger entry updated"
+        },
+        "details": {
+          "title": "Operation Details",
+          "close": "Close",
+          "actor": "Performed by",
+          "roles": "Roles",
+          "actorDepartments": "Actor departments",
+          "snapshotHint": "Actor details as they were when the operation happened.",
+          "operation": "Operation",
+          "actionCode": "Action code",
+          "entity": "Affected entity",
+          "duration": "Duration",
+          "openEntity": "Open related page",
+          "trace": "Trace data",
+          "errorCode": "Error type",
+          "request": "Request",
+          "ipAddress": "IP address",
+          "userAgent": "User agent",
+          "correlationId": "Correlation ID",
+          "metadata": "Metadata",
+          "notFound": "This operation no longer exists"
+        },
+        "pagination": {
+          "total": "operations"
+        },
+        "empty": "No matching operations",
+        "loadFailed": "Could not load data",
+        "retry": "Retry",
+        "accessDenied": "You don't have permission to view the operation log"
       }
     },
     "addDepartment": {
@@ -3195,39 +3257,36 @@
     "notifications": {
       "pageTitle": "Notifications & Alerts",
       "empty": "No notifications",
-      "loadMore": "Show older tickets",
+      "loadMore": "Show older notifications",
+      "markAllRead": "Mark all as read",
+      "delete": "Delete notification",
+      "loadError": "Couldn't load notifications",
+      "forbidden": "You don't have access to notifications",
+      "retry": "Retry",
       "tabs": {
         "all": "All",
         "complaints": "Complaints",
-        "propertyReview": "Property Review",
-        "inquiries": "Inquiries"
+        "reviews": "Reviews",
+        "inquiries": "Inquiries",
+        "finance": "Finance",
+        "system": "System"
       },
       "types": {
-        "complaint": "Complaint",
-        "propertyReview": "Property Review",
-        "inquiry": "Inquiry"
-      },
-      "mock": {
-        "complaint1": {
-          "title": "Complaint - with Host #358",
-          "subtitle": "Guest: Summer Hotel · Prices not updated for 24 hours",
-          "time": "2 hours ago"
-        },
-        "propertyReview1": {
-          "title": "Property Review #354",
-          "subtitle": "New building approval request: Laqtadar Complex",
-          "time": "2 hours ago"
-        },
-        "inquiry1": {
-          "title": "Technical Inquiry #25",
-          "subtitle": "Inquiry about smart phone lock system",
-          "time": "Yesterday, 11:35 PM"
-        },
-        "complaint2": {
-          "title": "Complaint #28000",
-          "subtitle": "Delay in settling September payments",
-          "time": "Yesterday, 11:25 PM"
-        }
+        "ComplaintCreated": "New complaint",
+        "PropertyReviewRequested": "Property review",
+        "UnitReviewRequested": "Unit review",
+        "MerchantRegistrationRequested": "Merchant registration",
+        "SupportTicketCreated": "Support ticket",
+        "ClientInquiryCreated": "Client inquiry",
+        "ContactUsRequestCreated": "Contact us",
+        "SubscriptionOrderCreated": "Subscription order",
+        "SettlementFailed": "Settlement failed",
+        "SettlementRequiresReview": "Settlement review",
+        "PaymentIssueReported": "Payment issue",
+        "RefundRequested": "Refund request",
+        "BookingIssueReported": "Booking issue",
+        "SystemAlert": "System alert",
+        "default": "Notification"
       }
     },
     "platformOffers": {

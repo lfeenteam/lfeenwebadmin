@@ -73,7 +73,9 @@
           <span class="d-flex align-items-center gap-12 w-100">
             <span class="icon-wrapper">
               <i-tabler name="bell" class="icon-20"></i-tabler>
-              <span class="notification-dot"></span>
+              @if (notificationsStore.unreadCount() > 0) {
+                <span class="notification-dot"></span>
+              }
             </span>
             <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
               {{ 'd3.sidebar.notifications' | translate }}

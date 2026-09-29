@@ -5,37 +5,39 @@
     <i-tabler name="search" class="icon-18 logs-search-icon"></i-tabler>
     <input type="text" class="logs-search-input"
            [placeholder]="'d3.teamManagement.opsLog.filters.searchPlaceholder' | translate"
-           [value]="searchQuery"
            (input)="searchQueryChange.emit($any($event.target).value)" />
   </div>
 
   <!-- Action Type -->
   <select class="filter-select-native" (change)="filterActionChange.emit($any($event.target).value)">
     <option value="">{{ 'd3.teamManagement.opsLog.filters.actionType' | translate }}</option>
-    @for (opt of actionTypes; track opt) {
-      <option [value]="opt">{{ opt }}</option>
+    @for (code of actionCodes; track code) {
+      <option [value]="code">{{ 'd3.teamManagement.opsLog.actions.' + code | translate }}</option>
     }
   </select>
 
   <!-- Departments -->
   <select class="filter-select-native" (change)="filterDeptChange.emit($any($event.target).value)">
     <option value="">{{ 'd3.teamManagement.opsLog.filters.allDepts' | translate }}</option>
-    @for (opt of depts; track opt) {
-      <option [value]="opt">{{ opt }}</option>
+    @for (opt of depts; track opt.value) {
+      <option [value]="opt.value">{{ opt.label }}</option>
+    }
+  </select>
+
+  <!-- Status -->
+  <select class="filter-select-native" (change)="filterStatusChange.emit($any($event.target).value)">
+    <option value="">{{ 'd3.teamManagement.opsLog.filters.allStatuses' | translate }}</option>
+    @for (status of statuses; track status) {
+      <option [value]="status">{{ 'd3.teamManagement.opsLog.status.' + status | translate }}</option>
     }
   </select>
 
   <!-- Dates -->
   <select class="filter-select-native" (change)="filterDateChange.emit($any($event.target).value)">
     <option value="">{{ 'd3.teamManagement.opsLog.filters.allDates' | translate }}</option>
-    @for (opt of dates; track opt) {
-      <option [value]="opt">{{ opt }}</option>
+    @for (preset of datePresets; track preset) {
+      <option [value]="preset">{{ 'd3.teamManagement.opsLog.filters.dates.' + preset | translate }}</option>
     }
   </select>
-
-  <!-- Filter Icon -->
-  <div class="filter-icon-btn d-flex align-items-center justify-content-center">
-    <i-tabler name="adjustments-horizontal" class="icon-18"></i-tabler>
-  </div>
 
 </div>

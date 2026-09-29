@@ -198,15 +198,24 @@
         }
       }
 
-      .d3-notification-dot {
+      .d3-notification-badge {
         position: absolute !important;
-        top: 8px !important;
-        inset-inline-end: 9px !important;
-        width: 8px !important;
-        height: 8px !important;
+        top: 2px !important;
+        inset-inline-end: 2px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        padding: 0 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         background-color: #ef4444 !important;
-        border-radius: 50% !important;
+        color: #ffffff !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        border-radius: 9px !important;
         border: 2px solid #ffffff !important;
+        box-sizing: border-box !important;
       }
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, effect, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, ChangeDetectorRef, DestroyRef, Injector, computed, inject } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,9 @@ import { MaterialModule } from 'src/app/material.module';
 import { DepartmentService } from '../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../interfaces/department.model';
 import { StatItem } from '../../interfaces/stats.model';
-import { OpsLog } from '../../interfaces/ops-log.model';
+import { ADMIN_AUDIT_ACTION_CODES, ADMIN_AUDIT_STATUSES, AdminOperationAuditItem } from '../../interfaces/operation-audit.model';
+import { OperationAuditsService } from '../../services/operation-audits.service';
+import { LoginService } from '../../services/login/login.service';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
@@ -20,8 +22,13 @@ import { StatsRowComponent } from './components/stats-row/stats-row.component';
 import { TabsBarComponent } from './components/tabs-bar/tabs-bar.component';
 import { DeptCardComponent } from './components/dept-card/dept-card.component';
 import { ManagerCardComponent } from './components/manager-card/manager-card.component';
-import { LogsFilterComponent } from './components/logs-filter/logs-filter.component';
+import { LogsFilterComponent, LogsFilterOption } from './components/logs-filter/logs-filter.component';
 import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.component';
+import {
+  AUDIT_DETAIL_NOT_FOUND,
+  AuditDetailDrawerComponent,
+  AuditDetailDrawerData
+} from './components/audit-detail-drawer/audit-detail-drawer.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 
@@ -44,12 +51,21 @@ import { PageTitleOverrideService } from '../../services/page-title-override.ser
     OpsLogTableComponent,
     DashboardLoadingComponent
   ],
+  // Scoped here so audit rows are discarded with the page (never shared across sign-ins).
+  providers: [OperationAuditsService],
   templateUrl: './team-management.component.html',
   styleUrl: './team-management.component.scss'
 })
 export class TeamManagementComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly pageTitleOverride = inject(PageTitleOverrideService);
+  private readonly loginService = inject(LoginService);
+  readonly audits = inject(OperationAuditsService);
+
+  readonly canViewAudits = computed(() =>
+    this.loginService.permissions().some(p => p.toLowerCase() === 'operationaudits.view')
+  );
 
   activeTab: 'structure' | 'employees' | 'logs' = 'structure';
   stats: StatItem[] = [];
@@ -73,71 +89,9 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   employeePageNumbers: number[] = [];
   isLoadingEmployees = false;
 
-  logsSearchQuery = '';
-  logsFilterAction = '';
-  logsFilterDept = '';
-  logsFilterDate = '';
-
-  logsActionTypes = ['تعديل الصلاحيات', 'إضافة موظف', 'حذف وحدة', 'اعتماد مستندات'];
-  logsDepts = ['التشغيل', 'خدمة العملاء', 'المباني', 'التقنية'];
-  logsDates = ['اليوم', 'هذا الأسبوع', 'هذا الشهر'];
-
-  opsLogs: OpsLog[] = [
-    {
-      id: '1',
-      date: '١٤ أكتوبر ٢٠٢٤',
-      time: '١١:٤٥ م',
-      user: { name: 'فهد السيف', role: 'مدير التشغيل', avatar: 'assets/images/profile/user-1.jpg', isCrown: true },
-      actionText: 'تعديل صلاحيات الوصول للقسم',
-      actionIcon: 'user-cog',
-      department: 'التشغيل',
-      status: 'completed',
-      statusLabel: 'مكتمل'
-    },
-    {
-      id: '2',
-      date: '١٤ أكتوبر ٢٠٢٤',
-      time: '٩:٣٠ م',
-      user: { name: 'ريم العبدالله', role: 'مديرة خدمة العملاء', avatar: 'assets/images/profile/user-2.jpg', isCrown: true },
-      actionText: 'إضافة موظف جديد للفريق',
-      actionIcon: 'user-plus',
-      department: 'خدمة العملاء',
-      status: 'completed',
-      statusLabel: 'مكتمل'
-    },
-    {
-      id: '3',
-      date: '١٤ أكتوبر ٢٠٢٤',
-      time: '٩:٠٥ م',
-      user: { name: 'ياسر الحربي', role: 'مدير التقنية', avatar: 'assets/images/profile/user-3.jpg', isCrown: true },
-      actionText: 'محاولة حذف وحدة سكنية نشطة',
-      actionIcon: 'file-x',
-      department: 'المباني',
-      status: 'failed',
-      statusLabel: 'خطأ النظام'
-    },
-    {
-      id: '4',
-      date: '١٤ أكتوبر ٢٠٢٤',
-      time: '٩:٣٤ م',
-      user: { name: 'أحمد المنصور', role: 'موظف تشغيل', avatar: null, isCrown: false },
-      actionText: 'اعتماد مستندات مبنى جديد',
-      actionIcon: 'file-check',
-      department: 'المباني',
-      status: 'completed',
-      statusLabel: 'مكتمل'
-    }
-  ];
-
-  get filteredLogs(): OpsLog[] {
-    return this.opsLogs.filter(log => {
-      const q = this.logsSearchQuery.trim();
-      const matchSearch = !q || log.user.name.includes(q) || log.actionText.includes(q) || log.department.includes(q);
-      const matchAction = !this.logsFilterAction || log.actionText.includes(this.logsFilterAction);
-      const matchDept = !this.logsFilterDept || log.department === this.logsFilterDept;
-      return matchSearch && matchAction && matchDept;
-    });
-  }
+  readonly auditActionCodes = ADMIN_AUDIT_ACTION_CODES;
+  readonly auditStatuses = ADMIN_AUDIT_STATUSES;
+  logsDeptOptions: LogsFilterOption[] = [];
 
   iconMap: { [key: string]: string } = {
     'CS': 'headset',
@@ -178,6 +132,13 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       if (this.departmentId) this.updateStats();
       this.cdr.markForCheck();
     });
+
+    // Refresh the audit stat cards whenever their counts arrive
+    effect(() => {
+      this.audits.stats();
+      if (this.activeTab === 'logs') this.updateStats();
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnInit(): void {
@@ -203,6 +164,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
           this.pageTitleOverride.clear();
           if (queryParams['tab'] === 'employees') {
             this.setActiveTab('employees');
+          } else if (queryParams['tab'] === 'logs' && this.canViewAudits()) {
+            this.setActiveTab('logs');
           } else {
             this.activeTab = 'structure';
             this.updateStats();
@@ -219,6 +182,10 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     this.departmentService.getAllDepartmentsForDropdown().subscribe({
       next: departments => {
         this.filterDepartments = departments;
+        this.logsDeptOptions = departments.map(dept => ({
+          value: dept.id,
+          label: (this.currentLang === 'ar' ? dept.nameAr : dept.nameEn) ?? dept.name ?? dept.code
+        }));
         this.cdr.markForCheck();
       },
       error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
@@ -261,11 +228,40 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   setActiveTab(tab: 'structure' | 'employees' | 'logs'): void {
+    if (tab === 'logs' && !this.canViewAudits()) return;
+
     this.activeTab = tab;
     if (tab === 'employees' && !this.departmentId) {
       this.loadAllEmployees();
     }
+    if (tab === 'logs') {
+      this.audits.activate();
+    }
     this.updateStats();
+  }
+
+  // ── Operation audits ───────────────────────────────────────
+  openAuditDetails(item: AdminOperationAuditItem): void {
+    const isRtl = this.currentLang === 'ar';
+    const dialogRef = this.dialog.open<AuditDetailDrawerComponent, AuditDetailDrawerData, string>(
+      AuditDetailDrawerComponent,
+      {
+        data: { item, lang: this.currentLang },
+        // The drawer reads details through this page's OperationAuditsService instance.
+        injector: this.injector,
+        direction: isRtl ? 'rtl' : 'ltr',
+        position: { top: '0', right: '0' },
+        width: '480px',
+        maxWidth: '100vw',
+        height: '100vh',
+        autoFocus: false,
+        panelClass: 'audit-drawer-panel'
+      }
+    );
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === AUDIT_DETAIL_NOT_FOUND) this.audits.reload();
+    });
   }
 
   loadAllEmployees(): void {
@@ -289,11 +285,14 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         { label: 'd3.teamManagement.stats.activeManagers',  value: s?.activeManagers   ?? '—', icon: 'assets/images/svgs/Group (2).svg', color: 'success', valueColor: '#16a34a' },
       ];
     } else if (this.activeTab === 'logs') {
+      const s = this.audits.stats();
+      const fmt = (n: number | undefined) =>
+        n === undefined ? '—' : n.toLocaleString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US');
       this.stats = [
-        { label: 'd3.teamManagement.stats.totalOps', value: '١٢,٨٤٧', icon: 'database', color: 'primary', valueColor: '#000' },
-        { label: 'd3.teamManagement.stats.successfulOps', value: '١٢,٨٠٠', icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
-        { label: 'd3.teamManagement.stats.partialOps', value: '١٢', icon: 'alert-triangle', color: 'warning', valueColor: '#d97706' },
-        { label: 'd3.teamManagement.stats.rejectedOps', value: '٤٧', icon: 'circle-x', color: 'danger', valueColor: '#ef4444' }
+        { label: 'd3.teamManagement.stats.totalOps', value: fmt(s?.total), icon: 'database', color: 'primary', valueColor: '#000' },
+        { label: 'd3.teamManagement.stats.successfulOps', value: fmt(s?.succeeded), icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
+        { label: 'd3.teamManagement.stats.failedOps', value: fmt(s?.failed), icon: 'alert-triangle', color: 'danger', valueColor: '#ef4444' },
+        { label: 'd3.teamManagement.stats.rejectedOps', value: fmt(s?.denied), icon: 'circle-x', color: 'warning', valueColor: '#d97706' }
       ];
     } else {
       const s = this.departmentService.departmentStats();

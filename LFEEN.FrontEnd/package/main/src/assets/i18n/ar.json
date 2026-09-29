@@ -335,7 +335,12 @@
       "title": "استردادات الحظر",
       "intro": "المبالغ المستردة للضيوف عن الحجوزات التي أُلغيت بسبب حظر مبنى أو وحدة. الاسترداد يتم تلقائيًا، وما يفشل يظهر هنا في «يحتاج مراجعة يدوية».",
       "refresh": "تحديث",
-      "lastError": "سبب الفشل",
+      "failureReasons": {
+        "gatewayError": "فشل الاسترداد من بوابة الدفع",
+        "requiresManualReview": "بوابة الدفع طلبت مراجعة يدوية",
+        "maxAttemptsReached": "تم الوصول للحد الأقصى من المحاولات",
+        "unknown": "فشل الاسترداد لسبب غير معروف"
+      },
       "nextAttempt": "المحاولة القادمة: {{date}}",
       "resolvedBy": "تمت المعالجة بواسطة {{name}}",
       "tabs": {
@@ -781,7 +786,7 @@
         "departmentCount": "عدد الأقسام",
         "activeManagers": "المدراء النشطون",
         "pendingActivation": "غير نشط",
-        "partialOps": "تشبيات جزئية",
+        "failedOps": "عمليات فاشلة",
         "rejectedOps": "عمليات مرفوضة",
         "successfulOps": "عمليات ناجحة",
         "totalOps": "إجمالي العمليات"
@@ -825,10 +830,16 @@
       },
       "opsLog": {
         "filters": {
-          "searchPlaceholder": "بحث باسم الموظف، الإجراء، أو القسم...",
+          "searchPlaceholder": "بحث باسم الموظف أو بريده أو الكيان...",
           "actionType": "نوع الإجراء",
           "allDepts": "كل الأقسام",
-          "allDates": "كل التواريخ"
+          "allStatuses": "كل الحالات",
+          "allDates": "كل التواريخ",
+          "dates": {
+            "today": "اليوم",
+            "week": "آخر 7 أيام",
+            "month": "آخر 30 يومًا"
+          }
         },
         "table": {
           "dateTime": "التاريخ والوقت",
@@ -836,7 +847,58 @@
           "action": "الإجراء المنفذ",
           "department": "القسم المتأثر",
           "status": "الحالة"
-        }
+        },
+        "status": {
+          "Succeeded": "مكتمل",
+          "Failed": "خطأ بالنظام",
+          "Denied": "مرفوض"
+        },
+        "actions": {
+          "UserRoleAssigned": "إسناد دور لموظف",
+          "UserRoleRemoved": "إزالة دور من موظف",
+          "EmployeeEnrolled": "إضافة موظف لقسم",
+          "EmployeeActivated": "تفعيل موظف",
+          "EmployeeDeactivated": "إيقاف موظف",
+          "EmployeeDeleted": "حذف موظف",
+          "BookingCancelled": "إلغاء حجز",
+          "BookingUnitChanged": "تغيير وحدة الحجز",
+          "SettlementExecuted": "تنفيذ تسوية",
+          "SettlementHeld": "تعليق تسوية",
+          "SettlementFailed": "تسوية فاشلة",
+          "SettlementRetried": "إعادة محاولة تسوية",
+          "SubscriptionOrderApproved": "قبول طلب اشتراك",
+          "SubscriptionOrderRejected": "رفض طلب اشتراك",
+          "WalletBalanceAdjusted": "تعديل رصيد محفظة",
+          "WalletLedgerEntryUpdated": "تعديل قيد محفظة"
+        },
+        "details": {
+          "title": "تفاصيل العملية",
+          "close": "إغلاق",
+          "actor": "المنفذ",
+          "roles": "الأدوار",
+          "actorDepartments": "أقسام المنفذ",
+          "snapshotHint": "بيانات المنفذ كما كانت وقت تنفيذ العملية.",
+          "operation": "العملية",
+          "actionCode": "كود الإجراء",
+          "entity": "الكيان المتأثر",
+          "duration": "مدة التنفيذ",
+          "openEntity": "فتح الصفحة المرتبطة",
+          "trace": "بيانات التتبع",
+          "errorCode": "نوع الخطأ",
+          "request": "الطلب",
+          "ipAddress": "عنوان IP",
+          "userAgent": "المتصفح",
+          "correlationId": "معرف التتبع",
+          "metadata": "بيانات إضافية",
+          "notFound": "هذه العملية لم تعد موجودة"
+        },
+        "pagination": {
+          "total": "عملية"
+        },
+        "empty": "لا توجد عمليات مطابقة",
+        "loadFailed": "تعذر تحميل البيانات",
+        "retry": "إعادة المحاولة",
+        "accessDenied": "ليس لديك صلاحية عرض سجل العمليات"
       },
       "addEmployeeDialog": {
         "title": "إضافة موظف جديد",
@@ -3197,39 +3259,36 @@
     "notifications": {
       "pageTitle": "الإشعارات والتنبيهات",
       "empty": "لا توجد إشعارات",
-      "loadMore": "عرض التذاكر الأقدم",
+      "loadMore": "عرض الإشعارات الأقدم",
+      "markAllRead": "تعليم الكل كمقروء",
+      "delete": "حذف الإشعار",
+      "loadError": "تعذّر تحميل الإشعارات",
+      "forbidden": "ليس لديك صلاحية لعرض الإشعارات",
+      "retry": "إعادة المحاولة",
       "tabs": {
         "all": "الكل",
         "complaints": "الشكاوى",
-        "propertyReview": "مراجعة مباني",
-        "inquiries": "الاستفسارات"
+        "reviews": "المراجعات",
+        "inquiries": "الاستفسارات",
+        "finance": "المالية",
+        "system": "النظام"
       },
       "types": {
-        "complaint": "شكوى",
-        "propertyReview": "مراجعة مبنى",
-        "inquiry": "استفسار"
-      },
-      "mock": {
-        "complaint1": {
-          "title": "شكوى - مع مالك #٣٥٨",
-          "subtitle": "الضيف: فندق الصيف · لم يتم تحديث الأسعار منذ ٢٤ ساعة",
-          "time": "منذ ٢ ساعات"
-        },
-        "propertyReview1": {
-          "title": "مراجعة مبنى #٣٥٤",
-          "subtitle": "طلب اعتماد مبنى جديد: مجمع لاقتدر",
-          "time": "منذ ساعتين"
-        },
-        "inquiry1": {
-          "title": "استفسار تقني #٢٥",
-          "subtitle": "استفسار حول نظام القفل الذكي بالهاتف",
-          "time": "أمس، ١١:٣٥ م"
-        },
-        "complaint2": {
-          "title": "شكوى #٢٨٠٠٠",
-          "subtitle": "تأخر في تسوية دفعات سبتمبر",
-          "time": "أمس، ١١:٢٥ م"
-        }
+        "ComplaintCreated": "شكوى جديدة",
+        "PropertyReviewRequested": "مراجعة عقار",
+        "UnitReviewRequested": "مراجعة وحدة",
+        "MerchantRegistrationRequested": "تسجيل تاجر",
+        "SupportTicketCreated": "تذكرة دعم",
+        "ClientInquiryCreated": "استفسار عميل",
+        "ContactUsRequestCreated": "تواصل معنا",
+        "SubscriptionOrderCreated": "طلب اشتراك",
+        "SettlementFailed": "فشل تسوية",
+        "SettlementRequiresReview": "مراجعة تسوية",
+        "PaymentIssueReported": "مشكلة دفع",
+        "RefundRequested": "طلب استرداد",
+        "BookingIssueReported": "مشكلة حجز",
+        "SystemAlert": "تنبيه النظام",
+        "default": "إشعار"
       }
     },
     "platformOffers": {

@@ -172,6 +172,9 @@ export class SidebarService {
         let link: string | null = null;
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
+        } else if (/audit|^logs?$|(operation|ops|activity)s?[-_]?logs?/i.test(item.key ?? '')) {
+          // The operations log lives as a tab inside team management.
+          link = '/d3/team-management?tab=logs';
         } else if (item.key?.startsWith('department-')) {
           // Individual department links (e.g. department-it/cs/ops) go to that
           // department's page — not the disabled permissions module below.

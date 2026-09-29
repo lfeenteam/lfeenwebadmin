@@ -83,3 +83,23 @@
     }
   }
 }
+
+.logs-state-box {
+  gap: 8px;
+  padding: 48px 16px;
+  border: 1px solid #E8E8E4;
+  border-radius: 20px;
+  color: #9E9E9A;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.logs-error-bar {
+  padding: 10px 16px;
+  border: 1px solid #FEE2E2;
+  border-radius: 12px;
+  background: #FEF2F2;
+  color: #EF4444;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -146,10 +146,14 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return (ticket.attachments ?? []).filter(a => a && !shownIds.has(a.externalId));
   }
 
-  get adminMessages(): TicketMessage[] {
-    return (this.ticket()?.messages ?? []).filter(
-      m => m != null && (m.senderTypeName === 'Admin' || m.senderType === 'Admin' || +m.senderType === 2)
-    );
+  /** Full conversation after the initial message — replies from the merchant/guest
+   * must be shown too, not only admin replies. */
+  get threadMessages(): TicketMessage[] {
+    return (this.ticket()?.messages ?? []).filter(m => m != null);
+  }
+
+  isAdminMessage(m: TicketMessage): boolean {
+    return m.senderTypeName === 'Admin' || m.senderType === 'Admin' || +m.senderType === 2;
   }
 
   get hostSubtitle(): string {

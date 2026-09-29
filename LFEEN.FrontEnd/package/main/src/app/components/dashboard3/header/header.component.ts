@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
 import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
-
+import { AdminNotificationsStore } from 'src/app/pages/dashboards/dashboard3/services/admin-notifications-store.service';
 interface AppLanguage {
   language: string;
   code: string;
@@ -47,7 +47,8 @@ export class HeaderComponent {
     private translate: TranslateService,
     private router: Router,
     private settings: CoreService,
-    public loginService: LoginService
+    public loginService: LoginService,
+    public notificationsStore: AdminNotificationsStore
   ) {
     const user = this.loginService.getUser();
     this.fullName = user?.fullName || '';

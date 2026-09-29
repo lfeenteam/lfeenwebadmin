@@ -168,16 +168,25 @@
       <span class="skel skel-text" style="width:70%"></span>
     </section>
   } @else {
-    @for (msg of adminMessages; track trackById($index, msg)) {
-      <section class="support-reply-card">
+    @for (msg of threadMessages; track trackById($index, msg)) {
+      @let isAdmin = isAdminMessage(msg);
+      <section class="support-reply-card" [class.user-reply-card]="!isAdmin">
         <div class="support-reply-header">
           <div class="support-reply-agent">
-            <span class="support-avatar">
-              <i-tabler name="headset" class="icon-22"></i-tabler>
-            </span>
+            @if (isAdmin) {
+              <span class="support-avatar">
+                <i-tabler name="headset" class="icon-22"></i-tabler>
+              </span>
+            } @else {
+              <span class="support-avatar user-avatar">{{ getInitials(msg.senderName) }}</span>
+            }
             <div>
               <h3>{{ msg.senderName }}</h3>
-              <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
+              @if (isAdmin) {
+                <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
+              } @else {
+                <span>{{ msg.senderTypeName }}</span>
+              }
             </div>
           </div>
           <time>{{ formatDate(msg.createdAt) }}</time>
@@ -189,10 +198,12 @@
           <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: msg.attachment }"></ng-container>
         }
 
-        <div class="support-reply-footer">
-          <i-tabler name="circle-check" class="icon-14"></i-tabler>
-          {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
-        </div>
+        @if (isAdmin) {
+          <div class="support-reply-footer">
+            <i-tabler name="circle-check" class="icon-14"></i-tabler>
+            {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}
+          </div>
+        }
       </section>
     }
   }

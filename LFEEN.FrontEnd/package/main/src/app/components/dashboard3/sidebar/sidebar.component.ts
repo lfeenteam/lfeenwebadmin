@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
 import { LoginService } from '../../../pages/dashboards/dashboard3/services/login/login.service';
-import { CoreService } from 'src/app/services/core.service';
+import { AdminNotificationsStore } from '../../../pages/dashboards/dashboard3/services/admin-notifications-store.service';import { CoreService } from 'src/app/services/core.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -18,6 +18,7 @@ import { filter } from 'rxjs/operators';
 })
 export class SidebarComponent implements OnInit {
   @Input() collapsed = false;
+
   @Output() collapsedChange = new EventEmitter<boolean>();
   @Input() mobileMode = false;
   @Output() mobileClose = new EventEmitter<void>();
@@ -58,7 +59,8 @@ export class SidebarComponent implements OnInit {
     private translate: TranslateService,
     private loginService: LoginService,
     private settings: CoreService,
-    private el: ElementRef
+    private el: ElementRef,
+    public notificationsStore: AdminNotificationsStore
   ) {
     this.checkIfCeoPage();
     this.router.events.pipe(

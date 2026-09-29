@@ -43,15 +43,6 @@
   font-size: 11px;
   font-family: 'Cairo', sans-serif;
 }
-.log-user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #E8E8E4;
-  flex-shrink: 0;
-}
-
 .log-initials-avatar {
   width: 36px;
   height: 36px;
@@ -63,10 +54,6 @@
   flex-shrink: 0;
 }
 
-.log-crown-icon {
-  color: #B45309;
-  flex-shrink: 0;
-}
 .text-role {
   color: #6B6B67;
   font-size: 11px;
@@ -131,11 +118,101 @@
     .dot { background: #EF4444; }
   }
 
-  &.pending {
+  &.denied {
     background: #FFFBEB;
     color: #D97706;
     border: 1px solid #FEF3C7;
     .dot { background: #D97706; }
+  }
+}
+
+.log-action-icon.denied {
+  color: #D97706;
+}
+
+.log-row {
+  cursor: pointer;
+}
+
+.ops-log-wrapper.is-refreshing {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.more-chip {
+  display: inline-block;
+  margin-inline-start: 4px;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #F1F1EE;
+  color: #6B6B67;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.log-entity {
+  display: block;
+  color: #6B6B67;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.log-empty {
+  gap: 8px;
+  padding: 48px 16px;
+  color: #9E9E9A;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pagination-wrapper {
+  .page-nav-btn,
+  .page-number-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    color: #444;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .page-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+  }
+
+  .page-number-btn {
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+
+    &:hover:not(.active) {
+      background: #f5f5f5;
+    }
+
+    &.active {
+      background: #1B2559;
+      color: #fff;
+      border-color: #1B2559;
+      opacity: 1;
+    }
   }
 }
 
