@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
@@ -33,7 +34,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
 
   readonly dir = computed(() => this.core.getOptionsSignal()().dir);
   readonly canClose = computed(() => this.login.permissions().some(p => p.toLowerCase() === 'contactus.close'.toLowerCase()));
-  items = signal<ContactUsListItem[]>([]); loading = signal(false); error = signal('');
+  items = signal<ContactUsListItem[]>([]); loading = signal(false); error = signal(''); forbidden = signal(false);
   selected = signal<ContactUsDetail | null>(null); detailLoading = signal(false); detailError = signal('');
   status = signal<ContactUsStatus | 'all'>('all'); search = ''; page = signal(1); pageSize = 20;
   totalCount = signal(0); totalPages = signal(1); closeDialogOpen = signal(false); closing = signal(false); closeNote = '';
@@ -57,8 +58,12 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
       },
       // The list's own error state only shows the localized fallback text — the raw
       // backend/network message (e.g. an infra-level "API request failed.") is a
-      // debugging detail, not something to surface on this page.
-      error: () => { this.error.set(this.translate.instant('d3.contactUs.errors.load')); this.loading.set(false); }
+      // debugging detail, not something to surface on this page. 403 is the one status
+      // this API returns directly (missing ContactUs.View), so it gets its own message.
+      error: (e: HttpErrorResponse) => {
+        this.forbidden.set(e?.status === 403);
+        this.error.set(this.translate.instant(this.forbidden() ? 'd3.contactUs.errors.forbidden' : 'd3.contactUs.errors.load')); this.loading.set(false);
+      }
     });
   }
   changePage(value: number): void { if (value < 1 || value > this.totalPages() || value === this.page()) return; this.page.set(value); this.load(); }
@@ -86,8 +91,20 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
     const detail = this.selected(); if (!detail || this.closing()) return;
     this.closing.set(true);
     this.service.closeRequest(detail.externalId, this.closeNote.trim() || undefined).subscribe({
-      next: () => { const updated = { ...detail, status: 'Closed' as ContactUsStatus, closingNote: this.closeNote.trim() || null, closedAtUtc: new Date().toISOString() }; this.selected.set(updated); this.items.update(rows => rows.map(r => r.externalId === detail.externalId ? { ...r, status: 'Closed', closingNote: updated.closingNote } : r)); this.closeDialogOpen.set(false); this.closing.set(false); if (this.status() !== 'all') this.load(); this.toastr.success(this.translate.instant('d3.contactUs.close.success')); },
+      next: () => {
+        const optimistic = { ...detail, status: 'Closed' as ContactUsStatus, closingNote: this.closeNote.trim() || null, closedAtUtc: new Date().toISOString() };
+        this.applyDetail(optimistic); this.closeDialogOpen.set(false); this.closing.set(false); if (this.status() !== 'all') this.load(); this.toastr.success(this.translate.instant('d3.contactUs.close.success'));
+        // Re-read the server's copy: if another admin closed it first the API answers
+        // "Already closed." and keeps the original note/time, which the optimistic copy
+        // above would otherwise misreport. Safe to call — the request is no longer New.
+        this.detailRequest?.unsubscribe();
+        this.detailRequest = this.service.getRequest(detail.externalId).subscribe({ next: fresh => { if (this.selected()?.externalId === fresh.externalId) this.applyDetail(fresh); } });
+      },
       error: e => { this.closing.set(false); this.toastr.error(extractApiErrorMessage(e, this.translate.instant('d3.contactUs.errors.close'))); }
     });
+  }
+  private applyDetail(detail: ContactUsDetail): void {
+    this.selected.set(detail);
+    this.items.update(rows => rows.map(r => r.externalId === detail.externalId ? { ...r, status: detail.status, closingNote: detail.closingNote } : r));
   }
 }

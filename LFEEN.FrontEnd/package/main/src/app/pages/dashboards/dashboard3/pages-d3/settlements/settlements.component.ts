@@ -240,8 +240,9 @@ export class SettlementsComponent implements OnInit {
   private openDetailDialog(detail: SettlementDetail): void {
     const iban = detail.bank?.iban?.trim() || '';
     const dialogRef = this.dialog.open(SettlementDetailDialogComponent, {
-      width: '480px',
+      width: '900px',
       maxWidth: '92vw',
+      maxHeight: '92vh',
       panelClass: 'settlement-detail-panel',
       data: {
         id: detail.id,
@@ -258,7 +259,19 @@ export class SettlementsComponent implements OnInit {
         bankAccountNumber: EMPTY,
         iban: iban || EMPTY,
         hasIban: !!iban,
+        swiftCode: detail.bank?.swiftCode?.trim() || EMPTY,
         bankVerified: detail.bankInfoStatus === 'Approved',
+        payoutReference: detail.payoutReference?.trim() || EMPTY,
+        requestDateLabel: this.fmtDetailDate(detail.createdAtUtc, true),
+        periodLabel: `${this.fmtDetailDate(detail.periodStartUtc)} - ${this.fmtDetailDate(detail.periodEndUtc)}`,
+        grossFormatted: this.fmtAmount(detail.grossAmount),
+        feeFormatted: this.fmtAmount(detail.platformFee),
+        entries: (detail.entries ?? []).map(e => ({
+          bookingNumber: e.bookingNumber?.trim() || EMPTY,
+          gross: this.fmtAmount(e.grossAmount),
+          fee: this.fmtAmount(e.feeAmount),
+          net: this.fmtAmount(e.netAmount),
+        })),
       } as SettlementDetailDialogData
     });
 
@@ -267,6 +280,14 @@ export class SettlementsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result?: SettlementDialogResult) => {
       if (result) this.load();
     });
+  }
+
+  private fmtDetailDate(value: string | null, withTime = false): string {
+    const date = parseApiUtc(value);
+    if (!date) return EMPTY;
+    const locale = this.currentLang === 'en' ? enUS : ar;
+    const day = format(date, 'd MMMM yyyy', { locale });
+    return withTime ? `${day} | ${format(date, 'hh:mm a', { locale })}` : day;
   }
 
   private toRow(s: Settlement): SettlementRow {

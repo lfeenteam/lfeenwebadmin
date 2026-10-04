@@ -2516,6 +2516,18 @@
         "bankName": "Bank Name",
         "accountNumber": "Account Number",
         "iban": "IBAN Number",
+        "swiftCode": "SWIFT Code",
+        "summarySection": "Settlement Summary",
+        "payoutReference": "Reference Number",
+        "requestDate": "Request Date",
+        "period": "Settlement Period",
+        "grossAmount": "Gross Amount",
+        "platformFee": "Platform Fee",
+        "entriesSection": "Bookings in This Settlement",
+        "bookingNumber": "Booking No.",
+        "entryGross": "Gross",
+        "entryFee": "Fee",
+        "entryNet": "Net",
         "acceptBtn": "Accept & Transfer Amount",
         "rejectBtn": "Reject Request",
         "ibanCopied": "IBAN number copied",
@@ -3310,7 +3322,7 @@
       "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
       "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
       "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
-      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message." },
+      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message.", "forbidden": "You don't have permission to view Contact Us messages." },
       "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
       "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
     },
@@ -3393,6 +3405,16 @@
       "pageTitle": "Call Scripts",
       "pageSubtitle": "IVR audio scripts and DTMF menus played during checkout calls",
       "newVersion": "New Version",
+      "scenarios": {
+        "ExtensionOfferAvailable": {
+          "label": "Extension Offer Available",
+          "hint": "Played when the guest can be offered a stay extension"
+        },
+        "ExtensionNotAvailable": {
+          "label": "Extension Not Available",
+          "hint": "Played when no stay extension can be offered"
+        }
+      },
       "stats": {
         "total": "Total",
         "active": "Active"

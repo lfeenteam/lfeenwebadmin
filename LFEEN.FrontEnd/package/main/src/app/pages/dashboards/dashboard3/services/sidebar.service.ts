@@ -67,9 +67,9 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.banRefunds', icon: 'receipt-refund', link: '/d3/ban-refunds' });
     }
 
-    // Temporary fixed entry so the Contact Us page can be previewed before the
-    // backend starts returning it in the permission-driven sidebar payload.
-    if (!items.find(i => i.link === '/d3/contact-us')) {
+    // The backend doesn't send a Contact Us entry yet; gated on ContactUs.View like Ban Refunds.
+    const canViewContactUs = this.loginService.permissions().some(p => p.toLowerCase() === 'contactus.view');
+    if (canViewContactUs && !items.find(i => i.link === '/d3/contact-us')) {
       items.push({ translationKey: 'd3.sidebar.contactUs', icon: 'mail', link: '/d3/contact-us' });
     }
 

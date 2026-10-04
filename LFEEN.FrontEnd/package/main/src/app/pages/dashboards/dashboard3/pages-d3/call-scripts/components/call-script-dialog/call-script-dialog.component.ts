@@ -1,11 +1,17 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { TranslateModule } from '@ngx-translate/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CallScript, CallScriptScenarioType } from '../../interfaces/call-script.model';
+import { CoreService } from 'src/app/services/core.service';
+import { CallScript, CallScriptScenarioType, scenarioDisplayName, scenarioHint } from '../../interfaces/call-script.model';
+
+// Validators.required lets "   " through; the API would then reject the trimmed empty value.
+function requiredTrimmed(control: AbstractControl): ValidationErrors | null {
+  return typeof control.value === 'string' && control.value.trim() ? null : { required: true };
+}
 
 export interface CallScriptDialogData {
   /** The fixed scenario values the API accepts — used only to populate the picker. */
@@ -29,6 +35,11 @@ export interface CallScriptDialogResult {
   styleUrl: './call-script-dialog.component.scss'
 })
 export class CallScriptDialogComponent {
+  private translate = inject(TranslateService);
+  private coreService = inject(CoreService);
+
+  readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
+
   form: FormGroup;
 
   constructor(
@@ -43,7 +54,7 @@ export class CallScriptDialogComponent {
     this.form = this.fb.group({
       // Fixed at creation and not part of the update payload — locked once a script exists.
       scenarioType: [{ value: this.data.script?.scenarioType || '', disabled: this.isEditMode }, [Validators.required]],
-      audioFileUrl: [this.data.script?.audioFileUrl || '', [Validators.required]],
+      audioFileUrl: [this.data.script?.audioFileUrl || '', [requiredTrimmed]],
       isActive: [this.data.script?.isActive ?? false],
       options: this.fb.array(seedOptions.map(o => this.buildOptionGroup(o))),
     });
@@ -59,10 +70,18 @@ export class CallScriptDialogComponent {
 
   private buildOptionGroup(o?: { digit: string; description: string; responseMessageFileUrl?: string | null }): FormGroup {
     return this.fb.group({
-      digit: [o?.digit || '', Validators.required],
-      description: [o?.description || '', Validators.required],
+      digit: [o?.digit || '', requiredTrimmed],
+      description: [o?.description || '', requiredTrimmed],
       responseMessageFileUrl: [o?.responseMessageFileUrl || ''],
     });
+  }
+
+  scenarioName(scenarioType: CallScriptScenarioType, apiLabel?: string | null): string {
+    return scenarioDisplayName(this.translate, scenarioType, apiLabel);
+  }
+
+  scenarioHintText(scenarioType: CallScriptScenarioType): string {
+    return scenarioHint(this.translate, scenarioType);
   }
 
   addOption(): void {

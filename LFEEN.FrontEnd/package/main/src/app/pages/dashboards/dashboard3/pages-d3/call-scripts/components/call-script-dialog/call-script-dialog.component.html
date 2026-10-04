@@ -1,11 +1,14 @@
-<div class="cs-dialog" dir="rtl">
+<div class="cs-dialog" [dir]="dirSignal()">
 
   <div class="cs-dialog-header">
     <span class="title-accent"></span>
     <div class="header-text-block">
       <h2 class="dialog-title">{{ (isEditMode ? 'd3.callScripts.dialog.editTitle' : 'd3.callScripts.dialog.addTitle') | translate }}</h2>
-      @if (isEditMode) {
-        <span class="scenario-badge">{{ data.script?.scenarioType }}</span>
+      @if (data.script; as script) {
+        <span class="scenario-badge">
+          <i-tabler name="phone-call" class="icon-12"></i-tabler>
+          {{ scenarioName(script.scenarioType, script.scenarioLabel) }}
+        </span>
       }
     </div>
     <button class="cancel-link" type="button" (click)="dialogRef.close()">
@@ -20,12 +23,27 @@
       @if (!isEditMode) {
         <div class="field-section">
           <p class="section-label">{{ 'd3.callScripts.dialog.scenarioSection' | translate }}</p>
-          <select class="cs-input" dir="ltr" formControlName="scenarioType">
-            <option value="" disabled>{{ 'd3.callScripts.dialog.scenarioPlaceholder' | translate }}</option>
+          <mat-select class="cs-select" formControlName="scenarioType" disableOptionCentering
+            panelClass="cs-scenario-panel"
+            [class.cs-select-invalid]="form.get('scenarioType')?.invalid && form.get('scenarioType')?.touched"
+            [placeholder]="'d3.callScripts.dialog.scenarioPlaceholder' | translate">
+            <mat-select-trigger>
+              <span class="select-trigger">
+                <i-tabler name="phone-call" class="icon-16 trigger-icon"></i-tabler>
+                <span class="trigger-label">{{ scenarioName(form.get('scenarioType')?.value) }}</span>
+              </span>
+            </mat-select-trigger>
             @for (scenario of data.scenarios; track scenario) {
-              <option [value]="scenario">{{ scenario }}</option>
+              <mat-option [value]="scenario">
+                <span class="scenario-option">
+                  <span class="scenario-option-label">{{ scenarioName(scenario) }}</span>
+                  @if (scenarioHintText(scenario); as hint) {
+                    <span class="scenario-option-hint">{{ hint }}</span>
+                  }
+                </span>
+              </mat-option>
             }
-          </select>
+          </mat-select>
           @if (form.get('scenarioType')?.invalid && form.get('scenarioType')?.touched) {
             <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.scenarioRequired' | translate }}</p>
           }

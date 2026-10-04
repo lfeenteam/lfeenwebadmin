@@ -16,7 +16,7 @@
 
     @if (loading()) { <app-dashboard-loading variant="table" [rows]="7"></app-dashboard-loading> }
     @else if (error()) {
-      <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button></div>
+      <div class="state error-state"><i-tabler [name]="forbidden() ? 'lock' : 'alert-circle'"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><p>{{ error() }}</p>@if (!forbidden()) { <button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button> }</div>
     } @else if (!items().length) {
       <div class="state"><span class="empty-icon"><i-tabler name="mail-off"></i-tabler></span><h3>{{ 'd3.contactUs.empty.title' | translate }}</h3><p>{{ 'd3.contactUs.empty.text' | translate }}</p></div>
     } @else {
@@ -45,7 +45,7 @@
       @else if (detailError()) { <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><p>{{ detailError() }}</p></div> }
       @else { @if (selected(); as detail) {
         <div class="drawer-content">
-          <section class="sender-card"><span class="large-avatar">{{ detail.name.charAt(0) }}</span><div><h3>{{ detail.name }}</h3><a [href]="'mailto:'+detail.email">{{ detail.email }}</a><a class="phone-number" dir="ltr" [href]="'tel:'+detail.phone">{{ detail.phone }}</a></div><span class="status-pill" [class]="'status-pill ' + detail.status.toLowerCase()">{{ statusKey(detail.status) | translate }}</span></section>
+          <section class="sender-card"><span class="large-avatar">{{ detail.name.charAt(0) }}</span><div><h3>{{ detail.name }}</h3>@if (detail.email) { <a [href]="'mailto:'+detail.email">{{ detail.email }}</a> }@if (detail.phone) { <a class="phone-number" dir="ltr" [href]="'tel:'+detail.phone">{{ detail.phone }}</a> }</div><span class="status-pill" [class]="'status-pill ' + detail.status.toLowerCase()">{{ statusKey(detail.status) | translate }}</span></section>
           <section class="message-block"><span class="section-label">{{ 'd3.contactUs.detail.message' | translate }}</span><p>{{ detail.message }}</p></section>
           @if (detail.attachments.length) {
             <section class="attachment-section">
