@@ -1,0 +1,141 @@
+@if (sim) {
+  <div class="drawer-backdrop" (click)="close()"></div>
+  <aside class="esim-drawer" [dir]="currentDir" role="dialog" aria-modal="true" aria-labelledby="esim-detail-title"
+    cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+
+    <header class="drawer-header">
+      <div>
+        <h2 id="esim-detail-title" class="drawer-title">{{ 'd3.esim.detail.title' | translate }}</h2>
+        <p class="drawer-subtitle">{{ 'd3.esim.detail.subtitle' | translate }}</p>
+      </div>
+      <button type="button" class="drawer-close-btn" cdkFocusInitial (click)="close()"
+        [attr.aria-label]="'d3.esim.detail.close' | translate">
+        <i-tabler name="x" class="icon-18"></i-tabler>
+      </button>
+    </header>
+
+    <div class="drawer-body">
+
+      <!-- SIM card -->
+      <section class="sim-card">
+        <div class="sim-card-top">
+          <span class="scope-pill">{{ 'd3.esim.scope.' + sim.scope.toLowerCase() | translate }}</span>
+          <span class="sim-chip"><i-tabler name="device-sim" class="icon-18"></i-tabler></span>
+        </div>
+
+        <div class="sim-field">
+          <span class="field-label">{{ 'd3.esim.detail.simNumber' | translate }}</span>
+          <strong class="sim-number" dir="ltr">{{ sim.simNumber }}</strong>
+        </div>
+
+        <div class="sim-field">
+          <span class="field-label">ICCID</span>
+          <span class="sim-iccid" dir="ltr">{{ sim.iccid }}</span>
+        </div>
+
+        <div class="sim-card-bottom">
+          <div class="sim-network">
+            <span class="carrier-badge"><i-tabler name="antenna-bars-5" class="icon-18"></i-tabler></span>
+            <div class="stack">
+              <span class="field-label">{{ 'd3.esim.detail.network' | translate }}</span>
+              <strong dir="ltr">{{ sim.networkType }}</strong>
+            </div>
+          </div>
+          <div class="stack align-end">
+            <span class="field-label">{{ 'd3.esim.detail.currentPlan' | translate }}</span>
+            <strong>{{ 'd3.esim.plan.data' | translate:{ value: fmt(sim.dataGb) } }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Journey -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h3>{{ 'd3.esim.detail.journey.title' | translate }}</h3>
+            <p>{{ 'd3.esim.detail.journey.subtitle' | translate }}</p>
+          </div>
+          <span class="plan-pill" [class.is-unlimited]="sim.planType === 'Unlimited'">
+            {{ 'd3.esim.planType.' + sim.planType.toLowerCase() | translate }}
+          </span>
+        </div>
+
+        <ol class="journey">
+          @for (step of journey; track step.titleKey; let i = $index) {
+            <li class="journey-step" [class.is-done]="step.done">
+              <span class="step-marker">{{ fmt(i + 1) }}</span>
+              <div class="step-copy">
+                <strong>{{ step.titleKey | translate }}</strong>
+                <small>{{ step.descKey | translate }}</small>
+              </div>
+              @if (step.date) {
+                <span class="step-date">{{ step.date }}</span>
+              }
+            </li>
+          }
+        </ol>
+      </section>
+
+      <!-- User -->
+      <section class="panel user-panel">
+        <span class="user-avatar">{{ initials }}</span>
+        <div class="stack user-copy">
+          <strong>{{ sim.userName }}</strong>
+          <small>{{ sim.email }}</small>
+        </div>
+        <span class="status-pill" [class]="'status-pill status-' + sim.status.toLowerCase()">
+          {{ 'd3.esim.status.' + sim.status.toLowerCase() | translate }}
+          <span class="dot"></span>
+        </span>
+      </section>
+
+      <!-- Data usage -->
+      <section class="usage">
+        <div class="usage-head">
+          <strong>{{ 'd3.esim.detail.usage.title' | translate }}</strong>
+          <span>{{ fmt(usagePercent) }}%</span>
+        </div>
+        <div class="usage-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="usagePercent"
+          [attr.aria-label]="'d3.esim.detail.usage.title' | translate">
+          <span class="usage-fill" [style.width.%]="usagePercent"></span>
+        </div>
+        <div class="usage-foot">
+          <span>{{ 'd3.esim.detail.usage.total' | translate }}: {{ 'd3.esim.plan.data' | translate:{ value: fmt(sim.dataGb) } }}</span>
+          <span>{{ 'd3.esim.detail.usage.used' | translate }}: {{ 'd3.esim.plan.data' | translate:{ value: fmt(sim.usedGb) } }}</span>
+        </div>
+      </section>
+
+      <!-- Facts -->
+      <section class="facts">
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.country' | translate }}</span>
+          <strong class="fact-inline"><span class="code-badge">{{ sim.coverageCode }}</span>{{ sim.coverageName }}</strong>
+        </div>
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.scope' | translate }}</span>
+          <strong>{{ 'd3.esim.scope.' + sim.scope.toLowerCase() | translate }}</strong>
+        </div>
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.validity' | translate }}</span>
+          <strong>{{ validityKey | translate:{ count: fmt(sim.validityDays) } }}</strong>
+        </div>
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.simsCount' | translate }}</span>
+          <strong>{{ fmt(sim.simsCount) }}</strong>
+        </div>
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.carrier' | translate }}</span>
+          <strong>{{ sim.carrier }}</strong>
+        </div>
+        <div class="fact">
+          <span class="field-label">{{ 'd3.esim.detail.planPrice' | translate }}</span>
+          <strong class="fact-inline">
+            {{ fmtAmount(sim.price) }}
+            <img [src]="currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+          </strong>
+        </div>
+      </section>
+
+    </div>
+  </aside>
+}

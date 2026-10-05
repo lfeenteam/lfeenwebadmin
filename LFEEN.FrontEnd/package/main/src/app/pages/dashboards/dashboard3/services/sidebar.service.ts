@@ -85,6 +85,11 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.callScripts', icon: 'phone-call', link: '/d3/call-scripts' });
     }
 
+    // The backend doesn't send an eSIM entry in the sidebar payload yet.
+    if (PAGE_FLAGS['esim'] && !items.find(i => i.link === '/d3/esim')) {
+      items.push({ translationKey: 'd3.sidebar.esim', icon: 'device-sim', link: '/d3/esim' });
+    }
+
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
       // Order follows the design: settings, management, requests, discount codes, log.
       const subscriptionChildren: NavItem[] = [

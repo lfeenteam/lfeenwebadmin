@@ -191,6 +191,7 @@
       "platformOffers": "Platform Offers",
       "banRefunds": "Ban Refunds",
       "callScripts": "Call Scripts",
+      "esim": "Smart SIMs",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
@@ -2452,6 +2453,126 @@
       },
       "pagination": {
         "total": "account"
+      }
+    },
+    "esim": {
+      "title": "Smart SIMs",
+      "heading": "eSIM Smart SIMs",
+      "subtitle": "An overview of active SIMs and users' data plans",
+      "stats": {
+        "totalSales": "Total Sales",
+        "salesGrowth": "{{value}}% vs last month",
+        "totalUsers": "Total Users",
+        "newUsers": "{{value}} new users",
+        "activeSims": "Active SIMs",
+        "activeShare": "{{value}}% of total",
+        "totalSims": "Total SIMs",
+        "newSims": "{{value}} this month"
+      },
+      "searchPlaceholder": "Search by user name or SIM number",
+      "filters": {
+        "title": "Filter Results",
+        "subtitle": "Combine more than one filter",
+        "close": "Close",
+        "status": "SIM Status",
+        "coverage": "Country or Scope",
+        "allCoverage": "All countries and scopes",
+        "network": "Network Type",
+        "allNetworks": "All networks",
+        "networkOption": "{{value}} networks",
+        "clear": "Clear",
+        "showResults": "Show results ({{count}})"
+      },
+      "list": {
+        "title": "User SIMs",
+        "subtitle": "View and manage all registered SIMs and plans"
+      },
+      "tabs": {
+        "all": "All"
+      },
+      "scope": {
+        "global": "Global",
+        "regional": "Regional",
+        "local": "Local"
+      },
+      "planType": {
+        "limited": "Limited",
+        "unlimited": "Unlimited"
+      },
+      "table": {
+        "user": "User",
+        "coverage": "Country / Scope",
+        "planType": "Plan Type",
+        "network": "Network",
+        "plan": "Plan",
+        "price": "Price",
+        "status": "Status",
+        "action": "Action",
+        "purchased": "Purchased",
+        "viewDetails": "View details"
+      },
+      "detail": {
+        "title": "SIM Details",
+        "subtitle": "SIM and current plan information",
+        "close": "Close",
+        "simNumber": "SIM Number",
+        "network": "Network",
+        "currentPlan": "Current Plan",
+        "journey": {
+          "title": "SIM Journey",
+          "subtitle": "Track the purchase, activation and expiry stages",
+          "purchased": "SIM purchased",
+          "purchasedDesc": "The plan was purchased and linked to the SIM",
+          "activated": "SIM activated",
+          "activatedDesc": "The SIM was activated and the plan started",
+          "activation": "SIM activation",
+          "activationDesc": "Waiting for the SIM to be activated",
+          "expiry": "Plan expiry date",
+          "expiryDesc": "The current plan ends on this date",
+          "expiredDesc": "The plan ended on this date"
+        },
+        "usage": {
+          "title": "Data Usage",
+          "used": "Used",
+          "total": "Total"
+        },
+        "country": "Country",
+        "scope": "Scope",
+        "validity": "Plan Duration",
+        "simsCount": "Number of SIMs",
+        "carrier": "Network Provider",
+        "planPrice": "Plan Price"
+      },
+      "plan": {
+        "data": "{{value}} GB",
+        "days": "{{count}} days",
+        "daysFew": "{{count}} days"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Activating",
+        "expired": "Expired"
+      },
+      "dates": {
+        "activation": "Activated",
+        "expiry": "Expires",
+        "activationSoon": "within minutes",
+        "afterActivation": "set after activation"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load SIMs",
+        "detail": "Couldn't load the SIM details",
+        "network": "Couldn't reach the service, please try again",
+        "retry": "Try again"
+      },
+      "empty": {
+        "title": "No SIMs",
+        "desc": "There are no SIMs matching your search"
+      },
+      "pagination": {
+        "summary": "Showing {{shown}} of {{total}} users",
+        "previous": "Previous page",
+        "next": "Next page"
       }
     },
     "settlements": {

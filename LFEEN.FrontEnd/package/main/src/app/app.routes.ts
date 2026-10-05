@@ -391,6 +391,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'esim',
+                canActivate: [authGuard, pageFlagGuard('esim')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/esim/esim.component'
+                  ).then((m) => m.EsimComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.esim.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'ban-refunds',
                 canActivate: [authGuard],
                 loadComponent: () =>

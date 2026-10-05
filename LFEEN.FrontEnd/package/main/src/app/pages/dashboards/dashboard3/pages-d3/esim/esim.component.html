@@ -1,0 +1,256 @@
+<div class="esim-container" [dir]="currentDir">
+
+  <!-- Intro -->
+  <header class="es-intro">
+    <h1>{{ 'd3.esim.heading' | translate }}</h1>
+    <p>{{ 'd3.esim.subtitle' | translate }}</p>
+  </header>
+
+  <!-- Stats -->
+  <div class="es-stats">
+    <div class="es-stat-card">
+      <div class="es-stat-head">
+        <span class="es-stat-label">{{ 'd3.esim.stats.totalSales' | translate }}</span>
+        <span class="es-stat-icon tone-amber"><i-tabler name="download" class="icon-16"></i-tabler></span>
+      </div>
+      <span class="es-stat-value">
+        @if (summary) {
+          {{ fmt(summary.totalSales) }}
+          <img [src]="currencyIconSrc" alt="" class="es-riyal" [class.is-text-currency]="currentLang === 'en'">
+        } @else { - }
+      </span>
+      <span class="es-stat-note">
+        @if (summary) { {{ 'd3.esim.stats.salesGrowth' | translate:{ value: fmtSigned(summary.salesGrowthPercent) } }} }
+      </span>
+    </div>
+
+    <div class="es-stat-card">
+      <div class="es-stat-head">
+        <span class="es-stat-label">{{ 'd3.esim.stats.totalUsers' | translate }}</span>
+        <span class="es-stat-icon tone-blue"><i-tabler name="eye" class="icon-16"></i-tabler></span>
+      </div>
+      <span class="es-stat-value">{{ summary ? fmt(summary.totalUsers) : '-' }}</span>
+      <span class="es-stat-note">
+        @if (summary) { {{ 'd3.esim.stats.newUsers' | translate:{ value: fmt(summary.newUsers) } }} }
+      </span>
+    </div>
+
+    <div class="es-stat-card">
+      <div class="es-stat-head">
+        <span class="es-stat-label">{{ 'd3.esim.stats.activeSims' | translate }}</span>
+        <span class="es-stat-icon tone-green"><i-tabler name="antenna-bars-5" class="icon-16"></i-tabler></span>
+      </div>
+      <span class="es-stat-value">{{ summary ? fmt(summary.activeSims) : '-' }}</span>
+      <span class="es-stat-note">
+        @if (summary) { {{ 'd3.esim.stats.activeShare' | translate:{ value: fmt(activePercent) } }} }
+      </span>
+    </div>
+
+    <div class="es-stat-card">
+      <div class="es-stat-head">
+        <span class="es-stat-label">{{ 'd3.esim.stats.totalSims' | translate }}</span>
+        <span class="es-stat-icon tone-dark"><i-tabler name="device-sim" class="icon-16"></i-tabler></span>
+      </div>
+      <span class="es-stat-value">{{ summary ? fmt(summary.totalSims) : '-' }}</span>
+      <span class="es-stat-note">
+        @if (summary) { {{ 'd3.esim.stats.newSims' | translate:{ value: fmtSigned(summary.newSimsThisMonth) } }} }
+      </span>
+    </div>
+  </div>
+
+  <!-- Search + filter -->
+  <div class="es-filter-bar">
+    <div class="es-search">
+      <i-tabler name="search" class="icon-18 es-search-icon"></i-tabler>
+      <input
+        type="text"
+        class="es-search-input"
+        [placeholder]="'d3.esim.searchPlaceholder' | translate"
+        [attr.aria-label]="'d3.esim.searchPlaceholder' | translate"
+        [value]="searchQuery"
+        (input)="onSearchChange($any($event.target).value)" />
+    </div>
+
+    <button type="button" class="es-filter-btn" [class.is-active]="hasActiveFilters"
+      (click)="filterOpen = true" [attr.aria-label]="'d3.esim.filters.title' | translate">
+      <i-tabler name="filter" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <!-- List card -->
+  <section class="es-card">
+    <header class="es-card-head">
+      <h2>{{ 'd3.esim.list.title' | translate }}</h2>
+      <p>{{ 'd3.esim.list.subtitle' | translate }}</p>
+    </header>
+
+    <div class="es-tabs">
+      @for (tab of tabs; track tab.value) {
+        <button type="button" class="es-tab" [class.active]="activeTab === tab.value" (click)="setActiveTab(tab.value)">
+          {{ tab.labelKey | translate }}
+          <span class="es-tab-count">{{ fmt(tabCount(tab.value)) }}</span>
+        </button>
+      }
+    </div>
+
+    @if (loading) {
+      <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+    } @else {
+      <div class="es-table-wrap">
+        <table class="es-table">
+          <thead>
+            <tr>
+              <th>{{ 'd3.esim.table.user' | translate }}</th>
+              <th>{{ 'd3.esim.table.coverage' | translate }}</th>
+              <th>{{ 'd3.esim.table.planType' | translate }}</th>
+              <th>{{ 'd3.esim.table.network' | translate }}</th>
+              <th>{{ 'd3.esim.table.plan' | translate }}</th>
+              <th>{{ 'd3.esim.table.price' | translate }}</th>
+              <th>{{ 'd3.esim.table.status' | translate }}</th>
+              <th class="es-col-action">{{ 'd3.esim.table.action' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pagedRows; track row.id; let i = $index) {
+              <tr>
+                <td>
+                  <div class="es-user">
+                    <span class="es-avatar" [class]="'es-avatar tone-' + (i % 5)">{{ row.initials }}</span>
+                    <div class="es-user-copy">
+                      <strong>{{ row.userName }}</strong>
+                      <small>{{ row.email }}</small>
+                      <small>
+                        <span dir="ltr">{{ row.phone }}</span>
+                        · {{ 'd3.esim.table.purchased' | translate }} {{ fmtDate(row.purchasedAt) }}
+                      </small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="es-coverage">
+                    <span class="es-code">{{ row.coverageCode }}</span>
+                    <div class="es-stack">
+                      <strong>{{ row.coverageName }}</strong>
+                      <small>{{ 'd3.esim.scope.' + row.scope.toLowerCase() | translate }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="es-plan-pill" [class.is-unlimited]="row.planType === 'Unlimited'">
+                    {{ 'd3.esim.planType.' + row.planType.toLowerCase() | translate }}
+                  </span>
+                </td>
+                <td>
+                  <div class="es-coverage">
+                    <span class="es-network-icon"><i-tabler name="antenna-bars-5" class="icon-16"></i-tabler></span>
+                    <div class="es-stack">
+                      <strong dir="ltr">{{ row.networkType }}</strong>
+                      <small>{{ row.carrier }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="es-stack">
+                    <strong>{{ 'd3.esim.plan.data' | translate:{ value: fmt(row.dataGb) } }}</strong>
+                    <small>{{ validityKey(row.validityDays) | translate:{ count: fmt(row.validityDays) } }}</small>
+                  </div>
+                </td>
+                <td>
+                  <span class="es-price">
+                    {{ fmtAmount(row.price) }}
+                    <img [src]="currencyIconSrc" alt="" class="es-riyal-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                </td>
+                <td>
+                  <div class="es-status-cell">
+                    <span class="es-status" [class]="'es-status status-' + row.status.toLowerCase()">
+                      {{ 'd3.esim.status.' + row.status.toLowerCase() | translate }}
+                      <span class="dot"></span>
+                    </span>
+                    <small>
+                      {{ 'd3.esim.dates.activation' | translate }}:
+                      {{ row.activatedAt ? fmtDate(row.activatedAt) : ('d3.esim.dates.activationSoon' | translate) }}
+                    </small>
+                    <small>
+                      {{ 'd3.esim.dates.expiry' | translate }}:
+                      {{ row.expiresAt ? fmtDate(row.expiresAt) : ('d3.esim.dates.afterActivation' | translate) }}
+                    </small>
+                  </div>
+                </td>
+                <td class="es-col-action">
+                  <button type="button" class="es-action-btn" [matMenuTriggerFor]="rowMenu"
+                    [attr.aria-label]="'d3.esim.table.action' | translate">
+                    <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                  </button>
+                  <mat-menu #rowMenu="matMenu">
+                    <button mat-menu-item type="button" (click)="onView(row)">
+                      <span class="es-menu-item">
+                        {{ 'd3.esim.table.viewDetails' | translate }}
+                        <i-tabler name="eye" class="icon-16"></i-tabler>
+                      </span>
+                    </button>
+                  </mat-menu>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="p-0">
+                  @if (loadError) {
+                    <app-dashboard-empty icon="cloud-off" titleKey="d3.esim.errors.loadTitle" descKey="d3.esim.errors.network">
+                      <button type="button" class="es-retry-btn" (click)="load()">
+                        <i-tabler name="refresh" class="icon-16"></i-tabler>
+                        {{ 'd3.esim.errors.retry' | translate }}
+                      </button>
+                    </app-dashboard-empty>
+                  } @else {
+                    <app-dashboard-empty icon="device-sim" titleKey="d3.esim.empty.title" descKey="d3.esim.empty.desc"></app-dashboard-empty>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalCount > 0) {
+        <footer class="es-pagination">
+          <div class="es-pagination-controls">
+            <button type="button" class="es-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)"
+              [attr.aria-label]="'d3.esim.pagination.previous' | translate">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="es-page-ellipsis">...</span>
+              } @else {
+                <button type="button" class="es-page-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button type="button" class="es-page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)"
+              [attr.aria-label]="'d3.esim.pagination.next' | translate">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+          <span class="es-pagination-total">
+            {{ 'd3.esim.pagination.summary' | translate:{ shown: fmt(pagedRows.length), total: fmt(totalCount) } }}
+          </span>
+        </footer>
+      }
+    }
+  </section>
+
+  <app-esim-detail-drawer [sim]="selectedSim" (closed)="selectedSim = null"></app-esim-detail-drawer>
+
+  <app-esim-filter-dialog
+    [open]="filterOpen"
+    [filters]="filters"
+    [coverageOptions]="coverageOptions"
+    [networkOptions]="networkOptions"
+    [countFor]="countFor"
+    (applied)="onFiltersApplied($event)"
+    (closed)="filterOpen = false">
+  </app-esim-filter-dialog>
+
+</div>

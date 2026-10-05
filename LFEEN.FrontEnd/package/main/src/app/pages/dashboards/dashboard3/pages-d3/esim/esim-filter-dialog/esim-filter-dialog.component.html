@@ -1,0 +1,66 @@
+@if (open) {
+  <div class="filter-backdrop" (click)="closed.emit()">
+    <div class="filter-dialog" [dir]="currentDir" role="dialog" aria-modal="true" aria-labelledby="esim-filter-title"
+      cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (click)="$event.stopPropagation()">
+
+      <header class="filter-header">
+        <span class="filter-icon"><i-tabler name="filter" class="icon-18"></i-tabler></span>
+        <div class="filter-heading">
+          <h2 id="esim-filter-title">{{ 'd3.esim.filters.title' | translate }}</h2>
+          <p>{{ 'd3.esim.filters.subtitle' | translate }}</p>
+        </div>
+        <button type="button" class="filter-close-btn" (click)="closed.emit()" [attr.aria-label]="'d3.esim.filters.close' | translate">
+          <i-tabler name="x" class="icon-16"></i-tabler>
+        </button>
+      </header>
+
+      <div class="filter-body">
+        <div class="filter-group" role="group" aria-labelledby="esim-filter-status">
+          <span id="esim-filter-status" class="filter-label">{{ 'd3.esim.filters.status' | translate }}</span>
+          <div class="status-grid">
+            @for (opt of statusOptions; track opt.value) {
+              <button type="button" class="status-option" [class.active]="draft.status === opt.value"
+                [attr.aria-pressed]="draft.status === opt.value" (click)="draft.status = opt.value">
+                {{ opt.labelKey | translate }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <label class="filter-group">
+          <span class="filter-label">{{ 'd3.esim.filters.coverage' | translate }}</span>
+          <span class="select-wrap">
+            <select [(ngModel)]="draft.coverage">
+              <option value="all">{{ 'd3.esim.filters.allCoverage' | translate }}</option>
+              @for (name of coverageOptions; track name) {
+                <option [value]="name">{{ name }}</option>
+              }
+            </select>
+            <i-tabler name="chevron-down" class="icon-16 select-chevron"></i-tabler>
+          </span>
+        </label>
+
+        <label class="filter-group">
+          <span class="filter-label">{{ 'd3.esim.filters.network' | translate }}</span>
+          <span class="select-wrap">
+            <select [(ngModel)]="draft.network">
+              <option value="all">{{ 'd3.esim.filters.allNetworks' | translate }}</option>
+              @for (gen of networkOptions; track gen) {
+                <option [value]="gen">{{ 'd3.esim.filters.networkOption' | translate:{ value: gen } }}</option>
+              }
+            </select>
+            <i-tabler name="chevron-down" class="icon-16 select-chevron"></i-tabler>
+          </span>
+        </label>
+      </div>
+
+      <footer class="filter-footer">
+        <button type="button" class="clear-btn" (click)="clear()">{{ 'd3.esim.filters.clear' | translate }}</button>
+        <button type="button" class="apply-btn" (click)="apply()">
+          {{ 'd3.esim.filters.showResults' | translate:{ count: resultCount } }}
+        </button>
+      </footer>
+
+    </div>
+  </div>
+}

@@ -1,0 +1,483 @@
+// Drawer shell follows request-detail-drawer.component.scss.
+:host {
+  display: block;
+  font-family: 'Cairo', sans-serif;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 16, 0.32);
+  z-index: 300;
+  animation: esimBackdropIn 0.2s ease forwards;
+}
+
+.esim-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 460px;
+  max-width: 100vw;
+  background: #fff;
+  z-index: 301;
+  box-shadow: 0 0 32px rgba(17, 17, 16, 0.14);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Cairo', sans-serif;
+  animation: esimDrawerIn 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+
+  h2, h3, p, span, strong, small, button {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+.esim-drawer[dir='rtl'] { --drawer-slide-from: -100%; }
+
+@keyframes esimDrawerIn {
+  from { transform: translateX(var(--drawer-slide-from, 100%)); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes esimBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-backdrop,
+  .esim-drawer { animation: none; }
+}
+
+// ── Header ──────────────────────────────────────────────────
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  margin: 0 0 2px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111110;
+}
+
+.drawer-subtitle {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+.drawer-close-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid #E2E8F0;
+  color: #6B6B67;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+
+  &:hover { background: #F8FAFC; color: #111110; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+}
+
+.drawer-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Shared bits ─────────────────────────────────────────────
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  &.align-end { align-items: flex-end; }
+}
+
+.field-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9E9E9A;
+}
+
+strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111110;
+}
+
+small {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+// ── SIM card ────────────────────────────────────────────────
+.sim-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+}
+
+.sim-card-top,
+.sim-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sim-card-bottom {
+  padding-top: 14px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.scope-pill {
+  padding: 3px 12px;
+  border-radius: 20px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  color: #45556C;
+}
+
+.sim-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #111110;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sim-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.sim-number {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+}
+
+.sim-iccid {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #45556C;
+}
+
+.sim-network {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carrier-badge {
+  width: 40px;
+  height: 34px;
+  border-radius: 10px;
+  background: #4f1d96;
+  color: #fff;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Panels ──────────────────────────────────────────────────
+.panel {
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #111110;
+  }
+
+  p {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: #9E9E9A;
+  }
+}
+
+.plan-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #F1F5F9;
+  color: #45556C;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &.is-unlimited { background: #f5f3ff; color: #7c3aed; }
+}
+
+// ── Journey timeline ────────────────────────────────────────
+.journey {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 20px;
+
+  &:last-child { padding-bottom: 0; }
+
+  // Connector to the next step.
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    bottom: 0;
+    inset-inline-start: 12px;
+    width: 1px;
+    background: #E2E8F0;
+  }
+
+  &.is-done .step-marker {
+    background: #111110;
+    border-color: #111110;
+    color: #fff;
+  }
+}
+
+.step-marker {
+  width: 25px;
+  height: 25px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  color: #9E9E9A;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.step-copy {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.step-date {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  font-size: 10px;
+  font-weight: 600;
+  color: #6B6B67;
+  white-space: nowrap;
+}
+
+// ── User ────────────────────────────────────────────────────
+.user-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #16a34a;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.user-copy {
+  flex: 1 1 auto;
+
+  small { overflow-wrap: anywhere; }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &.status-active {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border: 1px solid #dcfce7;
+    .dot { background-color: #16a34a; }
+  }
+
+  &.status-pending {
+    color: #d97706;
+    background-color: #fffbeb;
+    border: 1px solid #fef3c7;
+    .dot { background-color: #d97706; }
+  }
+
+  &.status-expired {
+    color: #6B6B67;
+    background-color: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    .dot { background-color: #9E9E9A; }
+  }
+}
+
+// ── Usage ───────────────────────────────────────────────────
+.usage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.usage-head,
+.usage-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usage-head span {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111110;
+}
+
+.usage-foot span {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9E9E9A;
+}
+
+.usage-bar {
+  height: 8px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  overflow: hidden;
+}
+
+.usage-fill {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  background: #111110;
+}
+
+// ── Facts grid ──────────────────────────────────────────────
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: #F8FAFC;
+  border-radius: 14px;
+  min-width: 0;
+}
+
+.fact-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.code-badge {
+  padding: 1px 5px;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  color: #45556C;
+}
+
+.riyal-icon {
+  width: 13px;
+  height: 13px;
+  object-fit: contain;
+
+  &.is-text-currency { width: 20px; height: auto; }
+}
+
+@media (max-width: 576px) {
+  .drawer-header { padding: 16px; }
+  .drawer-body { padding: 16px; }
+  .sim-number { font-size: 19px; }
+}

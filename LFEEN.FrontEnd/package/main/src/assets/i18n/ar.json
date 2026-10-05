@@ -193,6 +193,7 @@
       "platformOffers": "عروض المنصة",
       "banRefunds": "استردادات الحظر",
       "callScripts": "سكريبتات المكالمات",
+      "esim": "الشرائح الذكية",
       "subscriptions": "الاشتراكات",
       "subscriptionSettings": "اعدادات الاشتراكات",
       "subscriptionManagement": "ادارة الاشتراكات",
@@ -1652,6 +1653,126 @@
       },
       "pagination": {
         "total": "حساب"
+      }
+    },
+    "esim": {
+      "title": "الشرائح الذكية",
+      "heading": "شرائح ذكية eSIM",
+      "subtitle": "نظرة شاملة على الشرائح النشطة وباقات الإنترنت الخاصة بالمستخدمين",
+      "stats": {
+        "totalSales": "إجمالي المبيعات",
+        "salesGrowth": "{{value}}% عن الشهر الماضي",
+        "totalUsers": "إجمالي المستخدمين",
+        "newUsers": "{{value}} مستخدم جديد",
+        "activeSims": "الشرائح النشطة",
+        "activeShare": "{{value}}% من الإجمالي",
+        "totalSims": "إجمالي الشرائح",
+        "newSims": "{{value}} هذا الشهر"
+      },
+      "searchPlaceholder": "بحث باسم المستخدم او رقم الشريحة",
+      "filters": {
+        "title": "تصفية النتائج",
+        "subtitle": "اختر أكثر من نوع للفلترة",
+        "close": "إغلاق",
+        "status": "حالة الشريحة",
+        "coverage": "الدولة أو النطاق",
+        "allCoverage": "كل الدول والنطاقات",
+        "network": "نوع الشبكة",
+        "allNetworks": "كل الشبكات",
+        "networkOption": "شبكات {{value}}",
+        "clear": "مسح",
+        "showResults": "عرض النتائج ({{count}})"
+      },
+      "list": {
+        "title": "قائمة شرائح المستخدمين",
+        "subtitle": "عرض وإدارة جميع الشرائح والباقات المسجلة"
+      },
+      "tabs": {
+        "all": "الكل"
+      },
+      "scope": {
+        "global": "عالمي",
+        "regional": "إقليمي",
+        "local": "محلي"
+      },
+      "planType": {
+        "limited": "محدودة",
+        "unlimited": "غير محدودة"
+      },
+      "table": {
+        "user": "المستخدم",
+        "coverage": "الدولة / النطاق",
+        "planType": "نوع الباقة",
+        "network": "نوع الشبكة",
+        "plan": "الباقة",
+        "price": "السعر",
+        "status": "الحالة",
+        "action": "إجراء",
+        "purchased": "شراء",
+        "viewDetails": "عرض التفاصيل"
+      },
+      "detail": {
+        "title": "تفاصيل الشريحة",
+        "subtitle": "بيانات الشريحة والباقة الحالية",
+        "close": "إغلاق",
+        "simNumber": "رقم الشريحة",
+        "network": "الشبكة",
+        "currentPlan": "الباقة الحالية",
+        "journey": {
+          "title": "رحلة الشريحة",
+          "subtitle": "تتبع مراحل الشراء والتفعيل والانتهاء",
+          "purchased": "تم شراء الشريحة",
+          "purchasedDesc": "اكتمل شراء الباقة وربط الشريحة",
+          "activated": "تم تفعيل الشريحة",
+          "activatedDesc": "تم تفعيل الشريحة وبدء استخدام الباقة",
+          "activation": "تفعيل الشريحة",
+          "activationDesc": "في انتظار تفعيل الشريحة",
+          "expiry": "تاريخ انتهاء الباقة",
+          "expiryDesc": "ستنتهي الباقة الحالية في هذا التاريخ",
+          "expiredDesc": "انتهت الباقة في هذا التاريخ"
+        },
+        "usage": {
+          "title": "استهلاك البيانات",
+          "used": "المستخدم",
+          "total": "الإجمالي"
+        },
+        "country": "الدولة",
+        "scope": "النطاق",
+        "validity": "مدة الباقة",
+        "simsCount": "عدد الشرائح",
+        "carrier": "مزود الشبكة",
+        "planPrice": "قيمة الباقة"
+      },
+      "plan": {
+        "data": "{{value}} جيجا",
+        "days": "{{count}} يوم",
+        "daysFew": "{{count}} أيام"
+      },
+      "status": {
+        "active": "نشطة",
+        "pending": "قيد التفعيل",
+        "expired": "منتهية"
+      },
+      "dates": {
+        "activation": "التفعيل",
+        "expiry": "الانتهاء",
+        "activationSoon": "خلال دقائق",
+        "afterActivation": "يحدد بعد التفعيل"
+      },
+      "errors": {
+        "loadTitle": "تعذّر تحميل الشرائح",
+        "detail": "تعذّر تحميل تفاصيل الشريحة",
+        "network": "تعذّر الاتصال بالخدمة، حاول مرة أخرى",
+        "retry": "إعادة المحاولة"
+      },
+      "empty": {
+        "title": "لا توجد شرائح",
+        "desc": "لا توجد شرائح مطابقة لبحثك حاليًا"
+      },
+      "pagination": {
+        "summary": "عرض {{shown}} من {{total}} مستخدمين",
+        "previous": "الصفحة السابقة",
+        "next": "الصفحة التالية"
       }
     },
     "settlements": {
