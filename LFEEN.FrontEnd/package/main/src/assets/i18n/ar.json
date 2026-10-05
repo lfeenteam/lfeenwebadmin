@@ -2790,6 +2790,11 @@
         "privateFacilitiesLabel": "المرافق الخاصة",
         "stats": {
           "capacity": "سعة الأفراد",
+          "adults": "عدد البالغين",
+          "children": "عدد الأطفال",
+          "maxChildAge": "أقصى عمر للطفل",
+          "maxChildAgeValue": "حتى {{age}} سنة",
+          "childrenNotAllowed": "لا يُسمح بالأطفال",
           "area": "المساحة",
           "floor": "رقم الدور",
           "type": "نوع الوحدة"
@@ -2918,6 +2923,20 @@
         "basePrice": "السعر الأساسي",
         "safetyFloor": "الحد الأدنى للأمان",
         "perNight": "/ ليلة",
+        "occupancy": {
+          "title": "أسعار حسب عدد النزلاء",
+          "type": "نوع السعر",
+          "customPrice": "سعر مخصص",
+          "adults": "عدد البالغين",
+          "children": "عدد الأطفال",
+          "basePrice": "السعر الأساسي",
+          "minimumPrice": "الحد الأدنى",
+          "status": "الحالة",
+          "defaultBadge": "السعر الافتراضي",
+          "active": "مفعّل",
+          "inactive": "معطّل",
+          "suspiciousHint": "مجموعة أصغر بسعر أعلى من السعر الافتراضي"
+        },
         "policies": {
           "stayDurationSubtitle": "خصومات حسب مدة الإقامة",
           "dayFraction": {

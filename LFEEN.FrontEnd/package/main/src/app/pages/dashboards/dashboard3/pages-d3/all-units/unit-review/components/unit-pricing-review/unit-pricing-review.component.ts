@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
-import { UnitPricingResponse } from '../../../../../interfaces/unit-card.model';
+import { AdminOccupancyPrice, UnitPricingResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
@@ -43,6 +43,11 @@ interface PricingPolicy {
   rows: PricingPolicyRow[];
 }
 
+interface OccupancyPriceRow extends AdminOccupancyPrice {
+  /** A smaller group priced above the default (full capacity) price. */
+  suspicious: boolean;
+}
+
 interface PlatformPricingRow {
   labelKey: string;
   enabled: boolean;
@@ -71,6 +76,9 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   isReadOnly = false;
 
   seasonalPeriods: SeasonalPeriod[] = [];
+
+  // Default (full capacity) row pinned first, then the optional adult/children combinations.
+  occupancyPrices: OccupancyPriceRow[] = [];
 
   // Populated from the pricing endpoint in loadPricing(); "-" for missing values, and a whole
   // section is shown only when its toggle comes back true.
@@ -203,6 +211,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.basePrice = data.basePricePerNight ?? null;
         this.safetyFloorPrice = data.minimumPricePerNight ?? null;
+        this.occupancyPrices = this.mapOccupancyPrices(data);
         this.applyPricingPolicies(data);
         const locale = this.currentLang === 'en' ? enUS : ar;
         this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
@@ -219,6 +228,23 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
           };
         });
       });
+  }
+
+  /**
+   * The API already returns the default row first; the sort only keeps it pinned
+   * if that order is ever lost. Optional rows keep their returned order.
+   */
+  private mapOccupancyPrices(data: UnitPricingResponse): OccupancyPriceRow[] {
+    const rows = data.occupancyPrices ?? [];
+    const defaultRow = rows.find(r => r.isDefault);
+    return [...rows]
+      .sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
+      .map(row => ({
+        ...row,
+        suspicious: !row.isDefault
+          && !!defaultRow
+          && row.basePricePerNight > defaultRow.basePricePerNight,
+      }));
   }
 
   /**

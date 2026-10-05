@@ -121,6 +121,166 @@
   }
 }
 
+// ─── Occupancy Prices ─────────────────────────────────────────────────────────
+.occupancy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111110;
+    margin: 0;
+    text-align: start;
+  }
+}
+
+.occupancy-table-wrap {
+  background: #fff;
+  border: 1px solid #E8E8E4;
+  border-radius: 16px;
+  overflow-x: auto;
+}
+
+.occupancy-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th,
+  td {
+    padding: 12px 16px;
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  th {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9E9E9A;
+    background: #FCFCFB;
+    border-bottom: 1px solid #E8E8E4;
+  }
+
+  td {
+    font-weight: 700;
+    color: #111110;
+    border-bottom: 1px solid #F0F0EE;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  // Default (full capacity) row: tinted, with an accent bar on its leading edge.
+  tr.is-default td {
+    background: #F7F7F5;
+    border-bottom-color: #E8E8E4;
+
+    // RTL by default: the first cell sits on the right edge (flipped in the ltr block below).
+    &:first-child {
+      box-shadow: inset -4px 0 0 #111110;
+    }
+  }
+
+  .occupancy-type-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9E9E9A;
+  }
+
+  // Rows the merchant disabled: grey the values, keep the status badge readable.
+  tr.is-inactive td {
+    color: #9E9E9A;
+
+    .occupancy-count,
+    .occupancy-price,
+    .occupancy-type-label {
+      opacity: 0.55;
+    }
+  }
+
+  tr.is-suspicious td {
+    background: #FFFBEB;
+  }
+}
+
+.occupancy-count,
+.occupancy-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.occupancy-price {
+  gap: 4px;
+
+  .field-riyal {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+
+    &.is-text-currency {
+      width: 20px;
+      height: auto;
+    }
+  }
+}
+
+.occupancy-warning {
+  width: 16px;
+  height: 16px;
+  color: #D97706;
+  flex-shrink: 0;
+}
+
+.occupancy-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+
+  &--default {
+    gap: 5px;
+    padding: 5px 12px;
+    background: #111110;
+    color: #fff;
+
+    line-height: 1;
+
+    // The host is inline by default, so the svg sat on the text baseline and
+    // overflowed its box — make both a fixed-size flex box centred with the label.
+    i-tabler {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+
+      ::ng-deep svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  &--active {
+    background: #ECFDF3;
+    color: #10B981;
+  }
+
+  &--inactive {
+    background: #F2F2F0;
+    color: #6B6B67;
+  }
+}
+
 // ─── Pricing Policies ─────────────────────────────────────────────────────────
 .policies-section {
   display: flex;
@@ -456,6 +616,10 @@
 
   .policies-section {
     direction: ltr;
+  }
+
+  .occupancy-table tr.is-default td:first-child {
+    box-shadow: inset 4px 0 0 #111110;
   }
 
   .policy-card-head .policy-head-text,

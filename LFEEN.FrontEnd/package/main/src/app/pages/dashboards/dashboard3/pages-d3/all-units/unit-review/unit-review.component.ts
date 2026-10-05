@@ -10,7 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ToastrService } from 'ngx-toastr';
 import { ReviewConfirmDialogComponent } from '../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../services/units.service';
-import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem } from '../../../interfaces/unit-card.model';
+import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem, totalGuests } from '../../../interfaces/unit-card.model';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
@@ -167,7 +167,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           unitNumber:  String(data.apartmentNumberInFloor),
           title:       data.name ?? `${data.unitTypeName} ${data.apartmentNumberInFloor}`,
           floor:       String(data.floorNumber),
-          capacity:    String(data.maxGuests),
+          capacity:    String(totalGuests(data)),
           status:      'underReview',
           type:        data.unitTypeName,
           description: '',

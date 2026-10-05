@@ -1676,6 +1676,11 @@
         "privateFacilitiesLabel": "Private Facilities",
         "stats": {
           "capacity": "Guest Capacity",
+          "adults": "Adults",
+          "children": "Children",
+          "maxChildAge": "Max Child Age",
+          "maxChildAgeValue": "Up to {{age}} years",
+          "childrenNotAllowed": "Children not allowed",
           "area": "Area",
           "floor": "Floor Number",
           "type": "Unit Type"
@@ -1804,6 +1809,20 @@
         "basePrice": "Base Price",
         "safetyFloor": "Safety Minimum",
         "perNight": "/ night",
+        "occupancy": {
+          "title": "Prices by number of guests",
+          "type": "Price type",
+          "customPrice": "Custom price",
+          "adults": "Adults",
+          "children": "Children",
+          "basePrice": "Base Price",
+          "minimumPrice": "Minimum Price",
+          "status": "Status",
+          "defaultBadge": "Default price",
+          "active": "Active",
+          "inactive": "Disabled",
+          "suspiciousHint": "Smaller group priced above the default price"
+        },
         "policies": {
           "stayDurationSubtitle": "Discounts based on length of stay",
           "dayFraction": {

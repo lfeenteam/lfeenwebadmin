@@ -30,8 +30,20 @@
         <strong>{{ unitArea }}</strong>
       </div>
       <div class="unit-stat-chip">
-        <span>{{ 'd3.unitReview.basicInfoView.stats.capacity' | translate }}</span>
-        <strong>{{ unitCapacity }}</strong>
+        <span>{{ 'd3.unitReview.basicInfoView.stats.adults' | translate }}</span>
+        <strong>{{ adultCapacity }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.children' | translate }}</span>
+        <strong>{{ childrenCapacity }}</strong>
+      </div>
+      <div class="unit-stat-chip">
+        <span>{{ 'd3.unitReview.basicInfoView.stats.maxChildAge' | translate }}</span>
+        @if (childrenAllowed) {
+          <strong>{{ 'd3.unitReview.basicInfoView.stats.maxChildAgeValue' | translate: { age: maxChildAge } }}</strong>
+        } @else {
+          <strong>{{ 'd3.unitReview.basicInfoView.stats.childrenNotAllowed' | translate }}</strong>
+        }
       </div>
     </div>
   </section>

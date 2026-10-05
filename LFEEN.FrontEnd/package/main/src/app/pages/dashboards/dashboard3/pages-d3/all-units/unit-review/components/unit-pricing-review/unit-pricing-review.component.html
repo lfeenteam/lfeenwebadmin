@@ -32,6 +32,66 @@
     </div>
   </div>
 
+  <!-- Occupancy prices -->
+  @if (occupancyPrices.length > 0) {
+  <section class="occupancy-section">
+    <h3 class="section-title">{{ 'd3.unitReview.pricingView.occupancy.title' | translate }}</h3>
+    <div class="occupancy-table-wrap">
+      <table class="occupancy-table">
+        <thead>
+          <tr>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.type' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.adults' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.children' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.basePrice' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.minimumPrice' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.status' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of occupancyPrices; track $index) {
+            <tr [class.is-default]="row.isDefault" [class.is-inactive]="!row.isActive" [class.is-suspicious]="row.suspicious">
+              <td class="occupancy-type-cell">
+                @if (row.isDefault) {
+                  <span class="occupancy-badge occupancy-badge--default">
+                    <i-tabler name="star"></i-tabler>
+                    {{ 'd3.unitReview.pricingView.occupancy.defaultBadge' | translate }}
+                  </span>
+                } @else {
+                  <span class="occupancy-type-label">{{ 'd3.unitReview.pricingView.occupancy.customPrice' | translate }}</span>
+                }
+              </td>
+              <td><span class="occupancy-count">{{ row.adultCount }}</span></td>
+              <td><span class="occupancy-count">{{ row.childrenCount }}</span></td>
+              <td>
+                <span class="occupancy-price">
+                  {{ row.basePricePerNight }}
+                  <img [src]="currencyIconSrc" alt="ريال" class="field-riyal" [class.is-text-currency]="currentLang === 'en'">
+                  @if (row.suspicious) {
+                    <i-tabler name="alert-triangle" class="occupancy-warning"
+                      [matTooltip]="'d3.unitReview.pricingView.occupancy.suspiciousHint' | translate"></i-tabler>
+                  }
+                </span>
+              </td>
+              <td>
+                <span class="occupancy-price">
+                  {{ row.minimumPricePerNight }}
+                  <img [src]="currencyIconSrc" alt="ريال" class="field-riyal" [class.is-text-currency]="currentLang === 'en'">
+                </span>
+              </td>
+              <td>
+                <span class="occupancy-badge" [class.occupancy-badge--active]="row.isActive" [class.occupancy-badge--inactive]="!row.isActive">
+                  {{ (row.isActive ? 'd3.unitReview.pricingView.occupancy.active' : 'd3.unitReview.pricingView.occupancy.inactive') | translate }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+  }
+
   <!-- Pricing Policies -->
   <section class="policies-section">
     @for (policy of pricingPolicies; track policy.titleKey) {

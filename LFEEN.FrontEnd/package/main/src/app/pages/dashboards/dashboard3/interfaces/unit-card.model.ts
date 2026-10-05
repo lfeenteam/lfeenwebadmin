@@ -173,7 +173,11 @@ export interface UnitApiDetailItem {
   unitTypeName: string;
   floorNumber: number;
   apartmentNumberInFloor: number;
+  // Adult capacity (legacy name) — same value as adultCapacity, NOT the total.
   maxGuests: number;
+  adultCapacity?: number | null;
+  childrenCapacity?: number;
+  maxChildAge?: number | null;
   sizeM: number;
   mainPhotoUrl: string | null;
   hasLock: boolean;
@@ -374,7 +378,13 @@ export interface UnitBasicDataResponse {
   district: string | null;
   floorNumber: number;
   apartmentNumberInFloor: number;
+  // Adult capacity (legacy name) — same value as adultCapacity, NOT the total.
   maxGuests: number;
+  adultCapacity?: number | null;
+  // 0 = children not accepted.
+  childrenCapacity?: number;
+  // Oldest age counted as a child; null when no children.
+  maxChildAge?: number | null;
   sizeM: number;
   hasLock: boolean;
   rooms: UnitBasicDataRoom[];
@@ -424,6 +434,25 @@ export interface UnitPricingCustomPeriod {
   dayRules: UnitPricingDayRule[];
 }
 
+export interface AdminUnitCapacity {
+  maxGuests: number | null;      // adult capacity (legacy)
+  adultCapacity?: number | null;
+  childrenCapacity?: number;
+  maxChildAge?: number | null;
+}
+
+export const totalGuests = (c: AdminUnitCapacity): number =>
+  (c.adultCapacity ?? c.maxGuests ?? 0) + (c.childrenCapacity ?? 0);
+
+export interface AdminOccupancyPrice {
+  adultCount: number;
+  childrenCount: number;
+  basePricePerNight: number;
+  minimumPricePerNight: number;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
 export interface UnitPricingResponse {
   unitId: number;
   decision: string;
@@ -431,6 +460,10 @@ export interface UnitPricingResponse {
   reviewedAt: string | null;
   basePricePerNight: number;
   minimumPricePerNight: number;
+  adultCapacity?: number;
+  childrenCapacity?: number;
+  // Default row (full capacity) first, then the optional adult/children combinations.
+  occupancyPrices?: AdminOccupancyPrice[];
   currencyCode: string;
   enableDayPartitioning: boolean;
   dayPartitions: UnitPricingDayPartition[];
