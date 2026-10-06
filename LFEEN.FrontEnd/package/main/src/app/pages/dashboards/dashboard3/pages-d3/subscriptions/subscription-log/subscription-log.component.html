@@ -29,7 +29,7 @@
                 {{ selectedServiceLabel }}
               </span>
             </mat-select-trigger>
-            <mat-option [value]="null">{{ 'd3.subscriptionLog.filters.allServices' | translate }}</mat-option>
+            <mat-option value="all">{{ 'd3.subscriptionLog.filters.allServices' | translate }}</mat-option>
             @for (s of services; track s.id) {
               <mat-option [value]="s.id">{{ serviceName(s) }}</mat-option>
             }
@@ -84,7 +84,18 @@
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.details' | translate }}</span>
-                  <span class="log-details">{{ entry.details }}</span>
+                  @if (entry.detailPairs.length) {
+                    <div class="detail-pairs">
+                      @for (pair of entry.detailPairs; track $index) {
+                        <span class="detail-pair">
+                          <span class="detail-key">{{ pair.label }}</span>
+                          <span class="detail-value" dir="auto">{{ pair.value }}</span>
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="log-details">{{ entry.detailsText }}</span>
+                  }
                 </td>
               </tr>
             } @empty {

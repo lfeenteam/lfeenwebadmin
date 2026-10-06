@@ -228,9 +228,48 @@
 }
 
 .log-details {
+  display: block;
+  max-width: 260px;
   font-size: 12px;
   font-weight: 600;
   color: #6B6B67;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.detail-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 260px;
+}
+
+.detail-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.detail-key {
+  font-weight: 600;
+  color: #90A1B9;
+}
+
+.detail-value {
+  font-weight: 800;
+  color: #111110;
+}
+
+// The row padding was sized for short cells; with wrapping details the table must be
+// allowed to scroll sideways on narrow screens instead of being clipped.
+.table-box .table-responsive {
+  overflow-x: auto;
 }
 
 .log-status {

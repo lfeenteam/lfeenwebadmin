@@ -4,8 +4,12 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import {
+  CreateIntegrationFieldRequest,
   CreateSubscriptionDiscountCodeRequest,
+  MerchantSubscription,
+  ServiceSubscriber,
   SetSubscriptionPriceRequest,
+  SubscriptionIntegrationField,
   SubscriptionActivityLogQuery,
   SubscriptionAuditLog,
   SubscriptionCatalogItem,
@@ -15,12 +19,29 @@ import {
   SubscriptionOverview,
   SubscriptionPaginated,
   SubscriptionPricingItem,
-  SubscriptionPricingPeriod,
   SubscriptionTier,
   UpdateSubscriptionServiceRequest,
 } from '../pages-d3/subscriptions/interfaces/subscription.model';
 
 export const ORDER_STATUSES: SubscriptionOrderStatus[] = ['Pending', 'UnderReview', 'Approved', 'Rejected'];
+
+// The guide says the subscriber endpoints are paginated but not in which envelope. The
+// activity-log shape ({ data, totalCount, page, nextpage, totalPages }) is assumed; a bare
+// array is also accepted so the tables still render if the envelope differs.
+function toPage<T>(res: unknown): SubscriptionPaginated<T> {
+  if (Array.isArray(res)) {
+    return { data: res as T[], totalCount: res.length, page: 1, nextpage: null, totalPages: 1 };
+  }
+  const r = (res ?? {}) as Partial<SubscriptionPaginated<T>> & { items?: T[] };
+  const data = r.data ?? r.items ?? [];
+  return {
+    data,
+    totalCount: r.totalCount ?? data.length,
+    page: r.page ?? 1,
+    nextpage: r.nextpage ?? null,
+    totalPages: Math.max(1, r.totalPages ?? 1),
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -43,9 +64,44 @@ export class SubscriptionsService {
     return this.http.get<SubscriptionPricingItem[]>(`${this.apiUrl}/pricing`);
   }
 
-  setPrice(subscriptionServiceId: number, period: SubscriptionPricingPeriod, price: number, currencyCode = 'SAR'): Observable<SubscriptionPricingItem> {
-    const body: SetSubscriptionPriceRequest = { subscriptionServiceId, period, price, currencyCode };
+  // Creates a new pricing row and closes the active one for the same (service, tier, period) —
+  // the caller must pass every fee it wants kept, not just the one it changed.
+  setPricing(body: SetSubscriptionPriceRequest): Observable<SubscriptionPricingItem> {
     return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, body);
+  }
+
+  // ── Integration fields (schema only) ────────────────────────
+  getIntegrationFields(subscriptionServiceId: number): Observable<SubscriptionIntegrationField[]> {
+    return this.http.get<SubscriptionIntegrationField[]>(`${this.apiUrl}/${subscriptionServiceId}/integration-fields`);
+  }
+
+  createIntegrationField(body: CreateIntegrationFieldRequest): Observable<SubscriptionIntegrationField> {
+    return this.http.post<SubscriptionIntegrationField>(`${this.apiUrl}/integration-fields`, body);
+  }
+
+  deactivateIntegrationField(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/integration-fields/${id}/deactivate`, {});
+  }
+
+  // ── Subscribers ─────────────────────────────────────────────
+  /** One row per (merchant, property) line subscribed to a single service. */
+  getServiceSubscribers(subscriptionServiceId: number, query: { search?: string; pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<ServiceSubscriber>> {
+    let params = this.pageParams(query);
+    if (query.search) params = params.set('search', query.search);
+    return this.http.get<unknown>(`${this.apiUrl}/${subscriptionServiceId}/subscribers`, { params })
+      .pipe(map(res => toPage<ServiceSubscriber>(res)));
+  }
+
+  /** One row per merchant (their current state, not order history), paginated by merchant. */
+  getMerchantSubscriptions(query: { pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<MerchantSubscription>> {
+    return this.http.get<unknown>(`${this.apiUrl}/merchant-subscriptions`, { params: this.pageParams(query) })
+      .pipe(map(res => toPage<MerchantSubscription>(res)));
+  }
+
+  private pageParams(query: { pageNumber?: number; pageSize?: number }): HttpParams {
+    return new HttpParams()
+      .set('pageNumber', query.pageNumber ?? 1)
+      .set('pageSize', query.pageSize ?? 20);
   }
 
   // ── Tiers ───────────────────────────────────────────────────

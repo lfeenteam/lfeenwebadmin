@@ -1,14 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionPricingItem } from '../interfaces/subscription.model';
-import { categoryKeyFromLabel, serviceVisual } from '../interfaces/service-visual.util';
+import { SubscriptionCatalogItem, SubscriptionOfferCard } from '../interfaces/subscription.model';
+import { serviceVisual } from '../interfaces/service-visual.util';
+import { buildCatalogUpdate } from '../interfaces/catalog-update.util';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { LoginService } from '../../../services/login/login.service';
@@ -77,52 +77,50 @@ export class SubscriptionSettingsComponent implements OnInit {
     return this.translate.currentLang === 'en' ? offer.nameEn : offer.nameAr;
   }
 
+  offerDesc(offer: SubscriptionOfferCard): string {
+    return (this.translate.currentLang === 'en' ? offer.descEn : offer.descAr) || '';
+  }
+
+  featureText(feature: { textAr: string; textEn: string }): string {
+    return this.translate.currentLang === 'en' ? feature.textEn : feature.textAr;
+  }
+
+  // GET /catalog already carries the whole card: description, feature bullets, the default
+  // tier's current prices (seasonal override included) and its trial length.
   ngOnInit(): void {
-    forkJoin({
-      catalog: this.subscriptionsService.getCatalog(),
-      pricing: this.subscriptionsService.getPricing(),
-    }).subscribe({
-      next: ({ catalog, pricing }) => {
+    this.subscriptionsService.getCatalog().subscribe({
+      next: catalog => {
         this.catalogByKey = new Map(catalog.map(item => [item.key, item]));
         this.offers = [...catalog]
           .sort((a, b) => a.displayOrder - b.displayOrder)
-          .map(item => this.mapCatalogItemToOffer(item, pricing));
+          .map(item => this.mapCatalogItemToOffer(item));
         this.isLoading = false;
       },
-      error: () => {
+      error: err => {
         this.offers = [];
         this.isLoading = false;
+        this.toastr.error(resolveSubscriptionError(err, this.translate));
       }
     });
   }
 
-  private mapCatalogItemToOffer(item: SubscriptionCatalogItem, pricing: SubscriptionPricingItem[]): SubscriptionOfferCard {
+  private mapCatalogItemToOffer(item: SubscriptionCatalogItem): SubscriptionOfferCard {
     const meta = serviceVisual(item.key, item.categoryLabel);
-    const monthlyPrice = this.findActivePrice(pricing, item.id, 'Monthly');
-    const annualPrice = this.findActivePrice(pricing, item.id, 'Yearly');
 
     return {
       id: item.key,
       icon: meta.icon,
       tone: meta.tone,
       active: item.isActive,
-      badgeIcon: 'shield-check',
-      badgeTone: 'purple',
-      badgeText: '-',
+      trialDays: item.trialDays ?? 0,
       nameAr: item.nameAr,
       nameEn: item.nameEn,
-      desc: '-',
-      feature1: '-',
-      feature2: '-',
-      isFree: monthlyPrice === 0,
-      monthlyPriceValue: monthlyPrice,
-      annualPriceValue: annualPrice,
+      descAr: item.descriptionAr ?? '',
+      descEn: item.descriptionEn ?? '',
+      features: (item.features ?? []).filter(f => f.isActive !== false),
+      monthlyPriceValue: item.monthlyPrice ?? null,
+      annualPriceValue: item.yearlyPrice ?? null,
     };
-  }
-
-  private findActivePrice(pricing: SubscriptionPricingItem[], subscriptionServiceId: number, period: 'Monthly' | 'Yearly'): number | null {
-    const row = pricing.find(p => p.subscriptionServiceId === subscriptionServiceId && p.period === period && p.isActive);
-    return row ? row.price : null;
   }
 
   get filteredOffers(): SubscriptionOfferCard[] {
@@ -152,22 +150,12 @@ export class SubscriptionSettingsComponent implements OnInit {
     return this.catalogByKey.get(offer.id)?.logoUrl ?? null;
   }
 
-  // PUT /catalog/{id} is a full replace: every field is resent from the loaded item,
-  // otherwise omitted ones (e.g. displayOrder) would be reset server-side.
   toggleActive(offer: SubscriptionOfferCard): void {
     const item = this.catalogByKey.get(offer.id);
     if (!item || !this.canManageCatalog || this.togglingId) return;
     this.togglingId = offer.id;
 
-    this.subscriptionsService.updateCatalogItem(item.id, {
-      nameAr: item.nameAr,
-      nameEn: item.nameEn,
-      category: this.rawCategory(item.categoryLabel),
-      logoUrl: item.logoUrl,
-      isAvailable: item.isAvailable,
-      isActive: !item.isActive,
-      displayOrder: item.displayOrder,
-    }).subscribe({
+    this.subscriptionsService.updateCatalogItem(item.id, buildCatalogUpdate(item, { isActive: !item.isActive })).subscribe({
       next: updated => {
         this.togglingId = null;
         this.catalogByKey.set(updated.key ?? item.key, { ...item, ...updated });
@@ -178,14 +166,6 @@ export class SubscriptionSettingsComponent implements OnInit {
         this.toastr.error(resolveSubscriptionError(err, this.translate));
       },
     });
-  }
-
-  // The catalog only returns the translated categoryLabel, not the raw category. Known labels
-  // (Arabic or English) are sent as their raw key; an unknown one goes back unchanged —
-  // never null, which could wipe the category (a mismatch fails loudly with a 400 instead).
-  private rawCategory(label: string | null | undefined): string | null {
-    if (!label) return null;
-    return categoryKeyFromLabel(label) ?? label;
   }
 
   openServiceSettings(offer: SubscriptionOfferCard): void {

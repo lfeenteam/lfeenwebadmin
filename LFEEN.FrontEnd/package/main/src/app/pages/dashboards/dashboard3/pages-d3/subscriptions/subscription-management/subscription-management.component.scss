@@ -623,3 +623,7 @@
     white-space: normal;
   }
 }
+
+.detail-table tr.service-expired {
+  opacity: 0.55;
+}

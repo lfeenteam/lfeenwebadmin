@@ -77,29 +77,29 @@
               </div>
             </div>
 
-            <div class="offer-badge" [class]="'tone-' + offer.badgeTone">
-              <i-tabler [name]="offer.badgeIcon" class="icon-13"></i-tabler>
-              {{ offer.badgeText }}
-            </div>
+            @if (offer.trialDays > 0) {
+              <div class="offer-badge tone-green">
+                <i-tabler name="gift" class="icon-13"></i-tabler>
+                {{ 'd3.subscriptions.settings.trialBadge' | translate: { days: fmt(offer.trialDays) } }}
+              </div>
+            }
 
             <h4 class="offer-title m-0">{{ offerName(offer) }}</h4>
-            <p class="offer-desc">{{ offer.desc }}</p>
+            <p class="offer-desc">{{ offerDesc(offer) }}</p>
 
             <ul class="offer-features m-0">
-              <li>
-                <i-tabler name="circle-check" class="icon-14"></i-tabler>
-                <span>{{ offer.feature1 }}</span>
-              </li>
-              <li>
-                <i-tabler name="circle-check" class="icon-14"></i-tabler>
-                <span>{{ offer.feature2 }}</span>
-              </li>
+              @for (feature of offer.features.slice(0, 2); track $index) {
+                <li>
+                  <i-tabler name="circle-check" class="icon-14"></i-tabler>
+                  <span>{{ featureText(feature) }}</span>
+                </li>
+              }
             </ul>
 
             <div class="offer-price-box d-flex align-items-stretch">
               <div class="offer-price-cell">
                 <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
-                @if (offer.isFree) {
+                @if (offer.monthlyPriceValue === 0) {
                   <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
                 } @else if (offer.monthlyPriceValue !== null) {
                   <span class="offer-price-value offer-price-value--monthly d-flex align-items-center gap-4">
@@ -116,7 +116,7 @@
               <div class="offer-price-divider"></div>
               <div class="offer-price-cell">
                 <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
-                @if (offer.isFree) {
+                @if (offer.annualPriceValue === 0) {
                   <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
                 } @else if (offer.annualPriceValue !== null) {
                   <span class="offer-price-value d-flex align-items-center gap-4">

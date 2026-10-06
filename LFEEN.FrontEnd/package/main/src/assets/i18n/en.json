@@ -2852,6 +2852,7 @@
         "status": "Status",
         "actions": "Actions",
         "others": "+{{count}} more",
+        "servicesCount": "{{count}} services",
         "viewBtn": "View",
         "editBtn": "Edit",
         "expandTooltip": "Show details",
@@ -2895,6 +2896,7 @@
         "subtitle": "Enable or disable each service, and adjust its details and prices set in Saudi Riyal",
         "searchPlaceholder": "Search for a service name...",
         "configureBtn": "Service settings",
+        "trialBadge": "{{days}}-day free trial",
         "monthlyPrice": "Monthly Price",
         "annualPrice": "Annual Price",
         "filters": {
@@ -2956,6 +2958,13 @@
       "serviceSettings": {
       "pageTitle": "Service Settings",
       "backBtn": "Back to services list",
+      "loading": "Loading...",
+      "notFound": "Service not found.",
+      "saved": "Service settings saved",
+      "saving": "Saving...",
+      "errors": {
+        "negativePrice": "Prices and fees can't be below zero"
+      },
       "serviceStatusLabel": "Service status",
       "title": "Settings & customization for {{service}}",
       "activeNow": "Service currently active",
@@ -2986,6 +2995,19 @@
       "integration": {
         "title": "Integration data fields",
         "desc": "The data and keys required to connect directly with the client to activate each service",
+        "addField": "Add field",
+        "deactivate": "Deactivate field",
+        "empty": "No integration fields for this service yet.",
+        "labelArPlaceholder": "Field name in Arabic",
+        "labelEnPlaceholder": "Field name in English",
+        "keyPlaceholder": "field_key",
+        "keyInvalid": "Key: English letters, digits and _ only, and not already used",
+        "immutableNote": "A field can't be edited after creation. To change it, deactivate it and create a new one. The values merchants enter are never shown here.",
+        "types": {
+          "Text": "Plain text",
+          "Secret": "Encrypted secret",
+          "Url": "URL"
+        },
         "addBtn": "Add new field",
         "fieldName": "Field name",
         "dataType": "Data type",
@@ -3002,6 +3024,7 @@
         "setupFee": "Setup fee",
         "operationPrice": "Operation price",
         "seasonalPrice": "Seasonal price",
+        "empty": "No pricing has been set for this service yet.",
         "basic": "Basic subscription",
         "advanced": "Advanced subscription"
       },
@@ -3030,6 +3053,8 @@
         "title": "Default standard pricing for the service",
         "desc": "Applied when no custom pricing rules exist above",
         "monthlyLabel": "Standard monthly price (SAR)",
+        "noPricePlaceholder": "No price set",
+        "setupFeeLabel": "Setup fee (one-time)",
         "annualLabel": "Standard annual price (SAR)",
         "vatLabel": "Includes VAT (15%)",
         "vatDesc": "The tax invoice is issued automatically once the subscription is confirmed"
@@ -3040,6 +3065,8 @@
         "durationLabel": "Trial period duration (days)",
         "days": "days",
         "recommended": "(Recommended)",
+        "none": "No trial period",
+        "readOnlyNote": "The trial length is set on the service's default tier and is shown here read-only. When a trial applies, the subscription and setup fees are waived for its duration, once per merchant.",
         "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings.",
         "setupFeeLabel": "Setup period amount",
         "setupFeePlaceholder": "Enter the setup fee..."
@@ -3082,6 +3109,21 @@
         "Renewed": "Renewed",
         "Cancelled": "Cancelled",
         "Expired": "Expired"
+      },
+      "detailKeys": {
+        "Setup": "Setup fee",
+        "SetupFee": "Setup fee",
+        "IsActive": "Active",
+        "IsAvailable": "Available",
+        "IsDefault": "Default",
+        "TrialDays": "Trial days"
+      },
+      "detailValues": {
+        "True": "Yes",
+        "False": "No",
+        "FixedAmount": "Fixed amount",
+        "PerUnit": "Per unit",
+        "PercentageOfValue": "% of value"
       },
       "actor": {
         "Admin": "Admin",

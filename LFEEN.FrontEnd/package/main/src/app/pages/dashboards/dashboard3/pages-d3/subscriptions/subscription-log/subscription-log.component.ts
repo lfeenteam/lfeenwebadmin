@@ -25,8 +25,13 @@ interface LogRow {
   actorLabel: string;
   actorInitial: string;
   date: string;
-  details: string;
+  /** Parsed "Key=Value" pairs; empty when `details` is free text (see detailsText). */
+  detailPairs: { label: string; value: string }[];
+  detailsText: string;
 }
+
+// `details` on system-generated entries is a technical "Key=Value, Key=Value" string.
+const DETAIL_PAIR = /^\s*([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/;
 
 const PAGE_SIZE = 20;
 
@@ -44,8 +49,8 @@ export class SubscriptionLogComponent implements OnInit {
   private subscriptionsService = inject(SubscriptionsService);
 
   isLoading = true;
-  /** null = all services. */
-  serviceFilter: number | null = null;
+  /** 'all' rather than null: mat-select renders a null value as an empty field. */
+  serviceFilter: number | 'all' = 'all';
   currentPage = 1;
   totalPages = 1;
   totalCount = 0;
@@ -85,7 +90,7 @@ export class SubscriptionLogComponent implements OnInit {
     this.pageRequest?.unsubscribe();
     this.isLoading = true;
     this.pageRequest = this.subscriptionsService.getActivityLog({
-      subscriptionServiceId: this.serviceFilter ?? undefined,
+      subscriptionServiceId: this.serviceFilter === 'all' ? undefined : this.serviceFilter,
       pageNumber: this.currentPage,
       pageSize: PAGE_SIZE,
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -116,8 +121,33 @@ export class SubscriptionLogComponent implements OnInit {
       actorLabel: actor,
       actorInitial: actor !== '-' ? actor.charAt(0).toUpperCase() : '-',
       date: formatApiDateLocal(e.createdAt, this.currentLang, true) ?? '-',
-      details: e.details?.trim() || '-',
+      ...this.parseDetails(e.details),
     };
+  }
+
+  // Splits "Price=100, Setup=0" into labelled pairs. Anything that isn't entirely made of
+  // Key=Value parts (an admin's note, a rejection reason) is kept as plain text.
+  private parseDetails(raw: string | null): Pick<LogRow, 'detailPairs' | 'detailsText'> {
+    const text = raw?.trim() ?? '';
+    if (!text) return { detailPairs: [], detailsText: '-' };
+
+    const matches = text.split(',').map(part => DETAIL_PAIR.exec(part));
+    if (matches.some(m => !m)) return { detailPairs: [], detailsText: text };
+
+    return {
+      detailPairs: matches.map(m => ({
+        label: this.detailLabel('detailKeys', m![1]),
+        value: this.detailLabel('detailValues', m![2]) || '-',
+      })),
+      detailsText: '',
+    };
+  }
+
+  // Known keys/values get a translation; anything else is shown exactly as the backend sent it.
+  private detailLabel(group: 'detailKeys' | 'detailValues', raw: string): string {
+    const key = `d3.subscriptionLog.${group}.${raw}`;
+    const translated = this.translate.instant(key);
+    return translated === key ? raw : translated;
   }
 
   // action/actorType have no Label fields and their value lists aren't confirmed yet —
@@ -131,10 +161,12 @@ export class SubscriptionLogComponent implements OnInit {
 
   // Only picks a badge color — the text always comes from the raw value / its translation.
   private actionTone(action: string | null): ActionTone {
+    // The API may send the action as an enum name or already translated, so both are matched.
     const a = (action ?? '').toLowerCase();
-    if (a.includes('renew')) return 'renew';
-    if (a.includes('reject') || a.includes('cancel') || a.includes('deactiv') || a.includes('suspend') || a.includes('expire')) return 'cancel';
-    if (a.includes('approv') || a.includes('activ') || a.includes('creat') || a.includes('request') || a.includes('subscrib')) return 'add';
+    const has = (...words: string[]) => words.some(w => a.includes(w));
+    if (has('renew', 'تجديد')) return 'renew';
+    if (has('reject', 'cancel', 'deactiv', 'suspend', 'expire', 'رفض', 'إلغاء', 'تعطيل', 'إيقاف', 'انتهاء')) return 'cancel';
+    if (has('approv', 'activ', 'creat', 'request', 'subscrib', 'موافقة', 'تفعيل', 'إنشاء', 'تقديم')) return 'add';
     return 'neutral';
   }
 
@@ -146,7 +178,7 @@ export class SubscriptionLogComponent implements OnInit {
     return getVisiblePages(this.currentPage, this.totalPages);
   }
 
-  onServiceFilterChange(value: number | null): void {
+  onServiceFilterChange(value: number | 'all'): void {
     this.serviceFilter = value;
     this.currentPage = 1;
     this.loadPage();
