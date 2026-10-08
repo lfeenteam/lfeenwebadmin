@@ -14,29 +14,59 @@ env:
   IMAGE_NAME: lfeenteam/lfeen-admin-web
 
 jobs:
+
   build-and-push:
     runs-on: ubuntu-latest
 
+    # مهم:
+    # لو GOOGLE_MAPS_API_KEY موجودة كـ Environment Secret
+    # داخل Lfeen-Production لازم نحط environment هنا أيضًا.
+    environment: Lfeen-Production
+
     steps:
+
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Login GHCR
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+
+      - name: Create Production Environment
+        working-directory: LFEEN.FrontEnd/package/main
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          cat > src/environments/environment.prod.ts <<EOF
+          export const environment = {
+            production: true,
+            apiBaseUrl: 'https://operation-admin.lfeen.com',
+            googleMapsApiKey: '${GOOGLE_MAPS_API_KEY}',
+            // Loads the Flow "report an issue" button (internal team only). Keep off for real customers.
+            flowReport: false
+          };
+          EOF
+
+
+      - name: Install dependencies
+        working-directory: LFEEN.FrontEnd/package/main
+        run: npm ci
+
+
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Inject Production Google Maps API Key
-        working-directory: LFEEN.FrontEnd/package/main
-        env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.PRODUCTION_GOOGLE_API_KEY }}
-        run: |
-          sed -i "s|__GOOGLE_MAPS_API_KEY__|${GOOGLE_MAPS_API_KEY}|g" src/environments/environment.prod.ts
 
       - name: Build and Push Admin Image
         uses: docker/build-push-action@v6
@@ -47,12 +77,16 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+
   deploy:
     needs: build-and-push
+
     runs-on: ubuntu-latest
+
     environment: Lfeen-Production
 
     steps:
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
@@ -63,6 +97,7 @@ jobs:
 
           ssh-keyscan -H "${{ secrets.PRODUCTION_HOST }}" >> ~/.ssh/known_hosts
 
+
       - name: Deploy Admin
         run: |
           ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
@@ -70,6 +105,10 @@ jobs:
             set -e
 
             echo "Connected successfully"
+
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u "${{ secrets.GHCR_USERNAME }}" \
+              --password-stdin
 
             cd /opt/lfeen
 
