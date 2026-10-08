@@ -212,6 +212,22 @@
         }
 
         .amenity-label { font-size: 10px; font-weight: 700; color: #6B6B67; line-height: 1.4; }
+
+        &--highlighted { border-color: #059669; }
+
+        .highlight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            border-radius: 10px;
+            background: #ECFDF5;
+            color: #059669;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1.4;
+            i-tabler { width: 10px; height: 10px; flex-shrink: 0; ::ng-deep svg { width: 10px; height: 10px; } }
+        }
     }
 }
 

@@ -235,6 +235,9 @@ export interface PropertyBasicDataService {
 export interface PropertyBasicDataFacility {
   facilityId: number;
   facilityTypeName: string;
+  // Merchant-controlled, read-only for admin: the facility is named explicitly
+  // in the auto-generated description. Optional — older backends omit it.
+  isHighlightedInDescription?: boolean;
 }
 
 export interface PropertyBasicDataResponse {

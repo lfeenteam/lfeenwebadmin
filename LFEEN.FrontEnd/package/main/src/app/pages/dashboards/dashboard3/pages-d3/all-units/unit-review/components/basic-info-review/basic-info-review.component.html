@@ -59,6 +59,21 @@
     </section>
   }
 
+  @if (unitDescription) {
+    <section class="description-card">
+      <header class="room-header">
+        <span class="room-icon">
+          <i-tabler name="file-text"></i-tabler>
+        </span>
+        <div>
+          <h3>{{ 'd3.unitReview.basicInfoView.descriptionTitle' | translate }}</h3>
+          <p>{{ 'd3.unitReview.basicInfoView.descriptionHint' | translate }}</p>
+        </div>
+      </header>
+      <p class="description-text">{{ unitDescription }}</p>
+    </section>
+  }
+
   <section class="section-title-row">
     <h2>{{ 'd3.unitReview.basicInfoView.heading' | translate }}</h2>
   </section>
@@ -104,9 +119,15 @@
                   <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
                   <div class="amenity-chips">
                     @for (item of room.amenities; track item.label) {
-                      <span class="amenity-chip">
+                      <span class="amenity-chip" [class.amenity-chip--highlighted]="item.highlighted">
                         <i-tabler [name]="item.icon"></i-tabler>
                         {{ item.label }}
+                        @if (item.highlighted) {
+                          <span class="highlight-badge">
+                            <i-tabler name="check"></i-tabler>
+                            {{ 'd3.unitReview.basicInfoView.highlightedInDescription' | translate }}
+                          </span>
+                        }
                       </span>
                     }
                   </div>
@@ -141,6 +162,12 @@
                         <span class="plain-feature">
                           <i-tabler [name]="item.icon"></i-tabler>
                           {{ item.label }}
+                          @if (item.highlighted) {
+                            <span class="highlight-badge">
+                              <i-tabler name="check"></i-tabler>
+                              {{ 'd3.unitReview.basicInfoView.highlightedInDescription' | translate }}
+                            </span>
+                          }
                         </span>
                       }
                     </div>
@@ -183,9 +210,15 @@
           <span class="group-label">{{ 'd3.unitReview.basicInfoView.contentsLabel' | translate }}</span>
           <div class="amenity-chips">
             @for (facility of unitData!.facilities; track facility.facilityId) {
-              <span class="amenity-chip">
+              <span class="amenity-chip" [class.amenity-chip--highlighted]="facility.isHighlightedInDescription === true">
                 <i-tabler [name]="getFacilityIcon(facility.facilityTypeName)"></i-tabler>
                 {{ facility.facilityTypeName }}
+                @if (facility.isHighlightedInDescription === true) {
+                  <span class="highlight-badge">
+                    <i-tabler name="check"></i-tabler>
+                    {{ 'd3.unitReview.basicInfoView.highlightedInDescription' | translate }}
+                  </span>
+                }
               </span>
               @if (facility === wifiFacility) {
                 <span class="amenity-chip">

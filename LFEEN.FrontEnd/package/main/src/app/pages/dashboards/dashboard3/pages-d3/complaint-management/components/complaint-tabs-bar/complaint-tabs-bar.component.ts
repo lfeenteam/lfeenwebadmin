@@ -20,5 +20,6 @@ export class ComplaintTabsBarComponent {
     { key: 'customers', labelKey: 'd3.complaints.tabs.customers' },
 
     { key: 'resolved',  labelKey: 'd3.complaints.tabs.resolved'  },
+    { key: 'ratings',   labelKey: 'd3.complaints.tabs.ratings'   },
   ];
 }

@@ -33,6 +33,8 @@ export interface UnitCardItem {
 export interface UnitAmenityItem {
   icon: string;
   label: string;
+  // Facilities only — true when the merchant named it in the generated description.
+  highlighted?: boolean;
 }
 
 export interface UnitSubArea {
@@ -325,6 +327,9 @@ export interface UnitBasicDataBed {
 export interface UnitBasicDataFacility {
   facilityId: number;
   facilityTypeName: string;
+  // Merchant-controlled, read-only for admin: the facility is named explicitly
+  // in the auto-generated description. Optional — older backends omit it.
+  isHighlightedInDescription?: boolean;
   // Only populated on the Wi-Fi facility item; null on every other facility.
   wifiSsid: string | null;
   wifiPassword: string | null;

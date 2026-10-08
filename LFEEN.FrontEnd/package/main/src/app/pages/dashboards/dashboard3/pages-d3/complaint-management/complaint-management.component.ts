@@ -9,6 +9,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
 import { ComplaintsTableComponent } from './components/complaints-table/complaints-table.component';
 import { ComplaintChatComponent } from './components/complaint-chat/complaint-chat.component';
+import { ClientRatingsComponent } from './components/client-ratings/client-ratings.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
 import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
@@ -25,6 +26,7 @@ import { ClientSupportHubService } from '../../services/client-support-hub.servi
     ComplaintTabsBarComponent,
     ComplaintsTableComponent,
     ComplaintChatComponent,
+    ClientRatingsComponent,
     TabsFilterComponent,
   ],
   templateUrl: './complaint-management.component.html',
@@ -217,7 +219,7 @@ export class ComplaintManagementComponent implements OnDestroy {
 
   constructor() {
     const tab = this.route.snapshot.queryParamMap.get('tab') as ComplaintTab | null;
-    if (tab === 'customers' || tab === 'hosts' || tab === 'resolved') {
+    if (tab === 'customers' || tab === 'hosts' || tab === 'resolved' || tab === 'ratings') {
       this.activeTab.set(tab);
     }
     this.loadTabData(this.activeTab());
@@ -256,7 +258,11 @@ export class ComplaintManagementComponent implements OnDestroy {
     });
   }
 
-  private openTicketById(id: string, type: Complaint['type']): void {
+  // exactSession: show this session's own thread straight from the ticket detail instead of
+  // resolving the chat. A rated session is always closed and the client may have opened newer
+  // ones since — the chat endpoint maps to its *current* session, and only that one is
+  // guaranteed to carry messages, so going through it shows the wrong (or an empty) thread.
+  private openTicketById(id: string, type: Complaint['type'], exactSession = false): void {
     if (type === 'host') {
       this.router.navigate(
         [this.translate.currentLang || 'ar', 'd3', 'complaints', id],
@@ -270,6 +276,10 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.service.getClientTicketById(id).subscribe({
       next: ticket => {
         const fallback = this.service.mapClientTicketDetailToComplaint(ticket);
+        if (exactSession) {
+          this.selectedComplaint.set({ ...fallback, hasMoreMessages: ticket.hasMoreMessages ?? false });
+          return;
+        }
         if (!ticket.chatExternalId) {
           this.selectedComplaint.set(fallback);
           return;
@@ -357,6 +367,11 @@ export class ComplaintManagementComponent implements OnDestroy {
   });
 
   private loadTabData(tab: ComplaintTab): void {
+    // The ratings tab is a self-contained component that loads its own data.
+    if (tab === 'ratings') {
+      this.loading.set(false);
+      return;
+    }
     this.loading.set(true);
     if (tab === 'hosts') {
       this.loadHostTickets();
@@ -680,6 +695,16 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.customerAllTickets.update(list => list.filter(c => c.id !== complaint.id));
     this.customerQueueTickets.update(list => list.filter(c => c.id !== complaint.id));
     this.customerTotalCount.update(count => (count !== null ? Math.max(0, count - 1) : count));
+  }
+
+  // Opens the rated session's chat read-only next to the ratings list. The rating's
+  // sessionExternalId is the client ticket id; clicking the open one again closes it.
+  onRatingOpenSession(sessionExternalId: string): void {
+    if (this.selectedComplaint()?.id === sessionExternalId) {
+      this.selectedComplaint.set(null);
+      return;
+    }
+    this.openTicketById(sessionExternalId, 'customer', true);
   }
 
   closeChat(): void {

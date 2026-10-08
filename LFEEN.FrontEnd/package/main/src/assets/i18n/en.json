@@ -1519,6 +1519,7 @@
           "thirdResidential": "Third Residential Floor"
         },
         "amenitiesTitle": "Available Services & Amenities",
+        "highlightedInDescription": "Highlighted in description",
         "emptyAmenitiesTitle": "No services or amenities",
         "emptyAmenitiesDescription": "The host has not added any services or amenities for this property.",
         "amenityLabels": {
@@ -1673,6 +1674,9 @@
         "smartBanner": "Smart AC system enabled in the unit",
         "selfAccessBanner": "Self check-in is available through the Lfeen app",
         "contentsLabel": "Contents",
+        "highlightedInDescription": "Highlighted in description",
+        "descriptionTitle": "Unit Description",
+        "descriptionHint": "Auto-generated text — cross-check it against the highlighted facilities below",
         "servicesLabel": "Services",
         "privateFacilitiesLabel": "Private Facilities",
         "stats": {
@@ -2130,7 +2134,76 @@
       "tabs": {
         "customers": "Customer Support",
         "hosts": "Host Support",
-        "resolved": "Resolved"
+        "resolved": "Resolved",
+        "ratings": "Ratings"
+      },
+      "ratings": {
+        "views": {
+          "list": "Ratings",
+          "agents": "By agent"
+        },
+        "summary": {
+          "average": "Average rating",
+          "outOf": "out of 5",
+          "total": "Total ratings",
+          "distribution": "Rating distribution"
+        },
+        "filters": {
+          "minRating": "Min rating",
+          "maxRating": "Max rating",
+          "min": {
+            "1": "From 1 star",
+            "2": "From 2 stars",
+            "3": "From 3 stars",
+            "4": "From 4 stars",
+            "5": "From 5 stars"
+          },
+          "max": {
+            "1": "Up to 1 star",
+            "2": "Up to 2 stars",
+            "3": "Up to 3 stars",
+            "4": "Up to 4 stars",
+            "5": "Up to 5 stars"
+          },
+          "from": "From",
+          "to": "To",
+          "reset": "Clear filters"
+        },
+        "table": {
+          "session": "Client / Session",
+          "department": "Department",
+          "agent": "Agent",
+          "rating": "Rating",
+          "comment": "Comment",
+          "ratedAt": "Rated at",
+          "closedBy": "Closed by: {{by}}",
+          "noAgent": "No agent (bot)",
+          "viewChat": "View chat",
+          "total": "ratings"
+        },
+        "closedBy": {
+          "client": "Client",
+          "admin": "Admin",
+          "bot": "Bot"
+        },
+        "agents": {
+          "agent": "Agent",
+          "average": "Average rating",
+          "total": "Ratings count"
+        },
+        "empty": {
+          "title": "No ratings",
+          "desc": "No ratings match the selected filters."
+        },
+        "error": {
+          "title": "Couldn't load ratings",
+          "desc": "Something went wrong while fetching the data. Please try again.",
+          "retry": "Retry"
+        },
+        "forbidden": {
+          "title": "You don't have permission to view ratings",
+          "desc": "Contact your system administrator to request access."
+        }
       },
       "table": {
         "searchPlaceholder": "Search by name, complaint ID...",

@@ -78,6 +78,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     return this.unitData?.maxChildAge != null ? String(this.unitData.maxChildAge) : '-';
   }
 
+  get unitDescription(): string { return this.unitData?.description?.trim() ?? ''; }
+
   get hasLock(): boolean { return this.unitData?.hasLock ?? false; }
 
   get unitFacilities(): string[] {
@@ -249,7 +251,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
       const amenities: UnitAmenityItem[] = room.facilities.map(f => ({
         icon:  this.getFacilityIcon(f.facilityTypeName),
-        label: f.facilityTypeName
+        label: f.facilityTypeName,
+        highlighted: f.isHighlightedInDescription === true
       }));
 
       const services: UnitAmenityItem[] = room.services.map(s => ({
@@ -259,7 +262,7 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
       const subAreas: UnitSubArea[] = room.subRooms.map(sr => ({
         label:     sr.subRoomTypeName,
-        amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName })),
+        amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName, highlighted: f.isHighlightedInDescription === true })),
         services:  sr.services.map(s  => ({ icon: this.getServiceIcon(s.displayName),  label: this.getServiceLabel(s) }))
       }));
 

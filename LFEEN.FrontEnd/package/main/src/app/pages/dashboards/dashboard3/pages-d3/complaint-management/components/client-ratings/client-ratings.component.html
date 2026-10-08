@@ -1,0 +1,297 @@
+<div class="cr" [dir]="currentDir">
+
+  <!-- Filters -->
+  <div class="cr-filters-bar">
+    <app-tabs-filter
+      class="cr-tabs-filter"
+      [tabs]="[]"
+      [showMoreFiltersButton]="false"
+      [filterOptions]="filterOptions"
+      [activeFilters]="activeFilters"
+      (filtersChange)="onFiltersChange($event)">
+    </app-tabs-filter>
+
+    <div class="cr-dates">
+      <button type="button" class="cr-date-pill" [class.has-value]="!!fromDate" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger">
+        <i-tabler name="calendar" class="cr-date-icon"></i-tabler>
+        <span>{{ 'd3.complaints.ratings.filters.from' | translate }}@if (fromDate) {: {{ fmtDay(fromDate) }}}</span>
+      </button>
+      <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="fromDate || null"
+            (dateSelected)="onDateSelect('from', $event); fromMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
+
+      <button type="button" class="cr-date-pill" [class.has-value]="!!toDate" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger">
+        <i-tabler name="calendar" class="cr-date-icon"></i-tabler>
+        <span>{{ 'd3.complaints.ratings.filters.to' | translate }}@if (toDate) {: {{ fmtDay(toDate) }}}</span>
+      </button>
+      <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="toDate || null"
+            [minDate]="fromDate || null"
+            (dateSelected)="onDateSelect('to', $event); toMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
+      @if (hasActiveFilters) {
+        <button type="button" class="cr-reset" (click)="resetFilters()">
+          <i-tabler name="x" class="icon-16"></i-tabler>
+          {{ 'd3.complaints.ratings.filters.reset' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="cr-body">
+
+    @if (canViewAll()) {
+      <div class="cr-views" role="tablist">
+        <button type="button" role="tab" class="cr-view" [class.active]="view === 'list'"
+          [attr.aria-selected]="view === 'list'" (click)="setView('list')">
+          {{ 'd3.complaints.ratings.views.list' | translate }}
+        </button>
+        <button type="button" role="tab" class="cr-view" [class.active]="view === 'agents'"
+          [attr.aria-selected]="view === 'agents'" (click)="setView('agents')">
+          {{ 'd3.complaints.ratings.views.agents' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (view === 'list') {
+
+      <!-- Summary — computed server-side over the full filtered set, not the current page -->
+      @if (summary; as s) {
+        <div class="cr-summary">
+          <div class="cr-card cr-card--average">
+            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.average' | translate }}</span>
+            <div class="cr-average">
+              <strong>{{ fmtAverage(s.averageRating) }}</strong>
+              <span class="cr-out-of">{{ 'd3.complaints.ratings.summary.outOf' | translate }}</span>
+            </div>
+            <span class="cr-stars cr-stars--lg" aria-hidden="true">
+              @for (slot of starSlots; track slot) {
+                <span class="cr-star" [class.on]="slot <= roundedStars(s.averageRating)">★</span>
+              }
+            </span>
+          </div>
+
+          <div class="cr-card">
+            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.total' | translate }}</span>
+            <strong class="cr-total-value">{{ fmt(s.totalRated) }}</strong>
+          </div>
+
+          <div class="cr-card cr-card--distribution">
+            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.distribution' | translate }}</span>
+            <div class="cr-distribution">
+              @for (stars of distributionStars; track stars) {
+                <div class="cr-dist-row">
+                  <span class="cr-dist-label">{{ fmt(stars) }} <span class="cr-star on">★</span></span>
+                  <span class="cr-dist-track">
+                    <span class="cr-dist-fill" [style.width.%]="distributionPercent(s.distribution, stars, s.totalRated)"></span>
+                  </span>
+                  <span class="cr-dist-count">{{ fmt(distributionCount(s.distribution, stars)) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (loading && rows.length === 0) {
+        <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+      } @else {
+        <div class="cr-table-box" [class.is-refreshing]="loading">
+          <table class="cr-table">
+            <thead>
+              <tr>
+                <th>{{ 'd3.complaints.ratings.table.session' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.table.department' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.table.agent' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.table.rating' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.table.comment' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.table.ratedAt' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows; track row.sessionExternalId) {
+                <tr class="cr-row" [class.selected]="row.sessionExternalId === selectedSessionId">
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.session' | translate }}</span>
+                    <span class="cr-strong">{{ row.clientName || '—' }}</span>
+                    <span class="cr-sub">{{ row.sessionNumber || '—' }}</span>
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.department' | translate }}</span>
+                    <span class="cr-text">{{ departmentLabel(row.department) }}</span>
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.agent' | translate }}</span>
+                    @if (row.assignedAgentName) {
+                      <span class="cr-text">{{ row.assignedAgentName }}</span>
+                    } @else {
+                      <span class="cr-muted">{{ 'd3.complaints.ratings.table.noAgent' | translate }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.rating' | translate }}</span>
+                    <span class="cr-rating" [ngClass]="ratingClass(row.rating)" [attr.aria-label]="row.rating + ' / 5'">
+                      <span class="cr-stars" aria-hidden="true">
+                        @for (slot of starSlots; track slot) {
+                          <span class="cr-star" [class.on]="slot <= row.rating">★</span>
+                        }
+                      </span>
+                      <span class="cr-rating-value">{{ fmt(row.rating) }}</span>
+                    </span>
+                  </td>
+                  <td class="cr-comment-cell">
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.comment' | translate }}</span>
+                    @if (row.comment) {
+                      <p class="cr-comment" dir="auto">{{ row.comment }}</p>
+                    } @else {
+                      <span class="cr-muted">—</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.ratedAt' | translate }}</span>
+                    <span class="cr-date">{{ fmtDate(row.ratedAtUtc) }}</span>
+                    <span class="cr-sub">
+                      {{ 'd3.complaints.ratings.table.closedBy' | translate: { by: closedByLabel(row.closedBy) } }}
+                    </span>
+                  </td>
+                  <td class="cr-actions-cell">
+                    <button type="button" class="cr-btn" (click)="openSession.emit(row.sessionExternalId)">
+                      <i-tabler name="message-circle" class="cr-btn-icon"></i-tabler>
+                      {{ 'd3.complaints.ratings.table.viewChat' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="cr-empty-cell">
+                    @if (forbidden) {
+                      <app-dashboard-empty icon="lock" titleKey="d3.complaints.ratings.forbidden.title" descKey="d3.complaints.ratings.forbidden.desc"></app-dashboard-empty>
+                    } @else if (loadError) {
+                      <app-dashboard-empty icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
+                        <button type="button" class="cr-btn cr-empty-retry" (click)="reload()">
+                          <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
+                          {{ 'd3.complaints.ratings.error.retry' | translate }}
+                        </button>
+                      </app-dashboard-empty>
+                    } @else {
+                      <app-dashboard-empty icon="star" titleKey="d3.complaints.ratings.empty.title" descKey="d3.complaints.ratings.empty.desc"></app-dashboard-empty>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (!loading && totalPages > 1) {
+        <div class="cr-pagination">
+          <span class="cr-total">{{ fmt(totalCount) }} {{ 'd3.complaints.ratings.table.total' | translate }}</span>
+          <div class="cr-pages">
+            <button class="cr-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+            </button>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="cr-ellipsis">...</span>
+              } @else {
+                <button class="cr-page-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button class="cr-page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
+
+    } @else {
+
+      <!-- Per-agent aggregate -->
+      @if (agentsLoading && agentRows.length === 0) {
+        <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+      } @else {
+        <div class="cr-table-box" [class.is-refreshing]="agentsLoading">
+          <table class="cr-table cr-table--agents">
+            <thead>
+              <tr>
+                <th>{{ 'd3.complaints.ratings.agents.agent' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.agents.average' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.agents.total' | translate }}</th>
+                <th>{{ 'd3.complaints.ratings.summary.distribution' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (agent of agentRows; track agent.agentUserId ?? 'unassigned') {
+                <tr class="cr-row">
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.agents.agent' | translate }}</span>
+                    @if (agent.agentUserId) {
+                      <span class="cr-strong">{{ agent.agentName || '—' }}</span>
+                    } @else {
+                      <span class="cr-strong cr-muted">{{ 'd3.complaints.ratings.table.noAgent' | translate }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.agents.average' | translate }}</span>
+                    <span class="cr-rating" [ngClass]="ratingClass(agent.averageRating)">
+                      <span class="cr-star on" aria-hidden="true">★</span>
+                      <span class="cr-rating-value">{{ fmtAverage(agent.averageRating) }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.agents.total' | translate }}</span>
+                    <span class="cr-text">{{ fmt(agent.totalRated) }}</span>
+                  </td>
+                  <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.summary.distribution' | translate }}</span>
+                    <div class="cr-distribution cr-distribution--compact">
+                      @for (stars of distributionStars; track stars) {
+                        <div class="cr-dist-row">
+                          <span class="cr-dist-label">{{ fmt(stars) }} <span class="cr-star on">★</span></span>
+                          <span class="cr-dist-track">
+                            <span class="cr-dist-fill" [style.width.%]="distributionPercent(agent.distribution, stars, agent.totalRated)"></span>
+                          </span>
+                          <span class="cr-dist-count">{{ fmt(distributionCount(agent.distribution, stars)) }}</span>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="cr-empty-cell">
+                    @if (agentsError) {
+                      <app-dashboard-empty icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
+                        <button type="button" class="cr-btn cr-empty-retry" (click)="reload()">
+                          <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
+                          {{ 'd3.complaints.ratings.error.retry' | translate }}
+                        </button>
+                      </app-dashboard-empty>
+                    } @else {
+                      <app-dashboard-empty icon="star" titleKey="d3.complaints.ratings.empty.title" descKey="d3.complaints.ratings.empty.desc"></app-dashboard-empty>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</div>
