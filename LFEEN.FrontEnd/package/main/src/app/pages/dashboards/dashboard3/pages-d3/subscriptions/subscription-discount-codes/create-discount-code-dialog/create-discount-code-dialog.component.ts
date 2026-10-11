@@ -74,7 +74,9 @@ export class CreateDiscountCodeDialogComponent {
   }
 
   get activeServices(): SubscriptionCatalogItem[] {
-    return this.data.services.filter(s => s.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
+    return this.data.services
+      .filter(s => s.isActive && s.billingModel === 'Paid')
+      .sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
   serviceName(s: SubscriptionCatalogItem): string {

@@ -208,6 +208,7 @@
 
   &.status-underReview { background: #fffbeb; color: #b45309; border-color: #fde68a; }
   &.status-approved { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+  &.status-automatic { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
   &.status-rejected { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
   &.status-other { background: #f3f3ef; color: #6b6b67; border-color: #e8e8e4; }
 }

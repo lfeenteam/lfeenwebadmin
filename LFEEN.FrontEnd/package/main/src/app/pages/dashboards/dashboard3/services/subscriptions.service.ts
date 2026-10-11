@@ -5,7 +5,12 @@ import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import {
   CreateIntegrationFieldRequest,
+  CreateSeasonalPriceRequest,
   CreateSubscriptionDiscountCodeRequest,
+  CreateSubscriptionFeatureRequest,
+  CreateSubscriptionServiceRequest,
+  CreateSubscriptionTierRequest,
+  SubscriptionServiceFeature,
   MerchantSubscription,
   ServiceSubscriber,
   SetSubscriptionPriceRequest,
@@ -51,8 +56,15 @@ export class SubscriptionsService {
   private apiUrl = `${environment.apiBaseUrl}/api/subscriptions`;
 
   // ── Catalog ─────────────────────────────────────────────────
-  getCatalog(): Observable<SubscriptionCatalogItem[]> {
-    return this.http.get<SubscriptionCatalogItem[]>(`${this.apiUrl}/catalog`);
+  getCatalog(query: { search?: string; category?: string } = {}): Observable<SubscriptionCatalogItem[]> {
+    let params = new HttpParams();
+    if (query.search) params = params.set('search', query.search);
+    if (query.category) params = params.set('category', query.category);
+    return this.http.get<SubscriptionCatalogItem[]>(`${this.apiUrl}/catalog`, { params });
+  }
+
+  createCatalogItem(body: CreateSubscriptionServiceRequest): Observable<SubscriptionCatalogItem> {
+    return this.http.post<SubscriptionCatalogItem>(`${this.apiUrl}/catalog`, body);
   }
 
   updateCatalogItem(id: number, body: UpdateSubscriptionServiceRequest): Observable<SubscriptionCatalogItem> {
@@ -111,6 +123,34 @@ export class SubscriptionsService {
     return this.http.get<SubscriptionTier[]>(`${this.apiUrl}/tiers`, { params });
   }
 
+  createTier(body: CreateSubscriptionTierRequest): Observable<SubscriptionTier> {
+    return this.http.post<SubscriptionTier>(`${this.apiUrl}/tiers`, body);
+  }
+
+  // ── Catalog card features (no update endpoint: deactivate + recreate) ──
+  getFeatures(subscriptionServiceId?: number): Observable<SubscriptionServiceFeature[]> {
+    let params = new HttpParams();
+    if (subscriptionServiceId != null) params = params.set('subscriptionServiceId', subscriptionServiceId);
+    return this.http.get<SubscriptionServiceFeature[]>(`${this.apiUrl}/features`, { params });
+  }
+
+  createFeature(body: CreateSubscriptionFeatureRequest): Observable<SubscriptionServiceFeature> {
+    return this.http.post<SubscriptionServiceFeature>(`${this.apiUrl}/features`, body);
+  }
+
+  deactivateFeature(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/features/${id}/deactivate`, {});
+  }
+
+  // ── Seasonal prices (listed through GET /pricing's seasonalPrice* fields) ──
+  createSeasonalPrice(body: CreateSeasonalPriceRequest): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/seasonal-prices`, body);
+  }
+
+  deactivateSeasonalPrice(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/seasonal-prices/${id}/deactivate`, {});
+  }
+
   // ── Discount codes ──────────────────────────────────────────
   getDiscountCodes(): Observable<SubscriptionDiscountCode[]> {
     return this.http.get<SubscriptionDiscountCode[]>(`${this.apiUrl}/discount-codes`);
@@ -129,8 +169,10 @@ export class SubscriptionsService {
     return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);
   }
 
-  getRequestsByStatus(status: SubscriptionOrderStatus): Observable<SubscriptionOrder[]> {
-    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params: { status } }).pipe(
+  getRequestsByStatus(status: SubscriptionOrderStatus, isAutoActivated?: boolean): Observable<SubscriptionOrder[]> {
+    let params = new HttpParams().set('status', status);
+    if (isAutoActivated !== undefined) params = params.set('isAutoActivated', isAutoActivated);
+    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params }).pipe(
       // Raw status may come back as a numeric string — the filter it was fetched
       // under is the reliable value, so it replaces anything we don't recognize.
       map(orders => orders.map(o => (ORDER_STATUSES as string[]).includes(o.status ?? '') ? o : { ...o, status }))

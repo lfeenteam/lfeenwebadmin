@@ -24,10 +24,18 @@
         <div>
           <h3 class="card-title">{{ serviceName }}</h3>
           <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.state.desc' | translate }}</p>
+          <div class="service-mode-badges">
+            <span class="semantic-badge" [class.badge-free]="billingModel === 'Free'" [class.badge-paid]="billingModel === 'Paid'" [class.badge-built-in]="billingModel === 'BuiltIn'">{{ ('d3.subscriptionTypes.' + billingModel) | translate }}</span>
+            <span class="semantic-badge" [class.badge-automatic]="activationMode === 'Instant'" [class.badge-manual]="activationMode === 'AdminApproval'">{{ ('d3.activationModes.' + activationMode) | translate }}</span>
+          </div>
         </div>
       </div>
 
       <div class="state-control d-flex align-items-center gap-12">
+        <button type="button" class="cancel-btn d-inline-flex align-items-center gap-6" (click)="editDetails()">
+          <i-tabler name="edit" class="icon-16"></i-tabler>
+          {{ 'd3.serviceForm.editBtn' | translate }}
+        </button>
         <mat-select
           class="state-select"
           [(ngModel)]="serviceState"
@@ -44,6 +52,35 @@
         </span>
       </div>
     </div>
+
+    <div class="card-divider"></div>
+
+    <div class="mode-settings-grid">
+      <div class="mode-setting">
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
+        <mat-select class="state-select mode-select" [(ngModel)]="billingModel" disableOptionCentering panelClass="duration-select-panel"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.billingModelLabel' | translate">
+          @for (m of billingModels; track m) {
+            <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
+          }
+        </mat-select>
+        <span class="section-desc">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
+      </div>
+      <div class="mode-setting">
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.activationModeLabel' | translate }}</span>
+        <mat-select class="state-select mode-select" [(ngModel)]="activationMode" disableOptionCentering panelClass="duration-select-panel"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.activationModeLabel' | translate">
+          @for (m of activationModes; track m) {
+            <mat-option [value]="m">{{ ('d3.activationModes.' + m) | translate }}</mat-option>
+          }
+        </mat-select>
+        <span class="section-desc">{{ ('d3.subscriptions.serviceSettings.activationModeHint.' + activationMode) | translate }}</span>
+      </div>
+    </div>
+
+    @if (billingModel === 'Paid' && catalogItem?.billingModel !== 'Paid') {
+      <div class="trial-info-box m-t-16 m-b-0">{{ 'd3.subscriptions.serviceSettings.billingChange.needsPrice' | translate }}</div>
+    }
   </div>
 
   <!-- Integration fields -->
@@ -157,6 +194,56 @@
     <p class="section-desc m-t-16 m-b-0">{{ 'd3.subscriptions.serviceSettings.integration.immutableNote' | translate }}</p>
   </div>
 
+  <!-- Catalog card features (the checkmark bullets merchants see) -->
+  <div class="section-card">
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div>
+        <h3 class="card-title">{{ 'd3.serviceFeatures.title' | translate }}</h3>
+        <p class="section-desc">{{ 'd3.serviceFeatures.desc' | translate }}</p>
+      </div>
+      @if (!addingFeature) {
+        <button type="button" class="cancel-btn" (click)="startAddFeature()">+ {{ 'd3.serviceFeatures.add' | translate }}</button>
+      }
+    </div>
+
+    <div class="card-divider"></div>
+
+    <ul class="feature-list m-0">
+      @for (f of features; track f.id) {
+        <li class="feature-item">
+          <i-tabler name="circle-check" class="icon-16 feature-check"></i-tabler>
+          <span class="feature-text">{{ featureText(f) }}</span>
+          <button type="button" class="row-action-btn" [attr.aria-label]="'d3.serviceFeatures.deactivate' | translate"
+            [matTooltip]="'d3.serviceFeatures.deactivate' | translate"
+            [disabled]="deactivatingFeatureId === f.id" (click)="deactivateFeature(f)">
+            <i-tabler name="trash" class="icon-16"></i-tabler>
+          </button>
+        </li>
+      } @empty {
+        @if (!addingFeature) {
+          <li class="text-muted-cell empty-cell text-center">
+            {{ (featuresLoading ? 'd3.subscriptions.serviceSettings.loading' : 'd3.serviceFeatures.empty') | translate }}
+          </li>
+        }
+      }
+    </ul>
+
+    @if (addingFeature) {
+      <div class="inline-form m-t-16">
+        <input type="text" class="inline-input" [(ngModel)]="newFeature.textAr" [placeholder]="'d3.serviceFeatures.textAr' | translate" />
+        <input type="text" class="inline-input" dir="ltr" [(ngModel)]="newFeature.textEn" [placeholder]="'d3.serviceFeatures.textEn' | translate" />
+        <div class="d-flex align-items-center gap-8">
+          <button type="button" class="confirm-btn" [disabled]="!canSaveFeature" (click)="saveFeature()">{{ 'common.save' | translate }}</button>
+          <button type="button" class="row-action-btn" [attr.aria-label]="'common.cancel' | translate" [disabled]="savingFeature" (click)="cancelAddFeature()">
+            <i-tabler name="x" class="icon-16"></i-tabler>
+          </button>
+        </div>
+      </div>
+    }
+
+    <p class="section-desc m-t-16 m-b-0">{{ 'd3.serviceFeatures.note' | translate }}</p>
+  </div>
+
   <!-- Subscribed facilities -->
   <div class="section-card">
     <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
@@ -199,11 +286,15 @@
                 </td>
                 <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.plan' | translate">
                   <span class="plan-badge" [class]="'plan-badge ' + facility.planClass">{{ facility.planLabel }}</span>
+                  @if (facility.billingModel === 'Free') { <span class="semantic-badge badge-free m-s-6">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
+                  @if (facility.isAutoActivated) { <span class="semantic-badge badge-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
                 </td>
                 <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.startDate' | translate">{{ facility.startDate }}</td>
-                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.renewalDate' | translate">{{ facility.renewalDate }}</td>
+                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.renewalDate' | translate">{{ facility.renewalDate === '-' && facility.isActive ? ('d3.subscriptions.detail.noExpiry' | translate) : facility.renewalDate }}</td>
                 <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.amountPaid' | translate">
-                  @if (facility.price === null) {
+                  @if (facility.price === null && facility.billingModel === 'Free') {
+                    <span class="free-label">{{ 'd3.subscriptions.detail.free' | translate }}</span>
+                  } @else if (facility.price === null) {
                     <span class="text-muted-cell">-</span>
                   } @else if (facility.price === 0) {
                     <span class="free-label">{{ 'd3.subscriptions.detail.free' | translate }}</span>
@@ -250,11 +341,109 @@
     }
   </div>
 
+  @if (isPaidService) {
+  <!-- Tiers (Standard / Premium …) — each carries its own free-trial length -->
+  <div class="section-card">
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div>
+        <h3 class="card-title">{{ 'd3.serviceTiers.title' | translate }}</h3>
+        <p class="section-desc">{{ 'd3.serviceTiers.desc' | translate }}</p>
+      </div>
+      @if (!addingTier) {
+        <button type="button" class="cancel-btn" (click)="startAddTier()">+ {{ 'd3.serviceTiers.add' | translate }}</button>
+      }
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="table-responsive">
+      <table class="table section-table section-table--flat m-0">
+        <thead>
+          <tr>
+            <th>{{ 'd3.serviceTiers.name' | translate }}</th>
+            <th>{{ 'd3.serviceTiers.trialDays' | translate }}</th>
+            <th>{{ 'd3.serviceTiers.default' | translate }}</th>
+            <th>{{ 'd3.serviceTiers.status' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of tiers; track t.id) {
+            <tr [class.row-muted]="!t.isActive">
+              <td [attr.data-label]="'d3.serviceTiers.name' | translate">
+                <span class="field-name-value d-block">{{ tierName(t) }}</span>
+                <span class="text-muted-cell" dir="ltr">{{ t.key }}</span>
+              </td>
+              <td [attr.data-label]="'d3.serviceTiers.trialDays' | translate">
+                {{ t.trialDays > 0 ? (fmt(t.trialDays) + ' ' + ('d3.subscriptions.serviceSettings.trial.days' | translate)) : ('d3.subscriptions.serviceSettings.trial.none' | translate) }}
+              </td>
+              <td [attr.data-label]="'d3.serviceTiers.default' | translate">
+                @if (t.isDefault) {
+                  <span class="semantic-badge badge-paid">{{ 'd3.serviceTiers.defaultBadge' | translate }}</span>
+                } @else {
+                  <span class="text-muted-cell">—</span>
+                }
+              </td>
+              <td [attr.data-label]="'d3.serviceTiers.status' | translate">
+                <span class="status-badge" [class.status-active]="t.isActive" [class.status-trial]="!t.isActive">
+                  {{ (t.isActive ? 'd3.serviceTiers.active' : 'd3.serviceTiers.inactive') | translate }}
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            @if (!addingTier) {
+              <tr>
+                <td colspan="4" class="text-center text-muted-cell empty-cell">
+                  {{ (tiersLoading ? 'd3.subscriptions.serviceSettings.loading' : 'd3.serviceTiers.empty') | translate }}
+                </td>
+              </tr>
+            }
+          }
+
+          @if (addingTier) {
+            <tr>
+              <td [attr.data-label]="'d3.serviceTiers.name' | translate">
+                <div class="new-field-inputs">
+                  <input type="text" class="inline-input" [(ngModel)]="newTier.nameAr" [placeholder]="'d3.serviceTiers.nameAr' | translate" />
+                  <input type="text" class="inline-input" dir="ltr" [(ngModel)]="newTier.nameEn" [placeholder]="'d3.serviceTiers.nameEn' | translate" />
+                  <input type="text" class="inline-input" dir="ltr" [(ngModel)]="newTier.key" placeholder="premium" />
+                  @if (newTierKeyInvalid) { <span class="field-error">{{ 'd3.serviceTiers.keyInvalid' | translate }}</span> }
+                </div>
+              </td>
+              <td [attr.data-label]="'d3.serviceTiers.trialDays' | translate">
+                <input type="number" min="0" step="1" class="inline-input" [(ngModel)]="newTier.trialDays" />
+                @if (newTierTrialInvalid) { <span class="field-error d-block">{{ 'd3.serviceTiers.trialInvalid' | translate }}</span> }
+              </td>
+              <td [attr.data-label]="'d3.serviceTiers.default' | translate">
+                <mat-slide-toggle color="primary" [(ngModel)]="newTier.isDefault"></mat-slide-toggle>
+              </td>
+              <td class="mobile-actions-cell">
+                <div class="d-flex align-items-center gap-8">
+                  <button type="button" class="confirm-btn" [disabled]="!canSaveTier" (click)="saveTier()">{{ 'common.save' | translate }}</button>
+                  <button type="button" class="row-action-btn" [attr.aria-label]="'common.cancel' | translate" [disabled]="savingTier" (click)="cancelAddTier()">
+                    <i-tabler name="x" class="icon-16"></i-tabler>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="section-desc m-t-16 m-b-0">{{ 'd3.serviceTiers.note' | translate }}</p>
+  </div>
+
   <!-- Fees per pricing row -->
   <div class="section-card">
-    <div class="card-head">
-      <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.operations.title' | translate }}</h3>
-      <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.operations.desc' | translate }}</p>
+    <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
+      <div>
+        <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.operations.title' | translate }}</h3>
+        <p class="section-desc">{{ 'd3.subscriptions.serviceSettings.operations.desc' | translate }}</p>
+      </div>
+      <button type="button" class="cancel-btn" [disabled]="!seasonalPeriods.length" (click)="addSeasonalPrice()"
+        [matTooltip]="seasonalPeriods.length ? '' : ('d3.seasonalPrice.needsPrice' | translate)">
+        + {{ 'd3.seasonalPrice.add' | translate }}
+      </button>
     </div>
 
     <div class="card-divider"></div>
@@ -296,9 +485,19 @@
                   @if (row.seasonalPrice === null) {
                     <span class="text-muted-cell">-</span>
                   } @else {
-                    <ng-container *ngTemplateOutlet="money; context: { $implicit: row.seasonalPrice }"></ng-container>
-                    @if (row.seasonalName) {
-                      <span class="text-muted-cell d-block">{{ row.seasonalName }}</span>
+                    <div class="d-flex align-items-center gap-8">
+                      <ng-container *ngTemplateOutlet="money; context: { $implicit: row.seasonalPrice }"></ng-container>
+                      <button type="button" class="row-action-btn" [attr.aria-label]="'d3.seasonalPrice.deactivate' | translate"
+                        [matTooltip]="'d3.seasonalPrice.deactivate' | translate"
+                        [disabled]="deactivatingSeasonalId !== null" (click)="deactivateSeasonalPrice(row)">
+                        <i-tabler name="player-pause" class="icon-16"></i-tabler>
+                      </button>
+                    </div>
+                    @if (row.seasonalName || row.seasonalUntil) {
+                      <span class="text-muted-cell d-block">
+                        {{ row.seasonalName }}
+                        @if (row.seasonalUntil) { · {{ 'd3.seasonalPrice.until' | translate: { date: row.seasonalUntil } }} }
+                      </span>
                     }
                   }
                 </td>
@@ -315,8 +514,10 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- Free trial + pricing -->
+  @if (isPaidService) {
   <div class="row">
     <div class="col-lg-6 m-b-20">
       <div class="section-card pricing-trial-card h-100 m-b-0">
@@ -341,6 +542,7 @@
 
         <div class="trial-info-box">
           {{ 'd3.subscriptions.serviceSettings.trial.readOnlyNote' | translate }}
+          {{ 'd3.serviceTiers.trialHint' | translate }}
         </div>
       </div>
     </div>
@@ -359,7 +561,7 @@
           <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
             [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
             [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
-          <input id="default-monthly-price" type="number" min="0" class="inline-input inline-input--full" [(ngModel)]="monthlyPrice"
+          <input id="default-monthly-price" type="number" min="0.01" class="inline-input inline-input--full" [(ngModel)]="monthlyPrice"
             [placeholder]="'d3.subscriptions.serviceSettings.pricing.noPricePlaceholder' | translate" />
         </div>
 
@@ -368,7 +570,7 @@
           <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
             [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
             [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
-          <input id="default-annual-price" type="number" min="0" class="inline-input inline-input--full" [(ngModel)]="annualPrice"
+          <input id="default-annual-price" type="number" min="0.01" class="inline-input inline-input--full" [(ngModel)]="annualPrice"
             [placeholder]="'d3.subscriptions.serviceSettings.pricing.noPricePlaceholder' | translate" />
         </div>
 
@@ -380,6 +582,48 @@
           <input id="setup-fee" type="number" min="0" class="inline-input inline-input--full" [(ngModel)]="setupFee"
             [placeholder]="'d3.subscriptions.serviceSettings.trial.setupFeePlaceholder' | translate" />
         </div>
+
+        <!-- Usage fee: charged per transaction from the merchant's wallet -->
+        <span class="field-label m-t-20 d-block">{{ 'd3.subscriptions.serviceSettings.usage.typeLabel' | translate }}</span>
+        <mat-select class="state-select mode-select" [(ngModel)]="usageUnitType" disableOptionCentering panelClass="duration-select-panel"
+          [attr.aria-label]="'d3.subscriptions.serviceSettings.usage.typeLabel' | translate">
+          @for (t of usageUnitTypes; track t) {
+            <mat-option [value]="t">{{ ('d3.subscriptions.serviceSettings.usage.types.' + t) | translate }}</mat-option>
+          }
+        </mat-select>
+
+        @if (hasUsageFee) {
+          <div class="usage-grid m-t-12">
+            <div>
+              <label class="field-label" for="usage-unit">
+                {{ (usageUnitType === 'PercentageOfValue' ? 'd3.subscriptions.serviceSettings.usage.percentLabel' : 'd3.subscriptions.serviceSettings.usage.perUnitLabel') | translate }}
+              </label>
+              <div class="number-field position-relative">
+                @if (usageUnitType === 'PerUnit') {
+                  <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+                    [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                    [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+                } @else {
+                  <span class="field-currency field-percent">%</span>
+                }
+                <input id="usage-unit" type="number" min="0" step="0.01" class="inline-input inline-input--full" [(ngModel)]="usageUnitPrice" />
+              </div>
+            </div>
+            @if (usageUnitType === 'PercentageOfValue') {
+              <div>
+                <label class="field-label" for="usage-cap">{{ 'd3.subscriptions.serviceSettings.usage.capLabel' | translate }} *</label>
+                <div class="number-field position-relative">
+                  <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+                    [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                    [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+                  <input id="usage-cap" type="number" min="0" step="0.01" class="inline-input inline-input--full" [(ngModel)]="usageMaxFeeAmount" />
+                </div>
+              </div>
+            }
+          </div>
+          @if (usageError) { <span class="field-error d-block m-t-8">{{ usageError | translate }}</span> }
+          <p class="section-desc m-t-8 m-b-0">{{ 'd3.subscriptions.serviceSettings.usage.hint' | translate }}</p>
+        }
 
         <div class="push-bottom">
           <div class="vat-toggle-row d-flex align-items-center justify-content-between gap-10">
@@ -393,6 +637,7 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- Footer actions -->
   <div class="footer-actions d-flex align-items-center justify-content-between flex-wrap gap-16">

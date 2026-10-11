@@ -83,12 +83,22 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return this.currentLang === 'en';
   }
 
+  lineKind(status: string | null | undefined): OrderStatusKind {
+    return orderStatusKind(status);
+  }
+
+  // lineStatus has no label field — known values reuse the tab labels, anything else shows raw.
+  lineStatusLabel(status: string | null | undefined): string {
+    const kind = orderStatusKind(status);
+    return kind === 'other' ? (status || '—') : this.translate.instant(`d3.subscriptionRequests.tabs.${kind}`);
+  }
+
   get kind(): OrderStatusKind {
     return orderStatusKind(this.order?.status);
   }
 
   get showActions(): boolean {
-    return this.kind === 'underReview' && (this.canApprove || this.canReject);
+    return this.kind === 'underReview' && !this.order?.isAutoActivated && (this.canApprove || this.canReject);
   }
 
   get requestedAtLabel(): string {

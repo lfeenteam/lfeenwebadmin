@@ -24,6 +24,12 @@
         </div>
       </div>
 
+      <div class="tabs-bar d-flex align-items-center gap-8 p-x-24 p-b-16" role="group">
+        @for (filter of ['all', 'automatic', 'manual']; track filter) {
+          <button type="button" class="tab-btn" [class.active]="activationFilter === filter" (click)="setActivationFilter($any(filter))">{{ ('d3.subscriptionRequests.activationFilter.' + filter) | translate }}</button>
+        }
+      </div>
+
       @if (loading) {
         <div class="p-24">
           <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
@@ -73,7 +79,7 @@
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.total' | translate }}</span>
                     <span class="request-total d-inline-flex align-items-center gap-4">
-                      {{ fmtAmount(row.order.totalAmount) }}
+                      @if (row.order.totalAmount === 0 && row.order.items.length && row.order.items[0].billingModel === 'Free') { {{ 'd3.subscriptions.detail.free' | translate }} } @else { {{ fmtAmount(row.order.totalAmount) }} }
                       <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
                         [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
                         [style.mask-image]="'url(' + currencyIconSrc + ')'"
@@ -83,6 +89,7 @@
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
                     <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
+                    @if (row.order.isAutoActivated) { <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
                   </td>
                   <td>
                     <button type="button" class="row-action-btn" (click)="openDetail(row)">

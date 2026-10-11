@@ -52,6 +52,7 @@ export class SubscriptionManagementComponent implements OnInit {
   totalCount = 0;
 
   accounts: SubscriberAccount[] = [];
+  misconfiguredServicesCount = 0;
   private pageRequest?: Subscription;
 
   get currentLang(): string {
@@ -81,6 +82,8 @@ export class SubscriptionManagementComponent implements OnInit {
     { labelKey: 'd3.subscriptions.stats.active', subtitleKey: 'd3.subscriptions.stats.activeDesc', value: 0, icon: 'user-check', tone: 'green', currency: false },
     { labelKey: 'd3.subscriptions.stats.monthly', subtitleKey: 'd3.subscriptions.stats.monthlyDesc', value: 0, icon: 'trending-up', tone: 'blue', currency: true },
     { labelKey: 'd3.subscriptions.stats.annual', subtitleKey: 'd3.subscriptions.stats.annualDesc', value: 0, icon: 'calendar', tone: 'purple', currency: true },
+    { labelKey: 'd3.subscriptions.stats.automatic', subtitleKey: 'd3.subscriptions.stats.automaticDesc', value: 0, icon: 'bolt', tone: 'blue', currency: false },
+    { labelKey: 'd3.subscriptions.stats.free', subtitleKey: 'd3.subscriptions.stats.freeDesc', value: 0, icon: 'gift', tone: 'green', currency: false },
   ];
 
   ngOnInit(): void {
@@ -92,6 +95,9 @@ export class SubscriptionManagementComponent implements OnInit {
         this.stats[1].value = overview.activeSubscriptionsCount;
         this.stats[2].value = overview.monthlyRevenue;
         this.stats[3].value = overview.annualRevenue;
+        this.stats[4].value = overview.autoActivatedCount;
+        this.stats[5].value = overview.freeSubscriptionsCount;
+        this.misconfiguredServicesCount = overview.misconfiguredServicesCount;
         this.isLoading = false;
       },
       error: () => {
@@ -148,6 +154,8 @@ export class SubscriptionManagementComponent implements OnInit {
       startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
       endDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
       expired: (s.status ?? '').toLowerCase() === 'expired',
+      billingModel: s.billingModel ?? 'Paid',
+      isAutoActivated: s.isAutoActivated ?? false,
     };
   }
 

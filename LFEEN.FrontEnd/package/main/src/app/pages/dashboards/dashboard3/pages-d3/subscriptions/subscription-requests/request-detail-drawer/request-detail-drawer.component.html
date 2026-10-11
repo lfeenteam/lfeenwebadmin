@@ -36,9 +36,16 @@
               }
             </span>
             <span class="item-name">{{ item.serviceName }}</span>
+            @if (item.billingModel === 'Free') { <span class="status-pill status-approved">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
           </div>
 
           <div class="item-meta-grid">
+            @if (item.lineStatus) {
+              <div class="meta-cell">
+                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.lineStatus' | translate }}</span>
+                <span class="status-pill" [class]="'status-pill status-' + lineKind(item.lineStatus)">{{ lineStatusLabel(item.lineStatus) }}</span>
+              </div>
+            }
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.requestType' | translate }}</span>
               <span class="meta-value">{{ item.requestTypeLabel || '-' }}</span>
@@ -49,7 +56,7 @@
             </div>
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.period' | translate }}</span>
-              <span class="meta-value">{{ item.periodLabel || '-' }}</span>
+              <span class="meta-value">{{ item.periodLabel || '—' }}</span>
             </div>
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.scope' | translate }}</span>

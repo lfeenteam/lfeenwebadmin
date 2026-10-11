@@ -5,9 +5,12 @@
   } @else {
 
   <!-- Stats -->
+  @if (misconfiguredServicesCount > 0) {
+    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | translate: { count: fmt(misconfiguredServicesCount) } }}</div>
+  }
   <div class="row m-b-24">
     @for (stat of stats; track $index) {
-      <div class="col-6 col-lg-3">
+      <div class="col-6 col-lg-4">
         <mat-card class="border stat-card">
           <mat-card-content class="stat-card-content">
             <div class="stat-top-group">
@@ -159,6 +162,8 @@
                                       <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
                                     </span>
                                     <span class="f-s-13 f-w-700">{{ svc.name }}</span>
+                                    @if (svc.billingModel === 'Free') { <span class="type-badge type-badge--free">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
+                                    @if (svc.isAutoActivated) { <span class="type-badge type-badge--automatic">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
                                   </div>
                                 </td>
                                 <td class="text-muted-cell">
@@ -167,7 +172,9 @@
                                 </td>
                                 <td class="f-w-700">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.price' | translate }}</span>
-                                  @if (svc.priceValue === null) {
+                                  @if (svc.priceValue === null && svc.billingModel === 'Free') {
+                                    {{ 'd3.subscriptions.detail.free' | translate }}
+                                  } @else if (svc.priceValue === null) {
                                     -
                                   } @else if (svc.priceValue === 0) {
                                     {{ 'd3.subscriptions.detail.free' | translate }}
@@ -188,7 +195,7 @@
                                 </td>
                                 <td class="text-muted-cell">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
-                                  {{ svc.endDate }}
+                                  {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.detail.noExpiry' | translate) : svc.endDate }}
                                 </td>
                               </tr>
                             }

@@ -765,8 +765,7 @@
         "description": "Full control of properties, hosts, and daily operations with artificial intelligence and extreme accuracy."
       },
       "form": {
-        "title": "Admin Login",
-        "subtitle": "Welcome Sultan, please enter your details to continue",
+        "title": "LFEEN Heroes Login",
         "emailLabel": "Admin Email",
         "passwordLabel": "Password",
         "forgotPassword": "Forgot password?",
@@ -2891,6 +2890,97 @@
         "closeWindowBtn": "Close Window"
       }
     },
+    "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
+    "subscriptionCategories": {
+      "Compliance": "Tax compliance",
+      "SmartLock": "Smart locks",
+      "GovernmentPlatform": "Government platform",
+      "Maps": "Maps",
+      "ChannelManager": "Channel manager",
+      "Messaging": "Messaging",
+      "Erp": "ERP",
+      "Payments": "Payments",
+      "Other": "Other"
+    },
+    "serviceForm": {
+      "createTitle": "Add service",
+      "editTitle": "Edit service details",
+      "editBtn": "Edit details",
+      "create": "Add service",
+      "created": "Service added. Finish its prices and settings here.",
+      "key": "Key",
+      "keyHint": "A fixed English identifier without spaces, e.g. whatsappBusiness. It can't be changed later.",
+      "keyLocked": "The key is fixed and can't be edited.",
+      "nameAr": "Arabic name",
+      "nameEn": "English name",
+      "descriptionAr": "Arabic description (optional)",
+      "descriptionEn": "English description (optional)",
+      "category": "Category",
+      "categoryPlaceholder": "Choose a category",
+      "logoUrl": "Logo URL (optional)",
+      "isAvailable": "Available to merchants now",
+      "isAvailableHint": "If unchecked, the service shows as \"coming soon\" until you open it from its settings page.",
+      "displayOrder": "Display order",
+      "minimumMonthly": "Lowest allowed monthly price",
+      "minimumYearly": "Lowest allowed yearly price",
+      "noMinimum": "No minimum",
+      "minimumHint": "This is a validation floor, not the service's price: any price below it is rejected. The real price is set in the pricing card.",
+      "errors": {
+        "key": "Start with an English letter; use only letters, digits, - or _",
+        "logo": "The URL must start with http:// or https://",
+        "displayOrder": "Order must be a whole number, 0 or more"
+      }
+    },
+    "serviceFeatures": {
+      "title": "Service features",
+      "desc": "The checkmark points shown under the service description on the merchant card",
+      "add": "Add feature",
+      "textAr": "Feature text in Arabic",
+      "textEn": "Feature text in English",
+      "deactivate": "Hide feature",
+      "empty": "No features yet.",
+      "note": "Features can't be edited. To change the wording, hide it and add a new one."
+    },
+    "serviceTiers": {
+      "title": "Tiers",
+      "desc": "Service levels (e.g. Standard, Premium). Each tier has its own free-trial length.",
+      "add": "Add tier",
+      "name": "Tier",
+      "nameAr": "Tier name in Arabic",
+      "nameEn": "Tier name in English",
+      "trialDays": "Trial days",
+      "default": "Default",
+      "defaultBadge": "Default",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Closed",
+      "empty": "No tiers. Setting the first price creates a \"Standard\" tier automatically.",
+      "keyInvalid": "Key: English letters, digits, - or _ only, and not already used",
+      "trialInvalid": "A whole number, 0 or more",
+      "note": "Tiers can't be edited after creation. A new tier marked default takes over from the current one.",
+      "trialHint": "To change the trial length, add a new tier with that length and make it the default."
+    },
+    "seasonalPrice": {
+      "add": "Add seasonal price",
+      "title": "Add seasonal price",
+      "hint": "A seasonal price replaces the subscription fee for this period only. Setup fees, usage fees and discount codes are unaffected.",
+      "period": "Period",
+      "tier": "Tier",
+      "defaultTier": "Default tier",
+      "nameAr": "Offer name in Arabic",
+      "nameEn": "Offer name in English",
+      "price": "Price during the period",
+      "startDate": "From",
+      "endDate": "To",
+      "create": "Add price",
+      "created": "Seasonal price added",
+      "until": "until {{date}}",
+      "needsPrice": "Set a monthly or yearly price first",
+      "deactivate": "Stop seasonal price",
+      "deactivateTitle": "Stop the seasonal price?",
+      "deactivateMessage": "The service goes back to its normal price right away. To change a seasonal price, stop it and add a new one."
+    },
+    "activationModes": { "AdminApproval": "Admin approval", "Instant": "Automatic" },
     "subscriptions": {
       "pageTitle": "Subscription Management",
       "listTitle": "Subscribers Accounts List",
@@ -2905,7 +2995,9 @@
         "activeDesc": "Active Subscriptions",
         "total": "Total Subscribers",
         "growth": "growth",
-        "growthBadge": "+{{percent}}% growth"
+        "growthBadge": "+{{percent}}% growth",
+        "automatic": "Automatic requests", "automaticDesc": "Processed automatically",
+        "free": "Free subscriptions", "freeDesc": "Currently active"
       },
       "classification": {
         "hotel": "Hotel",
@@ -2935,7 +3027,7 @@
       "period": {
         "monthly": "Monthly",
         "annual": "Annual",
-        "free": "Free"
+        "free": "Free", "noExpiry": "No expiry"
       },
       "status": {
         "active": "Active",
@@ -2957,6 +3049,7 @@
         "title": "No subscribers yet",
         "desc": "No subscriber accounts have been registered yet, or no results match your search."
       },
+      "configurationWarning": "{{count}} services need configuration. Review service pricing.",
       "pagination": {
         "total": "subscriber",
         "prev": "Previous page",
@@ -2970,6 +3063,9 @@
         "searchPlaceholder": "Search for a service name...",
         "configureBtn": "Service settings",
         "trialBadge": "{{days}}-day free trial",
+        "noDescription": "No description yet",
+        "comingSoon": "Coming soon",
+        "noPricing": { "Free": "No prices or expiry; merchants turn it on in one tap", "BuiltIn": "Built into the platform; no prices or tiers" },
         "monthlyPrice": "Monthly Price",
         "annualPrice": "Annual Price",
         "filters": {
@@ -3031,12 +3127,48 @@
       "serviceSettings": {
       "pageTitle": "Service Settings",
       "backBtn": "Back to services list",
+      "billingModelLabel": "Service type",
+      "usage": {
+        "typeLabel": "Usage fee (per transaction)",
+        "types": {
+          "None": "No usage fee",
+          "PerUnit": "Fixed amount per transaction",
+          "PercentageOfValue": "Percentage of the transaction value"
+        },
+        "perUnitLabel": "Amount per transaction",
+        "percentLabel": "Percentage of the transaction value",
+        "capLabel": "Maximum fee per transaction",
+        "hint": "Debited from the merchant's wallet at the moment of the transaction; it never goes through order review. With a usage fee, the subscription price can be 0.",
+        "errors": {
+          "unitPrice": "The usage fee must be greater than zero",
+          "cap": "A maximum fee per transaction is required and must be greater than zero"
+        }
+      },
+      "activationModeLabel": "Activation",
+      "billingModelHint": {
+        "Paid": "Has prices and tiers; the merchant pays.",
+        "Free": "No prices, tiers or expiry date. The merchant turns it on or off in one tap.",
+        "BuiltIn": "Built into the platform with its own activation. No prices or tiers."
+      },
+      "activationModeHint": {
+        "AdminApproval": "The merchant's request waits for admin approval.",
+        "Instant": "Activated automatically: free services on request, paid ones once payment succeeds."
+      },
+      "billingChange": {
+        "title": "Change the service type?",
+        "toFree": "This service's prices and tiers will be closed. Current subscribers continue until their subscription ends.",
+        "toPaid": "Current subscribers stay free, and the service won't accept new subscriptions until you add a price.",
+        "other": "The service type will change, and the service will have no prices or tiers.",
+        "confirm": "Confirm change",
+        "needsPrice": "The service will become paid: set a monthly or yearly price above zero, or it won't accept new subscriptions."
+      },
       "loading": "Loading...",
       "notFound": "Service not found.",
       "saved": "Service settings saved",
       "saving": "Saving...",
       "errors": {
-        "negativePrice": "Prices and fees can't be below zero"
+        "negativePrice": "Prices and fees can't be below zero",
+        "invalidPrice": "Paid recurring prices must be greater than zero; setup fees cannot be negative"
       },
       "serviceStatusLabel": "Service status",
       "title": "Settings & customization for {{service}}",
@@ -3229,6 +3361,8 @@
         "approved": "Approved",
         "underReview": "Under review"
       },
+      "activationFilter": { "all": "All", "automatic": "Automatic", "manual": "Manual" },
+      "automatic": "Automatic",
       "table": {
         "merchant": "Merchant",
         "services": "Requested services",
@@ -3255,7 +3389,7 @@
         "title": "Request details",
         "close": "Close",
         "processedAt": "Processed on",
-        "requestType": "Request type",
+        "requestType": "Request type", "lineStatus": "Line status",
         "tier": "Tier",
         "period": "Period",
         "scope": "Scope",

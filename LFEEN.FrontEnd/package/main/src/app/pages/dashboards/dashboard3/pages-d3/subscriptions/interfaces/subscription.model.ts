@@ -1,5 +1,7 @@
 export type SubscriptionStatus = 'active' | 'suspended' | 'expired';
 export type SubscriptionPeriod = 'monthly' | 'annual' | 'free';
+export type SubscriptionBillingModel = 'Paid' | 'Free' | 'BuiltIn';
+export type SubscriptionActivationMode = 'AdminApproval' | 'Instant';
 
 export interface SubscriptionServiceItem {
   name: string;
@@ -11,6 +13,8 @@ export interface SubscriptionServiceItem {
   startDate: string;
   endDate: string;
   expired: boolean;
+  billingModel: SubscriptionBillingModel;
+  isAutoActivated: boolean;
 }
 
 export interface SubscriberAccount {
@@ -59,6 +63,8 @@ export interface SubscriptionOrderItem {
   propertyName: string | null;
   tierKey: string | null;
   tierName: string | null;
+  billingModel: SubscriptionBillingModel;
+  lineStatus: string | null;
 }
 
 export interface SubscriptionOrder {
@@ -74,6 +80,7 @@ export interface SubscriptionOrder {
   requestedAt: string;
   processedAt: string | null;
   items: SubscriptionOrderItem[];
+  isAutoActivated: boolean;
 }
 
 // ── /api/subscriptions/catalog ────────────────────────────────
@@ -114,6 +121,10 @@ export interface SubscriptionCatalogItem {
   currencyCode?: string;
   /** Default tier's free-trial length; 0 = no trial. */
   trialDays?: number;
+  billingModel: SubscriptionBillingModel;
+  activationMode: SubscriptionActivationMode;
+  isFree: boolean;
+  isBuiltIn: boolean;
 }
 
 // ── /api/subscriptions/pricing ────────────────────────────────
@@ -181,6 +192,8 @@ export interface UpdateSubscriptionServiceRequest {
   minimumMonthlyPrice?: number | null;
   minimumYearlyPrice?: number | null;
   isPriceVatInclusive?: boolean;
+  billingModel: SubscriptionBillingModel;
+  activationMode: SubscriptionActivationMode;
 }
 
 // ── /api/subscriptions/{id}/integration-fields ────────────────
@@ -231,6 +244,8 @@ export interface MerchantSubscriptionLine {
   propertyId?: number | null;
   propertyName?: string | null;
   propertyClassification?: string | null;
+  billingModel?: SubscriptionBillingModel;
+  isAutoActivated?: boolean;
 }
 
 export interface ServiceSubscriber extends MerchantSubscriptionLine {
@@ -262,6 +277,54 @@ export interface SubscriptionTier {
   isActive: boolean;
   displayOrder: number;
   trialDays: number;
+}
+
+export interface CreateSubscriptionTierRequest {
+  subscriptionServiceId: number;
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  /** true moves the default flag off whichever tier had it. */
+  isDefault: boolean;
+  displayOrder: number;
+  trialDays: number;
+}
+
+// ── POST /api/subscriptions/catalog ───────────────────────────
+// `key` is set once here and can never change. displayOrder is assigned by the backend.
+export interface CreateSubscriptionServiceRequest {
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
+  category: string | null;
+  logoUrl: string | null;
+  isAvailable: boolean;
+  billingModel: SubscriptionBillingModel;
+  activationMode: SubscriptionActivationMode;
+}
+
+// ── /api/subscriptions/features (catalog card bullets) ────────
+export interface CreateSubscriptionFeatureRequest {
+  subscriptionServiceId: number;
+  textAr: string;
+  textEn: string;
+}
+
+// ── POST /api/subscriptions/seasonal-prices ───────────────────
+/** Replaces the normal subscription fee of (service, tier, period) between the two dates. */
+export interface CreateSeasonalPriceRequest {
+  subscriptionServiceId: number;
+  subscriptionServiceTierId: number | null;
+  period: SubscriptionPricingPeriod;
+  nameAr: string;
+  nameEn: string;
+  /** 'YYYY-MM-DD' */
+  startDate: string;
+  endDate: string;
+  price: number;
+  currencyCode: string;
 }
 
 // ── /api/subscriptions/discount-codes ─────────────────────────
@@ -344,6 +407,9 @@ export interface SubscriptionOverview {
   monthlyRevenue: number;
   annualRevenue: number;
   currencyCode: string;
+  autoActivatedCount: number;
+  freeSubscriptionsCount: number;
+  misconfiguredServicesCount: number;
 }
 
 export type SubscriptionOfferTone = 'green' | 'blue' | 'purple' | 'orange';
@@ -353,6 +419,8 @@ export interface SubscriptionOfferCard {
   icon: string;
   tone: SubscriptionOfferTone;
   active: boolean;
+  /** false = exists but merchants can't subscribe right now (shown as "coming soon"). */
+  available: boolean;
   /** Default tier's free-trial days; 0 hides the badge. */
   trialDays: number;
   nameAr: string;
@@ -363,4 +431,6 @@ export interface SubscriptionOfferCard {
   /** null = no active pricing for that period; 0 = free. */
   monthlyPriceValue: number | null;
   annualPriceValue: number | null;
+  billingModel: SubscriptionBillingModel;
+  activationMode: SubscriptionActivationMode;
 }

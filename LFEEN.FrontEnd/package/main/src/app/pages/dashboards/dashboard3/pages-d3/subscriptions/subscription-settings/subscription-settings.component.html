@@ -40,18 +40,25 @@
           <mat-option [value]="opt.value">{{ opt.labelKey | translate }}</mat-option>
         }
       </mat-select>
+
+      @if (canManageCatalog) {
+        <button type="button" class="add-service-btn" (click)="openCreateService()">
+          + {{ 'd3.serviceForm.createTitle' | translate }}
+        </button>
+      }
     </div>
   </div>
   </div>
 
-  <div class="row m-t-24">
+  <div class="row m-t-24 offers-row">
     @for (offer of filteredOffers; track offer.id) {
-      <div class="col-md-6 col-lg-4 m-b-16">
-        <mat-card class="shadow-none offer-card">
+      <div class="col-md-6 col-xl-4 m-b-20 d-flex">
+        <mat-card class="shadow-none offer-card" [class.is-inactive]="!offer.active">
           <mat-card-content class="offer-card-content">
 
+            <!-- Header: logo + on/off switch -->
             <div class="offer-top-row d-flex align-items-start justify-content-between">
-              <div class="offer-icon-wrapper d-flex align-items-center justify-content-center" [class]="'tone-' + offer.tone">
+              <div class="offer-icon-wrapper d-flex align-items-center justify-content-center" [class]="'offer-icon-wrapper tone-' + offer.tone">
                 @if (logoUrl(offer); as logo) {
                   <img [src]="logo" [alt]="offerName(offer)" class="offer-logo" />
                 } @else {
@@ -59,43 +66,71 @@
                 }
               </div>
 
-              <div class="offer-controls d-flex align-items-center gap-8">
-                <div class="active-toggle d-flex align-items-center gap-6">
-                  <span class="active-toggle-label">{{ (offer.active ? 'd3.subscriptions.settings.status.enabled' : 'd3.subscriptions.settings.status.disabled') | translate }}</span>
-                  <button type="button" class="switch" role="switch"
-                    [class.on]="offer.active"
-                    [attr.aria-checked]="offer.active"
-                    [attr.aria-label]="offerName(offer)"
-                    [disabled]="!canManageCatalog || togglingId === offer.id"
-                    (click)="toggleActive(offer)">
-                    <span class="knob"></span>
-                  </button>
-                </div>
-                <button type="button" class="gear-btn" [attr.aria-label]="'d3.subscriptions.settings.configureBtn' | translate" (click)="openServiceSettings(offer)">
-                  <i-tabler name="settings" class="icon-16"></i-tabler>
+              <div class="active-toggle d-flex align-items-center gap-6">
+                <span class="active-toggle-label">{{ (offer.active ? 'd3.subscriptions.settings.status.enabled' : 'd3.subscriptions.settings.status.disabled') | translate }}</span>
+                <button type="button" class="switch" role="switch"
+                  [class.on]="offer.active"
+                  [attr.aria-checked]="offer.active"
+                  [attr.aria-label]="offerName(offer)"
+                  [disabled]="!canManageCatalog || togglingId === offer.id"
+                  (click)="toggleActive(offer)">
+                  <span class="knob"></span>
                 </button>
               </div>
             </div>
 
-            @if (offer.trialDays > 0) {
-              <div class="offer-badge tone-green">
-                <i-tabler name="gift" class="icon-13"></i-tabler>
-                {{ 'd3.subscriptions.settings.trialBadge' | translate: { days: fmt(offer.trialDays) } }}
-              </div>
+            <!-- Title + description -->
+            <div class="offer-body">
+              <h4 class="offer-title m-0" [title]="offerName(offer)">{{ offerName(offer) }}</h4>
+              @if (offerDesc(offer); as desc) {
+                <p class="offer-desc" [title]="desc">{{ desc }}</p>
+              } @else {
+                <p class="offer-desc is-empty">{{ 'd3.subscriptions.settings.noDescription' | translate }}</p>
+              }
+            </div>
+
+            <!-- All tags in one row: type, activation, trial, availability -->
+            <div class="offer-tags">
+              <span class="offer-badge" [class.tone-green]="offer.billingModel === 'Free'" [class.tone-blue]="offer.billingModel === 'Paid'" [class.tone-slate]="offer.billingModel === 'BuiltIn'">
+                <i-tabler [name]="offer.billingModel === 'Free' ? 'gift' : offer.billingModel === 'BuiltIn' ? 'puzzle' : 'coin'" class="icon-13"></i-tabler>
+                {{ ('d3.subscriptionTypes.' + offer.billingModel) | translate }}
+              </span>
+              <span class="offer-badge" [class.tone-purple]="offer.activationMode === 'Instant'" [class.tone-cyan]="offer.activationMode === 'AdminApproval'">
+                <i-tabler [name]="offer.activationMode === 'Instant' ? 'bolt' : 'user-check'" class="icon-13"></i-tabler>
+                {{ ('d3.activationModes.' + offer.activationMode) | translate }}
+              </span>
+              @if (offer.billingModel === 'Paid' && offer.trialDays > 0) {
+                <span class="offer-badge tone-amber">
+                  <i-tabler name="clock" class="icon-13"></i-tabler>
+                  {{ 'd3.subscriptions.settings.trialBadge' | translate: { days: fmt(offer.trialDays) } }}
+                </span>
+              }
+              @if (offer.active && !offer.available) {
+                <span class="offer-badge tone-slate">
+                  <i-tabler name="hourglass" class="icon-13"></i-tabler>
+                  {{ 'd3.subscriptions.settings.comingSoon' | translate }}
+                </span>
+              }
+            </div>
+
+            <!-- Up to 3 features; the rest summarized -->
+            @if (offer.features.length) {
+              <ul class="offer-features m-0">
+                @for (feature of offer.features.slice(0, 3); track $index) {
+                  <li [title]="featureText(feature)">
+                    <i-tabler name="circle-check" class="icon-14"></i-tabler>
+                    <span>{{ featureText(feature) }}</span>
+                  </li>
+                }
+                @if (offer.features.length > 3) {
+                  <li class="offer-features-more">{{ 'd3.subscriptions.table.others' | translate: { count: fmt(offer.features.length - 3) } }}</li>
+                }
+              </ul>
             }
 
-            <h4 class="offer-title m-0">{{ offerName(offer) }}</h4>
-            <p class="offer-desc">{{ offerDesc(offer) }}</p>
-
-            <ul class="offer-features m-0">
-              @for (feature of offer.features.slice(0, 2); track $index) {
-                <li>
-                  <i-tabler name="circle-check" class="icon-14"></i-tabler>
-                  <span>{{ featureText(feature) }}</span>
-                </li>
-              }
-            </ul>
-
+            <!-- Footer: same height for every service type -->
+            <div class="offer-footer">
+            @if (offer.billingModel === 'Paid') {
             <div class="offer-price-box d-flex align-items-stretch">
               <div class="offer-price-cell">
                 <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
@@ -130,6 +165,21 @@
                   <span class="offer-price-value">-</span>
                 }
               </div>
+            </div>
+            } @else {
+              <div class="offer-info-strip" [class.is-free]="offer.billingModel === 'Free'">
+                <i-tabler [name]="offer.billingModel === 'Free' ? 'gift' : 'puzzle'" class="icon-18"></i-tabler>
+                <div>
+                  <span class="d-block offer-info-title">{{ ('d3.subscriptionTypes.' + offer.billingModel) | translate }}</span>
+                  <span class="offer-info-desc">{{ ('d3.subscriptions.settings.noPricing.' + offer.billingModel) | translate }}</span>
+                </div>
+              </div>
+            }
+
+              <button type="button" class="offer-manage-btn" (click)="openServiceSettings(offer)">
+                <i-tabler name="settings" class="icon-16"></i-tabler>
+                {{ 'd3.subscriptions.settings.configureBtn' | translate }}
+              </button>
             </div>
 
           </mat-card-content>

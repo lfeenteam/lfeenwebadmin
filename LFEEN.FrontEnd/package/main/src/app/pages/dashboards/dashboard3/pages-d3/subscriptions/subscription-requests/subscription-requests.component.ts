@@ -19,6 +19,7 @@ import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 
 type RequestTab = 'all' | 'rejected' | 'approved' | 'underReview';
+type ActivationFilter = 'all' | 'automatic' | 'manual';
 
 interface RequestService {
   name: string;
@@ -64,6 +65,7 @@ export class SubscriptionRequestsComponent implements OnInit {
   loadError = false;
   activeTab: RequestTab = 'underReview';
   currentPage = 1;
+  activationFilter: ActivationFilter = 'all';
 
   private rows: RequestRow[] = [];
   logoByServiceId = new Map<number, string | null>();
@@ -174,7 +176,8 @@ export class SubscriptionRequestsComponent implements OnInit {
     // On "All", an unconfirmed status that EQAMATIK rejects is skipped rather than failing the tab.
     const tolerant = this.activeTab === 'all';
     this.listRequest = forkJoin(missing.map(status => {
-      const request$ = this.service.getRequestsByStatus(status).pipe(map(orders => ({ status, orders })));
+      const auto = this.activationFilter === 'all' ? undefined : this.activationFilter === 'automatic';
+      const request$ = this.service.getRequestsByStatus(status, auto).pipe(map(orders => ({ status, orders })));
       return tolerant && status !== 'UnderReview'
         ? request$.pipe(catchError(() => of({ status, orders: [] as SubscriptionOrder[] })))
         : request$;
@@ -204,6 +207,13 @@ export class SubscriptionRequestsComponent implements OnInit {
     this.activeTab = tab;
     this.currentPage = 1;
     this.load();
+  }
+
+  setActivationFilter(filter: ActivationFilter): void {
+    if (filter === this.activationFilter) return;
+    this.activationFilter = filter;
+    this.currentPage = 1;
+    this.reload();
   }
 
   private rebuildRows(): void {

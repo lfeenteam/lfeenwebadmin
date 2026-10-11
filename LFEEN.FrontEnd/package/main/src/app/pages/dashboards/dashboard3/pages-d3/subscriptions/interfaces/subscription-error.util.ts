@@ -20,8 +20,14 @@ export function resolveSubscriptionError(err: unknown, translate: TranslateServi
   return t('generic');
 }
 
-/** 404/409 = the item changed or disappeared server-side — the list should be reloaded. */
+/**
+ * The item changed or disappeared server-side, so the list should be reloaded: a 404, or a 409
+ * such as an already-processed order or SUBSCRIPTION_PROPERTY_NOT_ELIGIBLE (property banned
+ * after the order was placed). SUBSCRIPTION_ORDER_PARTIALLY_ACTIVATED is the exception — the
+ * guide says to only show its message.
+ */
 export function isStaleSubscriptionError(err: unknown): boolean {
-  const status = (err as HttpErrorResponse)?.status;
-  return status === 404 || status === 409;
+  const e = err as HttpErrorResponse;
+  if (e?.status === 404) return true;
+  return e?.status === 409 && e?.error?.errorCode !== 'SUBSCRIPTION_ORDER_PARTIALLY_ACTIVATED';
 }

@@ -14,6 +14,8 @@ import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { LoginService } from '../../../services/login/login.service';
 import { ToastrService } from 'ngx-toastr';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { MatDialog } from '@angular/material/dialog';
+import { ServiceFormDialogComponent, ServiceFormDialogData } from '../service-form-dialog/service-form-dialog.component';
 
 type StatusFilter = 'all' | 'enabled' | 'disabled';
 
@@ -28,6 +30,7 @@ export class SubscriptionSettingsComponent implements OnInit {
   private subscriptionsService = inject(SubscriptionsService);
   private login = inject(LoginService);
   private toastr = inject(ToastrService);
+  private dialog = inject(MatDialog);
 
   constructor(private translate: TranslateService, private router: Router) {}
 
@@ -112,6 +115,7 @@ export class SubscriptionSettingsComponent implements OnInit {
       icon: meta.icon,
       tone: meta.tone,
       active: item.isActive,
+      available: item.isAvailable,
       trialDays: item.trialDays ?? 0,
       nameAr: item.nameAr,
       nameEn: item.nameEn,
@@ -120,6 +124,8 @@ export class SubscriptionSettingsComponent implements OnInit {
       features: (item.features ?? []).filter(f => f.isActive !== false),
       monthlyPriceValue: item.monthlyPrice ?? null,
       annualPriceValue: item.yearlyPrice ?? null,
+      billingModel: item.billingModel,
+      activationMode: item.activationMode,
     };
   }
 
@@ -140,6 +146,23 @@ export class SubscriptionSettingsComponent implements OnInit {
 
   onFilterChange(value: StatusFilter): void {
     this.statusFilter = value;
+  }
+
+  // POST /catalog — the new service gets its key once here; prices, features and the rest are
+  // set afterwards from its own settings page, which is where this opens on success.
+  openCreateService(): void {
+    if (!this.canManageCatalog) return;
+    this.dialog.open(ServiceFormDialogComponent, {
+      width: '560px',
+      maxWidth: '94vw',
+      data: { mode: 'create' } as ServiceFormDialogData,
+    }).afterClosed().subscribe(created => {
+      if (!created) return;
+      this.toastr.success(this.translate.instant('d3.serviceForm.created'));
+      this.catalogByKey.set(created.key, created);
+      this.offers = [...this.offers, this.mapCatalogItemToOffer(created)];
+      this.router.navigate([this.router.url.split('/')[1] || 'ar', 'd3', 'subscriptions', 'settings', created.key]);
+    });
   }
 
   get canManageCatalog(): boolean {

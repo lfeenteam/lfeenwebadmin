@@ -11,7 +11,7 @@ export function buildCatalogUpdate(
   changes: Partial<UpdateSubscriptionServiceRequest> = {},
 ): UpdateSubscriptionServiceRequest {
   // id/key are immutable; the rest of this list is read-only data computed by the backend.
-  const { id, key, categoryLabel, features, monthlyPrice, yearlyPrice, currencyCode, trialDays, ...editable } = item;
+  const { id, key, categoryLabel, features, monthlyPrice, yearlyPrice, currencyCode, trialDays, isFree, isBuiltIn, ...editable } = item;
 
   return {
     ...editable,
