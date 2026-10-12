@@ -180,8 +180,8 @@ export class SubscriptionLogComponent implements OnInit {
     return {
       detailPairs: pairs.slice(0, MAX_DETAILS),
       detailsMore: Math.max(0, pairs.length - MAX_DETAILS),
-      detailsTooltip: pairs.map(p => `${p.label}: ${p.from ? `${p.from} → ` : ''}${p.value}`).join('
-'),
+      // One detail per line (the tooltip style keeps the line breaks).
+      detailsTooltip: pairs.map(p => `${p.label}: ${p.from ? `${p.from} → ` : ''}${p.value}`).join('\n'),
       detailsText: '',
     };
   }
