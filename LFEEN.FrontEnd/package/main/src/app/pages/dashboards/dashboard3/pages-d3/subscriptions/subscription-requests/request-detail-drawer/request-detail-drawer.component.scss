@@ -183,6 +183,8 @@
 .meta-cell {
   display: flex;
   flex-direction: column;
+  // Children keep their own width: a status pill here must not stretch across the cell.
+  align-items: flex-start;
   gap: 2px;
 }
 

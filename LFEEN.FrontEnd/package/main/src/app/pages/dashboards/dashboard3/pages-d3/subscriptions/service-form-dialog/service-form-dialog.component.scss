@@ -1,9 +1,41 @@
 // Layout and controls come from the discount-code dialog's stylesheet; these are the extras.
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  .dialog-title { margin: 0; }
+}
+
+.close-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin-top: -6px;
+  margin-inline-end: -6px;
+  flex: 0 0 auto;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  color: #9AA4B2;
+  --mdc-icon-button-state-layer-size: 36px;
+
+  &:hover { color: #111110; }
+}
+
+// The dialog is wide enough to show the whole form, so it doesn't need its own scroll area.
+.form-scroll {
+  max-height: none;
+  overflow: visible;
+}
+
 .field-textarea {
   height: auto;
   min-height: 64px;
   padding: 10px 14px;
-  resize: vertical;
+  resize: none;
   line-height: 1.6;
   font-family: 'Cairo', sans-serif;
 }

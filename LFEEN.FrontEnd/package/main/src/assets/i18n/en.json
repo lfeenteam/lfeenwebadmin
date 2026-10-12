@@ -2891,6 +2891,37 @@
       }
     },
     "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
+    "integrationField": {
+      "title": "Add integration field",
+      "labelAr": "Field name in Arabic",
+      "labelEn": "Field name in English",
+      "key": "Key",
+      "requiredQuestion": "Is this field required or optional?",
+      "required": "Required",
+      "requiredDesc": "The merchant can't subscribe to the service without filling it in.",
+      "optional": "Optional",
+      "optionalDesc": "The merchant can leave it empty and still subscribe.",
+      "save": "Add field",
+      "saved": "Field added",
+      "errors": {
+        "keyFormat": "Key: English letters, digits and _ only, no spaces",
+        "keyExists": "This key is already used by another field on this service"
+      }
+    },
+    "pricingRow": {
+      "add": "Add operation price",
+      "title": "Add operation price",
+      "save": "Save price",
+      "saved": "Price saved",
+      "price": "Subscription price",
+      "searchPlaceholder": "Search tiers...",
+      "noMatch": "No rows match your search.",
+      "replacesNote": "This tier and period already has an active price. Saving closes it and creates a new one; past orders are unaffected.",
+      "errors": {
+        "price": "Price must be greater than zero (zero is only allowed with an operation price)",
+        "belowMinimum": "Price is below the minimum allowed for this service ({{min}})"
+      }
+    },
     "subscriptionCategories": {
       "Compliance": "Tax compliance",
       "SmartLock": "Smart locks",
@@ -2942,6 +2973,7 @@
       "note": "Features can't be edited. To change the wording, hide it and add a new one."
     },
     "serviceTiers": {
+      "noTrialHint": "The default tier has no free trial. To add one, create a new tier with the trial days and make it the default.",
       "title": "Tiers",
       "desc": "Service levels (e.g. Standard, Premium). Each tier has its own free-trial length.",
       "add": "Add tier",
@@ -3063,6 +3095,12 @@
         "searchPlaceholder": "Search for a service name...",
         "configureBtn": "Service settings",
         "trialBadge": "{{days}}-day free trial",
+        "typeBadge": {
+          "Paid": "Paid subscription",
+          "Free": "Always free",
+          "BuiltIn": "Built into the platform"
+        },
+        "noPrice": "Not set",
         "noDescription": "No description yet",
         "comingSoon": "Coming soon",
         "noPricing": { "Free": "No prices or expiry; merchants turn it on in one tap", "BuiltIn": "Built into the platform; no prices or tiers" },
@@ -3128,6 +3166,12 @@
       "pageTitle": "Service Settings",
       "backBtn": "Back to services list",
       "billingModelLabel": "Service type",
+      "advanced": {
+        "title": "Additional settings",
+        "desc": "Service type and activation, service details, features and tiers",
+        "typeTitle": "Service type and activation",
+        "typeDesc": "Whether the service is paid or free, and whether it activates automatically or needs admin approval"
+      },
       "usage": {
         "typeLabel": "Usage fee (per transaction)",
         "types": {
@@ -3315,7 +3359,16 @@
         "Cancelled": "Cancelled",
         "Expired": "Expired"
       },
+      "moreDetails": "+{{count}} more",
       "detailKeys": {
+        "BillingModel": "Service type",
+        "ActivationMode": "Activation",
+        "Items": "Items",
+        "DeactivatedPricingRows": "Prices closed",
+        "DeactivatedTiers": "Tiers closed",
+        "DisplayOrder": "Order",
+        "DescriptionAr": "Description",
+        "MaxRedemptions": "Max uses",
         "Setup": "Setup fee",
         "SetupFee": "Setup fee",
         "IsActive": "Active",
@@ -3324,6 +3377,9 @@
         "TrialDays": "Trial days"
       },
       "detailValues": {
+        "BuiltIn": "Built-in",
+        "AdminApproval": "Admin approval",
+        "Instant": "Automatic",
         "True": "Yes",
         "False": "No",
         "FixedAmount": "Fixed amount",

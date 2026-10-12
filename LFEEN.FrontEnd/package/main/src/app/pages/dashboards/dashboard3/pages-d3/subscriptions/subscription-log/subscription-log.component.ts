@@ -25,10 +25,26 @@ interface LogRow {
   actorLabel: string;
   actorInitial: string;
   date: string;
-  /** Parsed "Key=Value" pairs; empty when `details` is free text (see detailsText). */
-  detailPairs: { label: string; value: string }[];
+  /** The first few meaningful "Key=Value" pairs; empty when `details` is free text (see detailsText). */
+  detailPairs: DetailPair[];
+  /** How many more pairs exist beyond the ones shown. */
+  detailsMore: number;
+  /** Every pair as one line, for the "+N" tooltip. */
+  detailsTooltip: string;
   detailsText: string;
 }
+
+interface DetailPair {
+  label: string;
+  value: string;
+  /** Set when the entry records a change ("Old->New"): the previous value. */
+  from?: string;
+}
+
+/** Most pairs shown in a row before the rest collapses into "+N". */
+const MAX_DETAILS = 5;
+// Already shown in the row's own columns, so repeating them in the details is noise.
+const HIDDEN_DETAIL_KEYS = new Set(['Key', 'NameAr', 'NameEn', 'ServiceKey']);
 
 // `details` on system-generated entries is a technical "Key=Value, Key=Value" string.
 const DETAIL_PAIR = /^\s*([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/;
@@ -127,18 +143,45 @@ export class SubscriptionLogComponent implements OnInit {
 
   // Splits "Price=100, Setup=0" into labelled pairs. Anything that isn't entirely made of
   // Key=Value parts (an admin's note, a rejection reason) is kept as plain text.
-  private parseDetails(raw: string | null): Pick<LogRow, 'detailPairs' | 'detailsText'> {
+  private parseDetails(raw: string | null): Pick<LogRow, 'detailPairs' | 'detailsMore' | 'detailsTooltip' | 'detailsText'> {
+    const empty = { detailPairs: [], detailsMore: 0, detailsTooltip: '' };
     const text = raw?.trim() ?? '';
-    if (!text) return { detailPairs: [], detailsText: '-' };
+    if (!text) return { ...empty, detailsText: '—' };
 
     const matches = text.split(',').map(part => DETAIL_PAIR.exec(part));
-    if (matches.some(m => !m)) return { detailPairs: [], detailsText: text };
+    if (matches.some(m => !m)) return { ...empty, detailsText: text };
+
+    const pairs: DetailPair[] = [];
+    for (const m of matches) {
+      const key = m![1];
+      const value = m![2];
+      if (HIDDEN_DETAIL_KEYS.has(key)) continue;
+      // "Deactivated…=0" counters: nothing was closed, so there's nothing to report.
+      if (key.startsWith('Deactivated') && value === '0') continue;
+
+      // An edit is logged as "Old->New" for every field, including the ones that didn't change.
+      const change = value.split('->');
+      if (change.length === 2) {
+        const [from, to] = change.map(v => v.trim());
+        if (from === to) continue;
+        pairs.push({
+          label: this.detailLabel('detailKeys', key),
+          from: this.detailLabel('detailValues', from) || '—',
+          value: this.detailLabel('detailValues', to) || '—',
+        });
+        continue;
+      }
+      pairs.push({ label: this.detailLabel('detailKeys', key), value: this.detailLabel('detailValues', value) || '—' });
+    }
+
+    // Every field was unchanged or already shown elsewhere.
+    if (!pairs.length) return { ...empty, detailsText: '—' };
 
     return {
-      detailPairs: matches.map(m => ({
-        label: this.detailLabel('detailKeys', m![1]),
-        value: this.detailLabel('detailValues', m![2]) || '-',
-      })),
+      detailPairs: pairs.slice(0, MAX_DETAILS),
+      detailsMore: Math.max(0, pairs.length - MAX_DETAILS),
+      detailsTooltip: pairs.map(p => `${p.label}: ${p.from ? `${p.from} → ` : ''}${p.value}`).join('
+'),
       detailsText: '',
     };
   }

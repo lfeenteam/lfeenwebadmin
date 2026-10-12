@@ -54,7 +54,7 @@
             @for (entry of entries; track entry.id) {
               <tr class="log-row">
                 <td class="p-24">
-                  <span class="f-s-13 f-w-800 ref-number">{{ entry.merchantName }}</span>
+                  <span class="f-s-13 f-w-800 ref-number" [class.is-empty]="entry.merchantName === '-'">{{ entry.merchantName === '-' ? '—' : entry.merchantName }}</span>
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actionType' | translate }}</span>
@@ -68,7 +68,7 @@
                     <span class="service-mini-icon d-flex align-items-center justify-content-center">
                       <i-tabler name="apps" class="icon-14"></i-tabler>
                     </span>
-                    <span class="f-s-13 f-w-700">{{ entry.serviceName }}</span>
+                    <span class="f-s-13 f-w-700 service-name-text">{{ entry.serviceName === '-' ? '—' : entry.serviceName }}</span>
                   </div>
                 </td>
                 <td class="p-24">
@@ -85,14 +85,25 @@
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.details' | translate }}</span>
                   @if (entry.detailPairs.length) {
-                    <div class="detail-pairs">
+                    <ul class="detail-list">
                       @for (pair of entry.detailPairs; track $index) {
-                        <span class="detail-pair">
+                        <li>
                           <span class="detail-key">{{ pair.label }}</span>
+                          @if (pair.from) {
+                            <span class="detail-from" dir="auto">{{ pair.from }}</span>
+                            <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-12 detail-arrow"></i-tabler>
+                          }
                           <span class="detail-value" dir="auto">{{ pair.value }}</span>
-                        </span>
+                        </li>
                       }
-                    </div>
+                      @if (entry.detailsMore > 0) {
+                        <li>
+                          <span class="detail-more" [matTooltip]="entry.detailsTooltip" matTooltipClass="log-details-tooltip">
+                            {{ 'd3.subscriptionLog.moreDetails' | translate: { count: fmt(entry.detailsMore) } }}
+                          </span>
+                        </li>
+                      }
+                    </ul>
                   } @else {
                     <span class="log-details">{{ entry.detailsText }}</span>
                   }

@@ -16,6 +16,8 @@ export interface SeasonalPriceDialogData {
   periods: SubscriptionPricingPeriod[];
   /** Active tiers; empty = the service only has its default tier. */
   tiers: SubscriptionTier[];
+  /** Set when opened from a pricing row: the tier is then fixed (null = default tier). */
+  tierId?: number | null;
   currencyCode: string;
 }
 
@@ -100,7 +102,9 @@ export class SeasonalPriceDialogComponent {
     this.serverError = '';
     this.service.createSeasonalPrice({
       subscriptionServiceId: this.data.subscriptionServiceId,
-      subscriptionServiceTierId: this.tierSelection === 'default' ? null : this.tierSelection,
+      subscriptionServiceTierId: this.data.tierId !== undefined
+        ? this.data.tierId
+        : this.tierSelection === 'default' ? null : this.tierSelection,
       period: this.period,
       nameAr: this.nameAr.trim(),
       nameEn: this.nameEn.trim(),

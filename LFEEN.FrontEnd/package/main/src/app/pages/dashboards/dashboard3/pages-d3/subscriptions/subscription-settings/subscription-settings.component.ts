@@ -153,7 +153,7 @@ export class SubscriptionSettingsComponent implements OnInit {
   openCreateService(): void {
     if (!this.canManageCatalog) return;
     this.dialog.open(ServiceFormDialogComponent, {
-      width: '560px',
+      width: '760px',
       maxWidth: '94vw',
       data: { mode: 'create' } as ServiceFormDialogData,
     }).afterClosed().subscribe(created => {

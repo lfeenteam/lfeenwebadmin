@@ -1,6 +1,11 @@
 <div class="create-code-dialog" [dir]="currentDir">
 
-  <h2 class="dialog-title">{{ (isEdit ? 'd3.serviceForm.editTitle' : 'd3.serviceForm.createTitle') | translate }}</h2>
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ (isEdit ? 'd3.serviceForm.editTitle' : 'd3.serviceForm.createTitle') | translate }}</h2>
+    <button mat-icon-button type="button" class="close-btn" [disabled]="submitting" (click)="close()">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
 
   <div class="form-scroll">
 
@@ -24,13 +29,15 @@
       </div>
     </div>
 
-    <div class="form-field">
-      <label class="field-label" for="sf-desc-ar">{{ 'd3.serviceForm.descriptionAr' | translate }}</label>
-      <textarea id="sf-desc-ar" class="field-input field-textarea" rows="2" [(ngModel)]="descriptionAr"></textarea>
-    </div>
-    <div class="form-field">
-      <label class="field-label" for="sf-desc-en">{{ 'd3.serviceForm.descriptionEn' | translate }}</label>
-      <textarea id="sf-desc-en" class="field-input field-textarea" rows="2" dir="ltr" [(ngModel)]="descriptionEn"></textarea>
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="sf-desc-ar">{{ 'd3.serviceForm.descriptionAr' | translate }}</label>
+        <textarea id="sf-desc-ar" class="field-input field-textarea" rows="2" [(ngModel)]="descriptionAr"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="sf-desc-en">{{ 'd3.serviceForm.descriptionEn' | translate }}</label>
+        <textarea id="sf-desc-en" class="field-input field-textarea" rows="2" dir="ltr" [(ngModel)]="descriptionEn"></textarea>
+      </div>
     </div>
 
     <div class="form-grid">

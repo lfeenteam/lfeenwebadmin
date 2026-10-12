@@ -125,8 +125,16 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return subscriptionLineTotal(item);
   }
 
+  /** Logo URLs that failed to load — the service icon is shown instead of a broken image. */
+  private readonly brokenLogos = new Set<string>();
+
   logoOf(item: SubscriptionOrderItem): string | null {
-    return this.logoByServiceId.get(item.subscriptionServiceId) ?? null;
+    const url = this.logoByServiceId.get(item.subscriptionServiceId) ?? null;
+    return url && !this.brokenLogos.has(url) ? url : null;
+  }
+
+  onLogoError(url: string): void {
+    this.brokenLogos.add(url);
   }
 
   iconOf(item: SubscriptionOrderItem): string {

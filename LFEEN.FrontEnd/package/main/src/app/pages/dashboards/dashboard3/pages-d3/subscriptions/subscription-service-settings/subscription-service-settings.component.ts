@@ -9,7 +9,6 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import {
-  IntegrationFieldType,
   ServiceSubscriber,
   SetSubscriptionPriceRequest,
   SubscriptionCatalogItem,
@@ -18,8 +17,9 @@ import {
   SubscriptionPricingPeriod,
   SubscriptionServiceFeature,
   SubscriptionTier,
-  SubscriptionUsageUnitType,
 } from '../interfaces/subscription.model';
+import { PricingRowDialogComponent, PricingRowDialogData } from '../pricing-row-dialog/pricing-row-dialog.component';
+import { IntegrationFieldDialogComponent, IntegrationFieldDialogData } from '../integration-field-dialog/integration-field-dialog.component';
 import { ServiceFormDialogComponent, ServiceFormDialogData } from '../service-form-dialog/service-form-dialog.component';
 import { SeasonalPriceDialogComponent, SeasonalPriceDialogData } from '../seasonal-price-dialog/seasonal-price-dialog.component';
 import { formatLocalizedNumber, getVisiblePages } from 'src/app/utils/pagination.util';
@@ -56,7 +56,13 @@ interface SubscriberRow {
 
 interface PricingRow {
   id: number;
+  /** Tier name from the pricing row itself; empty when the API doesn't send one (see pricingRowName). */
   name: string;
+  /** Period + subscription fee, shown under the name. */
+  periodLabel: string;
+  price: number;
+  period: SubscriptionPricingPeriod | null;
+  tierId: number | null;
   setupFee: number | null;
   /** Flat amount per unit (PerUnit) — null when the row has no per-unit usage fee. */
   usageAmount: number | null;
@@ -68,7 +74,6 @@ interface PricingRow {
   seasonalUntil: string;
 }
 
-const FIELD_KEY_PATTERN = /^[A-Za-z0-9_]+$/;
 const TIER_KEY_PATTERN = /^[A-Za-z0-9_-]+$/;
 const SUBSCRIBERS_PAGE_SIZE = 10;
 const BILLING_PERIODS: SubscriptionPricingPeriod[] = ['Monthly', 'Yearly'];
@@ -94,12 +99,13 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   serviceIcon = 'settings';
   loading = true;
   saving = false;
+  /** The extras that aren't in the page design (type, activation, details, features, tiers) start collapsed. */
+  advancedOpen = false;
 
   catalogItem: SubscriptionCatalogItem | null = null;
   /** Active pricing rows of this service only. */
   private activePricing: SubscriptionPricingItem[] = [];
 
-  readonly fieldTypes: IntegrationFieldType[] = ['Text', 'Secret', 'Url'];
 
   ngOnInit(): void {
     this.serviceId = this.route.snapshot.paramMap.get('id') ?? '';
@@ -230,15 +236,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   // ── Integration fields (GET/POST /integration-fields, deactivate) ──
   integrationFields: SubscriptionIntegrationField[] = [];
   integrationLoading = false;
-  addingField = false;
-  savingField = false;
   deactivatingFieldId: number | null = null;
-  newField = this.emptyField();
-
-  private emptyField() {
-    return { key: '', labelAr: '', labelEn: '', fieldType: 'Text' as IntegrationFieldType, isRequired: true };
-  }
-
   fieldLabel(field: SubscriptionIntegrationField): string {
     return (this.currentLang === 'en' ? field.labelEn : field.labelAr) || field.key;
   }
@@ -247,16 +245,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     const key = `d3.subscriptions.serviceSettings.integration.types.${type}`;
     const translated = this.translate.instant(key);
     return translated === key ? type : translated;
-  }
-
-  get newFieldKeyInvalid(): boolean {
-    const key = this.newField.key.trim();
-    return !!key && (!FIELD_KEY_PATTERN.test(key) || this.integrationFields.some(f => f.key === key));
-  }
-
-  get canSaveField(): boolean {
-    const f = this.newField;
-    return !this.savingField && !!f.key.trim() && !this.newFieldKeyInvalid && !!f.labelAr.trim() && !!f.labelEn.trim();
   }
 
   private loadIntegrationFields(): void {
@@ -280,36 +268,22 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       });
   }
 
+  // Opens the add dialog, which asks for the names, key, type and — explicitly — whether the
+  // field is required or optional (POST /integration-fields).
   startAddField(): void {
-    this.newField = this.emptyField();
-    this.addingField = true;
-  }
-
-  cancelAddField(): void {
-    if (this.savingField) return;
-    this.addingField = false;
-  }
-
-  saveNewField(): void {
-    if (!this.catalogItem || !this.canSaveField) return;
-    this.savingField = true;
-    this.subscriptionsService.createIntegrationField({
-      subscriptionServiceId: this.catalogItem.id,
-      key: this.newField.key.trim(),
-      labelAr: this.newField.labelAr.trim(),
-      labelEn: this.newField.labelEn.trim(),
-      fieldType: this.newField.fieldType,
-      isRequired: this.newField.isRequired,
-    }).subscribe({
-      next: created => {
-        this.savingField = false;
-        this.addingField = false;
-        this.integrationFields = [...this.integrationFields, created];
-      },
-      error: err => {
-        this.savingField = false;
-        this.toastr.error(resolveSubscriptionError(err, this.translate));
-      },
+    const item = this.catalogItem;
+    if (!item) return;
+    this.dialog.open(IntegrationFieldDialogComponent, {
+      width: '520px',
+      maxWidth: '94vw',
+      data: {
+        subscriptionServiceId: item.id,
+        existingKeys: this.integrationFields.map(f => f.key),
+      } as IntegrationFieldDialogData,
+    }).afterClosed().subscribe((created?: SubscriptionIntegrationField) => {
+      if (!created) return;
+      this.integrationFields = [...this.integrationFields, created];
+      this.toastr.success(this.translate.instant('d3.integrationField.saved'));
     });
   }
 
@@ -408,7 +382,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       const usage = typeof p.usageUnitPrice === 'number' ? p.usageUnitPrice : null;
       return {
         id: p.id,
-        name: [p.tierName?.trim(), p.periodLabel?.trim() || p.period].filter(Boolean).join(' · ') || '-',
+        name: p.tierName?.trim() || '',
+        periodLabel: p.periodLabel?.trim() || p.period || '',
+        price: p.price,
+        period: p.period,
+        tierId: p.subscriptionServiceTierId ?? null,
         setupFee: typeof p.setupFee === 'number' ? p.setupFee : null,
         usageAmount: p.usageUnitType === 'PerUnit' ? usage : null,
         usagePercent: p.usageUnitType === 'PercentageOfValue' && usage !== null ? usage * 100 : null,
@@ -423,14 +401,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     this.annualPrice = this.activeRow('Yearly')?.price ?? null;
     const anyRow = this.activeRow('Monthly') ?? this.activeRow('Yearly');
     this.setupFee = typeof anyRow?.setupFee === 'number' ? anyRow.setupFee : null;
-
-    // Usage fee: one setting applied to both periods' rows, like the setup fee.
-    const type = anyRow?.usageUnitType;
-    this.usageUnitType = type === 'PerUnit' || type === 'PercentageOfValue' ? type : 'None';
-    const unit = typeof anyRow?.usageUnitPrice === 'number' ? anyRow.usageUnitPrice : null;
-    // PercentageOfValue is stored as a rate (0.025) and edited as a percent (2.5).
-    this.usageUnitPrice = unit === null ? null : this.usageUnitType === 'PercentageOfValue' ? +(unit * 100).toFixed(4) : unit;
-    this.usageMaxFeeAmount = typeof anyRow?.usageMaxFeeAmount === 'number' ? anyRow.usageMaxFeeAmount : null;
   }
 
   // Most services have a single (default) tier, so there's one active row per period. With
@@ -446,35 +416,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   annualPrice: number | null = null;
   /** One-time setup fee, applied to both periods' rows. */
   setupFee: number | null = null;
-
-  // ── Usage fee (metered, debited from the merchant's wallet — never goes through review) ──
-  usageUnitType: SubscriptionUsageUnitType = 'None';
-  /** PerUnit: SAR per unit. PercentageOfValue: a percent (2.5 = 2.5%). */
-  usageUnitPrice: number | null = null;
-  /** Worst case reserved from the wallet; required for PercentageOfValue. */
-  usageMaxFeeAmount: number | null = null;
-  readonly usageUnitTypes: SubscriptionUsageUnitType[] = ['None', 'PerUnit', 'PercentageOfValue'];
-
-  get hasUsageFee(): boolean {
-    return this.usageUnitType !== 'None';
-  }
-
-  /** The value POST /pricing expects: a rate for PercentageOfValue, an amount for PerUnit. */
-  private get usageUnitPriceForApi(): number | null {
-    if (this.usageUnitPrice === null) return null;
-    return this.usageUnitType === 'PercentageOfValue' ? +(this.usageUnitPrice / 100).toFixed(6) : this.usageUnitPrice;
-  }
-
-  get usageError(): string | null {
-    if (!this.isPaidService || !this.hasUsageFee) return null;
-    const v = this.usageUnitPrice;
-    if (v === null || !(v > 0)) return 'd3.subscriptions.serviceSettings.usage.errors.unitPrice';
-    if (this.usageUnitType === 'PercentageOfValue') {
-      if (v > 100) return 'd3.discountCodes.create.errors.percentMax';
-      if (this.usageMaxFeeAmount === null || !(this.usageMaxFeeAmount > 0)) return 'd3.subscriptions.serviceSettings.usage.errors.cap';
-    }
-    return null;
-  }
 
   // ── VAT (catalog isPriceVatInclusive) ───────────────────────
   vatIncluded = false;
@@ -501,13 +442,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       if (price === null) continue;
 
       const row = this.activeRow(period);
-      const usageType = this.usageUnitType;
-      const usageUnit = this.hasUsageFee ? this.usageUnitPriceForApi : null;
-      const usageCap = this.usageUnitType === 'PercentageOfValue' ? this.usageMaxFeeAmount : null;
-      const unchanged = row && row.price === price && (row.setupFee ?? 0) === setupFee
-        && (row.usageUnitType ?? 'None') === usageType
-        && (row.usageUnitPrice ?? null) === usageUnit
-        && (row.usageMaxFeeAmount ?? null) === usageCap;
+      const unchanged = row && row.price === price && (row.setupFee ?? 0) === setupFee;
       if (unchanged) continue;
 
       // POST /pricing replaces the active row, so its usage fee and tier are carried over.
@@ -519,10 +454,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         setupFee,
         currencyCode: row?.currencyCode ?? item.currencyCode ?? 'SAR',
       };
-      if (this.hasUsageFee) {
-        body.usageUnitType = usageType;
-        body.usageUnitPrice = usageUnit;
-        body.usageMaxFeeAmount = usageCap;
+      // The usage fee is edited from the pricing table's dialog; here it's carried over as-is.
+      if (row?.usageUnitType && row.usageUnitType !== 'None') {
+        body.usageUnitType = row.usageUnitType;
+        body.usageUnitPrice = row.usageUnitPrice ?? null;
+        body.usageMaxFeeAmount = row.usageMaxFeeAmount ?? null;
       }
       calls.push(this.subscriptionsService.setPricing(body));
     }
@@ -563,10 +499,15 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   // A paid service's price must be above zero — except when it charges a usage fee instead,
   // where a 0 subscription fee is allowed (rule 6 of the free-services guide).
   get pricesInvalid(): boolean {
-    const recurringInvalid = [this.monthlyPrice, this.annualPrice]
-      .some(v => v !== null && !(this.hasUsageFee ? v >= 0 : v > 0));
+    const allowsZero = (period: SubscriptionPricingPeriod) => {
+      const type = this.activeRow(period)?.usageUnitType;
+      return !!type && type !== 'None';
+    };
+    const invalid = (v: number | null, period: SubscriptionPricingPeriod) =>
+      v !== null && !(allowsZero(period) ? v >= 0 : v > 0);
+    const recurringInvalid = invalid(this.monthlyPrice, 'Monthly') || invalid(this.annualPrice, 'Yearly');
     const setupInvalid = this.setupFee !== null && !(this.setupFee >= 0);
-    return this.isPaidService && (recurringInvalid || setupInvalid || !!this.usageError);
+    return this.isPaidService && (recurringInvalid || setupInvalid);
   }
 
   // ── Service details (name, description, logo, category, order, price floors) ──
@@ -574,7 +515,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     const item = this.catalogItem;
     if (!item) return;
     this.dialog.open(ServiceFormDialogComponent, {
-      width: '560px',
+      width: '760px',
       maxWidth: '94vw',
       data: { mode: 'edit', item } as ServiceFormDialogData,
     }).afterClosed().subscribe(saved => {
@@ -751,25 +692,71 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     });
   }
 
+  // ── Pricing table (search + "add operation price") ──────────
+  pricingSearch = '';
+
+  get filteredPricingRows(): PricingRow[] {
+    const q = this.pricingSearch.trim().toLowerCase();
+    if (!q) return this.pricingRows;
+    return this.pricingRows.filter(r => `${this.pricingRowName(r)} ${r.periodLabel}`.toLowerCase().includes(q));
+  }
+
+  // Resolved at render time: the tiers list loads separately from the pricing rows.
+  pricingRowName(row: PricingRow): string {
+    return row.name || this.tierNameById(row.tierId);
+  }
+
+  private tierNameById(id: number | null): string {
+    const tier = id === null ? this.tiers.find(t => t.isDefault) : this.tiers.find(t => t.id === id);
+    return tier ? this.tierName(tier) : this.translate.instant('d3.seasonalPrice.defaultTier');
+  }
+
+  /** Full POST /pricing row: subscription fee, setup fee and usage (operation) fee for a tier + period. */
+  addPricingRow(): void {
+    const item = this.catalogItem;
+    if (!item) return;
+    this.dialog.open(PricingRowDialogComponent, {
+      width: '520px',
+      maxWidth: '94vw',
+      data: {
+        subscriptionServiceId: item.id,
+        tiers: this.activeTiers,
+        activePricing: this.activePricing,
+        currencyCode: item.currencyCode ?? 'SAR',
+        minimumMonthlyPrice: item.minimumMonthlyPrice ?? null,
+        minimumYearlyPrice: item.minimumYearlyPrice ?? null,
+      } as PricingRowDialogData,
+    }).afterClosed().subscribe(saved => {
+      if (!saved) return;
+      this.toastr.success(this.translate.instant('d3.pricingRow.saved'));
+      this.load();
+    });
+  }
+
+  // ── Free trial display (the default tier's trialDays; tiers have no update endpoint) ──
+  readonly trialPresets = [7, 14, 30];
+
+  /** The design's three durations, plus the current one when it isn't one of them. */
+  get trialOptions(): number[] {
+    const d = this.trialDays;
+    return d > 0 && !this.trialPresets.includes(d) ? [...this.trialPresets, d].sort((a, b) => a - b) : this.trialPresets;
+  }
+
   // ── Seasonal prices (POST /seasonal-prices, deactivate) ─────
   deactivatingSeasonalId: number | null = null;
 
-  /** Periods with an active price — a seasonal price can only replace one of those. */
-  get seasonalPeriods(): SubscriptionPricingPeriod[] {
-    const periods = this.activePricing.map(p => p.period).filter((p): p is SubscriptionPricingPeriod => !!p);
-    return [...new Set(periods)];
-  }
-
-  addSeasonalPrice(): void {
+  // Opened from a pricing row, so the seasonal price targets exactly that tier + period.
+  addSeasonalPrice(row: PricingRow): void {
     const item = this.catalogItem;
-    if (!item || !this.seasonalPeriods.length) return;
+    if (!item || !row.period) return;
     this.dialog.open(SeasonalPriceDialogComponent, {
       width: '520px',
       maxWidth: '94vw',
       data: {
         subscriptionServiceId: item.id,
-        periods: this.seasonalPeriods,
-        tiers: this.activeTiers,
+        periods: [row.period],
+        tiers: [],
+        tierId: row.tierId,
         currencyCode: item.currencyCode ?? 'SAR',
       } as SeasonalPriceDialogData,
     }).afterClosed().subscribe(created => {

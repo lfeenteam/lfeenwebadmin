@@ -30,7 +30,7 @@
           <div class="item-head">
             <span class="item-logo">
               @if (logoOf(item); as logo) {
-                <img [src]="logo" [alt]="item.serviceName" />
+                <img [src]="logo" [alt]="item.serviceName" (error)="onLogoError(logo)" />
               } @else {
                 <i-tabler [name]="iconOf(item)" class="icon-18"></i-tabler>
               }
