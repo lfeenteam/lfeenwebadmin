@@ -14,7 +14,7 @@
       }
     </section>
   } @else {
-    <app-dashboard-empty [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+    <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
   }
 } @else {
 <section class="buildings-grid" [class.list-view]="viewMode === 'list'">
@@ -43,7 +43,7 @@
   <!-- ══ Empty state for published / rejected tabs ══ -->
   @if ((activeTab === 'published' || activeTab === 'rejected' || activeTab === 'draft') && buildings.length === 0) {
     <div class="empty-state-span">
-      <app-dashboard-empty [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+      <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
     </div>
   }
 
@@ -109,7 +109,7 @@
 
 <!-- ══ Empty state for review tabs ══ -->
 @if ((activeTab === 'new' || activeTab === 'underReview' || activeTab === 'pendingChanges') && buildings.length === 0) {
-  <app-dashboard-empty
+  <app-dashboard-empty icon="home"
     [titleKey]="emptyTitleKey"
     [descKey]="emptyDescKey">
   </app-dashboard-empty>

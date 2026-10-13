@@ -15,12 +15,12 @@
       </div>
       <span class="es-stat-value">
         @if (summary) {
-          {{ fmt(summary.totalSales) }}
+          {{ fmtAmount(summary.totalSalesSar) }}
           <img [src]="currencyIconSrc" alt="" class="es-riyal" [class.is-text-currency]="currentLang === 'en'">
         } @else { - }
       </span>
       <span class="es-stat-note">
-        @if (summary) { {{ 'd3.esim.stats.salesGrowth' | translate:{ value: fmtSigned(summary.salesGrowthPercent) } }} }
+        @if (summary) { {{ 'd3.esim.stats.salesDelta' | translate:{ value: fmtSignedAmount(summary.salesDeltaVsLastMonthSar) } }} }
       </span>
     </div>
 
@@ -31,7 +31,7 @@
       </div>
       <span class="es-stat-value">{{ summary ? fmt(summary.totalUsers) : '-' }}</span>
       <span class="es-stat-note">
-        @if (summary) { {{ 'd3.esim.stats.newUsers' | translate:{ value: fmt(summary.newUsers) } }} }
+        @if (summary) { {{ 'd3.esim.stats.newUsers' | translate:{ value: fmt(summary.newUsersThisMonth) } }} }
       </span>
     </div>
 
@@ -40,9 +40,9 @@
         <span class="es-stat-label">{{ 'd3.esim.stats.activeSims' | translate }}</span>
         <span class="es-stat-icon tone-green"><i-tabler name="antenna-bars-5" class="icon-16"></i-tabler></span>
       </div>
-      <span class="es-stat-value">{{ summary ? fmt(summary.activeSims) : '-' }}</span>
+      <span class="es-stat-value">{{ summary ? fmt(summary.activeEsims) : '-' }}</span>
       <span class="es-stat-note">
-        @if (summary) { {{ 'd3.esim.stats.activeShare' | translate:{ value: fmt(activePercent) } }} }
+        @if (summary) { {{ 'd3.esim.stats.activeShare' | translate:{ value: fmt(summary.activePercentage) } }} }
       </span>
     </div>
 
@@ -51,9 +51,9 @@
         <span class="es-stat-label">{{ 'd3.esim.stats.totalSims' | translate }}</span>
         <span class="es-stat-icon tone-dark"><i-tabler name="device-sim" class="icon-16"></i-tabler></span>
       </div>
-      <span class="es-stat-value">{{ summary ? fmt(summary.totalSims) : '-' }}</span>
+      <span class="es-stat-value">{{ summary ? fmt(summary.totalEsims) : '-' }}</span>
       <span class="es-stat-note">
-        @if (summary) { {{ 'd3.esim.stats.newSims' | translate:{ value: fmtSigned(summary.newSimsThisMonth) } }} }
+        @if (summary) { {{ 'd3.esim.stats.newSims' | translate:{ value: fmtSigned(summary.newEsimsThisMonth) } }} }
       </span>
     </div>
   </div>
@@ -119,10 +119,7 @@
                     <div class="es-user-copy">
                       <strong>{{ row.userName }}</strong>
                       <small>{{ row.email }}</small>
-                      <small>
-                        <span dir="ltr">{{ row.phone }}</span>
-                        · {{ 'd3.esim.table.purchased' | translate }} {{ fmtDate(row.purchasedAt) }}
-                      </small>
+                      <small>{{ 'd3.esim.table.purchased' | translate }} {{ fmtDate(row.purchasedAt) }}</small>
                     </div>
                   </div>
                 </td>
@@ -136,9 +133,7 @@
                   </div>
                 </td>
                 <td>
-                  <span class="es-plan-pill" [class.is-unlimited]="row.planType === 'Unlimited'">
-                    {{ 'd3.esim.planType.' + row.planType.toLowerCase() | translate }}
-                  </span>
+                  <span class="es-plan-pill" [class.is-unlimited]="row.isUnlimited">{{ row.planLabel }}</span>
                 </td>
                 <td>
                   <div class="es-coverage">
@@ -151,8 +146,8 @@
                 </td>
                 <td>
                   <div class="es-stack">
-                    <strong>{{ 'd3.esim.plan.data' | translate:{ value: fmt(row.dataGb) } }}</strong>
-                    <small>{{ validityKey(row.validityDays) | translate:{ count: fmt(row.validityDays) } }}</small>
+                    <strong>{{ row.volumeText }}</strong>
+                    <small>{{ durationKey(row) | translate:{ count: fmt(row.duration), unit: row.durationUnit } }}</small>
                   </div>
                 </td>
                 <td>
@@ -163,14 +158,14 @@
                 </td>
                 <td>
                   <div class="es-status-cell">
-                    <span class="es-status" [class]="'es-status status-' + row.status.toLowerCase()">
-                      {{ 'd3.esim.status.' + row.status.toLowerCase() | translate }}
+                    <span class="es-status" [class]="'es-status status-' + statusKey(row.status)">
+                      {{ 'd3.esim.status.' + statusKey(row.status) | translate }}
                       <span class="dot"></span>
                     </span>
-                    <small>
-                      {{ 'd3.esim.dates.activation' | translate }}:
-                      {{ row.activatedAt ? fmtDate(row.activatedAt) : ('d3.esim.dates.activationSoon' | translate) }}
-                    </small>
+                    <!-- The list has no activation date; it's only shown in the detail drawer. -->
+                    @if (row.status === 'PendingActivation') {
+                      <small>{{ 'd3.esim.dates.activation' | translate }}: {{ 'd3.esim.dates.activationSoon' | translate }}</small>
+                    }
                     <small>
                       {{ 'd3.esim.dates.expiry' | translate }}:
                       {{ row.expiresAt ? fmtDate(row.expiresAt) : ('d3.esim.dates.afterActivation' | translate) }}
@@ -179,8 +174,12 @@
                 </td>
                 <td class="es-col-action">
                   <button type="button" class="es-action-btn" [matMenuTriggerFor]="rowMenu"
-                    [attr.aria-label]="'d3.esim.table.action' | translate">
-                    <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                    [disabled]="actingId === row.id" [attr.aria-label]="'d3.esim.table.action' | translate">
+                    @if (actingId === row.id) {
+                      <mat-spinner diameter="16"></mat-spinner>
+                    } @else {
+                      <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                    }
                   </button>
                   <mat-menu #rowMenu="matMenu">
                     <button mat-menu-item type="button" (click)="onView(row)">
@@ -189,6 +188,32 @@
                         <i-tabler name="eye" class="icon-16"></i-tabler>
                       </span>
                     </button>
+                    @if (canManageState) {
+                      @if (canSuspend(row)) {
+                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'suspend')">
+                          <span class="es-menu-item">
+                            {{ 'd3.esim.actions.suspend' | translate }}
+                            <i-tabler name="player-pause" class="icon-16"></i-tabler>
+                          </span>
+                        </button>
+                      }
+                      @if (canUnsuspend(row)) {
+                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'unsuspend')">
+                          <span class="es-menu-item">
+                            {{ 'd3.esim.actions.unsuspend' | translate }}
+                            <i-tabler name="player-play" class="icon-16"></i-tabler>
+                          </span>
+                        </button>
+                      }
+                      @if (canRevoke(row)) {
+                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'revoke')">
+                          <span class="es-menu-item is-danger">
+                            {{ 'd3.esim.actions.revoke' | translate }}
+                            <i-tabler name="ban" class="icon-16"></i-tabler>
+                          </span>
+                        </button>
+                      }
+                    }
                   </mat-menu>
                 </td>
               </tr>
@@ -196,12 +221,15 @@
               <tr>
                 <td colspan="8" class="p-0">
                   @if (loadError) {
-                    <app-dashboard-empty icon="cloud-off" titleKey="d3.esim.errors.loadTitle" descKey="d3.esim.errors.network">
+                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.esim.errors.loadTitle" descKey="d3.esim.errors.network">
                       <button type="button" class="es-retry-btn" (click)="load()">
                         <i-tabler name="refresh" class="icon-16"></i-tabler>
                         {{ 'd3.esim.errors.retry' | translate }}
                       </button>
                     </app-dashboard-empty>
+                  } @else if (hasActiveFilters || searchQuery.trim()) {
+                    <app-dashboard-empty variant="search" titleKey="d3.esim.noResults.title" descKey="d3.esim.noResults.desc"
+                      actionKey="d3.esim.noResults.clear" actionIcon="filter-off" (action)="clearFilters()"></app-dashboard-empty>
                   } @else {
                     <app-dashboard-empty icon="device-sim" titleKey="d3.esim.empty.title" descKey="d3.esim.empty.desc"></app-dashboard-empty>
                   }
@@ -233,15 +261,12 @@
               <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
             </button>
           </div>
-          <span class="es-pagination-total">
-            {{ 'd3.esim.pagination.summary' | translate:{ shown: fmt(pagedRows.length), total: fmt(totalCount) } }}
-          </span>
         </footer>
       }
     }
   </section>
 
-  <app-esim-detail-drawer [sim]="selectedSim" (closed)="selectedSim = null"></app-esim-detail-drawer>
+  <app-esim-detail-drawer [sim]="selectedSim" (closed)="onDrawerClosed()"></app-esim-detail-drawer>
 
   <app-esim-filter-dialog
     [open]="filterOpen"

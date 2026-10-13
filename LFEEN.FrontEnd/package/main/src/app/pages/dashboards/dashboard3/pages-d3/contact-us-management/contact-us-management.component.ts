@@ -9,6 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CoreService } from 'src/app/services/core.service';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
@@ -79,7 +80,8 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   closePanel(): void { this.closePreview(false); this.detailRequest?.unsubscribe(); this.detailRequest = undefined; this.detailLoading.set(false); this.selected.set(null); this.detailError.set(''); const trigger = this.drawerTrigger; this.drawerTrigger = undefined; setTimeout(() => trigger?.focus()); }
   statusKey(value: ContactUsStatus): string { return `d3.contactUs.status.${value.toLowerCase()}`; }
   formatBytes(bytes: number): string { if (!bytes) return '0 KB'; const units = ['B', 'KB', 'MB', 'GB']; const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3); return `${(bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0)} ${units[i]}`; }
-  pageEnd(): number { return Math.min(this.page() * this.pageSize, this.totalCount()); }
+  readonly visiblePages = computed(() => getVisiblePages(this.page(), this.totalPages()));
+  fmt(value: number): string { return formatLocalizedNumber(value, this.translate.currentLang); }
   showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
   isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }

@@ -31,6 +31,7 @@ interface UnitReviewPhoto {
 }
 
 interface UnitPhotoGroup {
+  key: string;
   title: string;
   icon: string;
   photos: UnitReviewPhoto[];
@@ -41,6 +42,7 @@ const GROUP_ICON_MAP: Record<string, string> = {
   Kitchen:    'chef-hat',
   LivingRoom: 'sofa',
   Bathroom:   'droplets',
+  SubRoomPrivateBathroom: 'droplets',
   Other:      'photo',
 };
 
@@ -153,6 +155,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
         // top, but as the same object (not a copy), so its decision only ever lives in the
         // group card and allPhotos doesn't double-count it.
         this.photoGroups = response.groups.map(group => ({
+          key: group.groupKey,
           title: group.groupLabel,
           icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
           photos: group.photos.map(p => this.mapPhoto(p))

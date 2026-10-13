@@ -1,6 +1,23 @@
 :host {
   display: block;
   width: 100%;
+
+  // Icon tones per variant — slate matches the D3 table palette
+  --d3-empty-icon: #45556C;
+  --d3-empty-bg: #F1F5F9;
+  --d3-empty-ring: #E2E8F0;
+}
+
+:host([data-variant='search']) {
+  --d3-empty-icon: #2563EB;
+  --d3-empty-bg: #EFF6FF;
+  --d3-empty-ring: #DBEAFE;
+}
+
+:host([data-variant='error']) {
+  --d3-empty-icon: #E11D48;
+  --d3-empty-bg: #FFF1F2;
+  --d3-empty-ring: #FFE4E6;
 }
 
 .d3-empty-state {
@@ -13,22 +30,6 @@
   font-family: 'Cairo', sans-serif;
   width: 100%;
 
-  &__art {
-    margin-bottom: 28px;
-    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.08)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.05));
-    transition: filter 0.2s ease;
-
-    &:hover {
-      filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.11)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.06));
-    }
-  }
-
-  &__svg {
-    width: 200px;
-    height: 176px;
-    display: block;
-  }
-
   &__img {
     width: 200px;
     height: 176px;
@@ -37,21 +38,30 @@
   }
 
   &__icon-wrap {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
-    background: #F5F5F3;
+    background: var(--d3-empty-bg);
+    // Two soft rings give depth without going 3D
+    box-shadow:
+      0 0 0 10px color-mix(in srgb, var(--d3-empty-bg) 55%, transparent),
+      0 0 0 11px var(--d3-empty-ring);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 28px;
+    margin: 12px 0 32px;
   }
 
   &__icon {
-    color: #B8B8B3;
+    color: var(--d3-empty-icon);
     display: flex;
+    // i-tabler's own host style pins it to 24×24, so the box must grow with the svg
+    // or the svg overflows it and sits off-centre in the circle.
+    width: 40px;
+    height: 40px;
 
     ::ng-deep svg {
+      display: block;
       width: 40px;
       height: 40px;
     }
@@ -72,5 +82,59 @@
     color: #9E9E9A;
     line-height: 1.9;
     max-width: 320px;
+  }
+
+  &__action {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    margin-top: 20px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    color: #111110;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Cairo', sans-serif;
+    transition: background 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background: #F8FAFC;
+      border-color: #D4D4CF;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #111110;
+      outline-offset: 2px;
+    }
+  }
+
+  &__action-icon {
+    display: flex;
+    width: 16px;
+    height: 16px;
+
+    ::ng-deep svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// The empty-data CTA ("Add …") is the primary action on the page
+:host([data-variant='empty']) .d3-empty-state__action {
+  background: #111110;
+  border-color: #111110;
+  color: #fff;
+
+  &:hover {
+    background: #2A2A28;
+    border-color: #2A2A28;
   }
 }

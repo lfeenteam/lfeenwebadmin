@@ -37,9 +37,9 @@
     <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
   } @else if (loadError()) {
     @if (forbidden()) {
-      <app-dashboard-empty icon="lock" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.forbidden"></app-dashboard-empty>
+      <app-dashboard-empty variant="error" icon="lock" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.forbidden"></app-dashboard-empty>
     } @else {
-      <app-dashboard-empty icon="cloud-off" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.network">
+      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.callScripts.errors.loadTitle" descKey="d3.callScripts.errors.network">
         <button type="button" class="retry-btn" (click)="load()">
           <i-tabler name="refresh" class="icon-16"></i-tabler>
           {{ 'd3.callScripts.errors.retry' | translate }}

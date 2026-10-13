@@ -176,6 +176,8 @@
   font-size: 13px;
   font-weight: 600;
   color: #45556C;
+
+  &.is-danger { color: #FB2C36; }
 }
 
 // ── List card ───────────────────────────────────────────────
@@ -441,6 +443,13 @@
     .dot { background-color: #d97706; }
   }
 
+  &.status-suspended {
+    color: #e11d48;
+    background-color: #fff1f2;
+    border: 1px solid #ffe4e6;
+    .dot { background-color: #e11d48; }
+  }
+
   &.status-expired {
     color: #6B6B67;
     background-color: #F1F5F9;
@@ -464,6 +473,7 @@
 
   &:hover { background: #F8FAFC; color: #111110; }
   &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+  &:disabled { cursor: progress; }
 }
 
 .es-retry-btn {
@@ -492,10 +502,12 @@
 .es-pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 12px;
   padding: 14px 24px;
+  // Keeps the page buttons clear of the floating chat button in the bottom corner.
+  padding-inline-end: 140px;
   border-top: 1px solid #E2E8F0;
 }
 
@@ -503,13 +515,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.es-pagination-total {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9E9E9A;
-  white-space: nowrap;
 }
 
 .es-page-btn {

@@ -136,10 +136,31 @@ $line:   #E2E8F0;
 }
 
 .br-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
   font-weight: 800;
   color: $text;
   white-space: nowrap;
+}
+
+.currency-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &.currency-icon-en {
+    width: 28px;
+    height: 12px;
+  }
 }
 
 .br-date {

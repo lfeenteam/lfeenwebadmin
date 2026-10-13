@@ -385,6 +385,13 @@ small {
     .dot { background-color: #d97706; }
   }
 
+  &.status-suspended {
+    color: #e11d48;
+    background-color: #fff1f2;
+    border: 1px solid #ffe4e6;
+    .dot { background-color: #e11d48; }
+  }
+
   &.status-expired {
     color: #6B6B67;
     background-color: #F1F5F9;

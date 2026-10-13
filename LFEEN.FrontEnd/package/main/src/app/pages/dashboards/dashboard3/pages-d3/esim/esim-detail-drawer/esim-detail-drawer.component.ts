@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
-import { EsimDetail, esimValidityKey } from '../interfaces/esim.model';
+import { EsimDetail, EsimTimelineKey, esimDurationKey, esimIsUnlimited, esimStatusKey } from '../interfaces/esim.model';
 
 interface JourneyStep {
   titleKey: string;
@@ -65,39 +65,55 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
     return letters.toUpperCase();
   }
 
-  /** Consumed share of the plan's data, 0–100. */
+  /** Consumed share of the plan's data, 0–100 (pre-computed by the API). */
   get usagePercent(): number {
-    const s = this.sim;
-    if (!s?.dataGb) return 0;
-    return Math.min(100, Math.max(0, Math.round((s.usedGb / s.dataGb) * 100)));
+    return Math.min(100, Math.max(0, Math.round(this.sim?.usedPercent ?? 0)));
   }
 
-  get validityKey(): string {
-    return esimValidityKey(this.sim?.validityDays ?? 0);
+  get durationKey(): string {
+    return esimDurationKey(this.sim?.totalDuration ?? 0, this.sim?.durationUnit ?? '');
   }
 
+  get statusKey(): string {
+    return this.sim ? esimStatusKey(this.sim.statusBucket) : 'expired';
+  }
+
+  get isUnlimited(): boolean {
+    return esimIsUnlimited(this.sim?.dataPlanLabel);
+  }
+
+  /** "8988240001928473" → "8988 2400 0192 8473". */
+  get formattedIccid(): string {
+    const iccid = (this.sim?.iccid ?? '').replace(/\s+/g, '');
+    return iccid ? iccid.replace(/(.{4})(?=.)/g, '$1 ') : '-';
+  }
+
+  /** The design shows 3 steps, so the API's `installed` step is skipped. */
   get journey(): JourneyStep[] {
     const s = this.sim;
     if (!s) return [];
-    const activated = !!s.activatedAtUtc;
-    const expired = s.status === 'Expired';
+    const at = (key: EsimTimelineKey) => s.timeline?.find(t => t.key === key)?.atUtc ?? null;
+    const activatedAt = at('activated') ?? s.activatedAtUtc;
+    const expiresAt = at('expires') ?? s.expiresAtUtc;
+    const activated = !!activatedAt;
+    const expired = s.statusBucket === 'Expired';
     return [
       {
         titleKey: 'd3.esim.detail.journey.purchased',
         descKey: 'd3.esim.detail.journey.purchasedDesc',
-        date: this.fmtDate(s.purchasedAtUtc),
+        date: this.fmtDate(at('purchased') ?? s.createdAtUtc),
         done: true,
       },
       {
         titleKey: activated ? 'd3.esim.detail.journey.activated' : 'd3.esim.detail.journey.activation',
         descKey: activated ? 'd3.esim.detail.journey.activatedDesc' : 'd3.esim.detail.journey.activationDesc',
-        date: this.fmtDate(s.activatedAtUtc),
+        date: this.fmtDate(activatedAt),
         done: activated,
       },
       {
         titleKey: 'd3.esim.detail.journey.expiry',
         descKey: expired ? 'd3.esim.detail.journey.expiredDesc' : 'd3.esim.detail.journey.expiryDesc',
-        date: this.fmtDate(s.expiresAtUtc),
+        date: this.fmtDate(expiresAt),
         done: expired,
       },
     ];

@@ -33,7 +33,28 @@
           </button>
         }
       </div>
-      <footer class="pagination"><span>{{ 'd3.contactUs.pagination' | translate:{from: ((page()-1)*pageSize+1), to: pageEnd(), total: totalCount()} }}</span><div><button type="button" (click)="changePage(page()-1)" [disabled]="page()===1" [attr.aria-label]="'d3.contactUs.previousPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler></button><b>{{ page() }} / {{ totalPages() }}</b><button type="button" (click)="changePage(page()+1)" [disabled]="page()===totalPages()" [attr.aria-label]="'d3.contactUs.nextPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler></button></div></footer>
+      <footer class="pagination">
+        <div class="pagination-controls">
+          <button type="button" class="page-btn" [disabled]="page() === 1" (click)="changePage(page() - 1)"
+            [attr.aria-label]="'d3.contactUs.previousPage' | translate">
+            <i-tabler [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+          </button>
+          @for (item of visiblePages(); track $index) {
+            @if (item === '...') {
+              <span class="page-ellipsis">...</span>
+            } @else {
+              <button type="button" class="page-btn" [class.active]="page() === item" [attr.aria-current]="page() === item ? 'page' : null"
+                (click)="changePage($any(item))">
+                {{ fmt($any(item)) }}
+              </button>
+            }
+          }
+          <button type="button" class="page-btn" [disabled]="page() === totalPages()" (click)="changePage(page() + 1)"
+            [attr.aria-label]="'d3.contactUs.nextPage' | translate">
+            <i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+          </button>
+        </div>
+      </footer>
     }
   </article>
 

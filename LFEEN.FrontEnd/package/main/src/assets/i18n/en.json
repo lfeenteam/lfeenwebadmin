@@ -332,6 +332,7 @@
     },
     "banRefunds": {
       "title": "Ban Refunds",
+      "currencySar": "SAR",
       "intro": "Guest refunds for bookings cancelled because a building or unit was banned. Refunds run automatically; failures land here under “Needs manual review”.",
       "refresh": "Refresh",
       "failureReasons": {
@@ -1907,6 +1908,7 @@
         "classificationCategory": {
           "MainPhoto": "Main Photo",
           "Room": "Room",
+          "SubRoom": "Sub-room",
           "Bedroom": "Bedroom",
           "Bathroom": "Bathroom",
           "Kitchen": "Kitchen",
@@ -1926,7 +1928,9 @@
         "approveBtn": "Approve Unit Photos",
         "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
         "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
-        "rejectionReasonRequired": "A rejection reason is required for every rejected photo."
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo.",
+        "pendingDeleteReview": "Pending deletion review",
+        "pendingMainPhotoReview": "Pending main photo change review"
       },
       "cancelPolicyView": {
         "pageTitle": "Cancellation Policy Review",
@@ -2533,7 +2537,7 @@
       "subtitle": "An overview of active SIMs and users' data plans",
       "stats": {
         "totalSales": "Total Sales",
-        "salesGrowth": "{{value}}% vs last month",
+        "salesDelta": "{{value}} SAR vs last month",
         "totalUsers": "Total Users",
         "newUsers": "{{value}} new users",
         "activeSims": "Active SIMs",
@@ -2541,7 +2545,7 @@
         "totalSims": "Total SIMs",
         "newSims": "{{value}} this month"
       },
-      "searchPlaceholder": "Search by user name or SIM number",
+      "searchPlaceholder": "Search by name, email or ICCID",
       "filters": {
         "title": "Filter Results",
         "subtitle": "Combine more than one filter",
@@ -2567,10 +2571,6 @@
         "regional": "Regional",
         "local": "Local"
       },
-      "planType": {
-        "limited": "Limited",
-        "unlimited": "Unlimited"
-      },
       "table": {
         "user": "User",
         "coverage": "Country / Scope",
@@ -2587,7 +2587,7 @@
         "title": "SIM Details",
         "subtitle": "SIM and current plan information",
         "close": "Close",
-        "simNumber": "SIM Number",
+        "tranNo": "Transaction No.",
         "network": "Network",
         "currentPlan": "Current Plan",
         "journey": {
@@ -2616,14 +2616,27 @@
         "planPrice": "Plan Price"
       },
       "plan": {
-        "data": "{{value}} GB",
         "days": "{{count}} days",
-        "daysFew": "{{count}} days"
+        "daysFew": "{{count}} days",
+        "months": "{{count}} months",
+        "monthsFew": "{{count}} months",
+        "other": "{{count}} {{unit}}"
       },
       "status": {
         "active": "Active",
         "pending": "Activating",
+        "suspended": "Suspended",
         "expired": "Expired"
+      },
+      "actions": {
+        "suspend": "Suspend SIM",
+        "unsuspend": "Resume SIM",
+        "revoke": "Revoke SIM permanently",
+        "revokeConfirmTitle": "Revoke this SIM permanently?",
+        "revokeConfirmMessage": "This can't be undone, and the provider won't refund the SIM.",
+        "suspendSuccess": "SIM suspended",
+        "unsuspendSuccess": "SIM resumed",
+        "revokeSuccess": "SIM revoked"
       },
       "dates": {
         "activation": "Activated",
@@ -2635,11 +2648,19 @@
         "loadTitle": "Couldn't load SIMs",
         "detail": "Couldn't load the SIM details",
         "network": "Couldn't reach the service, please try again",
+        "forbidden": "You don't have permission to do this",
+        "notFound": "SIM not found",
+        "generic": "Something went wrong, please try again",
         "retry": "Try again"
       },
       "empty": {
         "title": "No SIMs",
         "desc": "There are no SIMs matching your search"
+      },
+      "noResults": {
+        "title": "No matching results",
+        "desc": "No SIMs match your search or the selected filters. Try changing them.",
+        "clear": "Clear filters"
       },
       "pagination": {
         "summary": "Showing {{shown}} of {{total}} users",

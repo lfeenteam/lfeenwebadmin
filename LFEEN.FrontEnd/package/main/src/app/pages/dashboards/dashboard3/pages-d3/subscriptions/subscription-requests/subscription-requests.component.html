@@ -101,7 +101,7 @@
                 <tr>
                   <td colspan="6" class="p-0">
                     @if (loadError) {
-                      <app-dashboard-empty icon="alert-circle" titleKey="d3.subscriptionRequests.error.title" descKey="d3.subscriptionRequests.error.desc"></app-dashboard-empty>
+                      <app-dashboard-empty variant="error" icon="alert-circle" titleKey="d3.subscriptionRequests.error.title" descKey="d3.subscriptionRequests.error.desc"></app-dashboard-empty>
                       <div class="retry-wrap">
                         <button type="button" class="row-action-btn" (click)="reload()">{{ 'd3.subscriptionRequests.retry' | translate }}</button>
                       </div>

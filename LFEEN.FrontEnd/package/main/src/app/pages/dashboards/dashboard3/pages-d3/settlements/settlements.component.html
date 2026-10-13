@@ -166,7 +166,7 @@
             <tr>
               <td colspan="6" class="p-0">
                 @if (loadError) {
-                  <app-dashboard-empty icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
+                  <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
                     <button type="button" class="retry-btn" (click)="load()">
                       <i-tabler name="refresh" class="icon-16"></i-tabler>
                       {{ 'd3.settlements.errors.retry' | translate }}

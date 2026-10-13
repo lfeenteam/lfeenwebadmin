@@ -54,7 +54,17 @@
               </td>
               <td>
                 <span class="br-label">{{ 'd3.banRefunds.table.amount' | translate }}</span>
-                <span class="br-amount">{{ fmtAmount(row) }}</span>
+                <span class="br-amount">
+                  {{ fmtAmountValue(row) }}
+                  @if (isSar(row)) {
+                    <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
+                      [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                      role="img" [attr.aria-label]="'d3.banRefunds.currencySar' | translate"></span>
+                  } @else {
+                    {{ row.currencyCode }}
+                  }
+                </span>
               </td>
               <td>
                 <span class="br-label">{{ 'd3.banRefunds.table.attempts' | translate }}</span>
@@ -110,7 +120,7 @@
             <tr>
               <td colspan="7" class="br-empty-cell">
                 @if (loadError) {
-                  <app-dashboard-empty icon="cloud-off" titleKey="d3.banRefunds.errors.loadTitle" descKey="d3.banRefunds.errors.loadDesc">
+                  <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.banRefunds.errors.loadTitle" descKey="d3.banRefunds.errors.loadDesc">
                     <button type="button" class="br-btn br-btn--retry br-empty-retry" (click)="load()">
                       <i-tabler name="refresh" class="br-btn-icon"></i-tabler>
                       {{ 'd3.banRefunds.refresh' | translate }}

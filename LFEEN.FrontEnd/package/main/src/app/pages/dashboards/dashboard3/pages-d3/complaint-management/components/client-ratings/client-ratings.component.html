@@ -177,9 +177,9 @@
                 <tr>
                   <td colspan="7" class="cr-empty-cell">
                     @if (forbidden) {
-                      <app-dashboard-empty icon="lock" titleKey="d3.complaints.ratings.forbidden.title" descKey="d3.complaints.ratings.forbidden.desc"></app-dashboard-empty>
+                      <app-dashboard-empty variant="error" icon="lock" titleKey="d3.complaints.ratings.forbidden.title" descKey="d3.complaints.ratings.forbidden.desc"></app-dashboard-empty>
                     } @else if (loadError) {
-                      <app-dashboard-empty icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
+                      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
                         <button type="button" class="cr-btn cr-empty-retry" (click)="reload()">
                           <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
                           {{ 'd3.complaints.ratings.error.retry' | translate }}
@@ -276,7 +276,7 @@
                 <tr>
                   <td colspan="4" class="cr-empty-cell">
                     @if (agentsError) {
-                      <app-dashboard-empty icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
+                      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.complaints.ratings.error.title" descKey="d3.complaints.ratings.error.desc">
                         <button type="button" class="cr-btn cr-empty-retry" (click)="reload()">
                           <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
                           {{ 'd3.complaints.ratings.error.retry' | translate }}

@@ -62,14 +62,14 @@ export class BanRefundsComponent implements OnInit {
   readonly canManage = computed(() => this.login.permissions().some(p => p.toLowerCase() === 'banrefunds.manage'));
 
   readonly tabs: { id: RefundTab; labelKey: string }[] = [
+    { id: 'All',          labelKey: 'd3.banRefunds.tabs.all'            },
     { id: 'ManualReview', labelKey: 'd3.banRefunds.status.manualReview' },
     { id: 'Pending',      labelKey: 'd3.banRefunds.status.pending'      },
     { id: 'Succeeded',    labelKey: 'd3.banRefunds.status.succeeded'    },
     { id: 'Resolved',     labelKey: 'd3.banRefunds.status.resolved'     },
-    { id: 'All',          labelKey: 'd3.banRefunds.tabs.all'            },
   ];
 
-  activeTab: RefundTab = 'ManualReview';
+  activeTab: RefundTab = 'All';
   rows: ListingBanRefund[] = [];
   currentPage = 1;
   totalCount = 0;
@@ -231,11 +231,33 @@ export class BanRefundsComponent implements OnInit {
     return formatLocalizedNumber(n, this.translate.currentLang);
   }
 
-  fmtAmount(row: ListingBanRefund): string {
-    const amount = row.amount.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
+  /** Number only — the table renders the riyal symbol next to it (see `isSar`). */
+  fmtAmountValue(row: ListingBanRefund): string {
+    return row.amount.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
-    return row.currencyCode ? `${amount} ${row.currencyCode}` : amount;
+  }
+
+  /** Plain-text amount for places that can't show the icon (e.g. the resolve dialog copy). */
+  fmtAmount(row: ListingBanRefund): string {
+    const amount = this.fmtAmountValue(row);
+    if (!row.currencyCode) return amount;
+    const currency = this.isSar(row) ? this.translate.instant('d3.banRefunds.currencySar') : row.currencyCode;
+    return `${amount} ${currency}`;
+  }
+
+  isSar(row: ListingBanRefund): boolean {
+    return !row.currencyCode || row.currencyCode.toUpperCase() === 'SAR';
+  }
+
+  get currencyIconSrc(): string {
+    return this.translate.currentLang === 'en'
+      ? './assets/images/logos/saudi-riyal-en.svg'
+      : './assets/images/logos/saudi-riyal.svg';
+  }
+
+  get currencyIconEn(): boolean {
+    return this.translate.currentLang === 'en';
   }
 }

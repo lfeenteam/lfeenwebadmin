@@ -334,6 +334,7 @@
     },
     "banRefunds": {
       "title": "استردادات الحظر",
+      "currencySar": "ر.س",
       "intro": "المبالغ المستردة للضيوف عن الحجوزات التي أُلغيت بسبب حظر مبنى أو وحدة. الاسترداد يتم تلقائيًا، وما يفشل يظهر هنا في «يحتاج مراجعة يدوية».",
       "refresh": "تحديث",
       "failureReasons": {
@@ -1729,7 +1730,7 @@
       "subtitle": "نظرة شاملة على الشرائح النشطة وباقات الإنترنت الخاصة بالمستخدمين",
       "stats": {
         "totalSales": "إجمالي المبيعات",
-        "salesGrowth": "{{value}}% عن الشهر الماضي",
+        "salesDelta": "{{value}} ر.س عن الشهر الماضي",
         "totalUsers": "إجمالي المستخدمين",
         "newUsers": "{{value}} مستخدم جديد",
         "activeSims": "الشرائح النشطة",
@@ -1737,7 +1738,7 @@
         "totalSims": "إجمالي الشرائح",
         "newSims": "{{value}} هذا الشهر"
       },
-      "searchPlaceholder": "بحث باسم المستخدم او رقم الشريحة",
+      "searchPlaceholder": "بحث بالاسم، البريد أو رقم ICCID",
       "filters": {
         "title": "تصفية النتائج",
         "subtitle": "اختر أكثر من نوع للفلترة",
@@ -1763,10 +1764,6 @@
         "regional": "إقليمي",
         "local": "محلي"
       },
-      "planType": {
-        "limited": "محدودة",
-        "unlimited": "غير محدودة"
-      },
       "table": {
         "user": "المستخدم",
         "coverage": "الدولة / النطاق",
@@ -1783,7 +1780,7 @@
         "title": "تفاصيل الشريحة",
         "subtitle": "بيانات الشريحة والباقة الحالية",
         "close": "إغلاق",
-        "simNumber": "رقم الشريحة",
+        "tranNo": "رقم العملية",
         "network": "الشبكة",
         "currentPlan": "الباقة الحالية",
         "journey": {
@@ -1812,14 +1809,27 @@
         "planPrice": "قيمة الباقة"
       },
       "plan": {
-        "data": "{{value}} جيجا",
         "days": "{{count}} يوم",
-        "daysFew": "{{count}} أيام"
+        "daysFew": "{{count}} أيام",
+        "months": "{{count}} شهر",
+        "monthsFew": "{{count}} أشهر",
+        "other": "{{count}} {{unit}}"
       },
       "status": {
         "active": "نشطة",
         "pending": "قيد التفعيل",
+        "suspended": "موقوفة",
         "expired": "منتهية"
+      },
+      "actions": {
+        "suspend": "إيقاف الشريحة",
+        "unsuspend": "إعادة تشغيل الشريحة",
+        "revoke": "إلغاء الشريحة نهائيًا",
+        "revokeConfirmTitle": "إلغاء الشريحة نهائيًا؟",
+        "revokeConfirmMessage": "لا يمكن التراجع عن هذا الإجراء، ولن يتم استرداد قيمة الشريحة من المزوّد.",
+        "suspendSuccess": "تم إيقاف الشريحة",
+        "unsuspendSuccess": "تمت إعادة تشغيل الشريحة",
+        "revokeSuccess": "تم إلغاء الشريحة"
       },
       "dates": {
         "activation": "التفعيل",
@@ -1831,11 +1841,19 @@
         "loadTitle": "تعذّر تحميل الشرائح",
         "detail": "تعذّر تحميل تفاصيل الشريحة",
         "network": "تعذّر الاتصال بالخدمة، حاول مرة أخرى",
+        "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء",
+        "notFound": "لم يتم العثور على الشريحة",
+        "generic": "حدث خطأ غير متوقع، حاول مرة أخرى",
         "retry": "إعادة المحاولة"
       },
       "empty": {
         "title": "لا توجد شرائح",
         "desc": "لا توجد شرائح مطابقة لبحثك حاليًا"
+      },
+      "noResults": {
+        "title": "لا توجد نتائج مطابقة",
+        "desc": "لا توجد شرائح مطابقة للبحث أو الفلاتر المحددة. جرّب تغييرها.",
+        "clear": "مسح الفلاتر"
       },
       "pagination": {
         "summary": "عرض {{shown}} من {{total}} مستخدمين",
@@ -3467,6 +3485,7 @@
         "classificationCategory": {
           "MainPhoto": "الصورة الرئيسية",
           "Room": "غرفة",
+          "SubRoom": "غرفة فرعية",
           "Bedroom": "غرفة نوم",
           "Bathroom": "حمام",
           "Kitchen": "مطبخ",
@@ -3486,7 +3505,9 @@
         "approveBtn": "اعتماد صور الوحدة",
         "pendingPhotosWarning": "تبقّى {{count}} صورة لم تتم مراجعتها، يرجى مراجعة جميع الصور قبل الإرسال.",
         "insufficientApprovedPhotos": "يجب قبول {{required}} صور على الأقل. عدد الصور المقبولة حاليًا: {{approved}}.",
-        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة."
+        "rejectionReasonRequired": "يجب كتابة سبب الرفض لكل صورة مرفوضة.",
+        "pendingDeleteReview": "بانتظار مراجعة طلب الحذف",
+        "pendingMainPhotoReview": "بانتظار مراجعة تغيير الصورة الرئيسية"
       },
       "cancelPolicyView": {
         "pageTitle": "مراجعة سياسة الاسترجاع",
