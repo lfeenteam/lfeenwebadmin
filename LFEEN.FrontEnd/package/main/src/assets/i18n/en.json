@@ -1820,6 +1820,8 @@
           "customPrice": "Custom price",
           "adults": "Adults",
           "children": "Children",
+          "maxChildAge": "Max child age",
+          "ageYears": "{{age}} yrs",
           "basePrice": "Base Price",
           "minimumPrice": "Minimum Price",
           "status": "Status",

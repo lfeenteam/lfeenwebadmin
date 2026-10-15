@@ -452,6 +452,7 @@ export const totalGuests = (c: AdminUnitCapacity): number =>
 export interface AdminOccupancyPrice {
   adultCount: number;
   childrenCount: number;
+  maxChildAge?: number | null;
   basePricePerNight: number;
   minimumPricePerNight: number;
   isDefault: boolean;

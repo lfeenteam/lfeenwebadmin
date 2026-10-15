@@ -43,6 +43,7 @@
             <th>{{ 'd3.unitReview.pricingView.occupancy.type' | translate }}</th>
             <th>{{ 'd3.unitReview.pricingView.occupancy.adults' | translate }}</th>
             <th>{{ 'd3.unitReview.pricingView.occupancy.children' | translate }}</th>
+            <th>{{ 'd3.unitReview.pricingView.occupancy.maxChildAge' | translate }}</th>
             <th>{{ 'd3.unitReview.pricingView.occupancy.basePrice' | translate }}</th>
             <th>{{ 'd3.unitReview.pricingView.occupancy.minimumPrice' | translate }}</th>
             <th>{{ 'd3.unitReview.pricingView.occupancy.status' | translate }}</th>
@@ -63,6 +64,15 @@
               </td>
               <td><span class="occupancy-count">{{ row.adultCount }}</span></td>
               <td><span class="occupancy-count">{{ row.childrenCount }}</span></td>
+              <td>
+                <span class="occupancy-count">
+                  @if (row.childrenCount > 0 && row.maxChildAge != null) {
+                    {{ 'd3.unitReview.pricingView.occupancy.ageYears' | translate: { age: row.maxChildAge } }}
+                  } @else {
+                    -
+                  }
+                </span>
+              </td>
               <td>
                 <span class="occupancy-price">
                   {{ row.basePricePerNight }}

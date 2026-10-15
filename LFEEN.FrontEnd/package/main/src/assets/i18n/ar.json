@@ -3397,6 +3397,8 @@
           "customPrice": "سعر مخصص",
           "adults": "عدد البالغين",
           "children": "عدد الأطفال",
+          "maxChildAge": "أقصى عمر للطفل",
+          "ageYears": "{{age}} سنة",
           "basePrice": "السعر الأساسي",
           "minimumPrice": "الحد الأدنى",
           "status": "الحالة",
