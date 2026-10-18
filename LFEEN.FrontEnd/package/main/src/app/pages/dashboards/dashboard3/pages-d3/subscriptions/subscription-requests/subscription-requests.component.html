@@ -10,7 +10,7 @@
         </div>
 
         <div class="tabs-bar d-flex align-items-center gap-8" role="tablist">
-          @for (tab of tabs; track tab.value) {
+          @for (tab of visibleTabs; track tab.value) {
             <button type="button" class="tab-btn" role="tab"
               [class.active]="activeTab === tab.value"
               [attr.aria-selected]="activeTab === tab.value"
@@ -22,12 +22,6 @@
             </button>
           }
         </div>
-      </div>
-
-      <div class="tabs-bar d-flex align-items-center gap-8 p-x-24 p-b-16" role="group">
-        @for (filter of ['all', 'automatic', 'manual']; track filter) {
-          <button type="button" class="tab-btn" [class.active]="activationFilter === filter" (click)="setActivationFilter($any(filter))">{{ ('d3.subscriptionRequests.activationFilter.' + filter) | translate }}</button>
-        }
       </div>
 
       @if (loading) {
@@ -89,11 +83,15 @@
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
                     <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
-                    @if (row.order.isAutoActivated) { <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
+                    @if (row.autoTopUp) {
+                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.autoTopUp' | translate }}</span>
+                    } @else if (row.order.isAutoActivated) {
+                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span>
+                    }
                   </td>
                   <td>
                     <button type="button" class="row-action-btn" (click)="openDetail(row)">
-                      {{ (row.kind === 'underReview' ? 'd3.subscriptionRequests.reviewBtn' : 'd3.subscriptionRequests.detailsBtn') | translate }}
+                      {{ 'd3.subscriptionRequests.detailsBtn' | translate }}
                     </button>
                   </td>
                 </tr>
@@ -149,9 +147,7 @@
   <app-request-detail-drawer
     [order]="selectedOrder"
     [logoByServiceId]="logoByServiceId"
-    [canApprove]="canApprove"
-    [canReject]="canReject"
-    (closed)="onDrawerClosed($event)">
+    (closed)="selectedOrder = null">
   </app-request-detail-drawer>
 
 </div>

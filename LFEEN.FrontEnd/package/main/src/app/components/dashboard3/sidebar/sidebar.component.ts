@@ -1,12 +1,15 @@
-import { Component, computed, ElementRef, EventEmitter, HostBinding, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, EventEmitter, HostBinding, Input, Output, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
 import { LoginService } from '../../../pages/dashboards/dashboard3/services/login/login.service';
-import { AdminNotificationsStore } from '../../../pages/dashboards/dashboard3/services/admin-notifications-store.service';import { CoreService } from 'src/app/services/core.service';
+import { AdminNotificationsStore } from '../../../pages/dashboards/dashboard3/services/admin-notifications-store.service';
+import { userInitials } from '../../../pages/dashboards/dashboard3/utils/user-initials.util';
+import { CoreService } from 'src/app/services/core.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -16,7 +19,7 @@ import { filter } from 'rxjs/operators';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   @Input() collapsed = false;
 
   @Output() collapsedChange = new EventEmitter<boolean>();
@@ -36,17 +39,22 @@ export class SidebarComponent implements OnInit {
   }
 
   expandedItems: { [key: string]: boolean } = {};
-  isCeoPage = signal<boolean>(false);
+  /** Tracks router.url so the active-link lookup is computed once per navigation. */
+  private currentUrl = signal(this.router.url);
+  isCeoPage = computed(() => this.currentUrl().includes('/ceo'));
   user = this.loginService.currentUser;
+  initials = computed(() => userInitials(this.user()?.fullName));
 
   // computed: يتحدث تلقائيًا لما sidebarItems أو isCeoPage يتغيروا
   filteredNavItems = computed(() => {
     const items = this.sidebarService.sidebarItems();
-    if (this.isCeoPage()) return items;
-    return items.filter(item =>
-      item.translationKey !== 'd3.sidebar.settings' &&
-      item.key !== 'settings'
-    );
+    const visible = this.isCeoPage()
+      ? items
+      : items.filter(item =>
+          item.translationKey !== 'd3.sidebar.settings' &&
+          item.key !== 'settings'
+        );
+    return this.trimDividers(visible);
   });
 
   get currentLang(): string {
@@ -62,16 +70,41 @@ export class SidebarComponent implements OnInit {
     private el: ElementRef,
     public notificationsStore: AdminNotificationsStore
   ) {
-    this.checkIfCeoPage();
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => this.checkIfCeoPage());
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed()
+    ).subscribe(() => this.currentUrl.set(this.router.url));
+
+    // Open the group holding the current page (e.g. landing straight on a subscriptions page).
+    effect(() => {
+      const active = this.bestMatchingLink();
+      if (!active) return;
+      for (const item of this.filteredNavItems()) {
+        if (item.children?.some(child => child.link === active)) {
+          this.expandedItems[this.itemKey(item)] = true;
+        }
+      }
+    });
   }
 
-  ngOnInit(): void {}
+  /** Hiding items can leave a divider first, last, or next to another one — drop those. */
+  private trimDividers(items: NavItem[]): NavItem[] {
+    const result: NavItem[] = [];
+    for (const item of items) {
+      if (item.divider && (!result.length || result[result.length - 1].divider)) continue;
+      result.push(item);
+    }
+    if (result[result.length - 1]?.divider) result.pop();
+    return result;
+  }
 
-  private checkIfCeoPage(): void {
-    this.isCeoPage.set(this.router.url.includes('/ceo'));
+  private itemKey(item: NavItem): string {
+    return item.id || item.translationKey || '';
+  }
+
+  /** Unique @for track key — static entries have no id/key, and dividers have nothing at all. */
+  trackKey(item: NavItem, index: number): string {
+    return item.divider ? `divider-${index}` : (item.id || item.link || item.translationKey || `item-${index}`);
   }
 
   getItemTitle(item: NavItem): string {
@@ -81,8 +114,16 @@ export class SidebarComponent implements OnInit {
   toggleSubmenu(item: NavItem, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    const key = item.id || item.translationKey || '';
-    this.expandedItems[key] = !this.expandedItems[key];
+    const key = this.itemKey(item);
+
+    // A collapsed sidebar has no room for the submenu — expand it first and open the group.
+    if (this.collapsed && !this.mobileMode) {
+      this.collapsed = false;
+      this.collapsedChange.emit(false);
+      this.expandedItems[key] = true;
+    } else {
+      this.expandedItems[key] = !this.expandedItems[key];
+    }
 
     if (this.expandedItems[key]) {
       setTimeout(() => {
@@ -93,13 +134,12 @@ export class SidebarComponent implements OnInit {
   }
 
   isExpanded(item: NavItem): boolean {
-    const key = item.id || item.translationKey || '';
-    return !!this.expandedItems[key];
+    return !!this.expandedItems[this.itemKey(item)];
   }
 
   getLangPrefix(): string {
     const lang = this.router.url.split('/')[1];
-    return ['ar', 'en'].includes(lang) ? '/' + lang : '/en';
+    return ['ar', 'en'].includes(lang) ? '/' + lang : '/' + this.currentLang;
   }
 
   buildLink(link?: string): string {
@@ -112,6 +152,7 @@ export class SidebarComponent implements OnInit {
     event.preventDefault();
     if (!item.link) return;
     this.router.navigateByUrl(this.buildLink(item.link));
+    if (this.mobileMode) this.mobileClose.emit();
   }
 
   // Some review flows live at a sibling path instead of nested under their list
@@ -125,18 +166,24 @@ export class SidebarComponent implements OnInit {
 
   // When two sidebar items' links share a prefix (e.g. '/d3/roles' and
   // '/d3/roles/add'), naive prefix matching would mark both active at once.
-  // Only the longest (most specific) matching link should win.
-  private getBestMatchingLink(): string | null {
+  // Only the most specific matching link wins. Paths and query params are
+  // compared separately, so '/d3/team-management?tab=logs' wins over
+  // '/d3/team-management' only while that tab is the one open.
+  private bestMatchingLink = computed<string | null>(() => {
+    const [urlPath, urlQuery = ''] = this.currentUrl().split('?');
+    const urlParams = new URLSearchParams(urlQuery);
     let best: string | null = null;
-    let bestLen = -1;
+    let bestScore = -1;
 
-    const consider = (itemLink: string, urlToMatch: string) => {
-      const built = this.buildLink(urlToMatch);
-      if (this.router.url === built || this.router.url.startsWith(built + '/')) {
-        if (built.length > bestLen) {
-          bestLen = built.length;
-          best = itemLink;
-        }
+    const consider = (itemLink: string, linkToMatch: string) => {
+      const [linkPath, linkQuery = ''] = this.buildLink(linkToMatch).split('?');
+      if (urlPath !== linkPath && !urlPath.startsWith(linkPath + '/')) return;
+      const linkParams = [...new URLSearchParams(linkQuery)];
+      if (!linkParams.every(([k, v]) => urlParams.get(k) === v)) return;
+      const score = linkPath.length * 10 + linkParams.length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = itemLink;
       }
     };
 
@@ -153,23 +200,28 @@ export class SidebarComponent implements OnInit {
 
     walk(this.filteredNavItems());
     return best;
-  }
+  });
 
   isActive(item: NavItem): boolean {
     if (!item.link) return false;
-    return item.link === this.getBestMatchingLink();
+    return item.link === this.bestMatchingLink();
   }
 
   get isOnSettingsPage(): boolean {
-    return this.router.url.includes('/d3/settings');
+    return this.currentUrl().includes('/d3/settings');
   }
 
   get isOnNotificationsPage(): boolean {
-    return this.router.url.includes('/d3/notifications');
+    return this.currentUrl().includes('/d3/notifications');
   }
 
   isChildActive(item: NavItem): boolean {
     return !!item.children?.some(child => this.isActive(child));
+  }
+
+  /** Label for the icon-only (collapsed) sidebar; empty disables the tooltip otherwise. */
+  tooltipFor(label: string): string {
+    return this.collapsed && !this.mobileMode ? label : '';
   }
 
   toggleSidebar(): void {

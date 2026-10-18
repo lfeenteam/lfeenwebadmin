@@ -405,6 +405,21 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'control-center',
+                canActivate: [authGuard, pageFlagGuard('control-center')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/control-center/control-center.component'
+                  ).then((m) => m.ControlCenterComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.controlCenter.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
                 path: 'ban-refunds',
                 canActivate: [authGuard],
                 loadComponent: () =>

@@ -60,7 +60,7 @@
             <div class="offer-top-row d-flex align-items-start justify-content-between">
               <div [class]="'offer-icon-wrapper d-flex align-items-center justify-content-center tone-' + offer.tone" [class.has-logo]="!!logoUrl(offer)">
                 @if (logoUrl(offer); as logo) {
-                  <img [src]="logo" [alt]="offerName(offer)" class="offer-logo" />
+                  <img [src]="logo" [alt]="offerName(offer)" class="offer-logo" (error)="onLogoError(logo)" />
                 } @else {
                   <i-tabler [name]="offer.icon" class="icon-26"></i-tabler>
                 }
@@ -94,16 +94,12 @@
                   <i-tabler name="gift" class="icon-13"></i-tabler>
                   {{ 'd3.subscriptions.settings.trialBadge' | translate: { days: fmt(offer.trialDays) } }}
                 </span>
-              } @else {
+              } @else if (offer.billingModel) {
                 <span class="offer-badge" [class.tone-purple]="offer.billingModel === 'Free'" [class.tone-blue]="offer.billingModel === 'Paid'" [class.tone-slate]="offer.billingModel === 'BuiltIn'">
                   <i-tabler [name]="offer.billingModel === 'Free' ? 'gift' : offer.billingModel === 'BuiltIn' ? 'puzzle' : 'coin'" class="icon-13"></i-tabler>
                   {{ ('d3.subscriptions.settings.typeBadge.' + offer.billingModel) | translate }}
                 </span>
               }
-              <span class="offer-badge" [class.tone-green]="offer.activationMode === 'Instant'" [class.tone-cyan]="offer.activationMode === 'AdminApproval'">
-                <i-tabler [name]="offer.activationMode === 'Instant' ? 'bolt' : 'user-check'" class="icon-13"></i-tabler>
-                {{ ('d3.activationModes.' + offer.activationMode) | translate }}
-              </span>
               @if (offer.active && !offer.available) {
                 <span class="offer-badge tone-slate">
                   <i-tabler name="hourglass" class="icon-13"></i-tabler>
@@ -130,17 +126,45 @@
             </ul>
 
             <!-- Price box: always two cells, so every card ends the same way -->
-            <div class="offer-price-box d-flex align-items-stretch">
-              <div class="offer-price-cell">
-                <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
-                <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.monthlyPriceValue, monthly: true }"></ng-container>
+            @if (offer.isMessagePack) {
+              <!-- A message balance has no monthly/annual price: pack price and the per-message price it gives -->
+              <div class="offer-price-box d-flex align-items-stretch">
+                <div class="offer-price-cell">
+                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packPrice' | translate }}</span>
+                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.packPriceValue, monthly: true }"></ng-container>
+                  @if (offer.packPriceValue !== null && offer.messagesPerPack) {
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packMessages' | translate: { count: fmt(offer.messagesPerPack) } }}</span>
+                  }
+                </div>
+                <div class="offer-price-divider"></div>
+                <div class="offer-price-cell">
+                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.perMessage' | translate }}</span>
+                  @if (pricePerMessage(offer); as perMessage) {
+                    <span class="offer-price-value d-flex align-items-center gap-4">
+                      <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
+                        [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                        [style.mask-image]="'url(' + currencyIconSrc + ')'"
+                        role="img" [attr.aria-label]="currencyIconAlt"></span>
+                      {{ fmtMessagePrice(perMessage) }}
+                    </span>
+                  } @else {
+                    <span class="offer-price-value is-unset">{{ 'd3.subscriptions.settings.noPrice' | translate }}</span>
+                  }
+                </div>
               </div>
-              <div class="offer-price-divider"></div>
-              <div class="offer-price-cell">
-                <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
-                <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.annualPriceValue, monthly: false }"></ng-container>
+            } @else {
+              <div class="offer-price-box d-flex align-items-stretch">
+                <div class="offer-price-cell">
+                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
+                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.monthlyPriceValue, monthly: true }"></ng-container>
+                </div>
+                <div class="offer-price-divider"></div>
+                <div class="offer-price-cell">
+                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
+                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.annualPriceValue, monthly: false }"></ng-container>
+                </div>
               </div>
-            </div>
+            }
 
           </mat-card-content>
         </mat-card>

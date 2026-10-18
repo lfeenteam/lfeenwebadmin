@@ -4,7 +4,7 @@
 
     <header class="drawer-header">
       <h2 class="drawer-title">{{ 'd3.subscriptionRequests.detail.title' | translate }}</h2>
-      <button type="button" class="drawer-close-btn" [disabled]="submitting" (click)="close()">
+      <button type="button" class="drawer-close-btn" (click)="close()">
         <i-tabler name="x" class="icon-16"></i-tabler>
         <span>{{ 'd3.subscriptionRequests.detail.close' | translate }}</span>
       </button>
@@ -18,7 +18,15 @@
           <span class="summary-merchant">{{ order.merchantName?.trim() || '-' }}</span>
           <span class="summary-date">{{ requestedAtLabel }}</span>
         </div>
-        <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
+        <div class="summary-badges">
+          <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
+          @if (isAutoTopUp) {
+            <span class="status-pill status-automatic">{{ 'd3.subscriptionRequests.autoTopUp' | translate }}</span>
+          }
+        </div>
+        @if (paymentMethodLabel; as method) {
+          <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.paymentMethod' | translate }}: {{ method }}</span>
+        }
         @if (processedAtLabel) {
           <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.processedAt' | translate }}: {{ processedAtLabel }}</span>
         }
@@ -50,10 +58,17 @@
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.requestType' | translate }}</span>
               <span class="meta-value">{{ item.requestTypeLabel || '-' }}</span>
             </div>
-            <div class="meta-cell">
-              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.tier' | translate }}</span>
-              <span class="meta-value">{{ item.tierName || '-' }}</span>
-            </div>
+            @if (item.messageQuantity) {
+              <div class="meta-cell">
+                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.messageQuantity' | translate }}</span>
+                <span class="meta-value">{{ 'd3.subscriptionRequests.detail.messagesCount' | translate: { count: fmtCount(item.messageQuantity) } }}</span>
+              </div>
+            } @else {
+              <div class="meta-cell">
+                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.tier' | translate }}</span>
+                <span class="meta-value">{{ item.tierName || '-' }}</span>
+              </div>
+            }
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.period' | translate }}</span>
               <span class="meta-value">{{ item.periodLabel || '—' }}</span>
@@ -109,50 +124,6 @@
           <ng-container *ngTemplateOutlet="money; context: { $implicit: order.totalAmount, large: true }"></ng-container>
         </div>
       </section>
-
-      <!-- Review actions -->
-      @if (showActions) {
-        @switch (step) {
-          @case ('approve') {
-            <section class="decision-card">
-              <label class="field-label" for="approve-note">{{ 'd3.subscriptionRequests.detail.noteLabel' | translate }}</label>
-              <textarea id="approve-note" class="field-textarea" rows="3" [attr.maxlength]="noteMax"
-                [placeholder]="'d3.subscriptionRequests.detail.notePlaceholder' | translate"
-                [(ngModel)]="approveNote"></textarea>
-              <div class="actions-row">
-                <button type="button" class="btn-outline" [disabled]="submitting" (click)="setStep('details')">{{ 'd3.subscriptionRequests.detail.back' | translate }}</button>
-                <button type="button" class="btn-approve" [disabled]="submitting" (click)="confirmApprove()">
-                  {{ (submitting ? 'd3.subscriptionRequests.detail.saving' : 'd3.subscriptionRequests.detail.confirmApprove') | translate }}
-                </button>
-              </div>
-            </section>
-          }
-          @case ('reject') {
-            <section class="decision-card">
-              <label class="field-label" for="reject-reason">{{ 'd3.subscriptionRequests.detail.reasonLabel' | translate }} *</label>
-              <textarea id="reject-reason" class="field-textarea" rows="3" [attr.maxlength]="noteMax"
-                [placeholder]="'d3.subscriptionRequests.detail.reasonPlaceholder' | translate"
-                [(ngModel)]="rejectReason"></textarea>
-              <div class="actions-row">
-                <button type="button" class="btn-outline" [disabled]="submitting" (click)="setStep('details')">{{ 'd3.subscriptionRequests.detail.back' | translate }}</button>
-                <button type="button" class="btn-reject-solid" [disabled]="!canConfirmReject" (click)="confirmReject()">
-                  {{ (submitting ? 'd3.subscriptionRequests.detail.saving' : 'd3.subscriptionRequests.detail.confirmReject') | translate }}
-                </button>
-              </div>
-            </section>
-          }
-          @default {
-            <div class="actions-row">
-              @if (canApprove) {
-                <button type="button" class="btn-approve" (click)="setStep('approve')">{{ 'd3.subscriptionRequests.detail.approve' | translate }}</button>
-              }
-              @if (canReject) {
-                <button type="button" class="btn-reject" (click)="setStep('reject')">{{ 'd3.subscriptionRequests.detail.reject' | translate }}</button>
-              }
-            </div>
-          }
-        }
-      }
 
     </div>
   </aside>

@@ -14,11 +14,13 @@ import { formatApiDateLocal } from 'src/app/utils/date-format.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { periodText } from '../interfaces/period-text.util';
 
 interface SubscriptionStatCard {
   labelKey: string;
   subtitleKey: string;
-  value: number;
+  /** null = the overview didn't send this figure, so its card isn't shown. */
+  value: number | null;
   icon: string;
   tone: 'purple' | 'blue' | 'green' | 'dark';
   currency: boolean;
@@ -78,26 +80,32 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   stats: SubscriptionStatCard[] = [
-    { labelKey: '', subtitleKey: 'd3.subscriptions.stats.total', value: 0, icon: 'users', tone: 'dark', currency: false },
-    { labelKey: 'd3.subscriptions.stats.active', subtitleKey: 'd3.subscriptions.stats.activeDesc', value: 0, icon: 'user-check', tone: 'green', currency: false },
-    { labelKey: 'd3.subscriptions.stats.monthly', subtitleKey: 'd3.subscriptions.stats.monthlyDesc', value: 0, icon: 'trending-up', tone: 'blue', currency: true },
-    { labelKey: 'd3.subscriptions.stats.annual', subtitleKey: 'd3.subscriptions.stats.annualDesc', value: 0, icon: 'calendar', tone: 'purple', currency: true },
-    { labelKey: 'd3.subscriptions.stats.automatic', subtitleKey: 'd3.subscriptions.stats.automaticDesc', value: 0, icon: 'bolt', tone: 'blue', currency: false },
-    { labelKey: 'd3.subscriptions.stats.free', subtitleKey: 'd3.subscriptions.stats.freeDesc', value: 0, icon: 'gift', tone: 'green', currency: false },
+    { labelKey: '', subtitleKey: 'd3.subscriptions.stats.total', value: null, icon: 'users', tone: 'dark', currency: false },
+    { labelKey: 'd3.subscriptions.stats.active', subtitleKey: 'd3.subscriptions.stats.activeDesc', value: null, icon: 'user-check', tone: 'green', currency: false },
+    { labelKey: 'd3.subscriptions.stats.monthly', subtitleKey: 'd3.subscriptions.stats.monthlyDesc', value: null, icon: 'trending-up', tone: 'blue', currency: true },
+    { labelKey: 'd3.subscriptions.stats.annual', subtitleKey: 'd3.subscriptions.stats.annualDesc', value: null, icon: 'calendar', tone: 'purple', currency: true },
+    { labelKey: 'd3.subscriptions.stats.free', subtitleKey: 'd3.subscriptions.stats.freeDesc', value: null, icon: 'gift', tone: 'green', currency: false },
   ];
+
+  get visibleStats(): SubscriptionStatCard[] {
+    return this.stats.filter(s => s.value !== null);
+  }
 
   ngOnInit(): void {
     this.subscriptionsService.getOverview().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (overview) => {
         // No distinct "total subscribers" figure (nor a growth %) exists in the API — the closest
         // available number is the count of merchants with an active subscription.
-        this.stats[0].value = overview.totalMerchantsWithActiveSubscription;
-        this.stats[1].value = overview.activeSubscriptionsCount;
-        this.stats[2].value = overview.monthlyRevenue;
-        this.stats[3].value = overview.annualRevenue;
-        this.stats[4].value = overview.autoActivatedCount;
-        this.stats[5].value = overview.freeSubscriptionsCount;
-        this.misconfiguredServicesCount = overview.misconfiguredServicesCount;
+        // Any figure the response leaves out stays null and its card is hidden — an undefined
+        // value would otherwise throw in fmt() and stop the rest of the page from rendering.
+        const num = (v: unknown) => (typeof v === 'number' ? v : null);
+        this.stats[0].value = num(overview.totalMerchantsWithActiveSubscription);
+        this.stats[1].value = num(overview.activeSubscriptionsCount);
+        this.stats[2].value = num(overview.monthlyRevenue);
+        this.stats[3].value = num(overview.annualRevenue);
+        // No "automatic activation" card: every subscription activates on payment now.
+        this.stats[4].value = num(overview.freeSubscriptionsCount);
+        this.misconfiguredServicesCount = num(overview.misconfiguredServicesCount) ?? 0;
         this.isLoading = false;
       },
       error: () => {
@@ -150,7 +158,7 @@ export class SubscriptionManagementComponent implements OnInit {
       categoryLabel: s.categoryLabel?.trim() || '-',
       icon: serviceVisual(s.serviceKey, s.categoryLabel).icon,
       priceValue: typeof s.price === 'number' ? s.price : null,
-      periodLabel: [s.tierName?.trim(), s.periodLabel?.trim() || s.period].filter(Boolean).join(' · ') || '-',
+      periodLabel: [s.tierName?.trim(), periodText(s.periodLabel, s.period)].filter(Boolean).join(' · ') || '-',
       startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
       endDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
       expired: (s.status ?? '').toLowerCase() === 'expired',

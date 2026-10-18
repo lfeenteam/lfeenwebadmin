@@ -256,7 +256,6 @@
   }
 }
 
-.action-dots-btn,
 .expand-row-btn {
   all: unset;
   box-sizing: border-box;
@@ -275,12 +274,6 @@
   &:hover {
     color: #111110;
     background-color: #F7F7F5;
-  }
-}
-
-.dots-icon-compact {
-  ::ng-deep svg {
-    transform: scaleY(0.7);
   }
 }
 

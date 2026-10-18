@@ -179,14 +179,6 @@ export class SubscriptionsService {
     );
   }
 
-  approveOrder(orderId: string, note?: string): Observable<SubscriptionOrder> {
-    return this.http.post<SubscriptionOrder>(`${this.apiUrl}/orders/${orderId}/approve`, note ? { note } : {});
-  }
-
-  rejectOrder(orderId: string, reason: string): Observable<SubscriptionOrder> {
-    return this.http.post<SubscriptionOrder>(`${this.apiUrl}/orders/${orderId}/reject`, { reason });
-  }
-
   // ── Activity log ────────────────────────────────────────────
   getActivityLog(query: SubscriptionActivityLogQuery = {}): Observable<SubscriptionPaginated<SubscriptionAuditLog>> {
     let params = new HttpParams()

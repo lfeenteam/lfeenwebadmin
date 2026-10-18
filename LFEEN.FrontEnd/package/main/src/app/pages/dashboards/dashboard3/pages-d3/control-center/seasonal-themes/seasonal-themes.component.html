@@ -1,0 +1,79 @@
+<div class="st-root" [dir]="currentDir">
+  <header class="st-head">
+    <div>
+      <h3>{{ 'd3.controlCenter.themes.title' | translate }}</h3>
+      <p>{{ 'd3.controlCenter.themes.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="st-new-btn" (click)="openCreate()">
+      {{ 'd3.controlCenter.themes.new' | translate }}
+      <i-tabler name="plus" class="icon-16"></i-tabler>
+    </button>
+  </header>
+
+  <div class="st-body">
+    @if (loading) {
+      <app-dashboard-loading variant="cards" [rows]="2"></app-dashboard-loading>
+    } @else if (loadError) {
+      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" descKey="d3.controlCenter.errors.network"
+        actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="load()"></app-dashboard-empty>
+    } @else if (!themes.length) {
+      <app-dashboard-empty icon="palette" titleKey="d3.controlCenter.themes.empty.title" descKey="d3.controlCenter.themes.empty.desc"
+        actionKey="d3.controlCenter.themes.new" actionIcon="plus" (action)="openCreate()"></app-dashboard-empty>
+    } @else {
+      <div class="st-grid">
+        @for (theme of themes; track theme.id) {
+          <article class="st-card">
+            <!-- Banner -->
+            <div class="st-banner" [style.background]="bannerBackground(theme)">
+              @if (!theme.bannerUrl) {
+                <span class="st-moon" aria-hidden="true"></span>
+                <span class="st-star" aria-hidden="true">+</span>
+              }
+              <div class="st-banner-copy">
+                <small>{{ 'd3.controlCenter.themes.brand' | translate }}</small>
+                <strong>{{ theme.name }}</strong>
+                <span>{{ 'd3.controlCenter.themes.tagline' | translate }}</span>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div class="st-details">
+              <div class="st-title-row">
+                <h4>{{ theme.name }}</h4>
+                <span class="st-status" [class]="'st-status status-' + status(theme)">
+                  {{ 'd3.controlCenter.themes.status.' + status(theme) | translate }}
+                  <span class="dot"></span>
+                </span>
+              </div>
+              <code class="st-key" dir="ltr">{{ theme.key }}</code>
+
+              <div class="st-meta">
+                <span>
+                  <i-tabler name="device-mobile" class="icon-14"></i-tabler>
+                  {{ 'd3.controlCenter.apps.' + theme.app | translate }}
+                </span>
+                <span>
+                  <i-tabler name="calendar" class="icon-14"></i-tabler>
+                  {{ dateRange(theme) }}
+                </span>
+              </div>
+
+              <footer class="st-footer">
+                <span class="st-colors" [attr.aria-label]="theme.primaryColor + ' / ' + theme.secondaryColor">
+                  <span [style.background-color]="theme.primaryColor" [title]="theme.primaryColor"></span>
+                  <span [style.background-color]="theme.secondaryColor" [title]="theme.secondaryColor"></span>
+                </span>
+                <button type="button" class="st-edit-btn" (click)="openEdit(theme)">
+                  {{ 'd3.controlCenter.themes.edit' | translate }}
+                  <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-14"></i-tabler>
+                </button>
+              </footer>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<app-theme-form-drawer [open]="drawerOpen" [theme]="editing" (saved)="onSaved()" (closed)="onDrawerClosed()"></app-theme-form-drawer>

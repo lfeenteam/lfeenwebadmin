@@ -4,22 +4,21 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription, catchError, forkJoin, map, of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription, catchError, forkJoin, map, of, throwError } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
-import { LoginService } from '../../../services/login/login.service';
 import { ORDER_STATUSES, SubscriptionsService } from '../../../services/subscriptions.service';
-import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus } from '../interfaces/subscription.model';
+import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus, isAutoTopUpOrder } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
-import { RequestDetailDrawerComponent, RequestDrawerResult } from './request-detail-drawer/request-detail-drawer.component';
+import { RequestDetailDrawerComponent } from './request-detail-drawer/request-detail-drawer.component';
 import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 
 type RequestTab = 'all' | 'rejected' | 'approved' | 'underReview';
-type ActivationFilter = 'all' | 'automatic' | 'manual';
 
 interface RequestService {
   name: string;
@@ -33,6 +32,7 @@ interface RequestRow {
   services: RequestService[];
   requestedAt: Date | null;
   kind: OrderStatusKind;
+  autoTopUp: boolean;
 }
 
 const TAB_STATUSES: Record<RequestTab, SubscriptionOrderStatus[]> = {
@@ -44,6 +44,12 @@ const TAB_STATUSES: Record<RequestTab, SubscriptionOrderStatus[]> = {
 
 const PAGE_SIZE = 10;
 const MAX_SERVICE_ICONS = 3;
+
+/** 400 VALIDATION_ERROR on the status query = the backend no longer has that status. */
+function isInvalidStatusError(err: unknown): boolean {
+  const e = err as HttpErrorResponse;
+  return e?.status === 400 && e?.error?.errorCode === 'VALIDATION_ERROR';
+}
 
 @Component({
   selector: 'app-subscription-requests',
@@ -57,15 +63,14 @@ export class SubscriptionRequestsComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private service = inject(SubscriptionsService);
-  private login = inject(LoginService);
 
   readonly maxServiceIcons = MAX_SERVICE_ICONS;
 
   loading = true;
   loadError = false;
-  activeTab: RequestTab = 'underReview';
+  // Orders activate on payment, so nothing waits on the admin — the list opens on every order.
+  activeTab: RequestTab = 'all';
   currentPage = 1;
-  activationFilter: ActivationFilter = 'all';
 
   private rows: RequestRow[] = [];
   logoByServiceId = new Map<number, string | null>();
@@ -113,15 +118,14 @@ export class SubscriptionRequestsComponent implements OnInit {
     return this.currentLang === 'en';
   }
 
-  get canApprove(): boolean {
-    return this.hasPermission('subscriptions.approve');
+  /** Statuses the backend rejected as invalid — their tabs aren't shown. */
+  private invalidStatuses = new Set<SubscriptionOrderStatus>();
+
+  get visibleTabs(): { value: RequestTab; labelKey: string }[] {
+    return this.tabs.filter(t => t.value === 'all' || TAB_STATUSES[t.value].some(s => !this.invalidStatuses.has(s)));
   }
 
-  get canReject(): boolean {
-    return this.hasPermission('subscriptions.reject');
-  }
-
-  /** Known once UnderReview has been fetched (it's the default tab, so normally right away). */
+  /** Known once UnderReview has been fetched (the "All" tab fetches it too). */
   get underReviewCount(): number {
     return this.cache.get('UnderReview')?.length ?? 0;
   }
@@ -163,7 +167,7 @@ export class SubscriptionRequestsComponent implements OnInit {
   load(): void {
     this.listRequest?.unsubscribe();
     const statuses = TAB_STATUSES[this.activeTab];
-    const missing = statuses.filter(s => !this.cache.has(s));
+    const missing = statuses.filter(s => !this.cache.has(s) && !this.invalidStatuses.has(s));
     this.loadError = false;
 
     if (!missing.length) {
@@ -173,18 +177,32 @@ export class SubscriptionRequestsComponent implements OnInit {
     }
 
     this.loading = true;
-    // On "All", an unconfirmed status that EQAMATIK rejects is skipped rather than failing the tab.
+    // On "All", a status that fails for any reason is skipped rather than failing the tab.
     const tolerant = this.activeTab === 'all';
     this.listRequest = forkJoin(missing.map(status => {
-      const auto = this.activationFilter === 'all' ? undefined : this.activationFilter === 'automatic';
-      const request$ = this.service.getRequestsByStatus(status, auto).pipe(map(orders => ({ status, orders })));
-      return tolerant && status !== 'UnderReview'
-        ? request$.pipe(catchError(() => of({ status, orders: [] as SubscriptionOrder[] })))
-        : request$;
+      return this.service.getRequestsByStatus(status).pipe(
+        map(orders => ({ status, orders })),
+        catchError(err => {
+          // The backend dropped the review statuses (UnderReview / Approved / Rejected) along with
+          // admin approval and answers 400 VALIDATION_ERROR for them: treat that status as empty
+          // and stop offering its tab.
+          if (isInvalidStatusError(err)) {
+            this.invalidStatuses.add(status);
+            return of({ status, orders: [] as SubscriptionOrder[] });
+          }
+          return tolerant ? of({ status, orders: [] as SubscriptionOrder[] }) : throwError(() => err);
+        }),
+      );
     })).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: results => {
         for (const { status, orders } of results) this.cache.set(status, orders);
         this.loading = false;
+        // The tab that was open may have just turned out to be unsupported.
+        if (!this.visibleTabs.some(t => t.value === this.activeTab)) {
+          this.activeTab = 'all';
+          this.load();
+          return;
+        }
         this.rebuildRows();
       },
       error: err => {
@@ -209,13 +227,6 @@ export class SubscriptionRequestsComponent implements OnInit {
     this.load();
   }
 
-  setActivationFilter(filter: ActivationFilter): void {
-    if (filter === this.activationFilter) return;
-    this.activationFilter = filter;
-    this.currentPage = 1;
-    this.reload();
-  }
-
   private rebuildRows(): void {
     const seen = new Set<string>();
     this.rows = TAB_STATUSES[this.activeTab]
@@ -233,24 +244,6 @@ export class SubscriptionRequestsComponent implements OnInit {
 
   openDetail(row: RequestRow): void {
     this.selectedOrder = row.order;
-  }
-
-  onDrawerClosed(result: RequestDrawerResult): void {
-    this.selectedOrder = null;
-    if (!result) return;
-    if (result.type === 'refresh') {
-      this.reload();
-      return;
-    }
-    // Move the order out of whatever status bucket it was in. The target bucket is only
-    // updated if it was already fetched — otherwise it'll load fresh when its tab opens.
-    const updated = result.order;
-    for (const [status, orders] of this.cache) {
-      this.cache.set(status, orders.filter(o => o.orderId !== updated.orderId));
-    }
-    const target = updated.status as SubscriptionOrderStatus;
-    this.cache.get(target)?.unshift(updated);
-    this.rebuildRows();
   }
 
   private toRow(order: SubscriptionOrder): RequestRow {
@@ -271,10 +264,7 @@ export class SubscriptionRequestsComponent implements OnInit {
       services,
       requestedAt: parseApiUtc(order.requestedAt),
       kind: orderStatusKind(order.status),
+      autoTopUp: isAutoTopUpOrder(order),
     };
-  }
-
-  private hasPermission(permission: string): boolean {
-    return this.login.permissions().some(p => p.toLowerCase() === permission);
   }
 }

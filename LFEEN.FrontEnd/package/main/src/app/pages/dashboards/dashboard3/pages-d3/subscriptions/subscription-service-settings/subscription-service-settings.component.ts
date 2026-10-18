@@ -28,11 +28,12 @@ import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { buildCatalogUpdate } from '../interfaces/catalog-update.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { PricingStyle, pricingStyleOf } from '../interfaces/pricing-style.util';
+import { periodText } from '../interfaces/period-text.util';
 import { MatDialog } from '@angular/material/dialog';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
 
 type BillingModel = 'Paid' | 'Free' | 'BuiltIn';
-type ActivationMode = 'AdminApproval' | 'Instant';
 
 // The catalog only has two flags, so only three states exist:
 //   active    = isActive && isAvailable
@@ -77,6 +78,8 @@ interface PricingRow {
 const TIER_KEY_PATTERN = /^[A-Za-z0-9_-]+$/;
 const SUBSCRIBERS_PAGE_SIZE = 10;
 const BILLING_PERIODS: SubscriptionPricingPeriod[] = ['Monthly', 'Yearly'];
+/** Saudi VAT — message packs are always priced before it. */
+const VAT_PERCENT = 15;
 
 @Component({
   selector: 'app-subscription-service-settings',
@@ -136,7 +139,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.serviceIcon = serviceVisual(item.key, item.categoryLabel).icon;
         this.serviceState = this.originalState = this.stateOf(item);
         this.billingModel = item.billingModel ?? 'Paid';
-        this.activationMode = item.activationMode ?? 'AdminApproval';
         this.vatSupported = typeof item.isPriceVatInclusive === 'boolean';
         this.vatIncluded = item.isPriceVatInclusive ?? false;
         this.trialDays = item.trialDays ?? 0;
@@ -167,13 +169,12 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     return this.catalogItem?.logoUrl ?? null;
   }
 
-  // ── Service type & activation (catalog billingModel / activationMode) ──
+  // ── Service type (catalog billingModel) ──
+  // There's no activation setting: subscriptions activate on payment, never on admin approval.
   /** The form's current choice — the saved value is on catalogItem until Save. */
   billingModel: BillingModel = 'Paid';
-  activationMode: ActivationMode = 'AdminApproval';
 
   readonly billingModels: BillingModel[] = ['Paid', 'Free', 'BuiltIn'];
-  readonly activationModes: ActivationMode[] = ['AdminApproval', 'Instant'];
 
   /** Follows the form's choice, so switching a free service to paid shows the price fields to fill in. */
   get isPaidService(): boolean {
@@ -359,7 +360,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     return {
       name: property || merchant || '-',
       subtitle: property ? [merchant, s.propertyClassification?.trim()].filter(Boolean).join(' · ') : (s.propertyClassification?.trim() || ''),
-      planLabel: [s.tierName?.trim(), s.periodLabel?.trim() || s.period].filter(Boolean).join(' · ') || '-',
+      planLabel: [s.tierName?.trim(), periodText(s.periodLabel, s.period)].filter(Boolean).join(' · ') || '-',
       planClass: period === 'monthly' ? 'plan-monthly' : period === 'yearly' ? 'plan-annualAdvanced' : 'plan-annualTrial',
       startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
       renewalDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
@@ -401,6 +402,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     this.annualPrice = this.activeRow('Yearly')?.price ?? null;
     const anyRow = this.activeRow('Monthly') ?? this.activeRow('Yearly');
     this.setupFee = typeof anyRow?.setupFee === 'number' ? anyRow.setupFee : null;
+
+    this.pricingStyle = pricingStyleOf(this.catalogItem?.key, this.activePricing, this.catalogItem?.pricingStyle);
+    const pack = this.activeRow('MessagePack');
+    this.packPrice = pack?.price ?? null;
+    this.messagesPerPack = pack?.messagesPerPack ?? null;
   }
 
   // Most services have a single (default) tier, so there's one active row per period. With
@@ -416,6 +422,62 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   annualPrice: number | null = null;
   /** One-time setup fee, applied to both periods' rows. */
   setupFee: number | null = null;
+
+  // ── Message pack (period MessagePack — the SMS balance) ─────
+  pricingStyle: PricingStyle = 'Subscription';
+  /** Pack price before VAT; null = no active pack pricing yet. */
+  packPrice: number | null = null;
+  /** Messages in one pack — also the smallest top-up a merchant can buy. */
+  messagesPerPack: number | null = null;
+
+  get isMessagePack(): boolean {
+    return this.pricingStyle === 'MessagePack';
+  }
+
+  get packPriceInvalid(): boolean {
+    return this.packPrice !== null && !(this.packPrice > 0);
+  }
+
+  get messagesPerPackInvalid(): boolean {
+    const n = this.messagesPerPack;
+    return n !== null && !(Number.isInteger(n) && n >= 1);
+  }
+
+  /** A pack row needs both values — one without the other can't be saved. */
+  get packIncomplete(): boolean {
+    return (this.packPrice === null) !== (this.messagesPerPack === null);
+  }
+
+  get pricePerMessage(): number | null {
+    if (this.packPrice === null || this.messagesPerPack === null) return null;
+    if (this.packPriceInvalid || this.messagesPerPackInvalid) return null;
+    return this.packPrice / this.messagesPerPack;
+  }
+
+  get packTotalWithVat(): number | null {
+    return this.packPrice !== null && !this.packPriceInvalid ? this.packPrice * (1 + VAT_PERCENT / 100) : null;
+  }
+
+  readonly vatPercent = VAT_PERCENT;
+
+  fmtMessagePrice(value: number): string {
+    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
+  }
+
+  private packPricingRequest(): Observable<unknown> | null {
+    const item = this.catalogItem;
+    if (!item || !this.isPaidService || this.packPrice === null || this.messagesPerPack === null) return null;
+    const row = this.activeRow('MessagePack');
+    if (row && row.price === this.packPrice && row.messagesPerPack === this.messagesPerPack) return null;
+    return this.subscriptionsService.setPricing({
+      subscriptionServiceId: item.id,
+      subscriptionServiceTierId: row?.subscriptionServiceTierId ?? null,
+      period: 'MessagePack',
+      price: this.packPrice,
+      messagesPerPack: this.messagesPerPack,
+      currencyCode: row?.currencyCode ?? item.currencyCode ?? 'SAR',
+    });
+  }
 
   // ── VAT (catalog isPriceVatInclusive) ───────────────────────
   vatIncluded = false;
@@ -433,6 +495,10 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private pricingRequests(): Observable<unknown>[] {
     const item = this.catalogItem;
     if (!item || !this.isPaidService) return [];
+    if (this.isMessagePack) {
+      const pack$ = this.packPricingRequest();
+      return pack$ ? [pack$] : [];
+    }
     const setupFee = this.setupFee ?? 0;
     const calls: Observable<unknown>[] = [];
 
@@ -471,8 +537,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     const stateChanged = this.serviceState !== this.originalState;
     // VAT only applies to paid services; a free/built-in one keeps whatever it had.
     const vatChanged = this.isPaidService && this.vatSupported && this.vatIncluded !== item.isPriceVatInclusive;
-    const modeChanged = this.billingModel !== this.savedBillingModel
-      || this.activationMode !== (item.activationMode ?? 'AdminApproval');
+    const modeChanged = this.billingModel !== this.savedBillingModel;
     if (!stateChanged && !vatChanged && !modeChanged) return null;
 
     return this.subscriptionsService.updateCatalogItem(item.id, buildCatalogUpdate(item, {
@@ -480,7 +545,6 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       // Stopping a service doesn't touch isAvailable, so it comes back as it was when re-enabled.
       isAvailable: this.serviceState === 'stopped' ? item.isAvailable : this.serviceState === 'active',
       billingModel: this.billingModel,
-      activationMode: this.activationMode,
       ...(vatChanged ? { isPriceVatInclusive: this.vatIncluded } : {}),
     }));
   }
@@ -499,6 +563,9 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   // A paid service's price must be above zero — except when it charges a usage fee instead,
   // where a 0 subscription fee is allowed (rule 6 of the free-services guide).
   get pricesInvalid(): boolean {
+    if (this.isMessagePack) {
+      return this.isPaidService && (this.packPriceInvalid || this.messagesPerPackInvalid || this.packIncomplete);
+    }
     const allowsZero = (period: SubscriptionPricingPeriod) => {
       const type = this.activeRow(period)?.usageUnitType;
       return !!type && type !== 'None';

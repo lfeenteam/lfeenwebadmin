@@ -7,7 +7,6 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import {
-  SubscriptionActivationMode,
   SubscriptionBillingModel,
   SubscriptionCatalogItem,
 } from '../interfaces/subscription.model';
@@ -41,7 +40,6 @@ export class ServiceFormDialogComponent {
 
   readonly categories = SUBSCRIPTION_CATEGORY_KEYS;
   readonly billingModels: SubscriptionBillingModel[] = ['Paid', 'Free', 'BuiltIn'];
-  readonly activationModes: SubscriptionActivationMode[] = ['AdminApproval', 'Instant'];
   readonly keyMax = KEY_MAX;
 
   key = '';
@@ -53,7 +51,6 @@ export class ServiceFormDialogComponent {
   logoUrl = '';
   isAvailable = false;
   billingModel: SubscriptionBillingModel = 'Paid';
-  activationMode: SubscriptionActivationMode = 'AdminApproval';
   displayOrder: number | null = null;
   minimumMonthlyPrice: number | null = null;
   minimumYearlyPrice: number | null = null;
@@ -160,7 +157,8 @@ export class ServiceFormDialogComponent {
           logoUrl: text(this.logoUrl),
           isAvailable: this.isAvailable,
           billingModel: this.billingModel,
-          activationMode: this.activationMode,
+          // No admin approval exists, so every new service activates on payment.
+          activationMode: 'Instant',
         });
 
     request$.subscribe({

@@ -15,13 +15,14 @@
   </div>
 
   <mat-nav-list class="d3-sidebar-list">
-    @for(item of filteredNavItems(); track item.id || item.translationKey) {
+    @for(item of filteredNavItems(); track trackKey(item, $index)) {
       @if(item.divider) {
         <div class="d3-menu-divider"></div>
       } @else {
         @if (item.children && item.children.length > 0) {
           <div class="d3-submenu-container" [class.is-expanded]="isExpanded(item)" [class.has-active-child]="isChildActive(item)">
             <a mat-list-item href="#" (click)="toggleSubmenu(item, $event)"
+              [matTooltip]="tooltipFor(getItemTitle(item))" matTooltipPosition="after"
               class="d3-menu-item has-children">
               <span class="d-flex align-items-center gap-12 w-100">
                 <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
@@ -33,7 +34,7 @@
             </a>
             @if (isExpanded(item) && (!collapsed || mobileMode)) {
               <div class="d3-submenu">
-                @for(child of item.children; track child.id || child.key) {
+                @for(child of item.children; track trackKey(child, $index)) {
                   <a mat-list-item href="#" (click)="navigateTo(child, $event)"
                     [class.active-link]="isActive(child)"
                     class="d3-menu-item d3-child-item">
@@ -51,6 +52,7 @@
         } @else {
           <a mat-list-item href="#" (click)="navigateTo(item, $event)"
             [class.active-link]="isActive(item)"
+            [matTooltip]="tooltipFor(getItemTitle(item))" matTooltipPosition="after"
             class="d3-menu-item">
             <span class="d-flex align-items-center gap-12 w-100">
               <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
@@ -65,25 +67,30 @@
   </mat-nav-list>
 
   <div class="d3-sidebar-footer">
-    @if (!isCeoPage()) {
-      <div class="footer-items">
-        <a mat-list-item class="d3-menu-item footer-item"
-           [class.active-link]="isOnNotificationsPage"
-           (click)="navigateTo({link: '/d3/notifications'}, $event)">
-          <span class="d-flex align-items-center gap-12 w-100">
-            <span class="icon-wrapper">
-              <i-tabler name="bell" class="icon-20"></i-tabler>
-              @if (notificationsStore.unreadCount() > 0) {
-                <span class="notification-dot"></span>
-              }
-            </span>
-            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-              {{ 'd3.sidebar.notifications' | translate }}
-            </span>
+    <div class="footer-items">
+      <a mat-list-item class="d3-menu-item footer-item"
+         [class.active-link]="isOnNotificationsPage"
+         [matTooltip]="tooltipFor('d3.sidebar.notifications' | translate)" matTooltipPosition="after"
+         (click)="navigateTo({link: '/d3/notifications'}, $event)">
+        <span class="d-flex align-items-center gap-12 w-100">
+          <span class="icon-wrapper">
+            <i-tabler name="bell" class="icon-20"></i-tabler>
+            @if (notificationsStore.unreadCount() > 0) {
+              <span class="notification-badge">
+                {{ notificationsStore.unreadCount() > 99 ? '99+' : notificationsStore.unreadCount() }}
+              </span>
+            }
           </span>
-        </a>
+          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+            {{ 'd3.sidebar.notifications' | translate }}
+          </span>
+        </span>
+      </a>
+      <!-- On the CEO page Settings is already in the nav list above. -->
+      @if (!isCeoPage()) {
         <a mat-list-item (click)="navigateTo({link: '/d3/settings'}, $event)"
           [class.active-link]="isOnSettingsPage"
+          [matTooltip]="tooltipFor('d3.sidebar.settings' | translate)" matTooltipPosition="after"
           class="d3-menu-item footer-item">
           <span class="d-flex align-items-center gap-12 w-100">
             <i-tabler name="settings" class="icon-20"></i-tabler>
@@ -92,19 +99,21 @@
             </span>
           </span>
         </a>
-        <a mat-list-item (click)="toggleLanguage()" class="d3-menu-item footer-item">
-          <span class="d-flex align-items-center gap-12 w-100">
-            <i-tabler name="world" class="icon-20"></i-tabler>
-            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-              {{ currentLang === 'ar' ? 'English' : 'العربية' }}
-            </span>
+      }
+      <a mat-list-item (click)="toggleLanguage()" class="d3-menu-item footer-item"
+        [matTooltip]="tooltipFor(currentLang === 'ar' ? 'English' : 'العربية')" matTooltipPosition="after">
+        <span class="d-flex align-items-center gap-12 w-100">
+          <i-tabler name="world" class="icon-20"></i-tabler>
+          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
+            {{ currentLang === 'ar' ? 'English' : 'العربية' }}
           </span>
-        </a>
-      </div>
-    }
-    
+        </span>
+      </a>
+    </div>
+
     <div class="footer-bottom">
-      <a mat-list-item (click)="logout()" class="d3-menu-item footer-item logout-item">
+      <a mat-list-item (click)="logout()" class="d3-menu-item footer-item logout-item"
+        [matTooltip]="tooltipFor('d3.sidebar.logout' | translate)" matTooltipPosition="after">
         <span class="d-flex align-items-center gap-12 w-100">
           <i-tabler name="logout" class="icon-20"></i-tabler>
           <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
@@ -113,17 +122,16 @@
         </span>
       </a>
 
-      @if (!isCeoPage()) {
-        <div class="user-profile-wrapper">
-          <div class="user-profile" (click)="navigateTo({link: '/d3/profile'}, $event)" style="cursor: pointer;">
-            <img [src]="user()?.image || './assets/images/profile/user-1.jpg'" alt="user" class="profile-img" />
-            <div class="user-info" *ngIf="!collapsed || mobileMode">
-              <span class="user-name">{{ user()?.fullName }}</span>
-              <span class="user-role">{{ user()?.roles?.[0] }}</span>
-            </div>
+      <div class="user-profile-wrapper">
+        <div class="user-profile" (click)="navigateTo({link: '/d3/profile'}, $event)" style="cursor: pointer;"
+          [matTooltip]="tooltipFor(user()?.fullName || '')" matTooltipPosition="after">
+          <span class="profile-img profile-initials">{{ initials() }}</span>
+          <div class="user-info" *ngIf="!collapsed || mobileMode">
+            <span class="user-name">{{ user()?.fullName }}</span>
+            <span class="user-role">{{ user()?.roles?.[0] }}</span>
           </div>
         </div>
-      }
+      </div>
     </div>
   </div>
 </div>

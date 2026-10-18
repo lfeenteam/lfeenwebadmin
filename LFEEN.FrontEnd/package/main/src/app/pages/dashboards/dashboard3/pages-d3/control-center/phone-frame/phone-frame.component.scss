@@ -1,0 +1,139 @@
+// Base unit: 1em = 10px at the default size. Change the host font-size to scale.
+:host {
+  display: block;
+  font-size: 10px;
+  width: 19em;
+}
+
+.pf-phone {
+  position: relative;
+  aspect-ratio: 285 / 543;
+  padding: 0.8em;
+  border-radius: 3.6em;
+  background: #111110;
+  box-shadow:
+    0 0 0 0.15em #2A2A28 inset,
+    0 2.4em 4em -1.2em rgba(17, 17, 16, 0.35);
+  box-sizing: border-box;
+}
+
+// ── Side buttons ────────────────────────────────────────────
+// Physical sides, not logical: the hardware doesn't flip in RTL.
+.pf-btn {
+  position: absolute;
+  width: 0.35em;
+  background: #2A2A28;
+  border-radius: 0.2em;
+
+  &.pf-btn-silent,
+  &.pf-btn-vol-up,
+  &.pf-btn-vol-down { left: -0.3em; }
+
+  &.pf-btn-silent { top: 15%; height: 2.4em; }
+  &.pf-btn-vol-up { top: 23%; height: 4.2em; }
+  &.pf-btn-vol-down { top: 33%; height: 4.2em; }
+  &.pf-btn-power { right: -0.3em; top: 26%; height: 6.4em; }
+}
+
+// ── Screen ──────────────────────────────────────────────────
+.pf-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 2.9em;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+// Three columns like a real iPhone: time | island | icons. The island sits in the
+// middle column, so it's always centred and the icons can never slide under it.
+.pf-status {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  height: 3.4em;
+  padding: 0 0.6em;
+  flex-shrink: 0;
+  color: #111110;
+}
+
+.pf-time {
+  font-family: -apple-system, 'SF Pro Text', 'Segoe UI', sans-serif !important;
+  font-size: 1.05em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+// ~32% of the screen width, as on an iPhone 15.
+.pf-camera {
+  width: 5.6em;
+  height: 1.65em;
+  border-radius: 1em;
+  background: #111110;
+}
+
+:host(.is-android) .pf-camera {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.pf-indicators {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+
+  svg { fill: currentColor; display: block; }
+}
+
+.pf-signal { width: 1.1em; height: 0.75em; }
+.pf-wifi { width: 1.05em; height: 0.75em; }
+
+.pf-battery {
+  position: relative;
+  width: 1.75em;
+  height: 0.85em;
+  padding: 0.1em;
+  border: 0.08em solid rgba(17, 17, 16, 0.4);
+  border-radius: 0.25em;
+  box-sizing: border-box;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -0.3em;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.15em;
+    height: 0.4em;
+    border-radius: 0 0.1em 0.1em 0;
+    background: rgba(17, 17, 16, 0.4);
+  }
+}
+
+.pf-battery-level {
+  display: block;
+  width: 80%;
+  height: 100%;
+  border-radius: 0.15em;
+  background: #111110;
+}
+
+.pf-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-home {
+  position: absolute;
+  bottom: 0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7.6em;
+  height: 0.4em;
+  border-radius: 0.2em;
+  background: #111110;
+}

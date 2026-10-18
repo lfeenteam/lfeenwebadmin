@@ -6,8 +6,10 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriptionCatalogItem, SubscriptionOfferCard } from '../interfaces/subscription.model';
+import { catchError, forkJoin, of } from 'rxjs';
+import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionPricingItem } from '../interfaces/subscription.model';
 import { serviceVisual } from '../interfaces/service-visual.util';
+import { pricingStyleOf } from '../interfaces/pricing-style.util';
 import { buildCatalogUpdate } from '../interfaces/catalog-update.util';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
@@ -89,10 +91,19 @@ export class SubscriptionSettingsComponent implements OnInit {
   }
 
   // GET /catalog already carries the whole card: description, feature bullets, the default
-  // tier's current prices (seasonal override included) and its trial length.
+  // tier's current prices (seasonal override included) and its trial length. GET /pricing is
+  // only needed for message-pack services (their price isn't monthly/yearly) — the cards still
+  // load without it.
   ngOnInit(): void {
-    this.subscriptionsService.getCatalog().subscribe({
-      next: catalog => {
+    forkJoin({
+      catalog: this.subscriptionsService.getCatalog(),
+      pricing: this.subscriptionsService.getPricing().pipe(catchError(() => of([] as SubscriptionPricingItem[]))),
+    }).subscribe({
+      next: ({ catalog, pricing }) => {
+        this.packPricing = new Map(pricing
+          .filter(p => p.isActive && p.period === 'MessagePack')
+          .map(p => [p.subscriptionServiceId, p]));
+        this.pricingByService = pricing.filter(p => p.isActive);
         this.catalogByKey = new Map(catalog.map(item => [item.key, item]));
         this.offers = [...catalog]
           .sort((a, b) => a.displayOrder - b.displayOrder)
@@ -109,6 +120,9 @@ export class SubscriptionSettingsComponent implements OnInit {
 
   private mapCatalogItemToOffer(item: SubscriptionCatalogItem): SubscriptionOfferCard {
     const meta = serviceVisual(item.key, item.categoryLabel);
+    const servicePricing = this.pricingByService.filter(p => p.subscriptionServiceId === item.id);
+    const isMessagePack = pricingStyleOf(item.key, servicePricing, item.pricingStyle) === 'MessagePack';
+    const pack = this.packPricing.get(item.id);
 
     return {
       id: item.key,
@@ -124,9 +138,32 @@ export class SubscriptionSettingsComponent implements OnInit {
       features: (item.features ?? []).filter(f => f.isActive !== false),
       monthlyPriceValue: item.monthlyPrice ?? null,
       annualPriceValue: item.yearlyPrice ?? null,
-      billingModel: item.billingModel,
-      activationMode: item.activationMode,
+      billingModel: item.billingModel ?? undefined,
+      isMessagePack,
+      packPriceValue: typeof pack?.price === 'number' ? pack.price : null,
+      messagesPerPack: typeof pack?.messagesPerPack === 'number' ? pack.messagesPerPack : null,
     };
+  }
+
+  /** Active MessagePack pricing row per service id. */
+  private packPricing = new Map<number, SubscriptionPricingItem>();
+  /** Every active pricing row — used to tell a service's pricing style. */
+  private pricingByService: SubscriptionPricingItem[] = [];
+
+  /** Logo URLs that failed to load — the card falls back to the service icon. */
+  readonly brokenLogos = new Set<string>();
+
+  onLogoError(url: string): void {
+    this.brokenLogos.add(url);
+  }
+
+  pricePerMessage(offer: SubscriptionOfferCard): number | null {
+    const { packPriceValue: price, messagesPerPack: count } = offer;
+    return price !== null && count ? price / count : null;
+  }
+
+  fmtMessagePrice(value: number): string {
+    return value.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
   }
 
   get filteredOffers(): SubscriptionOfferCard[] {
@@ -170,7 +207,8 @@ export class SubscriptionSettingsComponent implements OnInit {
   }
 
   logoUrl(offer: SubscriptionOfferCard): string | null {
-    return this.catalogByKey.get(offer.id)?.logoUrl ?? null;
+    const url = this.catalogByKey.get(offer.id)?.logoUrl ?? null;
+    return url && !this.brokenLogos.has(url) ? url : null;
   }
 
   toggleActive(offer: SubscriptionOfferCard): void {

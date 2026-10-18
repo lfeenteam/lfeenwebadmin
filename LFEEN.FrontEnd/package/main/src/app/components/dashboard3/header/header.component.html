@@ -54,12 +54,24 @@
 
     <span class="d3-vertical-divider"></span>
 
-    <div class="d3-user-profile" (click)="navigateToProfile()" style="cursor: pointer;">
+    <div class="d3-user-profile" role="button" tabindex="0" [matMenuTriggerFor]="d3UserMenu">
       <img src="/assets/images/profile/user-1.jpg" alt="user" class="d3-user-avatar" />
         <div class="d3-user-info">
           <h4 class="d3-user-name">{{ loginService.getUser()?.fullName || ('d3.header.userName' | translate) }}</h4>
           <p class="d3-user-role">{{ loginService.getUser()?.roles?.join(', ') || ('d3.header.userRole' | translate) }}</p>
         </div>
+      <i-tabler name="chevron-down" class="d3-user-chevron"></i-tabler>
     </div>
+
+    <mat-menu #d3UserMenu="matMenu" xPosition="before" class="d3-user-menu cardWithShadow">
+      <button mat-menu-item (click)="navigateToProfile()">
+        <i-tabler name="user" class="icon-18"></i-tabler>
+        <span class="f-s-14">{{ 'd3.profile.title' | translate }}</span>
+      </button>
+      <button mat-menu-item class="d3-user-menu-logout" (click)="logout()">
+        <i-tabler name="logout" class="icon-18"></i-tabler>
+        <span class="f-s-14">{{ 'd3.sidebar.logout' | translate }}</span>
+      </button>
+    </mat-menu>
   </div>
 </header>

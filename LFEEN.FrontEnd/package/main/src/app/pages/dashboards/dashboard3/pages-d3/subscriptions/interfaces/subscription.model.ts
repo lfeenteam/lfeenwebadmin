@@ -65,6 +65,8 @@ export interface SubscriptionOrderItem {
   tierName: string | null;
   billingModel: SubscriptionBillingModel;
   lineStatus: string | null;
+  /** MessagePack lines: messages bought. Not sent by every backend build yet. */
+  messageQuantity?: number | null;
 }
 
 export interface SubscriptionOrder {
@@ -81,7 +83,17 @@ export interface SubscriptionOrder {
   processedAt: string | null;
   items: SubscriptionOrderItem[];
   isAutoActivated: boolean;
+  // ── Not sent by every backend build yet — each is shown only when present ──
+  /** e.g. "MerchantWallet"; card payments carry the card brand. */
+  paymentMethod?: string | null;
+  /** Wallet auto top-ups currently arrive only as this note: "Auto top-up from wallet". */
+  note?: string | null;
+  isAutoTopUp?: boolean;
 }
+
+/** An order the wallet auto top-up placed — flagged explicitly, or by its note until the flag exists. */
+export const isAutoTopUpOrder = (o: SubscriptionOrder): boolean =>
+  o.isAutoTopUp === true || /auto top-?up/i.test(o.note ?? '');
 
 // ── /api/subscriptions/catalog ────────────────────────────────
 export type SubscriptionCategory = 'Compliance' | 'SmartLock' | 'GovernmentPlatform' | 'Maps' | 'ChannelManager' | 'Messaging' | 'Erp' | 'Payments' | 'Other';
@@ -122,13 +134,17 @@ export interface SubscriptionCatalogItem {
   /** Default tier's free-trial length; 0 = no trial. */
   trialDays?: number;
   billingModel: SubscriptionBillingModel;
-  activationMode: SubscriptionActivationMode;
+  /** Not every backend build returns it — absent means unknown, never a default. */
+  activationMode?: SubscriptionActivationMode;
+  /** Requested from the backend ("Subscription" | "MessagePack" | "Usage"); derived locally until it's sent. */
+  pricingStyle?: string | null;
   isFree: boolean;
   isBuiltIn: boolean;
 }
 
 // ── /api/subscriptions/pricing ────────────────────────────────
-export type SubscriptionPricingPeriod = 'Daily' | 'Monthly' | 'Yearly';
+/** MessagePack (5 on the backend) = a prepaid message balance, priced per pack — not a recurring fee. */
+export type SubscriptionPricingPeriod = 'Daily' | 'Monthly' | 'Yearly' | 'MessagePack';
 export type SubscriptionUsageUnitType = 'None' | 'PerUnit' | 'PercentageOfValue';
 
 export interface SubscriptionPricingItem {
@@ -149,6 +165,8 @@ export interface SubscriptionPricingItem {
   /** PerUnit: flat amount per unit. PercentageOfValue: a rate (0.025 = 2.5%). */
   usageUnitPrice?: number | null;
   usageMaxFeeAmount?: number | null;
+  /** MessagePack only: messages in one pack, also the minimum a merchant can buy. */
+  messagesPerPack?: number | null;
   currencyCode: string;
   isActive: boolean;
   effectiveFrom: string;
@@ -175,6 +193,8 @@ export interface SetSubscriptionPriceRequest {
   usageUnitType?: SubscriptionUsageUnitType | null;
   usageUnitPrice?: number | null;
   usageMaxFeeAmount?: number | null;
+  /** Required with period MessagePack: price is then the pack's price before VAT. */
+  messagesPerPack?: number | null;
   currencyCode?: string;
 }
 
@@ -193,7 +213,8 @@ export interface UpdateSubscriptionServiceRequest {
   minimumYearlyPrice?: number | null;
   isPriceVatInclusive?: boolean;
   billingModel: SubscriptionBillingModel;
-  activationMode: SubscriptionActivationMode;
+  /** Only sent back when the GET returned it, so an unknown mode is never overwritten with a guess. */
+  activationMode?: SubscriptionActivationMode;
 }
 
 // ── /api/subscriptions/{id}/integration-fields ────────────────
@@ -412,7 +433,7 @@ export interface SubscriptionOverview {
   misconfiguredServicesCount: number;
 }
 
-export type SubscriptionOfferTone = 'green' | 'blue' | 'purple' | 'orange';
+export type SubscriptionOfferTone ='green' | 'blue' | 'purple' | 'orange';
 
 export interface SubscriptionOfferCard {
   id: string;
@@ -431,6 +452,11 @@ export interface SubscriptionOfferCard {
   /** null = no active pricing for that period; 0 = free. */
   monthlyPriceValue: number | null;
   annualPriceValue: number | null;
-  billingModel: SubscriptionBillingModel;
-  activationMode: SubscriptionActivationMode;
+  /** undefined when the catalog didn't send it — the type badge is then hidden. */
+  billingModel?: SubscriptionBillingModel;
+  /** MessagePack services show the pack price instead of monthly/annual. */
+  isMessagePack: boolean;
+  /** Active pack price before VAT; null = not priced yet. */
+  packPriceValue: number | null;
+  messagesPerPack: number | null;
 }

@@ -124,6 +124,14 @@
       align-items: center !important;
       gap: 10px;
       margin-inline-start: 8px;
+      cursor: pointer;
+      outline: none;
+
+      .d3-user-chevron {
+        width: 16px;
+        height: 16px;
+        color: #62748E;
+      }
 
       .d3-user-avatar {
         width: 40px !important;
@@ -234,6 +242,20 @@
   .d3-lang-active {
     background-color: #F1F5F9 !important;
     font-weight: 700 !important;
+  }
+}
+
+::ng-deep .d3-user-menu {
+  min-width: 180px !important;
+
+  .mat-mdc-menu-item .mat-mdc-menu-item-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .d3-user-menu-logout {
+    color: #ef4444 !important;
   }
 }
 

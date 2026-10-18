@@ -220,7 +220,64 @@
     }
   </div>
 
-  @if (isPaidService) {
+  @if (isPaidService && isMessagePack) {
+  <!-- Message pack pricing (period MessagePack): one pack price + messages per pack -->
+  <div class="section-card">
+    <div class="card-head">
+      <h3 class="card-title">{{ 'd3.smsPricing.title' | translate }}</h3>
+      <p class="section-desc">{{ 'd3.smsPricing.desc' | translate }}</p>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="mode-settings-grid">
+      <div class="mode-setting">
+        <label class="field-label" for="pack-price">{{ 'd3.smsPricing.packPrice' | translate }}</label>
+        <div class="number-field position-relative">
+          <span class="currency-icon-sm field-currency" [class.currency-icon-en]="currencyIconEn"
+            [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+            [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+          <input id="pack-price" type="number" min="0.01" step="0.01" class="inline-input inline-input--full" [(ngModel)]="packPrice"
+            [placeholder]="'d3.subscriptions.serviceSettings.pricing.noPricePlaceholder' | translate" />
+        </div>
+        @if (packPriceInvalid) { <span class="field-error">{{ 'd3.smsPricing.errors.price' | translate }}</span> }
+      </div>
+      <div class="mode-setting">
+        <label class="field-label" for="messages-per-pack">{{ 'd3.smsPricing.messagesPerPack' | translate }}</label>
+        <div class="number-field position-relative">
+          <i-tabler name="message-2" class="icon-18 field-currency field-leading-icon"></i-tabler>
+          <input id="messages-per-pack" type="number" min="1" step="1" class="inline-input inline-input--full" [(ngModel)]="messagesPerPack" placeholder="500" />
+        </div>
+        @if (messagesPerPackInvalid) {
+          <span class="field-error">{{ 'd3.smsPricing.errors.messages' | translate }}</span>
+        } @else {
+          <span class="section-desc">{{ 'd3.smsPricing.messagesPerPackHint' | translate }}</span>
+        }
+      </div>
+    </div>
+
+    @if (packIncomplete) {
+      <span class="field-error d-block m-t-12">{{ 'd3.smsPricing.errors.incomplete' | translate }}</span>
+    }
+
+    <div class="trial-info-box m-t-16 m-b-0">
+      @if (pricePerMessage !== null && packTotalWithVat !== null) {
+        <span class="d-flex align-items-center flex-wrap gap-4">
+          {{ 'd3.smsPricing.perMessage' | translate }}
+          <ng-container *ngTemplateOutlet="money; context: { $implicit: pricePerMessage, digits: 4 }"></ng-container>
+          · {{ 'd3.smsPricing.packTotal' | translate: { count: fmt(messagesPerPack ?? 0), vat: vatPercent } }}
+          <ng-container *ngTemplateOutlet="money; context: { $implicit: packTotalWithVat }"></ng-container>
+        </span>
+      } @else {
+        {{ 'd3.smsPricing.noPrice' | translate }}
+      }
+    </div>
+
+    <p class="section-desc m-t-12 m-b-0">{{ 'd3.smsPricing.note' | translate }}</p>
+  </div>
+  }
+
+  @if (isPaidService && !isMessagePack) {
   <!-- Operations & subscriptions pricing: one row per (tier, period) from GET /pricing -->
   <div class="section-card">
     <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
@@ -319,7 +376,7 @@
   }
 
   <!-- Free trial + standard prices -->
-  @if (isPaidService) {
+  @if (isPaidService && !isMessagePack) {
   <div class="row">
     <div class="col-lg-6 m-b-20">
       <div class="section-card pricing-trial-card h-100 m-b-0">
@@ -412,14 +469,13 @@
       </span>
       <span class="d-flex align-items-center gap-8">
         <span class="semantic-badge" [class.badge-free]="billingModel === 'Free'" [class.badge-paid]="billingModel === 'Paid'" [class.badge-built-in]="billingModel === 'BuiltIn'">{{ ('d3.subscriptionTypes.' + billingModel) | translate }}</span>
-        <span class="semantic-badge" [class.badge-automatic]="activationMode === 'Instant'" [class.badge-manual]="activationMode === 'AdminApproval'">{{ ('d3.activationModes.' + activationMode) | translate }}</span>
         <i-tabler [name]="advancedOpen ? 'chevron-up' : 'chevron-down'" class="icon-18"></i-tabler>
       </span>
     </button>
   </div>
 
   @if (advancedOpen) {
-  <!-- Service type, activation and descriptive details -->
+  <!-- Service type and descriptive details -->
   <div class="section-card">
     <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
       <div>
@@ -444,16 +500,6 @@
           }
         </mat-select>
         <span class="section-desc">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
-      </div>
-      <div class="mode-setting">
-        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.activationModeLabel' | translate }}</span>
-        <mat-select class="state-select mode-select" [(ngModel)]="activationMode" disableOptionCentering panelClass="duration-select-panel"
-          [attr.aria-label]="'d3.subscriptions.serviceSettings.activationModeLabel' | translate">
-          @for (m of activationModes; track m) {
-            <mat-option [value]="m">{{ ('d3.activationModes.' + m) | translate }}</mat-option>
-          }
-        </mat-select>
-        <span class="section-desc">{{ ('d3.subscriptions.serviceSettings.activationModeHint.' + activationMode) | translate }}</span>
       </div>
     </div>
 
@@ -512,7 +558,7 @@
     <p class="section-desc m-t-16 m-b-0">{{ 'd3.serviceFeatures.note' | translate }}</p>
   </div>
 
-  @if (isPaidService) {
+  @if (isPaidService && !isMessagePack) {
   <!-- Tiers (Standard / Premium …) — each carries its own free-trial length -->
   <div class="section-card">
     <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
@@ -622,12 +668,12 @@
 
 </div>
 
-<ng-template #money let-value>
+<ng-template #money let-value let-digits="digits">
   <span class="money-value d-inline-flex align-items-center gap-4">
     <span class="currency-icon-sm" [class.currency-icon-en]="currencyIconEn"
       [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
       [style.mask-image]="'url(' + currencyIconSrc + ')'"
       role="img" [attr.aria-label]="currencyIconAlt"></span>
-    {{ fmtAmount(value) }}
+    {{ digits ? fmtMessagePrice(value) : fmtAmount(value) }}
   </span>
 </ng-template>

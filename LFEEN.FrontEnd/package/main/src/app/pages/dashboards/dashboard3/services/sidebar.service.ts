@@ -111,8 +111,15 @@ export class SidebarService {
       });
     }
 
-    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
+    // The backend doesn't send a Control Center entry in the sidebar payload yet.
+    if (PAGE_FLAGS['control-center'] && !items.find(i => i.link === '/d3/control-center')) {
       items.push({ divider: true });
+      items.push({ translationKey: 'd3.sidebar.controlCenter', icon: 'layout-grid', link: '/d3/control-center' });
+    }
+
+    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
+      // Settings shares the Control Center group in the design — one divider above both.
+      if (items[items.length - 1]?.link !== '/d3/control-center') items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
 
@@ -134,6 +141,7 @@ export class SidebarService {
       'users-management': 'users',
       'admin-users':      'user-cog',
       'roles':            'shield-check',
+      'operation-audits': 'history',
       'units':            'smart-home',
       'properties':       'building-skyscraper',
       'accounts':         'users',

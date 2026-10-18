@@ -1,57 +1,42 @@
 import { Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { formatApiDateLocal } from 'src/app/utils/date-format.util';
-import { SubscriptionsService } from '../../../../services/subscriptions.service';
-import { SubscriptionOrder, SubscriptionOrderItem, subscriptionLineTotal } from '../../interfaces/subscription.model';
-import { isStaleSubscriptionError, resolveSubscriptionError } from '../../interfaces/subscription-error.util';
+import { SubscriptionOrder, SubscriptionOrderItem, isAutoTopUpOrder, subscriptionLineTotal } from '../../interfaces/subscription.model';
+import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+
+// Known paymentMethod values get a translated label; anything else is shown as sent.
+const PAYMENT_METHOD_KEYS: Record<string, string> = {
+  merchantwallet: 'wallet',
+  wallet: 'wallet',
+  mada: 'mada',
+  visa: 'visa',
+  mastercard: 'mastercard',
+  master: 'mastercard',
+  applepay: 'applePay',
+  card: 'card',
+};
 import { orderStatusKind, OrderStatusKind } from '../request-status.util';
 import { serviceVisual } from '../../interfaces/service-visual.util';
 
-/** `updated` = the order was approved/rejected; `refresh` = it changed server-side, reload the list. */
-export type RequestDrawerResult =
-  | { type: 'updated'; order: SubscriptionOrder }
-  | { type: 'refresh' }
-  | undefined;
-
-type DrawerStep = 'details' | 'approve' | 'reject';
-
-const NOTE_MAX = 1000;
-
+/** Read-only order details — orders are activated on payment, the admin doesn't approve or reject them. */
 @Component({
   selector: 'app-request-detail-drawer',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule],
   templateUrl: './request-detail-drawer.component.html',
   styleUrl: './request-detail-drawer.component.scss'
 })
 export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
-  private toastr = inject(ToastrService);
-  private service = inject(SubscriptionsService);
 
   @Input() order: SubscriptionOrder | null = null;
   @Input() logoByServiceId = new Map<number, string | null>();
-  @Input() canApprove = false;
-  @Input() canReject = false;
-  @Output() closed = new EventEmitter<RequestDrawerResult>();
-
-  readonly noteMax = NOTE_MAX;
-
-  step: DrawerStep = 'details';
-  submitting = false;
-  approveNote = '';
-  rejectReason = '';
+  @Output() closed = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['order']) {
-      this.step = 'details';
-      this.approveNote = '';
-      this.rejectReason = '';
-      this.submitting = false;
       document.body.style.overflow = this.order ? 'hidden' : '';
     }
   }
@@ -97,10 +82,6 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return orderStatusKind(this.order?.status);
   }
 
-  get showActions(): boolean {
-    return this.kind === 'underReview' && !this.order?.isAutoActivated && (this.canApprove || this.canReject);
-  }
-
   get requestedAtLabel(): string {
     return formatApiDateLocal(this.order?.requestedAt, this.currentLang) ?? '-';
   }
@@ -116,13 +97,24 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return Math.round((o.taxAmount / o.subtotalAmount) * 100);
   }
 
-  get canConfirmReject(): boolean {
-    const reason = this.rejectReason.trim();
-    return !this.submitting && !!reason && reason.length <= NOTE_MAX;
-  }
-
   lineTotal(item: SubscriptionOrderItem): number {
     return subscriptionLineTotal(item);
+  }
+
+  get isAutoTopUp(): boolean {
+    return !!this.order && isAutoTopUpOrder(this.order);
+  }
+
+  /** null when the order doesn't carry a payment method. */
+  get paymentMethodLabel(): string | null {
+    const raw = this.order?.paymentMethod?.trim();
+    if (!raw) return null;
+    const key = PAYMENT_METHOD_KEYS[raw.toLowerCase().replace(/[\s_-]/g, '')];
+    return key ? this.translate.instant(`d3.subscriptionRequests.detail.paymentMethods.${key}`) : raw;
+  }
+
+  fmtCount(value: number): string {
+    return formatLocalizedNumber(value, this.currentLang);
   }
 
   /** Logo URLs that failed to load — the service icon is shown instead of a broken image. */
@@ -145,56 +137,7 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
   }
 
-  setStep(step: DrawerStep): void {
-    if (this.submitting) return;
-    this.step = step;
-  }
-
-  confirmApprove(): void {
-    if (!this.order || this.submitting) return;
-    this.submitting = true;
-    this.service.approveOrder(this.order.orderId, this.approveNote.trim() || undefined).subscribe({
-      next: updated => {
-        this.toastr.success(this.translate.instant('d3.subscriptionRequests.detail.approvedToast'));
-        this.finish(this.withStatus(updated, 'Approved'));
-      },
-      error: err => this.handleError(err),
-    });
-  }
-
-  confirmReject(): void {
-    if (!this.order || !this.canConfirmReject) return;
-    this.submitting = true;
-    this.service.rejectOrder(this.order.orderId, this.rejectReason.trim()).subscribe({
-      next: updated => {
-        this.toastr.success(this.translate.instant('d3.subscriptionRequests.detail.rejectedToast'));
-        this.finish(this.withStatus(updated, 'Rejected'));
-      },
-      error: err => this.handleError(err),
-    });
-  }
-
   close(): void {
-    if (this.submitting) return;
-    this.closed.emit(undefined);
-  }
-
-  // The response's raw status may be numeric — pin it to the action we just took so the row lands in the right tab.
-  private withStatus(order: SubscriptionOrder, status: 'Approved' | 'Rejected'): SubscriptionOrder {
-    return orderStatusKind(order?.status) === 'other' ? { ...order, status } : order;
-  }
-
-  private finish(order: SubscriptionOrder): void {
-    this.submitting = false;
-    this.closed.emit({ type: 'updated', order });
-  }
-
-  private handleError(err: unknown): void {
-    this.submitting = false;
-    this.toastr.error(resolveSubscriptionError(err, this.translate));
-    // Already processed by someone else (409) or gone (404) — nothing here can succeed anymore.
-    if (isStaleSubscriptionError(err)) {
-      this.closed.emit({ type: 'refresh' });
-    }
+    this.closed.emit();
   }
 }

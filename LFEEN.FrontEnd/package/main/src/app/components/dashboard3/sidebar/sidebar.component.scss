@@ -274,21 +274,39 @@
         min-height: 40px !important;
         padding: 0 12px !important;
         cursor: pointer !important;
-        
+        overflow: visible !important;
+
+        // mat-list-item clips its content by default, which cuts off the badge's top.
+        ::ng-deep .mdc-list-item__content,
+        ::ng-deep .mdc-list-item__primary-text {
+          overflow: visible !important;
+        }
+
         .icon-wrapper {
           position: relative;
           display: flex;
           align-items: center;
           
-          .notification-dot {
+          // Same look as the header's .d3-notification-badge, scaled to the 20px icon.
+          // Sits on the icon's outer side (inline-start) so it never overlaps the label.
+          .notification-badge {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 6px;
-            height: 6px;
+            top: -6px;
+            inset-inline-start: -7px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: #ef4444;
-            border-radius: 50%;
-            border: 1px solid #fff;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1;
+            border-radius: 8px;
+            border: 1.5px solid #fff;
+            box-sizing: border-box;
           }
         }
       }
@@ -308,6 +326,20 @@
           height: 36px;
           border-radius: 50%;
           object-fit: cover;
+        }
+
+        // The backend sends no user image — initials stand in for the avatar.
+        .profile-initials {
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #1E293B;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 1;
+          user-select: none;
         }
 
         .user-info {

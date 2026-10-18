@@ -198,6 +198,7 @@
       "subscriptionLog": "Subscription Log",
       "subscriptionRequests": "Subscription Requests",
       "discountCodes": "Discount Codes",
+      "controlCenter": "Control Center",
       "settings": "Settings",
       "notifications": "Notifications",
       "logout": "Logout"
@@ -2533,6 +2534,176 @@
         "total": "account"
       }
     },
+    "controlCenter": {
+      "title": "Control Center",
+      "lastUpdatedNow": "Last updated just now",
+      "lastReviewedNow": "Last reviewed just now",
+      "footer": "Apps Control Center",
+      "stats": {
+        "platforms": "App platforms",
+        "platformsNote": "Client & merchant · iOS Android",
+        "maintenance": "Platforms under maintenance",
+        "allRunning": "All systems operational",
+        "someDown": "Some platforms are paused",
+        "themes": "Seasonal themes",
+        "themesNote": "{{active}} active · {{scheduled}} scheduled"
+      },
+      "apps": {
+        "title": "Apps status",
+        "subtitle": "A quick look at every app and platform",
+        "client": "Client app",
+        "merchant": "Merchant app"
+      },
+      "platforms": {
+        "ios": "Apple iOS",
+        "android": "Android"
+      },
+      "status": {
+        "running": "Running",
+        "maintenance": "Maintenance"
+      },
+      "tabs": {
+        "maintenance": "Maintenance mode",
+        "updates": "App updates",
+        "themes": "Seasonal themes"
+      },
+      "maintenance": {
+        "title": "Maintenance mode control",
+        "subtitle": "Temporarily pause the target app when needed",
+        "targetApp": "Target app",
+        "targetPlatform": "Target platform",
+        "targets": {
+          "all": "All platforms",
+          "ios": "iOS only",
+          "android": "Android only"
+        },
+        "enable": "Enable maintenance mode",
+        "enableDesc": "Requests from the target app will be blocked temporarily",
+        "schedule": "Schedule maintenance",
+        "scheduleDesc": "Start and end maintenance automatically",
+        "startsAt": "Starts at",
+        "endsAt": "Ends at",
+        "pickDateTime": "Pick date & time",
+        "messageTitle": "Maintenance message title",
+        "messageTitlePlaceholder": "We're improving your experience",
+        "message": "Maintenance message",
+        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon.",
+        "bypassKey": "Maintenance bypass key for testers",
+        "bypassKeyPlaceholder": "Enter a secure key",
+        "bypassKeySet": "A key is set — leave empty to keep it",
+        "bypassKeyHint": "The key won't be shown again after saving.",
+        "save": "Save maintenance settings",
+        "cancel": "Discard changes",
+        "saveSuccess": "Maintenance settings saved",
+        "errors": {
+          "titleRequired": "Message title is required",
+          "messageRequired": "Message text is required",
+          "scheduleRequired": "Set both a start and an end time",
+          "scheduleOrder": "The end time must be after the start time"
+        }
+      },
+      "preview": {
+        "title": "Preview of what users will see",
+        "badge": "Preview",
+        "retry": "Try again",
+        "retryHint": "You can try again in a few minutes",
+        "note": "Support pages and app settings stay available during maintenance."
+      },
+      "updates": {
+        "title": "App versions management",
+        "subtitle": "Set the latest version and update policy for each platform separately",
+        "selectApp": "Select app",
+        "platform": "Operating system",
+        "latestVersion": "Latest version",
+        "latestVersionHint": "The version currently live on the store",
+        "minVersion": "Minimum supported",
+        "minVersionHint": "Older versions will be blocked or prompted",
+        "policy": "Update policy",
+        "policies": {
+          "forced": "Forced update",
+          "forcedDesc": "Block old versions until updated",
+          "optional": "Optional update",
+          "optionalDesc": "Let users skip the update",
+          "none": "No prompt",
+          "noneDesc": "Don't show users any message"
+        },
+        "storeUrl": "Store link",
+        "message": "Update message (Arabic)",
+        "messagePlaceholder": "A new version of LFEEN is available, update to continue.",
+        "save": "Save version settings",
+        "saveSuccess": "Version settings saved",
+        "previewTitle": "Update message preview",
+        "previewForced": "Update required",
+        "previewOptional": "Update available",
+        "previewNone": "No message",
+        "previewNoneDesc": "Users won't see any update prompt",
+        "updateNow": "Update now",
+        "later": "Later",
+        "storeHint": "You'll be taken to the store",
+        "forcedNote": "Versions below {{version}} will receive an HTTP 426 response",
+        "errors": {
+          "required": "This field is required",
+          "version": "Use a version format like 4.8.0",
+          "versionOrder": "The minimum can't be newer than the latest version",
+          "url": "Enter a valid link starting with https://"
+        }
+      },
+      "themes": {
+        "title": "Seasonal themes management",
+        "subtitle": "Add, edit and schedule looks for special occasions",
+        "new": "New theme",
+        "edit": "Edit theme",
+        "brand": "LFEEN",
+        "tagline": "Stays and experiences offers",
+        "createSuccess": "Theme created",
+        "updateSuccess": "Theme changes saved",
+        "status": {
+          "active": "Active",
+          "scheduled": "Scheduled",
+          "expired": "Expired",
+          "disabled": "Disabled"
+        },
+        "empty": {
+          "title": "No themes yet",
+          "desc": "Add your first seasonal theme to customise the app for occasions"
+        },
+        "form": {
+          "createTitle": "Create a seasonal theme",
+          "editTitle": "Edit theme",
+          "subtitle": "Enter the theme details and when it should appear",
+          "close": "Close",
+          "name": "Theme name",
+          "namePlaceholder": "e.g. Eid al-Fitr",
+          "key": "Unique key (Theme Key)",
+          "keyHint": "The key can't repeat across existing themes.",
+          "app": "Target app",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "pickDate": "Pick a date",
+          "primaryColor": "Primary color",
+          "secondaryColor": "Secondary color",
+          "bannerUrl": "Theme image or banner URL",
+          "enabled": "Enable theme",
+          "enabledDesc": "The theme shows automatically during the selected period",
+          "create": "Create theme",
+          "save": "Save changes",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "required": "This field is required",
+          "key": "Use lowercase letters, numbers and dashes only, e.g. eid-al-fitr",
+          "keyTaken": "This key is already used by another theme",
+          "color": "Enter a color as #RRGGBB",
+          "url": "Enter a valid link starting with https://",
+          "dateOrder": "The end date must be after the start date"
+        }
+      },
+      "errors": {
+        "loadTitle": "Couldn't load data",
+        "network": "Check your connection and try again",
+        "retry": "Try again"
+      }
+    },
     "esim": {
       "title": "Smart SIMs",
       "heading": "eSIM Smart SIMs",
@@ -2914,6 +3085,22 @@
       }
     },
     "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
+    "smsPricing": {
+      "title": "Message balance pricing",
+      "desc": "Merchants buy as many messages as they need; the per-message price comes from the pack price and its message count. The balance never expires.",
+      "packPrice": "Pack price (before VAT)",
+      "messagesPerPack": "Messages per pack",
+      "messagesPerPackHint": "Also the smallest top-up a merchant can buy.",
+      "perMessage": "Price per message:",
+      "packTotal": "{{count}} messages incl. {{vat}}% VAT:",
+      "noPrice": "No active price. Merchants can't top up until you set a price and make the service available.",
+      "note": "A new price applies to future top-ups only; balance already bought is unaffected.",
+      "errors": {
+        "price": "Pack price must be greater than zero",
+        "messages": "Message count must be a whole number above zero",
+        "incomplete": "Enter both the pack price and the message count"
+      }
+    },
     "integrationField": {
       "title": "Add integration field",
       "labelAr": "Field name in Arabic",
@@ -3035,7 +3222,6 @@
       "deactivateTitle": "Stop the seasonal price?",
       "deactivateMessage": "The service goes back to its normal price right away. To change a seasonal price, stop it and add a new one."
     },
-    "activationModes": { "AdminApproval": "Admin approval", "Instant": "Automatic" },
     "subscriptions": {
       "pageTitle": "Subscription Management",
       "listTitle": "Subscribers Accounts List",
@@ -3051,7 +3237,6 @@
         "total": "Total Subscribers",
         "growth": "growth",
         "growthBadge": "+{{percent}}% growth",
-        "automatic": "Automatic requests", "automaticDesc": "Processed automatically",
         "free": "Free subscriptions", "freeDesc": "Currently active"
       },
       "classification": {
@@ -3129,6 +3314,9 @@
         "noPricing": { "Free": "No prices or expiry; merchants turn it on in one tap", "BuiltIn": "Built into the platform; no prices or tiers" },
         "monthlyPrice": "Monthly Price",
         "annualPrice": "Annual Price",
+        "packPrice": "Pack Price",
+        "packMessages": "{{count}} messages",
+        "perMessage": "Price per Message",
         "filters": {
           "all": "All"
         },
@@ -3205,21 +3393,16 @@
         "perUnitLabel": "Amount per transaction",
         "percentLabel": "Percentage of the transaction value",
         "capLabel": "Maximum fee per transaction",
-        "hint": "Debited from the merchant's wallet at the moment of the transaction; it never goes through order review. With a usage fee, the subscription price can be 0.",
+        "hint": "Debited from the merchant's wallet at the moment of the transaction. With a usage fee, the subscription price can be 0.",
         "errors": {
           "unitPrice": "The usage fee must be greater than zero",
           "cap": "A maximum fee per transaction is required and must be greater than zero"
         }
       },
-      "activationModeLabel": "Activation",
       "billingModelHint": {
         "Paid": "Has prices and tiers; the merchant pays.",
         "Free": "No prices, tiers or expiry date. The merchant turns it on or off in one tap.",
         "BuiltIn": "Built into the platform with its own activation. No prices or tiers."
-      },
-      "activationModeHint": {
-        "AdminApproval": "The merchant's request waits for admin approval.",
-        "Instant": "Activated automatically: free services on request, paid ones once payment succeeds."
       },
       "billingChange": {
         "title": "Change the service type?",
@@ -3308,7 +3491,7 @@
         "plan": "Plan type",
         "startDate": "Start date",
         "renewalDate": "Renewal date",
-        "amountPaid": "Amount paid",
+        "amountPaid": "Current price",
         "status": "Status",
         "planType": {
           "annualAdvanced": "Annual - advanced",
@@ -3433,15 +3616,15 @@
     "subscriptionRequests": {
       "pageTitle": "Subscription Requests",
       "title": "Subscription Requests",
-      "subtitle": "Review merchant requests and approve or reject them",
+      "subtitle": "Every subscription order merchants placed, with its services and amounts",
       "tabs": {
         "all": "All",
         "rejected": "Rejected",
         "approved": "Approved",
         "underReview": "Under review"
       },
-      "activationFilter": { "all": "All", "automatic": "Automatic", "manual": "Manual" },
       "automatic": "Automatic",
+      "autoTopUp": "Auto top-up",
       "table": {
         "merchant": "Merchant",
         "services": "Requested services",
@@ -3450,7 +3633,6 @@
         "status": "Status",
         "actions": "Actions"
       },
-      "reviewBtn": "Review",
       "detailsBtn": "Details",
       "retry": "Retry",
       "empty": {
@@ -3481,18 +3663,17 @@
         "subtotal": "Subtotal before tax",
         "vat": "VAT",
         "total": "Total",
-        "approve": "Approve",
-        "reject": "Reject",
-        "back": "Back",
-        "noteLabel": "Note (optional)",
-        "notePlaceholder": "Add a note to the approval...",
-        "reasonLabel": "Rejection reason",
-        "reasonPlaceholder": "Tell the merchant why the request was rejected...",
-        "confirmApprove": "Confirm approval",
-        "confirmReject": "Confirm rejection",
-        "saving": "Saving...",
-        "approvedToast": "Request approved",
-        "rejectedToast": "Request rejected"
+        "messageQuantity": "Messages",
+        "messagesCount": "{{count}} messages",
+        "paymentMethod": "Payment method",
+        "paymentMethods": {
+          "wallet": "Merchant wallet",
+          "mada": "mada",
+          "visa": "Visa",
+          "mastercard": "Mastercard",
+          "applePay": "Apple Pay",
+          "card": "Card"
+        }
       }
     },
     "discountCodes": {

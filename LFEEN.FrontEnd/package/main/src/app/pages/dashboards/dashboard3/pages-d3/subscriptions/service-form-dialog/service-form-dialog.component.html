@@ -58,25 +58,15 @@
     </div>
 
     @if (!isEdit) {
-      <!-- Type & activation: on edit these live in the service settings page header -->
-      <div class="form-grid">
-        <div class="form-field">
-          <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
-          <mat-select class="field-select" [(ngModel)]="billingModel" disableOptionCentering>
-            @for (m of billingModels; track m) {
-              <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
-            }
-          </mat-select>
-        </div>
-        <div class="form-field">
-          <span class="field-label">{{ 'd3.subscriptions.serviceSettings.activationModeLabel' | translate }}</span>
-          <mat-select class="field-select" [(ngModel)]="activationMode" disableOptionCentering>
-            @for (m of activationModes; track m) {
-              <mat-option [value]="m">{{ ('d3.activationModes.' + m) | translate }}</mat-option>
-            }
-          </mat-select>
-        </div>
-        <span class="field-hint span-2">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
+      <!-- Type: on edit it lives in the service settings page -->
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="billingModel" disableOptionCentering>
+          @for (m of billingModels; track m) {
+            <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
+          }
+        </mat-select>
+        <span class="field-hint">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
       </div>
 
       <label class="check-row">
