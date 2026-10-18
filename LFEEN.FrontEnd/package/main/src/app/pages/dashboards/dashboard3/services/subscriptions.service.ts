@@ -1,9 +1,52 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus, SubscriptionPricingItem, SubscriptionPricingPeriod } from '../pages-d3/subscriptions/interfaces/subscription.model';
+import {
+  CreateIntegrationFieldRequest,
+  CreateSeasonalPriceRequest,
+  CreateSubscriptionDiscountCodeRequest,
+  CreateSubscriptionFeatureRequest,
+  CreateSubscriptionServiceRequest,
+  CreateSubscriptionTierRequest,
+  SubscriptionServiceFeature,
+  MerchantSubscription,
+  ServiceSubscriber,
+  SetSubscriptionPriceRequest,
+  SubscriptionIntegrationField,
+  SubscriptionActivityLogQuery,
+  SubscriptionAuditLog,
+  SubscriptionCatalogItem,
+  SubscriptionDiscountCode,
+  SubscriptionOrder,
+  SubscriptionOrderStatus,
+  SubscriptionOverview,
+  SubscriptionPaginated,
+  SubscriptionPricingItem,
+  SubscriptionTier,
+  UpdateSubscriptionServiceRequest,
+} from '../pages-d3/subscriptions/interfaces/subscription.model';
+
+export const ORDER_STATUSES: SubscriptionOrderStatus[] = ['Pending', 'UnderReview', 'Approved', 'Rejected'];
+
+// The guide says the subscriber endpoints are paginated but not in which envelope. The
+// activity-log shape ({ data, totalCount, page, nextpage, totalPages }) is assumed; a bare
+// array is also accepted so the tables still render if the envelope differs.
+function toPage<T>(res: unknown): SubscriptionPaginated<T> {
+  if (Array.isArray(res)) {
+    return { data: res as T[], totalCount: res.length, page: 1, nextpage: null, totalPages: 1 };
+  }
+  const r = (res ?? {}) as Partial<SubscriptionPaginated<T>> & { items?: T[] };
+  const data = r.data ?? r.items ?? [];
+  return {
+    data,
+    totalCount: r.totalCount ?? data.length,
+    page: r.page ?? 1,
+    nextpage: r.nextpage ?? null,
+    totalPages: Math.max(1, r.totalPages ?? 1),
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -12,28 +55,137 @@ export class SubscriptionsService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiBaseUrl}/api/subscriptions`;
 
-  getCatalog(): Observable<SubscriptionCatalogItem[]> {
-    return this.http.get<SubscriptionCatalogItem[]>(`${this.apiUrl}/catalog`);
+  // ── Catalog ─────────────────────────────────────────────────
+  getCatalog(query: { search?: string; category?: string } = {}): Observable<SubscriptionCatalogItem[]> {
+    let params = new HttpParams();
+    if (query.search) params = params.set('search', query.search);
+    if (query.category) params = params.set('category', query.category);
+    return this.http.get<SubscriptionCatalogItem[]>(`${this.apiUrl}/catalog`, { params });
   }
 
+  createCatalogItem(body: CreateSubscriptionServiceRequest): Observable<SubscriptionCatalogItem> {
+    return this.http.post<SubscriptionCatalogItem>(`${this.apiUrl}/catalog`, body);
+  }
+
+  updateCatalogItem(id: number, body: UpdateSubscriptionServiceRequest): Observable<SubscriptionCatalogItem> {
+    return this.http.put<SubscriptionCatalogItem>(`${this.apiUrl}/catalog/${id}`, body);
+  }
+
+  // ── Pricing ─────────────────────────────────────────────────
   getPricing(): Observable<SubscriptionPricingItem[]> {
     return this.http.get<SubscriptionPricingItem[]>(`${this.apiUrl}/pricing`);
   }
 
-  setPrice(subscriptionServiceId: number, period: SubscriptionPricingPeriod, price: number): Observable<SubscriptionPricingItem> {
-    return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, { subscriptionServiceId, period, price });
+  // Creates a new pricing row and closes the active one for the same (service, tier, period) —
+  // the caller must pass every fee it wants kept, not just the one it changed.
+  setPricing(body: SetSubscriptionPriceRequest): Observable<SubscriptionPricingItem> {
+    return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, body);
   }
 
-  getRequestsByStatus(status: SubscriptionOrderStatus): Observable<SubscriptionOrder[]> {
-    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests?status=${status}`);
+  // ── Integration fields (schema only) ────────────────────────
+  getIntegrationFields(subscriptionServiceId: number): Observable<SubscriptionIntegrationField[]> {
+    return this.http.get<SubscriptionIntegrationField[]>(`${this.apiUrl}/${subscriptionServiceId}/integration-fields`);
   }
 
-  // The endpoint only returns one status at a time and there's no "all" option,
-  // so a full log needs every status merged client-side.
-  getAllRequests(): Observable<SubscriptionOrder[]> {
-    const statuses: SubscriptionOrderStatus[] = ['Pending', 'UnderReview', 'Approved', 'Rejected'];
-    return forkJoin(statuses.map(status => this.getRequestsByStatus(status))).pipe(
-      map(results => results.flat())
+  createIntegrationField(body: CreateIntegrationFieldRequest): Observable<SubscriptionIntegrationField> {
+    return this.http.post<SubscriptionIntegrationField>(`${this.apiUrl}/integration-fields`, body);
+  }
+
+  deactivateIntegrationField(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/integration-fields/${id}/deactivate`, {});
+  }
+
+  // ── Subscribers ─────────────────────────────────────────────
+  /** One row per (merchant, property) line subscribed to a single service. */
+  getServiceSubscribers(subscriptionServiceId: number, query: { search?: string; pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<ServiceSubscriber>> {
+    let params = this.pageParams(query);
+    if (query.search) params = params.set('search', query.search);
+    return this.http.get<unknown>(`${this.apiUrl}/${subscriptionServiceId}/subscribers`, { params })
+      .pipe(map(res => toPage<ServiceSubscriber>(res)));
+  }
+
+  /** One row per merchant (their current state, not order history), paginated by merchant. */
+  getMerchantSubscriptions(query: { pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<MerchantSubscription>> {
+    return this.http.get<unknown>(`${this.apiUrl}/merchant-subscriptions`, { params: this.pageParams(query) })
+      .pipe(map(res => toPage<MerchantSubscription>(res)));
+  }
+
+  private pageParams(query: { pageNumber?: number; pageSize?: number }): HttpParams {
+    return new HttpParams()
+      .set('pageNumber', query.pageNumber ?? 1)
+      .set('pageSize', query.pageSize ?? 20);
+  }
+
+  // ── Tiers ───────────────────────────────────────────────────
+  getTiers(subscriptionServiceId?: number): Observable<SubscriptionTier[]> {
+    let params = new HttpParams();
+    if (subscriptionServiceId != null) params = params.set('subscriptionServiceId', subscriptionServiceId);
+    return this.http.get<SubscriptionTier[]>(`${this.apiUrl}/tiers`, { params });
+  }
+
+  createTier(body: CreateSubscriptionTierRequest): Observable<SubscriptionTier> {
+    return this.http.post<SubscriptionTier>(`${this.apiUrl}/tiers`, body);
+  }
+
+  // ── Catalog card features (no update endpoint: deactivate + recreate) ──
+  getFeatures(subscriptionServiceId?: number): Observable<SubscriptionServiceFeature[]> {
+    let params = new HttpParams();
+    if (subscriptionServiceId != null) params = params.set('subscriptionServiceId', subscriptionServiceId);
+    return this.http.get<SubscriptionServiceFeature[]>(`${this.apiUrl}/features`, { params });
+  }
+
+  createFeature(body: CreateSubscriptionFeatureRequest): Observable<SubscriptionServiceFeature> {
+    return this.http.post<SubscriptionServiceFeature>(`${this.apiUrl}/features`, body);
+  }
+
+  deactivateFeature(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/features/${id}/deactivate`, {});
+  }
+
+  // ── Seasonal prices (listed through GET /pricing's seasonalPrice* fields) ──
+  createSeasonalPrice(body: CreateSeasonalPriceRequest): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/seasonal-prices`, body);
+  }
+
+  deactivateSeasonalPrice(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/seasonal-prices/${id}/deactivate`, {});
+  }
+
+  // ── Discount codes ──────────────────────────────────────────
+  getDiscountCodes(): Observable<SubscriptionDiscountCode[]> {
+    return this.http.get<SubscriptionDiscountCode[]>(`${this.apiUrl}/discount-codes`);
+  }
+
+  createDiscountCode(body: CreateSubscriptionDiscountCodeRequest): Observable<SubscriptionDiscountCode> {
+    return this.http.post<SubscriptionDiscountCode>(`${this.apiUrl}/discount-codes`, body);
+  }
+
+  setDiscountCodeActive(id: number, active: boolean): Observable<SubscriptionDiscountCode> {
+    return this.http.post<SubscriptionDiscountCode>(`${this.apiUrl}/discount-codes/${id}/${active ? 'activate' : 'deactivate'}`, {});
+  }
+
+  // ── Orders / requests ───────────────────────────────────────
+  getOverview(): Observable<SubscriptionOverview> {
+    return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);
+  }
+
+  getRequestsByStatus(status: SubscriptionOrderStatus, isAutoActivated?: boolean): Observable<SubscriptionOrder[]> {
+    let params = new HttpParams().set('status', status);
+    if (isAutoActivated !== undefined) params = params.set('isAutoActivated', isAutoActivated);
+    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params }).pipe(
+      // Raw status may come back as a numeric string — the filter it was fetched
+      // under is the reliable value, so it replaces anything we don't recognize.
+      map(orders => orders.map(o => (ORDER_STATUSES as string[]).includes(o.status ?? '') ? o : { ...o, status }))
     );
+  }
+
+  // ── Activity log ────────────────────────────────────────────
+  getActivityLog(query: SubscriptionActivityLogQuery = {}): Observable<SubscriptionPaginated<SubscriptionAuditLog>> {
+    let params = new HttpParams()
+      .set('pageNumber', query.pageNumber ?? 1)
+      .set('pageSize', query.pageSize ?? 20);
+    if (query.accountId) params = params.set('accountId', query.accountId);
+    if (query.subscriptionServiceId != null) params = params.set('subscriptionServiceId', query.subscriptionServiceId);
+    return this.http.get<SubscriptionPaginated<SubscriptionAuditLog>>(`${this.apiUrl}/activity-log`, { params });
   }
 }

@@ -1,0 +1,520 @@
+// Table/pagination follow ban-refunds.component.scss; the filter bar follows the
+// complaints page's own .host-filters-bar. Classes are prefixed "cr-".
+$text:   #0F172B;
+$muted:  #45556C;
+$label:  #90A1B9;
+$line:   #E2E8F0;
+$border: #E8E8E4;
+$ink:    #111110;
+$star:   #d97706;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cr {
+  font-family: 'Cairo', sans-serif;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+}
+
+// ── Filters ──────────────────────────────────────────────
+.cr-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid $border;
+  background: #FDFDFB;
+
+  .cr-tabs-filter {
+    flex: 0 1 auto;
+    // The component's own :host is width: 100%, which pushed the date pills onto a second row.
+    width: auto;
+    min-width: 0;
+
+    ::ng-deep .tabs-filter { margin-top: 0; }
+    // Hide the whole (empty) tab strip, not just its row: the wrapper left behind still
+    // took the toolbar's 24px gap above the pills and threw them off the date pills' line.
+    ::ng-deep .tabs-scroll { display: none; }
+    ::ng-deep .filters-row { padding-bottom: 0; }
+    ::ng-deep .tabs-filter-toolbar { border-bottom: none; }
+    // The ratings endpoints have no free-text search.
+    ::ng-deep .search-box { display: none; }
+  }
+}
+
+.cr-dates {
+  // Takes the rest of the row so the reset button can sit at its far end.
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+// Same trigger + calendar menu as the bookings page's check-in/check-out pills.
+.cr-date-pill {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 47px;
+  padding: 10px 16px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0px 1px 2px -1px #0000001A;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B6B67;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover,
+  &[aria-expanded='true'] { background: #F7F7F5; border-color: #DEDED8; }
+  &.has-value { color: $ink; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+.cr-date-icon {
+  display: flex;
+  color: #6B6B67;
+
+  ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2; }
+}
+
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu {
+  max-width: none;
+  border-radius: 16px;
+}
+
+::ng-deep .mat-mdc-menu-panel.single-date-calendar-menu .mat-mdc-menu-content {
+  padding: 0;
+}
+
+.cr-reset {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 47px;
+  margin-inline-start: auto;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B6B67;
+  white-space: nowrap;
+
+  i-tabler { display: flex; }
+  &:hover { background: #F7F7F5; color: $ink; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+// ── Body ─────────────────────────────────────────────────
+.cr-body {
+  padding: 20px 28px 28px;
+}
+
+.cr-views {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: #F7F7F5;
+}
+
+.cr-view {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B6B67;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &:hover { color: $ink; }
+  &.active { background: $ink; color: #fff; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+// ── Summary ──────────────────────────────────────────────
+.cr-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  border: 1px solid $line;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.cr-card-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: $label;
+}
+
+.cr-average {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  strong {
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.1;
+    color: $text;
+  }
+}
+
+.cr-out-of {
+  font-size: 13px;
+  font-weight: 600;
+  color: $label;
+}
+
+.cr-total-value {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: $text;
+}
+
+// ── Stars ────────────────────────────────────────────────
+.cr-stars {
+  display: inline-flex;
+  gap: 1px;
+  font-size: 14px;
+  line-height: 1;
+
+  &--lg { font-size: 20px; }
+}
+
+.cr-star {
+  color: $line;
+
+  &.on { color: $star; }
+}
+
+.cr-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+
+  &.is-good { background: #f0fdf4; border: 1px solid #dcfce7; .cr-rating-value { color: #16a34a; } }
+  &.is-mid  { background: #fffbeb; border: 1px solid #fef3c7; .cr-rating-value { color: #d97706; } }
+  &.is-low  { background: #fef2f2; border: 1px solid #fee2e2; .cr-rating-value { color: #dc2626; } }
+}
+
+.cr-rating-value {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+// ── Distribution bars ────────────────────────────────────
+.cr-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--compact {
+    min-width: 200px;
+    max-width: 320px;
+    gap: 3px;
+
+    .cr-dist-track { height: 5px; }
+    .cr-dist-label, .cr-dist-count { font-size: 11px; }
+  }
+}
+
+.cr-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cr-dist-label {
+  flex: 0 0 34px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $muted;
+  white-space: nowrap;
+}
+
+.cr-dist-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  overflow: hidden;
+}
+
+.cr-dist-fill {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  background: $ink;
+  transition: width 0.3s ease;
+}
+
+.cr-dist-count {
+  flex: 0 0 32px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $text;
+  text-align: end;
+}
+
+// ── Table ────────────────────────────────────────────────
+.cr-table-box {
+  background: #fff;
+  border: 1px solid $line;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  padding: 10px;
+  transition: opacity 0.2s ease;
+
+  &.is-refreshing { opacity: 0.6; }
+}
+
+.cr-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: #F8FAFC;
+    border-bottom: 1px solid $line;
+
+    th {
+      padding: 16px 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: start;
+      text-transform: uppercase;
+      color: $label;
+      white-space: nowrap;
+    }
+  }
+
+  td {
+    padding: 18px 20px;
+    text-align: start;
+    vertical-align: middle;
+  }
+}
+
+.cr-row { border-bottom: 1px solid #F1F5F9; }
+.cr-row:last-child { border-bottom: none; }
+.cr-row.selected { background: #F7F7F5; }
+
+.cr-label { display: none; }
+
+.cr-strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+}
+
+.cr-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: $label;
+}
+
+.cr-text {
+  font-size: 13px;
+  color: $muted;
+}
+
+.cr-muted {
+  font-size: 12px;
+  color: $label;
+}
+
+.cr-date {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B6B67;
+  white-space: nowrap;
+}
+
+.cr-comment-cell {
+  min-width: 220px;
+  max-width: 380px;
+}
+
+// Free text up to 1000 chars — wrap it, never truncate.
+.cr-comment {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: $muted;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+// ── Buttons ──────────────────────────────────────────────
+.cr-actions-cell { text-align: end !important; }
+
+.cr-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F1F5F9;
+  color: $text;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: filter 0.18s ease;
+
+  &:hover { filter: brightness(0.96); }
+  &:focus-visible { outline: 2px solid $text; outline-offset: 2px; }
+}
+
+.cr-btn-icon { display: flex; width: 16px; height: 16px; }
+
+.cr-empty-cell { padding: 0 !important; }
+.cr-empty-retry { margin-top: 16px; }
+
+// ── Pagination ───────────────────────────────────────────
+.cr-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 4px 0;
+}
+
+.cr-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9E9E9A;
+}
+
+.cr-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cr-page-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: #fff;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &:not(:disabled):hover { background: #f5f5f5; }
+  &.active { background: $ink; color: #fff; border-color: $ink; }
+}
+
+.cr-ellipsis {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: #9E9E9A;
+}
+
+// ── Responsive ───────────────────────────────────────────
+@media (max-width: 1100px) {
+  .cr-summary {
+    grid-template-columns: 1fr 1fr;
+
+    .cr-card--distribution { grid-column: 1 / -1; }
+  }
+}
+
+// Rows become cards.
+@media (max-width: 767px) {
+  .cr-filters-bar { padding: 16px 16px 12px; }
+  .cr-body { padding: 16px; }
+
+  .cr-dates { width: 100%; }
+  .cr-date-pill { flex: 1 1 140px; justify-content: center; }
+
+  .cr-table-box { border: none; box-shadow: none; background: transparent; padding: 0; }
+
+  .cr-table {
+    display: block;
+
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 10px; }
+  }
+
+  .cr-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid $line !important;
+    border-radius: 16px;
+    background: #fff;
+
+    td { padding: 10px 14px; }
+    td:nth-child(1), td:nth-child(5), td:nth-child(7) { grid-column: 1 / -1; }
+  }
+
+  .cr-table--agents .cr-row td:nth-child(4) { grid-column: 1 / -1; }
+
+  .cr-comment-cell { min-width: 0; max-width: none; }
+  .cr-distribution--compact { max-width: none; }
+
+  .cr-label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #9E9E9A;
+  }
+
+  .cr-actions-cell .cr-btn { width: 100%; justify-content: center; }
+
+  .cr-pagination { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .cr-summary { grid-template-columns: 1fr; }
+}

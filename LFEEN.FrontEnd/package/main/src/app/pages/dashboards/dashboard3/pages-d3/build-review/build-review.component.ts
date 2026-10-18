@@ -18,13 +18,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageBackOverrideService } from '../../services/page-back-override.service';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { PageBreadcrumbTrailService } from '../../services/page-breadcrumb-trail.service';
+import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
+import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
 
 type SectionView = 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final';
 
 @Component({
   selector: 'app-build-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, ReviewBasicInfoComponent, ReviewLocationComponent, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, ReviewBasicInfoComponent, ReviewLocationComponent, TranslateModule, ListingBanBannerComponent, BanListingButtonComponent],
   templateUrl: './build-review.component.html',
   styleUrl: './build-review.component.scss'
 })
@@ -56,6 +58,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   overallStatus = '';
   isDisplayed = false;
   canFinalApprove = false;
+  banReason: string | null = null;
+  bannedAt: string | null = null;
   private forcedViewOnly = false;
   private originTab = '';
 
@@ -110,6 +114,9 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   // (or ?tab=draft) is a never-submitted draft; ?tab=new is a first-time submission.
   get headerStatusConfig(): { labelKey: string; icon: string; mod: string } {
     const status = this.overallStatus?.trim();
+    if (status === 'Banned') {
+      return { labelKey: 'd3.listingBan.card.badge', icon: 'ban', mod: 'rejected' };
+    }
     if (status === 'Approved' && !this.isDisplayed) {
       return { labelKey: 'd3.buildReview.status.readyToPublish', icon: 'circle-check', mod: 'approved' };
     }
@@ -213,6 +220,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         this.overallStatus = data.overallStatus?.trim() ?? '';
         this.isDisplayed = data.isDisplayed;
         this.canFinalApprove = data.canFinalApprove;
+        this.banReason = data.banReason ?? null;
+        this.bannedAt = data.bannedAt ?? null;
         // Populate the notes field from the recorded final decision so it stays
         // visible (read-only via the template) once the building is finally approved.
         this.finalNotes = data.finalNotes ?? '';
@@ -362,10 +371,28 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   // overallStatus reads 'Approved' as soon as every section is approved, before
   // the final approval action has actually been submitted, so it can't tell
   // "ready for final approval" apart from "already finally approved and live".
+  // A banned building rejects every review/approve/reject call (LISTING_BANNED),
+  // so it's locked read-only exactly like a finally-decided one.
   get viewOnly(): boolean {
     return this.forcedViewOnly
+      || this.isBanned
       || (this.overallStatus === 'Approved' && this.isDisplayed)
       || this.overallStatus === 'Rejected';
+  }
+
+  get isBanned(): boolean {
+    return this.overallStatus === 'Banned';
+  }
+
+  // Same statuses the list cards allow a ban from (see BuildingReviewService.mapToBuilding).
+  get canBan(): boolean {
+    return ['Approved', 'HasPendingChanges', 'UnderReview'].includes(this.overallStatus);
+  }
+
+  // After ban/edit/unban: refresh this page (it locks/unlocks itself) and the list behind it.
+  onBanChanged(): void {
+    this.loadProperty();
+    this.buildingService.reload();
   }
 
   get isImagesReadOnly(): boolean {
@@ -499,8 +526,11 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
           ALREADY_APPROVED: 'd3.buildReview.finalDecision.errors.alreadyApproved',
           ACCOUNT_NOT_APPROVED: 'd3.buildReview.finalDecision.errors.accountNotApproved',
           SECTIONS_NOT_ALL_APPROVED: 'd3.buildReview.finalDecision.errors.sectionsNotApproved',
-          ALREADY_REJECTED: 'd3.buildReview.finalDecision.errors.alreadyRejected'
+          ALREADY_REJECTED: 'd3.buildReview.finalDecision.errors.alreadyRejected',
+          LISTING_BANNED: 'd3.listingBan.errors.listingBanned'
         };
+        // Banned elsewhere while this page was open: reload so the page locks itself.
+        if (errorCode === 'LISTING_BANNED') this.loadProperty();
         this.toastr.error(this.translate.instant(keyByCode[errorCode] ?? 'd3.toast.errorOp'));
       }
     });

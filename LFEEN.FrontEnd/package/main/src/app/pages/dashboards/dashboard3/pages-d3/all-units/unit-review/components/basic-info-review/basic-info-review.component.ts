@@ -64,9 +64,21 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     return this.unitData?.sizeM != null ? `${this.unitData.sizeM} م²` : '';
   }
 
-  get unitCapacity(): string {
-    return this.unitData?.maxGuests != null ? String(this.unitData.maxGuests) : '';
+  // Admin maxGuests is still the adult capacity (legacy), so it's only a fallback here.
+  get adultCapacity(): string {
+    const adults = this.unitData?.adultCapacity ?? this.unitData?.maxGuests;
+    return adults != null ? String(adults) : '';
   }
+
+  get childrenCapacity(): number { return this.unitData?.childrenCapacity ?? 0; }
+
+  get childrenAllowed(): boolean { return this.childrenCapacity > 0; }
+
+  get maxChildAge(): string {
+    return this.unitData?.maxChildAge != null ? String(this.unitData.maxChildAge) : '-';
+  }
+
+  get unitDescription(): string { return this.unitData?.description?.trim() ?? ''; }
 
   get hasLock(): boolean { return this.unitData?.hasLock ?? false; }
 
@@ -239,7 +251,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
       const amenities: UnitAmenityItem[] = room.facilities.map(f => ({
         icon:  this.getFacilityIcon(f.facilityTypeName),
-        label: f.facilityTypeName
+        label: f.facilityTypeName,
+        highlighted: f.isHighlightedInDescription === true
       }));
 
       const services: UnitAmenityItem[] = room.services.map(s => ({
@@ -249,7 +262,7 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
       const subAreas: UnitSubArea[] = room.subRooms.map(sr => ({
         label:     sr.subRoomTypeName,
-        amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName })),
+        amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName, highlighted: f.isHighlightedInDescription === true })),
         services:  sr.services.map(s  => ({ icon: this.getServiceIcon(s.displayName),  label: this.getServiceLabel(s) }))
       }));
 

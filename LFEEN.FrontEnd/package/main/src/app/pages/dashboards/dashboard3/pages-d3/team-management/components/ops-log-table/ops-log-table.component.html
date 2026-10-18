@@ -1,4 +1,4 @@
-<div class="ops-log-wrapper table-responsive">
+<div class="ops-log-wrapper table-responsive" [class.is-refreshing]="isLoading">
   <table mat-table [dataSource]="logs" class="w-100 ops-log-table">
 
     <!-- DateTime Column -->
@@ -6,9 +6,10 @@
       <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.dateTime' | translate }}</th>
       <td mat-cell *matCellDef="let row"
           [attr.data-label]="'d3.teamManagement.opsLog.table.dateTime' | translate">
+        @let occurred = formatDate(row.occurredAt);
         <div class="log-date-cell">
-          <span class="log-date-text d-block">{{ row.date }}</span>
-          <span class="log-time">{{ row.time }}</span>
+          <span class="log-date-text d-block">{{ occurred.date }}</span>
+          <span class="log-time">{{ occurred.time }}</span>
         </div>
       </td>
     </ng-container>
@@ -18,21 +19,19 @@
       <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.user' | translate }}</th>
       <td mat-cell *matCellDef="let row">
         <div class="d-flex align-items-center gap-10 p-y-12">
-          @if (row.user.avatar) {
-            <img [src]="row.user.avatar" class="log-user-avatar" />
-          } @else {
-            <div class="log-initials-avatar d-flex align-items-center justify-content-center">
-              {{ getInitials(row.user.name) }}
-            </div>
-          }
+          <div class="log-initials-avatar d-flex align-items-center justify-content-center">
+            {{ initials(row.actorName) }}
+          </div>
           <div>
-            <div class="d-flex align-items-center gap-4">
-              <span class="f-s-16 f-w-900" dir="auto">{{ row.user.name }}</span>
-              @if (row.user.isCrown) {
-                <i-tabler name="crown" class="icon-14 log-crown-icon"></i-tabler>
-              }
-            </div>
-            <span class="text-role" dir="auto">{{ row.user.role }}</span>
+            <span class="f-s-16 f-w-900 d-block" dir="auto">{{ row.actorName }}</span>
+            @if (row.actorRoles.length) {
+              <span class="text-role" dir="auto">
+                {{ row.actorRoles[0].name }}
+                @if (row.actorRoles.length > 1) {
+                  <span class="more-chip">+{{ row.actorRoles.length - 1 }}</span>
+                }
+              </span>
+            }
           </div>
         </div>
       </td>
@@ -44,10 +43,17 @@
       <td mat-cell *matCellDef="let row"
           [attr.data-label]="'d3.teamManagement.opsLog.table.action' | translate">
         <div class="d-flex align-items-center gap-8">
-          <div class="log-action-icon" [class.failed]="row.status === 'failed'">
-            <i-tabler [name]="row.actionIcon" class="icon-16"></i-tabler>
+          <div class="log-action-icon" [ngClass]="statusClass(row.status)">
+            <i-tabler [name]="actionIcon(row.actionCode)" class="icon-16"></i-tabler>
           </div>
-          <span class="f-s-14 f-w-700" [class.text-danger]="row.status === 'failed'" dir="auto">{{ row.actionText }}</span>
+          <div class="min-w-0">
+            <span class="f-s-14 f-w-700 d-block" [class.text-danger]="row.status === 'Failed'" dir="auto">
+              {{ row.actionText || row.actionCode }}
+            </span>
+            @if (row.entityDisplayName) {
+              <span class="log-entity" dir="auto">{{ row.entityDisplayName }}</span>
+            }
+          </div>
         </div>
       </td>
     </ng-container>
@@ -57,7 +63,11 @@
       <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.department' | translate }}</th>
       <td mat-cell *matCellDef="let row"
           [attr.data-label]="'d3.teamManagement.opsLog.table.department' | translate">
-        <span class="dept-log-chip" dir="auto">{{ row.department }}</span>
+        @if (departmentName(row); as dept) {
+          <span class="dept-log-chip" dir="auto">{{ dept }}</span>
+        } @else {
+          <span class="text-muted">—</span>
+        }
       </td>
     </ng-container>
 
@@ -66,12 +76,9 @@
       <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.opsLog.table.status' | translate }}</th>
       <td mat-cell *matCellDef="let row"
           [attr.data-label]="'d3.teamManagement.opsLog.table.status' | translate">
-        <span class="log-status-badge"
-              [class.completed]="row.status === 'completed'"
-              [class.failed]="row.status === 'failed'"
-              [class.pending]="row.status === 'pending'">
+        <span class="log-status-badge" [ngClass]="statusClass(row.status)">
           <span class="dot"></span>
-          <span dir="auto">{{ row.statusLabel }}</span>
+          <span>{{ statusKey(row.status) | translate }}</span>
         </span>
       </td>
     </ng-container>
@@ -80,13 +87,50 @@
     <ng-container matColumnDef="expand">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        <button mat-icon-button class="expand-row-btn">
+        <button mat-icon-button class="expand-row-btn"
+                [attr.aria-label]="'d3.teamManagement.opsLog.details.title' | translate"
+                (click)="$event.stopPropagation(); openDetails.emit(row)">
           <i-tabler name="chevron-left" class="icon-16 text-muted"></i-tabler>
         </button>
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="log-row"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="log-row" (click)="openDetails.emit(row)"></tr>
   </table>
+
+  @if (!logs.length && !isLoading) {
+    <div class="log-empty d-flex flex-column align-items-center justify-content-center">
+      <i-tabler name="database" class="icon-24 text-muted"></i-tabler>
+      <span>{{ 'd3.teamManagement.opsLog.empty' | translate }}</span>
+    </div>
+  }
 </div>
+
+@if (totalPages > 1) {
+  <div class="pagination-wrapper d-flex align-items-center justify-content-between m-t-16 m-b-16">
+    <span class="f-s-13 text-muted">
+      {{ totalCount }} {{ 'd3.teamManagement.opsLog.pagination.total' | translate }}
+    </span>
+    <div class="d-flex align-items-center gap-4">
+      <button type="button" class="page-nav-btn"
+        [disabled]="currentPage === 1 || isLoading"
+        (click)="pageChange.emit(currentPage - 1)">
+        <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+      </button>
+      @for (p of pageNumbers; track p) {
+        <button type="button" class="page-number-btn"
+          [class.active]="p === currentPage"
+          [disabled]="isLoading"
+          (click)="pageChange.emit(p)">
+          {{ p }}
+        </button>
+      }
+      <button type="button" class="page-nav-btn"
+        [disabled]="currentPage === totalPages || isLoading"
+        (click)="pageChange.emit(currentPage + 1)">
+        <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+      </button>
+    </div>
+  </div>
+}

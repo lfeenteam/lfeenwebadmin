@@ -1,15 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 import { ViewMode } from '../../../../interfaces/dashboard-sub-header.model';
+import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { UnitsService } from '../../../../services/units.service';
 
 @Component({
   selector: 'app-unit-card-review',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent],
   templateUrl: './unit-card-review.component.html',
   styleUrl: './unit-card-review.component.scss'
 })
@@ -19,6 +21,8 @@ export class UnitCardReviewComponent {
   @Input() buildingId!: string;
   @Input() viewMode: ViewMode = 'grid';
   @Input() activeTab = '';
+
+  private unitsService = inject(UnitsService);
 
   constructor(
     private router: Router,
@@ -43,6 +47,7 @@ export class UnitCardReviewComponent {
       case 'underReview':    return { labelKey: 'd3.allUnits.unitCard.statusUnderReview',    mod: 'underReview'    };
       case 'pendingChanges': return { labelKey: 'd3.allUnits.unitCard.statusPendingChanges', mod: 'pendingChanges' };
       case 'pendingAfterRejection': return { labelKey: 'd3.allUnits.unitCard.statusPendingAfterRejection', mod: 'pendingAfterRejection' };
+      case 'banned':         return { labelKey: 'd3.listingBan.card.badge',                   mod: 'stopped'        };
     }
   }
 
@@ -61,5 +66,9 @@ export class UnitCardReviewComponent {
       relativeTo: this.route,
       queryParams: this.activeTab ? { tab: this.activeTab } : {}
     });
+  }
+
+  onBanChanged(): void {
+    this.unitsService.reload();
   }
 }

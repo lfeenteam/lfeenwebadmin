@@ -1,5 +1,5 @@
 export type ComplaintStatus = 'new' | 'in_progress' | 'closed' | 'pending' | 'replied';
-export type ComplaintTab    = 'customers' | 'hosts' | 'resolved';
+export type ComplaintTab    = 'customers' | 'hosts' | 'resolved' | 'ratings';
 
 export interface Ticket {
   externalId: string;
@@ -215,6 +215,7 @@ export interface ClientTicketDetail {
   relatedBookingId: string | null;
   closedAtUtc: string | null;
   messages: ClientTicketMessage[];
+  hasMoreMessages?: boolean;
   statusHistory: ClientTicketStatusHistoryEntry[];
   externalId: string;
   chatExternalId?: string;

@@ -1,15 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 import { ViewMode } from '../../../../interfaces/dashboard-sub-header.model';
+import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { UnitsService } from '../../../../services/units.service';
 
 @Component({
   selector: 'app-unit-card',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent],
   templateUrl: './unit-card.component.html',
   styleUrl: './unit-card.component.scss'
 })
@@ -18,6 +20,8 @@ export class UnitCardComponent {
   @Input() viewMode: ViewMode = 'grid';
   @Input() buildingId = '';
   @Input() activeTab = '';
+
+  private unitsService = inject(UnitsService);
 
   constructor(
     private translate: TranslateService,
@@ -38,6 +42,7 @@ export class UnitCardComponent {
       case 'underReview':    return { labelKey: 'd3.allUnits.unitCard.statusUnderReview',    mod: 'underReview'    };
       case 'pendingChanges': return { labelKey: 'd3.allUnits.unitCard.statusPendingChanges', mod: 'pendingChanges' };
       case 'pendingAfterRejection': return { labelKey: 'd3.allUnits.unitCard.statusPendingAfterRejection', mod: 'pendingAfterRejection' };
+      case 'banned':         return { labelKey: 'd3.listingBan.card.badge',                   mod: 'stopped'        };
     }
   }
 
@@ -49,5 +54,9 @@ export class UnitCardComponent {
         queryParams: { mode: 'view', ...(this.activeTab === 'draft' ? { tab: 'draft' } : {}) }
       }
     );
+  }
+
+  onBanChanged(): void {
+    this.unitsService.reload();
   }
 }

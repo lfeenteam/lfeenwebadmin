@@ -62,9 +62,13 @@ export class ChangeUnitDialogComponent implements OnInit {
           this.toastr.success(this.translate.instant('d3.toast.successOp'));
           this.dialogRef.close(true);
         },
-        error: () => {
+        error: (err) => {
           this.submitting = false;
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          // The target unit (or its property) is banned.
+          const key = err?.error?.errorCode === 'LISTING_BANNED'
+            ? 'd3.listingBan.errors.targetUnitBanned'
+            : 'd3.toast.errorOp';
+          this.toastr.error(this.translate.instant(key));
         },
       });
   }

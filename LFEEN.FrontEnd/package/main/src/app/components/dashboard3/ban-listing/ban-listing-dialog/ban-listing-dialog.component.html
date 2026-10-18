@@ -1,0 +1,39 @@
+<div class="ban-dialog" [class.ban-dialog--unban]="mode === 'unban'" [dir]="currentDir">
+  <div class="dialog-header">
+    <div class="dialog-heading">
+      <span class="heading-icon">
+        <i-tabler [name]="mode === 'unban' ? 'lock-open' : mode === 'editReason' ? 'edit' : 'alert-triangle'"></i-tabler>
+      </span>
+      <h2 class="dialog-title">{{ key('title') | translate }}</h2>
+    </div>
+    <button type="button" class="close-btn" [disabled]="submitting" (click)="close()">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="dialog-desc">{{ key('desc') | translate }}</p>
+
+  @if (needsReason) {
+    <label class="field-label" for="ban-reason">{{ 'd3.listingBan.dialog.reasonLabel' | translate }}</label>
+    <textarea
+      id="ban-reason"
+      class="reason-textarea"
+      rows="5"
+      [maxlength]="maxLength"
+      [disabled]="submitting"
+      [(ngModel)]="reason"
+      [placeholder]="'d3.listingBan.dialog.reasonPlaceholder' | translate"></textarea>
+  }
+
+  <div class="dialog-actions">
+    <button type="button" class="cancel-btn" [disabled]="submitting" (click)="close()">
+      {{ 'd3.listingBan.dialog.cancelBtn' | translate }}
+    </button>
+    <button type="button" class="confirm-btn" [disabled]="!canSubmit" (click)="confirm()">
+      @if (submitting) {
+        <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+      }
+      {{ ('d3.listingBan.dialog.' + mode + '.confirmBtn') | translate }}
+    </button>
+  </div>
+</div>

@@ -193,6 +193,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 8px;
     padding-top: 16px;
 
     .footer-btn {
@@ -368,6 +369,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: 4px;
   }
 
   &.stopped {

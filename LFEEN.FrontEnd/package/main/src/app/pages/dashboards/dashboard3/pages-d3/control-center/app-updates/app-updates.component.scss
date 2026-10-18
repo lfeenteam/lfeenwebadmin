@@ -1,0 +1,86 @@
+@use '../control-center-tab';
+
+// Classes prefixed "up-" are specific to this tab; everything "cc-"/"mp-" comes from the shared partial.
+:host { display: block; }
+
+.cc-divider {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #F1F5F9;
+}
+
+// ── Update policy cards ─────────────────────────────────────
+.up-policies {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.up-policy {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #FFFFFF;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(.active) { border-color: #CBD5E1; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+
+  &.active {
+    border-color: #111110;
+    box-shadow: 0 0 0 1px #111110 inset;
+  }
+}
+
+.up-radio {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  .up-policy.active & {
+    border-color: #111110;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 2.5px;
+      border-radius: 50%;
+      background: #111110;
+    }
+  }
+}
+
+.up-policy-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong { font-size: 12px; font-weight: 700; color: #111110; }
+  small { font-size: 10px; font-weight: 500; color: #9E9E9A; line-height: 1.5; }
+}
+
+// ── Preview extras ──────────────────────────────────────────
+.mp-icon.is-muted { background: #E2E8F0; color: #6B6B67; }
+
+.mp-later {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #6B6B67;
+}
+
+@media (max-width: 1199px) {
+  .up-policies { grid-template-columns: 1fr; }
+}

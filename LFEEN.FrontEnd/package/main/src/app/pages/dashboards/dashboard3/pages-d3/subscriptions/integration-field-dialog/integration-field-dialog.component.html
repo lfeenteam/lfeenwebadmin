@@ -1,0 +1,77 @@
+<div class="create-code-dialog" [dir]="currentDir">
+
+  <h2 class="dialog-title">{{ 'd3.integrationField.title' | translate }}</h2>
+
+  <div class="form-scroll">
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="if-label-ar">{{ 'd3.integrationField.labelAr' | translate }} *</label>
+        <input id="if-label-ar" type="text" class="field-input" placeholder="اسم المستخدم" [(ngModel)]="labelAr" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="if-label-en">{{ 'd3.integrationField.labelEn' | translate }} *</label>
+        <input id="if-label-en" type="text" class="field-input" dir="ltr" placeholder="Username" [(ngModel)]="labelEn" />
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="if-key">{{ 'd3.integrationField.key' | translate }} *</label>
+        <input id="if-key" type="text" class="field-input" dir="ltr" placeholder="ntmp_username"
+          [attr.maxlength]="keyMax" [(ngModel)]="key" />
+        @if (keyError) { <span class="field-error">{{ keyError | translate }}</span> }
+      </div>
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.integration.dataType' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="fieldType" disableOptionCentering>
+          @for (type of fieldTypes; track type) {
+            <mat-option [value]="type">{{ ('d3.subscriptions.serviceSettings.integration.types.' + type) | translate }}</mat-option>
+          }
+        </mat-select>
+      </div>
+    </div>
+
+    <!-- Required or optional: an explicit choice, nothing preselected -->
+    <div class="form-field">
+      <span class="field-label" id="if-required-label">{{ 'd3.integrationField.requiredQuestion' | translate }} *</span>
+      <div class="choice-grid" role="radiogroup" aria-labelledby="if-required-label">
+        <button type="button" class="choice-card" role="radio"
+          [class.active]="isRequired === true" [attr.aria-checked]="isRequired === true"
+          (click)="isRequired = true">
+          <i-tabler name="asterisk" class="icon-18"></i-tabler>
+          <span class="choice-text">
+            <span class="choice-title">{{ 'd3.integrationField.required' | translate }}</span>
+            <span class="choice-desc">{{ 'd3.integrationField.requiredDesc' | translate }}</span>
+          </span>
+        </button>
+        <button type="button" class="choice-card" role="radio"
+          [class.active]="isRequired === false" [attr.aria-checked]="isRequired === false"
+          (click)="isRequired = false">
+          <i-tabler name="circle-dashed" class="icon-18"></i-tabler>
+          <span class="choice-text">
+            <span class="choice-title">{{ 'd3.integrationField.optional' | translate }}</span>
+            <span class="choice-desc">{{ 'd3.integrationField.optionalDesc' | translate }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <span class="field-note">{{ 'd3.subscriptions.serviceSettings.integration.immutableNote' | translate }}</span>
+
+    @if (serverError) {
+      <div class="server-error">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ serverError }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">
+      {{ (submitting ? 'd3.subscriptions.serviceSettings.saving' : 'd3.integrationField.save') | translate }}
+    </button>
+    <button type="button" class="btn-outline" [disabled]="submitting" (click)="close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+
+</div>

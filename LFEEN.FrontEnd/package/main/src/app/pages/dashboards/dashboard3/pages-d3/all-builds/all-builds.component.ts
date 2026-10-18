@@ -61,7 +61,8 @@ export class AllBuildsComponent implements OnInit {
     { id: 'new',         labelKey: 'd3.allBuilds.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' },
     { id: 'pendingChanges', labelKey: 'd3.allBuilds.tabs.pendingChanges' },
-    { id: 'rejected',    labelKey: 'd3.allBuilds.tabs.rejected'    }
+    { id: 'rejected',    labelKey: 'd3.allBuilds.tabs.rejected'    },
+    { id: 'banned',      labelKey: 'd3.allBuilds.tabs.banned'      }
   ];
 
   filterOptions: BuildFilterOption[] = [
@@ -75,7 +76,8 @@ export class AllBuildsComponent implements OnInit {
         { value: 'new',            labelKey: 'd3.allBuilds.tabs.new'             },
         { value: 'underReview',    labelKey: 'd3.allBuilds.tabs.underReview'     },
         { value: 'pendingChanges', labelKey: 'd3.allBuilds.tabs.pendingChanges'  },
-        { value: 'rejected',       labelKey: 'd3.allBuilds.tabs.rejected'        }
+        { value: 'rejected',       labelKey: 'd3.allBuilds.tabs.rejected'        },
+        { value: 'banned',         labelKey: 'd3.allBuilds.tabs.banned'          }
       ]
     },
     {
@@ -123,6 +125,8 @@ export class AllBuildsComponent implements OnInit {
           { ...this.metrics[2], value: formatNumber(s.underReview)        },
           { ...this.metrics[3], value: formatNumber(s.pendingOrRejected)  },
         ];
+        // stats aren't affected by the active filter, so this count holds on every tab.
+        this.tabs = this.tabs.map(t => t.id === 'banned' ? { ...t, count: s.banned ?? null } : t);
       }
 
       this.cdr.markForCheck();
@@ -194,7 +198,7 @@ export class AllBuildsComponent implements OnInit {
   }
 
   private readonly statusFilterTabs: BuildingTab[] =
-    ['draft', 'published', 'new', 'underReview', 'pendingChanges', 'rejected'];
+    ['draft', 'published', 'new', 'underReview', 'pendingChanges', 'rejected', 'banned'];
 
   onFiltersChange(filters: Record<string, string>): void {
     this.selectedFilters = filters;

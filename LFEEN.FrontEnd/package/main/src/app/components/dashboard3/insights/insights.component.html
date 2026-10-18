@@ -6,15 +6,26 @@
     </div>
 
     <div class="d3-cities-list">
-      @for (city of cities; track city.rank) {
+      @if (cities.error() && !cities.data()) {
+        <div class="d3-panel-error" role="alert">
+          <span>{{ 'd3.state.loadError' | translate }}</span>
+          <button type="button" class="d3-retry-btn" (click)="cities.reload()">{{ 'd3.state.retry' | translate }}</button>
+        </div>
+      } @else if (cities.initialLoading()) {
+        @for (i of skeletons; track i) {
+          <div class="d3-skeleton d3-row-skeleton"></div>
+        }
+      } @else if (cityRows().length === 0) {
+        <div class="d3-empty">{{ 'd3.insights.noCities' | translate }}</div>
+      }
+
+      @for (city of cityRows(); track city.rank) {
         <div class="d3-city-item">
-                   <span class="d3-city-rank">{{ city.rank }}</span>
+          <span class="d3-city-rank">{{ city.rank }}</span>
           <div class="d3-city-info">
-            <div class="d3-city-name">{{ city.name | translate }}</div>
-            <div class="d3-city-meta">{{ city.reservations }} {{ 'd3.insights.reservation' | translate }} • {{ city.hosts }} {{ 'd3.insights.host' | translate }}</div>
+            <div class="d3-city-name">{{ city.name }}</div>
+            <div class="d3-city-meta">{{ city.bookings }} {{ 'd3.insights.reservation' | translate }} • {{ city.units }} {{ 'd3.insights.unit' | translate }}</div>
           </div>
-       
-                    <span class="d3-city-status" [ngClass]="'status-' + city.status">{{ statusLabel(city.status) | translate }}</span>
         </div>
       }
     </div>
@@ -27,22 +38,27 @@
     </div>
 
     <div class="d3-revenue-list">
-      @for (source of revenueSources; track source.label) {
+      @if (summary.error() && !summary.data()) {
+        <div class="d3-panel-error" role="alert">
+          <span>{{ 'd3.state.loadError' | translate }}</span>
+          <button type="button" class="d3-retry-btn" (click)="summary.reload()">{{ 'd3.state.retry' | translate }}</button>
+        </div>
+      } @else if (summary.initialLoading()) {
+        @for (i of skeletons; track i) {
+          <div class="d3-skeleton d3-row-skeleton"></div>
+        }
+      }
+
+      @for (source of revenueSources(); track source.key) {
         <div class="d3-revenue-item">
-         
-          <span class="d3-revenue-label">{{ source.label | translate }}</span>
-           <span class="d3-revenue-percent">{{ source.percent }}%</span>
+          <span class="d3-revenue-label">{{ source.label ? (source.label | translate) : source.fallbackLabel }}</span>
+          <span class="d3-revenue-percent" dir="ltr">{{ source.text }}</span>
           <div class="d3-revenue-bar-wrap">
             <div class="d3-revenue-bar" [style.width.%]="source.percent" [style.background-color]="source.color"></div>
           </div>
         </div>
       }
-      <div class="d3-revenue-note mt-4">
-      {{ 'd3.insights.revenueNote' | translate }}
     </div>
-    </div>
-
-    
   </div>
 
   <!-- Decisions Card (left in RTL) -->
@@ -52,14 +68,36 @@
     </div>
 
     <div class="d3-decisions-list">
-      @for (item of decisions; track item.title) {
+      @if (insights.error() && !insights.data()) {
+        <div class="d3-panel-error" role="alert">
+          <span>{{ 'd3.state.loadError' | translate }}</span>
+          <button type="button" class="d3-retry-btn" (click)="insights.reload()">{{ 'd3.state.retry' | translate }}</button>
+        </div>
+      } @else if (insights.initialLoading()) {
+        @for (i of skeletons; track i) {
+          <div class="d3-skeleton d3-row-skeleton"></div>
+        }
+      } @else if (decisions().length === 0) {
+        <div class="d3-empty">{{ 'd3.insights.noDecisions' | translate }}</div>
+      }
+
+      @for (item of decisions(); track item.key) {
         <div class="d3-decision-item" [ngClass]="'type-' + item.type">
           <div class="d3-decision-icon">
             <i-tabler [name]="item.icon"></i-tabler>
           </div>
           <div class="d3-decision-body">
-            <div class="d3-decision-title">{{ item.title | translate }}</div>
-            <div class="d3-decision-desc">{{ item.description | translate }}</div>
+            <div class="d3-decision-title">
+              {{ item.title }}
+              <span class="d3-decision-severity">{{ item.severityLabel | translate }}</span>
+            </div>
+            <div class="d3-decision-desc">{{ item.description }}</div>
+            @if (item.actionPath) {
+              <button type="button" class="d3-decision-action" (click)="open(item.actionPath)">
+                <span>{{ 'd3.insights.viewDetails' | translate }}</span>
+                <i-tabler name="chevron-left" class="d3-decision-action-icon"></i-tabler>
+              </button>
+            }
           </div>
         </div>
       }

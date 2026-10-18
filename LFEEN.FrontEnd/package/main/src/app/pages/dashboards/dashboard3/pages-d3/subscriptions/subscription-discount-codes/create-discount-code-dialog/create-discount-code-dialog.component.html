@@ -1,0 +1,159 @@
+<div class="create-code-dialog" [dir]="currentDir">
+
+  <h2 class="dialog-title">{{ 'd3.discountCodes.create.title' | translate }}</h2>
+
+  <div class="form-scroll">
+
+    <!-- Code -->
+    <div class="form-field">
+      <label class="field-label" for="dc-code">{{ 'd3.discountCodes.create.code' | translate }}</label>
+      <div class="code-row">
+        <input id="dc-code" type="text" class="field-input code-input" placeholder="MYCODE"
+          [attr.maxlength]="codeMax"
+          [(ngModel)]="code" (ngModelChange)="normalizeCode()" />
+        <button type="button" class="ghost-btn" (click)="generateCode()">{{ 'd3.discountCodes.create.generate' | translate }}</button>
+      </div>
+      @if (codeError) { <span class="field-error">{{ codeError | translate }}</span> }
+    </div>
+
+    <!-- Service -->
+    <div class="form-field">
+      <label class="field-label">{{ 'd3.discountCodes.create.service' | translate }}</label>
+      <mat-select class="field-select" [(ngModel)]="serviceSelection" disableOptionCentering>
+        <mat-option value="all">{{ 'd3.discountCodes.allServices' | translate }}</mat-option>
+        @for (s of activeServices; track s.id) {
+          <mat-option [value]="s.id">{{ serviceName(s) }}</mat-option>
+        }
+      </mat-select>
+    </div>
+
+    <!-- Type -->
+    <div class="form-field">
+      <label class="field-label">{{ 'd3.discountCodes.create.type' | translate }}</label>
+      <div class="segmented">
+        <button type="button" class="segment" [class.active]="isPercentage" (click)="setType('Percentage')">{{ 'd3.discountCodes.create.percentage' | translate }}</button>
+        <button type="button" class="segment" [class.active]="!isPercentage" (click)="setType('FixedAmount')">{{ 'd3.discountCodes.create.fixed' | translate }}</button>
+      </div>
+    </div>
+
+    <!-- Value + cap -->
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="dc-value">{{ 'd3.discountCodes.create.value' | translate }}</label>
+        <div class="field-input-wrap">
+          <input id="dc-value" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="discountValue" />
+          @if (isPercentage) {
+            <span class="field-suffix">%</span>
+          } @else {
+            <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+          }
+        </div>
+        @if (valueError) { <span class="field-error">{{ valueError | translate }}</span> }
+      </div>
+
+      @if (isPercentage) {
+        <div class="form-field">
+          <label class="field-label" for="dc-cap">{{ 'd3.discountCodes.create.maxDiscount' | translate }}</label>
+          <div class="field-input-wrap">
+            <input id="dc-cap" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="maxDiscountAmount" />
+            <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+          </div>
+          @if (maxDiscountError) { <span class="field-error">{{ maxDiscountError | translate }}</span> }
+        </div>
+      }
+    </div>
+
+    <!-- Applies to -->
+    <div class="form-field">
+      <label class="field-label">{{ 'd3.discountCodes.create.appliesTo' | translate }}</label>
+      <div class="check-group">
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="appliesToSubscriptionFee" />
+          <span>{{ 'd3.discountCodes.subscriptionFee' | translate }}</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="appliesToSetupFee" />
+          <span>{{ 'd3.discountCodes.setupFee' | translate }}</span>
+        </label>
+      </div>
+      @if (appliesToError) { <span class="field-error">{{ 'd3.discountCodes.create.errors.appliesTo' | translate }}</span> }
+    </div>
+
+    <!-- Max redemptions -->
+    <div class="form-field">
+      <label class="field-label" for="dc-max">{{ 'd3.discountCodes.create.maxRedemptions' | translate }}</label>
+      <input id="dc-max" type="number" min="1" step="1" class="field-input"
+        [placeholder]="'d3.discountCodes.create.unlimitedPlaceholder' | translate"
+        [(ngModel)]="maxRedemptions" />
+      @if (redemptionsError) { <span class="field-error">{{ redemptionsError | translate }}</span> }
+    </div>
+
+    <!-- Dates -->
+    <div class="form-grid">
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.discountCodes.create.validFrom' | translate }}</span>
+        <div class="date-pill-wrap">
+          <button type="button" class="field-input date-pill" [matMenuTriggerFor]="fromMenu" #fromTrigger="matMenuTrigger">
+            <i-tabler name="calendar" class="icon-16 date-icon"></i-tabler>
+            <span class="date-label" [class.is-placeholder]="!validFrom">{{ dateLabel(validFrom) }}</span>
+          </button>
+          @if (validFrom) {
+            <button type="button" class="date-clear" [attr.aria-label]="'common.delete' | translate" (click)="validFrom = ''">
+              <i-tabler name="x" class="icon-14"></i-tabler>
+            </button>
+          }
+        </div>
+        <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="above">
+          <ng-template matMenuContent>
+            <app-single-date-calendar
+              (click)="$event.stopPropagation()"
+              [value]="validFrom || null"
+              [minDate]="todayIso"
+              (dateSelected)="validFrom = $event; fromTrigger.closeMenu()">
+            </app-single-date-calendar>
+          </ng-template>
+        </mat-menu>
+      </div>
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.discountCodes.create.validTo' | translate }}</span>
+        <div class="date-pill-wrap">
+          <button type="button" class="field-input date-pill" [matMenuTriggerFor]="toMenu" #toTrigger="matMenuTrigger">
+            <i-tabler name="calendar" class="icon-16 date-icon"></i-tabler>
+            <span class="date-label" [class.is-placeholder]="!validTo">{{ dateLabel(validTo) }}</span>
+          </button>
+          @if (validTo) {
+            <button type="button" class="date-clear" [attr.aria-label]="'common.delete' | translate" (click)="validTo = ''">
+              <i-tabler name="x" class="icon-14"></i-tabler>
+            </button>
+          }
+        </div>
+        <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="above">
+          <ng-template matMenuContent>
+            <app-single-date-calendar
+              (click)="$event.stopPropagation()"
+              [value]="validTo || null"
+              [minDate]="validFrom || todayIso"
+              (dateSelected)="validTo = $event; toTrigger.closeMenu()">
+            </app-single-date-calendar>
+          </ng-template>
+        </mat-menu>
+      </div>
+      @if (datesError) { <span class="field-error span-2">{{ 'd3.discountCodes.create.errors.dates' | translate }}</span> }
+    </div>
+
+    @if (serverError) {
+      <div class="server-error">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ serverError }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">
+      {{ (submitting ? 'd3.discountCodes.create.submitting' : 'd3.discountCodes.create.submit') | translate }}
+    </button>
+    <button type="button" class="btn-outline" [disabled]="submitting" (click)="close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+
+</div>

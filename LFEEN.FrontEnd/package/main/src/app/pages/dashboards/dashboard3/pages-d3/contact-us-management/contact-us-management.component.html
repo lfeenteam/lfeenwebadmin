@@ -16,7 +16,7 @@
 
     @if (loading()) { <app-dashboard-loading variant="table" [rows]="7"></app-dashboard-loading> }
     @else if (error()) {
-      <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button></div>
+      <div class="state error-state"><i-tabler [name]="forbidden() ? 'lock' : 'alert-circle'"></i-tabler><h3>{{ 'd3.contactUs.errors.title' | translate }}</h3><p>{{ error() }}</p>@if (!forbidden()) { <button type="button" (click)="load()"><i-tabler name="refresh"></i-tabler>{{ 'd3.contactUs.retry' | translate }}</button> }</div>
     } @else if (!items().length) {
       <div class="state"><span class="empty-icon"><i-tabler name="mail-off"></i-tabler></span><h3>{{ 'd3.contactUs.empty.title' | translate }}</h3><p>{{ 'd3.contactUs.empty.text' | translate }}</p></div>
     } @else {
@@ -33,7 +33,28 @@
           </button>
         }
       </div>
-      <footer class="pagination"><span>{{ 'd3.contactUs.pagination' | translate:{from: ((page()-1)*pageSize+1), to: pageEnd(), total: totalCount()} }}</span><div><button type="button" (click)="changePage(page()-1)" [disabled]="page()===1" [attr.aria-label]="'d3.contactUs.previousPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler></button><b>{{ page() }} / {{ totalPages() }}</b><button type="button" (click)="changePage(page()+1)" [disabled]="page()===totalPages()" [attr.aria-label]="'d3.contactUs.nextPage' | translate"><i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler></button></div></footer>
+      <footer class="pagination">
+        <div class="pagination-controls">
+          <button type="button" class="page-btn" [disabled]="page() === 1" (click)="changePage(page() - 1)"
+            [attr.aria-label]="'d3.contactUs.previousPage' | translate">
+            <i-tabler [name]="dir() === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+          </button>
+          @for (item of visiblePages(); track $index) {
+            @if (item === '...') {
+              <span class="page-ellipsis">...</span>
+            } @else {
+              <button type="button" class="page-btn" [class.active]="page() === item" [attr.aria-current]="page() === item ? 'page' : null"
+                (click)="changePage($any(item))">
+                {{ fmt($any(item)) }}
+              </button>
+            }
+          }
+          <button type="button" class="page-btn" [disabled]="page() === totalPages()" (click)="changePage(page() + 1)"
+            [attr.aria-label]="'d3.contactUs.nextPage' | translate">
+            <i-tabler [name]="dir() === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+          </button>
+        </div>
+      </footer>
     }
   </article>
 
@@ -45,7 +66,7 @@
       @else if (detailError()) { <div class="state error-state"><i-tabler name="alert-circle"></i-tabler><p>{{ detailError() }}</p></div> }
       @else { @if (selected(); as detail) {
         <div class="drawer-content">
-          <section class="sender-card"><span class="large-avatar">{{ detail.name.charAt(0) }}</span><div><h3>{{ detail.name }}</h3><a [href]="'mailto:'+detail.email">{{ detail.email }}</a><a class="phone-number" dir="ltr" [href]="'tel:'+detail.phone">{{ detail.phone }}</a></div><span class="status-pill" [class]="'status-pill ' + detail.status.toLowerCase()">{{ statusKey(detail.status) | translate }}</span></section>
+          <section class="sender-card"><span class="large-avatar">{{ detail.name.charAt(0) }}</span><div><h3>{{ detail.name }}</h3>@if (detail.email) { <a [href]="'mailto:'+detail.email">{{ detail.email }}</a> }@if (detail.phone) { <a class="phone-number" dir="ltr" [href]="'tel:'+detail.phone">{{ detail.phone }}</a> }</div><span class="status-pill" [class]="'status-pill ' + detail.status.toLowerCase()">{{ statusKey(detail.status) | translate }}</span></section>
           <section class="message-block"><span class="section-label">{{ 'd3.contactUs.detail.message' | translate }}</span><p>{{ detail.message }}</p></section>
           @if (detail.attachments.length) {
             <section class="attachment-section">

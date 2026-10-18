@@ -59,9 +59,17 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
     }
 
-    // Temporary fixed entry so the Contact Us page can be previewed before the
-    // backend starts returning it in the permission-driven sidebar payload.
-    if (!items.find(i => i.link === '/d3/contact-us')) {
+    // The backend doesn't send a Ban Refunds entry either (per the listing-ban handoff, the
+    // frontend adds it). Unlike Settlements it's gated: BanRefunds.View ships in the login
+    // response. Reading permissions() here also makes the effect rebuild when they change.
+    const canViewBanRefunds = this.loginService.permissions().some(p => p.toLowerCase() === 'banrefunds.view');
+    if (canViewBanRefunds && !items.find(i => i.link === '/d3/ban-refunds')) {
+      items.push({ translationKey: 'd3.sidebar.banRefunds', icon: 'receipt-refund', link: '/d3/ban-refunds' });
+    }
+
+    // The backend doesn't send a Contact Us entry yet; gated on ContactUs.View like Ban Refunds.
+    const canViewContactUs = this.loginService.permissions().some(p => p.toLowerCase() === 'contactus.view');
+    if (canViewContactUs && !items.find(i => i.link === '/d3/contact-us')) {
       items.push({ translationKey: 'd3.sidebar.contactUs', icon: 'mail', link: '/d3/contact-us' });
     }
 
@@ -77,9 +85,17 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.callScripts', icon: 'phone-call', link: '/d3/call-scripts' });
     }
 
+    // The backend doesn't send an eSIM entry in the sidebar payload yet.
+    if (PAGE_FLAGS['esim'] && !items.find(i => i.link === '/d3/esim')) {
+      items.push({ translationKey: 'd3.sidebar.esim', icon: 'device-sim', link: '/d3/esim' });
+    }
+
     if (!items.find(i => i.link === '/d3/subscriptions/management')) {
+      // Order follows the design: settings, management, requests, discount codes, log.
       const subscriptionChildren: NavItem[] = [
         { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
+        { translationKey: 'd3.sidebar.subscriptionRequests', icon: 'file-invoice', link: '/d3/subscriptions/requests' },
+        { translationKey: 'd3.sidebar.discountCodes', icon: 'discount', link: '/d3/subscriptions/discount-codes' },
         { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
       ];
       if (PAGE_FLAGS['subscriptions-management']) {
@@ -95,8 +111,15 @@ export class SidebarService {
       });
     }
 
-    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
+    // The backend doesn't send a Control Center entry in the sidebar payload yet.
+    if (PAGE_FLAGS['control-center'] && !items.find(i => i.link === '/d3/control-center')) {
       items.push({ divider: true });
+      items.push({ translationKey: 'd3.sidebar.controlCenter', icon: 'layout-grid', link: '/d3/control-center' });
+    }
+
+    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
+      // Settings shares the Control Center group in the design — one divider above both.
+      if (items[items.length - 1]?.link !== '/d3/control-center') items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
 
@@ -118,6 +141,7 @@ export class SidebarService {
       'users-management': 'users',
       'admin-users':      'user-cog',
       'roles':            'shield-check',
+      'operation-audits': 'history',
       'units':            'smart-home',
       'properties':       'building-skyscraper',
       'accounts':         'users',
@@ -161,6 +185,9 @@ export class SidebarService {
         let link: string | null = null;
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
+        } else if (/audit|^logs?$|(operation|ops|activity)s?[-_]?logs?/i.test(item.key ?? '')) {
+          // The operations log lives as a tab inside team management.
+          link = '/d3/team-management?tab=logs';
         } else if (item.key?.startsWith('department-')) {
           // Individual department links (e.g. department-it/cs/ops) go to that
           // department's page — not the disabled permissions module below.

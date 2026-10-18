@@ -31,7 +31,7 @@ export interface BuildFilterOption {
 export class TabsFilterComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() activeTab: string = '';
   @Input() searchQuery = '';
-  @Input() tabs: { id: string; labelKey: string }[] = [
+  @Input() tabs: { id: string; labelKey: string; count?: number | null }[] = [
     { id: 'published', labelKey: 'd3.allBuilds.tabs.published' },
     { id: 'underReview', labelKey: 'd3.allBuilds.tabs.underReview' }
   ];

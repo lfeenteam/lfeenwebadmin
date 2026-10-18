@@ -1,5 +1,5 @@
-export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft';
-export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges';
+export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft' | 'banned';
+export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges' | 'banned';
 export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
 export type UnitServicesPricingType = 'paid' | 'free';
 
@@ -18,11 +18,23 @@ export interface UnitCardItem {
   area?: string;
   cancelPolicyType?: CancelPolicyType;
   servicesPricingType?: UnitServicesPricingType;
+  /** Status allows a ban (Approved / HasPendingChanges / UnderReview). Permission is checked separately. */
+  canBan?: boolean;
+  propertyId?: string;
+  banReason?: string | null;
+  /** Raw UTC timestamp from the API (no trailing Z). */
+  bannedAt?: string | null;
+  /** Banned as a side effect of its property's ban — reason is edited from the property. */
+  bannedByProperty?: boolean;
+  /** The parent property itself is banned — the unit can't be unbanned on its own. */
+  propertyBanned?: boolean;
 }
 
 export interface UnitAmenityItem {
   icon: string;
   label: string;
+  // Facilities only — true when the merchant named it in the generated description.
+  highlighted?: boolean;
 }
 
 export interface UnitSubArea {
@@ -82,6 +94,7 @@ export type UnitReviewStatusCode =
   | 'Rejected'
   | 'HasPendingChanges'
   | 'PendingAfterRejection'
+  | 'Banned'
   | ''
   | null;
 
@@ -119,6 +132,9 @@ export interface UnitApiItem {
   completedSections: number;
   createdAt: string;
   updatedAt: string;
+  banReason?: string | null;
+  bannedAt?: string | null;
+  bannedByProperty?: boolean;
 }
 
 export interface UnitApiStats {
@@ -126,6 +142,7 @@ export interface UnitApiStats {
   activeOrPublished: number;
   pendingOrRejected: number;
   underReview: number;
+  banned?: number;
 }
 
 export interface PaginatedUnitResponse {
@@ -158,7 +175,11 @@ export interface UnitApiDetailItem {
   unitTypeName: string;
   floorNumber: number;
   apartmentNumberInFloor: number;
+  // Adult capacity (legacy name) — same value as adultCapacity, NOT the total.
   maxGuests: number;
+  adultCapacity?: number | null;
+  childrenCapacity?: number;
+  maxChildAge?: number | null;
   sizeM: number;
   mainPhotoUrl: string | null;
   hasLock: boolean;
@@ -169,6 +190,10 @@ export interface UnitApiDetailItem {
   // has been approved — the unit doesn't go live until the final approval action
   // is submitted, so isDisplayed is the reliable "final approval already done" signal.
   isDisplayed: boolean;
+  // Set while overallStatus === 'Banned'; bannedAt is UTC without a Z.
+  banReason?: string | null;
+  bannedAt?: string | null;
+  bannedByProperty?: boolean;
   finalNotes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -302,6 +327,9 @@ export interface UnitBasicDataBed {
 export interface UnitBasicDataFacility {
   facilityId: number;
   facilityTypeName: string;
+  // Merchant-controlled, read-only for admin: the facility is named explicitly
+  // in the auto-generated description. Optional — older backends omit it.
+  isHighlightedInDescription?: boolean;
   // Only populated on the Wi-Fi facility item; null on every other facility.
   wifiSsid: string | null;
   wifiPassword: string | null;
@@ -355,7 +383,13 @@ export interface UnitBasicDataResponse {
   district: string | null;
   floorNumber: number;
   apartmentNumberInFloor: number;
+  // Adult capacity (legacy name) — same value as adultCapacity, NOT the total.
   maxGuests: number;
+  adultCapacity?: number | null;
+  // 0 = children not accepted.
+  childrenCapacity?: number;
+  // Oldest age counted as a child; null when no children.
+  maxChildAge?: number | null;
   sizeM: number;
   hasLock: boolean;
   rooms: UnitBasicDataRoom[];
@@ -405,6 +439,26 @@ export interface UnitPricingCustomPeriod {
   dayRules: UnitPricingDayRule[];
 }
 
+export interface AdminUnitCapacity {
+  maxGuests: number | null;      // adult capacity (legacy)
+  adultCapacity?: number | null;
+  childrenCapacity?: number;
+  maxChildAge?: number | null;
+}
+
+export const totalGuests = (c: AdminUnitCapacity): number =>
+  (c.adultCapacity ?? c.maxGuests ?? 0) + (c.childrenCapacity ?? 0);
+
+export interface AdminOccupancyPrice {
+  adultCount: number;
+  childrenCount: number;
+  maxChildAge?: number | null;
+  basePricePerNight: number;
+  minimumPricePerNight: number;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
 export interface UnitPricingResponse {
   unitId: number;
   decision: string;
@@ -412,6 +466,10 @@ export interface UnitPricingResponse {
   reviewedAt: string | null;
   basePricePerNight: number;
   minimumPricePerNight: number;
+  adultCapacity?: number;
+  childrenCapacity?: number;
+  // Default row (full capacity) first, then the optional adult/children combinations.
+  occupancyPrices?: AdminOccupancyPrice[];
   currencyCode: string;
   enableDayPartitioning: boolean;
   dayPartitions: UnitPricingDayPartition[];

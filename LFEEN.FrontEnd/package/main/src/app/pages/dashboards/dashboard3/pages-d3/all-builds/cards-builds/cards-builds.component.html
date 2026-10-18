@@ -1,3 +1,22 @@
+@if (activeTab === 'banned') {
+  <!-- ══ Banned: always a card grid (ban date + reason don't fit a table row) ══ -->
+  @if (buildings.length > 0) {
+    <section class="banned-grid">
+      @for (building of buildings; track building.id) {
+        <app-banned-listing-card
+          kind="property"
+          [listingId]="building.id"
+          [title]="building.title"
+          [subtitle]="building.location"
+          [bannedAt]="building.bannedAt"
+          [banReason]="building.banReason"
+          (changed)="onBanChanged()" />
+      }
+    </section>
+  } @else {
+    <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+  }
+} @else {
 <section class="buildings-grid" [class.list-view]="viewMode === 'list'">
 
   <!-- ══ Published: normal table header (list only) ══ -->
@@ -24,7 +43,7 @@
   <!-- ══ Empty state for published / rejected tabs ══ -->
   @if ((activeTab === 'published' || activeTab === 'rejected' || activeTab === 'draft') && buildings.length === 0) {
     <div class="empty-state-span">
-      <app-dashboard-empty [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+      <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
     </div>
   }
 
@@ -90,8 +109,9 @@
 
 <!-- ══ Empty state for review tabs ══ -->
 @if ((activeTab === 'new' || activeTab === 'underReview' || activeTab === 'pendingChanges') && buildings.length === 0) {
-  <app-dashboard-empty
+  <app-dashboard-empty icon="home"
     [titleKey]="emptyTitleKey"
     [descKey]="emptyDescKey">
   </app-dashboard-empty>
+}
 }

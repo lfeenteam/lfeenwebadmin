@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+}
+
+.ban-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid #FFE2E2;
+  background: #FEF2F2;
+  color: #E7000B;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  i-tabler {
+    display: flex;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: #E7000B;
+    border-color: #E7000B;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #E7000B;
+    outline-offset: 2px;
+  }
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    i-tabler { width: 16px; height: 16px; }
+  }
+}

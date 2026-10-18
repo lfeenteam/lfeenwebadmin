@@ -1,0 +1,71 @@
+.existing-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  background: #fff;
+  color: #6B6B67;
+
+  &.is-removed {
+    background: #fef2f2;
+    border-color: #fee2e2;
+    color: #dc2626;
+
+    .file-link { text-decoration: line-through; color: #dc2626; }
+  }
+}
+
+.file-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+.file-size {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6B6B67;
+  direction: ltr;
+}
+
+.icon-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B67;
+  flex-shrink: 0;
+
+  &:hover { background: #fef2f2; color: #dc2626; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.restore-btn {
+  all: unset;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: #111110;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}

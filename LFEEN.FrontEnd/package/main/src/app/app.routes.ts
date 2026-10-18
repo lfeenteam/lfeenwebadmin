@@ -391,6 +391,49 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'esim',
+                canActivate: [authGuard, pageFlagGuard('esim')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/esim/esim.component'
+                  ).then((m) => m.EsimComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.esim.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'control-center',
+                canActivate: [authGuard, pageFlagGuard('control-center')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/control-center/control-center.component'
+                  ).then((m) => m.ControlCenterComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.controlCenter.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false
+                },
+              },
+              {
+                path: 'ban-refunds',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/ban-refunds/ban-refunds.component'
+                  ).then((m) => m.BanRefundsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.banRefunds.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'account-management',
                 canActivate: [authGuard],
                 loadComponent: () =>
@@ -734,6 +777,36 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.subscriptionLog.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/requests',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-requests/subscription-requests.component'
+                  ).then((m) => m.SubscriptionRequestsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.subscriptionRequests.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'subscriptions/discount-codes',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-discount-codes/subscription-discount-codes.component'
+                  ).then((m) => m.SubscriptionDiscountCodesComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.discountCodes.pageTitle',
                   breadcrumbKey: 'd3.header.platform',
                   showLive: false,
                   showDate: true

@@ -1,10 +1,10 @@
-import { Component, OnDestroy, OnInit, computed, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../../components/dashboard3/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../components/dashboard3/header/header.component';
 import { PageHeaderComponent } from '../../../components/dashboard3/page-header/page-header.component';
 import { ClientChatFabComponent } from '../../../components/dashboard3/client-chat-fab/client-chat-fab.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { filter, Subscription } from 'rxjs';
@@ -15,6 +15,7 @@ import { PageBackOverrideService } from './services/page-back-override.service';
 import { PageTitleOverrideService } from './services/page-title-override.service';
 import { PageBreadcrumbTrailService } from './services/page-breadcrumb-trail.service';
 import { ClientSupportHubService } from './services/client-support-hub.service';
+import { AdminNotificationsStore } from './services/admin-notifications-store.service';
 import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -43,6 +44,13 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   // to be re-checked by change detection (which a lang switch doesn't reliably trigger).
   readonly currentDir = computed(() => this.settings.getOptionsSignal()().dir);
 
+  // Toasts render in a container appended to <body>, outside the [dir] wrapper
+  // above, so they never inherit RTL. This body class lets _toast.scss mirror them.
+  private readonly document = inject(DOCUMENT);
+  private readonly syncBodyDir = effect(() => {
+    this.document.body.classList.toggle('d3-rtl', this.currentDir() === 'rtl');
+  });
+
   sidebarCollapsed = false;
   sidebarMobileOpen = false;
 
@@ -70,6 +78,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     private pageTitleOverride: PageTitleOverrideService,
     private pageBreadcrumbTrail: PageBreadcrumbTrailService,
     private clientSupportHub: ClientSupportHubService,
+    private notificationsStore: AdminNotificationsStore,
     private titleService: Title,
     private translate: TranslateService
   ) {}
@@ -101,6 +110,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   private connectHubIfAuthenticated(): void {
     if (!this.isLoginRoute) {
       this.clientSupportHub.connect();
+      this.notificationsStore.connect();
     }
   }
 
@@ -108,6 +118,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
     this.languageSub?.unsubscribe();
     this.clientSupportHub.disconnect();
+    this.notificationsStore.disconnect();
+    this.document.body.classList.remove('d3-rtl');
   }
 
   private updateBrowserTitle(): void {

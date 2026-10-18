@@ -102,9 +102,15 @@
     @if (amenities.length > 0) {
       <div class="amenities-grid">
         @for (amenity of amenities; track $index) {
-          <div class="amenity-item">
+          <div class="amenity-item" [class.amenity-item--highlighted]="amenity.highlighted">
             <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
             <span class="amenity-label">{{ amenity.label }}</span>
+            @if (amenity.highlighted) {
+              <span class="highlight-badge">
+                <i-tabler name="check"></i-tabler>
+                {{ 'd3.buildReview.basicInfo.highlightedInDescription' | translate }}
+              </span>
+            }
           </div>
         }
       </div>

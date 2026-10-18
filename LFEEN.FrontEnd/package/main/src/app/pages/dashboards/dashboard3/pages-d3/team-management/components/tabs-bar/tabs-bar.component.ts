@@ -13,5 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class TabsBarComponent {
   @Input() activeTab: 'structure' | 'employees' | 'logs' = 'structure';
   @Input() noBorder = false;
+  /** Operation audit tab requires the OperationAudits.View permission. */
+  @Input() showLogs = false;
   @Output() tabChange = new EventEmitter<'structure' | 'employees' | 'logs'>();
 }

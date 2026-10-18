@@ -6,7 +6,7 @@
   <!-- Header row: tabs (structure) + action button -->
   <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
     @if (activeTab === 'structure' && !departmentId) {
-      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
       <app-team-header
         [isBoxed]="false"
         actionLabel="d3.teamManagement.addDept"
@@ -34,25 +34,25 @@
     </app-team-header>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
     </div>
   }
 
   <!-- Logs tab: filter header + tabs -->
   @if (activeTab === 'logs' && !departmentId) {
     <app-logs-filter
-      [searchQuery]="logsSearchQuery"
-      [actionTypes]="logsActionTypes"
-      [depts]="logsDepts"
-      [dates]="logsDates"
-      (searchQueryChange)="logsSearchQuery = $event"
-      (filterActionChange)="logsFilterAction = $event"
-      (filterDeptChange)="logsFilterDept = $event"
-      (filterDateChange)="logsFilterDate = $event">
+      [actionCodes]="auditActionCodes"
+      [depts]="logsDeptOptions"
+      [statuses]="auditStatuses"
+      (searchQueryChange)="audits.setSearch($event)"
+      (filterActionChange)="audits.setActionCode($event)"
+      (filterDeptChange)="audits.setDepartment($event)"
+      (filterStatusChange)="audits.setStatus($event)"
+      (filterDateChange)="audits.setDatePreset($event)">
     </app-logs-filter>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
     </div>
   }
 
@@ -122,7 +122,36 @@
       </app-employee-list>
     }
   } @else if (activeTab === 'logs') {
-    <app-ops-log-table [logs]="filteredLogs"></app-ops-log-table>
+    @if (audits.accessDenied()) {
+      <div class="logs-state-box d-flex flex-column align-items-center justify-content-center">
+        <i-tabler name="shield-lock" class="icon-24"></i-tabler>
+        <span>{{ 'd3.teamManagement.opsLog.accessDenied' | translate }}</span>
+      </div>
+    } @else {
+      @if (audits.loadFailed()) {
+        <div class="logs-error-bar d-flex align-items-center justify-content-between gap-8 m-b-16">
+          <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+          <button mat-stroked-button type="button" (click)="audits.reload()">
+            {{ 'd3.teamManagement.opsLog.retry' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (!audits.hasLoadedOnce() && audits.isLoading()) {
+        <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+      } @else if (audits.hasLoadedOnce()) {
+        <app-ops-log-table
+          [logs]="audits.items()"
+          [currentLang]="currentLang"
+          [isLoading]="audits.isLoading()"
+          [currentPage]="audits.currentPage()"
+          [totalPages]="audits.totalPages()"
+          [totalCount]="audits.totalCount()"
+          (openDetails)="openAuditDetails($event)"
+          (pageChange)="audits.goToPage($event)">
+        </app-ops-log-table>
+      }
+    }
   }
 
 </div>

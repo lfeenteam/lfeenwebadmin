@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -8,11 +8,13 @@ import { ViewMode } from '../../../interfaces/dashboard-sub-header.model';
 import { UnitCardComponent } from './unit-card/unit-card.component';
 import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.component';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
+import { BannedListingCardComponent } from 'src/app/components/dashboard3/ban-listing/banned-listing-card/banned-listing-card.component';
+import { UnitsService } from '../../../services/units.service';
 
 @Component({
   selector: 'app-cards-units',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, UnitCardComponent, UnitCardReviewComponent, DashboardEmptyComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, UnitCardComponent, UnitCardReviewComponent, DashboardEmptyComponent, BannedListingCardComponent],
   templateUrl: './cards-units.component.html',
   styleUrl: './cards-units.component.scss'
 })
@@ -21,6 +23,16 @@ export class CardsUnitsComponent {
   @Input() isReviewTab: boolean = false;
   @Input() viewMode: ViewMode = 'grid';
   @Input() activeTab: string = 'published';
+
+  private unitsService = inject(UnitsService);
+
+  get isBannedTab(): boolean {
+    return this.activeTab === 'banned';
+  }
+
+  onBanChanged(): void {
+    this.unitsService.reload();
+  }
 
   constructor(
     private router: Router,

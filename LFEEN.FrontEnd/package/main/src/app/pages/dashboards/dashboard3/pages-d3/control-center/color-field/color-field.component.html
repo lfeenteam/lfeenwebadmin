@@ -1,0 +1,35 @@
+<div class="cf-field" [class.is-invalid]="invalid" [class.is-disabled]="disabled">
+  <button type="button" class="cf-swatch" [class.is-empty]="!isValid" [style.background-color]="isValid ? text : null"
+    [disabled]="disabled" [matMenuTriggerFor]="pickerMenu" (menuClosed)="onTouched()" [attr.aria-label]="ariaLabel"></button>
+  <input type="text" class="cf-hex" dir="ltr" maxlength="7" spellcheck="false" autocomplete="off" placeholder="#000000"
+    [value]="text" [disabled]="disabled" [attr.aria-label]="ariaLabel"
+    (input)="onTextInput($any($event.target).value)" (blur)="onTouched()" />
+</div>
+
+<mat-menu #pickerMenu="matMenu" class="color-field-menu" yPosition="below">
+  <ng-template matMenuContent>
+    <div class="cf-popover" dir="ltr" (click)="$event.stopPropagation()">
+      <div class="cf-sv" tabindex="0" role="slider" [attr.aria-label]="ariaLabel"
+        [attr.aria-valuetext]="text" [style.background-color]="hueColor"
+        (pointerdown)="onSvDown($event)" (pointermove)="onSvMove($event)" (keydown)="onSvKey($event)">
+        <span class="cf-sv-thumb" [style.left.%]="hsv.s * 100" [style.top.%]="(1 - hsv.v) * 100"
+          [style.background-color]="isValid ? text : null"></span>
+      </div>
+
+      <input type="range" class="cf-hue" min="0" max="359" [value]="hsv.h" [attr.aria-label]="ariaLabel"
+        (input)="setHue(+$any($event.target).value)" (keydown)="$event.stopPropagation()" />
+
+      <div class="cf-presets">
+        @for (hex of presets; track hex) {
+          <button type="button" class="cf-preset" [style.background-color]="hex" [class.active]="text === hex"
+            [attr.aria-label]="hex" (click)="pickPreset(hex)"></button>
+        }
+      </div>
+
+      <div class="cf-current">
+        <span class="cf-current-swatch" [class.is-empty]="!isValid" [style.background-color]="isValid ? text : null"></span>
+        <span class="cf-current-hex">{{ text || '—' }}</span>
+      </div>
+    </div>
+  </ng-template>
+</mat-menu>

@@ -1,0 +1,11 @@
+@if (hasPermission) {
+  <button
+    type="button"
+    class="ban-btn"
+    [class.ban-btn--sm]="size === 'sm'"
+    [attr.aria-label]="(kind === 'property' ? 'd3.listingBan.button.property' : 'd3.listingBan.button.unit') | translate"
+    [matTooltip]="(kind === 'property' ? 'd3.listingBan.button.property' : 'd3.listingBan.button.unit') | translate"
+    (click)="open($event)">
+    <i-tabler name="ban"></i-tabler>
+  </button>
+}

@@ -130,6 +130,7 @@ export class BuildingReviewService {
     const isPendingAfterRejection = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.PendingAfterRejection);
     const isHasPendingChanges     = this.hasReviewStatus(p, PropertyAdminReviewStatusValue.HasPendingChanges);
     return (
+      this.isBanned(p)                                                 ? 'banned' :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Draft)    ? 'draft' :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved) ? 'published' :
       this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Rejected) ? 'rejected'  :
@@ -172,7 +173,19 @@ export class BuildingReviewService {
       tab,
       mainPhotoUrl: p.mainPhotoUrl,
       pendingChangesReason: isPendingAfterRejection ? 'pendingAfterRejection' : isHasPendingChanges ? 'hasPendingChanges' : undefined,
+      canBan: tab !== 'draft' && (
+        isHasPendingChanges ||
+        this.hasReviewStatus(p, PropertyAdminReviewStatusValue.Approved) ||
+        this.hasReviewStatus(p, PropertyAdminReviewStatusValue.UnderReview)
+      ),
+      banReason: p.banReason ?? null,
+      bannedAt:  p.bannedAt ?? null,
     };
+  }
+
+  // Checked before every other status: a banned property must never be classified by its sections.
+  private isBanned(property: PropertyApiItem): boolean {
+    return property.reviewStatus === 'Banned';
   }
 
   private hasReviewStatus(
@@ -216,6 +229,11 @@ export class BuildingReviewService {
 
   goToPage(page: number): void {
     this.currentPage.set(page);
+  }
+
+  /** Refetches the current list and stats, e.g. after a ban changed a property's status. */
+  reload(): void {
+    this._propertiesResource.reload();
   }
 
   getBuildingById(id: string): BuildingCardItem | undefined {

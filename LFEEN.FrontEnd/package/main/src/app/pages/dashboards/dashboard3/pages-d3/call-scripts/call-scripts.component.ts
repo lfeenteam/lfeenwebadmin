@@ -10,7 +10,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { LoginService } from '../../services/login/login.service';
-import { CALL_SCRIPT_SCENARIOS, CallScript } from './interfaces/call-script.model';
+import { CALL_SCRIPT_SCENARIOS, CallScript, scenarioDisplayName } from './interfaces/call-script.model';
 import { resolveCallScriptError } from './interfaces/call-script-error.util';
 import { CallScriptsService } from './services/call-scripts.service';
 import { CallScriptDialogComponent, CallScriptDialogResult } from './components/call-script-dialog/call-script-dialog.component';
@@ -73,6 +73,10 @@ export class CallScriptsComponent implements OnInit {
         this.toastr.error(resolveCallScriptError(err, this.translate));
       },
     });
+  }
+
+  scenarioName(script: CallScript): string {
+    return scenarioDisplayName(this.translate, script.scenarioType, script.scenarioLabel);
   }
 
   optionDigits(script: CallScript): string {

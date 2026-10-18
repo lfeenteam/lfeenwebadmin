@@ -230,6 +230,28 @@
   color: #111110;
 }
 
+// Replies from the merchant / guest — lighter than admin replies
+.support-reply-card.user-reply-card {
+  border: 1px solid #E8E8E4;
+  box-shadow: none;
+
+  .support-reply-agent span:not(.support-avatar) {
+    color: #7A8899;
+  }
+
+  p {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.support-avatar.user-avatar {
+  background: #F9E1EE;
+  color: #D6338A;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .support-reply-header {
   display: flex;
   align-items: flex-start;

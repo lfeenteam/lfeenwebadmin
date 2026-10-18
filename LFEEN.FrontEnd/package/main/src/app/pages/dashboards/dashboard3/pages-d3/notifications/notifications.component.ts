@@ -1,21 +1,22 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
-
-export type NotificationTab = 'all' | 'complaints' | 'propertyReview' | 'inquiries';
-export type NotificationType = 'complaint' | 'propertyReview' | 'inquiry';
-
-export interface NotificationItem {
-  id: string;
-  refId: string;
-  type: NotificationType;
-  categoryLabel: string;
-  title: string;
-  subtitle: string;
-  time: string;
-}
+import { CoreService } from 'src/app/services/core.service';
+import { AdminNotificationsStore } from '../../services/admin-notifications-store.service';
+import { AdminNotification, NotificationCategory } from '../../interfaces/admin-notification.model';
+import {
+  NOTIFICATION_CATEGORIES,
+  categoryOf,
+  iconOf,
+  isKnownType,
+  relativeTime,
+  routeFor,
+  severityOf,
+} from './notification-presentation';
 
 @Component({
   selector: 'app-notifications',
@@ -24,87 +25,82 @@ export interface NotificationItem {
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss',
 })
-export class NotificationsComponent {
-  activeTab = signal<NotificationTab>('all');
+export class NotificationsComponent implements OnInit {
+  readonly store = inject(AdminNotificationsStore);
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+  private toastr = inject(ToastrService);
+  private settings = inject(CoreService);
+  private destroyRef = inject(DestroyRef);
 
-  readonly tabs: { key: NotificationTab; labelKey: string }[] = [
-    { key: 'all',            labelKey: 'd3.notifications.tabs.all' },
-    { key: 'complaints',     labelKey: 'd3.notifications.tabs.complaints' },
-    { key: 'propertyReview', labelKey: 'd3.notifications.tabs.propertyReview' },
-    { key: 'inquiries',      labelKey: 'd3.notifications.tabs.inquiries' },
-  ];
+  readonly categories = NOTIFICATION_CATEGORIES;
+  readonly activeCategory = signal<NotificationCategory>('all');
 
-  private allNotifications: NotificationItem[] = [
-    {
-      id: '1',
-      refId: '#T-8842',
-      type: 'complaint',
-      categoryLabel: 'd3.notifications.types.complaint',
-      title: 'd3.notifications.mock.complaint1.title',
-      subtitle: 'd3.notifications.mock.complaint1.subtitle',
-      time: 'd3.notifications.mock.complaint1.time',
-    },
-    {
-      id: '2',
-      refId: '#P-354',
-      type: 'propertyReview',
-      categoryLabel: 'd3.notifications.types.propertyReview',
-      title: 'd3.notifications.mock.propertyReview1.title',
-      subtitle: 'd3.notifications.mock.propertyReview1.subtitle',
-      time: 'd3.notifications.mock.propertyReview1.time',
-    },
-    {
-      id: '3',
-      refId: '#Q-25',
-      type: 'inquiry',
-      categoryLabel: 'd3.notifications.types.inquiry',
-      title: 'd3.notifications.mock.inquiry1.title',
-      subtitle: 'd3.notifications.mock.inquiry1.subtitle',
-      time: 'd3.notifications.mock.inquiry1.time',
-    },
-    {
-      id: '4',
-      refId: '#T-28000',
-      type: 'complaint',
-      categoryLabel: 'd3.notifications.types.complaint',
-      title: 'd3.notifications.mock.complaint2.title',
-      subtitle: 'd3.notifications.mock.complaint2.subtitle',
-      time: 'd3.notifications.mock.complaint2.time',
-    },
-  ];
+  private readonly lang = computed(() => this.settings.getOptionsSignal()().language);
+  readonly currentDir = computed(() => (this.lang() === 'en' ? 'ltr' : 'rtl'));
 
-  visibleNotifications = computed(() => {
-    const tab = this.activeTab();
-    if (tab === 'all') return this.allNotifications;
-    const typeMap: Record<NotificationTab, NotificationType | null> = {
-      all: null,
-      complaints: 'complaint',
-      propertyReview: 'propertyReview',
-      inquiries: 'inquiry',
-    };
-    const filterType = typeMap[tab];
-    return this.allNotifications.filter(n => n.type === filterType);
+  // Ticks once a minute so "5 minutes ago" labels stay current while the page is open.
+  private readonly now = signal(Date.now());
+
+  // The API filters by one exact type while tabs group several, so categories are
+  // filtered client-side over the pages loaded so far.
+  readonly visibleNotifications = computed(() => {
+    const category = this.activeCategory();
+    const items = this.store.items();
+    return category === 'all' ? items : items.filter(n => categoryOf(n.type) === category);
   });
 
-  constructor(private translate: TranslateService) {}
+  ngOnInit(): void {
+    // Before the first load the shell's connect() already triggers the refresh.
+    if (this.store.initialized()) this.store.refresh();
 
-  setTab(tab: NotificationTab): void {
-    this.activeTab.set(tab);
+    const timer = setInterval(() => this.now.set(Date.now()), 60_000);
+    this.destroyRef.onDestroy(() => clearInterval(timer));
   }
 
-  get currentDir(): 'rtl' | 'ltr' {
-    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  setCategory(category: NotificationCategory): void {
+    this.activeCategory.set(category);
   }
 
-  getIconName(type: NotificationType): string {
-    if (type === 'complaint') return 'alert-circle';
-    if (type === 'propertyReview') return 'building';
-    return 'help-circle';
+  open(item: AdminNotification): void {
+    // Fire-and-forget: a failed mark-as-read must not block navigation.
+    this.store.markAsRead(item.id);
+    const route = routeFor(item);
+    if (route) this.router.navigate([`/${this.lang()}`, 'd3', ...route]);
   }
 
-  getIconClass(type: NotificationType): string {
-    if (type === 'complaint') return 'icon-complaint';
-    if (type === 'propertyReview') return 'icon-property';
-    return 'icon-inquiry';
+  async remove(item: AdminNotification, event: Event): Promise<void> {
+    event.stopPropagation();
+    const ok = await this.store.delete(item.id);
+    if (!ok) this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+  }
+
+  async markAllAsRead(): Promise<void> {
+    const ok = await this.store.markAllAsRead();
+    if (!ok) this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+  }
+
+  retry(): void {
+    this.store.refresh();
+  }
+
+  typeLabelKey(type: string): string {
+    return isKnownType(type) ? `d3.notifications.types.${type}` : 'd3.notifications.types.default';
+  }
+
+  iconName(type: string): string {
+    return iconOf(type);
+  }
+
+  severityClass(type: string): string {
+    return `severity-${severityOf(type)}`;
+  }
+
+  timeLabel(item: AdminNotification): string {
+    return relativeTime(item.createdAt, this.lang(), this.now());
+  }
+
+  hasDestination(item: AdminNotification): boolean {
+    return routeFor(item) !== null;
   }
 }

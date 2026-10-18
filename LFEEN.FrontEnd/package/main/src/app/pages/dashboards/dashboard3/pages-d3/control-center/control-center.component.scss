@@ -1,0 +1,280 @@
+@use 'control-center-tab';
+
+// Visual language follows esim.component.scss; classes are prefixed "cc-" (page) and "mp-" (phone screen).
+.cc-container {
+  padding: 0;
+  font-family: 'Cairo', sans-serif !important;
+
+  h2, h3, h4, span, p, strong, small, button, input, textarea, label {
+    font-family: 'Cairo', sans-serif !important;
+  }
+}
+
+// ── Stats ───────────────────────────────────────────────────
+.cc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+// Design: [icon] [value] [label / note] packed together from the start edge.
+.cc-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  min-width: 0;
+}
+
+.cc-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+
+  &.tone-slate { background: #F1F5F9; border-color: #E2E8F0; color: #111110; }
+  &.tone-green { background: #f0fdf4; border-color: #DCFCE7; color: #16a34a; }
+  &.tone-amber { background: #fffbeb; border-color: #FEF3C7; color: #d97706; }
+}
+
+.cc-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: #111110;
+  flex-shrink: 0;
+}
+
+.cc-stat-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: start;
+}
+
+.cc-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #45556C;
+}
+
+.cc-stat-note {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9E9E9A;
+
+  &.is-good { color: #16a34a; }
+  &.is-warn { color: #d97706; }
+}
+
+// ── Cards ───────────────────────────────────────────────────
+.cc-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.cc-muted-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+  white-space: nowrap;
+}
+
+.cc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong { font-size: 13px; font-weight: 700; color: #111110; }
+  small { font-size: 11px; font-weight: 500; color: #9E9E9A; }
+}
+
+// ── Apps status ─────────────────────────────────────────────
+.cc-apps-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #F1F5F9;
+
+  h2 { margin: 0 0 2px; font-size: 15px; font-weight: 800; color: #111110; }
+  p { margin: 0; font-size: 12px; font-weight: 500; color: #6B6B67; }
+}
+
+.cc-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.cc-app-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 20px;
+  min-width: 0;
+
+  & + & { border-inline-start: 1px solid #F1F5F9; }
+}
+
+.cc-app-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cc-app-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #45556C;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.cc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  &.is-maintenance { background: #fffbeb; color: #d97706; }
+}
+
+// ── Tabs ────────────────────────────────────────────────────
+.cc-tabs-wrap {
+  position: relative;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.cc-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  // The edge arrows replace the scrollbar as the "there's more" cue.
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+// Arrow sits on a fade, so the clipped tab reads as "continues this way".
+.cc-tabs-arrow {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  width: 44px;
+  color: #111110;
+
+  &.is-start {
+    inset-inline-start: 0;
+    justify-content: flex-start;
+    padding-inline-start: 8px;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0), #FFFFFF 55%);
+  }
+
+  &.is-end {
+    inset-inline-end: 0;
+    justify-content: flex-end;
+    padding-inline-end: 8px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #FFFFFF 55%);
+  }
+
+  i-tabler {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 1px 4px rgba(17, 17, 16, 0.15);
+  }
+}
+
+// Gradients run toward the inside edge, which flips with direction.
+[dir='rtl'] .cc-tabs-arrow {
+  &.is-start { background: linear-gradient(to right, rgba(255, 255, 255, 0), #FFFFFF 55%); }
+  &.is-end { background: linear-gradient(to left, rgba(255, 255, 255, 0), #FFFFFF 55%); }
+}
+
+.cc-tab {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 14px 12px;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9E9E9A;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  &:hover { color: #45556C; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: -2px; }
+  &.active { color: #111110; font-weight: 800; border-bottom-color: #111110; }
+}
+
+
+// ── Page footer ─────────────────────────────────────────────
+.cc-page-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 4px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+// ── Responsive ──────────────────────────────────────────────
+@media (max-width: 1199px) {
+  .cc-apps-grid { grid-template-columns: repeat(2, 1fr); }
+  .cc-app-cell:nth-child(3) { border-inline-start: 0; }
+  .cc-app-cell:nth-child(n + 3) { border-top: 1px solid #F1F5F9; }
+}
+
+@media (max-width: 991px) {
+  .cc-stats { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 599px) {
+  .cc-apps-grid { grid-template-columns: 1fr; }
+  .cc-app-cell { border-inline-start: 0 !important; }
+  .cc-app-cell + .cc-app-cell { border-top: 1px solid #F1F5F9; }
+}

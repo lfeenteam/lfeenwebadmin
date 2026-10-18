@@ -16,7 +16,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { SettlementDetailDialogComponent, SettlementDetailDialogData, SettlementDialogResult } from './components/settlement-detail-dialog/settlement-detail-dialog.component';
-import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail } from './interfaces/settlement.model';
+import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
 
@@ -28,7 +28,6 @@ interface SettlementRow {
   /** '-' when the backend didn't return a merchant name. */
   accountInitials: string;
   partyName: string;
-  ownerName: string;
   amount: number | null;
   requestDate: Date | null;
   status: string;
@@ -94,8 +93,10 @@ export class SettlementsComponent implements OnInit {
     { value: false, labelKey: 'd3.settlements.filters.oldest' },
   ];
 
-  // The stats cards have no backend source yet — they render "-" (see template).
   readonly emptyValue = EMPTY;
+
+  /** Stats cards data — comes with the list response; null until loaded. */
+  summary: SettlementSummary | null = null;
 
   constructor() {
     this.translate.onLangChange
@@ -132,6 +133,10 @@ export class SettlementsComponent implements OnInit {
     });
   }
 
+  fmtHours(value: number): string {
+    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 1 });
+  }
+
   load(): void {
     this.listRequest?.unsubscribe();
     this.loading = true;
@@ -139,12 +144,14 @@ export class SettlementsComponent implements OnInit {
 
     const statuses = this.activeTab === 'current' ? CURRENT_TAB_STATUSES : PREVIOUS_TAB_STATUSES;
     this.listRequest = this.service.listAllByStatuses(statuses).subscribe({
-      next: items => {
+      next: ({ items, summary }) => {
+        this.summary = summary;
         this.allSettlements = items.map(s => this.toRow(s));
         this.loading = false;
         this.applyFilters();
       },
       error: err => {
+        this.summary = null;
         this.allSettlements = [];
         this.loading = false;
         this.loadError = true;
@@ -233,8 +240,9 @@ export class SettlementsComponent implements OnInit {
   private openDetailDialog(detail: SettlementDetail): void {
     const iban = detail.bank?.iban?.trim() || '';
     const dialogRef = this.dialog.open(SettlementDetailDialogComponent, {
-      width: '480px',
+      width: '900px',
       maxWidth: '92vw',
+      maxHeight: '92vh',
       panelClass: 'settlement-detail-panel',
       data: {
         id: detail.id,
@@ -251,7 +259,19 @@ export class SettlementsComponent implements OnInit {
         bankAccountNumber: EMPTY,
         iban: iban || EMPTY,
         hasIban: !!iban,
+        swiftCode: detail.bank?.swiftCode?.trim() || EMPTY,
         bankVerified: detail.bankInfoStatus === 'Approved',
+        payoutReference: detail.payoutReference?.trim() || EMPTY,
+        requestDateLabel: this.fmtDetailDate(detail.createdAtUtc, true),
+        periodLabel: `${this.fmtDetailDate(detail.periodStartUtc)} - ${this.fmtDetailDate(detail.periodEndUtc)}`,
+        grossFormatted: this.fmtAmount(detail.grossAmount),
+        feeFormatted: this.fmtAmount(detail.platformFee),
+        entries: (detail.entries ?? []).map(e => ({
+          bookingNumber: e.bookingNumber?.trim() || EMPTY,
+          gross: this.fmtAmount(e.grossAmount),
+          fee: this.fmtAmount(e.feeAmount),
+          net: this.fmtAmount(e.netAmount),
+        })),
       } as SettlementDetailDialogData
     });
 
@@ -262,6 +282,14 @@ export class SettlementsComponent implements OnInit {
     });
   }
 
+  private fmtDetailDate(value: string | null, withTime = false): string {
+    const date = parseApiUtc(value);
+    if (!date) return EMPTY;
+    const locale = this.currentLang === 'en' ? enUS : ar;
+    const day = format(date, 'd MMMM yyyy', { locale });
+    return withTime ? `${day} | ${format(date, 'hh:mm a', { locale })}` : day;
+  }
+
   private toRow(s: Settlement): SettlementRow {
     const name = s.merchantName?.trim() || '';
     const meta = STATUS_META[s.status];
@@ -270,7 +298,6 @@ export class SettlementsComponent implements OnInit {
       id: s.id,
       accountInitials: name ? this.initialsOf(name) : EMPTY,
       partyName: name || EMPTY,
-      ownerName: EMPTY,
       amount: typeof s.netAmount === 'number' ? s.netAmount : null,
       requestDate: parseApiUtc(s.createdAtUtc),
       status: s.status,

@@ -4,10 +4,10 @@ import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   ExecuteSettlementRequest,
-  Settlement,
   SettlementActionResult,
   SettlementDetail,
   SettlementList,
+  SettlementListResult,
 } from '../interfaces/settlement.model';
 
 const FETCH_PAGE_SIZE = 50;
@@ -30,16 +30,22 @@ export class SettlementsService {
    * statuses. Each status is fetched in full (every page) and the caller merges,
    * sorts and pages locally — that keeps ordering and paging correct.
    */
-  listAllByStatuses(statuses: readonly string[]): Observable<Settlement[]> {
-    return forkJoin(statuses.map(s => this.listAllByStatus(s))).pipe(map(groups => groups.flat()));
+  listAllByStatuses(statuses: readonly string[]): Observable<SettlementListResult> {
+    return forkJoin(statuses.map(s => this.listAllByStatus(s))).pipe(
+      map(groups => ({
+        items: groups.flatMap(g => g.items),
+        summary: groups.find(g => g.summary)?.summary ?? null,
+      })),
+    );
   }
 
-  private listAllByStatus(status: string): Observable<Settlement[]> {
+  private listAllByStatus(status: string): Observable<SettlementListResult> {
     return this.list(status, 1).pipe(
       switchMap(first => {
-        if (first.totalPages <= 1) return of(first.items);
+        const summary = first.summary ?? null;
+        if (first.totalPages <= 1) return of({ items: first.items, summary });
         const rest = Array.from({ length: first.totalPages - 1 }, (_, i) => this.list(status, i + 2));
-        return forkJoin(rest).pipe(map(pages => [first, ...pages].flatMap(p => p.items)));
+        return forkJoin(rest).pipe(map(pages => ({ items: [first, ...pages].flatMap(p => p.items), summary })));
       }),
     );
   }

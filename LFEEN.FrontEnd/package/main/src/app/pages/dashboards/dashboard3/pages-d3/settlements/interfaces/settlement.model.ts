@@ -44,6 +44,20 @@ export interface SettlementList {
   pageNumber: number;
   pageSize: number;
   totalPages: number;
+  summary?: SettlementSummary | null;
+}
+
+/** Overview figures for the stats cards — returned with every list page. */
+export interface SettlementSummary {
+  oldestOutstandingPayoutAgeHours: number | null;
+  averageNetAmount: number | null;
+  totalPendingAmount: number | null;
+  currencyCode: string | null;
+}
+
+export interface SettlementListResult {
+  items: Settlement[];
+  summary: SettlementSummary | null;
 }
 
 export interface SettlementBank {

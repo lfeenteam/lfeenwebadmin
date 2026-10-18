@@ -1,27 +1,28 @@
 export type SubscriptionStatus = 'active' | 'suspended' | 'expired';
 export type SubscriptionPeriod = 'monthly' | 'annual' | 'free';
+export type SubscriptionBillingModel = 'Paid' | 'Free' | 'BuiltIn';
+export type SubscriptionActivationMode = 'AdminApproval' | 'Instant';
 
 export interface SubscriptionServiceItem {
-  id: number;
   name: string;
-  categoryKey: string;
+  /** Already-translated category label from the API ('-' when missing). */
+  categoryLabel: string;
   icon: string;
   priceValue: number | null;
-  period: SubscriptionPeriod;
-  startDate: Date;
-  endDate: Date;
+  periodLabel: string;
+  startDate: string;
+  endDate: string;
+  expired: boolean;
+  billingModel: SubscriptionBillingModel;
+  isAutoActivated: boolean;
 }
 
 export interface SubscriberAccount {
-  id: number;
+  id: string;
   facilityName: string;
-  classificationKey: string;
-  icon: string;
   status: SubscriptionStatus;
   feesAmountValue: number;
-  feesPeriod: SubscriptionPeriod;
   feesAnnualValue: number;
-  servicesCount: number;
   services: SubscriptionServiceItem[];
 }
 
@@ -43,6 +44,9 @@ export interface SubscriptionLogEntry {
 }
 
 // ── /api/subscriptions/requests ──────────────────────────────
+// Only UnderReview (the endpoint's default) is confirmed by the backend; the rest are the
+// expected EQAMATIK values. Raw status can also arrive as a numeric string, so logic must
+// treat anything unknown defensively.
 export type SubscriptionOrderStatus = 'Pending' | 'UnderReview' | 'Approved' | 'Rejected';
 
 export interface SubscriptionOrderItem {
@@ -50,111 +54,409 @@ export interface SubscriptionOrderItem {
   serviceKey: string;
   serviceName: string;
   requestTypeLabel: string;
-  periodLabel: string;
+  periodLabel: string | null;
   amount: number;
-  propertyId: string | null;
+  setupFeeAmount: number;
+  discountAmount: number;
+  discountCode: string | null;
+  propertyId: number | null;
   propertyName: string | null;
+  tierKey: string | null;
+  tierName: string | null;
+  billingModel: SubscriptionBillingModel;
+  lineStatus: string | null;
+  /** MessagePack lines: messages bought. Not sent by every backend build yet. */
+  messageQuantity?: number | null;
 }
 
 export interface SubscriptionOrder {
   orderId: string;
   accountId: string;
-  merchantName: string;
+  merchantName: string | null;
   subtotalAmount: number;
   taxAmount: number;
   totalAmount: number;
   currencyCode: string;
-  status: SubscriptionOrderStatus;
+  status: string | null;
   statusLabel: string;
   requestedAt: string;
   processedAt: string | null;
   items: SubscriptionOrderItem[];
+  isAutoActivated: boolean;
+  // ── Not sent by every backend build yet — each is shown only when present ──
+  /** e.g. "MerchantWallet"; card payments carry the card brand. */
+  paymentMethod?: string | null;
+  /** Wallet auto top-ups currently arrive only as this note: "Auto top-up from wallet". */
+  note?: string | null;
+  isAutoTopUp?: boolean;
 }
+
+/** An order the wallet auto top-up placed — flagged explicitly, or by its note until the flag exists. */
+export const isAutoTopUpOrder = (o: SubscriptionOrder): boolean =>
+  o.isAutoTopUp === true || /auto top-?up/i.test(o.note ?? '');
 
 // ── /api/subscriptions/catalog ────────────────────────────────
 export type SubscriptionCategory = 'Compliance' | 'SmartLock' | 'GovernmentPlatform' | 'Maps' | 'ChannelManager' | 'Messaging' | 'Erp' | 'Payments' | 'Other';
+
+export interface SubscriptionServiceFeature {
+  id: number;
+  subscriptionServiceId?: number;
+  textAr: string;
+  textEn: string;
+  isActive: boolean;
+  displayOrder?: number;
+}
 
 export interface SubscriptionCatalogItem {
   id: number;
   key: string;
   nameAr: string;
   nameEn: string;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
   categoryLabel: string;
   logoUrl: string | null;
   isAvailable: boolean;
   isActive: boolean;
   displayOrder: number;
+  /** Validation floors for POST /pricing — not prices. */
+  minimumMonthlyPrice?: number | null;
+  minimumYearlyPrice?: number | null;
+  /** true = VAT is already inside the price; false = VAT is added on top. */
+  isPriceVatInclusive?: boolean;
+  // ── Read-only, computed by the backend (never sent back on PUT) ──
+  /** Active checkmark bullets, already in display order. */
+  features?: SubscriptionServiceFeature[];
+  /** Default tier's current effective price (a seasonal override wins); null = no active pricing. */
+  monthlyPrice?: number | null;
+  yearlyPrice?: number | null;
+  currencyCode?: string;
+  /** Default tier's free-trial length; 0 = no trial. */
+  trialDays?: number;
+  billingModel: SubscriptionBillingModel;
+  /** Not every backend build returns it — absent means unknown, never a default. */
+  activationMode?: SubscriptionActivationMode;
+  /** Requested from the backend ("Subscription" | "MessagePack" | "Usage"); derived locally until it's sent. */
+  pricingStyle?: string | null;
+  isFree: boolean;
+  isBuiltIn: boolean;
 }
 
 // ── /api/subscriptions/pricing ────────────────────────────────
-export type SubscriptionPricingPeriod = 'Daily' | 'Monthly' | 'Yearly';
+/** MessagePack (5 on the backend) = a prepaid message balance, priced per pack — not a recurring fee. */
+export type SubscriptionPricingPeriod = 'Daily' | 'Monthly' | 'Yearly' | 'MessagePack';
+export type SubscriptionUsageUnitType = 'None' | 'PerUnit' | 'PercentageOfValue';
 
 export interface SubscriptionPricingItem {
   id: number;
   subscriptionServiceId: number;
+  /** null = the service's default tier. */
+  subscriptionServiceTierId?: number | null;
+  tierName?: string | null;
   serviceKey: string;
   serviceName: string;
-  period: SubscriptionPricingPeriod;
-  periodLabel: string;
+  period: SubscriptionPricingPeriod | null;
+  periodLabel: string | null;
+  /** Recurring subscription fee. */
   price: number;
+  /** One-time fee, charged only on a merchant's first subscription to the service. */
+  setupFee?: number | null;
+  usageUnitType?: SubscriptionUsageUnitType | null;
+  /** PerUnit: flat amount per unit. PercentageOfValue: a rate (0.025 = 2.5%). */
+  usageUnitPrice?: number | null;
+  usageMaxFeeAmount?: number | null;
+  /** MessagePack only: messages in one pack, also the minimum a merchant can buy. */
+  messagesPerPack?: number | null;
   currencyCode: string;
   isActive: boolean;
   effectiveFrom: string;
   effectiveTo: string | null;
+  // Seasonal override active right now for this exact (service, tier, period) — all null otherwise.
+  seasonalPriceId?: number | null;
+  seasonalPrice?: number | null;
+  seasonalPriceNameAr?: string | null;
+  seasonalPriceNameEn?: string | null;
+  seasonalPriceStartDate?: string | null;
+  seasonalPriceEndDate?: string | null;
 }
 
-export type SubscriptionOfferTone = 'green' | 'blue' | 'purple' | 'orange';
-export type SubscriptionOfferBadgeIcon = 'clock' | 'gift' | 'shield-check';
-export type SubscriptionOfferBadgeTone = 'green' | 'amber' | 'purple';
+/**
+ * POST /pricing never edits in place: it creates a new row and closes the active one for the
+ * same (service, tier, period). Every fee the old row had must be resent or it's lost.
+ */
+export interface SetSubscriptionPriceRequest {
+  subscriptionServiceId: number;
+  subscriptionServiceTierId?: number | null;
+  period: SubscriptionPricingPeriod;
+  price: number;
+  setupFee?: number | null;
+  usageUnitType?: SubscriptionUsageUnitType | null;
+  usageUnitPrice?: number | null;
+  usageMaxFeeAmount?: number | null;
+  /** Required with period MessagePack: price is then the pack's price before VAT. */
+  messagesPerPack?: number | null;
+  currencyCode?: string;
+}
+
+/** PUT /catalog/{id} is a full replace — every field must be sent, including unchanged ones. */
+export interface UpdateSubscriptionServiceRequest {
+  nameAr: string;
+  nameEn: string;
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  category: string | null;
+  logoUrl: string | null;
+  isAvailable: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  minimumMonthlyPrice?: number | null;
+  minimumYearlyPrice?: number | null;
+  isPriceVatInclusive?: boolean;
+  billingModel: SubscriptionBillingModel;
+  /** Only sent back when the GET returned it, so an unknown mode is never overwritten with a guess. */
+  activationMode?: SubscriptionActivationMode;
+}
+
+// ── /api/subscriptions/{id}/integration-fields ────────────────
+export type IntegrationFieldType = 'Text' | 'Secret' | 'Url';
+
+/** Schema only — the values merchants submit are never exposed to the admin API. */
+export interface SubscriptionIntegrationField {
+  id: number;
+  subscriptionServiceId: number;
+  key: string;
+  labelAr: string;
+  labelEn: string;
+  fieldType: IntegrationFieldType | string;
+  isRequired: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface CreateIntegrationFieldRequest {
+  subscriptionServiceId: number;
+  key: string;
+  labelAr: string;
+  labelEn: string;
+  fieldType: IntegrationFieldType;
+  isRequired: boolean;
+}
+
+// ── /api/subscriptions/{id}/subscribers & /merchant-subscriptions ──
+// The guide describes these two endpoints but doesn't list their response fields. The names
+// below are the ones it mentions plus the conventions of the order DTOs, all optional so a
+// mismatch degrades to "-" instead of breaking — verify against the real response.
+export interface MerchantSubscriptionLine {
+  subscriptionServiceId?: number;
+  serviceKey?: string | null;
+  serviceName?: string | null;
+  categoryLabel?: string | null;
+  tierName?: string | null;
+  period?: string | null;
+  periodLabel?: string | null;
+  /** Today's active price for the line — not necessarily what the merchant was charged. */
+  price?: number | null;
+  currencyCode?: string;
+  /** Start of the current billing cycle (computed), not the first-ever subscription date. */
+  startDate?: string | null;
+  expiresAt?: string | null;
+  status?: string | null;
+  statusLabel?: string | null;
+  propertyId?: number | null;
+  propertyName?: string | null;
+  propertyClassification?: string | null;
+  billingModel?: SubscriptionBillingModel;
+  isAutoActivated?: boolean;
+}
+
+export interface ServiceSubscriber extends MerchantSubscriptionLine {
+  accountId?: string;
+  merchantName?: string | null;
+}
+
+export interface MerchantSubscription {
+  accountId: string;
+  merchantName?: string | null;
+  /** "Active" if any service is active, "Expired" if all lapsed. */
+  overallStatus?: string | null;
+  monthlyEquivalentTotal?: number | null;
+  annualEquivalentTotal?: number | null;
+  currencyCode?: string;
+  services?: MerchantSubscriptionLine[];
+}
+
+// ── /api/subscriptions/tiers ──────────────────────────────────
+export interface SubscriptionTier {
+  id: number;
+  subscriptionServiceId: number;
+  serviceKey: string;
+  serviceName: string;
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  trialDays: number;
+}
+
+export interface CreateSubscriptionTierRequest {
+  subscriptionServiceId: number;
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  /** true moves the default flag off whichever tier had it. */
+  isDefault: boolean;
+  displayOrder: number;
+  trialDays: number;
+}
+
+// ── POST /api/subscriptions/catalog ───────────────────────────
+// `key` is set once here and can never change. displayOrder is assigned by the backend.
+export interface CreateSubscriptionServiceRequest {
+  key: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
+  category: string | null;
+  logoUrl: string | null;
+  isAvailable: boolean;
+  billingModel: SubscriptionBillingModel;
+  activationMode: SubscriptionActivationMode;
+}
+
+// ── /api/subscriptions/features (catalog card bullets) ────────
+export interface CreateSubscriptionFeatureRequest {
+  subscriptionServiceId: number;
+  textAr: string;
+  textEn: string;
+}
+
+// ── POST /api/subscriptions/seasonal-prices ───────────────────
+/** Replaces the normal subscription fee of (service, tier, period) between the two dates. */
+export interface CreateSeasonalPriceRequest {
+  subscriptionServiceId: number;
+  subscriptionServiceTierId: number | null;
+  period: SubscriptionPricingPeriod;
+  nameAr: string;
+  nameEn: string;
+  /** 'YYYY-MM-DD' */
+  startDate: string;
+  endDate: string;
+  price: number;
+  currencyCode: string;
+}
+
+// ── /api/subscriptions/discount-codes ─────────────────────────
+export type SubscriptionDiscountType = 'Percentage' | 'FixedAmount';
+
+export interface SubscriptionDiscountCode {
+  id: number;
+  code: string;
+  /** null = valid for every service. */
+  subscriptionServiceId: number | null;
+  serviceName: string | null;
+  discountType: string | null;
+  discountValue: number;
+  maxDiscountAmount: number | null;
+  appliesToSubscriptionFee: boolean;
+  appliesToSetupFee: boolean;
+  maxRedemptions: number | null;
+  redemptionCount: number;
+  validFrom: string | null;
+  validTo: string | null;
+  isActive: boolean;
+}
+
+export interface CreateSubscriptionDiscountCodeRequest {
+  code: string;
+  subscriptionServiceId: number | null;
+  discountType: SubscriptionDiscountType;
+  discountValue: number;
+  maxDiscountAmount: number | null;
+  appliesToSubscriptionFee: boolean;
+  appliesToSetupFee: boolean;
+  maxRedemptions: number | null;
+  validFrom: string | null;
+  validTo: string | null;
+}
+
+/** Computed client-side — the API only returns isActive + the raw dates/counters. */
+export type DiscountCodeState = 'active' | 'scheduled' | 'exhausted' | 'expired' | 'disabled';
+
+// ── /api/subscriptions/activity-log ───────────────────────────
+export interface SubscriptionAuditLog {
+  id: number;
+  accountId: string;
+  merchantName: string | null;
+  subscriptionServiceId: number | null;
+  serviceName: string | null;
+  subscriptionOrderId: string | null;
+  subscriptionRequestId: number | null;
+  action: string | null;
+  actorType: string | null;
+  actorUserId: string | null;
+  details: string | null;
+  createdAt: string;
+}
+
+export interface SubscriptionActivityLogQuery {
+  accountId?: string;
+  subscriptionServiceId?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface SubscriptionPaginated<T> {
+  data: T[];
+  totalCount: number;
+  page: number;
+  /** Lowercase "p" as the backend sends it; null on the last page. */
+  nextpage: number | null;
+  totalPages: number;
+}
+
+/** What the admin actually pays for one order line — `amount` alone is only the subscription fee. */
+export const subscriptionLineTotal = (i: SubscriptionOrderItem): number =>
+  i.amount + i.setupFeeAmount - i.discountAmount;
+
+// ── /api/subscriptions/overview ─────────────────────────────────
+export interface SubscriptionOverview {
+  activeSubscriptionsCount: number;
+  totalMerchantsWithActiveSubscription: number;
+  monthlyRevenue: number;
+  annualRevenue: number;
+  currencyCode: string;
+  autoActivatedCount: number;
+  freeSubscriptionsCount: number;
+  misconfiguredServicesCount: number;
+}
+
+export type SubscriptionOfferTone ='green' | 'blue' | 'purple' | 'orange';
 
 export interface SubscriptionOfferCard {
   id: string;
   icon: string;
   tone: SubscriptionOfferTone;
   active: boolean;
-  badgeIcon: SubscriptionOfferBadgeIcon;
-  badgeTone: SubscriptionOfferBadgeTone;
-  /** No badge data comes back from the catalog endpoint — always "-". */
-  badgeText: string;
+  /** false = exists but merchants can't subscribe right now (shown as "coming soon"). */
+  available: boolean;
+  /** Default tier's free-trial days; 0 hides the badge. */
+  trialDays: number;
   nameAr: string;
   nameEn: string;
-  /** Not returned by the catalog endpoint. */
-  desc: string;
-  feature1: string;
-  feature2: string;
-  isFree: boolean;
+  descAr: string;
+  descEn: string;
+  features: { textAr: string; textEn: string }[];
+  /** null = no active pricing for that period; 0 = free. */
   monthlyPriceValue: number | null;
   annualPriceValue: number | null;
-}
-
-export interface IntegrationField {
-  id: number;
-  name: string;
-  dataType: string;
-  required: boolean;
-  isNew?: boolean;
-  isEditing?: boolean;
-}
-
-export interface ServiceOperationPricing {
-  id: number;
-  nameKey: string;
-  setupFee: number;
-  operationPrice: number;
-  seasonalPrice: number;
-}
-
-export type ServiceSubscriptionPlan = 'annualAdvanced' | 'monthly' | 'annualTrial';
-export type ServiceSubscriberStatus = 'active' | 'trial';
-
-export interface ServiceSubscribedFacility {
-  id: number;
-  name: string;
-  classificationLabel: string;
-  icon: string;
-  plan: ServiceSubscriptionPlan;
-  startDate: Date;
-  renewalDate: Date;
-  amountPaid: number | null;
-  status: ServiceSubscriberStatus;
+  /** undefined when the catalog didn't send it — the type badge is then hidden. */
+  billingModel?: SubscriptionBillingModel;
+  /** MessagePack services show the pack price instead of monthly/annual. */
+  isMessagePack: boolean;
+  /** Active pack price before VAT; null = not priced yet. */
+  packPriceValue: number | null;
+  messagesPerPack: number | null;
 }

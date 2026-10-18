@@ -107,14 +107,16 @@ export class ReviewBasicInfoComponent implements OnInit {
       .filter((name): name is string => !!name);
   }
 
-  get amenities(): { icon: string; label: string }[] {
+  get amenities(): { icon: string; label: string; highlighted: boolean }[] {
     const services = (this.basicData?.services ?? []).map(service => ({
       icon: this.getServiceIcon(service.serviceTypeNameKey),
-      label: service.displayName
+      label: service.displayName,
+      highlighted: false
     }));
     const facilities = (this.basicData?.facilities ?? []).map(facility => ({
       icon: this.getFacilityIcon(facility.facilityTypeName),
-      label: facility.facilityTypeName
+      label: facility.facilityTypeName,
+      highlighted: facility.isHighlightedInDescription === true
     }));
     return [...services, ...facilities];
   }

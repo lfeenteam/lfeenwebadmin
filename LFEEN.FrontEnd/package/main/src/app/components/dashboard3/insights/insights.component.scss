@@ -131,6 +131,7 @@
       .d3-decision-icon { color: #EF4444; }
       .d3-decision-title { color: #B91C1C; }
       .d3-decision-desc { color: #DC2626; }
+      .d3-decision-action { color: #B91C1C; &:hover { background-color: #FEE2E2; } }
     }
 
     &.type-warning {
@@ -140,6 +141,7 @@
       .d3-decision-icon { color: #F59E0B; }
       .d3-decision-title { color: #92400E; }
       .d3-decision-desc { color: #B45309; }
+      .d3-decision-action { color: #92400E; &:hover { background-color: #FEF3C7; } }
     }
 
     &.type-info {
@@ -149,6 +151,7 @@
       .d3-decision-icon { color: #3B82F6; }
       .d3-decision-title { color: #1D4ED8; }
       .d3-decision-desc { color: #2563EB; }
+      .d3-decision-action { color: #1D4ED8; &:hover { background-color: #DBEAFE; } }
     }
 
     &.type-success {
@@ -158,6 +161,7 @@
       .d3-decision-icon { color: #10B981; }
       .d3-decision-title { color: #047857; }
       .d3-decision-desc { color: #059669; }
+      .d3-decision-action { color: #047857; &:hover { background-color: #D1FAE5; } }
     }
 
     &.type-neutral {
@@ -167,6 +171,7 @@
       .d3-decision-icon { color: #62748E; }
       .d3-decision-title { color: #0F172B; }
       .d3-decision-desc { color: #62748E; }
+      .d3-decision-action { color: #334155; &:hover { background-color: #E2E8F0; } }
     }
   }
 }
@@ -309,3 +314,123 @@
 }
 
 /* Responsiveness handled above */
+
+// ---- API panel states (loading / error / empty) ----
+.d3-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
+  background-size: 400% 100%;
+  animation: d3-shimmer 1.4s ease infinite;
+  border-radius: 12px;
+  min-height: 96px;
+}
+
+.d3-row-skeleton {
+  min-height: 56px;
+  margin-bottom: 12px;
+}
+
+.d3-chart-skeleton {
+  min-height: 230px;
+}
+
+.d3-table-skeleton {
+  min-height: 160px;
+}
+
+@keyframes d3-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+.d3-panel-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.d3-retry-btn {
+  border: 1px solid #b91c1c;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 4px 12px;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #0f172b;
+    outline-offset: 2px;
+  }
+}
+
+.d3-empty {
+  padding: 24px 8px;
+  text-align: center;
+  color: #62748e;
+  font-size: 14px;
+}
+
+.d3-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.d3-decision-severity {
+  margin-inline-start: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.d3-decision-action {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  .d3-decision-action-icon {
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+
+    ::ng-deep svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Arabic RTL points the "next" chevron to the left already; mirror it for LTR.
+  :host-context([dir='ltr']) & .d3-decision-action-icon {
+    transform: scaleX(-1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #0f172b;
+    outline-offset: 2px;
+  }
+}

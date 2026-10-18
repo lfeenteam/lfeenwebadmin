@@ -84,6 +84,14 @@
   <div class="card-footer">
     <span class="type-tag">{{ building.typeLabel | translate }}</span>
     <div class="card-actions">
+      @if (building.canBan) {
+        <app-ban-listing-button
+          kind="property"
+          [listingId]="building.id"
+          [listingName]="building.title"
+          [size]="viewMode === 'list' ? 'sm' : 'md'"
+          (changed)="onBanChanged()" />
+      }
       <button type="button" class="action-btn view-btn" aria-label="View building details" (click)="goToViewReview()">
         <i-tabler name="eye"></i-tabler>
       </button>

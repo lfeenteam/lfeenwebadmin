@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint } from '../../interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 
@@ -23,7 +23,7 @@ import { ComplaintService } from '../../services/complaint.service';
 export class ComplaintsTableComponent implements OnChanges {
   @Input() complaints: Complaint[] = [];
   @Input() selectedId: string | null = null;
-  @Input() activeTab: 'customers' | 'hosts' | 'resolved' = 'customers';
+  @Input() activeTab: ComplaintTab = 'customers';
   @Input() compact = false;
   @Input() loading = false;
 

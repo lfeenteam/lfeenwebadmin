@@ -1,0 +1,80 @@
+<article class="banned-card" [dir]="currentDir"
+  role="link"
+  tabindex="0"
+  (click)="openDetails()"
+  (keydown.enter)="openDetails()">
+  <div class="card-top">
+    <div class="card-identity">
+      <span class="identity-icon">
+        <i-tabler [name]="kind === 'property' ? 'building' : 'door'"></i-tabler>
+      </span>
+      <div class="identity-text">
+        <h3 class="card-title" [title]="title">{{ title }}</h3>
+        @if (subtitle) {
+          <p class="card-subtitle">
+            <i-tabler name="map-pin" class="subtitle-icon"></i-tabler>
+            <span>{{ subtitle }}</span>
+          </p>
+        }
+      </div>
+    </div>
+    <div class="top-end">
+      <span class="banned-badge">{{ 'd3.listingBan.card.badge' | translate }}</span>
+      <button type="button" class="history-btn"
+        [attr.aria-label]="'d3.listingBan.history.title' | translate"
+        [matTooltip]="'d3.listingBan.history.title' | translate"
+        (click)="openHistory($event)">
+        <i-tabler name="history"></i-tabler>
+      </button>
+    </div>
+  </div>
+
+  @if (bannedByProperty) {
+    <span class="by-property-chip">
+      <i-tabler name="building" class="chip-icon"></i-tabler>
+      {{ 'd3.listingBan.card.bannedByProperty' | translate }}
+    </span>
+  }
+
+  <div class="ban-details">
+    <div class="detail-row">
+      <span class="detail-label">
+        <i-tabler name="calendar" class="detail-icon"></i-tabler>
+        {{ 'd3.listingBan.card.bannedAt' | translate }}
+      </span>
+      <span class="detail-date">{{ bannedAtLabel }}</span>
+    </div>
+    <div class="detail-reason">
+      <span class="detail-label">{{ 'd3.listingBan.card.reason' | translate }}</span>
+      <p class="reason-text" [title]="banReason ?? ''">{{ banReason || '—' }}</p>
+    </div>
+  </div>
+
+  @if (canManage) {
+    <div class="card-actions">
+      @if (bannedByProperty) {
+        <button type="button" class="action-btn edit-btn" [disabled]="!propertyId"
+          [matTooltip]="'d3.listingBan.errors.bannedByProperty' | translate"
+          (click)="goToProperty($event)">
+          <i-tabler name="building" class="btn-icon"></i-tabler>
+          {{ 'd3.listingBan.card.editFromProperty' | translate }}
+        </button>
+      } @else {
+        <button type="button" class="action-btn edit-btn" (click)="open('editReason', $event)">
+          <i-tabler name="edit" class="btn-icon"></i-tabler>
+          {{ 'd3.listingBan.card.editReason' | translate }}
+        </button>
+      }
+
+      <!-- Wrapper keeps the tooltip working while the button itself is disabled. -->
+      <!-- Clicks on the disabled button land on the wrapper; stop them so the card doesn't navigate. -->
+      <span class="action-wrap" (click)="$event.stopPropagation()"
+        [matTooltip]="propertyBanned ? ('d3.listingBan.card.unbanPropertyFirst' | translate) : ''">
+        <button type="button" class="action-btn unban-btn" [disabled]="propertyBanned" (click)="open('unban', $event)">
+          <i-tabler name="lock-open" class="btn-icon"></i-tabler>
+          {{ 'd3.listingBan.card.unban' | translate }}
+        </button>
+      </span>
+    </div>
+  }
+</article>

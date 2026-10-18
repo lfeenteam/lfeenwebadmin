@@ -1,49 +1,91 @@
-<div class="notifications-page" [dir]="currentDir">
+<div class="notifications-page" [dir]="currentDir()">
 
   <!-- Tabs -->
   <div class="tabs-row">
-    @for (tab of tabs; track tab.key) {
-      <button
-        class="tab-btn"
-        [class.active]="activeTab() === tab.key"
-        (click)="setTab(tab.key)">
-        {{ tab.labelKey | translate }}
-      </button>
-    }
+    <div class="tabs">
+      @for (category of categories; track category) {
+        <button
+          class="tab-btn"
+          type="button"
+          [class.active]="activeCategory() === category"
+          (click)="setCategory(category)">
+          {{ 'd3.notifications.tabs.' + category | translate }}
+        </button>
+      }
+    </div>
+
+    <button
+      class="mark-all-btn"
+      type="button"
+      [disabled]="store.unreadCount() === 0 || store.markingAll()"
+      (click)="markAllAsRead()">
+      <i-tabler name="checks" class="icon-16"></i-tabler>
+      {{ 'd3.notifications.markAllRead' | translate }}
+    </button>
   </div>
+
+  <!-- Error banner: the current list stays visible underneath -->
+  @if (store.forbidden()) {
+    <div class="state-banner">
+      <i-tabler name="lock" class="icon-16"></i-tabler>
+      <span>{{ 'd3.notifications.forbidden' | translate }}</span>
+    </div>
+  } @else if (store.listError()) {
+    <div class="state-banner">
+      <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+      <span>{{ 'd3.notifications.loadError' | translate }}</span>
+      <button class="retry-btn" type="button" (click)="retry()">
+        {{ 'd3.notifications.retry' | translate }}
+      </button>
+    </div>
+  }
 
   <!-- List -->
   <div class="notifications-list">
-    @if (visibleNotifications().length === 0) {
+    @if (!store.initialized() && store.loading()) {
+      <div class="empty-state">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+    } @else if (visibleNotifications().length === 0) {
       <div class="empty-state">
         <i-tabler name="bell-off" class="empty-icon"></i-tabler>
         <p>{{ 'd3.notifications.empty' | translate }}</p>
       </div>
     } @else {
       @for (item of visibleNotifications(); track item.id) {
-        <div class="notification-item">
+        <div class="notification-item" [class.unread]="!item.isRead" (click)="open(item)">
 
-          <!-- Icon circle (far right in RTL) -->
-          <div class="icon-circle" [ngClass]="getIconClass(item.type)">
-            <i-tabler [name]="getIconName(item.type)" class="icon-inner"></i-tabler>
+          <div class="icon-circle" [ngClass]="severityClass(item.type)">
+            <i-tabler [name]="iconName(item.type)" class="icon-inner"></i-tabler>
           </div>
 
-          <!-- Content (middle) -->
           <div class="item-content">
             <div class="item-header-row">
-              <span class="item-category" [ngClass]="getIconClass(item.type)">
-                {{ item.categoryLabel | translate }}
+              <span class="item-category" [ngClass]="severityClass(item.type)">
+                {{ typeLabelKey(item.type) | translate }}
               </span>
-              <span class="item-ref-id">{{ item.refId }}</span>
+              @if (!item.isRead) {
+                <span class="unread-dot"></span>
+              }
             </div>
-            <h4 class="item-title">{{ item.title | translate }}</h4>
-            <p class="item-subtitle">{{ item.subtitle | translate }}</p>
+            <h4 class="item-title">{{ item.title }}</h4>
+            <p class="item-subtitle">{{ item.body }}</p>
           </div>
 
-          <!-- Time + chevron (far left in RTL) -->
           <div class="item-end">
-            <span class="item-time">{{ item.time | translate }}</span>
-            <i-tabler name="chevron-left" class="chevron-icon"></i-tabler>
+            <span class="item-time">{{ timeLabel(item) }}</span>
+            <div class="item-actions">
+              <button
+                class="delete-btn"
+                type="button"
+                [attr.aria-label]="'d3.notifications.delete' | translate"
+                (click)="remove(item, $event)">
+                <i-tabler name="trash" class="icon-16"></i-tabler>
+              </button>
+              @if (hasDestination(item)) {
+                <i-tabler name="chevron-left" class="chevron-icon"></i-tabler>
+              }
+            </div>
           </div>
 
         </div>
@@ -51,10 +93,13 @@
     }
   </div>
 
-  <!-- Load more -->
-  @if (visibleNotifications().length > 0) {
+  <!-- Load more: also shown on an empty category tab, since its items may be on later pages -->
+  @if (store.hasMore()) {
     <div class="load-more-row">
-      <button class="load-more-btn" type="button">
+      @if (store.loadMoreError()) {
+        <span class="load-more-error">{{ 'd3.notifications.loadError' | translate }}</span>
+      }
+      <button class="load-more-btn" type="button" [disabled]="store.loadingMore()" (click)="store.loadMore()">
         <i-tabler name="chevron-down" class="icon-16"></i-tabler>
         {{ 'd3.notifications.loadMore' | translate }}
       </button>

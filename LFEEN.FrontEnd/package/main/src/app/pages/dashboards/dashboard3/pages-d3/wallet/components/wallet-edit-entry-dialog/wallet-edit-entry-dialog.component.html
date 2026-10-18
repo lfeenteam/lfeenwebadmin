@@ -1,0 +1,97 @@
+<div class="wallet-adjust-dialog" [dir]="currentDir">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div class="header-icon-badge">
+      <i-tabler name="pencil" class="icon-20"></i-tabler>
+    </div>
+    <div class="header-text">
+      <h2>{{ 'd3.wallet.edit.title' | translate }}</h2>
+      <p>{{ 'd3.wallet.edit.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="close-btn" [attr.aria-label]="'common.cancel' | translate" (click)="close()">
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  <div class="form-scroll">
+    <div class="detail-card form-card">
+      <div class="form-grid">
+
+        <div class="form-field">
+          <span class="field-label">{{ 'd3.wallet.edit.amountReadOnly' | translate }}</span>
+          <div class="readonly-box">
+            <span class="amount-value" [class.amount-value--accent]="isCredit" [class.amount-value--danger]="!isCredit">
+              {{ isCredit ? '+' : '−' }}{{ fmtAmount(data.entry.amount) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">{{ 'd3.wallet.adjust.categoryLabel' | translate }}</label>
+          <mat-select
+            class="field-select"
+            [(ngModel)]="category"
+            disableOptionCentering
+            [placeholder]="'d3.wallet.adjust.categoryPlaceholder' | translate">
+            @for (c of data.categories; track c.value) {
+              <mat-option [value]="c.value">{{ categoryLabel(c) }}</mat-option>
+            }
+          </mat-select>
+        </div>
+
+        <div class="form-field span-2">
+          <label class="field-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</label>
+          <textarea
+            class="reason-textarea"
+            rows="2"
+            [attr.maxlength]="reasonMax"
+            [placeholder]="'d3.wallet.adjust.reasonPlaceholder' | translate"
+            [(ngModel)]="reason">
+          </textarea>
+          @if (reasonRequired) {
+            <span class="field-hint" [class.field-hint--danger]="!reason.trim()">* {{ 'd3.wallet.adjust.reasonRequiredHint' | translate }}</span>
+          }
+        </div>
+
+        <div class="form-field span-2">
+          <label class="field-label">{{ 'd3.wallet.files.label' | translate }}</label>
+
+          @for (a of keptAttachments; track a.id) {
+            <div class="existing-file">
+              <i-tabler [name]="a.contentType === 'application/pdf' ? 'file-type-pdf' : 'photo'" class="icon-18"></i-tabler>
+              <a class="file-link" [href]="a.url" target="_blank" rel="noopener">{{ a.fileName }}</a>
+              <span class="file-size">{{ formatSize(a.size) }}</span>
+              <button type="button" class="icon-btn" [attr.aria-label]="'common.delete' | translate" [disabled]="submitting" (click)="removeAttachment(a.id)">
+                <i-tabler name="trash" class="icon-14"></i-tabler>
+              </button>
+            </div>
+          }
+
+          @for (a of removedAttachments; track a.id) {
+            <div class="existing-file is-removed">
+              <i-tabler name="file-off" class="icon-18"></i-tabler>
+              <span class="file-link">{{ a.fileName }}</span>
+              <button type="button" class="restore-btn" [disabled]="submitting" (click)="restoreAttachment(a.id)">
+                {{ 'd3.wallet.edit.restore' | translate }}
+              </button>
+            </div>
+          }
+
+          <app-wallet-file-picker [(files)]="newFiles" [slots]="newFileSlots" [disabled]="submitting"></app-wallet-file-picker>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-actions">
+    <button type="button" class="btn btn-outline" [disabled]="submitting" (click)="close()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button type="button" class="btn btn-accept" [disabled]="!canSave" (click)="save()">
+      {{ 'common.save' | translate }}
+    </button>
+  </div>
+
+</div>

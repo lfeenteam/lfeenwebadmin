@@ -219,6 +219,109 @@
     color: #dc2626;
     border: 1px solid #fee2e2;
   }
+
+  &.action-neutral {
+    background-color: #f3f3ef;
+    color: #6b6b67;
+    border: 1px solid #e8e8e4;
+  }
+}
+
+.log-details {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.7;
+  color: #6B6B67;
+  overflow-wrap: anywhere;
+}
+
+// Details flow side by side on one line and wrap only when the column runs out, so a row
+// is no taller than the rest of its cells need.
+.detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 0;
+
+  li {
+    display: inline-flex;
+    align-items: baseline;
+    column-gap: 5px;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: nowrap;
+
+    // A dot between neighbours; none after the last item (the "+N" link counts as one).
+    &:not(:last-child)::after {
+      content: "·";
+      margin-inline: 8px;
+      color: #CBD5E1;
+      font-weight: 800;
+    }
+  }
+}
+
+.detail-key {
+  font-weight: 600;
+  color: #90A1B9;
+}
+
+.detail-value {
+  font-weight: 800;
+  color: #111110;
+  overflow-wrap: anywhere;
+}
+
+.detail-from {
+  font-weight: 600;
+  color: #9E9E9A;
+  text-decoration: line-through;
+  overflow-wrap: anywhere;
+}
+
+.detail-arrow {
+  color: #CBD5E1;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.detail-more {
+  font-size: 11px;
+  font-weight: 700;
+  color: #62748E;
+  cursor: help;
+  border-bottom: 1px dashed #CBD5E1;
+}
+
+// Fixed column shares: the table always fits its card, and long text wraps in place.
+.log-table {
+  table-layout: fixed;
+
+  th, td.p-24 { padding: 16px 14px !important; }
+
+  // Details gets the most room: it is the only cell with more than a word or two.
+  th:nth-child(1), td:nth-child(1) { width: 13%; }
+  th:nth-child(2), td:nth-child(2) { width: 13%; }
+  th:nth-child(3), td:nth-child(3) { width: 19%; }
+  th:nth-child(4), td:nth-child(4) { width: 9%; }
+  th:nth-child(5), td:nth-child(5) { width: 14%; }
+  th:nth-child(6), td:nth-child(6) { width: 32%; }
+
+  td { vertical-align: middle; overflow-wrap: anywhere; }
+
+  .action-badge { white-space: normal; text-align: center; }
+  .service-name-text { min-width: 0; line-height: 1.5; }
+  .ref-number.is-empty { color: #CBD5E1; }
+}
+
+// Below tablet width six columns can't share the row; scroll then, never on desktop.
+@media (max-width: 991px) and (min-width: 577px) {
+  .table-box .table-responsive { overflow-x: auto; }
+  .log-table { min-width: 760px; }
 }
 
 .log-status {
@@ -429,4 +532,22 @@
       border-top: 1px solid #F1F5F9;
     }
   }
+}
+
+// The phone layout turns each row into a grid card, so the desktop column shares must not apply.
+@media (max-width: 576px) {
+  .log-table { table-layout: auto; }
+  .log-table th, .log-table td { width: auto !important; }
+}
+
+// The "+N" tooltip lists every detail, one per line. It renders in the overlay, outside
+// this component, hence ::ng-deep.
+::ng-deep .log-details-tooltip .mdc-tooltip__surface {
+  white-space: pre-line;
+  text-align: start;
+  max-width: 320px;
+  padding: 10px 14px;
+  font-family: "Cairo", sans-serif;
+  font-size: 12px;
+  line-height: 1.9;
 }

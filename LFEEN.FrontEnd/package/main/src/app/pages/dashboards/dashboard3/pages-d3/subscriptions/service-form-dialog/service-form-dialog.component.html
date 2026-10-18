@@ -1,0 +1,117 @@
+<div class="create-code-dialog" [dir]="currentDir">
+
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ (isEdit ? 'd3.serviceForm.editTitle' : 'd3.serviceForm.createTitle') | translate }}</h2>
+    <button mat-icon-button type="button" class="close-btn" [disabled]="submitting" (click)="close()">
+      <i-tabler name="x" class="icon-18"></i-tabler>
+    </button>
+  </div>
+
+  <div class="form-scroll">
+
+    <!-- Key: set once, never editable -->
+    <div class="form-field">
+      <label class="field-label" for="sf-key">{{ 'd3.serviceForm.key' | translate }}</label>
+      <input id="sf-key" type="text" class="field-input" dir="ltr" placeholder="myService"
+        [attr.maxlength]="keyMax" [readonly]="isEdit" [class.is-readonly]="isEdit" [(ngModel)]="key" />
+      <span class="field-hint">{{ (isEdit ? 'd3.serviceForm.keyLocked' : 'd3.serviceForm.keyHint') | translate }}</span>
+      @if (keyError) { <span class="field-error">{{ keyError | translate }}</span> }
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="sf-name-ar">{{ 'd3.serviceForm.nameAr' | translate }} *</label>
+        <input id="sf-name-ar" type="text" class="field-input" [(ngModel)]="nameAr" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="sf-name-en">{{ 'd3.serviceForm.nameEn' | translate }} *</label>
+        <input id="sf-name-en" type="text" class="field-input" dir="ltr" [(ngModel)]="nameEn" />
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="sf-desc-ar">{{ 'd3.serviceForm.descriptionAr' | translate }}</label>
+        <textarea id="sf-desc-ar" class="field-input field-textarea" rows="2" [(ngModel)]="descriptionAr"></textarea>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="sf-desc-en">{{ 'd3.serviceForm.descriptionEn' | translate }}</label>
+        <textarea id="sf-desc-en" class="field-input field-textarea" rows="2" dir="ltr" [(ngModel)]="descriptionEn"></textarea>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.serviceForm.category' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="category" disableOptionCentering
+          [placeholder]="unknownCategoryLabel ?? ('d3.serviceForm.categoryPlaceholder' | translate)">
+          @for (c of categories; track c) {
+            <mat-option [value]="c">{{ categoryLabel(c) }}</mat-option>
+          }
+        </mat-select>
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="sf-logo">{{ 'd3.serviceForm.logoUrl' | translate }}</label>
+        <input id="sf-logo" type="url" class="field-input" dir="ltr" placeholder="https://..." [(ngModel)]="logoUrl" />
+        @if (logoError) { <span class="field-error">{{ 'd3.serviceForm.errors.logo' | translate }}</span> }
+      </div>
+    </div>
+
+    @if (!isEdit) {
+      <!-- Type: on edit it lives in the service settings page -->
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="billingModel" disableOptionCentering>
+          @for (m of billingModels; track m) {
+            <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
+          }
+        </mat-select>
+        <span class="field-hint">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
+      </div>
+
+      <label class="check-row">
+        <input type="checkbox" [(ngModel)]="isAvailable" />
+        <span>{{ 'd3.serviceForm.isAvailable' | translate }}</span>
+      </label>
+      <span class="field-hint">{{ 'd3.serviceForm.isAvailableHint' | translate }}</span>
+    } @else {
+      <div class="form-field">
+        <label class="field-label" for="sf-order">{{ 'd3.serviceForm.displayOrder' | translate }}</label>
+        <input id="sf-order" type="number" min="0" step="1" class="field-input" [(ngModel)]="displayOrder" />
+        @if (displayOrderInvalid) { <span class="field-error">{{ 'd3.serviceForm.errors.displayOrder' | translate }}</span> }
+      </div>
+
+      @if (billingModel === 'Paid') {
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="field-label" for="sf-min-m">{{ 'd3.serviceForm.minimumMonthly' | translate }}</label>
+            <input id="sf-min-m" type="number" min="0" step="0.01" class="field-input" [(ngModel)]="minimumMonthlyPrice"
+              [placeholder]="'d3.serviceForm.noMinimum' | translate" />
+          </div>
+          <div class="form-field">
+            <label class="field-label" for="sf-min-y">{{ 'd3.serviceForm.minimumYearly' | translate }}</label>
+            <input id="sf-min-y" type="number" min="0" step="0.01" class="field-input" [(ngModel)]="minimumYearlyPrice"
+              [placeholder]="'d3.serviceForm.noMinimum' | translate" />
+          </div>
+          <span class="field-hint span-2">{{ 'd3.serviceForm.minimumHint' | translate }}</span>
+          @if (minimumsInvalid) { <span class="field-error span-2">{{ 'd3.subscriptions.serviceSettings.errors.negativePrice' | translate }}</span> }
+        </div>
+      }
+    }
+
+    @if (serverError) {
+      <div class="server-error">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ serverError }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">
+      {{ (submitting ? 'd3.subscriptions.serviceSettings.saving' : (isEdit ? 'common.save' : 'd3.serviceForm.create')) | translate }}
+    </button>
+    <button type="button" class="btn-outline" [disabled]="submitting" (click)="close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+
+</div>

@@ -21,4 +21,20 @@ html {
     box-shadow: var(--mat-sys-level2);
     border-radius: $border-radius;
   }
+
+  // ngx-toastr pins the icon to the left; mirror it for RTL. The toast container
+  // lives on <body>, outside any page [dir] wrapper, hence the body/html markers.
+  &[dir="rtl"] .toast-container .ngx-toastr,
+  body.d3-rtl .toast-container .ngx-toastr {
+    direction: rtl;
+    text-align: right;
+    padding: 15px 50px 15px 15px;
+    background-position: right 15px center;
+
+    .toast-close-button {
+      float: left;
+      right: auto;
+      left: -0.3em;
+    }
+  }
 }

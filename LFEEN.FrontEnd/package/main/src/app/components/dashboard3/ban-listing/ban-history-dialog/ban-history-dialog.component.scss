@@ -1,0 +1,238 @@
+// Classes are prefixed "bh-" so no global style can leak in (see listing-ban-banner).
+$text:   #0F172B;
+$muted:  #62748E;
+$label:  #90A1B9;
+$line:   #E2E8F0;
+
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mdc-dialog__surface {
+  border-radius: 32px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.bh {
+  width: min(560px, 95vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+}
+
+.bh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.bh-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bh-heading-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #F1F5F9;
+  color: $text;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler { display: flex; width: 22px; height: 22px; }
+}
+
+.bh-heading-text { min-width: 0; }
+
+.bh-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 900;
+  color: $text;
+}
+
+.bh-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: $label;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bh-close {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #F8FAFC;
+  color: $label;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler { display: flex; width: 18px; height: 18px; }
+  &:hover { background: #F1F5F9; }
+}
+
+.bh-body {
+  overflow-y: auto;
+  padding: 20px 24px 24px;
+}
+
+// ── Timeline ─────────────────────────────────────────────
+.bh-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bh-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 20px;
+
+  // Vertical connector between dots.
+  &::before {
+    content: '';
+    position: absolute;
+    top: 34px;
+    bottom: 0;
+    inset-inline-start: 15px;
+    width: 2px;
+    background: $line;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    &::before { display: none; }
+  }
+}
+
+.bh-dot {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler { display: flex; width: 16px; height: 16px; }
+}
+
+.bh-item--ban .bh-dot   { background: #FEF2F2; color: #E7000B; }
+.bh-item--edit .bh-dot  { background: #FEFCE8; color: #A65F00; }
+.bh-item--unban .bh-dot { background: #F0FDF4; color: #008236; }
+
+.bh-item-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.bh-item-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bh-action {
+  font-size: 14px;
+  font-weight: 800;
+  color: $text;
+}
+
+.bh-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: $label;
+}
+
+.bh-reason {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #F7F7F5;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.7;
+  color: $text;
+  word-break: break-word;
+}
+
+.bh-meta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: $muted;
+}
+
+.bh-chip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #FFF7ED;
+  color: #C2410C;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ── States ───────────────────────────────────────────────
+.bh-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+  font-size: 13px;
+  color: $muted;
+
+  p { margin: 0; }
+}
+
+.bh-link-btn,
+.bh-more {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+}
+
+.bh-link-btn { text-decoration: underline; }
+
+.bh-more {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid $line;
+  text-align: center;
+
+  &:hover { background: #F8FAFC; }
+}

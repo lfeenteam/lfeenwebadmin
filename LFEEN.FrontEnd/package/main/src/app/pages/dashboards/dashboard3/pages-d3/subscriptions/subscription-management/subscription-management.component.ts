@@ -1,22 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { SubscriberAccount } from '../interfaces/subscription.model';
+import { MerchantSubscription, MerchantSubscriptionLine, SubscriberAccount, SubscriptionServiceItem } from '../interfaces/subscription.model';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { formatApiDateLocal } from 'src/app/utils/date-format.util';
+import { SubscriptionsService } from '../../../services/subscriptions.service';
+import { serviceVisual } from '../interfaces/service-visual.util';
+import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { periodText } from '../interfaces/period-text.util';
 
 interface SubscriptionStatCard {
   labelKey: string;
-  isGrowth: boolean;
   subtitleKey: string;
-  value: number;
+  /** null = the overview didn't send this figure, so its card isn't shown. */
+  value: number | null;
   icon: string;
   tone: 'purple' | 'blue' | 'green' | 'dark';
   currency: boolean;
 }
+
+const PAGE_SIZE = 10;
+const MAX_SERVICE_ICONS = 3;
 
 @Component({
   selector: 'app-subscription-management',
@@ -26,127 +37,145 @@ interface SubscriptionStatCard {
   styleUrl: './subscription-management.component.scss'
 })
 export class SubscriptionManagementComponent implements OnInit {
-  constructor(private translate: TranslateService) {}
+  private readonly destroyRef = inject(DestroyRef);
+  private subscriptionsService = inject(SubscriptionsService);
+  private translate = inject(TranslateService);
+  private toastr = inject(ToastrService);
+
+  readonly maxServiceIcons = MAX_SERVICE_ICONS;
 
   isLoading = true;
+  listLoading = true;
   searchQuery = '';
-  expandedId: number | null = 3;
+  expandedId: string | null = null;
 
   currentPage = 1;
-  totalPages = 4;
-  totalCount = 47;
-  growthPercent = 11;
+  totalPages = 1;
+  totalCount = 0;
+
+  accounts: SubscriberAccount[] = [];
+  misconfiguredServicesCount = 0;
+  private pageRequest?: Subscription;
+
+  get currentLang(): string {
+    return this.translate.currentLang || 'ar';
+  }
 
   get currencyIconSrc(): string {
-    return this.translate.currentLang === 'en'
+    return this.currentLang === 'en'
       ? './assets/images/logos/saudi-riyal-en.svg'
       : './assets/images/logos/saudi-riyal.svg';
   }
 
   get currencyIconAlt(): string {
-    return this.translate.currentLang === 'en' ? 'SAR' : 'ريال سعودي';
+    return this.currentLang === 'en' ? 'SAR' : 'ريال سعودي';
   }
 
   get currencyIconEn(): boolean {
-    return this.translate.currentLang === 'en';
+    return this.currentLang === 'en';
   }
 
   fmt(value: number): string {
-    return formatLocalizedNumber(value, this.translate.currentLang);
-  }
-
-  formatDate(date: Date): string {
-    return date.toLocaleDateString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return formatLocalizedNumber(value, this.currentLang);
   }
 
   stats: SubscriptionStatCard[] = [
-    { labelKey: '', isGrowth: true, subtitleKey: 'd3.subscriptions.stats.total', value: 1348, icon: 'users', tone: 'dark', currency: false },
-    { labelKey: 'd3.subscriptions.stats.active', isGrowth: false, subtitleKey: 'd3.subscriptions.stats.activeDesc', value: 1192, icon: 'user-check', tone: 'green', currency: false },
-    { labelKey: 'd3.subscriptions.stats.monthly', isGrowth: false, subtitleKey: 'd3.subscriptions.stats.monthlyDesc', value: 42500, icon: 'trending-up', tone: 'blue', currency: true },
-    { labelKey: 'd3.subscriptions.stats.annual', isGrowth: false, subtitleKey: 'd3.subscriptions.stats.annualDesc', value: 50000, icon: 'calendar', tone: 'purple', currency: true },
+    { labelKey: '', subtitleKey: 'd3.subscriptions.stats.total', value: null, icon: 'users', tone: 'dark', currency: false },
+    { labelKey: 'd3.subscriptions.stats.active', subtitleKey: 'd3.subscriptions.stats.activeDesc', value: null, icon: 'user-check', tone: 'green', currency: false },
+    { labelKey: 'd3.subscriptions.stats.monthly', subtitleKey: 'd3.subscriptions.stats.monthlyDesc', value: null, icon: 'trending-up', tone: 'blue', currency: true },
+    { labelKey: 'd3.subscriptions.stats.annual', subtitleKey: 'd3.subscriptions.stats.annualDesc', value: null, icon: 'calendar', tone: 'purple', currency: true },
+    { labelKey: 'd3.subscriptions.stats.free', subtitleKey: 'd3.subscriptions.stats.freeDesc', value: null, icon: 'gift', tone: 'green', currency: false },
   ];
 
-  accounts: SubscriberAccount[] = [
-    {
-      id: 1,
-      facilityName: 'فندق الريتز كارلتون',
-      classificationKey: 'd3.subscriptions.classification.hotel',
-      icon: 'building-skyscraper',
-      status: 'active',
-      feesAmountValue: 1450,
-      feesPeriod: 'monthly',
-      feesAnnualValue: 17400,
-      servicesCount: 4,
-      services: [
-        { id: 11, name: 'واتساب للأعمال', categoryKey: 'd3.subscriptions.category.communication', icon: 'brand-whatsapp', priceValue: 89, period: 'annual', startDate: new Date(2024, 5, 1), endDate: new Date(2025, 5, 1) },
-        { id: 12, name: 'منصة رصد', categoryKey: 'd3.subscriptions.category.analytics', icon: 'chart-line', priceValue: 1300, period: 'annual', startDate: new Date(2024, 6, 15), endDate: new Date(2025, 6, 15) },
-        { id: 13, name: 'بوابة السياحة', categoryKey: 'd3.subscriptions.category.bookings', icon: 'map-pin', priceValue: null, period: 'annual', startDate: new Date(2024, 4, 14), endDate: new Date(2025, 4, 14) },
-      ]
-    },
-    {
-      id: 2,
-      facilityName: 'منتجع اللؤلؤة الزرقاء',
-      classificationKey: 'd3.subscriptions.classification.resort',
-      icon: 'building-skyscraper',
-      status: 'active',
-      feesAmountValue: 2100,
-      feesPeriod: 'monthly',
-      feesAnnualValue: 25200,
-      servicesCount: 3,
-      services: [
-        { id: 21, name: 'واتساب للأعمال', categoryKey: 'd3.subscriptions.category.communication', icon: 'brand-whatsapp', priceValue: 89, period: 'annual', startDate: new Date(2024, 2, 5), endDate: new Date(2025, 2, 5) },
-        { id: 22, name: 'منصة رصد', categoryKey: 'd3.subscriptions.category.analytics', icon: 'chart-line', priceValue: 1300, period: 'annual', startDate: new Date(2024, 2, 10), endDate: new Date(2025, 2, 10) },
-      ]
-    },
-    {
-      id: 3,
-      facilityName: 'شقق لاند مارك الفاخرة',
-      classificationKey: 'd3.subscriptions.classification.apartments',
-      icon: 'building',
-      status: 'active',
-      feesAmountValue: 890,
-      feesPeriod: 'monthly',
-      feesAnnualValue: 10680,
-      servicesCount: 3,
-      services: [
-        { id: 31, name: 'واتساب للأعمال', categoryKey: 'd3.subscriptions.category.communication', icon: 'brand-whatsapp', priceValue: 89, period: 'annual', startDate: new Date(2024, 5, 1), endDate: new Date(2025, 5, 1) },
-        { id: 32, name: 'منصة رصد', categoryKey: 'd3.subscriptions.category.analytics', icon: 'chart-line', priceValue: 1300, period: 'annual', startDate: new Date(2024, 6, 15), endDate: new Date(2025, 6, 15) },
-        { id: 33, name: 'بوابة السياحة', categoryKey: 'd3.subscriptions.category.bookings', icon: 'map-pin', priceValue: null, period: 'annual', startDate: new Date(2024, 4, 14), endDate: new Date(2025, 4, 14) },
-      ]
-    },
-    {
-      id: 4,
-      facilityName: 'فيلات الواحة الذهبية',
-      classificationKey: 'd3.subscriptions.classification.villas',
-      icon: 'home',
-      status: 'suspended',
-      feesAmountValue: 650,
-      feesPeriod: 'monthly',
-      feesAnnualValue: 7800,
-      servicesCount: 2,
-      services: [
-        { id: 41, name: 'واتساب للأعمال', categoryKey: 'd3.subscriptions.category.communication', icon: 'brand-whatsapp', priceValue: 89, period: 'annual', startDate: new Date(2024, 1, 1), endDate: new Date(2025, 1, 1) },
-      ]
-    },
-  ];
-
-  ngOnInit(): void {
-    // simulates the initial fetch so the loading skeleton has something to show
-    setTimeout(() => { this.isLoading = false; }, 500);
+  get visibleStats(): SubscriptionStatCard[] {
+    return this.stats.filter(s => s.value !== null);
   }
 
+  ngOnInit(): void {
+    this.subscriptionsService.getOverview().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (overview) => {
+        // No distinct "total subscribers" figure (nor a growth %) exists in the API — the closest
+        // available number is the count of merchants with an active subscription.
+        // Any figure the response leaves out stays null and its card is hidden — an undefined
+        // value would otherwise throw in fmt() and stop the rest of the page from rendering.
+        const num = (v: unknown) => (typeof v === 'number' ? v : null);
+        this.stats[0].value = num(overview.totalMerchantsWithActiveSubscription);
+        this.stats[1].value = num(overview.activeSubscriptionsCount);
+        this.stats[2].value = num(overview.monthlyRevenue);
+        this.stats[3].value = num(overview.annualRevenue);
+        // No "automatic activation" card: every subscription activates on payment now.
+        this.stats[4].value = num(overview.freeSubscriptionsCount);
+        this.misconfiguredServicesCount = num(overview.misconfiguredServicesCount) ?? 0;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+    this.loadPage();
+  }
+
+  // Paginated by merchant row — a merchant's services array is never itself paginated.
+  private loadPage(): void {
+    this.pageRequest?.unsubscribe();
+    this.listLoading = true;
+    this.pageRequest = this.subscriptionsService.getMerchantSubscriptions({ pageNumber: this.currentPage, pageSize: PAGE_SIZE })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: page => {
+          this.accounts = page.data.map(m => this.toAccount(m));
+          this.totalCount = page.totalCount;
+          this.totalPages = page.totalPages;
+          this.expandedId = null;
+          this.listLoading = false;
+        },
+        error: err => {
+          this.accounts = [];
+          this.totalCount = 0;
+          this.totalPages = 1;
+          this.listLoading = false;
+          this.toastr.error(resolveSubscriptionError(err, this.translate));
+        },
+      });
+  }
+
+  private toAccount(m: MerchantSubscription): SubscriberAccount {
+    return {
+      id: m.accountId,
+      facilityName: m.merchantName?.trim() || '-',
+      // "Active" if any service is active, "Expired" once all of them have lapsed.
+      status: (m.overallStatus ?? '').toLowerCase() === 'active' ? 'active' : 'expired',
+      // Both totals only count currently-active lines, normalized across billing periods.
+      feesAmountValue: m.monthlyEquivalentTotal ?? 0,
+      feesAnnualValue: m.annualEquivalentTotal ?? 0,
+      services: (m.services ?? []).map(s => this.toServiceItem(s)),
+    };
+  }
+
+  private toServiceItem(s: MerchantSubscriptionLine): SubscriptionServiceItem {
+    return {
+      name: s.serviceName?.trim() || '-',
+      categoryLabel: s.categoryLabel?.trim() || '-',
+      icon: serviceVisual(s.serviceKey, s.categoryLabel).icon,
+      priceValue: typeof s.price === 'number' ? s.price : null,
+      periodLabel: [s.tierName?.trim(), periodText(s.periodLabel, s.period)].filter(Boolean).join(' · ') || '-',
+      startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
+      endDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
+      expired: (s.status ?? '').toLowerCase() === 'expired',
+      billingModel: s.billingModel ?? 'Paid',
+      isAutoActivated: s.isAutoActivated ?? false,
+    };
+  }
+
+  // The endpoint has no search parameter, so the box filters the merchants on the current page.
   get filteredAccounts(): SubscriberAccount[] {
-    const q = this.searchQuery.trim();
+    const q = this.searchQuery.trim().toLowerCase();
     if (!q) return this.accounts;
-    return this.accounts.filter(a => a.facilityName.includes(q));
+    return this.accounts.filter(a => a.facilityName.toLowerCase().includes(q));
   }
 
   get currentDir(): 'rtl' | 'ltr' {
-    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+    return this.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
   get visiblePages(): (number | '...')[] {
@@ -162,11 +191,12 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.currentPage = page;
+    this.loadPage();
   }
 
   extraServicesCount(account: SubscriberAccount): number {
-    return Math.max(0, account.servicesCount - Math.min(3, account.services.length));
+    return Math.max(0, account.services.length - MAX_SERVICE_ICONS);
   }
 }

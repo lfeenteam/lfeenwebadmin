@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, Subject, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
 import { LoginRequest, LoginResponse } from '../../interfaces/login.model';
@@ -31,6 +31,11 @@ export class LoginService {
   currentUser = signal<any>(this.getStoredUser());
   permissions = signal<string[]>(this.getStoredPermissions());
   sidebar = signal<any[]>(this.getStoredSidebar());
+
+  // Fires at the start of logout(), while the JWT is still stored, so per-admin
+  // state (e.g. the notifications hub) can shut down before credentials are cleared.
+  private readonly loggingOutSubject = new Subject<void>();
+  readonly loggingOut$ = this.loggingOutSubject.asObservable();
 
   constructor(private http: HttpClient) {
     if (this.isLoggedIn()) {
@@ -163,6 +168,7 @@ export class LoginService {
   }
 
   logout(): void {
+    this.loggingOutSubject.next();
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
     }

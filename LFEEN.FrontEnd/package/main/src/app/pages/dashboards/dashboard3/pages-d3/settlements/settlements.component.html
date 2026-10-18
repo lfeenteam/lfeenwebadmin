@@ -18,7 +18,14 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.totalPending' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.totalPendingAmount != null) {
+          <span class="stat-value">
+            {{ fmtAmount(summary!.totalPendingAmount!) }}
+            <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
 
@@ -28,7 +35,14 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.avgRequestValue' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.averageNetAmount != null) {
+          <span class="stat-value">
+            {{ fmtAmount(summary!.averageNetAmount!) }}
+            <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
 
@@ -38,7 +52,13 @@
       </div>
       <div class="stat-text">
         <span class="stat-label">{{ 'd3.settlements.stats.maxPaymentTime' | translate }}</span>
-        <span class="stat-value">{{ emptyValue }}</span>
+        @if (summary?.oldestOutstandingPayoutAgeHours != null) {
+          <span class="stat-value">
+            {{ fmtHours(summary!.oldestOutstandingPayoutAgeHours!) }} {{ 'd3.settlements.stats.hoursUnit' | translate }}
+          </span>
+        } @else {
+          <span class="stat-value">{{ emptyValue }}</span>
+        }
       </div>
     </div>
   </div>
@@ -85,7 +105,6 @@
         <thead>
           <tr>
             <th>{{ 'd3.settlements.table.account' | translate }}</th>
-            <th>{{ 'd3.settlements.table.accountName' | translate }}</th>
             <th>{{ 'd3.settlements.table.amount' | translate }}</th>
             <th>{{ 'd3.settlements.table.paymentMethod' | translate }}</th>
             <th>{{ 'd3.settlements.table.requestDate' | translate }}</th>
@@ -101,10 +120,6 @@
                   <span class="account-avatar d-flex align-items-center justify-content-center">{{ row.accountInitials }}</span>
                   <span class="account-name-text">{{ row.partyName }}</span>
                 </div>
-              </td>
-              <td class="p-24">
-                <span class="mobile-field-label">{{ 'd3.settlements.table.accountName' | translate }}</span>
-                <span class="account-name-text">{{ row.ownerName }}</span>
               </td>
               <td class="p-24">
                 <span class="mobile-field-label">{{ 'd3.settlements.table.amount' | translate }}</span>
@@ -149,9 +164,9 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="p-0">
+              <td colspan="6" class="p-0">
                 @if (loadError) {
-                  <app-dashboard-empty icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
+                  <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.settlements.errors.loadTitle" descKey="d3.settlements.errors.network">
                     <button type="button" class="retry-btn" (click)="load()">
                       <i-tabler name="refresh" class="icon-16"></i-tabler>
                       {{ 'd3.settlements.errors.retry' | translate }}

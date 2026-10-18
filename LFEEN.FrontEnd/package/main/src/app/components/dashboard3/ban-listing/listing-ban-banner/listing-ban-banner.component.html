@@ -1,0 +1,41 @@
+<!-- Classes are prefixed "lbb-": generic names like .banner-title collide with global landing-page styles. -->
+<div class="lbb" role="status">
+  <span class="lbb-icon">
+    <i-tabler name="ban"></i-tabler>
+  </span>
+  <div class="lbb-body">
+    <p class="lbb-title">
+      {{ (kind === 'property' ? 'd3.listingBan.banner.titleProperty' : 'd3.listingBan.banner.titleUnit') | translate }}
+      @if (bannedAtLabel) {
+        <span class="lbb-date">· {{ bannedAtLabel }}</span>
+      }
+    </p>
+    @if (banReason) {
+      <p class="lbb-reason">
+        <span class="lbb-reason-label">{{ 'd3.listingBan.card.reason' | translate }}:</span>
+        {{ banReason }}
+      </p>
+    }
+    <p class="lbb-hint">
+      {{ (bannedByProperty ? 'd3.listingBan.banner.hintByProperty' : 'd3.listingBan.banner.hint') | translate }}
+    </p>
+  </div>
+
+  <div class="lbb-actions">
+    <button type="button" class="lbb-btn lbb-btn--ghost" (click)="openHistory()">
+      <i-tabler name="history" class="lbb-btn-icon"></i-tabler>
+      {{ 'd3.listingBan.history.short' | translate }}
+    </button>
+    <!-- A unit banned by its property is managed from the property. -->
+    @if (canManage && !bannedByProperty) {
+      <button type="button" class="lbb-btn lbb-btn--edit" (click)="open('editReason')">
+        <i-tabler name="edit" class="lbb-btn-icon"></i-tabler>
+        {{ 'd3.listingBan.card.editReason' | translate }}
+      </button>
+      <button type="button" class="lbb-btn lbb-btn--unban" (click)="open('unban')">
+        <i-tabler name="lock-open" class="lbb-btn-icon"></i-tabler>
+        {{ 'd3.listingBan.card.unban' | translate }}
+      </button>
+    }
+  </div>
+</div>

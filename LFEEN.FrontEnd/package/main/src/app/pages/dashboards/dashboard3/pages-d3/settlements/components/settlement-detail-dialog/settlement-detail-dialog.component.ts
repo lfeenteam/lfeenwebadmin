@@ -30,7 +30,22 @@ export interface SettlementDetailDialogData {
   bankAccountNumber: string;
   iban: string;
   hasIban: boolean;
+  swiftCode: string;
   bankVerified: boolean;
+  payoutReference: string;
+  requestDateLabel: string;
+  periodLabel: string;
+  grossFormatted: string;
+  feeFormatted: string;
+  entries: SettlementDetailDialogEntry[];
+}
+
+/** One booking payment covered by the payout — amounts are pre-formatted by the opener. */
+export interface SettlementDetailDialogEntry {
+  bookingNumber: string;
+  gross: string;
+  fee: string;
+  net: string;
 }
 
 /** `refresh` = the payout is no longer in the state we opened it in — reload the list. */
@@ -45,6 +60,7 @@ type DialogStep = 'details' | 'confirmTransfer' | 'success' | 'confirmReject' | 
 const TRX_REFERENCE_MAX = 200;
 const REJECT_REASON_MAX = 2000;
 const EMPTY = '-';
+const NARROW_WIDTH = '480px';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
@@ -136,12 +152,15 @@ export class SettlementDetailDialogComponent {
     return 'default';
   }
 
+  // Only the details step uses the wide two-column layout — the rest are narrow forms.
   goToConfirmTransfer(): void {
     this.step = 'confirmTransfer';
+    this.dialogRef.updateSize(NARROW_WIDTH);
   }
 
   goToConfirmReject(): void {
     this.step = 'confirmReject';
+    this.dialogRef.updateSize(NARROW_WIDTH);
   }
 
   // ── Reject ──────────────────────────────────────────────────

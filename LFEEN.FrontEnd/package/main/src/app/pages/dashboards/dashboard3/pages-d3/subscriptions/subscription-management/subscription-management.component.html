@@ -5,9 +5,12 @@
   } @else {
 
   <!-- Stats -->
+  @if (misconfiguredServicesCount > 0) {
+    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | translate: { count: fmt(misconfiguredServicesCount) } }}</div>
+  }
   <div class="row m-b-24">
-    @for (stat of stats; track $index) {
-      <div class="col-6 col-lg-3">
+    @for (stat of visibleStats; track stat.subtitleKey) {
+      <div class="col-6 col-lg-4">
         <mat-card class="border stat-card">
           <mat-card-content class="stat-card-content">
             <div class="stat-top-group">
@@ -16,9 +19,7 @@
                   <i-tabler [name]="stat.icon" class="icon-20"></i-tabler>
                 </div>
                 <span class="stat-label" [class]="'tone-text-' + stat.tone">
-                  @if (stat.isGrowth) {
-                    {{ 'd3.subscriptions.stats.growthBadge' | translate: { percent: fmt(growthPercent) } }}
-                  } @else {
+                  @if (stat.labelKey) {
                     {{ stat.labelKey | translate }}
                   }
                 </span>
@@ -26,7 +27,7 @@
               <span class="stat-subtitle d-block">{{ stat.subtitleKey | translate }}</span>
             </div>
             <div class="stat-value-row d-flex align-items-center">
-              <h2 class="stat-value m-0">{{ fmt(stat.value) }}</h2>
+              <h2 class="stat-value m-0">{{ fmt(stat.value ?? 0) }}</h2>
               @if (stat.currency) {
                 <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="stat-currency-icon" [class.currency-icon-en]="currencyIconEn" />
               }
@@ -75,25 +76,25 @@
                 <td class="p-24">
                   <div class="d-flex align-items-center gap-12">
                     <div class="facility-icon-wrapper d-flex align-items-center justify-content-center">
-                      <i-tabler [name]="account.icon" class="icon-18"></i-tabler>
+                      <i-tabler name="building" class="icon-18"></i-tabler>
                     </div>
                     <div>
                       <span class="f-s-14 f-w-800 d-block">{{ account.facilityName }}</span>
-                      <span class="facility-classification">{{ account.classificationKey | translate }}</span>
+                      <span class="facility-classification">{{ 'd3.subscriptions.table.servicesCount' | translate: { count: fmt(account.services.length) } }}</span>
                     </div>
                   </div>
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptions.table.activeServices' | translate }}</span>
                   <div class="d-flex align-items-center gap-6">
-                    @for (svc of account.services.slice(0, 3); track svc.id) {
-                      <span class="service-mini-icon d-flex align-items-center justify-content-center">
+                    @for (svc of account.services.slice(0, maxServiceIcons); track $index) {
+                      <span class="service-mini-icon d-flex align-items-center justify-content-center" [matTooltip]="svc.name">
                         <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
                       </span>
                     }
                     @if (extraServicesCount(account) > 0) {
                       <span class="extra-services-chip">
-                        {{ 'd3.subscriptions.table.others' | translate: { count: extraServicesCount(account) } }}
+                        {{ 'd3.subscriptions.table.others' | translate: { count: fmt(extraServicesCount(account)) } }}
                       </span>
                     }
                   </div>
@@ -113,28 +114,15 @@
                   </span>
                 </td>
                 <td class="p-24 text-center">
-                  <div class="d-flex flex-column align-items-center justify-content-center gap-0">
+                  <div class="d-flex align-items-center justify-content-center">
                     <button type="button" class="expand-row-btn"
                       [attr.aria-label]="(expandedId === account.id ? 'd3.subscriptions.table.collapseTooltip' : 'd3.subscriptions.table.expandTooltip') | translate"
+                      [matTooltip]="(expandedId === account.id ? 'd3.subscriptions.table.collapseTooltip' : 'd3.subscriptions.table.expandTooltip') | translate"
+                      [attr.aria-expanded]="expandedId === account.id"
                       (click)="toggleExpand(account)">
                       <i-tabler [name]="expandedId === account.id ? 'chevron-up' : 'chevron-down'" class="icon-18"></i-tabler>
                     </button>
-                    <button type="button" class="action-dots-btn"
-                      [attr.aria-label]="'d3.subscriptions.table.moreActions' | translate"
-                      [matMenuTriggerFor]="rowMenu">
-                      <i-tabler name="dots-vertical" class="icon-16 dots-icon-compact"></i-tabler>
-                    </button>
                   </div>
-                  <mat-menu #rowMenu="matMenu" xPosition="before">
-                    <button mat-menu-item (click)="toggleExpand(account)">
-                      <i-tabler name="eye" class="icon-16 menu-icon"></i-tabler>
-                      <span>{{ 'd3.subscriptions.table.viewBtn' | translate }}</span>
-                    </button>
-                    <button mat-menu-item (click)="toggleExpand(account)">
-                      <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
-                      <span>{{ 'd3.subscriptions.table.editBtn' | translate }}</span>
-                    </button>
-                  </mat-menu>
                 </td>
               </tr>
               @if (expandedId === account.id) {
@@ -157,23 +145,29 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @for (svc of account.services; track svc.id) {
-                              <tr>
+                            @for (svc of account.services; track $index) {
+                              <tr [class.service-expired]="svc.expired">
                                 <td>
                                   <div class="d-flex align-items-center gap-8">
                                     <span class="service-mini-icon d-flex align-items-center justify-content-center">
                                       <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
                                     </span>
                                     <span class="f-s-13 f-w-700">{{ svc.name }}</span>
+                                    @if (svc.billingModel === 'Free') { <span class="type-badge type-badge--free">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
+                                    @if (svc.isAutoActivated) { <span class="type-badge type-badge--automatic">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
                                   </div>
                                 </td>
                                 <td class="text-muted-cell">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.category' | translate }}</span>
-                                  {{ svc.categoryKey | translate }}
+                                  {{ svc.categoryLabel }}
                                 </td>
                                 <td class="f-w-700">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.price' | translate }}</span>
-                                  @if (svc.priceValue === null) {
+                                  @if (svc.priceValue === null && svc.billingModel === 'Free') {
+                                    {{ 'd3.subscriptions.detail.free' | translate }}
+                                  } @else if (svc.priceValue === null) {
+                                    -
+                                  } @else if (svc.priceValue === 0) {
                                     {{ 'd3.subscriptions.detail.free' | translate }}
                                   } @else {
                                     <div class="d-flex align-items-center gap-4">
@@ -184,15 +178,15 @@
                                 </td>
                                 <td>
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.subscriptionType' | translate }}</span>
-                                  <span class="type-badge">{{ ('d3.subscriptions.period.' + svc.period) | translate }}</span>
+                                  <span class="type-badge">{{ svc.periodLabel }}</span>
                                 </td>
                                 <td class="text-muted-cell">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.startDate' | translate }}</span>
-                                  {{ formatDate(svc.startDate) }}
+                                  {{ svc.startDate }}
                                 </td>
                                 <td class="text-muted-cell">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
-                                  {{ formatDate(svc.endDate) }}
+                                  {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.detail.noExpiry' | translate) : svc.endDate }}
                                 </td>
                               </tr>
                             }
@@ -207,7 +201,11 @@
             @empty {
               <tr>
                 <td colspan="5" class="p-0">
-                  <app-dashboard-empty titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
+                  @if (listLoading) {
+                    <div class="p-24"><app-dashboard-loading variant="table" [rows]="3"></app-dashboard-loading></div>
+                  } @else {
+                    <app-dashboard-empty icon="users" titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
+                  }
                 </td>
               </tr>
             }

@@ -1,0 +1,167 @@
+<div class="cc-tab-grid" [dir]="currentDir">
+
+  <!-- Form -->
+  <form class="cc-form" [formGroup]="form" (ngSubmit)="onSave()">
+    <header class="cc-section-head">
+      <span class="cc-section-icon"><i-tabler name="download" class="icon-18"></i-tabler></span>
+      <div>
+        <h3>{{ 'd3.controlCenter.updates.title' | translate }}</h3>
+        <p>{{ 'd3.controlCenter.updates.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    <div class="cc-segments-row">
+      <div class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.updates.selectApp' | translate }}</span>
+        <div class="cc-segmented" role="radiogroup">
+          @for (opt of appOptions; track opt.value) {
+            <button type="button" role="radio" class="cc-segment" [class.active]="selectedApp === opt.value"
+              [attr.aria-checked]="selectedApp === opt.value" [disabled]="saving" (click)="selectApp(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.updates.platform' | translate }}</span>
+        <div class="cc-segmented" role="radiogroup">
+          @for (opt of platformOptions; track opt.value) {
+            <button type="button" role="radio" class="cc-segment" [class.active]="selectedPlatform === opt.value"
+              [attr.aria-checked]="selectedPlatform === opt.value" [disabled]="saving" (click)="selectPlatform(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <hr class="cc-divider" />
+
+    @if (loading) {
+      <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+    } @else if (loadError) {
+      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" descKey="d3.controlCenter.errors.network"
+        actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="load()"></app-dashboard-empty>
+    } @else {
+      <!-- Versions -->
+      <div class="cc-segments-row">
+        <label class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.updates.latestVersion' | translate }}</span>
+          <input type="text" class="cc-input" dir="ltr" inputmode="decimal" formControlName="latestVersion" placeholder="4.8.0"
+            [class.is-invalid]="fieldError('latestVersion')" />
+          @if (fieldError('latestVersion'); as err) {
+            <small class="cc-error">{{ err | translate }}</small>
+          } @else {
+            <small class="cc-hint">{{ 'd3.controlCenter.updates.latestVersionHint' | translate }}</small>
+          }
+        </label>
+
+        <label class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.updates.minVersion' | translate }}</span>
+          <input type="text" class="cc-input" dir="ltr" inputmode="decimal" formControlName="minSupportedVersion" placeholder="4.5.0"
+            [class.is-invalid]="fieldError('minSupportedVersion')" />
+          @if (fieldError('minSupportedVersion'); as err) {
+            <small class="cc-error">{{ err | translate }}</small>
+          } @else {
+            <small class="cc-hint">{{ 'd3.controlCenter.updates.minVersionHint' | translate }}</small>
+          }
+        </label>
+      </div>
+
+      <!-- Policy -->
+      <div class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.updates.policy' | translate }}</span>
+        <div class="up-policies" role="radiogroup">
+          @for (opt of policyOptions; track opt.value) {
+            <button type="button" role="radio" class="up-policy" [class.active]="policy === opt.value"
+              [attr.aria-checked]="policy === opt.value" (click)="setPolicy(opt.value)">
+              <span class="up-radio"></span>
+              <span class="up-policy-copy">
+                <strong>{{ opt.labelKey | translate }}</strong>
+                <small>{{ opt.descKey | translate }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <hr class="cc-divider" />
+
+      <label class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.updates.storeUrl' | translate }}</span>
+        <input type="url" class="cc-input" dir="ltr" formControlName="storeUrl" [class.is-invalid]="fieldError('storeUrl')"
+          placeholder="https://" />
+        @if (fieldError('storeUrl'); as err) {
+          <small class="cc-error">{{ err | translate }}</small>
+        }
+      </label>
+
+      <label class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.updates.message' | translate }}</span>
+        <textarea class="cc-input cc-textarea" rows="3" formControlName="message" [maxlength]="messageMax"
+          [class.is-invalid]="fieldError('message')" [placeholder]="'d3.controlCenter.updates.messagePlaceholder' | translate"></textarea>
+        @if (fieldError('message'); as err) {
+          <small class="cc-error">{{ err | translate }}</small>
+        }
+      </label>
+    }
+
+    <footer class="cc-actions">
+      <button type="submit" class="cc-btn cc-btn-primary" [disabled]="!canSave">
+        @if (saving) {
+          <mat-spinner diameter="16"></mat-spinner>
+        } @else {
+          <i-tabler name="check" class="icon-16"></i-tabler>
+        }
+        {{ 'd3.controlCenter.updates.save' | translate }}
+      </button>
+      <button type="button" class="cc-btn cc-btn-outline" [disabled]="!form.dirty || saving" (click)="onCancel()">
+        {{ 'd3.controlCenter.maintenance.cancel' | translate }}
+      </button>
+    </footer>
+  </form>
+
+  <!-- Live preview -->
+  <aside class="cc-preview">
+    <header class="cc-preview-head">
+      <span>{{ 'd3.controlCenter.updates.previewTitle' | translate }}</span>
+      <span class="cc-badge">{{ 'd3.controlCenter.preview.badge' | translate }}</span>
+    </header>
+
+    <div class="cc-preview-stage">
+      <app-phone-frame class="cc-phone" [platform]="selectedPlatform">
+        @if (policy === 'none') {
+          <div class="mp-screen" [dir]="currentDir">
+            <span class="mp-icon is-muted"><i-tabler name="bell-off" class="icon-24"></i-tabler></span>
+            <h4 class="mp-title">{{ 'd3.controlCenter.updates.previewNone' | translate }}</h4>
+            <p class="mp-message">{{ 'd3.controlCenter.updates.previewNoneDesc' | translate }}</p>
+          </div>
+        } @else {
+          <div class="mp-screen" [dir]="currentDir">
+            <span class="mp-icon"><i-tabler name="circle-arrow-up" class="icon-24"></i-tabler></span>
+            <h4 class="mp-title">
+              {{ (policy === 'forced' ? 'd3.controlCenter.updates.previewForced' : 'd3.controlCenter.updates.previewOptional') | translate }}
+            </h4>
+            <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.updates.messagePlaceholder' | translate) }}</p>
+            <span class="mp-retry">
+              <i-tabler name="download" class="icon-14"></i-tabler>
+              {{ 'd3.controlCenter.updates.updateNow' | translate }}
+            </span>
+            @if (policy === 'optional') {
+              <span class="mp-later">{{ 'd3.controlCenter.updates.later' | translate }}</span>
+            }
+            <small class="mp-hint">{{ 'd3.controlCenter.updates.storeHint' | translate }}</small>
+          </div>
+        }
+      </app-phone-frame>
+    </div>
+
+    @if (policy === 'forced' && minVersionLabel) {
+      <div class="cc-preview-note">
+        <i-tabler name="shield-check" class="icon-16"></i-tabler>
+        <span>{{ 'd3.controlCenter.updates.forcedNote' | translate:{ version: minVersionLabel } }}</span>
+      </div>
+    }
+  </aside>
+</div>

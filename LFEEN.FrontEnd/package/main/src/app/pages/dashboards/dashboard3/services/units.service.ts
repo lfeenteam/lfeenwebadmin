@@ -91,6 +91,11 @@ export class UnitsService {
         );
       }
 
+      // Banned has no numeric code on our side; the backend accepts the status name directly.
+      if (request.tab === 'banned') {
+        return this.fetchUnitsPage({ ...request, status: 'Banned', newestFirst });
+      }
+
       const status = this.tabToStatus(request.tab)!;
       return this.fetchUnitsPage({
         ...request,
@@ -336,6 +341,7 @@ export class UnitsService {
       case 'published':      return 3;
       case 'rejected':       return 4;
       case 'pendingChanges': return 5;
+      case 'banned':         return undefined;
     }
   }
 
@@ -465,6 +471,13 @@ export class UnitsService {
       district:    u.district ?? null,
       rooms:       0,
       hasPool:     false,
+      // UnderReview / Approved / HasPendingChanges; the 'draft' tab is trusted over reviewStatus (see loader).
+      canBan:      this.activeTab() !== 'draft' && [2, 3, 5].some(s => this.isReviewStatus(u, s)),
+      propertyId:  String(u.propertyId),
+      banReason:   u.banReason ?? null,
+      bannedAt:    u.bannedAt ?? null,
+      bannedByProperty: !!u.bannedByProperty,
+      propertyBanned:   u.propertyAdminReviewStatus === 'Banned',
     };
   }
 
@@ -492,6 +505,7 @@ export class UnitsService {
       case 'underReview':    return 'underReview';
       case 'rejected':       return 'stopped';
       case 'pendingChanges': return 'pendingChanges';
+      case 'banned':         return 'banned';
     }
   }
 
@@ -537,5 +551,11 @@ export class UnitsService {
 
   goToBuildingPage(page: number): void {
     this.buildingsPage.set(page);
+  }
+
+  /** Refetches the current list and stats, e.g. after a ban changed a unit's status. */
+  reload(): void {
+    this._unitsResource.reload();
+    this._statsResource.reload();
   }
 }

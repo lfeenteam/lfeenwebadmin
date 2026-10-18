@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
 import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { ClientRatingByAgentItem, ClientRatingByAgentQueryParams, ClientRatingListResponse, ClientRatingQueryParams } from '../interfaces/ratings.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
 import { environment } from 'src/environments/environment';
@@ -192,6 +193,39 @@ export class ComplaintService {
 
     return this.http.get<ClientTicketListResponse>(
       `${environment.apiBaseUrl}/api/client-tickets/queue`,
+      { params: httpParams }
+    );
+  }
+
+  // Read-only. Without ClientTickets.ViewAllRatings the backend scopes the result to the
+  // caller's own sessions regardless of agentUserId — don't re-filter the response here.
+  getClientRatings(params: ClientRatingQueryParams): Observable<ClientRatingListResponse> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 20).toString());
+
+    if (params.agentUserId) httpParams = httpParams.set('agentUserId', params.agentUserId);
+    if (params.department)  httpParams = httpParams.set('department', params.department);
+    if (params.minRating)   httpParams = httpParams.set('minRating', params.minRating.toString());
+    if (params.maxRating)   httpParams = httpParams.set('maxRating', params.maxRating.toString());
+    if (params.from)        httpParams = httpParams.set('from', params.from);
+    if (params.to)          httpParams = httpParams.set('to', params.to);
+
+    return this.http.get<ClientRatingListResponse>(
+      `${environment.apiBaseUrl}/api/client-tickets/ratings`,
+      { params: httpParams }
+    );
+  }
+
+  // Requires ClientTickets.ViewAllRatings outright (403 otherwise). Bare array, no envelope.
+  getClientRatingsByAgent(params: ClientRatingByAgentQueryParams = {}): Observable<ClientRatingByAgentItem[]> {
+    let httpParams = new HttpParams();
+    if (params.department) httpParams = httpParams.set('department', params.department);
+    if (params.from)       httpParams = httpParams.set('from', params.from);
+    if (params.to)         httpParams = httpParams.set('to', params.to);
+
+    return this.http.get<ClientRatingByAgentItem[]>(
+      `${environment.apiBaseUrl}/api/client-tickets/ratings/by-agent`,
       { params: httpParams }
     );
   }

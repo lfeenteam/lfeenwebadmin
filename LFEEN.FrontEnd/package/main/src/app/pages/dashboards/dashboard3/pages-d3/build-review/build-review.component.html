@@ -7,6 +7,15 @@
     {{ headerStatusConfig.labelKey | translate }}
   </span>
 
+  @if (canBan && buildingId) {
+    <app-ban-listing-button
+      kind="property"
+      size="sm"
+      [listingId]="buildingId"
+      [listingName]="building.name"
+      (changed)="onBanChanged()" />
+  }
+
   <div class="progress-section">
     <span class="progress-title">{{ 'd3.buildReview.status.progressLabel' | translate }}</span>
     <div class="progress-bar-wrap">
@@ -15,6 +24,16 @@
     <span class="progress-count">{{ 'd3.buildReview.status.progressCount' | translate: { completed: completedCount, total: visibleReviewSections.length } }}</span>
   </div>
 </div>
+
+  @if (isBanned) {
+    <app-listing-ban-banner
+      kind="property"
+      [listingId]="buildingId || ''"
+      [listingName]="building.name"
+      [banReason]="banReason"
+      [bannedAt]="bannedAt"
+      (changed)="onBanChanged()" />
+  }
 
   <!-- Building Info Card -->
 <div class="building-card">

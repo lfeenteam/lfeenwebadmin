@@ -9,9 +9,9 @@
 
 // ── Stat cards ──────────────────────────────────────────────
 .stat-card {
-  width: 300px;
-  max-width: 100%;
+  width: 100%;
   height: 132px;
+  margin-bottom: 16px;
   border-radius: 32px !important;
   border: 1px solid #E4E4E7 !important;
   opacity: 1;
@@ -256,7 +256,6 @@
   }
 }
 
-.action-dots-btn,
 .expand-row-btn {
   all: unset;
   box-sizing: border-box;
@@ -275,12 +274,6 @@
   &:hover {
     color: #111110;
     background-color: #F7F7F5;
-  }
-}
-
-.dots-icon-compact {
-  ::ng-deep svg {
-    transform: scaleY(0.7);
   }
 }
 
@@ -347,6 +340,9 @@
   background-color: #eff6ff;
   color: #2563eb;
   border: 1px solid #dbeafe;
+
+  &--free { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+  &--automatic { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
 }
 
 // ── Pagination ──────────────────────────────────────────────
@@ -622,4 +618,15 @@
   .extra-services-chip {
     white-space: normal;
   }
+}
+
+.detail-table tr.service-expired {
+  opacity: 0.55;
+}
+.configuration-warning {
+  display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+  color: #854d0e; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 16px;
+  font-size: 13px; font-weight: 700; line-height: 1.6;
+
+  i-tabler { flex-shrink: 0; color: #d97706; }
 }

@@ -1,4 +1,4 @@
-<div class="settlement-detail-dialog" [dir]="currentDir">
+<div class="settlement-detail-dialog" [class.is-wide]="isDetailsStep" [dir]="currentDir">
 
   @if (step === 'success') {
 
@@ -69,8 +69,10 @@
 
   @if (isDetailsStep) {
 
+    <div class="details-grid">
+
     <!-- Host details -->
-    <div class="detail-card">
+    <div class="detail-card detail-card--host">
       <div class="detail-card-head">
         <div class="head-title">
           <span>{{ 'd3.settlements.detail.hostSection' | translate }}</span>
@@ -100,8 +102,74 @@
       </div>
     </div>
 
-    <!-- Bank details -->
+    <!-- Settlement summary -->
     <div class="detail-card">
+      <div class="detail-card-head">
+        <div class="head-title">
+          <span>{{ 'd3.settlements.detail.summarySection' | translate }}</span>
+          <i-tabler name="hash" class="icon-16"></i-tabler>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
+        <span class="row-value row-value--ltr">{{ data.payoutReference }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.requestDate' | translate }}</span>
+        <span class="row-value">{{ data.requestDateLabel }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.period' | translate }}</span>
+        <span class="row-value">{{ data.periodLabel }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.grossAmount' | translate }}</span>
+        <span class="row-value row-amount">
+          {{ data.grossFormatted }}
+          <img [src]="data.currencyIconSrc" alt="" class="riyal-icon riyal-icon--sm" [class.is-text-currency]="data.isTextCurrency">
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.platformFee' | translate }}</span>
+        <span class="row-value row-amount">
+          {{ data.feeFormatted }}
+          <img [src]="data.currencyIconSrc" alt="" class="riyal-icon riyal-icon--sm" [class.is-text-currency]="data.isTextCurrency">
+        </span>
+      </div>
+    </div>
+
+    <!-- Bookings covered by this payout -->
+    @if (data.entries.length) {
+      <div class="detail-card">
+        <div class="detail-card-head">
+          <div class="head-title">
+            <span>{{ 'd3.settlements.detail.entriesSection' | translate }} ({{ data.entries.length }})</span>
+            <i-tabler name="file-check" class="icon-16"></i-tabler>
+          </div>
+        </div>
+
+        <div class="entries-table">
+          <div class="entries-row entries-row--head">
+            <span>{{ 'd3.settlements.detail.bookingNumber' | translate }}</span>
+            <span>{{ 'd3.settlements.detail.entryGross' | translate }}</span>
+            <span>{{ 'd3.settlements.detail.entryFee' | translate }}</span>
+            <span>{{ 'd3.settlements.detail.entryNet' | translate }}</span>
+          </div>
+          @for (entry of data.entries; track $index) {
+            <div class="entries-row">
+              <span class="entry-booking">{{ entry.bookingNumber }}</span>
+              <span>{{ entry.gross }}</span>
+              <span>{{ entry.fee }}</span>
+              <span class="entry-net">{{ entry.net }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Bank details -->
+    <div class="detail-card detail-card--bank">
       <div class="detail-card-head">
         <div class="head-title">
           <span>{{ 'd3.settlements.detail.bankSection' | translate }}</span>
@@ -127,11 +195,17 @@
         <span class="row-label">{{ 'd3.settlements.detail.accountNumber' | translate }}</span>
         <span class="row-value">{{ data.bankAccountNumber }}</span>
       </div>
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.swiftCode' | translate }}</span>
+        <span class="row-value row-value--ltr">{{ data.swiftCode }}</span>
+      </div>
 
       <div class="iban-block">
         <span class="row-label">{{ 'd3.settlements.detail.iban' | translate }}</span>
         <div class="iban-box">{{ data.iban }}</div>
       </div>
+    </div>
+
     </div>
 
     <!-- Actions — only for a payout the backend still accepts execute/fail on, and only with the Execute permission -->

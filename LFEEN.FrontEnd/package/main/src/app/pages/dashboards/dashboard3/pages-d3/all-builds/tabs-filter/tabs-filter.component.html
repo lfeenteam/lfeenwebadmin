@@ -18,6 +18,9 @@
             [class.active]="activeTab === tab.id"
             (click)="selectTab(tab.id)">
             {{ tab.labelKey | translate }}
+            @if (tab.count) {
+              <span class="tab-count">{{ tab.count }}</span>
+            }
           </button>
         }
       </nav>

@@ -51,7 +51,8 @@ export class AllUnitsComponent {
     { id: 'new',         labelKey: 'd3.allUnits.tabs.new'         },
     { id: 'underReview', labelKey: 'd3.allUnits.tabs.underReview' },
     { id: 'pendingChanges', labelKey: 'd3.allUnits.tabs.pendingChanges' },
-    { id: 'rejected',    labelKey: 'd3.allUnits.tabs.rejected'    }
+    { id: 'rejected',    labelKey: 'd3.allUnits.tabs.rejected'    },
+    { id: 'banned',      labelKey: 'd3.allUnits.tabs.banned'      }
   ];
 
   filterOptions: BuildFilterOption[] = [
@@ -95,6 +96,8 @@ export class AllUnitsComponent {
           { ...this.metrics[2], value: formatNumber(s.pendingOrRejected) },
           { ...this.metrics[3], value: formatNumber(s.underReview)       },
         ];
+        // stats aren't affected by the active filter, so this count holds on every tab.
+        this.tabs = this.tabs.map(t => t.id === 'banned' ? { ...t, count: s.banned ?? null } : t);
       }
 
       this.cdr.markForCheck();

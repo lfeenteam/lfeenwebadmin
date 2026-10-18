@@ -97,6 +97,48 @@
   &:last-of-type { margin-bottom: 0; }
 }
 
+// Details step is wide: host | bank on the first row, summary | bookings on the second.
+// Spacing is tightened here so the whole step fits the viewport without scrolling.
+.settlement-detail-dialog.is-wide {
+  max-width: none;
+  box-sizing: border-box;
+  padding: 20px;
+
+  .detail-header { margin-bottom: 14px; }
+
+  .detail-actions { margin-top: 0; }
+
+  @media (min-width: 481px) {
+    .detail-actions { justify-content: flex-end; }
+    .btn { height: 46px; border-radius: 12px; font-size: 13px; }
+    .btn-reject { flex: 0 0 150px; }
+    .btn-accept { flex: 0 0 230px; }
+  }
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+
+  .detail-card {
+    margin-bottom: 0;
+    padding: 18px;
+    gap: 12px;
+    border-radius: 20px;
+  }
+  .amount-row { padding-top: 10px; }
+  .entries-row { padding: 8px 12px; }
+  .iban-box { padding: 9px 14px; }
+  .detail-card--host { order: -2; }
+  .detail-card--bank { order: -1; }
+}
+
+@media (max-width: 768px) {
+  .details-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
 .detail-card-head {
   display: flex;
   align-items: center;
@@ -153,6 +195,58 @@
   font-weight: 700;
   color: #111110;
   text-align: end;
+}
+
+.row-value--ltr {
+  direction: ltr;
+}
+
+.row-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// ── Covered bookings ────────────────────────────────────────
+.entries-table {
+  display: flex;
+  flex-direction: column;
+  max-height: 180px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+}
+
+.entries-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111110;
+  border-top: 1px solid #F1F5F9;
+
+  &.entries-row--head {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-top: 0;
+    font-size: 11px;
+    font-weight: 400;
+    color: #62748E;
+  }
+}
+
+.entry-booking {
+  direction: ltr;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.entry-net {
+  font-weight: 800;
 }
 
 .amount-row {
@@ -229,6 +323,11 @@
   &.is-text-currency {
     width: 26px;
     height: auto;
+  }
+
+  &.riyal-icon--sm:not(.is-text-currency) {
+    width: 14px;
+    height: 14px;
   }
 }
 

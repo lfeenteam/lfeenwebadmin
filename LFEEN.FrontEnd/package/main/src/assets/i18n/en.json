@@ -117,6 +117,22 @@
     "errorOccurred": "Something went wrong, please try again"
   },
   "d3": {
+    "state": {
+      "loadError": "Could not load data",
+      "retry": "Retry"
+    },
+    "filters": {
+      "ariaLabel": "Select the dashboard period",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "last90Days": "Last 90 days",
+      "customFrom": "From",
+      "customTo": "To",
+      "rangeTooLong": "The maximum range is 366 days",
+      "toClearedHint": "The \"to\" date was cleared because it fell before the \"from\" date.",
+      "rangeOrderError": "The \"to\" date can't be before the \"from\" date.",
+      "clear": "Clear"
+    },
     "header": {
       "title": "CEO Dashboard",
       "platform": "Leven Platform · Kingdom of Saudi Arabia",
@@ -173,11 +189,16 @@
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "platformOffers": "Platform Offers",
+      "banRefunds": "Ban Refunds",
       "callScripts": "Call Scripts",
+      "esim": "Smart SIMs",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
       "subscriptionManagement": "Subscription Management",
       "subscriptionLog": "Subscription Log",
+      "subscriptionRequests": "Subscription Requests",
+      "discountCodes": "Discount Codes",
+      "controlCenter": "Control Center",
       "settings": "Settings",
       "notifications": "Notifications",
       "logout": "Logout"
@@ -255,6 +276,10 @@
         "rejected": {
           "title": "No rejected buildings",
           "desc": "No buildings have been rejected yet, or no results match your search."
+        },
+        "banned": {
+          "title": "No banned buildings",
+          "desc": "No buildings have been banned yet, or no results match your search."
         }
       },
       "units": {
@@ -281,6 +306,10 @@
         "rejected": {
           "title": "No rejected units",
           "desc": "No units have been rejected yet, or no results match your search."
+        },
+        "banned": {
+          "title": "No banned units",
+          "desc": "No units have been banned yet, or no results match your search."
         }
       },
       "accounts": {
@@ -302,6 +331,150 @@
         }
       }
     },
+    "banRefunds": {
+      "title": "Ban Refunds",
+      "currencySar": "SAR",
+      "intro": "Guest refunds for bookings cancelled because a building or unit was banned. Refunds run automatically; failures land here under “Needs manual review”.",
+      "refresh": "Refresh",
+      "failureReasons": {
+        "gatewayError": "The payment gateway refund failed",
+        "requiresManualReview": "The payment gateway requires a manual review",
+        "maxAttemptsReached": "Maximum retry attempts reached",
+        "unknown": "The refund failed for an unknown reason"
+      },
+      "nextAttempt": "Next attempt: {{date}}",
+      "resolvedBy": "Handled by {{name}}",
+      "tabs": {
+        "all": "All"
+      },
+      "status": {
+        "pending": "Refund in progress",
+        "retrying": "Retrying…",
+        "succeeded": "Refunded",
+        "manualReview": "Needs manual review",
+        "resolved": "Handled manually"
+      },
+      "table": {
+        "booking": "Booking no.",
+        "property": "Building #{{id}}",
+        "unit": "Unit #{{id}}",
+        "guest": "Guest",
+        "amount": "Amount",
+        "attempts": "Attempts",
+        "status": "Status",
+        "date": "Last update"
+      },
+      "actions": {
+        "retry": "Retry",
+        "resolve": "Mark handled"
+      },
+      "resolveDialog": {
+        "title": "Confirm manual handling",
+        "desc": "Use this after {{amount}} for booking {{booking}} was refunded outside the system (e.g. from the payment gateway dashboard). The system won't try to refund it again.",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "e.g. Refunded manually from the gateway dashboard",
+        "confirmBtn": "Confirm"
+      },
+      "toast": {
+        "retryQueued": "Retry scheduled — the status will update in a few seconds",
+        "resolved": "Refund marked as handled"
+      },
+      "empty": {
+        "title": "No refunds here",
+        "desc": "There are no refunds with this status right now."
+      },
+      "pagination": {
+        "total": "refunds"
+      },
+      "errors": {
+        "notInManualReview": "This refund was already handled — the list has been refreshed",
+        "notFound": "Refund not found",
+        "loadTitle": "Couldn't load refunds",
+        "loadDesc": "Check your connection and try again."
+      }
+    },
+    "listingBan": {
+      "button": {
+        "property": "Ban building",
+        "unit": "Ban unit"
+      },
+      "dialog": {
+        "reasonLabel": "Ban reason",
+        "reasonPlaceholder": "Write the ban reason here...",
+        "cancelBtn": "Cancel",
+        "ban": {
+          "titleProperty": "Confirm building ban",
+          "titleUnit": "Confirm unit ban",
+          "descProperty": "Are you sure you want to ban this building? All active operations linked to it will stop immediately. Please enter the ban reason for documentation and follow-up.",
+          "descUnit": "Are you sure you want to ban this unit? All active operations linked to it will stop immediately. Please enter the ban reason for documentation and follow-up.",
+          "confirmBtn": "Confirm ban",
+          "success": "Banned",
+          "bookingsDetail": "{{count}} booking(s) cancelled",
+          "unitsDetail": "{{count}} unit(s) banned"
+        },
+        "editReason": {
+          "titleProperty": "Edit building ban reason",
+          "titleUnit": "Edit unit ban reason",
+          "descProperty": "The ban reason will be updated, and the new reason will also apply to units banned because of this building.",
+          "descUnit": "The ban reason for this unit will be updated.",
+          "confirmBtn": "Save reason",
+          "success": "Reason updated",
+          "unitsDetail": "applied to {{count}} unit(s)"
+        },
+        "unban": {
+          "titleProperty": "Unban building",
+          "titleUnit": "Unban unit",
+          "descProperty": "The building will go back to under review and won't be visible to guests until approved. Units banned because of it will be unbanned too. Cancelled bookings won't come back.",
+          "descUnit": "The unit will go back to under review and won't be visible to guests until approved. Cancelled bookings won't come back.",
+          "confirmBtn": "Unban",
+          "success": "Unbanned",
+          "unitsDetail": "{{count}} unit(s) unbanned"
+        }
+      },
+      "banner": {
+        "titleProperty": "This building is banned",
+        "titleUnit": "This unit is banned",
+        "hint": "Review, approval and rejection are locked while it's banned. To republish, unban it, then review it again.",
+        "hintByProperty": "This unit is banned because its building is. Review stays locked until the building is unbanned."
+      },
+      "history": {
+        "title": "Ban history",
+        "short": "History",
+        "by": "By",
+        "byProperty": "Via building #{{id}}",
+        "empty": "No ban actions recorded.",
+        "loadError": "Couldn't load the history.",
+        "retry": "Try again",
+        "loadMore": "Show more",
+        "actions": {
+          "ban": "Banned",
+          "updateReason": "Reason updated",
+          "unban": "Unbanned"
+        }
+      },
+      "card": {
+        "badge": "Banned",
+        "bannedAt": "Ban date",
+        "reason": "Ban reason details",
+        "editReason": "Edit reason",
+        "unban": "Unban",
+        "bannedByProperty": "Banned by building",
+        "editFromProperty": "Edited from the building",
+        "unbanPropertyFirst": "Unban the building first"
+      },
+      "errors": {
+        "cannotBan": "This item can't be banned in its current status",
+        "notBanned": "This item isn't banned, refresh the page",
+        "parentPropertyBanned": "Unban the building first",
+        "bannedByProperty": "Edit the reason from the building",
+        "listingBanned": "This item is banned and can't be modified",
+        "targetUnitBanned": "Can't move to this unit because it or its building is banned",
+        "reasonRequired": "Ban reason is required",
+        "notFound": "Item not found",
+        "forbidden": "You're not allowed to perform this action",
+        "serviceUnavailable": "Couldn't reach the service, please try again"
+      }
+    },
     "allBuilds": {
       "title": "All Buildings",
       "cards": {
@@ -318,7 +491,8 @@
         "new": "New",
         "underReview": "Under Review",
         "pendingChanges": "Pending Changes",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "banned": "Banned Buildings"
       },
       "pagination": {
         "total": "property"
@@ -490,7 +664,8 @@
         "new": "New",
         "underReview": "Under Review",
         "pendingChanges": "Pending Changes",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "banned": "Banned Units"
       },
       "pagination": {
         "total": "unit"
@@ -516,7 +691,10 @@
       "hostRetention": "Host Retention Rate",
       "trendUpLastMonth": "vs last month",
       "stable": "Stable",
-      "concerningIncrease": "concerning increase"
+      "concerningIncrease": "concerning increase",
+      "unavailable": "Unavailable",
+      "points": "pts",
+      "requiredSource": "Required source"
     },
     "chart": {
       "title": "Platform Growth Analysis",
@@ -534,10 +712,13 @@
       "rowRating": "Rating",
       "rowCancelRate": "Cancellation Rate",
       "rowOpenComplaints": "Open Complaints",
-      "distributionTitle": "Hosts Category Distribution",
+      "distributionTitle": "Guests Gender Distribution",
       "segHotels": "Hotels (45%)",
       "segIndividuals": "Individuals (35%)",
-      "segCompanies": "Companies (20%)"
+      "segCompanies": "Companies (20%)",
+      "rowDownloads": "Downloads",
+      "segMale": "Male",
+      "segFemale": "Female"
     },
     "insights": {
       "topCities": "Top 6 Saudi Cities",
@@ -569,7 +750,15 @@
       "cityDammam": "Dammam",
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
-      "cityKhobar": "Khobar"
+      "cityKhobar": "Khobar",
+      "unit": "unit",
+      "noCities": "No bookings are linked to cities in this period",
+      "noDecisions": "No decisions required right now",
+      "severityCritical": "Critical",
+      "severityWarning": "Warning",
+      "severityOpportunity": "Opportunity",
+      "severityInfo": "Info",
+      "viewDetails": "View details"
     },
     "loginPage": {
       "sidebar": {
@@ -578,8 +767,7 @@
         "description": "Full control of properties, hosts, and daily operations with artificial intelligence and extreme accuracy."
       },
       "form": {
-        "title": "Admin Login",
-        "subtitle": "Welcome Sultan, please enter your details to continue",
+        "title": "LFEEN Heroes Login",
         "emailLabel": "Admin Email",
         "passwordLabel": "Password",
         "forgotPassword": "Forgot password?",
@@ -598,7 +786,7 @@
         "departmentCount": "Number of Departments",
         "activeManagers": "Active Managers",
         "pendingActivation": "Inactive",
-        "partialOps": "Partial Operations",
+        "failedOps": "Failed Operations",
         "rejectedOps": "Rejected Operations",
         "successfulOps": "Successful Operations",
         "totalOps": "Total Operations"
@@ -670,10 +858,16 @@
       },
       "opsLog": {
         "filters": {
-          "searchPlaceholder": "Search by employee name, action, or department...",
+          "searchPlaceholder": "Search by employee name, email, or entity...",
           "actionType": "Action Type",
           "allDepts": "All Departments",
-          "allDates": "All Dates"
+          "allStatuses": "All Statuses",
+          "allDates": "All Dates",
+          "dates": {
+            "today": "Today",
+            "week": "Last 7 days",
+            "month": "Last 30 days"
+          }
         },
         "table": {
           "dateTime": "Date & Time",
@@ -681,7 +875,58 @@
           "action": "Action Performed",
           "department": "Affected Department",
           "status": "Status"
-        }
+        },
+        "status": {
+          "Succeeded": "Completed",
+          "Failed": "System Error",
+          "Denied": "Denied"
+        },
+        "actions": {
+          "UserRoleAssigned": "Role assigned to employee",
+          "UserRoleRemoved": "Role removed from employee",
+          "EmployeeEnrolled": "Employee enrolled in department",
+          "EmployeeActivated": "Employee activated",
+          "EmployeeDeactivated": "Employee deactivated",
+          "EmployeeDeleted": "Employee deleted",
+          "BookingCancelled": "Booking cancelled",
+          "BookingUnitChanged": "Booking unit changed",
+          "SettlementExecuted": "Settlement executed",
+          "SettlementHeld": "Settlement held",
+          "SettlementFailed": "Settlement failed",
+          "SettlementRetried": "Settlement retried",
+          "SubscriptionOrderApproved": "Subscription order approved",
+          "SubscriptionOrderRejected": "Subscription order rejected",
+          "WalletBalanceAdjusted": "Wallet balance adjusted",
+          "WalletLedgerEntryUpdated": "Wallet ledger entry updated"
+        },
+        "details": {
+          "title": "Operation Details",
+          "close": "Close",
+          "actor": "Performed by",
+          "roles": "Roles",
+          "actorDepartments": "Actor departments",
+          "snapshotHint": "Actor details as they were when the operation happened.",
+          "operation": "Operation",
+          "actionCode": "Action code",
+          "entity": "Affected entity",
+          "duration": "Duration",
+          "openEntity": "Open related page",
+          "trace": "Trace data",
+          "errorCode": "Error type",
+          "request": "Request",
+          "ipAddress": "IP address",
+          "userAgent": "User agent",
+          "correlationId": "Correlation ID",
+          "metadata": "Metadata",
+          "notFound": "This operation no longer exists"
+        },
+        "pagination": {
+          "total": "operations"
+        },
+        "empty": "No matching operations",
+        "loadFailed": "Could not load data",
+        "retry": "Retry",
+        "accessDenied": "You don't have permission to view the operation log"
       }
     },
     "addDepartment": {
@@ -1275,6 +1520,7 @@
           "thirdResidential": "Third Residential Floor"
         },
         "amenitiesTitle": "Available Services & Amenities",
+        "highlightedInDescription": "Highlighted in description",
         "emptyAmenitiesTitle": "No services or amenities",
         "emptyAmenitiesDescription": "The host has not added any services or amenities for this property.",
         "amenityLabels": {
@@ -1429,10 +1675,18 @@
         "smartBanner": "Smart AC system enabled in the unit",
         "selfAccessBanner": "Self check-in is available through the Lfeen app",
         "contentsLabel": "Contents",
+        "highlightedInDescription": "Highlighted in description",
+        "descriptionTitle": "Unit Description",
+        "descriptionHint": "Auto-generated text — cross-check it against the highlighted facilities below",
         "servicesLabel": "Services",
         "privateFacilitiesLabel": "Private Facilities",
         "stats": {
           "capacity": "Guest Capacity",
+          "adults": "Adults",
+          "children": "Children",
+          "maxChildAge": "Max Child Age",
+          "maxChildAgeValue": "Up to {{age}} years",
+          "childrenNotAllowed": "Children not allowed",
           "area": "Area",
           "floor": "Floor Number",
           "type": "Unit Type"
@@ -1561,6 +1815,22 @@
         "basePrice": "Base Price",
         "safetyFloor": "Safety Minimum",
         "perNight": "/ night",
+        "occupancy": {
+          "title": "Prices by number of guests",
+          "type": "Price type",
+          "customPrice": "Custom price",
+          "adults": "Adults",
+          "children": "Children",
+          "maxChildAge": "Max child age",
+          "ageYears": "{{age}} yrs",
+          "basePrice": "Base Price",
+          "minimumPrice": "Minimum Price",
+          "status": "Status",
+          "defaultBadge": "Default price",
+          "active": "Active",
+          "inactive": "Disabled",
+          "suspiciousHint": "Smaller group priced above the default price"
+        },
         "policies": {
           "stayDurationSubtitle": "Discounts based on length of stay",
           "dayFraction": {
@@ -1641,6 +1911,7 @@
         "classificationCategory": {
           "MainPhoto": "Main Photo",
           "Room": "Room",
+          "SubRoom": "Sub-room",
           "Bedroom": "Bedroom",
           "Bathroom": "Bathroom",
           "Kitchen": "Kitchen",
@@ -1660,7 +1931,9 @@
         "approveBtn": "Approve Unit Photos",
         "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
         "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
-        "rejectionReasonRequired": "A rejection reason is required for every rejected photo."
+        "rejectionReasonRequired": "A rejection reason is required for every rejected photo.",
+        "pendingDeleteReview": "Pending deletion review",
+        "pendingMainPhotoReview": "Pending main photo change review"
       },
       "cancelPolicyView": {
         "pageTitle": "Cancellation Policy Review",
@@ -1867,7 +2140,76 @@
       "tabs": {
         "customers": "Customer Support",
         "hosts": "Host Support",
-        "resolved": "Resolved"
+        "resolved": "Resolved",
+        "ratings": "Ratings"
+      },
+      "ratings": {
+        "views": {
+          "list": "Ratings",
+          "agents": "By agent"
+        },
+        "summary": {
+          "average": "Average rating",
+          "outOf": "out of 5",
+          "total": "Total ratings",
+          "distribution": "Rating distribution"
+        },
+        "filters": {
+          "minRating": "Min rating",
+          "maxRating": "Max rating",
+          "min": {
+            "1": "From 1 star",
+            "2": "From 2 stars",
+            "3": "From 3 stars",
+            "4": "From 4 stars",
+            "5": "From 5 stars"
+          },
+          "max": {
+            "1": "Up to 1 star",
+            "2": "Up to 2 stars",
+            "3": "Up to 3 stars",
+            "4": "Up to 4 stars",
+            "5": "Up to 5 stars"
+          },
+          "from": "From",
+          "to": "To",
+          "reset": "Clear filters"
+        },
+        "table": {
+          "session": "Client / Session",
+          "department": "Department",
+          "agent": "Agent",
+          "rating": "Rating",
+          "comment": "Comment",
+          "ratedAt": "Rated at",
+          "closedBy": "Closed by: {{by}}",
+          "noAgent": "No agent (bot)",
+          "viewChat": "View chat",
+          "total": "ratings"
+        },
+        "closedBy": {
+          "client": "Client",
+          "admin": "Admin",
+          "bot": "Bot"
+        },
+        "agents": {
+          "agent": "Agent",
+          "average": "Average rating",
+          "total": "Ratings count"
+        },
+        "empty": {
+          "title": "No ratings",
+          "desc": "No ratings match the selected filters."
+        },
+        "error": {
+          "title": "Couldn't load ratings",
+          "desc": "Something went wrong while fetching the data. Please try again.",
+          "retry": "Retry"
+        },
+        "forbidden": {
+          "title": "You don't have permission to view ratings",
+          "desc": "Contact your system administrator to request access."
+        }
       },
       "table": {
         "searchPlaceholder": "Search by name, complaint ID...",
@@ -2192,6 +2534,313 @@
         "total": "account"
       }
     },
+    "controlCenter": {
+      "title": "Control Center",
+      "lastUpdatedNow": "Last updated just now",
+      "lastReviewedNow": "Last reviewed just now",
+      "footer": "Apps Control Center",
+      "stats": {
+        "platforms": "App platforms",
+        "platformsNote": "Client & merchant · iOS Android",
+        "maintenance": "Platforms under maintenance",
+        "allRunning": "All systems operational",
+        "someDown": "Some platforms are paused",
+        "themes": "Seasonal themes",
+        "themesNote": "{{active}} active · {{scheduled}} scheduled"
+      },
+      "apps": {
+        "title": "Apps status",
+        "subtitle": "A quick look at every app and platform",
+        "client": "Client app",
+        "merchant": "Merchant app"
+      },
+      "platforms": {
+        "ios": "Apple iOS",
+        "android": "Android"
+      },
+      "status": {
+        "running": "Running",
+        "maintenance": "Maintenance"
+      },
+      "tabs": {
+        "maintenance": "Maintenance mode",
+        "updates": "App updates",
+        "themes": "Seasonal themes"
+      },
+      "maintenance": {
+        "title": "Maintenance mode control",
+        "subtitle": "Temporarily pause the target app when needed",
+        "targetApp": "Target app",
+        "targetPlatform": "Target platform",
+        "targets": {
+          "all": "All platforms",
+          "ios": "iOS only",
+          "android": "Android only"
+        },
+        "enable": "Enable maintenance mode",
+        "enableDesc": "Requests from the target app will be blocked temporarily",
+        "schedule": "Schedule maintenance",
+        "scheduleDesc": "Start and end maintenance automatically",
+        "startsAt": "Starts at",
+        "endsAt": "Ends at",
+        "pickDateTime": "Pick date & time",
+        "messageTitle": "Maintenance message title",
+        "messageTitlePlaceholder": "We're improving your experience",
+        "message": "Maintenance message",
+        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon.",
+        "bypassKey": "Maintenance bypass key for testers",
+        "bypassKeyPlaceholder": "Enter a secure key",
+        "bypassKeySet": "A key is set — leave empty to keep it",
+        "bypassKeyHint": "The key won't be shown again after saving.",
+        "save": "Save maintenance settings",
+        "cancel": "Discard changes",
+        "saveSuccess": "Maintenance settings saved",
+        "errors": {
+          "titleRequired": "Message title is required",
+          "messageRequired": "Message text is required",
+          "scheduleRequired": "Set both a start and an end time",
+          "scheduleOrder": "The end time must be after the start time"
+        }
+      },
+      "preview": {
+        "title": "Preview of what users will see",
+        "badge": "Preview",
+        "retry": "Try again",
+        "retryHint": "You can try again in a few minutes",
+        "note": "Support pages and app settings stay available during maintenance."
+      },
+      "updates": {
+        "title": "App versions management",
+        "subtitle": "Set the latest version and update policy for each platform separately",
+        "selectApp": "Select app",
+        "platform": "Operating system",
+        "latestVersion": "Latest version",
+        "latestVersionHint": "The version currently live on the store",
+        "minVersion": "Minimum supported",
+        "minVersionHint": "Older versions will be blocked or prompted",
+        "policy": "Update policy",
+        "policies": {
+          "forced": "Forced update",
+          "forcedDesc": "Block old versions until updated",
+          "optional": "Optional update",
+          "optionalDesc": "Let users skip the update",
+          "none": "No prompt",
+          "noneDesc": "Don't show users any message"
+        },
+        "storeUrl": "Store link",
+        "message": "Update message (Arabic)",
+        "messagePlaceholder": "A new version of LFEEN is available, update to continue.",
+        "save": "Save version settings",
+        "saveSuccess": "Version settings saved",
+        "previewTitle": "Update message preview",
+        "previewForced": "Update required",
+        "previewOptional": "Update available",
+        "previewNone": "No message",
+        "previewNoneDesc": "Users won't see any update prompt",
+        "updateNow": "Update now",
+        "later": "Later",
+        "storeHint": "You'll be taken to the store",
+        "forcedNote": "Versions below {{version}} will receive an HTTP 426 response",
+        "errors": {
+          "required": "This field is required",
+          "version": "Use a version format like 4.8.0",
+          "versionOrder": "The minimum can't be newer than the latest version",
+          "url": "Enter a valid link starting with https://"
+        }
+      },
+      "themes": {
+        "title": "Seasonal themes management",
+        "subtitle": "Add, edit and schedule looks for special occasions",
+        "new": "New theme",
+        "edit": "Edit theme",
+        "brand": "LFEEN",
+        "tagline": "Stays and experiences offers",
+        "createSuccess": "Theme created",
+        "updateSuccess": "Theme changes saved",
+        "status": {
+          "active": "Active",
+          "scheduled": "Scheduled",
+          "expired": "Expired",
+          "disabled": "Disabled"
+        },
+        "empty": {
+          "title": "No themes yet",
+          "desc": "Add your first seasonal theme to customise the app for occasions"
+        },
+        "form": {
+          "createTitle": "Create a seasonal theme",
+          "editTitle": "Edit theme",
+          "subtitle": "Enter the theme details and when it should appear",
+          "close": "Close",
+          "name": "Theme name",
+          "namePlaceholder": "e.g. Eid al-Fitr",
+          "key": "Unique key (Theme Key)",
+          "keyHint": "The key can't repeat across existing themes.",
+          "app": "Target app",
+          "startDate": "Start date",
+          "endDate": "End date",
+          "pickDate": "Pick a date",
+          "primaryColor": "Primary color",
+          "secondaryColor": "Secondary color",
+          "bannerUrl": "Theme image or banner URL",
+          "enabled": "Enable theme",
+          "enabledDesc": "The theme shows automatically during the selected period",
+          "create": "Create theme",
+          "save": "Save changes",
+          "cancel": "Cancel"
+        },
+        "errors": {
+          "required": "This field is required",
+          "key": "Use lowercase letters, numbers and dashes only, e.g. eid-al-fitr",
+          "keyTaken": "This key is already used by another theme",
+          "color": "Enter a color as #RRGGBB",
+          "url": "Enter a valid link starting with https://",
+          "dateOrder": "The end date must be after the start date"
+        }
+      },
+      "errors": {
+        "loadTitle": "Couldn't load data",
+        "network": "Check your connection and try again",
+        "retry": "Try again"
+      }
+    },
+    "esim": {
+      "title": "Smart SIMs",
+      "heading": "eSIM Smart SIMs",
+      "subtitle": "An overview of active SIMs and users' data plans",
+      "stats": {
+        "totalSales": "Total Sales",
+        "salesDelta": "{{value}} SAR vs last month",
+        "totalUsers": "Total Users",
+        "newUsers": "{{value}} new users",
+        "activeSims": "Active SIMs",
+        "activeShare": "{{value}}% of total",
+        "totalSims": "Total SIMs",
+        "newSims": "{{value}} this month"
+      },
+      "searchPlaceholder": "Search by name, email or ICCID",
+      "filters": {
+        "title": "Filter Results",
+        "subtitle": "Combine more than one filter",
+        "close": "Close",
+        "status": "SIM Status",
+        "coverage": "Country or Scope",
+        "allCoverage": "All countries and scopes",
+        "network": "Network Type",
+        "allNetworks": "All networks",
+        "networkOption": "{{value}} networks",
+        "clear": "Clear",
+        "showResults": "Show results ({{count}})"
+      },
+      "list": {
+        "title": "User SIMs",
+        "subtitle": "View and manage all registered SIMs and plans"
+      },
+      "tabs": {
+        "all": "All"
+      },
+      "scope": {
+        "global": "Global",
+        "regional": "Regional",
+        "local": "Local"
+      },
+      "table": {
+        "user": "User",
+        "coverage": "Country / Scope",
+        "planType": "Plan Type",
+        "network": "Network",
+        "plan": "Plan",
+        "price": "Price",
+        "status": "Status",
+        "action": "Action",
+        "purchased": "Purchased",
+        "viewDetails": "View details"
+      },
+      "detail": {
+        "title": "SIM Details",
+        "subtitle": "SIM and current plan information",
+        "close": "Close",
+        "tranNo": "Transaction No.",
+        "network": "Network",
+        "currentPlan": "Current Plan",
+        "journey": {
+          "title": "SIM Journey",
+          "subtitle": "Track the purchase, activation and expiry stages",
+          "purchased": "SIM purchased",
+          "purchasedDesc": "The plan was purchased and linked to the SIM",
+          "activated": "SIM activated",
+          "activatedDesc": "The SIM was activated and the plan started",
+          "activation": "SIM activation",
+          "activationDesc": "Waiting for the SIM to be activated",
+          "expiry": "Plan expiry date",
+          "expiryDesc": "The current plan ends on this date",
+          "expiredDesc": "The plan ended on this date"
+        },
+        "usage": {
+          "title": "Data Usage",
+          "used": "Used",
+          "total": "Total"
+        },
+        "country": "Country",
+        "scope": "Scope",
+        "validity": "Plan Duration",
+        "simsCount": "Number of SIMs",
+        "carrier": "Network Provider",
+        "planPrice": "Plan Price"
+      },
+      "plan": {
+        "days": "{{count}} days",
+        "daysFew": "{{count}} days",
+        "months": "{{count}} months",
+        "monthsFew": "{{count}} months",
+        "other": "{{count}} {{unit}}"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Activating",
+        "suspended": "Suspended",
+        "expired": "Expired"
+      },
+      "actions": {
+        "suspend": "Suspend SIM",
+        "unsuspend": "Resume SIM",
+        "revoke": "Revoke SIM permanently",
+        "revokeConfirmTitle": "Revoke this SIM permanently?",
+        "revokeConfirmMessage": "This can't be undone, and the provider won't refund the SIM.",
+        "suspendSuccess": "SIM suspended",
+        "unsuspendSuccess": "SIM resumed",
+        "revokeSuccess": "SIM revoked"
+      },
+      "dates": {
+        "activation": "Activated",
+        "expiry": "Expires",
+        "activationSoon": "within minutes",
+        "afterActivation": "set after activation"
+      },
+      "errors": {
+        "loadTitle": "Couldn't load SIMs",
+        "detail": "Couldn't load the SIM details",
+        "network": "Couldn't reach the service, please try again",
+        "forbidden": "You don't have permission to do this",
+        "notFound": "SIM not found",
+        "generic": "Something went wrong, please try again",
+        "retry": "Try again"
+      },
+      "empty": {
+        "title": "No SIMs",
+        "desc": "There are no SIMs matching your search"
+      },
+      "noResults": {
+        "title": "No matching results",
+        "desc": "No SIMs match your search or the selected filters. Try changing them.",
+        "clear": "Clear filters"
+      },
+      "pagination": {
+        "summary": "Showing {{shown}} of {{total}} users",
+        "previous": "Previous page",
+        "next": "Next page"
+      }
+    },
     "settlements": {
       "title": "Settlements",
       "subtitle": "Track payment settlement requests with accounts",
@@ -2212,7 +2861,6 @@
       "searchPlaceholder": "Search by request number, account name...",
       "table": {
         "account": "Transaction / Account",
-        "accountName": "Account Name",
         "amount": "Amount",
         "paymentMethod": "Payment Method",
         "requestDate": "Date & Time",
@@ -2274,6 +2922,18 @@
         "bankName": "Bank Name",
         "accountNumber": "Account Number",
         "iban": "IBAN Number",
+        "swiftCode": "SWIFT Code",
+        "summarySection": "Settlement Summary",
+        "payoutReference": "Reference Number",
+        "requestDate": "Request Date",
+        "period": "Settlement Period",
+        "grossAmount": "Gross Amount",
+        "platformFee": "Platform Fee",
+        "entriesSection": "Bookings in This Settlement",
+        "bookingNumber": "Booking No.",
+        "entryGross": "Gross",
+        "entryFee": "Fee",
+        "entryNet": "Net",
         "acceptBtn": "Accept & Transfer Amount",
         "rejectBtn": "Reject Request",
         "ibanCopied": "IBAN number copied",
@@ -2332,7 +2992,45 @@
         "type": "Type",
         "description": "Description",
         "amount": "Amount",
-        "balanceAfter": "Balance After"
+        "balanceAfter": "Balance After",
+        "category": "Category",
+        "by": "By",
+        "edited": "Edited",
+        "attachments": "Attachments",
+        "edit": "Edit entry",
+        "correct": "Correct this entry"
+      },
+      "categoryHints": {
+        "Compensation": "The platform compensates the merchant for a problem on our side (e.g. a service outage). Adds to the balance.",
+        "Refund": "The merchant was actually charged and we're returning it (e.g. a duplicate or failed-service charge). Adds to the balance.",
+        "Penalty": "A punitive deduction for violating platform policies. Deducts from the balance.",
+        "Correction": "Fixes a mistake in a previous entry — the only way to correct an amount. Mention the original entry in the reason.",
+        "Other": "Any reason not covered above (e.g. a promotional credit). The reason is required."
+      },
+      "files": {
+        "label": "Attachments (optional)",
+        "uploadHint": "Click to upload a receipt or agreement, or drag files here",
+        "uploadFormats": "JPG, PNG, WEBP, PDF — up to 5 files, 10 MB each",
+        "typeError": "Unsupported file type (JPG, PNG, WEBP, PDF only)",
+        "sizeError": "A file exceeds the maximum size (10 MB)",
+        "countError": "A maximum of 5 attachments is allowed per entry"
+      },
+      "correct": {
+        "title": "Correct Entry",
+        "subtitle": "Adds a new correcting entry — the original stays in the ledger",
+        "originalAmount": "Recorded amount",
+        "correctAmountLabel": "Correct amount",
+        "shouldNotExist": "This entry should never have been made",
+        "noChange": "The correct amount equals the recorded amount — nothing to correct",
+        "reasonTemplate": "Correction of entry {{id}} dated {{date}}",
+        "successTitle": "Correction Recorded"
+      },
+      "edit": {
+        "title": "Edit Entry",
+        "subtitle": "The amount can't be changed — use a correction for that",
+        "amountReadOnly": "Amount (read-only)",
+        "restore": "Undo",
+        "success": "The entry was updated"
       },
       "types": {
         "topUp": "Top Up",
@@ -2347,6 +3045,10 @@
         "forbidden": "You are not allowed to view this merchant's wallet",
         "invalidAmount": "The amount can't be zero",
         "insufficientBalance": "This debit exceeds the current balance",
+        "invalidFile": "The file is invalid or corrupted",
+        "maxAttachments": "A maximum of 5 attachments is allowed per entry",
+        "notEditable": "This entry can't be edited",
+        "entryNotFound": "Entry not found — refresh the page",
         "generic": "Something went wrong, please try again"
       },
       "empty": {
@@ -2363,9 +3065,12 @@
         "debit": "Debit",
         "currentBalance": "Current Balance",
         "amountLabel": "Amount",
+        "categoryLabel": "Category",
+        "categoryPlaceholder": "Select a category",
         "reasonLabel": "Reason",
         "reasonPlaceholder": "Explain why this adjustment is being made...",
         "reasonHint": "This will be recorded as the transaction's description",
+        "reasonRequiredHint": "A reason is required for this category",
         "continueBtn": "Continue",
         "backBtn": "Back",
         "creditAmount": "Credit Amount",
@@ -2378,6 +3083,144 @@
         "newBalance": "New Balance",
         "closeWindowBtn": "Close Window"
       }
+    },
+    "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
+    "smsPricing": {
+      "title": "Message balance pricing",
+      "desc": "Merchants buy as many messages as they need; the per-message price comes from the pack price and its message count. The balance never expires.",
+      "packPrice": "Pack price (before VAT)",
+      "messagesPerPack": "Messages per pack",
+      "messagesPerPackHint": "Also the smallest top-up a merchant can buy.",
+      "perMessage": "Price per message:",
+      "packTotal": "{{count}} messages incl. {{vat}}% VAT:",
+      "noPrice": "No active price. Merchants can't top up until you set a price and make the service available.",
+      "note": "A new price applies to future top-ups only; balance already bought is unaffected.",
+      "errors": {
+        "price": "Pack price must be greater than zero",
+        "messages": "Message count must be a whole number above zero",
+        "incomplete": "Enter both the pack price and the message count"
+      }
+    },
+    "integrationField": {
+      "title": "Add integration field",
+      "labelAr": "Field name in Arabic",
+      "labelEn": "Field name in English",
+      "key": "Key",
+      "requiredQuestion": "Is this field required or optional?",
+      "required": "Required",
+      "requiredDesc": "The merchant can't subscribe to the service without filling it in.",
+      "optional": "Optional",
+      "optionalDesc": "The merchant can leave it empty and still subscribe.",
+      "save": "Add field",
+      "saved": "Field added",
+      "errors": {
+        "keyFormat": "Key: English letters, digits and _ only, no spaces",
+        "keyExists": "This key is already used by another field on this service"
+      }
+    },
+    "pricingRow": {
+      "add": "Add operation price",
+      "title": "Add operation price",
+      "save": "Save price",
+      "saved": "Price saved",
+      "price": "Subscription price",
+      "searchPlaceholder": "Search tiers...",
+      "noMatch": "No rows match your search.",
+      "replacesNote": "This tier and period already has an active price. Saving closes it and creates a new one; past orders are unaffected.",
+      "errors": {
+        "price": "Price must be greater than zero (zero is only allowed with an operation price)",
+        "belowMinimum": "Price is below the minimum allowed for this service ({{min}})"
+      }
+    },
+    "subscriptionCategories": {
+      "Compliance": "Tax compliance",
+      "SmartLock": "Smart locks",
+      "GovernmentPlatform": "Government platform",
+      "Maps": "Maps",
+      "ChannelManager": "Channel manager",
+      "Messaging": "Messaging",
+      "Erp": "ERP",
+      "Payments": "Payments",
+      "Other": "Other"
+    },
+    "serviceForm": {
+      "createTitle": "Add service",
+      "editTitle": "Edit service details",
+      "editBtn": "Edit details",
+      "create": "Add service",
+      "created": "Service added. Finish its prices and settings here.",
+      "key": "Key",
+      "keyHint": "A fixed English identifier without spaces, e.g. whatsappBusiness. It can't be changed later.",
+      "keyLocked": "The key is fixed and can't be edited.",
+      "nameAr": "Arabic name",
+      "nameEn": "English name",
+      "descriptionAr": "Arabic description (optional)",
+      "descriptionEn": "English description (optional)",
+      "category": "Category",
+      "categoryPlaceholder": "Choose a category",
+      "logoUrl": "Logo URL (optional)",
+      "isAvailable": "Available to merchants now",
+      "isAvailableHint": "If unchecked, the service shows as \"coming soon\" until you open it from its settings page.",
+      "displayOrder": "Display order",
+      "minimumMonthly": "Lowest allowed monthly price",
+      "minimumYearly": "Lowest allowed yearly price",
+      "noMinimum": "No minimum",
+      "minimumHint": "This is a validation floor, not the service's price: any price below it is rejected. The real price is set in the pricing card.",
+      "errors": {
+        "key": "Start with an English letter; use only letters, digits, - or _",
+        "logo": "The URL must start with http:// or https://",
+        "displayOrder": "Order must be a whole number, 0 or more"
+      }
+    },
+    "serviceFeatures": {
+      "title": "Service features",
+      "desc": "The checkmark points shown under the service description on the merchant card",
+      "add": "Add feature",
+      "textAr": "Feature text in Arabic",
+      "textEn": "Feature text in English",
+      "deactivate": "Hide feature",
+      "empty": "No features yet.",
+      "note": "Features can't be edited. To change the wording, hide it and add a new one."
+    },
+    "serviceTiers": {
+      "noTrialHint": "The default tier has no free trial. To add one, create a new tier with the trial days and make it the default.",
+      "title": "Tiers",
+      "desc": "Service levels (e.g. Standard, Premium). Each tier has its own free-trial length.",
+      "add": "Add tier",
+      "name": "Tier",
+      "nameAr": "Tier name in Arabic",
+      "nameEn": "Tier name in English",
+      "trialDays": "Trial days",
+      "default": "Default",
+      "defaultBadge": "Default",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Closed",
+      "empty": "No tiers. Setting the first price creates a \"Standard\" tier automatically.",
+      "keyInvalid": "Key: English letters, digits, - or _ only, and not already used",
+      "trialInvalid": "A whole number, 0 or more",
+      "note": "Tiers can't be edited after creation. A new tier marked default takes over from the current one.",
+      "trialHint": "To change the trial length, add a new tier with that length and make it the default."
+    },
+    "seasonalPrice": {
+      "add": "Add seasonal price",
+      "title": "Add seasonal price",
+      "hint": "A seasonal price replaces the subscription fee for this period only. Setup fees, usage fees and discount codes are unaffected.",
+      "period": "Period",
+      "tier": "Tier",
+      "defaultTier": "Default tier",
+      "nameAr": "Offer name in Arabic",
+      "nameEn": "Offer name in English",
+      "price": "Price during the period",
+      "startDate": "From",
+      "endDate": "To",
+      "create": "Add price",
+      "created": "Seasonal price added",
+      "until": "until {{date}}",
+      "needsPrice": "Set a monthly or yearly price first",
+      "deactivate": "Stop seasonal price",
+      "deactivateTitle": "Stop the seasonal price?",
+      "deactivateMessage": "The service goes back to its normal price right away. To change a seasonal price, stop it and add a new one."
     },
     "subscriptions": {
       "pageTitle": "Subscription Management",
@@ -2393,7 +3236,8 @@
         "activeDesc": "Active Subscriptions",
         "total": "Total Subscribers",
         "growth": "growth",
-        "growthBadge": "+{{percent}}% growth"
+        "growthBadge": "+{{percent}}% growth",
+        "free": "Free subscriptions", "freeDesc": "Currently active"
       },
       "classification": {
         "hotel": "Hotel",
@@ -2413,6 +3257,7 @@
         "status": "Status",
         "actions": "Actions",
         "others": "+{{count}} more",
+        "servicesCount": "{{count}} services",
         "viewBtn": "View",
         "editBtn": "Edit",
         "expandTooltip": "Show details",
@@ -2422,7 +3267,7 @@
       "period": {
         "monthly": "Monthly",
         "annual": "Annual",
-        "free": "Free"
+        "free": "Free", "noExpiry": "No expiry"
       },
       "status": {
         "active": "Active",
@@ -2444,6 +3289,7 @@
         "title": "No subscribers yet",
         "desc": "No subscriber accounts have been registered yet, or no results match your search."
       },
+      "configurationWarning": "{{count}} services need configuration. Review service pricing.",
       "pagination": {
         "total": "subscriber",
         "prev": "Previous page",
@@ -2456,8 +3302,21 @@
         "subtitle": "Enable or disable each service, and adjust its details and prices set in Saudi Riyal",
         "searchPlaceholder": "Search for a service name...",
         "configureBtn": "Service settings",
+        "trialBadge": "{{days}}-day free trial",
+        "typeBadge": {
+          "Paid": "Paid subscription",
+          "Free": "Always free",
+          "BuiltIn": "Built into the platform"
+        },
+        "noPrice": "Not set",
+        "noDescription": "No description yet",
+        "comingSoon": "Coming soon",
+        "noPricing": { "Free": "No prices or expiry; merchants turn it on in one tap", "BuiltIn": "Built into the platform; no prices or tiers" },
         "monthlyPrice": "Monthly Price",
         "annualPrice": "Annual Price",
+        "packPrice": "Pack Price",
+        "packMessages": "{{count}} messages",
+        "perMessage": "Price per Message",
         "filters": {
           "all": "All"
         },
@@ -2517,6 +3376,50 @@
       "serviceSettings": {
       "pageTitle": "Service Settings",
       "backBtn": "Back to services list",
+      "billingModelLabel": "Service type",
+      "advanced": {
+        "title": "Additional settings",
+        "desc": "Service type and activation, service details, features and tiers",
+        "typeTitle": "Service type and activation",
+        "typeDesc": "Whether the service is paid or free, and whether it activates automatically or needs admin approval"
+      },
+      "usage": {
+        "typeLabel": "Usage fee (per transaction)",
+        "types": {
+          "None": "No usage fee",
+          "PerUnit": "Fixed amount per transaction",
+          "PercentageOfValue": "Percentage of the transaction value"
+        },
+        "perUnitLabel": "Amount per transaction",
+        "percentLabel": "Percentage of the transaction value",
+        "capLabel": "Maximum fee per transaction",
+        "hint": "Debited from the merchant's wallet at the moment of the transaction. With a usage fee, the subscription price can be 0.",
+        "errors": {
+          "unitPrice": "The usage fee must be greater than zero",
+          "cap": "A maximum fee per transaction is required and must be greater than zero"
+        }
+      },
+      "billingModelHint": {
+        "Paid": "Has prices and tiers; the merchant pays.",
+        "Free": "No prices, tiers or expiry date. The merchant turns it on or off in one tap.",
+        "BuiltIn": "Built into the platform with its own activation. No prices or tiers."
+      },
+      "billingChange": {
+        "title": "Change the service type?",
+        "toFree": "This service's prices and tiers will be closed. Current subscribers continue until their subscription ends.",
+        "toPaid": "Current subscribers stay free, and the service won't accept new subscriptions until you add a price.",
+        "other": "The service type will change, and the service will have no prices or tiers.",
+        "confirm": "Confirm change",
+        "needsPrice": "The service will become paid: set a monthly or yearly price above zero, or it won't accept new subscriptions."
+      },
+      "loading": "Loading...",
+      "notFound": "Service not found.",
+      "saved": "Service settings saved",
+      "saving": "Saving...",
+      "errors": {
+        "negativePrice": "Prices and fees can't be below zero",
+        "invalidPrice": "Paid recurring prices must be greater than zero; setup fees cannot be negative"
+      },
       "serviceStatusLabel": "Service status",
       "title": "Settings & customization for {{service}}",
       "activeNow": "Service currently active",
@@ -2547,6 +3450,19 @@
       "integration": {
         "title": "Integration data fields",
         "desc": "The data and keys required to connect directly with the client to activate each service",
+        "addField": "Add field",
+        "deactivate": "Deactivate field",
+        "empty": "No integration fields for this service yet.",
+        "labelArPlaceholder": "Field name in Arabic",
+        "labelEnPlaceholder": "Field name in English",
+        "keyPlaceholder": "field_key",
+        "keyInvalid": "Key: English letters, digits and _ only, and not already used",
+        "immutableNote": "A field can't be edited after creation. To change it, deactivate it and create a new one. The values merchants enter are never shown here.",
+        "types": {
+          "Text": "Plain text",
+          "Secret": "Encrypted secret",
+          "Url": "URL"
+        },
         "addBtn": "Add new field",
         "fieldName": "Field name",
         "dataType": "Data type",
@@ -2563,6 +3479,7 @@
         "setupFee": "Setup fee",
         "operationPrice": "Operation price",
         "seasonalPrice": "Seasonal price",
+        "empty": "No pricing has been set for this service yet.",
         "basic": "Basic subscription",
         "advanced": "Advanced subscription"
       },
@@ -2574,7 +3491,7 @@
         "plan": "Plan type",
         "startDate": "Start date",
         "renewalDate": "Renewal date",
-        "amountPaid": "Amount paid",
+        "amountPaid": "Current price",
         "status": "Status",
         "planType": {
           "annualAdvanced": "Annual - advanced",
@@ -2591,6 +3508,8 @@
         "title": "Default standard pricing for the service",
         "desc": "Applied when no custom pricing rules exist above",
         "monthlyLabel": "Standard monthly price (SAR)",
+        "noPricePlaceholder": "No price set",
+        "setupFeeLabel": "Setup fee (one-time)",
         "annualLabel": "Standard annual price (SAR)",
         "vatLabel": "Includes VAT (15%)",
         "vatDesc": "The tax invoice is issued automatically once the subscription is confirmed"
@@ -2601,6 +3520,8 @@
         "durationLabel": "Trial period duration (days)",
         "days": "days",
         "recommended": "(Recommended)",
+        "none": "No trial period",
+        "readOnlyNote": "The trial length is set on the service's default tier and is shown here read-only. When a trial applies, the subscription and setup fees are waived for its duration, once per merchant.",
         "infoNote": "Once the trial ends, automatic sending is stopped and a notice is sent to the facility to pay for the subscription and continue the service without losing integration settings.",
         "setupFeeLabel": "Setup period amount",
         "setupFeePlaceholder": "Enter the setup fee..."
@@ -2616,20 +3537,65 @@
       "subtitle": "Track all operations and actions performed on the facility's subscriptions",
       "searchPlaceholder": "Search for a facility...",
       "filters": {
-        "all": "All"
+        "all": "All",
+        "allServices": "All services"
       },
       "table": {
         "refNumber": "Reference No.",
+        "merchant": "Merchant",
         "actionType": "Action Type",
         "service": "Service",
         "actor": "By",
         "date": "Date",
-        "status": "Status"
+        "status": "Status",
+        "details": "Details"
       },
       "action": {
         "renew": "Renewal",
         "add": "Addition",
         "cancel": "Cancellation"
+      },
+      "actions": {
+        "Requested": "Requested",
+        "Approved": "Approved",
+        "Rejected": "Rejected",
+        "Activated": "Activated",
+        "Deactivated": "Deactivated",
+        "Renewed": "Renewed",
+        "Cancelled": "Cancelled",
+        "Expired": "Expired"
+      },
+      "moreDetails": "+{{count}} more",
+      "detailKeys": {
+        "BillingModel": "Service type",
+        "ActivationMode": "Activation",
+        "Items": "Items",
+        "DeactivatedPricingRows": "Prices closed",
+        "DeactivatedTiers": "Tiers closed",
+        "DisplayOrder": "Order",
+        "DescriptionAr": "Description",
+        "MaxRedemptions": "Max uses",
+        "Setup": "Setup fee",
+        "SetupFee": "Setup fee",
+        "IsActive": "Active",
+        "IsAvailable": "Available",
+        "IsDefault": "Default",
+        "TrialDays": "Trial days"
+      },
+      "detailValues": {
+        "BuiltIn": "Built-in",
+        "AdminApproval": "Admin approval",
+        "Instant": "Automatic",
+        "True": "Yes",
+        "False": "No",
+        "FixedAmount": "Fixed amount",
+        "PerUnit": "Per unit",
+        "PercentageOfValue": "% of value"
+      },
+      "actor": {
+        "Admin": "Admin",
+        "Merchant": "Merchant",
+        "System": "System"
       },
       "status": {
         "completed": "Completed",
@@ -2646,6 +3612,148 @@
         "next": "Next page",
         "page": "Page"
       }
+    },
+    "subscriptionRequests": {
+      "pageTitle": "Subscription Requests",
+      "title": "Subscription Requests",
+      "subtitle": "Every subscription order merchants placed, with its services and amounts",
+      "tabs": {
+        "all": "All",
+        "rejected": "Rejected",
+        "approved": "Approved",
+        "underReview": "Under review"
+      },
+      "automatic": "Automatic",
+      "autoTopUp": "Auto top-up",
+      "table": {
+        "merchant": "Merchant",
+        "services": "Requested services",
+        "date": "Request date",
+        "total": "Total",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "detailsBtn": "Details",
+      "retry": "Retry",
+      "empty": {
+        "title": "No requests",
+        "desc": "There are no subscription requests in this tab right now."
+      },
+      "error": {
+        "title": "Couldn't load requests",
+        "desc": "Something went wrong while fetching subscription requests. Please try again."
+      },
+      "pagination": {
+        "total": "requests"
+      },
+      "detail": {
+        "title": "Request details",
+        "close": "Close",
+        "processedAt": "Processed on",
+        "requestType": "Request type", "lineStatus": "Line status",
+        "tier": "Tier",
+        "period": "Period",
+        "scope": "Scope",
+        "allProperties": "All properties",
+        "subscriptionFee": "Subscription fee",
+        "setupFee": "Setup fee",
+        "discount": "Discount",
+        "code": "code",
+        "serviceTotal": "Service total",
+        "subtotal": "Subtotal before tax",
+        "vat": "VAT",
+        "total": "Total",
+        "messageQuantity": "Messages",
+        "messagesCount": "{{count}} messages",
+        "paymentMethod": "Payment method",
+        "paymentMethods": {
+          "wallet": "Merchant wallet",
+          "mada": "mada",
+          "visa": "Visa",
+          "mastercard": "Mastercard",
+          "applePay": "Apple Pay",
+          "card": "Card"
+        }
+      }
+    },
+    "discountCodes": {
+      "pageTitle": "Discount Codes",
+      "title": "Discount Codes",
+      "subtitle": "Create and manage discount codes for merchants",
+      "createBtn": "Create discount code",
+      "allServices": "All services",
+      "subscriptionFee": "Subscription fee",
+      "setupFee": "Setup fee",
+      "separator": ",",
+      "maxCap": "Up to {{amount}} SAR",
+      "usedTimes": "{{count}} uses",
+      "openEnded": "Open-ended",
+      "copied": "Code copied",
+      "immutableNote": "Codes can't be edited or deleted after creation. To change a code, deactivate it and create a new one.",
+      "table": {
+        "code": "Code",
+        "service": "Service",
+        "discount": "Discount",
+        "appliesTo": "Applies to",
+        "usage": "Usage",
+        "validity": "Validity",
+        "status": "Status",
+        "enabled": "Enabled"
+      },
+      "state": {
+        "active": "Active",
+        "scheduled": "Scheduled",
+        "exhausted": "Used up",
+        "expired": "Expired",
+        "disabled": "Disabled"
+      },
+      "empty": {
+        "title": "No discount codes",
+        "desc": "No discount codes have been created yet."
+      },
+      "error": {
+        "title": "Couldn't load codes",
+        "desc": "Something went wrong while fetching discount codes. Please try again."
+      },
+      "confirmDeactivate": {
+        "title": "Deactivate this code?",
+        "message": "Merchants won't be able to use this code until it's activated again.",
+        "action": "Deactivate"
+      },
+      "create": {
+        "title": "Create discount code",
+        "code": "Code",
+        "generate": "Generate",
+        "service": "Service",
+        "type": "Discount type",
+        "percentage": "Percentage",
+        "fixed": "Fixed amount",
+        "value": "Discount value",
+        "maxDiscount": "Max discount (optional)",
+        "appliesTo": "Applies to",
+        "maxRedemptions": "Max uses (optional)",
+        "unlimitedPlaceholder": "Empty = unlimited",
+        "validFrom": "Start date (optional)",
+        "validTo": "End date (optional)",
+        "pickDate": "Pick a date",
+        "submit": "Create code",
+        "submitting": "Creating...",
+        "errors": {
+          "codeFormat": "Use only uppercase letters, digits, - or _",
+          "valuePositive": "Value must be greater than zero",
+          "percentMax": "Percentage can't exceed 100%",
+          "redemptionsMin": "Max uses must be a whole number, 1 or more",
+          "appliesTo": "Select at least one fee type",
+          "dates": "Dates can't be in the past, and the end date must be after the start date"
+        }
+      }
+    },
+    "subscriptionErrors": {
+      "network": "A server error occurred, please try again",
+      "forbidden": "You don't have permission to do this",
+      "notFound": "Item not found",
+      "stale": "This item was already changed — the list has been refreshed",
+      "generic": "Something went wrong"
     },
     "businessCategories": {
       "Hotel": "Hotel",
@@ -2810,39 +3918,36 @@
     "notifications": {
       "pageTitle": "Notifications & Alerts",
       "empty": "No notifications",
-      "loadMore": "Show older tickets",
+      "loadMore": "Show older notifications",
+      "markAllRead": "Mark all as read",
+      "delete": "Delete notification",
+      "loadError": "Couldn't load notifications",
+      "forbidden": "You don't have access to notifications",
+      "retry": "Retry",
       "tabs": {
         "all": "All",
         "complaints": "Complaints",
-        "propertyReview": "Property Review",
-        "inquiries": "Inquiries"
+        "reviews": "Reviews",
+        "inquiries": "Inquiries",
+        "finance": "Finance",
+        "system": "System"
       },
       "types": {
-        "complaint": "Complaint",
-        "propertyReview": "Property Review",
-        "inquiry": "Inquiry"
-      },
-      "mock": {
-        "complaint1": {
-          "title": "Complaint - with Host #358",
-          "subtitle": "Guest: Summer Hotel · Prices not updated for 24 hours",
-          "time": "2 hours ago"
-        },
-        "propertyReview1": {
-          "title": "Property Review #354",
-          "subtitle": "New building approval request: Laqtadar Complex",
-          "time": "2 hours ago"
-        },
-        "inquiry1": {
-          "title": "Technical Inquiry #25",
-          "subtitle": "Inquiry about smart phone lock system",
-          "time": "Yesterday, 11:35 PM"
-        },
-        "complaint2": {
-          "title": "Complaint #28000",
-          "subtitle": "Delay in settling September payments",
-          "time": "Yesterday, 11:25 PM"
-        }
+        "ComplaintCreated": "New complaint",
+        "PropertyReviewRequested": "Property review",
+        "UnitReviewRequested": "Unit review",
+        "MerchantRegistrationRequested": "Merchant registration",
+        "SupportTicketCreated": "Support ticket",
+        "ClientInquiryCreated": "Client inquiry",
+        "ContactUsRequestCreated": "Contact us",
+        "SubscriptionOrderCreated": "Subscription order",
+        "SettlementFailed": "Settlement failed",
+        "SettlementRequiresReview": "Settlement review",
+        "PaymentIssueReported": "Payment issue",
+        "RefundRequested": "Refund request",
+        "BookingIssueReported": "Booking issue",
+        "SystemAlert": "System alert",
+        "default": "Notification"
       }
     },
     "platformOffers": {
@@ -2866,7 +3971,7 @@
       "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
       "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
       "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
-      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message." },
+      "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message.", "forbidden": "You don't have permission to view Contact Us messages." },
       "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
       "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
     },
@@ -2949,6 +4054,16 @@
       "pageTitle": "Call Scripts",
       "pageSubtitle": "IVR audio scripts and DTMF menus played during checkout calls",
       "newVersion": "New Version",
+      "scenarios": {
+        "ExtensionOfferAvailable": {
+          "label": "Extension Offer Available",
+          "hint": "Played when the guest can be offered a stay extension"
+        },
+        "ExtensionNotAvailable": {
+          "label": "Extension Not Available",
+          "hint": "Played when no stay extension can be offered"
+        }
+      },
       "stats": {
         "total": "Total",
         "active": "Active"

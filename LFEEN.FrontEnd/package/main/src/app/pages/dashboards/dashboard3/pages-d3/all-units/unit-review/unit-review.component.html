@@ -23,6 +23,15 @@
         {{ headerStatusConfig.labelKey | translate }}
       </span>
 
+      @if (canBan && unitId) {
+        <app-ban-listing-button
+          kind="unit"
+          size="sm"
+          [listingId]="unitId"
+          [listingName]="unit?.title ?? ''"
+          (changed)="onBanChanged()" />
+      }
+
       <div class="progress-section">
         <span class="progress-title">{{ 'd3.unitReview.status.progressLabel' | translate }}</span>
         <div class="progress-bar-wrap">
@@ -32,6 +41,17 @@
       </div>
     </div>
   </div>
+
+  @if (isBanned) {
+    <app-listing-ban-banner
+      kind="unit"
+      [listingId]="unitId"
+      [listingName]="unit?.title ?? ''"
+      [banReason]="unitDetail?.banReason ?? null"
+      [bannedAt]="unitDetail?.bannedAt ?? null"
+      [bannedByProperty]="!!unitDetail?.bannedByProperty"
+      (changed)="onBanChanged()" />
+  }
 
   <div class="review-sections-grid">
     @for (section of visibleSections; track section.titleKey) {

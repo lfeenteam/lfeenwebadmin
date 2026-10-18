@@ -830,3 +830,246 @@
     }
   }
 }
+
+// ── API-backed additions ────────────────────────────────────
+.service-badge-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+.service-mode-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.semantic-badge {
+  display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; border: 1px solid transparent;
+  &.badge-free { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+  &.badge-paid { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  &.badge-built-in { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+  &.badge-automatic { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+  &.badge-manual { background: #ecfeff; color: #0e7490; border-color: #a5f3fc; }
+}
+
+.new-field-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.field-error {
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.page-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid #E8E8E4;
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.active { background: #111110; color: #fff; border-color: #111110; }
+}
+
+span.duration-btn { cursor: default; }
+
+.save-btn:disabled,
+.cancel-btn:disabled,
+.confirm-btn:disabled,
+.row-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+// ── Service type & activation mode ──────────────────────────
+.mode-settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.mode-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .section-desc { margin: 0; }
+}
+
+.mode-select {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .mode-settings-grid { grid-template-columns: 1fr; }
+}
+
+// ── Features, tiers & usage fee ─────────────────────────────
+.feature-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid #F1F5F9;
+  border-radius: 12px;
+  background: #F8FAFC;
+}
+
+.feature-check { color: #16a34a; flex-shrink: 0; }
+
+.feature-text {
+  flex: 1 1 auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.inline-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+tr.row-muted { opacity: 0.5; }
+
+.usage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field-percent {
+  font-size: 13px;
+  font-weight: 800;
+  color: #9E9E9A;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  width: auto !important;
+}
+
+@media (max-width: 767px) {
+  .inline-form, .usage-grid { grid-template-columns: 1fr; }
+}
+
+// ── Design alignment: add buttons, name chip, seasonal link ──
+.add-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: #111110;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s ease;
+
+  &:hover { opacity: 0.88; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.service-name-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #111110;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.link-btn {
+  all: unset;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: #62748E;
+  white-space: nowrap;
+
+  &:hover { color: #111110; text-decoration: underline; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; border-radius: 4px; }
+}
+
+// Plain icon (not a mask) leading the setup-fee field.
+.number-field .field-leading-icon {
+  color: #62748E;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+  display: inline-flex;
+}
+
+// Read-only trial durations: the active one is the current tier setting.
+.duration-btn-group span.duration-btn:not(.active) { opacity: 0.6; }
+
+@media (max-width: 767px) {
+  .add-btn { width: 100%; justify-content: center; }
+}
+
+// ── Collapsed "additional settings" panel + quiet service name ──
+.card-title-service {
+  font-size: 13px;
+  font-weight: 700;
+  color: #62748E;
+  margin-inline-start: 8px;
+
+  &::before { content: "·"; margin-inline-end: 8px; color: #CBD5E1; }
+}
+
+.advanced-toggle-card {
+  padding: 0 !important;
+}
+
+.advanced-toggle {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #62748E;
+
+  &:hover { background: #F8FAFC; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: -2px; }
+
+  .section-desc { margin: 0; }
+}
+
+.advanced-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111110;
+}

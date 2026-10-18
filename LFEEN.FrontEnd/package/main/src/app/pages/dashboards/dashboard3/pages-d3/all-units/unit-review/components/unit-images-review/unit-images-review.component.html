@@ -54,9 +54,9 @@
           @if (mainPhoto.isPendingDeletion || mainPhoto.pendingIsMain !== null) {
             <div class="photo-meta photo-meta--main">
               @if (mainPhoto.isPendingDeletion) {
-                <span>{{ 'Pending delete review' }}</span>
+                <span>{{ 'd3.unitReview.imagesView.pendingDeleteReview' | translate }}</span>
               } @else if (mainPhoto.pendingIsMain !== null) {
-                <span>{{ 'Pending main photo review' }}</span>
+                <span>{{ 'd3.unitReview.imagesView.pendingMainPhotoReview' | translate }}</span>
               }
             </div>
           }
@@ -64,7 +64,7 @@
       </section>
     }
 
-    @for (group of photoGroups; track group.title) {
+    @for (group of photoGroups; track group.key) {
       <section class="photo-section">
         <header class="section-heading">
           <i-tabler [name]="group.icon"></i-tabler>
@@ -102,9 +102,9 @@
                 <strong>{{ photo.title }}</strong>
                 <span>{{ photo.category }}</span>
                 @if (photo.isPendingDeletion) {
-                  <span>{{ 'Pending delete review' }}</span>
+                  <span>{{ 'd3.unitReview.imagesView.pendingDeleteReview' | translate }}</span>
                 } @else if (photo.pendingIsMain !== null) {
-                  <span>{{ 'Pending main photo review' }}</span>
+                  <span>{{ 'd3.unitReview.imagesView.pendingMainPhotoReview' | translate }}</span>
                 }
               </div>
 

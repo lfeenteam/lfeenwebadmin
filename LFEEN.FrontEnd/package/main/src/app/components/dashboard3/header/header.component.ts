@@ -6,7 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
 import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
-
+import { AdminNotificationsStore } from 'src/app/pages/dashboards/dashboard3/services/admin-notifications-store.service';
 interface AppLanguage {
   language: string;
   code: string;
@@ -47,7 +47,8 @@ export class HeaderComponent {
     private translate: TranslateService,
     private router: Router,
     private settings: CoreService,
-    public loginService: LoginService
+    public loginService: LoginService,
+    public notificationsStore: AdminNotificationsStore
   ) {
     const user = this.loginService.getUser();
     this.fullName = user?.fullName || '';
@@ -108,6 +109,15 @@ export class HeaderComponent {
       ? urlSegments[0]
       : (this.selectedLanguage.code || 'ar');
     this.router.navigateByUrl(`/${lang}/d3/notifications`);
+  }
+
+  logout(): void {
+    const urlSegments = this.router.url.split('/').filter(Boolean);
+    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
+      ? urlSegments[0]
+      : (this.selectedLanguage.code || 'ar');
+    this.loginService.logout();
+    this.router.navigateByUrl(`/${lang}/d3/login`);
   }
 
   @HostListener('document:click', ['$event'])
