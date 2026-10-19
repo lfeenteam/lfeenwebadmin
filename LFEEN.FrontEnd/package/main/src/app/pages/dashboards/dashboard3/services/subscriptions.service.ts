@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import {
   CreateIntegrationFieldRequest,
-  CreateSeasonalPriceRequest,
+  CreatePeriodOptionRequest,
   CreateSubscriptionDiscountCodeRequest,
   CreateSubscriptionFeatureRequest,
   CreateSubscriptionServiceRequest,
@@ -23,16 +23,17 @@ import {
   SubscriptionOrderStatus,
   SubscriptionOverview,
   SubscriptionPaginated,
+  SubscriptionPeriodOption,
   SubscriptionPricingItem,
   SubscriptionTier,
+  UpdatePeriodOptionRequest,
   UpdateSubscriptionServiceRequest,
 } from '../pages-d3/subscriptions/interfaces/subscription.model';
 
-export const ORDER_STATUSES: SubscriptionOrderStatus[] = ['Pending', 'UnderReview', 'Approved', 'Rejected'];
+export const ORDER_STATUSES: SubscriptionOrderStatus[] = ['Pending', 'Succeeded', 'Failed'];
 
-// The guide says the subscriber endpoints are paginated but not in which envelope. The
-// activity-log shape ({ data, totalCount, page, nextpage, totalPages }) is assumed; a bare
-// array is also accepted so the tables still render if the envelope differs.
+// Paginated endpoints answer { data, totalCount, page, nextpage, totalPages }; a bare array
+// is also accepted so the tables still render if the envelope differs.
 function toPage<T>(res: unknown): SubscriptionPaginated<T> {
   if (Array.isArray(res)) {
     return { data: res as T[], totalCount: res.length, page: 1, nextpage: null, totalPages: 1 };
@@ -71,15 +72,36 @@ export class SubscriptionsService {
     return this.http.put<SubscriptionCatalogItem>(`${this.apiUrl}/catalog/${id}`, body);
   }
 
-  // ── Pricing ─────────────────────────────────────────────────
+  // ── Pricing: Transaction rate (period None) and MessagePack ──
+  /** Every row ever created, active or not. */
   getPricing(): Observable<SubscriptionPricingItem[]> {
     return this.http.get<SubscriptionPricingItem[]>(`${this.apiUrl}/pricing`);
   }
 
-  // Creates a new pricing row and closes the active one for the same (service, tier, period) —
-  // the caller must pass every fee it wants kept, not just the one it changed.
+  /** Closes the active row for the same (service, tier, period) and opens a new one. */
   setPricing(body: SetSubscriptionPriceRequest): Observable<SubscriptionPricingItem> {
     return this.http.post<SubscriptionPricingItem>(`${this.apiUrl}/pricing`, body);
+  }
+
+  // ── Period options (Package-style price list) ───────────────
+  /** Every option ever created, including superseded ones. */
+  getPeriodOptions(subscriptionServiceId?: number): Observable<SubscriptionPeriodOption[]> {
+    let params = new HttpParams();
+    if (subscriptionServiceId != null) params = params.set('subscriptionServiceId', subscriptionServiceId);
+    return this.http.get<SubscriptionPeriodOption[]>(`${this.apiUrl}/period-options`, { params });
+  }
+
+  createPeriodOption(body: CreatePeriodOptionRequest): Observable<SubscriptionPeriodOption> {
+    return this.http.post<SubscriptionPeriodOption>(`${this.apiUrl}/period-options`, body);
+  }
+
+  /** Supersedes: closes {id} and returns the new active row (a different id). */
+  updatePeriodOption(id: number, body: UpdatePeriodOptionRequest): Observable<SubscriptionPeriodOption> {
+    return this.http.put<SubscriptionPeriodOption>(`${this.apiUrl}/period-options/${id}`, body);
+  }
+
+  deactivatePeriodOption(id: number): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/period-options/${id}/deactivate`, {});
   }
 
   // ── Integration fields (schema only) ────────────────────────
@@ -142,15 +164,6 @@ export class SubscriptionsService {
     return this.http.post(`${this.apiUrl}/features/${id}/deactivate`, {});
   }
 
-  // ── Seasonal prices (listed through GET /pricing's seasonalPrice* fields) ──
-  createSeasonalPrice(body: CreateSeasonalPriceRequest): Observable<unknown> {
-    return this.http.post(`${this.apiUrl}/seasonal-prices`, body);
-  }
-
-  deactivateSeasonalPrice(id: number): Observable<unknown> {
-    return this.http.post(`${this.apiUrl}/seasonal-prices/${id}/deactivate`, {});
-  }
-
   // ── Discount codes ──────────────────────────────────────────
   getDiscountCodes(): Observable<SubscriptionDiscountCode[]> {
     return this.http.get<SubscriptionDiscountCode[]>(`${this.apiUrl}/discount-codes`);
@@ -164,19 +177,16 @@ export class SubscriptionsService {
     return this.http.post<SubscriptionDiscountCode>(`${this.apiUrl}/discount-codes/${id}/${active ? 'activate' : 'deactivate'}`, {});
   }
 
-  // ── Orders / requests ───────────────────────────────────────
+  // ── Overview / order history ────────────────────────────────
   getOverview(): Observable<SubscriptionOverview> {
     return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);
   }
 
-  getRequestsByStatus(status: SubscriptionOrderStatus, isAutoActivated?: boolean): Observable<SubscriptionOrder[]> {
-    let params = new HttpParams().set('status', status);
-    if (isAutoActivated !== undefined) params = params.set('isAutoActivated', isAutoActivated);
-    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params }).pipe(
-      // Raw status may come back as a numeric string — the filter it was fetched
-      // under is the reliable value, so it replaces anything we don't recognize.
-      map(orders => orders.map(o => (ORDER_STATUSES as string[]).includes(o.status ?? '') ? o : { ...o, status }))
-    );
+  /** Read-only history — no status = every order. */
+  getRequests(status?: SubscriptionOrderStatus): Observable<SubscriptionOrder[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params });
   }
 
   // ── Activity log ────────────────────────────────────────────
@@ -186,6 +196,7 @@ export class SubscriptionsService {
       .set('pageSize', query.pageSize ?? 20);
     if (query.accountId) params = params.set('accountId', query.accountId);
     if (query.subscriptionServiceId != null) params = params.set('subscriptionServiceId', query.subscriptionServiceId);
-    return this.http.get<SubscriptionPaginated<SubscriptionAuditLog>>(`${this.apiUrl}/activity-log`, { params });
+    return this.http.get<unknown>(`${this.apiUrl}/activity-log`, { params })
+      .pipe(map(res => toPage<SubscriptionAuditLog>(res)));
   }
 }

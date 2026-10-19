@@ -7,7 +7,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { catchError, forkJoin, of } from 'rxjs';
-import { SubscriptionCatalogItem, SubscriptionOfferCard, SubscriptionPricingItem } from '../interfaces/subscription.model';
+import {
+  OfferPriceKind,
+  SubscriptionCatalogItem,
+  SubscriptionOfferCard,
+  SubscriptionPeriodOption,
+  SubscriptionPricingItem,
+} from '../interfaces/subscription.model';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { pricingStyleOf } from '../interfaces/pricing-style.util';
 import { buildCatalogUpdate } from '../interfaces/catalog-update.util';
@@ -90,20 +96,18 @@ export class SubscriptionSettingsComponent implements OnInit {
     return this.translate.currentLang === 'en' ? feature.textEn : feature.textAr;
   }
 
-  // GET /catalog already carries the whole card: description, feature bullets, the default
-  // tier's current prices (seasonal override included) and its trial length. GET /pricing is
-  // only needed for message-pack services (their price isn't monthly/yearly) — the cards still
-  // load without it.
+  // GET /catalog carries the card's text, bullets and trial; the price comes from the service's
+  // period options (Package) or its pricing row (Transaction / MessagePack). Either price list
+  // failing only blanks the price box — the cards still load.
   ngOnInit(): void {
     forkJoin({
       catalog: this.subscriptionsService.getCatalog(),
       pricing: this.subscriptionsService.getPricing().pipe(catchError(() => of([] as SubscriptionPricingItem[]))),
+      options: this.subscriptionsService.getPeriodOptions().pipe(catchError(() => of([] as SubscriptionPeriodOption[]))),
     }).subscribe({
-      next: ({ catalog, pricing }) => {
-        this.packPricing = new Map(pricing
-          .filter(p => p.isActive && p.period === 'MessagePack')
-          .map(p => [p.subscriptionServiceId, p]));
-        this.pricingByService = pricing.filter(p => p.isActive);
+      next: ({ catalog, pricing, options }) => {
+        this.activePricing = pricing.filter(p => p.isActive);
+        this.activeOptions = options.filter(o => o.isActive);
         this.catalogByKey = new Map(catalog.map(item => [item.key, item]));
         this.offers = [...catalog]
           .sort((a, b) => a.displayOrder - b.displayOrder)
@@ -120,9 +124,23 @@ export class SubscriptionSettingsComponent implements OnInit {
 
   private mapCatalogItemToOffer(item: SubscriptionCatalogItem): SubscriptionOfferCard {
     const meta = serviceVisual(item.key, item.categoryLabel);
-    const servicePricing = this.pricingByService.filter(p => p.subscriptionServiceId === item.id);
-    const isMessagePack = pricingStyleOf(item.key, servicePricing, item.pricingStyle) === 'MessagePack';
-    const pack = this.packPricing.get(item.id);
+    const pricing = this.activePricing.filter(p => p.subscriptionServiceId === item.id);
+    const style = pricingStyleOf(item, pricing);
+    const priceKind: OfferPriceKind =
+      item.billingModel === 'Free' ? 'free'
+      : item.billingModel === 'BuiltIn' ? 'builtIn'
+      : style === 'MessagePack' ? 'messagePack'
+      : style === 'Transaction' ? 'transaction'
+      : 'package';
+
+    // The default tier (no tier id) speaks for the card when a service has several.
+    const pick = <T extends { subscriptionServiceTierId: number | null }>(rows: T[]) =>
+      rows.find(r => r.subscriptionServiceTierId == null) ?? rows[0];
+    const options = this.activeOptions.filter(o => o.subscriptionServiceId === item.id);
+    const rate = pick(pricing.filter(p => p.period === 'None'));
+    const pack = pick(pricing.filter(p => p.period === 'MessagePack'));
+    const isPercent = rate?.usageUnitType === 'PercentageOfValue';
+    const trialOn = item.billingModel === 'Paid' && item.hasTrial;
 
     return {
       id: item.key,
@@ -130,25 +148,30 @@ export class SubscriptionSettingsComponent implements OnInit {
       tone: meta.tone,
       active: item.isActive,
       available: item.isAvailable,
-      trialDays: item.trialDays ?? 0,
       nameAr: item.nameAr,
       nameEn: item.nameEn,
       descAr: item.descriptionAr ?? '',
       descEn: item.descriptionEn ?? '',
       features: (item.features ?? []).filter(f => f.isActive !== false),
-      monthlyPriceValue: item.monthlyPrice ?? null,
-      annualPriceValue: item.yearlyPrice ?? null,
       billingModel: item.billingModel ?? undefined,
-      isMessagePack,
-      packPriceValue: typeof pack?.price === 'number' ? pack.price : null,
+      billingStyle: item.billingStyle ?? null,
+      priceKind,
+      fromPrice: options.length ? Math.min(...options.map(o => o.price)) : null,
+      optionsCount: options.length,
+      rateAmount: rate && !isPercent && typeof rate.usageUnitPrice === 'number' ? rate.usageUnitPrice : null,
+      ratePercent: rate && isPercent && typeof rate.usageUnitPrice === 'number' ? rate.usageUnitPrice * 100 : null,
+      rateCap: typeof rate?.usageMaxFeeAmount === 'number' ? rate.usageMaxFeeAmount : null,
+      packPrice: typeof pack?.price === 'number' ? pack.price : null,
       messagesPerPack: typeof pack?.messagesPerPack === 'number' ? pack.messagesPerPack : null,
+      trialDays: trialOn && item.billingStyle === 'Package' ? item.trialDurationDays ?? null : null,
+      trialTransactions: trialOn && item.billingStyle === 'Transaction' ? item.trialTransactionCount ?? null : null,
     };
   }
 
-  /** Active MessagePack pricing row per service id. */
-  private packPricing = new Map<number, SubscriptionPricingItem>();
-  /** Every active pricing row — used to tell a service's pricing style. */
-  private pricingByService: SubscriptionPricingItem[] = [];
+  /** Active rows across every service — Transaction rates and MessagePack prices. */
+  private activePricing: SubscriptionPricingItem[] = [];
+  /** Active Package period options across every service. */
+  private activeOptions: SubscriptionPeriodOption[] = [];
 
   /** Logo URLs that failed to load — the card falls back to the service icon. */
   readonly brokenLogos = new Set<string>();
@@ -158,11 +181,11 @@ export class SubscriptionSettingsComponent implements OnInit {
   }
 
   pricePerMessage(offer: SubscriptionOfferCard): number | null {
-    const { packPriceValue: price, messagesPerPack: count } = offer;
+    const { packPrice: price, messagesPerPack: count } = offer;
     return price !== null && count ? price / count : null;
   }
 
-  fmtMessagePrice(value: number): string {
+  fmtPrecise(value: number): string {
     return value.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
   }
 

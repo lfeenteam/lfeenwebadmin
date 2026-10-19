@@ -2,14 +2,22 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 
 /**
- * The admin API forwards EQAMATIK errors as `{ success: false, message }` with the
- * message already localized via Accept-Language — so 400/409 show the server text.
+ * The admin API forwards EQAMATIK errors as `{ success: false, message, errorCode }`.
+ * errorCode is the stable contract (the message wording can change), so a known code is
+ * shown from our own translations; otherwise the localized server message is used.
  * EQAMATIK's own 401/403/422 reach us as 502, hence the generic network message.
  */
 export function resolveSubscriptionError(err: unknown, translate: TranslateService): string {
   const e = err as HttpErrorResponse;
   const t = (key: string) => translate.instant(`d3.subscriptionErrors.${key}`);
   const message: string = typeof e?.error?.message === 'string' ? e.error.message.trim() : '';
+  const code: string = typeof e?.error?.errorCode === 'string' ? e.error.errorCode : '';
+
+  if (code) {
+    const key = `d3.subscriptionErrors.codes.${code}`;
+    const translated = translate.instant(key);
+    if (translated !== key) return translated;
+  }
 
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');

@@ -3,24 +3,12 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { formatApiDateLocal } from 'src/app/utils/date-format.util';
-import { SubscriptionOrder, SubscriptionOrderItem, isAutoTopUpOrder, subscriptionLineTotal } from '../../interfaces/subscription.model';
-import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
-
-// Known paymentMethod values get a translated label; anything else is shown as sent.
-const PAYMENT_METHOD_KEYS: Record<string, string> = {
-  merchantwallet: 'wallet',
-  wallet: 'wallet',
-  mada: 'mada',
-  visa: 'visa',
-  mastercard: 'mastercard',
-  master: 'mastercard',
-  applepay: 'applePay',
-  card: 'card',
-};
+import { SubscriptionOrder, SubscriptionOrderItem, subscriptionLineTotal } from '../../interfaces/subscription.model';
 import { orderStatusKind, OrderStatusKind } from '../request-status.util';
 import { serviceVisual } from '../../interfaces/service-visual.util';
+import { periodText } from '../../interfaces/period-text.util';
 
-/** Read-only order details — orders are activated on payment, the admin doesn't approve or reject them. */
+/** Read-only order details — orders activate on payment, the admin doesn't approve or reject them. */
 @Component({
   selector: 'app-request-detail-drawer',
   standalone: true,
@@ -90,31 +78,22 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
     return formatApiDateLocal(this.order?.processedAt, this.currentLang, true);
   }
 
-  /** VAT rate isn't returned — derived from the server's own subtotal/tax so it never disagrees with them. */
-  get taxPercent(): number | null {
-    const o = this.order;
-    if (!o || !o.subtotalAmount) return null;
-    return Math.round((o.taxAmount / o.subtotalAmount) * 100);
+  /** Package lines carry the chosen option's own name; "None" means the line has no period. */
+  periodOf(item: SubscriptionOrderItem): string {
+    return periodText(item.periodLabel, item.period) || '—';
+  }
+
+  /** A Transaction line's per-operation rate, or null for any other line. */
+  usageRateOf(item: SubscriptionOrderItem): { percent: number | null; amount: number | null } | null {
+    const price = item.usageUnitPrice;
+    if (typeof price !== 'number' || !item.usageUnitType || item.usageUnitType === 'None') return null;
+    return item.usageUnitType === 'PercentageOfValue'
+      ? { percent: price * 100, amount: null }
+      : { percent: null, amount: price };
   }
 
   lineTotal(item: SubscriptionOrderItem): number {
     return subscriptionLineTotal(item);
-  }
-
-  get isAutoTopUp(): boolean {
-    return !!this.order && isAutoTopUpOrder(this.order);
-  }
-
-  /** null when the order doesn't carry a payment method. */
-  get paymentMethodLabel(): string | null {
-    const raw = this.order?.paymentMethod?.trim();
-    if (!raw) return null;
-    const key = PAYMENT_METHOD_KEYS[raw.toLowerCase().replace(/[\s_-]/g, '')];
-    return key ? this.translate.instant(`d3.subscriptionRequests.detail.paymentMethods.${key}`) : raw;
-  }
-
-  fmtCount(value: number): string {
-    return formatLocalizedNumber(value, this.currentLang);
   }
 
   /** Logo URLs that failed to load — the service icon is shown instead of a broken image. */
@@ -135,6 +114,10 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
 
   fmtAmount(value: number): string {
     return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+  }
+
+  fmtPrecise(value: number): string {
+    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
   }
 
   close(): void {

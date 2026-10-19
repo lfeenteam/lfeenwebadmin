@@ -3087,12 +3087,11 @@
     "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
     "smsPricing": {
       "title": "Message balance pricing",
-      "desc": "Merchants buy as many messages as they need; the per-message price comes from the pack price and its message count. The balance never expires.",
-      "packPrice": "Pack price (before VAT)",
+      "desc": "Merchants buy as many messages as they need; the per-message price comes from the pack price and its message count.",
+      "packPrice": "Pack price",
       "messagesPerPack": "Messages per pack",
-      "messagesPerPackHint": "Also the smallest top-up a merchant can buy.",
+      "messagesPerPackHint": "How many messages one pack buys (e.g. 500).",
       "perMessage": "Price per message:",
-      "packTotal": "{{count}} messages incl. {{vat}}% VAT:",
       "noPrice": "No active price. Merchants can't top up until you set a price and make the service available.",
       "note": "A new price applies to future top-ups only; balance already bought is unaffected.",
       "errors": {
@@ -3119,22 +3118,112 @@
       }
     },
     "pricingRow": {
-      "add": "Add operation price",
-      "title": "Add operation price",
+      "title": "Per-operation price",
       "save": "Save price",
-      "saved": "Price saved",
-      "price": "Subscription price",
-      "searchPlaceholder": "Search tiers...",
-      "noMatch": "No rows match your search.",
-      "replacesNote": "This tier and period already has an active price. Saving closes it and creates a new one; past orders are unaffected.",
+      "saved": "Per-operation price saved",
+      "tier": "Tier",
+      "defaultTier": "Default tier",
+      "type": "Fee type",
+      "noCap": "No cap",
+      "capHintPercent": "A cap is required with a percentage: it's the amount reserved from the merchant's wallet before the real value is known.",
+      "capHintPerUnit": "The cap is optional with a fixed amount.",
+      "replacesNote": "This tier already has an active price. Saving closes it and opens a new one; operations already charged are unaffected.",
       "errors": {
-        "price": "Price must be greater than zero (zero is only allowed with an operation price)",
-        "belowMinimum": "Price is below the minimum allowed for this service ({{min}})"
+        "unitPrice": "The per-operation price must be greater than zero",
+        "percentMax": "The percentage can't be over 100%",
+        "cap": "The cap must be greater than zero"
       }
+    },
+    "billingFields": {
+      "title": "How the service is charged",
+      "desc": "The service type, how a paid service is charged, the setup fee and the free trial. Changes are saved with the Save button below.",
+      "style": "Charged by",
+      "styles": {
+        "Package": {
+          "title": "Period packages",
+          "desc": "The merchant picks a duration (1 month, 3 months, a year…) at a flat price."
+        },
+        "Transaction": {
+          "title": "Per operation",
+          "desc": "A fee on every operation, taken from the merchant's wallet as it happens."
+        }
+      },
+      "styleLocked": "How a service is charged locks once it has a price. To change it, retire the service and create a new one.",
+      "setupFee": "Setup fee",
+      "setupFeeHint": "Paid once, when the merchant first subscribes.",
+      "setupFeePrice": "Setup fee amount",
+      "trial": "Free trial",
+      "trialNeedsStyle": "Pick how the service is charged first.",
+      "trialDays": "Trial days",
+      "trialCount": "Free operations",
+      "trialHint": {
+        "Package": "Free days the merchant gets before paying for their first period.",
+        "Transaction": "Free operations before wallet charges start."
+      },
+      "unitDays": "days",
+      "unitOperations": "ops",
+      "summaryTitle": "What merchants see:",
+      "summary": {
+        "setupFee": "one-time setup fee of {{amount}} SAR",
+        "noSetupFee": "no setup fee",
+        "trialDays": "{{count}}-day free trial",
+        "trialCount": "first {{count}} operations free",
+        "noTrial": "no free trial"
+      },
+      "noPricing": {
+        "Free": "Free services take no prices, tiers or discount codes. If it was paid before, its old prices stop and current subscribers keep their term.",
+        "BuiltIn": "Built-in services are activated through their own flow (like e-invoicing) and are never priced or ordered here."
+      },
+      "saveFirst": "How the service is charged has to be saved first; then you can add its prices here.",
+      "saveNow": "Save billing",
+      "saved": "Billing saved. You can add prices now.",
+      "errors": {
+        "styleRequired": "Pick how the paid service is charged",
+        "setupFee": "The setup fee must be greater than zero",
+        "trialDays": "Trial days must be a whole number above zero",
+        "trialCount": "Free operations must be a whole number above zero"
+      }
+    },
+    "periodOption": {
+      "title": "Subscription periods",
+      "desc": "Each period has its own flat price and the merchant picks one. Several periods can be on offer at once.",
+      "add": "Add period",
+      "addTitle": "Add subscription period",
+      "editTitle": "Edit subscription period",
+      "edit": "Edit",
+      "deactivate": "Retire period",
+      "deactivateTitle": "Retire this period?",
+      "deactivateMessage": "Merchants can no longer pick it; anyone already subscribed on it keeps it until their term ends.",
+      "name": "Period",
+      "duration": "Duration in days",
+      "days": "days",
+      "daysCount": "{{count}} days",
+      "nameAr": "Arabic name",
+      "nameEn": "English name",
+      "price": "Price",
+      "displayOrder": "Order",
+      "empty": "No periods yet. Merchants can't subscribe until you add at least one.",
+      "historyNote": "Editing a period creates a new version of it. Merchants already on it keep the price they bought.",
+      "editNote": "Saving closes the current period and opens a new one in its place; its subscribers keep their old price.",
+      "priceNote": "The price is used as entered — longer periods aren't discounted automatically.",
+      "save": "Save",
+      "saved": "Period saved",
+      "errors": {
+        "duration": "The duration must be a whole number above zero",
+        "price": "The price must be greater than zero"
+      }
+    },
+    "transactionRate": {
+      "title": "Per-operation price",
+      "desc": "The merchant pays on every operation: a fixed amount, or a percentage of its value.",
+      "set": "Edit per-operation price",
+      "add": "Add per-operation price",
+      "rate": "Price",
+      "empty": "No per-operation price yet. Merchants can't subscribe until you set one."
     },
     "subscriptionCategories": {
       "Compliance": "Tax compliance",
-      "SmartLock": "Smart locks",
+      "SmartLock": "Smart lock",
       "GovernmentPlatform": "Government platform",
       "Maps": "Maps",
       "ChannelManager": "Channel manager",
@@ -3183,9 +3272,18 @@
       "note": "Features can't be edited. To change the wording, hide it and add a new one."
     },
     "serviceTiers": {
+      "form": {
+        "nameAr": "Tier name in Arabic",
+        "nameArPlaceholder": "e.g. مميز",
+        "nameEn": "Tier name in English",
+        "key": "Key",
+        "keyHint": "English letters, digits, - or _ only. Never shown to merchants and can't be changed later.",
+        "default": "Default tier",
+        "defaultHint": "Prices without a tier go to it. Turning this on takes over from the current default."
+      },
       "noTrialHint": "The default tier has no free trial. To add one, create a new tier with the trial days and make it the default.",
       "title": "Tiers",
-      "desc": "Service levels (e.g. Standard, Premium). Each tier has its own free-trial length.",
+      "desc": "Most services only need the one \"Standard\" tier created with the first price. Add tiers only when a service needs several price points (e.g. Standard and Premium).",
       "add": "Add tier",
       "name": "Tier",
       "nameAr": "Tier name in Arabic",
@@ -3196,31 +3294,11 @@
       "status": "Status",
       "active": "Active",
       "inactive": "Closed",
-      "empty": "No tiers. Setting the first price creates a \"Standard\" tier automatically.",
+      "empty": "No tiers. The first price or period option creates a \"Standard\" tier automatically.",
       "keyInvalid": "Key: English letters, digits, - or _ only, and not already used",
       "trialInvalid": "A whole number, 0 or more",
-      "note": "Tiers can't be edited after creation. A new tier marked default takes over from the current one.",
+      "note": "Tiers can't be edited after creation. Only one tier is the default, so a new tier marked default takes over from the current one.",
       "trialHint": "To change the trial length, add a new tier with that length and make it the default."
-    },
-    "seasonalPrice": {
-      "add": "Add seasonal price",
-      "title": "Add seasonal price",
-      "hint": "A seasonal price replaces the subscription fee for this period only. Setup fees, usage fees and discount codes are unaffected.",
-      "period": "Period",
-      "tier": "Tier",
-      "defaultTier": "Default tier",
-      "nameAr": "Offer name in Arabic",
-      "nameEn": "Offer name in English",
-      "price": "Price during the period",
-      "startDate": "From",
-      "endDate": "To",
-      "create": "Add price",
-      "created": "Seasonal price added",
-      "until": "until {{date}}",
-      "needsPrice": "Set a monthly or yearly price first",
-      "deactivate": "Stop seasonal price",
-      "deactivateTitle": "Stop the seasonal price?",
-      "deactivateMessage": "The service goes back to its normal price right away. To change a seasonal price, stop it and add a new one."
     },
     "subscriptions": {
       "pageTitle": "Subscription Management",
@@ -3303,6 +3381,7 @@
         "searchPlaceholder": "Search for a service name...",
         "configureBtn": "Service settings",
         "trialBadge": "{{days}}-day free trial",
+        "trialOpsBadge": "{{count}} free operations",
         "typeBadge": {
           "Paid": "Paid subscription",
           "Free": "Always free",
@@ -3312,8 +3391,12 @@
         "noDescription": "No description yet",
         "comingSoon": "Coming soon",
         "noPricing": { "Free": "No prices or expiry; merchants turn it on in one tap", "BuiltIn": "Built into the platform; no prices or tiers" },
-        "monthlyPrice": "Monthly Price",
-        "annualPrice": "Annual Price",
+        "price": "Price",
+        "fromPrice": "From",
+        "periodOptions": "Periods",
+        "optionsCount": "{{count}} periods",
+        "perOperation": "Per operation",
+        "maxFee": "Cap",
         "packPrice": "Pack Price",
         "packMessages": "{{count}} messages",
         "perMessage": "Price per Message",
@@ -3393,20 +3476,20 @@
         "perUnitLabel": "Amount per transaction",
         "percentLabel": "Percentage of the transaction value",
         "capLabel": "Maximum fee per transaction",
-        "hint": "Debited from the merchant's wallet at the moment of the transaction. With a usage fee, the subscription price can be 0.",
+        "hint": "Debited from the merchant's wallet the moment each operation happens — there's no subscription fee. For a percentage, the cap is reserved from the wallet until the real value is known. Changing the price closes the old one, so past charges keep the price they were made at.",
         "errors": {
           "unitPrice": "The usage fee must be greater than zero",
           "cap": "A maximum fee per transaction is required and must be greater than zero"
         }
       },
       "billingModelHint": {
-        "Paid": "Has prices and tiers; the merchant pays.",
-        "Free": "No prices, tiers or expiry date. The merchant turns it on or off in one tap.",
-        "BuiltIn": "Built into the platform with its own activation. No prices or tiers."
+        "Paid": "Has prices; the merchant pays according to the billing method.",
+        "Free": "No prices, period options, tiers or discount codes.",
+        "BuiltIn": "Activated through its own flow (like e-invoicing). No prices."
       },
       "billingChange": {
         "title": "Change the service type?",
-        "toFree": "This service's prices and tiers will be closed. Current subscribers continue until their subscription ends.",
+        "toFree": "All of this service's prices, period options and tiers will be deactivated (not deleted). Current subscribers keep their term until it ends.",
         "toPaid": "Current subscribers stay free, and the service won't accept new subscriptions until you add a price.",
         "other": "The service type will change, and the service will have no prices or tiers.",
         "confirm": "Confirm change",
@@ -3449,7 +3532,7 @@
       },
       "integration": {
         "title": "Integration data fields",
-        "desc": "The data and keys required to connect directly with the client to activate each service",
+        "desc": "What a merchant must enter before subscribing, so the platform can connect to the third-party service on their behalf (e.g. a username and password). Every value is stored encrypted.",
         "addField": "Add field",
         "deactivate": "Deactivate field",
         "empty": "No integration fields for this service yet.",
@@ -3484,14 +3567,14 @@
         "advanced": "Advanced subscription"
       },
       "facilities": {
-        "title": "Facilities currently subscribed to this service",
-        "desc": "List of facilities with this service enabled, their subscription dates, and fees paid",
+        "title": "Service subscribers",
+        "desc": "Every subscription to this service (account-wide or for one property), active and expired.",
         "searchPlaceholder": "Search for a facility...",
         "facility": "Facility & classification",
-        "plan": "Plan type",
+        "plan": "Tier & period",
         "startDate": "Start date",
-        "renewalDate": "Renewal date",
-        "amountPaid": "Current price",
+        "renewalDate": "Expiry date",
+        "amountPaid": "Price",
         "status": "Status",
         "planType": {
           "annualAdvanced": "Annual - advanced",
@@ -3527,6 +3610,34 @@
         "setupFeePlaceholder": "Enter the setup fee..."
       },
       "footerNote": "All edits here are saved at the global service level and affect all subscribed accounts.",
+      "misconfigured": {
+        "noPrice": "This paid service has no active price, so it won't accept new subscriptions until you add one.",
+        "leftoverPricing": "This service isn't paid but still has active prices or tiers left over."
+      },
+      "builtInFieldsNote": "Built-in services don't take integration fields.",
+      "steps": {
+        "navLabel": "Service setup steps",
+        "readOnly": "Read-only",
+        "state": {
+          "done": "Done",
+          "todo": "Needs setup",
+          "optional": "Optional",
+          "skipped": "Not needed"
+        },
+        "details": {
+          "title": "Service details",
+          "desc": "The name, description, category and features merchants see on the service card.",
+          "description": "Description",
+          "noDescription": "No description yet"
+        },
+        "pricing": {
+          "title": "Pricing"
+        },
+        "status": {
+          "title": "Publish the service",
+          "desc": "Once setup is done: Fully active = merchants can subscribe, Temporarily suspended = exists but closed to new subscriptions, Permanently stopped = the service is closed."
+        }
+      },
       "cancelBtn": "Discard changes",
       "saveBtn": "Save & update settings"
       }
@@ -3555,15 +3666,21 @@
         "add": "Addition",
         "cancel": "Cancellation"
       },
+      "platform": "Platform",
       "actions": {
-        "Requested": "Requested",
-        "Approved": "Approved",
-        "Rejected": "Rejected",
-        "Activated": "Activated",
-        "Deactivated": "Deactivated",
-        "Renewed": "Renewed",
-        "Cancelled": "Cancelled",
-        "Expired": "Expired"
+        "OrderSubmitted": "Order submitted",
+        "OrderSucceeded": "Order succeeded",
+        "OrderFailed": "Order failed",
+        "OrderCancelled": "Order cancelled",
+        "CatalogServiceCreated": "Service created",
+        "CatalogServiceUpdated": "Service updated",
+        "PricingChanged": "Price changed",
+        "TierCreated": "Tier created",
+        "DiscountCodeCreated": "Discount code created",
+        "DiscountCodeRedeemed": "Discount code redeemed",
+        "DiscountCodeDeactivated": "Discount code deactivated",
+        "DiscountCodeActivated": "Discount code activated",
+        "UsageChargeGenerated": "Usage charge"
       },
       "moreDetails": "+{{count}} more",
       "detailKeys": {
@@ -3584,8 +3701,9 @@
       },
       "detailValues": {
         "BuiltIn": "Built-in",
-        "AdminApproval": "Admin approval",
-        "Instant": "Automatic",
+        "Package": "Period packages",
+        "Transaction": "Per operation",
+        "MessagePack": "Message pack",
         "True": "Yes",
         "False": "No",
         "FixedAmount": "Fixed amount",
@@ -3616,15 +3734,13 @@
     "subscriptionRequests": {
       "pageTitle": "Subscription Requests",
       "title": "Subscription Requests",
-      "subtitle": "Every subscription order merchants placed, with its services and amounts",
+      "subtitle": "Every subscription order merchants placed, with its services and amounts. Orders activate on payment.",
       "tabs": {
         "all": "All",
-        "rejected": "Rejected",
-        "approved": "Approved",
-        "underReview": "Under review"
+        "pending": "Pending",
+        "succeeded": "Succeeded",
+        "failed": "Failed"
       },
-      "automatic": "Automatic",
-      "autoTopUp": "Auto top-up",
       "table": {
         "merchant": "Merchant",
         "services": "Requested services",
@@ -3660,28 +3776,16 @@
         "discount": "Discount",
         "code": "code",
         "serviceTotal": "Service total",
-        "subtotal": "Subtotal before tax",
-        "vat": "VAT",
         "total": "Total",
-        "messageQuantity": "Messages",
-        "messagesCount": "{{count}} messages",
-        "paymentMethod": "Payment method",
-        "paymentMethods": {
-          "wallet": "Merchant wallet",
-          "mada": "mada",
-          "visa": "Visa",
-          "mastercard": "Mastercard",
-          "applePay": "Apple Pay",
-          "card": "Card"
-        }
+        "usageRate": "Per-operation price"
       }
     },
     "discountCodes": {
       "pageTitle": "Discount Codes",
       "title": "Discount Codes",
-      "subtitle": "Create and manage discount codes for merchants",
+      "subtitle": "Create and manage discount codes for merchants. Codes apply to period-package services only, never to per-operation ones.",
       "createBtn": "Create discount code",
-      "allServices": "All services",
+      "allServices": "All period-package services",
       "subscriptionFee": "Subscription fee",
       "setupFee": "Setup fee",
       "separator": ",",
@@ -3753,7 +3857,46 @@
       "forbidden": "You don't have permission to do this",
       "notFound": "Item not found",
       "stale": "This item was already changed — the list has been refreshed",
-      "generic": "Something went wrong"
+      "generic": "Something went wrong",
+      "codes": {
+        "SUBSCRIPTION_SERVICE_BUILT_IN": "This is a built-in service activated through its own flow — it can't be priced or ordered here.",
+        "SUBSCRIPTION_SERVICE_FREE_NO_PRICING": "This service is free — it takes no pricing, tiers, period options or discount codes.",
+        "SUBSCRIPTION_SERVICE_NOT_FOUND": "Service not found.",
+        "SUBSCRIPTION_SERVICE_KEY_EXISTS": "This service key is already taken.",
+        "SUBSCRIPTION_SERVICE_INVALID_BILLING": "Invalid service type.",
+        "SUBSCRIPTION_SERVICE_BILLING_STYLE_REQUIRED": "A paid service needs a billing method (package or per operation).",
+        "SUBSCRIPTION_SERVICE_BILLING_STYLE_NOT_ALLOWED": "A billing method only applies to paid services.",
+        "SUBSCRIPTION_SERVICE_SETUP_FEE_PRICE_REQUIRED": "Enter a setup fee greater than zero.",
+        "SUBSCRIPTION_SERVICE_TRIAL_NOT_ALLOWED_FOR_FREE": "Free trials are only available on paid services.",
+        "SUBSCRIPTION_SERVICE_TRIAL_DURATION_REQUIRED": "Enter the number of trial days.",
+        "SUBSCRIPTION_SERVICE_TRIAL_COUNT_REQUIRED": "Enter the number of free trial operations.",
+        "SUBSCRIPTION_SERVICE_BUILT_IN_REQUIRED": "This service can't be hidden or stopped while properties rely on it for e-invoicing.",
+        "SUBSCRIPTION_SERVICE_BILLING_STYLE_LOCKED": "The billing method can't change once the service has prices. Retire it and create a new service instead.",
+        "SUBSCRIPTION_PRICING_INVALID_PRICE": "Invalid price.",
+        "SUBSCRIPTION_PRICING_USAGE_PRICE_REQUIRED": "Enter a per-operation price greater than zero.",
+        "SUBSCRIPTION_PRICING_INVALID_USAGE_CAP": "The fee cap can't be negative.",
+        "SUBSCRIPTION_PRICING_USAGE_CAP_REQUIRED": "A percentage of value needs a fee cap greater than zero.",
+        "SUBSCRIPTION_PRICING_NOT_TRANSACTION_STYLE": "A per-operation rate only applies to per-operation services.",
+        "SUBSCRIPTION_PRICING_PACK_SIZE_REQUIRED": "Enter the number of messages in a pack.",
+        "SUBSCRIPTION_PRICING_PACK_NO_USAGE": "A message pack can't have a per-operation rate.",
+        "SUBSCRIPTION_PRICING_PACK_SIZE_NOT_ALLOWED": "Messages per pack only applies to message packs.",
+        "SUBSCRIPTION_TIER_NOT_FOUND": "The selected tier doesn't belong to this service.",
+        "SUBSCRIPTION_TIER_VALIDATION": "Fill in the tier key and its Arabic and English names.",
+        "SUBSCRIPTION_TIER_KEY_TAKEN": "This tier key is already used on this service.",
+        "SUBSCRIPTION_PERIOD_OPTION_INVALID_DURATION": "The duration must be at least one day.",
+        "SUBSCRIPTION_PERIOD_OPTION_INVALID_PRICE": "The price must be greater than zero.",
+        "SUBSCRIPTION_PERIOD_OPTION_NAME_REQUIRED": "Enter the period's Arabic and English names.",
+        "SUBSCRIPTION_PERIOD_OPTION_NOT_PACKAGE_STYLE": "Period options only apply to package-billed services.",
+        "SUBSCRIPTION_PERIOD_OPTION_NOT_FOUND": "Period option not found.",
+        "SUBSCRIPTION_DISCOUNT_VALIDATION": "The discount code details are invalid.",
+        "SUBSCRIPTION_DISCOUNT_NOT_ALLOWED_FOR_TRANSACTION_STYLE": "Discount codes don't apply to per-operation services.",
+        "SUBSCRIPTION_DISCOUNT_CODE_TAKEN": "This discount code already exists.",
+        "SUBSCRIPTION_DISCOUNT_CODE_NOT_FOUND": "Discount code not found.",
+        "SUBSCRIPTION_FEATURE_NOT_FOUND": "Feature not found.",
+        "SUBSCRIPTION_INTEGRATION_FIELD_KEY_REQUIRED": "Enter the field key.",
+        "SUBSCRIPTION_INTEGRATION_FIELD_KEY_EXISTS": "This field key is already used on this service.",
+        "SUBSCRIPTION_INTEGRATION_FIELD_NOT_FOUND": "Field not found."
+      }
     },
     "businessCategories": {
       "Hotel": "Hotel",

@@ -1,0 +1,134 @@
+<div class="bf">
+
+  <!-- Service type -->
+  @if (showModel) {
+    <div class="bf-field">
+      <span class="bf-label" [id]="idPrefix + '-model-label'">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
+      <div class="bf-choices bf-choices--3" role="radiogroup" [attr.aria-labelledby]="idPrefix + '-model-label'">
+        @for (m of models; track m.value) {
+          <button type="button" class="bf-choice" role="radio"
+            [class.active]="value.billingModel === m.value"
+            [attr.aria-checked]="value.billingModel === m.value"
+            [disabled]="disabled && value.billingModel !== m.value"
+            (click)="pickModel(m.value)">
+            <span class="bf-choice-icon"><i-tabler [name]="m.icon" class="icon-18"></i-tabler></span>
+            <span class="bf-choice-text">
+              <span class="bf-choice-title">{{ ('d3.subscriptionTypes.' + m.value) | translate }}</span>
+              <span class="bf-choice-desc">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + m.value) | translate }}</span>
+            </span>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (value.billingModel === 'Paid') {
+
+    <!-- How the service is charged -->
+    <div class="bf-field">
+      <span class="bf-label" [id]="idPrefix + '-style-label'">{{ 'd3.billingFields.style' | translate }} <span class="bf-required">*</span></span>
+      <div class="bf-choices" role="radiogroup" [attr.aria-labelledby]="idPrefix + '-style-label'">
+        @for (s of styles; track s.value) {
+          <button type="button" class="bf-choice" role="radio"
+            [class.active]="value.billingStyle === s.value"
+            [attr.aria-checked]="value.billingStyle === s.value"
+            [disabled]="(styleLocked || disabled) && value.billingStyle !== s.value"
+            (click)="pickStyle(s.value)">
+            <span class="bf-choice-icon"><i-tabler [name]="s.icon" class="icon-18"></i-tabler></span>
+            <span class="bf-choice-text">
+              <span class="bf-choice-title">{{ ('d3.billingFields.styles.' + s.value + '.title') | translate }}</span>
+              <span class="bf-choice-desc">{{ ('d3.billingFields.styles.' + s.value + '.desc') | translate }}</span>
+            </span>
+            @if (styleLocked && value.billingStyle === s.value) {
+              <i-tabler name="lock" class="icon-16 bf-lock"></i-tabler>
+            }
+          </button>
+        }
+      </div>
+      @if (styleLocked) {
+        <span class="bf-hint d-flex align-items-center gap-4">
+          <i-tabler name="info-circle" class="icon-14"></i-tabler>
+          {{ 'd3.billingFields.styleLocked' | translate }}
+        </span>
+      }
+    </div>
+
+    <!-- Add-ons: setup fee and free trial -->
+    <div class="bf-options">
+      <div class="bf-option" [class.on]="value.hasSetupFee">
+        <label class="bf-option-head">
+          <span class="bf-option-icon"><i-tabler name="building-store" class="icon-18"></i-tabler></span>
+          <span class="bf-option-text">
+            <span class="bf-option-title">{{ 'd3.billingFields.setupFee' | translate }}</span>
+            <span class="bf-hint">{{ 'd3.billingFields.setupFeeHint' | translate }}</span>
+          </span>
+          <input type="checkbox" class="bf-switch" role="switch" [id]="idPrefix + '-setup'"
+            [disabled]="disabled" [(ngModel)]="value.hasSetupFee" />
+        </label>
+        @if (value.hasSetupFee) {
+          <div class="bf-input-wrap">
+            <input [id]="idPrefix + '-setup-price'" type="number" min="0.01" step="0.01" class="bf-input"
+              [disabled]="disabled"
+              [placeholder]="'d3.billingFields.setupFeePrice' | translate"
+              [attr.aria-label]="'d3.billingFields.setupFeePrice' | translate"
+              [(ngModel)]="value.setupFeePrice" />
+            <span class="bf-unit bf-currency" [class.bf-currency-en]="isEn"
+              [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+              [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+          </div>
+        }
+      </div>
+
+      <div class="bf-option" [class.on]="value.hasTrial" [class.off]="!value.billingStyle">
+        <label class="bf-option-head">
+          <span class="bf-option-icon"><i-tabler name="gift" class="icon-18"></i-tabler></span>
+          <span class="bf-option-text">
+            <span class="bf-option-title">{{ 'd3.billingFields.trial' | translate }}</span>
+            <span class="bf-hint">
+              {{ (value.billingStyle ? 'd3.billingFields.trialHint.' + value.billingStyle : 'd3.billingFields.trialNeedsStyle') | translate }}
+            </span>
+          </span>
+          <input type="checkbox" class="bf-switch" role="switch" [id]="idPrefix + '-trial'"
+            [disabled]="disabled || !value.billingStyle" [(ngModel)]="value.hasTrial" />
+        </label>
+        @if (value.hasTrial && value.billingStyle === 'Package') {
+          <div class="bf-input-wrap">
+            <input [id]="idPrefix + '-trial-days'" type="number" min="1" step="1" class="bf-input"
+              [disabled]="disabled"
+              [placeholder]="'d3.billingFields.trialDays' | translate"
+              [attr.aria-label]="'d3.billingFields.trialDays' | translate"
+              [(ngModel)]="value.trialDurationDays" />
+            <span class="bf-unit">{{ 'd3.billingFields.unitDays' | translate }}</span>
+          </div>
+        } @else if (value.hasTrial && value.billingStyle === 'Transaction') {
+          <div class="bf-input-wrap">
+            <input [id]="idPrefix + '-trial-count'" type="number" min="1" step="1" class="bf-input"
+              [disabled]="disabled"
+              [placeholder]="'d3.billingFields.trialCount' | translate"
+              [attr.aria-label]="'d3.billingFields.trialCount' | translate"
+              [(ngModel)]="value.trialTransactionCount" />
+            <span class="bf-unit">{{ 'd3.billingFields.unitOperations' | translate }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (error) {
+      <span class="bf-error d-flex align-items-center gap-4">
+        <i-tabler name="alert-circle" class="icon-14"></i-tabler>
+        {{ error | translate }}
+      </span>
+    } @else if (summary) {
+      <div class="bf-summary">
+        <span class="bf-summary-label">{{ 'd3.billingFields.summaryTitle' | translate }}</span>
+        <span class="bf-summary-text">{{ summary }}</span>
+      </div>
+    }
+
+  } @else if (showModel) {
+    <div class="bf-note">
+      <i-tabler name="info-circle" class="icon-16"></i-tabler>
+      <span>{{ ('d3.billingFields.noPricing.' + value.billingModel) | translate }}</span>
+    </div>
+  }
+</div>

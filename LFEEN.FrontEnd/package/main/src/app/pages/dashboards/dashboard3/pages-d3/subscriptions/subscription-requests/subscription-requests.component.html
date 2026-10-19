@@ -10,14 +10,14 @@
         </div>
 
         <div class="tabs-bar d-flex align-items-center gap-8" role="tablist">
-          @for (tab of visibleTabs; track tab.value) {
+          @for (tab of tabs; track tab.value) {
             <button type="button" class="tab-btn" role="tab"
               [class.active]="activeTab === tab.value"
               [attr.aria-selected]="activeTab === tab.value"
               (click)="setTab(tab.value)">
               {{ tab.labelKey | translate }}
-              @if (tab.value === 'underReview' && underReviewCount > 0) {
-                <span class="tab-count">{{ fmt(underReviewCount) }}</span>
+              @if (tab.value === 'pending' && pendingCount > 0) {
+                <span class="tab-count">{{ fmt(pendingCount) }}</span>
               }
             </button>
           }
@@ -83,11 +83,6 @@
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
                     <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
-                    @if (row.autoTopUp) {
-                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.autoTopUp' | translate }}</span>
-                    } @else if (row.order.isAutoActivated) {
-                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span>
-                    }
                   </td>
                   <td>
                     <button type="button" class="row-action-btn" (click)="openDetail(row)">

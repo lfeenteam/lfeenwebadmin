@@ -73,9 +73,11 @@ export class CreateDiscountCodeDialogComponent {
     return this.discountType === 'Percentage';
   }
 
+  // Codes only ever apply to Package-style lines — a code scoped to a Transaction-style
+  // service is rejected (SUBSCRIPTION_DISCOUNT_NOT_ALLOWED_FOR_TRANSACTION_STYLE).
   get activeServices(): SubscriptionCatalogItem[] {
     return this.data.services
-      .filter(s => s.isActive && s.billingModel === 'Paid')
+      .filter(s => s.isActive && s.billingModel === 'Paid' && s.billingStyle === 'Package')
       .sort((a, b) => a.displayOrder - b.displayOrder);
   }
 

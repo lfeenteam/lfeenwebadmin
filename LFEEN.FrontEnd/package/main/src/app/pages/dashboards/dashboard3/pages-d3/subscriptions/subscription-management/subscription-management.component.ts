@@ -145,6 +145,8 @@ export class SubscriptionManagementComponent implements OnInit {
       facilityName: m.merchantName?.trim() || '-',
       // "Active" if any service is active, "Expired" once all of them have lapsed.
       status: (m.overallStatus ?? '').toLowerCase() === 'active' ? 'active' : 'expired',
+      // Already localized by the API; the badge falls back to our own label without it.
+      statusLabel: m.overallStatusLabel?.trim() || '',
       // Both totals only count currently-active lines, normalized across billing periods.
       feesAmountValue: m.monthlyEquivalentTotal ?? 0,
       feesAnnualValue: m.annualEquivalentTotal ?? 0,
@@ -161,9 +163,10 @@ export class SubscriptionManagementComponent implements OnInit {
       periodLabel: [s.tierName?.trim(), periodText(s.periodLabel, s.period)].filter(Boolean).join(' · ') || '-',
       startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
       endDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
-      expired: (s.status ?? '').toLowerCase() === 'expired',
+      // NotSubscribed | Active | Expired — anything not active is shown as lapsed.
+      expired: (s.status ?? '').toLowerCase() !== 'active',
       billingModel: s.billingModel ?? 'Paid',
-      isAutoActivated: s.isAutoActivated ?? false,
+      statusLabel: s.statusLabel?.trim() || '',
     };
   }
 

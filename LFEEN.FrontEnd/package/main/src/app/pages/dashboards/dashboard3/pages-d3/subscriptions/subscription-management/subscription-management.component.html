@@ -110,7 +110,7 @@
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptions.table.status' | translate }}</span>
                   <span class="status-badge" [class]="'status-' + account.status">
-                    {{ ('d3.subscriptions.status.' + account.status) | translate }}
+                    {{ account.statusLabel || (('d3.subscriptions.status.' + account.status) | translate) }}
                   </span>
                 </td>
                 <td class="p-24 text-center">
@@ -154,7 +154,7 @@
                                     </span>
                                     <span class="f-s-13 f-w-700">{{ svc.name }}</span>
                                     @if (svc.billingModel === 'Free') { <span class="type-badge type-badge--free">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
-                                    @if (svc.isAutoActivated) { <span class="type-badge type-badge--automatic">{{ 'd3.subscriptionRequests.automatic' | translate }}</span> }
+                                    @if (svc.expired && svc.statusLabel) { <span class="type-badge">{{ svc.statusLabel }}</span> }
                                   </div>
                                 </td>
                                 <td class="text-muted-cell">
@@ -186,7 +186,7 @@
                                 </td>
                                 <td class="text-muted-cell">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
-                                  {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.detail.noExpiry' | translate) : svc.endDate }}
+                                  {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.period.noExpiry' | translate) : svc.endDate }}
                                 </td>
                               </tr>
                             }

@@ -4,21 +4,20 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription, catchError, forkJoin, map, of, throwError } from 'rxjs';
+import { Subscription, catchError, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
-import { ORDER_STATUSES, SubscriptionsService } from '../../../services/subscriptions.service';
-import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus, isAutoTopUpOrder } from '../interfaces/subscription.model';
+import { SubscriptionsService } from '../../../services/subscriptions.service';
+import { SubscriptionCatalogItem, SubscriptionOrder } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { RequestDetailDrawerComponent } from './request-detail-drawer/request-detail-drawer.component';
 import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 
-type RequestTab = 'all' | 'rejected' | 'approved' | 'underReview';
+type RequestTab = 'all' | 'pending' | 'succeeded' | 'failed';
 
 interface RequestService {
   name: string;
@@ -32,25 +31,15 @@ interface RequestRow {
   services: RequestService[];
   requestedAt: Date | null;
   kind: OrderStatusKind;
-  autoTopUp: boolean;
 }
-
-const TAB_STATUSES: Record<RequestTab, SubscriptionOrderStatus[]> = {
-  underReview: ['UnderReview'],
-  approved: ['Approved'],
-  rejected: ['Rejected'],
-  all: ORDER_STATUSES,
-};
 
 const PAGE_SIZE = 10;
 const MAX_SERVICE_ICONS = 3;
 
-/** 400 VALIDATION_ERROR on the status query = the backend no longer has that status. */
-function isInvalidStatusError(err: unknown): boolean {
-  const e = err as HttpErrorResponse;
-  return e?.status === 400 && e?.error?.errorCode === 'VALIDATION_ERROR';
-}
-
+/**
+ * Read-only order history (GET /requests). Orders activate on payment — there's no admin
+ * review — so the list is loaded once and the tabs only filter it.
+ */
 @Component({
   selector: 'app-subscription-requests',
   standalone: true,
@@ -68,25 +57,24 @@ export class SubscriptionRequestsComponent implements OnInit {
 
   loading = true;
   loadError = false;
-  // Orders activate on payment, so nothing waits on the admin — the list opens on every order.
   activeTab: RequestTab = 'all';
   currentPage = 1;
 
+  /** Every order, newest first. */
   private rows: RequestRow[] = [];
+  private orders: SubscriptionOrder[] = [];
   logoByServiceId = new Map<number, string | null>();
   /** Logo URLs that failed to load — shown as the fallback icon instead of a broken image. */
   readonly brokenLogos = new Set<string>();
-  /** Orders per status filter, fetched only when a tab needs them. */
-  private cache = new Map<SubscriptionOrderStatus, SubscriptionOrder[]>();
   private listRequest?: Subscription;
 
   selectedOrder: SubscriptionOrder | null = null;
 
   readonly tabs: { value: RequestTab; labelKey: string }[] = [
     { value: 'all', labelKey: 'd3.subscriptionRequests.tabs.all' },
-    { value: 'rejected', labelKey: 'd3.subscriptionRequests.tabs.rejected' },
-    { value: 'approved', labelKey: 'd3.subscriptionRequests.tabs.approved' },
-    { value: 'underReview', labelKey: 'd3.subscriptionRequests.tabs.underReview' },
+    { value: 'pending', labelKey: 'd3.subscriptionRequests.tabs.pending' },
+    { value: 'succeeded', labelKey: 'd3.subscriptionRequests.tabs.succeeded' },
+    { value: 'failed', labelKey: 'd3.subscriptionRequests.tabs.failed' },
   ];
 
   ngOnInit(): void {
@@ -118,20 +106,13 @@ export class SubscriptionRequestsComponent implements OnInit {
     return this.currentLang === 'en';
   }
 
-  /** Statuses the backend rejected as invalid — their tabs aren't shown. */
-  private invalidStatuses = new Set<SubscriptionOrderStatus>();
-
-  get visibleTabs(): { value: RequestTab; labelKey: string }[] {
-    return this.tabs.filter(t => t.value === 'all' || TAB_STATUSES[t.value].some(s => !this.invalidStatuses.has(s)));
-  }
-
-  /** Known once UnderReview has been fetched (the "All" tab fetches it too). */
-  get underReviewCount(): number {
-    return this.cache.get('UnderReview')?.length ?? 0;
+  /** Orders still waiting on payment. */
+  get pendingCount(): number {
+    return this.rows.filter(r => r.kind === 'pending').length;
   }
 
   private get filteredRows(): RequestRow[] {
-    return this.rows;
+    return this.activeTab === 'all' ? this.rows : this.rows.filter(r => r.kind === this.activeTab);
   }
 
   get pagedRows(): RequestRow[] {
@@ -163,49 +144,18 @@ export class SubscriptionRequestsComponent implements OnInit {
     return formatApiDateLocal(row.order.requestedAt, this.currentLang) ?? '-';
   }
 
-  /** Fetches only the statuses the active tab shows that aren't cached yet. */
   load(): void {
     this.listRequest?.unsubscribe();
-    const statuses = TAB_STATUSES[this.activeTab];
-    const missing = statuses.filter(s => !this.cache.has(s) && !this.invalidStatuses.has(s));
-    this.loadError = false;
-
-    if (!missing.length) {
-      this.loading = false;
-      this.rebuildRows();
-      return;
-    }
-
     this.loading = true;
-    // On "All", a status that fails for any reason is skipped rather than failing the tab.
-    const tolerant = this.activeTab === 'all';
-    this.listRequest = forkJoin(missing.map(status => {
-      return this.service.getRequestsByStatus(status).pipe(
-        map(orders => ({ status, orders })),
-        catchError(err => {
-          // The backend dropped the review statuses (UnderReview / Approved / Rejected) along with
-          // admin approval and answers 400 VALIDATION_ERROR for them: treat that status as empty
-          // and stop offering its tab.
-          if (isInvalidStatusError(err)) {
-            this.invalidStatuses.add(status);
-            return of({ status, orders: [] as SubscriptionOrder[] });
-          }
-          return tolerant ? of({ status, orders: [] as SubscriptionOrder[] }) : throwError(() => err);
-        }),
-      );
-    })).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: results => {
-        for (const { status, orders } of results) this.cache.set(status, orders);
+    this.loadError = false;
+    this.listRequest = this.service.getRequests().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: orders => {
+        this.orders = orders ?? [];
         this.loading = false;
-        // The tab that was open may have just turned out to be unsupported.
-        if (!this.visibleTabs.some(t => t.value === this.activeTab)) {
-          this.activeTab = 'all';
-          this.load();
-          return;
-        }
         this.rebuildRows();
       },
       error: err => {
+        this.orders = [];
         this.rows = [];
         this.loading = false;
         this.loadError = true;
@@ -214,9 +164,7 @@ export class SubscriptionRequestsComponent implements OnInit {
     });
   }
 
-  /** Drops the cache and refetches the active tab (retry button / stale-state recovery). */
   reload(): void {
-    this.cache.clear();
     this.load();
   }
 
@@ -224,14 +172,10 @@ export class SubscriptionRequestsComponent implements OnInit {
     if (tab === this.activeTab) return;
     this.activeTab = tab;
     this.currentPage = 1;
-    this.load();
   }
 
   private rebuildRows(): void {
-    const seen = new Set<string>();
-    this.rows = TAB_STATUSES[this.activeTab]
-      .flatMap(s => this.cache.get(s) ?? [])
-      .filter(o => !seen.has(o.orderId) && !!seen.add(o.orderId))
+    this.rows = this.orders
       .map(o => this.toRow(o))
       .sort((a, b) => (b.requestedAt?.getTime() ?? 0) - (a.requestedAt?.getTime() ?? 0));
     this.currentPage = Math.min(this.currentPage, this.totalPages);
@@ -264,7 +208,6 @@ export class SubscriptionRequestsComponent implements OnInit {
       services,
       requestedAt: parseApiUtc(order.requestedAt),
       kind: orderStatusKind(order.status),
-      autoTopUp: isAutoTopUpOrder(order),
     };
   }
 }

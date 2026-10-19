@@ -1,12 +1,12 @@
-export type OrderStatusKind = 'underReview' | 'approved' | 'rejected' | 'other';
+export type OrderStatusKind = 'pending' | 'succeeded' | 'failed' | 'other';
 
 const KIND_BY_STATUS: Record<string, OrderStatusKind> = {
-  underreview: 'underReview',
-  approved: 'approved',
-  rejected: 'rejected',
+  pending: 'pending',
+  succeeded: 'succeeded',
+  failed: 'failed',
 };
 
-/** Only drives tab filtering, badge color and whether review actions show — the label always comes from statusLabel. */
+/** Only drives tab filtering and badge color — the label always comes from statusLabel. */
 export function orderStatusKind(status: string | null | undefined): OrderStatusKind {
   return KIND_BY_STATUS[(status ?? '').toLowerCase()] ?? 'other';
 }

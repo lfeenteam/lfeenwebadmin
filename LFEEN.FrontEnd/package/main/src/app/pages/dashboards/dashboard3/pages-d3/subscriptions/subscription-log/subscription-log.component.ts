@@ -51,6 +51,26 @@ const DETAIL_PAIR = /^\s*([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/;
 
 const PAGE_SIZE = 20;
 
+/** Platform-level changes (catalog / pricing edits) carry no merchant. */
+const PLATFORM_ACCOUNT_ID = '00000000-0000-0000-0000-000000000000';
+
+// Badge color per documented action value; anything unknown stays neutral.
+const ACTION_TONES: Record<string, ActionTone> = {
+  OrderSubmitted: 'add',
+  OrderSucceeded: 'add',
+  OrderFailed: 'cancel',
+  OrderCancelled: 'cancel',
+  CatalogServiceCreated: 'add',
+  CatalogServiceUpdated: 'renew',
+  PricingChanged: 'renew',
+  TierCreated: 'add',
+  DiscountCodeCreated: 'add',
+  DiscountCodeRedeemed: 'renew',
+  DiscountCodeDeactivated: 'cancel',
+  DiscountCodeActivated: 'add',
+  UsageChargeGenerated: 'neutral',
+};
+
 @Component({
   selector: 'app-subscription-log',
   standalone: true,
@@ -128,9 +148,10 @@ export class SubscriptionLogComponent implements OnInit {
 
   private toRow(e: SubscriptionAuditLog): LogRow {
     const actor = this.labelFor('actor', e.actorType);
+    const isPlatform = !e.accountId || e.accountId === PLATFORM_ACCOUNT_ID;
     return {
       id: e.id,
-      merchantName: e.merchantName?.trim() || '-',
+      merchantName: isPlatform ? this.translate.instant('d3.subscriptionLog.platform') : (e.merchantName?.trim() || '-'),
       actionLabel: this.labelFor('actions', e.action),
       actionTone: this.actionTone(e.action),
       serviceName: e.serviceName?.trim() || '-',
@@ -193,8 +214,8 @@ export class SubscriptionLogComponent implements OnInit {
     return translated === key ? raw : translated;
   }
 
-  // action/actorType have no Label fields and their value lists aren't confirmed yet —
-  // known values get our translation, anything else is shown as the raw value.
+  // action/actorType have no label fields — every documented value has a translation, and
+  // anything new is shown as the raw value rather than a missing key.
   private labelFor(group: 'actions' | 'actor', raw: string | null): string {
     if (!raw) return '-';
     const key = `d3.subscriptionLog.${group}.${raw}`;
@@ -202,15 +223,9 @@ export class SubscriptionLogComponent implements OnInit {
     return translated === key ? raw : translated;
   }
 
-  // Only picks a badge color — the text always comes from the raw value / its translation.
+  // Only picks a badge color — the text always comes from the translation.
   private actionTone(action: string | null): ActionTone {
-    // The API may send the action as an enum name or already translated, so both are matched.
-    const a = (action ?? '').toLowerCase();
-    const has = (...words: string[]) => words.some(w => a.includes(w));
-    if (has('renew', 'تجديد')) return 'renew';
-    if (has('reject', 'cancel', 'deactiv', 'suspend', 'expire', 'رفض', 'إلغاء', 'تعطيل', 'إيقاف', 'انتهاء')) return 'cancel';
-    if (has('approv', 'activ', 'creat', 'request', 'subscrib', 'موافقة', 'تفعيل', 'إنشاء', 'تقديم')) return 'add';
-    return 'neutral';
+    return (action && ACTION_TONES[action]) || 'neutral';
   }
 
   get currentDir(): 'rtl' | 'ltr' {

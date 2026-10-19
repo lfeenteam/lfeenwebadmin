@@ -9,13 +9,28 @@
 
   <div class="form-scroll">
 
-    <!-- Key: set once, never editable -->
-    <div class="form-field">
-      <label class="field-label" for="sf-key">{{ 'd3.serviceForm.key' | translate }}</label>
-      <input id="sf-key" type="text" class="field-input" dir="ltr" placeholder="myService"
-        [attr.maxlength]="keyMax" [readonly]="isEdit" [class.is-readonly]="isEdit" [(ngModel)]="key" />
-      <span class="field-hint">{{ (isEdit ? 'd3.serviceForm.keyLocked' : 'd3.serviceForm.keyHint') | translate }}</span>
-      @if (keyError) { <span class="field-error">{{ keyError | translate }}</span> }
+    <div class="form-grid">
+      <!-- Key: set once, never editable -->
+      <div class="form-field" [class.span-2]="isEdit">
+        <label class="field-label" for="sf-key">{{ 'd3.serviceForm.key' | translate }}</label>
+        <input id="sf-key" type="text" class="field-input" dir="ltr" placeholder="myService"
+          [attr.maxlength]="keyMax" [readonly]="isEdit" [class.is-readonly]="isEdit" [(ngModel)]="key" />
+        <span class="field-hint">{{ (isEdit ? 'd3.serviceForm.keyLocked' : 'd3.serviceForm.keyHint') | translate }}</span>
+        @if (keyError) { <span class="field-error">{{ keyError | translate }}</span> }
+      </div>
+
+      @if (!isEdit) {
+        <!-- Billing: on edit it lives in the service settings page -->
+        <div class="form-field">
+          <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
+          <mat-select class="field-select" [(ngModel)]="billing.billingModel" disableOptionCentering>
+            @for (m of billingModels; track m) {
+              <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
+            }
+          </mat-select>
+          <span class="field-hint">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billing.billingModel) | translate }}</span>
+        </div>
+      }
     </div>
 
     <div class="form-grid">
@@ -32,11 +47,11 @@
     <div class="form-grid">
       <div class="form-field">
         <label class="field-label" for="sf-desc-ar">{{ 'd3.serviceForm.descriptionAr' | translate }}</label>
-        <textarea id="sf-desc-ar" class="field-input field-textarea" rows="2" [(ngModel)]="descriptionAr"></textarea>
+        <textarea id="sf-desc-ar" class="field-input field-textarea" rows="1" [(ngModel)]="descriptionAr"></textarea>
       </div>
       <div class="form-field">
         <label class="field-label" for="sf-desc-en">{{ 'd3.serviceForm.descriptionEn' | translate }}</label>
-        <textarea id="sf-desc-en" class="field-input field-textarea" rows="2" dir="ltr" [(ngModel)]="descriptionEn"></textarea>
+        <textarea id="sf-desc-en" class="field-input field-textarea" rows="1" dir="ltr" [(ngModel)]="descriptionEn"></textarea>
       </div>
     </div>
 
@@ -58,45 +73,21 @@
     </div>
 
     @if (!isEdit) {
-      <!-- Type: on edit it lives in the service settings page -->
-      <div class="form-field">
-        <span class="field-label">{{ 'd3.subscriptions.serviceSettings.billingModelLabel' | translate }}</span>
-        <mat-select class="field-select" [(ngModel)]="billingModel" disableOptionCentering>
-          @for (m of billingModels; track m) {
-            <mat-option [value]="m">{{ ('d3.subscriptionTypes.' + m) | translate }}</mat-option>
-          }
-        </mat-select>
-        <span class="field-hint">{{ ('d3.subscriptions.serviceSettings.billingModelHint.' + billingModel) | translate }}</span>
-      </div>
+      <app-billing-fields [value]="billing" idPrefix="sf-billing"></app-billing-fields>
 
-      <label class="check-row">
-        <input type="checkbox" [(ngModel)]="isAvailable" />
-        <span>{{ 'd3.serviceForm.isAvailable' | translate }}</span>
-      </label>
-      <span class="field-hint">{{ 'd3.serviceForm.isAvailableHint' | translate }}</span>
+      <div class="form-field available-field">
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="isAvailable" />
+          <span>{{ 'd3.serviceForm.isAvailable' | translate }}</span>
+        </label>
+        <span class="field-hint">{{ 'd3.serviceForm.isAvailableHint' | translate }}</span>
+      </div>
     } @else {
       <div class="form-field">
         <label class="field-label" for="sf-order">{{ 'd3.serviceForm.displayOrder' | translate }}</label>
         <input id="sf-order" type="number" min="0" step="1" class="field-input" [(ngModel)]="displayOrder" />
         @if (displayOrderInvalid) { <span class="field-error">{{ 'd3.serviceForm.errors.displayOrder' | translate }}</span> }
       </div>
-
-      @if (billingModel === 'Paid') {
-        <div class="form-grid">
-          <div class="form-field">
-            <label class="field-label" for="sf-min-m">{{ 'd3.serviceForm.minimumMonthly' | translate }}</label>
-            <input id="sf-min-m" type="number" min="0" step="0.01" class="field-input" [(ngModel)]="minimumMonthlyPrice"
-              [placeholder]="'d3.serviceForm.noMinimum' | translate" />
-          </div>
-          <div class="form-field">
-            <label class="field-label" for="sf-min-y">{{ 'd3.serviceForm.minimumYearly' | translate }}</label>
-            <input id="sf-min-y" type="number" min="0" step="0.01" class="field-input" [(ngModel)]="minimumYearlyPrice"
-              [placeholder]="'d3.serviceForm.noMinimum' | translate" />
-          </div>
-          <span class="field-hint span-2">{{ 'd3.serviceForm.minimumHint' | translate }}</span>
-          @if (minimumsInvalid) { <span class="field-error span-2">{{ 'd3.subscriptions.serviceSettings.errors.negativePrice' | translate }}</span> }
-        </div>
-      }
     }
 
     @if (serverError) {

@@ -18,15 +18,7 @@
           <span class="summary-merchant">{{ order.merchantName?.trim() || '-' }}</span>
           <span class="summary-date">{{ requestedAtLabel }}</span>
         </div>
-        <div class="summary-badges">
-          <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
-          @if (isAutoTopUp) {
-            <span class="status-pill status-automatic">{{ 'd3.subscriptionRequests.autoTopUp' | translate }}</span>
-          }
-        </div>
-        @if (paymentMethodLabel; as method) {
-          <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.paymentMethod' | translate }}: {{ method }}</span>
-        }
+        <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
         @if (processedAtLabel) {
           <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.processedAt' | translate }}: {{ processedAtLabel }}</span>
         }
@@ -44,7 +36,7 @@
               }
             </span>
             <span class="item-name">{{ item.serviceName }}</span>
-            @if (item.billingModel === 'Free') { <span class="status-pill status-approved">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
+            @if (item.billingModel === 'Free') { <span class="status-pill status-succeeded">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
           </div>
 
           <div class="item-meta-grid">
@@ -58,21 +50,24 @@
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.requestType' | translate }}</span>
               <span class="meta-value">{{ item.requestTypeLabel || '-' }}</span>
             </div>
-            @if (item.messageQuantity) {
-              <div class="meta-cell">
-                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.messageQuantity' | translate }}</span>
-                <span class="meta-value">{{ 'd3.subscriptionRequests.detail.messagesCount' | translate: { count: fmtCount(item.messageQuantity) } }}</span>
-              </div>
-            } @else {
-              <div class="meta-cell">
-                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.tier' | translate }}</span>
-                <span class="meta-value">{{ item.tierName || '-' }}</span>
-              </div>
-            }
+            <div class="meta-cell">
+              <span class="meta-label">{{ 'd3.subscriptionRequests.detail.tier' | translate }}</span>
+              <span class="meta-value">{{ item.tierName || '-' }}</span>
+            </div>
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.period' | translate }}</span>
-              <span class="meta-value">{{ item.periodLabel || '—' }}</span>
+              <span class="meta-value">{{ periodOf(item) }}</span>
             </div>
+            @if (usageRateOf(item); as rate) {
+              <div class="meta-cell">
+                <span class="meta-label">{{ 'd3.subscriptionRequests.detail.usageRate' | translate }}</span>
+                @if (rate.percent !== null) {
+                  <span class="meta-value">{{ fmtPrecise(rate.percent) }}%</span>
+                } @else {
+                  <ng-container *ngTemplateOutlet="money; context: { $implicit: rate.amount, precise: true }"></ng-container>
+                }
+              </div>
+            }
             <div class="meta-cell">
               <span class="meta-label">{{ 'd3.subscriptionRequests.detail.scope' | translate }}</span>
               <span class="meta-value">{{ item.propertyId === null ? ('d3.subscriptionRequests.detail.allProperties' | translate) : (item.propertyName || '-') }}</span>
@@ -106,19 +101,8 @@
         </section>
       }
 
-      <!-- Totals (server numbers are the source of truth) -->
+      <!-- Total (the server's number is the source of truth; there's no tax split) -->
       <section class="totals-card">
-        <div class="fee-row">
-          <span>{{ 'd3.subscriptionRequests.detail.subtotal' | translate }}</span>
-          <ng-container *ngTemplateOutlet="money; context: { $implicit: order.subtotalAmount }"></ng-container>
-        </div>
-        <div class="fee-row">
-          <span>
-            {{ 'd3.subscriptionRequests.detail.vat' | translate }}
-            @if (taxPercent !== null) { ({{ taxPercent }}%) }
-          </span>
-          <ng-container *ngTemplateOutlet="money; context: { $implicit: order.taxAmount }"></ng-container>
-        </div>
         <div class="item-total">
           <span>{{ 'd3.subscriptionRequests.detail.total' | translate }}</span>
           <ng-container *ngTemplateOutlet="money; context: { $implicit: order.totalAmount, large: true }"></ng-container>
@@ -129,9 +113,9 @@
   </aside>
 }
 
-<ng-template #money let-value let-sign="sign" let-large="large">
+<ng-template #money let-value let-sign="sign" let-large="large" let-precise="precise">
   <span class="money" [class.money--large]="large">
-    {{ sign ?? '' }}{{ fmtAmount(value) }}
+    {{ sign ?? '' }}{{ precise ? fmtPrecise(value) : fmtAmount(value) }}
     <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
       [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
       [style.mask-image]="'url(' + currencyIconSrc + ')'"

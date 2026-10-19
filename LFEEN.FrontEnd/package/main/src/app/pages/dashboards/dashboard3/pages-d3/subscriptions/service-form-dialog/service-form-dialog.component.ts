@@ -13,9 +13,11 @@ import {
 import { SUBSCRIPTION_CATEGORY_KEYS, categoryKeyFromLabel } from '../interfaces/service-visual.util';
 import { buildCatalogUpdate } from '../interfaces/catalog-update.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { BillingFormValue, billingFieldsError, billingRequestFields } from '../interfaces/billing-fields.util';
+import { BillingFieldsComponent } from '../billing-fields/billing-fields.component';
 
-/** `create` = POST /catalog. `edit` = PUT /catalog/{id} for the descriptive fields only —
- *  state, type, activation and VAT stay on the service settings page. */
+/** `create` = POST /catalog, billing setup included. `edit` = PUT /catalog/{id} for the
+ *  descriptive fields only — state and billing stay on the service settings page. */
 export type ServiceFormDialogData =
   | { mode: 'create' }
   | { mode: 'edit'; item: SubscriptionCatalogItem };
@@ -27,7 +29,7 @@ const URL_PATTERN = /^https?:\/\/\S+$/i;
 @Component({
   selector: 'app-service-form-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, FormsModule, MaterialModule, TranslateModule, TablerIconsModule, BillingFieldsComponent],
   templateUrl: './service-form-dialog.component.html',
   styleUrls: [
     '../subscription-discount-codes/create-discount-code-dialog/create-discount-code-dialog.component.scss',
@@ -50,10 +52,18 @@ export class ServiceFormDialogComponent {
   category: string | null = null;
   logoUrl = '';
   isAvailable = false;
-  billingModel: SubscriptionBillingModel = 'Paid';
   displayOrder: number | null = null;
-  minimumMonthlyPrice: number | null = null;
-  minimumYearlyPrice: number | null = null;
+
+  /** Create only — on edit, billing is changed from the service settings page. */
+  billing: BillingFormValue = {
+    billingModel: 'Paid',
+    billingStyle: null,
+    hasSetupFee: false,
+    setupFeePrice: null,
+    hasTrial: false,
+    trialDurationDays: null,
+    trialTransactionCount: null,
+  };
 
   submitting = false;
   serverError = '';
@@ -71,10 +81,7 @@ export class ServiceFormDialogComponent {
       this.descriptionEn = item.descriptionEn ?? '';
       this.category = categoryKeyFromLabel(item.categoryLabel);
       this.logoUrl = item.logoUrl ?? '';
-      this.billingModel = item.billingModel ?? 'Paid';
       this.displayOrder = item.displayOrder;
-      this.minimumMonthlyPrice = item.minimumMonthlyPrice ?? null;
-      this.minimumYearlyPrice = item.minimumYearlyPrice ?? null;
     }
   }
 
@@ -92,7 +99,7 @@ export class ServiceFormDialogComponent {
     return this.data.item.categoryLabel || null;
   }
 
-  // ── Validation (the server returns a single message, so everything is checked here) ──
+  // ── Validation (mirrors the backend so the form says what's wrong first) ──
   get keyError(): string | null {
     if (this.isEdit) return null;
     const key = this.key.trim();
@@ -105,10 +112,6 @@ export class ServiceFormDialogComponent {
     return !!url && !URL_PATTERN.test(url);
   }
 
-  get minimumsInvalid(): boolean {
-    return [this.minimumMonthlyPrice, this.minimumYearlyPrice].some(v => v !== null && !(v >= 0));
-  }
-
   get displayOrderInvalid(): boolean {
     return this.isEdit && (this.displayOrder === null || !Number.isInteger(this.displayOrder) || this.displayOrder < 0);
   }
@@ -116,8 +119,8 @@ export class ServiceFormDialogComponent {
   get canSubmit(): boolean {
     return !this.submitting
       && !!this.nameAr.trim() && !!this.nameEn.trim()
-      && (this.isEdit || (!!this.key.trim() && !this.keyError))
-      && !this.logoError && !this.minimumsInvalid && !this.displayOrderInvalid;
+      && (this.isEdit || (!!this.key.trim() && !this.keyError && !billingFieldsError(this.billing)))
+      && !this.logoError && !this.displayOrderInvalid;
   }
 
   categoryLabel(key: string): string {
@@ -142,10 +145,6 @@ export class ServiceFormDialogComponent {
           ...(this.category ? { category: this.category } : {}),
           logoUrl: text(this.logoUrl),
           displayOrder: this.displayOrder ?? this.data.item.displayOrder,
-          // Floors only matter for paid services; free/built-in ones keep what they had.
-          ...(this.billingModel === 'Paid'
-            ? { minimumMonthlyPrice: this.minimumMonthlyPrice, minimumYearlyPrice: this.minimumYearlyPrice }
-            : {}),
         }))
       : this.service.createCatalogItem({
           key: this.key.trim(),
@@ -156,9 +155,8 @@ export class ServiceFormDialogComponent {
           category: this.category,
           logoUrl: text(this.logoUrl),
           isAvailable: this.isAvailable,
-          billingModel: this.billingModel,
-          // No admin approval exists, so every new service activates on payment.
-          activationMode: 'Instant',
+          billingModel: this.billing.billingModel,
+          ...billingRequestFields(this.billing),
         });
 
     request$.subscribe({
