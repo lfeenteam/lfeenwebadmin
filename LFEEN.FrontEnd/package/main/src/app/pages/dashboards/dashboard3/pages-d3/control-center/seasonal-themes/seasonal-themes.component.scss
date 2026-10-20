@@ -147,10 +147,52 @@
 
   .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-  &.status-active { background: #f0fdf4; color: #16a34a; }
-  &.status-scheduled { background: #fff7ed; color: #ea580c; }
-  &.status-expired,
-  &.status-disabled { background: #F1F5F9; color: #6B6B67; }
+  &.status-Live { background: #f0fdf4; color: #16a34a; }
+  &.status-Scheduled { background: #fff7ed; color: #ea580c; }
+  &.status-PendingReview { background: #fefce8; color: #ca8a04; }
+  &.status-Inactive,
+  &.status-Expired { background: #F1F5F9; color: #6B6B67; }
+}
+
+// Template themes stay invisible to users until approved — make them stand out.
+.st-card.is-pending { border-color: #FDE68A; }
+.st-card.is-busy { opacity: 0.75; }
+
+.st-pending-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  background: #FFFBEB;
+  color: #B45309;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+}
+
+.st-approve-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  border-radius: 10px;
+  background: #111110;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+
+  &:hover:not(:disabled) { background: #333330; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .st-key {
@@ -205,6 +247,15 @@
   span + span { margin-inline-start: -6px; }
 }
 
+.st-footer-start,
+.st-footer-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.st-footer-end { gap: 4px; }
+
 .st-edit-btn {
   all: unset;
   box-sizing: border-box;
@@ -217,8 +268,62 @@
   font-weight: 700;
   color: #111110;
 
-  &:hover { text-decoration: underline; }
+  &:hover:not(:disabled) { text-decoration: underline; }
   &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; border-radius: 4px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.st-more-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #45556C;
+
+  &:hover:not(:disabled) { background: #F1F5F9; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 1px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.st-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 150px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #45556C;
+
+  &.is-danger { color: #FB2C36; }
+}
+
+// Same black switch as the forms.
+.st-toggle {
+  --mdc-switch-selected-track-color: #111110;
+  --mdc-switch-selected-hover-track-color: #333330;
+  --mdc-switch-selected-focus-track-color: #111110;
+  --mdc-switch-selected-pressed-track-color: #111110;
+  --mdc-switch-selected-handle-color: #ffffff;
+  --mdc-switch-selected-hover-handle-color: #ffffff;
+  --mdc-switch-selected-focus-handle-color: #ffffff;
+  --mdc-switch-selected-pressed-handle-color: #ffffff;
+  --mdc-switch-selected-icon-color: #111110;
+  --mdc-switch-unselected-track-color: #E2E8F0;
+  --mdc-switch-unselected-hover-track-color: #E2E8F0;
+  --mdc-switch-unselected-focus-track-color: #E2E8F0;
+  --mdc-switch-unselected-pressed-track-color: #E2E8F0;
+  --mdc-switch-unselected-handle-color: #ffffff;
+  --mdc-switch-unselected-hover-handle-color: #ffffff;
+  --mdc-switch-unselected-focus-handle-color: #ffffff;
+  --mdc-switch-unselected-pressed-handle-color: #ffffff;
+  --mdc-switch-unselected-icon-color: #E2E8F0;
 }
 
 @media (max-width: 599px) {

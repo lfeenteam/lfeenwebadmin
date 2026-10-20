@@ -511,8 +511,19 @@
     </div>
   </div>
 
-  <!-- Subscribers (read-only, GET /{id}/subscribers) -->
-  <div class="section-card">
+  <!-- Footer actions -->
+  <div class="footer-actions d-flex align-items-center justify-content-between flex-wrap gap-16">
+    <p class="footer-note m-0">{{ 'd3.subscriptions.serviceSettings.footerNote' | translate }}</p>
+    <div class="d-flex gap-12">
+      <button type="button" class="cancel-btn" [disabled]="saving" (click)="goBack()">{{ 'd3.subscriptions.serviceSettings.cancelBtn' | translate }}</button>
+      <button type="button" class="save-btn" [disabled]="saving" (click)="saveSettings()">
+        {{ (saving ? 'd3.subscriptions.serviceSettings.saving' : 'd3.subscriptions.serviceSettings.saveBtn') | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Subscribers (GET /{id}/subscribers): a read-only report, below Save — nothing in it is saved by the button above. -->
+  <div class="section-card m-t-24">
     <div class="card-head d-flex align-items-center justify-content-between flex-wrap gap-16">
       <div>
         <h3 class="card-title">{{ 'd3.subscriptions.serviceSettings.facilities.title' | translate }}</h3>
@@ -537,8 +548,10 @@
             <tr>
               <th>{{ 'd3.subscriptions.serviceSettings.facilities.facility' | translate }}</th>
               <th>{{ 'd3.subscriptions.serviceSettings.facilities.plan' | translate }}</th>
-              <th>{{ 'd3.subscriptions.serviceSettings.facilities.startDate' | translate }}</th>
-              <th>{{ 'd3.subscriptions.serviceSettings.facilities.renewalDate' | translate }}</th>
+              @if (showSubscriberDates) {
+                <th>{{ 'd3.subscriptions.serviceSettings.facilities.startDate' | translate }}</th>
+                <th>{{ 'd3.subscriptions.serviceSettings.facilities.renewalDate' | translate }}</th>
+              }
               <th>{{ 'd3.subscriptions.serviceSettings.facilities.amountPaid' | translate }}</th>
               <th>{{ 'd3.subscriptions.serviceSettings.facilities.status' | translate }}</th>
             </tr>
@@ -556,8 +569,10 @@
                   <span class="plan-badge plan-monthly">{{ facility.planLabel }}</span>
                   @if (facility.billingModel === 'Free') { <span class="semantic-badge badge-free m-s-6">{{ 'd3.subscriptions.detail.free' | translate }}</span> }
                 </td>
-                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.startDate' | translate">{{ facility.startDate }}</td>
-                <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.renewalDate' | translate">{{ facility.renewalDate === '-' && facility.isActive ? ('d3.subscriptions.period.noExpiry' | translate) : facility.renewalDate }}</td>
+                @if (showSubscriberDates) {
+                  <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.startDate' | translate">{{ facility.startDate }}</td>
+                  <td class="date-cell" [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.renewalDate' | translate">{{ facility.renewalDate === '-' && facility.isActive ? ('d3.subscriptions.period.noExpiry' | translate) : facility.renewalDate }}</td>
+                }
                 <td [attr.data-label]="'d3.subscriptions.serviceSettings.facilities.amountPaid' | translate">
                   @if (facility.price === null && facility.billingModel === 'Free') {
                     <span class="free-label">{{ 'd3.subscriptions.detail.free' | translate }}</span>
@@ -577,7 +592,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="text-center text-muted-cell empty-cell">
+                <td [attr.colspan]="showSubscriberDates ? 6 : 4" class="text-center text-muted-cell empty-cell">
                   {{ (subscribersLoading ? 'd3.subscriptions.serviceSettings.loading' : 'd3.subscriptions.serviceSettings.facilities.empty') | translate }}
                 </td>
               </tr>
@@ -606,17 +621,6 @@
         </button>
       </div>
     }
-    </div>
-  </div>
-
-  <!-- Footer actions -->
-  <div class="footer-actions d-flex align-items-center justify-content-between flex-wrap gap-16">
-    <p class="footer-note m-0">{{ 'd3.subscriptions.serviceSettings.footerNote' | translate }}</p>
-    <div class="d-flex gap-12">
-      <button type="button" class="cancel-btn" [disabled]="saving" (click)="goBack()">{{ 'd3.subscriptions.serviceSettings.cancelBtn' | translate }}</button>
-      <button type="button" class="save-btn" [disabled]="saving" (click)="saveSettings()">
-        {{ (saving ? 'd3.subscriptions.serviceSettings.saving' : 'd3.subscriptions.serviceSettings.saveBtn') | translate }}
-      </button>
     </div>
   </div>
 

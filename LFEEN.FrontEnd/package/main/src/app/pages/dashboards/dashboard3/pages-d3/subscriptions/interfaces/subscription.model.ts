@@ -11,7 +11,12 @@ export interface SubscriptionServiceItem {
   /** Already-translated category label from the API ('-' when missing). */
   categoryLabel: string;
   icon: string;
+  /** amount = a fixed price (Package option / pack); perUnit / percent = a Transaction rate (percent already ×100). */
+  priceKind: 'amount' | 'perUnit' | 'percent';
   priceValue: number | null;
+  /** The chosen period's own name ("1 Month"), or '' when the line has none. */
+  periodName: string;
+  /** Tier and period together, for the tier column. */
   periodLabel: string;
   startDate: string;
   endDate: string;
@@ -25,8 +30,8 @@ export interface SubscriberAccount {
   facilityName: string;
   status: SubscriptionStatus;
   statusLabel: string;
+  /** monthlyEquivalentTotal: Package lines price ÷ (days ÷ 30), Transaction lines the last 30 days' usage. */
   feesAmountValue: number;
-  feesAnnualValue: number;
   services: SubscriptionServiceItem[];
 }
 

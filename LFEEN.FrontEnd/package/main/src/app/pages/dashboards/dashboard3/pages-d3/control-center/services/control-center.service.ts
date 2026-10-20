@@ -1,141 +1,81 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError, timer } from 'rxjs';
-import { delay, mergeMap } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import {
-  AppPlatformStatus, AppVersionSettings, ControlCenterApp, ControlCenterPlatform, ControlCenterSummary,
-  MaintenanceSettings, SaveMaintenanceRequest, SaveThemeRequest, SeasonalTheme, themeStatus, todayIsoDate,
+  ControlCenterApp, ControlCenterPlatform, ControlCenterSummary, ReleaseConfig, SaveMaintenanceRequest,
+  SaveReleaseRequest, SaveThemeRequest, SeasonalTheme, VersionImpact,
 } from '../interfaces/control-center.model';
 
-const FAKE_LATENCY_MS = 300;
-
 /**
- * There's no control-center endpoint yet, so this keeps design sample data in memory.
- * Swap the bodies for HttpClient calls once the backend ships — the signatures stay.
+ * LFEENAdmin.API app-runtime endpoints. The backend talks to the main API, does partial
+ * updates, Saudi-day ↔ UTC conversion and audit logging. Auth + Accept-Language come
+ * from AuthInterceptor. Every success is 200 with the payload itself (no envelope).
  */
 @Injectable({ providedIn: 'root' })
 export class ControlCenterService {
-  private settings: Record<ControlCenterApp, MaintenanceSettings> = {
-    client: this.defaultSettings('client'),
-    merchant: this.defaultSettings('merchant'),
-  };
-  /** Keyed "app-platform"; filled lazily with defaults on first read. */
-  private versions: Record<string, AppVersionSettings> = {};
-  private themes: SeasonalTheme[] = this.sampleThemes();
-  private nextThemeId = 3;
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiBaseUrl}/api/app-runtime`;
 
   getSummary(): Observable<ControlCenterSummary> {
-    const apps = this.appStatuses();
-    const today = todayIsoDate();
-    const statuses = this.themes.map(t => themeStatus(t, today));
-    return of({
-      platformsCount: apps.length,
-      maintenanceCount: apps.filter(a => a.status === 'maintenance').length,
-      activeThemes: statuses.filter(s => s === 'active').length,
-      scheduledThemes: statuses.filter(s => s === 'scheduled').length,
-      apps,
-    }).pipe(delay(FAKE_LATENCY_MS));
+    return this.http.get<ControlCenterSummary>(`${this.apiUrl}/summary`);
   }
 
-  // ── Seasonal themes ─────────────────────────────────────────
+  // ── Themes ──────────────────────────────────────────────────
 
+  /** Without `app` the list covers every app; inactive ones included, expired ones not. */
   getThemes(): Observable<SeasonalTheme[]> {
-    return of(this.themes.map(t => ({ ...t }))).pipe(delay(FAKE_LATENCY_MS));
+    const params = new HttpParams().set('includeInactive', true).set('includeExpired', false);
+    return this.http.get<SeasonalTheme[]>(`${this.apiUrl}/themes`, { params });
   }
 
-  /** Creates when `id` is null. Fails with a 409 when the key is already taken, like the API will. */
-  saveTheme(id: number | null, body: SaveThemeRequest): Observable<SeasonalTheme> {
-    const key = body.key.trim().toLowerCase();
-    if (this.themes.some(t => t.key === key && t.id !== id)) {
-      return timer(FAKE_LATENCY_MS).pipe(mergeMap(() => throwError(() => ({ status: 409 }))));
-    }
-    const saved: SeasonalTheme = { ...body, key, id: id ?? this.nextThemeId++ };
-    this.themes = id == null ? [...this.themes, saved] : this.themes.map(t => (t.id === id ? saved : t));
-    return of({ ...saved }).pipe(delay(FAKE_LATENCY_MS));
+  getTheme(id: string): Observable<SeasonalTheme> {
+    return this.http.get<SeasonalTheme>(`${this.apiUrl}/themes/${encodeURIComponent(id)}`);
   }
 
-  /** Dates sit around today so the sample shows both an active and a scheduled theme. */
-  private sampleThemes(): SeasonalTheme[] {
-    const shift = (days: number) => {
-      const d = new Date();
-      d.setDate(d.getDate() + days);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    };
-    return [
-      {
-        id: 1, name: 'رمضان كريم', key: 'ramadan-2026', app: 'client',
-        startDate: shift(-5), endDate: shift(25),
-        primaryColor: '#153E36', secondaryColor: '#DDBE74', bannerUrl: null, enabled: true,
-      },
-      {
-        id: 2, name: 'اليوم الوطني', key: 'saudi-national-day', app: 'client',
-        startDate: shift(30), endDate: shift(35),
-        primaryColor: '#0F7A3D', secondaryColor: '#DDBE74', bannerUrl: null, enabled: true,
-      },
-    ];
+  createTheme(body: SaveThemeRequest): Observable<SeasonalTheme> {
+    return this.http.post<SeasonalTheme>(`${this.apiUrl}/themes`, body);
   }
 
-  getMaintenance(app: ControlCenterApp): Observable<MaintenanceSettings> {
-    return of({ ...this.settings[app] }).pipe(delay(FAKE_LATENCY_MS));
+  updateTheme(id: string, body: SaveThemeRequest): Observable<SeasonalTheme> {
+    return this.http.put<SeasonalTheme>(`${this.apiUrl}/themes/${encodeURIComponent(id)}`, body);
   }
 
-  saveMaintenance(body: SaveMaintenanceRequest): Observable<MaintenanceSettings> {
-    const { bypassKey, ...rest } = body;
-    const saved: MaintenanceSettings = {
-      ...rest,
-      hasBypassKey: this.settings[body.app].hasBypassKey || !!bypassKey,
-    };
-    this.settings[body.app] = saved;
-    return of({ ...saved }).pipe(delay(FAKE_LATENCY_MS));
+  setThemeActive(id: string, isActive: boolean): Observable<SeasonalTheme> {
+    return this.http.patch<SeasonalTheme>(`${this.apiUrl}/themes/${encodeURIComponent(id)}/active`, { isActive });
   }
 
-  getVersionSettings(app: ControlCenterApp, platform: ControlCenterPlatform): Observable<AppVersionSettings> {
-    const key = `${app}-${platform}`;
-    this.versions[key] ??= this.defaultVersion(app, platform);
-    return of({ ...this.versions[key] }).pipe(delay(FAKE_LATENCY_MS));
+  /** Soft delete — the key becomes free again. */
+  deleteTheme(id: string): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.apiUrl}/themes/${encodeURIComponent(id)}`);
   }
 
-  saveVersionSettings(body: AppVersionSettings): Observable<AppVersionSettings> {
-    this.versions[`${body.app}-${body.platform}`] = { ...body };
-    return of({ ...body }).pipe(delay(FAKE_LATENCY_MS));
+  approveTheme(id: string): Observable<SeasonalTheme> {
+    return this.http.post<SeasonalTheme>(`${this.apiUrl}/themes/${encodeURIComponent(id)}/approve`, null);
   }
 
-  private defaultVersion(app: ControlCenterApp, platform: ControlCenterPlatform): AppVersionSettings {
-    return {
-      app,
-      platform,
-      latestVersion: '4.8.0',
-      minSupportedVersion: '4.5.0',
-      policy: 'forced',
-      storeUrl: platform === 'ios'
-        ? `https://apps.apple.com/app/lfeen${app === 'merchant' ? '-business' : ''}`
-        : `https://play.google.com/store/apps/details?id=com.lfeen.${app === 'merchant' ? 'business' : 'app'}`,
-      message: 'يتوفر إصدار جديد من تطبيق لفين، يرجى التحديث للاستمرار والاستفادة من أحدث المميزات.',
-    };
+  /** days ∈ [-30, 30] and ≠ 0; negative moves the theme earlier. */
+  shiftTheme(id: string, days: number): Observable<SeasonalTheme> {
+    return this.http.post<SeasonalTheme>(`${this.apiUrl}/themes/${encodeURIComponent(id)}/shift`, { days });
   }
 
-  private appStatuses(): AppPlatformStatus[] {
-    const statuses: AppPlatformStatus[] = [];
-    for (const app of ['client', 'merchant'] as const) {
-      const s = this.settings[app];
-      for (const platform of ['ios', 'android'] as const) {
-        const affected = s.enabled && (s.target === 'all' || s.target === platform);
-        statuses.push({ app, platform, status: affected ? 'maintenance' : 'running' });
-      }
-    }
-    return statuses;
+  // ── Releases & maintenance ──────────────────────────────────
+
+  /** One entry per platform (Web included — callers ignore it). Feeds both tabs. */
+  getReleases(app: ControlCenterApp): Observable<ReleaseConfig[]> {
+    return this.http.get<ReleaseConfig[]>(`${this.apiUrl}/releases`, { params: { app } });
   }
 
-  private defaultSettings(app: ControlCenterApp): MaintenanceSettings {
-    return {
-      app,
-      target: 'all',
-      enabled: false,
-      scheduled: false,
-      startsAt: null,
-      endsAt: null,
-      title: 'نقوم بتحسين تجربتك',
-      message: 'تطبيق لفين يخضع حاليًا لبعض التحسينات. سنعود إليك قريبًا، شكرًا لتفهمك.',
-      hasBypassKey: false,
-    };
+  getVersionImpact(app: ControlCenterApp, platform: ControlCenterPlatform, minVersion: string): Observable<VersionImpact> {
+    return this.http.get<VersionImpact>(`${this.apiUrl}/releases/${app}/${platform}/impact`, { params: { minVersion } });
+  }
+
+  saveRelease(app: ControlCenterApp, platform: ControlCenterPlatform, body: SaveReleaseRequest): Observable<ReleaseConfig> {
+    return this.http.put<ReleaseConfig>(`${this.apiUrl}/releases/${app}/${platform}`, body);
+  }
+
+  /** Returns one entry per platform it changed. */
+  saveMaintenance(app: ControlCenterApp, body: SaveMaintenanceRequest): Observable<ReleaseConfig[]> {
+    return this.http.put<ReleaseConfig[]>(`${this.apiUrl}/maintenance/${app}`, body);
   }
 }

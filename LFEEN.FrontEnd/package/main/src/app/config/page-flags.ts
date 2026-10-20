@@ -6,7 +6,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'permission-groups': false,
   'call-scripts': true,             // wired to /api/call-scripts (list, create, update)
   esim: true,                       // design sample data from EsimService — no backend endpoint yet
-  'control-center': true,           // in-memory sample data from ControlCenterService — no backend endpoint yet
+  'control-center': true,           // wired to /api/app-runtime (summary, themes, releases, maintenance)
   dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // platform-settings: all fields are static literals

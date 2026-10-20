@@ -1,0 +1,195 @@
+<div class="cc-tab-grid" [dir]="currentDir">
+
+  <!-- Form -->
+  <form class="cc-form" [formGroup]="form" (ngSubmit)="onSave()">
+    <header class="cc-section-head">
+      <span class="cc-section-icon"><i-tabler name="tool" class="icon-18"></i-tabler></span>
+      <div>
+        <h3>{{ 'd3.controlCenter.maintenance.title' | translate }}</h3>
+        <p>{{ 'd3.controlCenter.maintenance.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    @if (!canManage) {
+      <div class="cc-readonly-note">
+        <i-tabler name="lock" class="icon-16"></i-tabler>
+        {{ 'd3.controlCenter.readOnly' | translate }}
+      </div>
+    }
+
+    <div class="cc-segments-row">
+      <div class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.maintenance.targetApp' | translate }}</span>
+        <div class="cc-segmented" role="radiogroup">
+          @for (opt of appOptions; track opt.value) {
+            <button type="button" role="radio" class="cc-segment" [class.active]="selectedApp === opt.value"
+              [attr.aria-checked]="selectedApp === opt.value" [disabled]="saving" (click)="selectApp(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.maintenance.targetPlatform' | translate }}</span>
+        <div class="cc-segmented" role="radiogroup">
+          @for (opt of targetOptions; track opt.value) {
+            <button type="button" role="radio" class="cc-segment" [class.active]="form.controls.target.value === opt.value"
+              [attr.aria-checked]="form.controls.target.value === opt.value" [disabled]="saving || loading"
+              (click)="setTarget(opt.value)">
+              {{ opt.labelKey | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (loading) {
+      <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
+    } @else if (loadError) {
+      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" [descKey]="loadError"
+        actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="load()"></app-dashboard-empty>
+    } @else {
+      @if (mixedNote) {
+        <div class="cc-info-note">
+          <i-tabler name="info-circle" class="icon-16"></i-tabler>
+          <span>{{ mixedNote }} {{ 'd3.controlCenter.maintenance.mixedNoteSave' | translate }}</span>
+        </div>
+      }
+
+      <div class="cc-toggle-row">
+        <div class="cc-stack">
+          <strong>
+            {{ 'd3.controlCenter.maintenance.enable' | translate }}
+            @if (isActiveNow) {
+              <span class="cc-live-pill">{{ 'd3.controlCenter.maintenance.activeNow' | translate }}</span>
+            }
+          </strong>
+          <small>{{ 'd3.controlCenter.maintenance.enableDesc' | translate }}</small>
+        </div>
+        <mat-slide-toggle formControlName="enabled" [attr.aria-label]="'d3.controlCenter.maintenance.enable' | translate"></mat-slide-toggle>
+      </div>
+
+      @if (form.controls.enabled.value) {
+        <div class="cc-toggle-row">
+          <div class="cc-stack">
+            <strong>{{ 'd3.controlCenter.maintenance.schedule' | translate }}</strong>
+            <small>{{ 'd3.controlCenter.maintenance.scheduleDesc' | translate }}</small>
+          </div>
+          <mat-slide-toggle formControlName="scheduled" [attr.aria-label]="'d3.controlCenter.maintenance.schedule' | translate"></mat-slide-toggle>
+        </div>
+
+        @if (form.controls.scheduled.value) {
+          <div class="cc-schedule">
+            @for (field of scheduleFields; track field.name) {
+              <div class="cc-field">
+                <span class="cc-label">{{ field.labelKey | translate }}</span>
+                <div class="cc-date-wrap">
+                  <button type="button" class="cc-input cc-date-pill" [class.is-invalid]="scheduleError || fieldServerError(field.name)"
+                    [disabled]="!canManage" [matMenuTriggerFor]="dateTimeMenu" (menuClosed)="form.controls[field.name].markAsTouched()">
+                    <i-tabler name="calendar" class="icon-18 cc-date-icon"></i-tabler>
+                    <span class="cc-date-label" [class.is-placeholder]="!form.controls[field.name].value">
+                      {{ dateTimeLabel(form.controls[field.name].value) || (field.hintKey | translate) }}
+                    </span>
+                  </button>
+                  @if (form.controls[field.name].value && canManage) {
+                    <button type="button" class="cc-date-clear" (click)="clearDate(field.name)"
+                      [attr.aria-label]="'d3.controlCenter.maintenance.clearDate' | translate">
+                      <i-tabler name="x" class="icon-14"></i-tabler>
+                    </button>
+                  }
+                </div>
+                <mat-menu #dateTimeMenu="matMenu" class="single-date-calendar-menu" yPosition="below">
+                  <ng-template matMenuContent>
+                    <div class="cc-date-time-popover" (click)="$event.stopPropagation()">
+                      <app-single-date-calendar
+                        [value]="datePart(form.controls[field.name].value)"
+                        [minDate]="minDateFor(field.name)"
+                        (dateSelected)="setDatePart(field.name, $event)">
+                      </app-single-date-calendar>
+                      <app-time-select
+                        [value]="timePart(form.controls[field.name].value)"
+                        (timeSelected)="setTimePart(field.name, $event)">
+                      </app-time-select>
+                    </div>
+                  </ng-template>
+                </mat-menu>
+                @if (fieldServerError(field.name); as err) {
+                  <small class="cc-error">{{ err }}</small>
+                }
+              </div>
+            }
+            <small class="cc-hint cc-schedule-error">{{ 'd3.controlCenter.maintenance.riyadhTimeHint' | translate }}</small>
+            @if (scheduleError) {
+              <small class="cc-error cc-schedule-error">{{ scheduleError | translate }}</small>
+            }
+          </div>
+        }
+      }
+
+      <label class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.maintenance.message' | translate }}</span>
+        <textarea class="cc-input cc-textarea" rows="3" formControlName="message" [maxlength]="messageMax"
+          [class.is-invalid]="fieldServerError('messageAr')"
+          [placeholder]="'d3.controlCenter.maintenance.messagePlaceholder' | translate"></textarea>
+        @if (fieldServerError('messageAr'); as err) {
+          <small class="cc-error">{{ err }}</small>
+        } @else {
+          <small class="cc-hint">{{ 'd3.controlCenter.maintenance.messageHint' | translate }}</small>
+        }
+      </label>
+    }
+
+    @if (serverError && !serverError.fieldErrors['startsAt'] && !serverError.fieldErrors['endsAt'] && !serverError.fieldErrors['messageAr']) {
+      <div class="cc-form-error" role="alert">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ serverError.message }}</span>
+      </div>
+    }
+
+    @if (canManage) {
+      <footer class="cc-actions">
+        <button type="submit" class="cc-btn cc-btn-primary" [disabled]="!canSave">
+          @if (saving) {
+            <mat-spinner diameter="16"></mat-spinner>
+          } @else {
+            <i-tabler name="check" class="icon-16"></i-tabler>
+          }
+          {{ 'd3.controlCenter.maintenance.save' | translate }}
+        </button>
+        <button type="button" class="cc-btn cc-btn-outline" [disabled]="!form.dirty || saving" (click)="onCancel()">
+          {{ 'd3.controlCenter.maintenance.cancel' | translate }}
+        </button>
+      </footer>
+    }
+  </form>
+
+  <!-- Live preview (built from the form — no request) -->
+  <aside class="cc-preview">
+    <header class="cc-preview-head">
+      <span>{{ 'd3.controlCenter.preview.title' | translate }}</span>
+      <span class="cc-badge">{{ 'd3.controlCenter.preview.badge' | translate }}</span>
+    </header>
+
+    <div class="cc-preview-stage">
+      <app-phone-frame class="cc-phone" [platform]="form.controls.target.value === 'Android' ? 'android' : 'ios'">
+        <div class="mp-screen" [dir]="currentDir">
+          <span class="mp-icon"><i-tabler name="tool" class="icon-24"></i-tabler></span>
+          <!-- The apps never receive a title — this one is fixed in the app itself. -->
+          <h4 class="mp-title">{{ 'd3.controlCenter.preview.maintenanceTitle' | translate }}</h4>
+          <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.preview.maintenanceFallback' | translate) }}</p>
+          <span class="mp-retry">
+            <i-tabler name="refresh" class="icon-14"></i-tabler>
+            {{ 'd3.controlCenter.preview.retry' | translate }}
+          </span>
+          <small class="mp-hint">{{ 'd3.controlCenter.preview.retryHint' | translate }}</small>
+        </div>
+      </app-phone-frame>
+    </div>
+
+    <div class="cc-preview-note">
+      <i-tabler name="shield-check" class="icon-16"></i-tabler>
+      <span>{{ 'd3.controlCenter.preview.note' | translate }}</span>
+    </div>
+  </aside>
+</div>

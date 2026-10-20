@@ -429,6 +429,50 @@
   color: #CBD5E1;
 }
 
+// ── Notes above / inside the form ───────────────────────────
+%cc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+}
+
+// Shown when the admin lacks the Manage* permission for this tab.
+.cc-readonly-note {
+  @extend %cc-note;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #45556C;
+}
+
+.cc-info-note {
+  @extend %cc-note;
+  border: 1px solid #BFDBFE;
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.cc-warn-note {
+  @extend %cc-note;
+  border: 1px solid #FDE68A;
+  background: #FFFBEB;
+  color: #B45309;
+}
+
+// A server rejection no single field claimed (e.g. VALIDATION_ERROR from the main API).
+.cc-form-error {
+  @extend %cc-note;
+  border: 1px solid #FECACA;
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
 @media (max-width: 991px) {
   .cc-tab-grid { grid-template-columns: 1fr; }
   .cc-preview { min-height: 0; border-inline-start: 0; border-top: 1px solid #F0F0F0; }

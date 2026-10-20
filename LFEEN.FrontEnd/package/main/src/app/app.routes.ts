@@ -5,6 +5,7 @@ import { LanguageRedirectGuard } from './guards/language-redirect.guard';
 import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
 import { authGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
+import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 
 export const routes: Routes = [
   {
@@ -406,7 +407,8 @@ export const routes: Routes = [
               },
               {
                 path: 'control-center',
-                canActivate: [authGuard, pageFlagGuard('control-center')],
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, pageFlagGuard('control-center'), appRuntimeViewGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/control-center/control-center.component'

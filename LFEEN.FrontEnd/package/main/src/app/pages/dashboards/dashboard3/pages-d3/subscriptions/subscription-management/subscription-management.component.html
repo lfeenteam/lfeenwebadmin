@@ -86,10 +86,13 @@
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptions.table.activeServices' | translate }}</span>
-                  <div class="d-flex align-items-center gap-6">
+                  <div class="d-flex align-items-center flex-wrap gap-6">
                     @for (svc of account.services.slice(0, maxServiceIcons); track $index) {
-                      <span class="service-mini-icon d-flex align-items-center justify-content-center" [matTooltip]="svc.name">
-                        <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                      <span class="service-chip d-inline-flex align-items-center gap-6" [class.service-chip--expired]="svc.expired">
+                        <span class="service-mini-icon d-flex align-items-center justify-content-center">
+                          <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                        </span>
+                        <span class="service-chip-name">{{ svc.name }}</span>
                       </span>
                     }
                     @if (extraServicesCount(account) > 0) {
@@ -101,11 +104,19 @@
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptions.table.fees' | translate }}</span>
-                  <div class="d-flex align-items-center gap-4">
-                    <span class="f-s-14 f-w-800">{{ fmt(account.feesAmountValue) }}</span>
-                    <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
-                  </div>
-                  <span class="fees-period">{{ fmt(account.feesAnnualValue) }} / {{ 'd3.subscriptions.period.annual' | translate }}</span>
+                  @if (singleActiveService(account); as only) {
+                    <!-- One active line: its own price, exactly as the details show it -->
+                    <div class="f-s-14 f-w-800">
+                      <ng-container *ngTemplateOutlet="linePrice; context: { $implicit: only }"></ng-container>
+                    </div>
+                  } @else {
+                    <!-- Several lines: the monthly equivalent, repeated under the details table -->
+                    <div class="d-flex align-items-center gap-4" [matTooltip]="'d3.subscriptions.table.feesTooltip' | translate">
+                      <span class="f-s-14 f-w-800">{{ fmtPrecise(account.feesAmountValue) }}</span>
+                      <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+                    </div>
+                    <span class="fees-period">{{ 'd3.subscriptions.table.feesPerMonth' | translate }}</span>
+                  }
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptions.table.status' | translate }}</span>
@@ -140,8 +151,10 @@
                               <th>{{ 'd3.subscriptions.detail.category' | translate }}</th>
                               <th>{{ 'd3.subscriptions.detail.price' | translate }}</th>
                               <th>{{ 'd3.subscriptions.detail.subscriptionType' | translate }}</th>
-                              <th>{{ 'd3.subscriptions.detail.startDate' | translate }}</th>
-                              <th>{{ 'd3.subscriptions.detail.endDate' | translate }}</th>
+                              @if (hasDates(account)) {
+                                <th>{{ 'd3.subscriptions.detail.startDate' | translate }}</th>
+                                <th>{{ 'd3.subscriptions.detail.endDate' | translate }}</th>
+                              }
                             </tr>
                           </thead>
                           <tbody>
@@ -163,36 +176,41 @@
                                 </td>
                                 <td class="f-w-700">
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.price' | translate }}</span>
-                                  @if (svc.priceValue === null && svc.billingModel === 'Free') {
-                                    {{ 'd3.subscriptions.detail.free' | translate }}
-                                  } @else if (svc.priceValue === null) {
-                                    -
-                                  } @else if (svc.priceValue === 0) {
-                                    {{ 'd3.subscriptions.detail.free' | translate }}
-                                  } @else {
-                                    <div class="d-flex align-items-center gap-4">
-                                      <span>{{ fmt(svc.priceValue) }}</span>
-                                      <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
-                                    </div>
-                                  }
+                                  <ng-container *ngTemplateOutlet="linePrice; context: { $implicit: svc }"></ng-container>
                                 </td>
                                 <td>
                                   <span class="mobile-field-label">{{ 'd3.subscriptions.detail.subscriptionType' | translate }}</span>
                                   <span class="type-badge">{{ svc.periodLabel }}</span>
                                 </td>
-                                <td class="text-muted-cell">
-                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.startDate' | translate }}</span>
-                                  {{ svc.startDate }}
-                                </td>
-                                <td class="text-muted-cell">
-                                  <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
-                                  {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.period.noExpiry' | translate) : svc.endDate }}
-                                </td>
+                                @if (hasDates(account)) {
+                                  <td class="text-muted-cell">
+                                    <span class="mobile-field-label">{{ 'd3.subscriptions.detail.startDate' | translate }}</span>
+                                    {{ svc.startDate }}
+                                  </td>
+                                  <td class="text-muted-cell">
+                                    <span class="mobile-field-label">{{ 'd3.subscriptions.detail.endDate' | translate }}</span>
+                                    {{ svc.endDate === '-' && !svc.expired ? ('d3.subscriptions.period.noExpiry' | translate) : svc.endDate }}
+                                  </td>
+                                }
                               </tr>
                             }
                           </tbody>
                         </table>
                       </div>
+
+                      @if (activeServiceCount(account) > 1) {
+                        <!-- Same figure as the row's fees column, so the two always agree -->
+                        <div class="detail-total d-flex align-items-center justify-content-between flex-wrap gap-8 m-t-12">
+                          <span class="detail-total-label d-flex align-items-center gap-4">
+                            {{ 'd3.subscriptions.detail.monthlyTotal' | translate }}
+                            <i-tabler name="info-circle" class="icon-14" [matTooltip]="'d3.subscriptions.table.feesTooltip' | translate"></i-tabler>
+                          </span>
+                          <span class="d-flex align-items-center gap-4 f-s-14 f-w-800">
+                            {{ fmtPrecise(account.feesAmountValue) }}
+                            <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+                          </span>
+                        </div>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -253,3 +271,27 @@
   }
 
 </div>
+
+<!-- A line's price with what it buys: the period, one operation, or a share of its value. -->
+<ng-template #linePrice let-svc>
+  @if (svc.priceValue === null && svc.billingModel === 'Free') {
+    {{ 'd3.subscriptions.detail.free' | translate }}
+  } @else if (svc.priceValue === null) {
+    -
+  } @else if (svc.priceValue === 0) {
+    {{ 'd3.subscriptions.detail.free' | translate }}
+  } @else if (svc.priceKind === 'percent') {
+    <span>{{ fmtPrecise(svc.priceValue) }}%</span>
+    <span class="price-unit d-block">{{ 'd3.subscriptions.detail.ofValue' | translate }}</span>
+  } @else {
+    <div class="d-flex align-items-center gap-4">
+      <span>{{ fmtPrecise(svc.priceValue) }}</span>
+      <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="fees-currency-icon" [class.currency-icon-en]="currencyIconEn" />
+    </div>
+    @if (svc.priceKind === 'perUnit') {
+      <span class="price-unit d-block">{{ 'd3.subscriptions.detail.perOperation' | translate }}</span>
+    } @else if (svc.periodName) {
+      <span class="price-unit d-block">/ {{ svc.periodName }}</span>
+    }
+  }
+</ng-template>

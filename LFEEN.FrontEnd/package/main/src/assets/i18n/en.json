@@ -2536,9 +2536,11 @@
     },
     "controlCenter": {
       "title": "Control Center",
-      "lastUpdatedNow": "Last updated just now",
-      "lastReviewedNow": "Last reviewed just now",
       "footer": "Apps Control Center",
+      "lastUpdated": "Last updated {{time}}",
+      "readOnly": "You have view-only access to this section.",
+      "pendingAlert": "{{count}} theme(s) are awaiting review. Users won't see them until approved.",
+      "pendingAlertAction": "Review themes",
       "stats": {
         "platforms": "App platforms",
         "platformsNote": "Client & merchant · iOS Android",
@@ -2546,21 +2548,26 @@
         "allRunning": "All systems operational",
         "someDown": "Some platforms are paused",
         "themes": "Seasonal themes",
-        "themesNote": "{{active}} active · {{scheduled}} scheduled"
+        "themesNote": "{{active}} live · {{scheduled}} scheduled"
       },
       "apps": {
         "title": "Apps status",
         "subtitle": "A quick look at every app and platform",
-        "client": "Client app",
-        "merchant": "Merchant app"
+        "Client": "Client app",
+        "Host": "Merchant app",
+        "ServiceApp": "Service app",
+        "all": "All apps"
       },
       "platforms": {
-        "ios": "Apple iOS",
-        "android": "Android"
+        "Ios": "Apple iOS",
+        "Android": "Android",
+        "Web": "Web"
       },
       "status": {
-        "running": "Running",
-        "maintenance": "Maintenance"
+        "Running": "Running",
+        "UnderMaintenance": "Under maintenance",
+        "MaintenanceScheduled": "Maintenance scheduled",
+        "scheduledAt": "Starts {{time}}"
       },
       "tabs": {
         "maintenance": "Maintenance mode",
@@ -2579,27 +2586,33 @@
         },
         "enable": "Enable maintenance mode",
         "enableDesc": "Requests from the target app will be blocked temporarily",
+        "activeNow": "Active now",
         "schedule": "Schedule maintenance",
         "scheduleDesc": "Start and end maintenance automatically",
         "startsAt": "Starts at",
         "endsAt": "Ends at",
-        "pickDateTime": "Pick date & time",
-        "messageTitle": "Maintenance message title",
-        "messageTitlePlaceholder": "We're improving your experience",
+        "startsAtHint": "Immediately",
+        "endsAtHint": "Until switched off",
+        "clearDate": "Clear time",
+        "riyadhTimeHint": "Times are in Saudi time.",
         "message": "Maintenance message",
-        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon.",
-        "bypassKey": "Maintenance bypass key for testers",
-        "bypassKeyPlaceholder": "Enter a secure key",
-        "bypassKeySet": "A key is set — leave empty to keep it",
-        "bypassKeyHint": "The key won't be shown again after saving.",
+        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
+        "messageHint": "The message is kept after maintenance is switched off.",
         "save": "Save maintenance settings",
         "cancel": "Discard changes",
         "saveSuccess": "Maintenance settings saved",
+        "mixedNote": "Maintenance is on for {{platform}} only.",
+        "mixedNoteSave": "Saving applies these settings to both platforms.",
+        "confirm": {
+          "title": "Enable maintenance mode?",
+          "message": "{{app}} ({{platforms}}) will be locked for every user right away, until maintenance is switched off.",
+          "scheduledMessage": "{{app}} ({{platforms}}) will be locked for every user during the scheduled window.",
+          "action": "Enable maintenance"
+        },
         "errors": {
-          "titleRequired": "Message title is required",
-          "messageRequired": "Message text is required",
-          "scheduleRequired": "Set both a start and an end time",
-          "scheduleOrder": "The end time must be after the start time"
+          "scheduleRequired": "Set at least a start or an end time",
+          "scheduleOrder": "The end time must be after the start time",
+          "schedulePast": "The end time must be in the future"
         }
       },
       "preview": {
@@ -2607,36 +2620,41 @@
         "badge": "Preview",
         "retry": "Try again",
         "retryHint": "You can try again in a few minutes",
-        "note": "Support pages and app settings stay available during maintenance."
+        "note": "App settings and payment gateways keep working during maintenance.",
+        "maintenanceTitle": "We're improving your experience",
+        "maintenanceFallback": "The app is currently under maintenance, please try again later."
       },
       "updates": {
         "title": "App versions management",
         "subtitle": "Set the latest version and update policy for each platform separately",
         "selectApp": "Select app",
         "platform": "Operating system",
+        "notConfigured": "Version settings haven't been set for this platform yet.",
         "latestVersion": "Latest version",
         "latestVersionHint": "The version currently live on the store",
         "minVersion": "Minimum supported",
-        "minVersionHint": "Older versions will be blocked or prompted",
+        "minVersionHint": "Required with a forced update",
+        "impact": {
+          "loading": "Calculating affected devices…",
+          "noData": "Not enough data to estimate the impact.",
+          "warning": "Raising the minimum to {{version}} will block {{count}} devices ({{percent}}%)."
+        },
         "policy": "Update policy",
         "policies": {
           "forced": "Forced update",
-          "forcedDesc": "Block old versions until updated",
+          "forcedDesc": "Block versions below the minimum until updated",
           "optional": "Optional update",
-          "optionalDesc": "Let users skip the update",
-          "none": "No prompt",
-          "noneDesc": "Don't show users any message"
+          "optionalDesc": "A dismissible prompt for versions older than the latest"
         },
         "storeUrl": "Store link",
         "message": "Update message (Arabic)",
-        "messagePlaceholder": "A new version of LFEEN is available, update to continue.",
+        "messagePlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
         "save": "Save version settings",
         "saveSuccess": "Version settings saved",
         "previewTitle": "Update message preview",
         "previewForced": "Update required",
         "previewOptional": "Update available",
-        "previewNone": "No message",
-        "previewNoneDesc": "Users won't see any update prompt",
+        "previewFallback": "A new required version of the app is available, please update to continue.",
         "updateNow": "Update now",
         "later": "Later",
         "storeHint": "You'll be taken to the store",
@@ -2645,7 +2663,8 @@
           "required": "This field is required",
           "version": "Use a version format like 4.8.0",
           "versionOrder": "The minimum can't be newer than the latest version",
-          "url": "Enter a valid link starting with https://"
+          "minRequired": "A minimum is required for a forced update",
+          "url": "Enter a link starting with https://, itms-apps:// or market://"
         }
       },
       "themes": {
@@ -2653,15 +2672,37 @@
         "subtitle": "Add, edit and schedule looks for special occasions",
         "new": "New theme",
         "edit": "Edit theme",
+        "more": "More actions",
+        "toggle": "Enable theme",
         "brand": "LFEEN",
         "tagline": "Stays and experiences offers",
+        "approve": "Approve",
+        "delete": "Delete theme",
+        "shiftEarlier": "Move a day earlier",
+        "shiftLater": "Move a day later",
+        "pendingNote": "Auto-generated occasion themes stay hidden from users until approved. Add this year's banner, then press \"Approve\".",
         "createSuccess": "Theme created",
         "updateSuccess": "Theme changes saved",
+        "activated": "Theme enabled",
+        "deactivated": "Theme disabled",
+        "approveSuccess": "Theme approved",
+        "shiftEarlierSuccess": "Theme moved a day earlier",
+        "shiftLaterSuccess": "Theme moved a day later",
+        "deleteSuccess": "Theme deleted",
+        "approveConfirm": {
+          "title": "Approve this theme?",
+          "message": "\"{{name}}\" will show to users automatically during its window."
+        },
+        "deleteConfirm": {
+          "title": "Delete this theme?",
+          "message": "\"{{name}}\" will be deleted. If it's live, the apps return to their default look within minutes."
+        },
         "status": {
-          "active": "Active",
-          "scheduled": "Scheduled",
-          "expired": "Expired",
-          "disabled": "Disabled"
+          "Live": "Live",
+          "Scheduled": "Scheduled",
+          "PendingReview": "Pending review",
+          "Inactive": "Disabled",
+          "Expired": "Expired"
         },
         "empty": {
           "title": "No themes yet",
@@ -2691,17 +2732,21 @@
         },
         "errors": {
           "required": "This field is required",
-          "key": "Use lowercase letters, numbers and dashes only, e.g. eid-al-fitr",
-          "keyTaken": "This key is already used by another theme",
+          "tooLong": "Too long",
+          "key": "2–100 characters: lowercase letters, digits, - and _ only",
+          "keyTaken": "The key can't repeat across existing themes",
           "color": "Enter a color as #RRGGBB",
-          "url": "Enter a valid link starting with https://",
-          "dateOrder": "The end date must be after the start date"
+          "url": "Enter a full link starting with https://",
+          "dateOrder": "The end date can't be before the start date"
         }
       },
       "errors": {
         "loadTitle": "Couldn't load data",
-        "network": "Check your connection and try again",
-        "retry": "Try again"
+        "network": "Couldn't connect, please try again",
+        "retry": "Try again",
+        "unavailable": "The Control Center service isn't available on this server yet.",
+        "forbidden": "You don't have permission to do this",
+        "generic": "Something went wrong, please try again"
       }
     },
     "esim": {
@@ -3135,6 +3180,12 @@
       }
     },
     "billingFields": {
+      "addonsTitle": "Optional add-ons",
+      "addonsNeedStyle": "Pick the billing method first, then you can add a setup fee or a free trial.",
+      "trialTitle": {
+        "Package": "Free trial (days)",
+        "Transaction": "Free trial (operations)"
+      },
       "title": "How the service is charged",
       "desc": "The service type, how a paid service is charged, the setup fee and the free trial. Changes are saved with the Save button below.",
       "style": "Charged by",
@@ -3306,10 +3357,10 @@
       "listSubtitle": "Manage active service details and fees for each facility",
       "searchPlaceholder": "Search for a facility...",
       "stats": {
-        "annual": "Annual",
-        "annualDesc": "Annual Income",
-        "monthly": "Monthly",
-        "monthlyDesc": "Expected Income",
+        "annual": "Year-to-date revenue",
+        "annualDesc": "Since Jan 1, excluding free",
+        "monthly": "Month-to-date revenue",
+        "monthlyDesc": "Since the 1st, excluding free",
         "active": "Currently Active",
         "activeDesc": "Active Subscriptions",
         "total": "Total Subscribers",
@@ -3329,6 +3380,8 @@
         "bookings": "Booking Management"
       },
       "table": {
+        "feesPerMonth": "per month (approx.)",
+        "feesTooltip": "What the merchant pays per month on average: packages = period price ÷ its months; per-operation = what was actually charged in the last 30 days.",
         "facility": "Facility / Classification",
         "activeServices": "Active Services",
         "fees": "Fees",
@@ -3353,12 +3406,15 @@
         "expired": "Expired"
       },
       "detail": {
+        "monthlyTotal": "Approx. monthly average",
+        "perOperation": "/ operation",
+        "ofValue": "of the operation value",
         "title": "Services & Subscriptions Details",
         "subtitle": "List of all active services and their due dates for the facility",
         "serviceName": "Service Name",
-        "category": "Service Type",
+        "category": "Category",
         "price": "Price",
-        "subscriptionType": "Subscription Type",
+        "subscriptionType": "Tier & period",
         "startDate": "Start Date",
         "endDate": "End Date",
         "free": "Free"
@@ -3585,7 +3641,7 @@
           "active": "Active",
           "trial": "Trial"
         },
-        "empty": "No facilities are subscribed to this service yet."
+        "empty": "No one has subscribed to this service yet."
       },
       "pricing": {
         "title": "Default standard pricing for the service",

@@ -12,12 +12,14 @@
     </div>
 
     <div class="cc-stat-card">
-      <span class="cc-stat-icon tone-green"><i-tabler name="shield-check" class="icon-18"></i-tabler></span>
-      <span class="cc-stat-value">{{ summary ? fmt(summary.maintenanceCount) : '-' }}</span>
+      <span class="cc-stat-icon" [class.tone-green]="!summary?.underMaintenanceCount" [class.tone-amber]="!!summary?.underMaintenanceCount">
+        <i-tabler [name]="summary?.underMaintenanceCount ? 'tool' : 'shield-check'" class="icon-18"></i-tabler>
+      </span>
+      <span class="cc-stat-value">{{ summary ? fmt(summary.underMaintenanceCount) : '-' }}</span>
       <div class="cc-stat-copy">
         <span class="cc-stat-label">{{ 'd3.controlCenter.stats.maintenance' | translate }}</span>
         @if (summary) {
-          @if (summary.maintenanceCount === 0) {
+          @if (summary.underMaintenanceCount === 0) {
             <span class="cc-stat-note is-good">{{ 'd3.controlCenter.stats.allRunning' | translate }}</span>
           } @else {
             <span class="cc-stat-note is-warn">{{ 'd3.controlCenter.stats.someDown' | translate }}</span>
@@ -28,17 +30,28 @@
 
     <div class="cc-stat-card">
       <span class="cc-stat-icon tone-amber"><i-tabler name="palette" class="icon-18"></i-tabler></span>
-      <span class="cc-stat-value">{{ summary ? fmt(summary.activeThemes + summary.scheduledThemes) : '-' }}</span>
+      <span class="cc-stat-value">{{ summary ? fmt(summary.liveThemesCount + summary.scheduledThemesCount) : '-' }}</span>
       <div class="cc-stat-copy">
         <span class="cc-stat-label">{{ 'd3.controlCenter.stats.themes' | translate }}</span>
         @if (summary) {
           <span class="cc-stat-note">
-            {{ 'd3.controlCenter.stats.themesNote' | translate:{ active: fmt(summary.activeThemes), scheduled: fmt(summary.scheduledThemes) } }}
+            {{ 'd3.controlCenter.stats.themesNote' | translate:{ active: fmt(summary.liveThemesCount), scheduled: fmt(summary.scheduledThemesCount) } }}
           </span>
         }
       </div>
     </div>
   </div>
+
+  <!-- Template themes waiting for approval never reach users — call it out. -->
+  @if (summary?.pendingReviewThemesCount) {
+    <div class="cc-pending-alert" role="status">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <span>{{ 'd3.controlCenter.pendingAlert' | translate:{ count: fmt(summary!.pendingReviewThemesCount) } }}</span>
+      <button type="button" class="cc-pending-link" (click)="setActiveTab('themes')">
+        {{ 'd3.controlCenter.pendingAlertAction' | translate }}
+      </button>
+    </div>
+  }
 
   <!-- Apps status -->
   <section class="cc-card cc-apps">
@@ -47,29 +60,34 @@
         <h2>{{ 'd3.controlCenter.apps.title' | translate }}</h2>
         <p>{{ 'd3.controlCenter.apps.subtitle' | translate }}</p>
       </div>
-      <span class="cc-muted-note">{{ 'd3.controlCenter.lastUpdatedNow' | translate }}</span>
+      @if (lastUpdatedLabel) {
+        <span class="cc-muted-note">{{ 'd3.controlCenter.lastUpdated' | translate:{ time: lastUpdatedLabel } }}</span>
+      }
     </header>
 
     @if (summary) {
       <div class="cc-apps-grid">
-        @for (item of summary.apps; track trackApp(item)) {
+        @for (item of platforms; track trackPlatform(item)) {
           <div class="cc-app-cell">
             <div class="cc-app-info">
               <span class="cc-app-icon"><i-tabler name="device-mobile" class="icon-16"></i-tabler></span>
               <div class="cc-stack">
                 <strong>{{ 'd3.controlCenter.apps.' + item.app | translate }}</strong>
                 <small>{{ 'd3.controlCenter.platforms.' + item.platform | translate }}</small>
+                @if (scheduledAt(item); as at) {
+                  <small class="cc-scheduled-at">{{ 'd3.controlCenter.status.scheduledAt' | translate:{ time: at } }}</small>
+                }
               </div>
             </div>
-            <span class="cc-status" [class.is-maintenance]="item.status === 'maintenance'">
-              {{ 'd3.controlCenter.status.' + item.status | translate }}
+            <span class="cc-status" [class]="'cc-status status-' + item.status">
+              {{ statusKey(item) | translate }}
               <span class="dot"></span>
             </span>
           </div>
         }
       </div>
     } @else if (summaryError) {
-      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" descKey="d3.controlCenter.errors.network"
+      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" [descKey]="summaryError"
         actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="loadSummary()"></app-dashboard-empty>
     } @else {
       <app-dashboard-loading variant="table" [rows]="1"></app-dashboard-loading>
@@ -91,6 +109,9 @@
             [attr.aria-selected]="activeTab === tab.value" (click)="setActiveTab(tab.value, $event)">
             <i-tabler [name]="tab.icon" class="icon-16"></i-tabler>
             {{ tab.labelKey | translate }}
+            @if (tab.value === 'themes' && summary?.pendingReviewThemesCount) {
+              <span class="cc-tab-badge">{{ fmt(summary!.pendingReviewThemesCount) }}</span>
+            }
           </button>
         }
       </nav>
@@ -103,173 +124,10 @@
 
     @switch (activeTab) {
       @case ('maintenance') {
-        <div class="cc-tab-grid">
-
-          <!-- Form -->
-          <form class="cc-form" [formGroup]="form" (ngSubmit)="onSave()">
-            <header class="cc-section-head">
-              <span class="cc-section-icon"><i-tabler name="tool" class="icon-18"></i-tabler></span>
-              <div>
-                <h3>{{ 'd3.controlCenter.maintenance.title' | translate }}</h3>
-                <p>{{ 'd3.controlCenter.maintenance.subtitle' | translate }}</p>
-              </div>
-            </header>
-
-            <div class="cc-segments-row">
-              <div class="cc-field">
-                <span class="cc-label">{{ 'd3.controlCenter.maintenance.targetApp' | translate }}</span>
-                <div class="cc-segmented" role="radiogroup">
-                  @for (opt of appOptions; track opt.value) {
-                    <button type="button" role="radio" class="cc-segment" [class.active]="selectedApp === opt.value"
-                      [attr.aria-checked]="selectedApp === opt.value" [disabled]="saving" (click)="selectApp(opt.value)">
-                      {{ opt.labelKey | translate }}
-                    </button>
-                  }
-                </div>
-              </div>
-
-              <div class="cc-field">
-                <span class="cc-label">{{ 'd3.controlCenter.maintenance.targetPlatform' | translate }}</span>
-                <div class="cc-segmented" role="radiogroup">
-                  @for (opt of targetOptions; track opt.value) {
-                    <button type="button" role="radio" class="cc-segment" [class.active]="form.controls.target.value === opt.value"
-                      [attr.aria-checked]="form.controls.target.value === opt.value" (click)="setTarget(opt.value)">
-                      {{ opt.labelKey | translate }}
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-
-            @if (settingsLoading) {
-              <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
-            } @else if (settingsError) {
-              <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" descKey="d3.controlCenter.errors.network"
-                actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="loadSettings()"></app-dashboard-empty>
-            } @else {
-              <div class="cc-toggle-row">
-                <div class="cc-stack">
-                  <strong>{{ 'd3.controlCenter.maintenance.enable' | translate }}</strong>
-                  <small>{{ 'd3.controlCenter.maintenance.enableDesc' | translate }}</small>
-                </div>
-                <mat-slide-toggle formControlName="enabled" [attr.aria-label]="'d3.controlCenter.maintenance.enable' | translate"></mat-slide-toggle>
-              </div>
-
-              <div class="cc-toggle-row">
-                <div class="cc-stack">
-                  <strong>{{ 'd3.controlCenter.maintenance.schedule' | translate }}</strong>
-                  <small>{{ 'd3.controlCenter.maintenance.scheduleDesc' | translate }}</small>
-                </div>
-                <mat-slide-toggle formControlName="scheduled" [attr.aria-label]="'d3.controlCenter.maintenance.schedule' | translate"></mat-slide-toggle>
-              </div>
-
-              @if (form.controls.scheduled.value) {
-                <div class="cc-schedule">
-                  @for (field of scheduleFields; track field.name) {
-                    <div class="cc-field">
-                      <span class="cc-label">{{ field.labelKey | translate }}</span>
-                      <button type="button" class="cc-input cc-date-pill" [class.is-invalid]="scheduleError"
-                        [matMenuTriggerFor]="dateTimeMenu" (menuClosed)="form.controls[field.name].markAsTouched()">
-                        <i-tabler name="calendar" class="icon-18 cc-date-icon"></i-tabler>
-                        <span class="cc-date-label" [class.is-placeholder]="!form.controls[field.name].value">
-                          {{ dateTimeLabel(form.controls[field.name].value) || ('d3.controlCenter.maintenance.pickDateTime' | translate) }}
-                        </span>
-                      </button>
-                      <mat-menu #dateTimeMenu="matMenu" class="single-date-calendar-menu" yPosition="below">
-                        <ng-template matMenuContent>
-                          <div class="cc-date-time-popover" (click)="$event.stopPropagation()">
-                            <app-single-date-calendar
-                              [value]="datePart(form.controls[field.name].value)"
-                              [minDate]="minDateFor(field.name)"
-                              (dateSelected)="setDatePart(field.name, $event)">
-                            </app-single-date-calendar>
-                            <app-time-select
-                              [value]="timePart(form.controls[field.name].value)"
-                              (timeSelected)="setTimePart(field.name, $event)">
-                            </app-time-select>
-                          </div>
-                        </ng-template>
-                      </mat-menu>
-                    </div>
-                  }
-                  @if (scheduleError) {
-                    <small class="cc-error cc-schedule-error">{{ 'd3.controlCenter.maintenance.errors.' + scheduleError | translate }}</small>
-                  }
-                </div>
-              }
-
-              <label class="cc-field">
-                <span class="cc-label">{{ 'd3.controlCenter.maintenance.messageTitle' | translate }}</span>
-                <input type="text" class="cc-input" formControlName="title" [maxlength]="titleMax" [class.is-invalid]="showError('title')"
-                  [placeholder]="'d3.controlCenter.maintenance.messageTitlePlaceholder' | translate" />
-                @if (showError('title')) {
-                  <small class="cc-error">{{ 'd3.controlCenter.maintenance.errors.titleRequired' | translate }}</small>
-                }
-              </label>
-
-              <label class="cc-field">
-                <span class="cc-label">{{ 'd3.controlCenter.maintenance.message' | translate }}</span>
-                <textarea class="cc-input cc-textarea" rows="3" formControlName="message" [maxlength]="messageMax" [class.is-invalid]="showError('message')"
-                  [placeholder]="'d3.controlCenter.maintenance.messagePlaceholder' | translate"></textarea>
-                @if (showError('message')) {
-                  <small class="cc-error">{{ 'd3.controlCenter.maintenance.errors.messageRequired' | translate }}</small>
-                }
-              </label>
-
-              <label class="cc-field">
-                <span class="cc-label">{{ 'd3.controlCenter.maintenance.bypassKey' | translate }}</span>
-                <input type="password" class="cc-input" formControlName="bypassKey" autocomplete="new-password"
-                  [placeholder]="(hasBypassKey ? 'd3.controlCenter.maintenance.bypassKeySet' : 'd3.controlCenter.maintenance.bypassKeyPlaceholder') | translate" />
-                <small class="cc-hint">{{ 'd3.controlCenter.maintenance.bypassKeyHint' | translate }}</small>
-              </label>
-            }
-
-            <footer class="cc-actions">
-              <button type="submit" class="cc-btn cc-btn-primary" [disabled]="!canSave">
-                @if (saving) {
-                  <mat-spinner diameter="16"></mat-spinner>
-                } @else {
-                  <i-tabler name="check" class="icon-16"></i-tabler>
-                }
-                {{ 'd3.controlCenter.maintenance.save' | translate }}
-              </button>
-              <button type="button" class="cc-btn cc-btn-outline" [disabled]="!form.dirty || saving" (click)="onCancel()">
-                {{ 'd3.controlCenter.maintenance.cancel' | translate }}
-              </button>
-            </footer>
-          </form>
-
-          <!-- Live preview -->
-          <aside class="cc-preview">
-            <header class="cc-preview-head">
-              <span>{{ 'd3.controlCenter.preview.title' | translate }}</span>
-              <span class="cc-badge">{{ 'd3.controlCenter.preview.badge' | translate }}</span>
-            </header>
-
-            <div class="cc-preview-stage">
-              <app-phone-frame class="cc-phone" [platform]="previewPlatform">
-                <div class="mp-screen" [dir]="currentDir">
-                  <span class="mp-icon"><i-tabler name="tool" class="icon-24"></i-tabler></span>
-                  <h4 class="mp-title">{{ form.controls.title.value.trim() || ('d3.controlCenter.maintenance.messageTitlePlaceholder' | translate) }}</h4>
-                  <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.maintenance.messagePlaceholder' | translate) }}</p>
-                  <span class="mp-retry">
-                    <i-tabler name="refresh" class="icon-14"></i-tabler>
-                    {{ 'd3.controlCenter.preview.retry' | translate }}
-                  </span>
-                  <small class="mp-hint">{{ 'd3.controlCenter.preview.retryHint' | translate }}</small>
-                </div>
-              </app-phone-frame>
-            </div>
-
-            <div class="cc-preview-note">
-              <i-tabler name="shield-check" class="icon-16"></i-tabler>
-              <span>{{ 'd3.controlCenter.preview.note' | translate }}</span>
-            </div>
-          </aside>
-        </div>
+        <app-control-center-maintenance (saved)="loadSummary()"></app-control-center-maintenance>
       }
       @case ('updates') {
-        <app-control-center-updates></app-control-center-updates>
+        <app-control-center-updates (saved)="loadSummary()"></app-control-center-updates>
       }
       @case ('themes') {
         <app-control-center-themes (changed)="loadSummary()"></app-control-center-themes>
@@ -278,7 +136,7 @@
   </section>
 
   <footer class="cc-page-footer">
-    <span>{{ 'd3.controlCenter.lastReviewedNow' | translate }}</span>
+    <span>{{ lastUpdatedLabel ? ('d3.controlCenter.lastUpdated' | translate:{ time: lastUpdatedLabel }) : '' }}</span>
     <span>{{ 'd3.controlCenter.footer' | translate }}</span>
   </footer>
 </div>

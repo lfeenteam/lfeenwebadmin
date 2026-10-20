@@ -6,6 +6,7 @@ import { LoginService } from './login/login.service';
 import { SidebarItem } from '../interfaces/login.model';
 import { CoreService } from '../../../../services/core.service';
 import { PAGE_FLAGS } from '../../../../config/page-flags';
+import { APP_RUNTIME_PERMISSIONS, hasAppRuntimePermission } from '../pages-d3/control-center/interfaces/control-center-permissions';
 
 export interface NavItem {
   id?: string;
@@ -111,8 +112,13 @@ export class SidebarService {
       });
     }
 
-    // The backend doesn't send a Control Center entry in the sidebar payload yet.
-    if (PAGE_FLAGS['control-center'] && !items.find(i => i.link === '/d3/control-center')) {
+    // The payload is meant to carry a "control-center" entry for AppRuntime.View holders, but
+    // some environments don't send it yet. Gated on AppRuntime.View once the login response
+    // carries AppRuntime.* permissions; until then shown to all (the API still answers 403).
+    // Reading permissions() here also makes the effect rebuild when they change.
+    if (PAGE_FLAGS['control-center']
+      && hasAppRuntimePermission(this.loginService, APP_RUNTIME_PERMISSIONS.view)
+      && !items.find(i => i.link === '/d3/control-center')) {
       items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.controlCenter', icon: 'layout-grid', link: '/d3/control-center' });
     }
@@ -150,7 +156,8 @@ export class SidebarService {
       'client-faq':       'help-circle',
       'contact-us':       'mail',
       'contactus':        'mail',
-      'contact_us':       'mail'
+      'contact_us':       'mail',
+      'control-center':   'layout-grid'
     };
 
     const exactRouteMap: { [key: string]: string } = {
@@ -167,7 +174,9 @@ export class SidebarService {
       'contact-us':      '/d3/contact-us',
       'contactus':       '/d3/contact-us',
       'contact_us':      '/d3/contact-us',
-      'roles':           '/d3/roles'
+      'roles':           '/d3/roles',
+      // Sent only to admins holding AppRuntime.View (the payload's own route is /admin/control-center).
+      'control-center':  '/d3/control-center'
     };
 
     // Driven by page-flags.ts: a page with its flag set to false is hidden from

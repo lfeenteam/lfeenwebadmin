@@ -10,6 +10,13 @@
       </div>
     </header>
 
+    @if (!canManage) {
+      <div class="cc-readonly-note">
+        <i-tabler name="lock" class="icon-16"></i-tabler>
+        {{ 'd3.controlCenter.readOnly' | translate }}
+      </div>
+    }
+
     <div class="cc-segments-row">
       <div class="cc-field">
         <span class="cc-label">{{ 'd3.controlCenter.updates.selectApp' | translate }}</span>
@@ -28,7 +35,7 @@
         <div class="cc-segmented" role="radiogroup">
           @for (opt of platformOptions; track opt.value) {
             <button type="button" role="radio" class="cc-segment" [class.active]="selectedPlatform === opt.value"
-              [attr.aria-checked]="selectedPlatform === opt.value" [disabled]="saving" (click)="selectPlatform(opt.value)">
+              [attr.aria-checked]="selectedPlatform === opt.value" [disabled]="saving || loading" (click)="selectPlatform(opt.value)">
               {{ opt.labelKey | translate }}
             </button>
           }
@@ -41,9 +48,16 @@
     @if (loading) {
       <app-dashboard-loading variant="table" [rows]="4"></app-dashboard-loading>
     } @else if (loadError) {
-      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" descKey="d3.controlCenter.errors.network"
+      <app-dashboard-empty variant="error" titleKey="d3.controlCenter.errors.loadTitle" [descKey]="loadError"
         actionKey="d3.controlCenter.errors.retry" actionIcon="refresh" (action)="load()"></app-dashboard-empty>
     } @else {
+      @if (!isConfigured) {
+        <div class="cc-info-note">
+          <i-tabler name="info-circle" class="icon-16"></i-tabler>
+          <span>{{ 'd3.controlCenter.updates.notConfigured' | translate }}</span>
+        </div>
+      }
+
       <!-- Versions -->
       <div class="cc-segments-row">
         <label class="cc-field">
@@ -51,7 +65,7 @@
           <input type="text" class="cc-input" dir="ltr" inputmode="decimal" formControlName="latestVersion" placeholder="4.8.0"
             [class.is-invalid]="fieldError('latestVersion')" />
           @if (fieldError('latestVersion'); as err) {
-            <small class="cc-error">{{ err | translate }}</small>
+            <small class="cc-error">{{ err }}</small>
           } @else {
             <small class="cc-hint">{{ 'd3.controlCenter.updates.latestVersionHint' | translate }}</small>
           }
@@ -62,12 +76,45 @@
           <input type="text" class="cc-input" dir="ltr" inputmode="decimal" formControlName="minSupportedVersion" placeholder="4.5.0"
             [class.is-invalid]="fieldError('minSupportedVersion')" />
           @if (fieldError('minSupportedVersion'); as err) {
-            <small class="cc-error">{{ err | translate }}</small>
+            <small class="cc-error">{{ err }}</small>
           } @else {
             <small class="cc-hint">{{ 'd3.controlCenter.updates.minVersionHint' | translate }}</small>
           }
         </label>
       </div>
+
+      <!-- Impact of a new minimum, before saving -->
+      @if (impactLoading) {
+        <div class="cc-info-note">
+          <mat-spinner diameter="14"></mat-spinner>
+          <span>{{ 'd3.controlCenter.updates.impact.loading' | translate }}</span>
+        </div>
+      } @else if (impact) {
+        @if (!impact.hasData) {
+          <div class="cc-info-note">
+            <i-tabler name="chart-bar-off" class="icon-16"></i-tabler>
+            <span>{{ 'd3.controlCenter.updates.impact.noData' | translate }}</span>
+          </div>
+        } @else {
+          <div class="cc-warn-note">
+            <i-tabler name="alert-triangle" class="icon-16"></i-tabler>
+            <div class="up-impact">
+              <span>
+                {{ 'd3.controlCenter.updates.impact.warning' | translate:{
+                  version: impact.minVersion, count: fmt(impact.affectedInstalls), percent: fmt(impact.affectedPercent)
+                } }}
+              </span>
+              @if (impact.affectedVersions.length) {
+                <ul>
+                  @for (row of impact.affectedVersions; track row.version) {
+                    <li><bdi dir="ltr">{{ row.version }}</bdi> — {{ fmt(row.installs) }} ({{ fmt(row.percent) }}%)</li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+        }
+      }
 
       <!-- Policy -->
       <div class="cc-field">
@@ -75,7 +122,7 @@
         <div class="up-policies" role="radiogroup">
           @for (opt of policyOptions; track opt.value) {
             <button type="button" role="radio" class="up-policy" [class.active]="policy === opt.value"
-              [attr.aria-checked]="policy === opt.value" (click)="setPolicy(opt.value)">
+              [attr.aria-checked]="policy === opt.value" [disabled]="!canManage" (click)="setPolicy(opt.value)">
               <span class="up-radio"></span>
               <span class="up-policy-copy">
                 <strong>{{ opt.labelKey | translate }}</strong>
@@ -90,10 +137,10 @@
 
       <label class="cc-field">
         <span class="cc-label">{{ 'd3.controlCenter.updates.storeUrl' | translate }}</span>
-        <input type="url" class="cc-input" dir="ltr" formControlName="storeUrl" [class.is-invalid]="fieldError('storeUrl')"
-          placeholder="https://" />
+        <input type="text" class="cc-input" dir="ltr" formControlName="storeUrl" [class.is-invalid]="fieldError('storeUrl')"
+          [placeholder]="selectedPlatform === 'ios' ? 'https://apps.apple.com/app/…' : 'https://play.google.com/store/apps/details?id=…'" />
         @if (fieldError('storeUrl'); as err) {
-          <small class="cc-error">{{ err | translate }}</small>
+          <small class="cc-error">{{ err }}</small>
         }
       </label>
 
@@ -102,27 +149,36 @@
         <textarea class="cc-input cc-textarea" rows="3" formControlName="message" [maxlength]="messageMax"
           [class.is-invalid]="fieldError('message')" [placeholder]="'d3.controlCenter.updates.messagePlaceholder' | translate"></textarea>
         @if (fieldError('message'); as err) {
-          <small class="cc-error">{{ err | translate }}</small>
+          <small class="cc-error">{{ err }}</small>
         }
       </label>
     }
 
-    <footer class="cc-actions">
-      <button type="submit" class="cc-btn cc-btn-primary" [disabled]="!canSave">
-        @if (saving) {
-          <mat-spinner diameter="16"></mat-spinner>
-        } @else {
-          <i-tabler name="check" class="icon-16"></i-tabler>
-        }
-        {{ 'd3.controlCenter.updates.save' | translate }}
-      </button>
-      <button type="button" class="cc-btn cc-btn-outline" [disabled]="!form.dirty || saving" (click)="onCancel()">
-        {{ 'd3.controlCenter.maintenance.cancel' | translate }}
-      </button>
-    </footer>
+    @if (generalError) {
+      <div class="cc-form-error" role="alert">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ generalError }}</span>
+      </div>
+    }
+
+    @if (canManage) {
+      <footer class="cc-actions">
+        <button type="submit" class="cc-btn cc-btn-primary" [disabled]="!canSave">
+          @if (saving) {
+            <mat-spinner diameter="16"></mat-spinner>
+          } @else {
+            <i-tabler name="check" class="icon-16"></i-tabler>
+          }
+          {{ 'd3.controlCenter.updates.save' | translate }}
+        </button>
+        <button type="button" class="cc-btn cc-btn-outline" [disabled]="!form.dirty || saving" (click)="onCancel()">
+          {{ 'd3.controlCenter.maintenance.cancel' | translate }}
+        </button>
+      </footer>
+    }
   </form>
 
-  <!-- Live preview -->
+  <!-- Live preview (built from the form — no request) -->
   <aside class="cc-preview">
     <header class="cc-preview-head">
       <span>{{ 'd3.controlCenter.updates.previewTitle' | translate }}</span>
@@ -131,33 +187,25 @@
 
     <div class="cc-preview-stage">
       <app-phone-frame class="cc-phone" [platform]="selectedPlatform">
-        @if (policy === 'none') {
-          <div class="mp-screen" [dir]="currentDir">
-            <span class="mp-icon is-muted"><i-tabler name="bell-off" class="icon-24"></i-tabler></span>
-            <h4 class="mp-title">{{ 'd3.controlCenter.updates.previewNone' | translate }}</h4>
-            <p class="mp-message">{{ 'd3.controlCenter.updates.previewNoneDesc' | translate }}</p>
-          </div>
-        } @else {
-          <div class="mp-screen" [dir]="currentDir">
-            <span class="mp-icon"><i-tabler name="circle-arrow-up" class="icon-24"></i-tabler></span>
-            <h4 class="mp-title">
-              {{ (policy === 'forced' ? 'd3.controlCenter.updates.previewForced' : 'd3.controlCenter.updates.previewOptional') | translate }}
-            </h4>
-            <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.updates.messagePlaceholder' | translate) }}</p>
-            <span class="mp-retry">
-              <i-tabler name="download" class="icon-14"></i-tabler>
-              {{ 'd3.controlCenter.updates.updateNow' | translate }}
-            </span>
-            @if (policy === 'optional') {
-              <span class="mp-later">{{ 'd3.controlCenter.updates.later' | translate }}</span>
-            }
-            <small class="mp-hint">{{ 'd3.controlCenter.updates.storeHint' | translate }}</small>
-          </div>
-        }
+        <div class="mp-screen" [dir]="currentDir">
+          <span class="mp-icon"><i-tabler name="circle-arrow-up" class="icon-24"></i-tabler></span>
+          <h4 class="mp-title">
+            {{ (policy === 'Forced' ? 'd3.controlCenter.updates.previewForced' : 'd3.controlCenter.updates.previewOptional') | translate }}
+          </h4>
+          <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.updates.previewFallback' | translate) }}</p>
+          <button type="button" class="mp-retry is-clickable" (click)="openStore()">
+            <i-tabler name="download" class="icon-14"></i-tabler>
+            {{ 'd3.controlCenter.updates.updateNow' | translate }}
+          </button>
+          @if (policy === 'Optional') {
+            <span class="mp-later">{{ 'd3.controlCenter.updates.later' | translate }}</span>
+          }
+          <small class="mp-hint">{{ 'd3.controlCenter.updates.storeHint' | translate }}</small>
+        </div>
       </app-phone-frame>
     </div>
 
-    @if (policy === 'forced' && minVersionLabel) {
+    @if (policy === 'Forced' && minVersionLabel) {
       <div class="cc-preview-note">
         <i-tabler name="shield-check" class="icon-16"></i-tabler>
         <span>{{ 'd3.controlCenter.updates.forcedNote' | translate:{ version: minVersionLabel } }}</span>

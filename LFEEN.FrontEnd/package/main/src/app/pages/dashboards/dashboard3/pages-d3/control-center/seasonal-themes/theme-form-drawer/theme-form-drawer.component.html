@@ -16,96 +16,110 @@
       </button>
     </header>
 
-    <form class="drawer-body" [formGroup]="form" (ngSubmit)="onSubmit()" id="theme-form">
-      <label class="cc-field">
-        <span class="cc-label">{{ 'd3.controlCenter.themes.form.name' | translate }}</span>
-        <input type="text" class="cc-input" formControlName="name" maxlength="40" cdkFocusInitial
-          [class.is-invalid]="error('name')" [placeholder]="'d3.controlCenter.themes.form.namePlaceholder' | translate" />
-        @if (error('name'); as err) { <small class="cc-error">{{ err | translate }}</small> }
-      </label>
+    @if (loading) {
+      <div class="td-loading">
+        <mat-spinner diameter="28"></mat-spinner>
+      </div>
+    } @else {
+      <form class="drawer-body" [formGroup]="form" (ngSubmit)="onSubmit()" id="theme-form">
+        <label class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.themes.form.name' | translate }}</span>
+          <input type="text" class="cc-input" formControlName="nameAr" maxlength="200" cdkFocusInitial
+            [class.is-invalid]="error('nameAr')" [placeholder]="'d3.controlCenter.themes.form.namePlaceholder' | translate" />
+          @if (error('nameAr'); as err) { <small class="cc-error">{{ err }}</small> }
+        </label>
 
-      <label class="cc-field">
-        <span class="cc-label">{{ 'd3.controlCenter.themes.form.key' | translate }}</span>
-        <input type="text" class="cc-input td-mono" dir="ltr" formControlName="key" maxlength="40" spellcheck="false"
-          autocomplete="off" placeholder="eid-al-fitr" [class.is-invalid]="error('key')" />
-        @if (error('key'); as err) {
-          <small class="cc-error">{{ err | translate }}</small>
-        } @else {
-          <small class="cc-hint">{{ 'd3.controlCenter.themes.form.keyHint' | translate }}</small>
-        }
-      </label>
+        <label class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.themes.form.key' | translate }}</span>
+          <input type="text" class="cc-input td-mono" dir="ltr" formControlName="key" maxlength="100" spellcheck="false"
+            autocomplete="off" placeholder="eid-al-fitr-2027" [class.is-invalid]="error('key')" />
+          @if (error('key'); as err) {
+            <small class="cc-error">{{ err }}</small>
+          } @else {
+            <small class="cc-hint">{{ 'd3.controlCenter.themes.form.keyHint' | translate }}</small>
+          }
+        </label>
 
-      <div class="cc-field">
-        <span class="cc-label">{{ 'd3.controlCenter.themes.form.app' | translate }}</span>
-        <div class="cc-segmented" role="radiogroup">
-          @for (opt of appOptions; track opt.value) {
-            <button type="button" role="radio" class="cc-segment" [class.active]="form.controls.app.value === opt.value"
-              [attr.aria-checked]="form.controls.app.value === opt.value" (click)="setApp(opt.value)">
-              {{ opt.labelKey | translate }}
-            </button>
+        <div class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.themes.form.app' | translate }}</span>
+          <div class="cc-segmented" role="radiogroup">
+            @for (opt of appOptions; track opt.value) {
+              <button type="button" role="radio" class="cc-segment" [class.active]="form.controls.app.value === opt.value"
+                [attr.aria-checked]="form.controls.app.value === opt.value" (click)="setApp(opt.value)">
+                {{ opt.labelKey | translate }}
+              </button>
+            }
+          </div>
+          @if (serverError?.fieldErrors?.['app']; as err) { <small class="cc-error">{{ err }}</small> }
+        </div>
+
+        <label class="cc-field">
+          <span class="cc-label">{{ 'd3.controlCenter.themes.form.bannerUrl' | translate }}</span>
+          <input type="text" class="cc-input" dir="ltr" formControlName="bannerUrl" placeholder="https://..." maxlength="1000"
+            [class.is-invalid]="error('bannerUrl')" />
+          @if (error('bannerUrl'); as err) { <small class="cc-error">{{ err }}</small> }
+        </label>
+
+        <div class="td-row">
+          @for (field of dateFields; track field.name) {
+            <div class="cc-field">
+              <span class="cc-label">{{ field.labelKey | translate }}</span>
+              <button type="button" class="cc-input cc-date-pill" [class.is-invalid]="error(field.name)"
+                [matMenuTriggerFor]="dateMenu" (menuClosed)="form.controls[field.name].markAsTouched()">
+                <i-tabler name="calendar" class="icon-18 cc-date-icon"></i-tabler>
+                <span class="cc-date-label" [class.is-placeholder]="!form.controls[field.name].value">
+                  {{ dateLabel(form.controls[field.name].value) || ('d3.controlCenter.themes.form.pickDate' | translate) }}
+                </span>
+              </button>
+              <mat-menu #dateMenu="matMenu" class="single-date-calendar-menu" yPosition="below">
+                <ng-template matMenuContent>
+                  <app-single-date-calendar
+                    (click)="$event.stopPropagation()"
+                    [value]="form.controls[field.name].value || null"
+                    [minDate]="minDateFor(field.name)"
+                    (dateSelected)="setDate(field.name, $event)">
+                  </app-single-date-calendar>
+                </ng-template>
+              </mat-menu>
+              @if (error(field.name); as err) { <small class="cc-error">{{ err }}</small> }
+            </div>
           }
         </div>
-      </div>
 
-      <label class="cc-field">
-        <span class="cc-label">{{ 'd3.controlCenter.themes.form.bannerUrl' | translate }}</span>
-        <input type="url" class="cc-input" dir="ltr" formControlName="bannerUrl" placeholder="https://..."
-          [class.is-invalid]="error('bannerUrl')" />
-        @if (error('bannerUrl'); as err) { <small class="cc-error">{{ err | translate }}</small> }
-      </label>
-
-      <div class="td-row">
-        @for (field of dateFields; track field.name) {
+        <div class="td-row">
           <div class="cc-field">
-            <span class="cc-label">{{ field.labelKey | translate }}</span>
-            <button type="button" class="cc-input cc-date-pill" [class.is-invalid]="error(field.name)"
-              [matMenuTriggerFor]="dateMenu" (menuClosed)="form.controls[field.name].markAsTouched()">
-              <i-tabler name="calendar" class="icon-18 cc-date-icon"></i-tabler>
-              <span class="cc-date-label" [class.is-placeholder]="!form.controls[field.name].value">
-                {{ dateLabel(form.controls[field.name].value) || ('d3.controlCenter.themes.form.pickDate' | translate) }}
-              </span>
-            </button>
-            <mat-menu #dateMenu="matMenu" class="single-date-calendar-menu" yPosition="below">
-              <ng-template matMenuContent>
-                <app-single-date-calendar
-                  (click)="$event.stopPropagation()"
-                  [value]="form.controls[field.name].value || null"
-                  [minDate]="minDateFor(field.name)"
-                  (dateSelected)="setDate(field.name, $event)">
-                </app-single-date-calendar>
-              </ng-template>
-            </mat-menu>
-            @if (error(field.name); as err) { <small class="cc-error">{{ err | translate }}</small> }
+            <span class="cc-label">{{ 'd3.controlCenter.themes.form.primaryColor' | translate }}</span>
+            <app-color-field formControlName="primaryColor" [invalid]="!!error('primaryColor')"
+              [ariaLabel]="'d3.controlCenter.themes.form.primaryColor' | translate"></app-color-field>
+            @if (error('primaryColor'); as err) { <small class="cc-error">{{ err }}</small> }
+          </div>
+          <div class="cc-field">
+            <span class="cc-label">{{ 'd3.controlCenter.themes.form.secondaryColor' | translate }}</span>
+            <app-color-field formControlName="secondaryColor" [invalid]="!!error('secondaryColor')"
+              [ariaLabel]="'d3.controlCenter.themes.form.secondaryColor' | translate"></app-color-field>
+            @if (error('secondaryColor'); as err) { <small class="cc-error">{{ err }}</small> }
+          </div>
+        </div>
+
+        <div class="cc-toggle-row">
+          <div class="td-stack">
+            <strong>{{ 'd3.controlCenter.themes.form.enabled' | translate }}</strong>
+            <small>{{ 'd3.controlCenter.themes.form.enabledDesc' | translate }}</small>
+          </div>
+          <mat-slide-toggle formControlName="isActive" [attr.aria-label]="'d3.controlCenter.themes.form.enabled' | translate"></mat-slide-toggle>
+        </div>
+
+        @if (generalError) {
+          <div class="cc-form-error td-full" role="alert">
+            <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+            <span>{{ generalError }}</span>
           </div>
         }
-      </div>
-
-      <div class="td-row">
-        <div class="cc-field">
-          <span class="cc-label">{{ 'd3.controlCenter.themes.form.primaryColor' | translate }}</span>
-          <app-color-field formControlName="primaryColor" [invalid]="!!error('primaryColor')"
-            [ariaLabel]="'d3.controlCenter.themes.form.primaryColor' | translate"></app-color-field>
-          @if (error('primaryColor'); as err) { <small class="cc-error">{{ err | translate }}</small> }
-        </div>
-        <div class="cc-field">
-          <span class="cc-label">{{ 'd3.controlCenter.themes.form.secondaryColor' | translate }}</span>
-          <app-color-field formControlName="secondaryColor" [invalid]="!!error('secondaryColor')"
-            [ariaLabel]="'d3.controlCenter.themes.form.secondaryColor' | translate"></app-color-field>
-          @if (error('secondaryColor'); as err) { <small class="cc-error">{{ err | translate }}</small> }
-        </div>
-      </div>
-
-      <div class="cc-toggle-row">
-        <div class="td-stack">
-          <strong>{{ 'd3.controlCenter.themes.form.enabled' | translate }}</strong>
-          <small>{{ 'd3.controlCenter.themes.form.enabledDesc' | translate }}</small>
-        </div>
-        <mat-slide-toggle formControlName="enabled" [attr.aria-label]="'d3.controlCenter.themes.form.enabled' | translate"></mat-slide-toggle>
-      </div>
-    </form>
+      </form>
+    }
 
     <footer class="drawer-footer">
-      <button type="submit" form="theme-form" class="cc-btn cc-btn-primary" [disabled]="saving">
+      <button type="submit" form="theme-form" class="cc-btn cc-btn-primary" [disabled]="saving || loading">
         @if (saving) { <mat-spinner diameter="16"></mat-spinner> }
         {{ (isEdit ? 'd3.controlCenter.themes.form.save' : 'd3.controlCenter.themes.form.create') | translate }}
       </button>

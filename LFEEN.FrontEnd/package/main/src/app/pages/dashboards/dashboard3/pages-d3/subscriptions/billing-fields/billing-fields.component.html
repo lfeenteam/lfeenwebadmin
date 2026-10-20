@@ -53,7 +53,15 @@
       }
     </div>
 
-    <!-- Add-ons: setup fee and free trial -->
+    <!-- Add-ons: only once the style is picked — the trial is days for Package, operations for Transaction -->
+    @if (!value.billingStyle) {
+      <div class="bf-note">
+        <i-tabler name="info-circle" class="icon-16"></i-tabler>
+        <span>{{ 'd3.billingFields.addonsNeedStyle' | translate }}</span>
+      </div>
+    } @else {
+    <div class="bf-field">
+      <span class="bf-label">{{ 'd3.billingFields.addonsTitle' | translate }}</span>
     <div class="bf-options">
       <div class="bf-option" [class.on]="value.hasSetupFee">
         <label class="bf-option-head">
@@ -79,17 +87,15 @@
         }
       </div>
 
-      <div class="bf-option" [class.on]="value.hasTrial" [class.off]="!value.billingStyle">
+      <div class="bf-option" [class.on]="value.hasTrial">
         <label class="bf-option-head">
           <span class="bf-option-icon"><i-tabler name="gift" class="icon-18"></i-tabler></span>
           <span class="bf-option-text">
-            <span class="bf-option-title">{{ 'd3.billingFields.trial' | translate }}</span>
-            <span class="bf-hint">
-              {{ (value.billingStyle ? 'd3.billingFields.trialHint.' + value.billingStyle : 'd3.billingFields.trialNeedsStyle') | translate }}
-            </span>
+            <span class="bf-option-title">{{ ('d3.billingFields.trialTitle.' + value.billingStyle) | translate }}</span>
+            <span class="bf-hint">{{ ('d3.billingFields.trialHint.' + value.billingStyle) | translate }}</span>
           </span>
           <input type="checkbox" class="bf-switch" role="switch" [id]="idPrefix + '-trial'"
-            [disabled]="disabled || !value.billingStyle" [(ngModel)]="value.hasTrial" />
+            [disabled]="disabled" [(ngModel)]="value.hasTrial" />
         </label>
         @if (value.hasTrial && value.billingStyle === 'Package') {
           <div class="bf-input-wrap">
@@ -112,6 +118,7 @@
         }
       </div>
     </div>
+    </div>
 
     @if (error) {
       <span class="bf-error d-flex align-items-center gap-4">
@@ -123,6 +130,7 @@
         <span class="bf-summary-label">{{ 'd3.billingFields.summaryTitle' | translate }}</span>
         <span class="bf-summary-text">{{ summary }}</span>
       </div>
+    }
     }
 
   } @else if (showModel) {

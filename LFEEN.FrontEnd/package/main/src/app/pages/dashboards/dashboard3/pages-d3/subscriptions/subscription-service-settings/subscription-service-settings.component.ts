@@ -405,6 +405,15 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private subscriberSearch$ = new Subject<string>();
   private subscribersRequest?: Subscription;
 
+  /**
+   * A message balance has no term, and some lines come back without dates at all — then the
+   * start / expiry columns would only show "-" and "no expiry", so they're left out.
+   */
+  get showSubscriberDates(): boolean {
+    if (this.pricingStyle === 'MessagePack') return false;
+    return !this.subscribers.length || this.subscribers.some(s => s.startDate !== '-' || s.renewalDate !== '-');
+  }
+
   get subscriberPages(): (number | '...')[] {
     return getVisiblePages(this.subscribersPage, this.subscribersTotalPages);
   }

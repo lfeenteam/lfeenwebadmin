@@ -1,0 +1,42 @@
+@use '../control-center-tab';
+
+:host { display: block; }
+
+.cc-live-pill {
+  display: inline-flex;
+  margin-inline-start: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #ea580c;
+  font-size: 10px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+// A date pill with a small × to clear it (empty start = now, empty end = until switched off).
+.cc-date-wrap {
+  position: relative;
+
+  .cc-date-pill { padding-inline-end: 36px; }
+}
+
+.cc-date-clear {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 10px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B67;
+
+  &:hover { background: #F1F5F9; color: #111110; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 1px; }
+}

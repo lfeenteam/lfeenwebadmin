@@ -126,6 +126,15 @@
 // Its two fields become cells of the body grid directly.
 .td-row { display: contents; }
 
+.td-full { grid-column: 1 / -1; }
+
+.td-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+
 .td-mono {
   font-family: ui-monospace, 'SF Mono', Consolas, monospace !important;
   text-align: start;

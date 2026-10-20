@@ -3,7 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 
-const HEX_PATTERN = /^#[0-9A-F]{6}$/;
+/** #RRGGBB, or #AARRGGBB (alpha first) as the API also accepts. */
+const HEX_PATTERN = /^#([0-9A-F]{6}|[0-9A-F]{8})$/;
+
+/** The colour part without alpha, "#RRGGBB". */
+function rgbPart(hex: string): string {
+  return hex.length === 9 ? `#${hex.slice(3)}` : hex;
+}
 
 /** Brand-friendly starting points; anything else comes from the picker or the hex box. */
 const PRESETS = [
@@ -67,6 +73,12 @@ export class ColorFieldComponent implements ControlValueAccessor {
     return HEX_PATTERN.test(this.text);
   }
 
+  /** CSS colour of the current value — CSS puts alpha last (#RRGGBBAA). */
+  get cssColor(): string | null {
+    if (!this.isValid) return null;
+    return this.text.length === 9 ? `#${this.text.slice(3)}${this.text.slice(1, 3)}` : this.text;
+  }
+
   /** Pure hue at full saturation/brightness — the background of the picker area. */
   get hueColor(): string {
     return hsvToHex({ h: this.hsv.h, s: 1, v: 1 });
@@ -74,7 +86,7 @@ export class ColorFieldComponent implements ControlValueAccessor {
 
   writeValue(value: string | null): void {
     this.text = (value ?? '').toUpperCase();
-    if (this.isValid) this.hsv = hexToHsv(this.text);
+    if (this.isValid) this.hsv = hexToHsv(rgbPart(this.text));
   }
 
   registerOnChange(fn: (value: string) => void): void { this.onChange = fn; }
@@ -85,7 +97,7 @@ export class ColorFieldComponent implements ControlValueAccessor {
     let text = raw.trim().toUpperCase();
     if (text && !text.startsWith('#')) text = `#${text}`;
     this.text = text;
-    if (this.isValid) this.hsv = hexToHsv(text);
+    if (this.isValid) this.hsv = hexToHsv(rgbPart(text));
     this.onChange(text);
   }
 
