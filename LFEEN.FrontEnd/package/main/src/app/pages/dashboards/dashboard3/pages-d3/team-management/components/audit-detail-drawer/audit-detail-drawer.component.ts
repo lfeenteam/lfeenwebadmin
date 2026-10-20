@@ -17,8 +17,13 @@ import {
   auditInitials,
   auditStatusClass,
   auditStatusKey,
-  formatAuditDate
+  formatAuditDate,
+  formatAuditIp,
+  humanizeKey,
+  summarizeUserAgent
 } from '../ops-log-table/audit-presentation';
+
+const I18N = 'd3.teamManagement.opsLog.details';
 
 export interface AuditDetailDrawerData {
   item: AdminOperationAuditItem;
@@ -57,6 +62,8 @@ export class AuditDetailDrawerComponent implements OnInit {
   readonly departmentName = auditDepartmentName(this.item);
   readonly initials = auditInitials(this.item.actorName);
   readonly entityRoute = auditEntityRoute(this.item);
+  readonly entityTypeLabel = this.translateOr(`${I18N}.entityTypes.${this.item.entityType}`, this.item.entityType);
+  readonly durationLabel = this.formatDuration(this.item.durationMilliseconds);
 
   ngOnInit(): void {
     this.load();
@@ -88,14 +95,55 @@ export class AuditDetailDrawerComponent implements OnInit {
 
   // Metadata values are unknown JSON; they are rendered through interpolation
   // (escaped text), never as HTML.
-  get metadataEntries(): { key: string; value: string }[] {
+  get metadataEntries(): { key: string; label: string; value: string }[] {
     const metadata = this.detail()?.metadata;
     if (!metadata) return [];
 
     return Object.entries(metadata).map(([key, value]) => ({
       key,
-      value: value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value)
+      label: this.translateOr(`${I18N}.metadataKeys.${key}`, humanizeKey(key)),
+      value: this.formatValue(value)
     }));
+  }
+
+  get ipAddress(): string | null {
+    return formatAuditIp(this.detail()?.ipAddress ?? null);
+  }
+
+  get device(): string | null {
+    return summarizeUserAgent(this.detail()?.userAgent ?? null);
+  }
+
+  copy(value: string | null): void {
+    if (!value) return;
+    navigator.clipboard?.writeText(value).then(
+      () => this.toastr.success(this.translate.instant(`${I18N}.copied`)),
+      () => undefined
+    );
+  }
+
+  private get locale(): string {
+    return this.data.lang === 'ar' ? 'ar-EG' : 'en-US';
+  }
+
+  private formatValue(value: unknown): string {
+    if (value === null || value === undefined || value === '') return '—';
+    if (typeof value === 'number') return value.toLocaleString(this.locale);
+    if (typeof value === 'boolean') return this.translate.instant(`${I18N}.${value ? 'yes' : 'no'}`);
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+  }
+
+  private formatDuration(ms: number): string {
+    const unit = this.translate.instant(`${I18N}.${ms >= 1000 ? 'seconds' : 'milliseconds'}`);
+    const amount = ms >= 1000 ? +(ms / 1000).toFixed(1) : ms;
+    return `${amount.toLocaleString(this.locale)} ${unit}`;
+  }
+
+  // ngx-translate returns the key itself when a translation is missing.
+  private translateOr(key: string, fallback: string): string {
+    const text = this.translate.instant(key);
+    return text && text !== key ? text : fallback;
   }
 
   openEntity(): void {

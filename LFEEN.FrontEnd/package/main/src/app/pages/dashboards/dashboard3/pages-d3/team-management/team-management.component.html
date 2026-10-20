@@ -6,7 +6,7 @@
   <!-- Header row: tabs (structure) + action button -->
   <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
     @if (activeTab === 'structure' && !departmentId) {
-      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
       <app-team-header
         [isBoxed]="false"
         actionLabel="d3.teamManagement.addDept"
@@ -34,7 +34,7 @@
     </app-team-header>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
     </div>
   }
 
@@ -52,7 +52,7 @@
     </app-logs-filter>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
     </div>
   }
 

@@ -227,6 +227,21 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     this.departmentService.loadEmployeesForDept(id);
   }
 
+  // Tab clicks go through the URL (?tab=) so a refresh reopens the same tab;
+  // the queryParams subscription then calls setActiveTab.
+  onTabChange(tab: 'structure' | 'employees' | 'logs'): void {
+    if (this.departmentId) {
+      this.setActiveTab(tab);
+      return;
+    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'structure' ? null : tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
   setActiveTab(tab: 'structure' | 'employees' | 'logs'): void {
     if (tab === 'logs' && !this.canViewAudits()) return;
 
@@ -250,7 +265,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         // The drawer reads details through this page's OperationAuditsService instance.
         injector: this.injector,
         direction: isRtl ? 'rtl' : 'ltr',
-        position: { top: '0', right: '0' },
+        // Slides in from the inline-end side: left in Arabic, right in English.
+        position: isRtl ? { top: '0', left: '0' } : { top: '0', right: '0' },
         width: '480px',
         maxWidth: '100vw',
         height: '100vh',

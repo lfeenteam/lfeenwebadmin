@@ -1,4 +1,4 @@
-<div class="audit-drawer d-flex flex-column">
+<div class="audit-drawer">
 
   <!-- Header -->
   <div class="drawer-header d-flex align-items-center justify-content-between">
@@ -11,150 +11,179 @@
 
   <div class="drawer-body">
 
-    <!-- Summary -->
-    <div class="summary-card">
-      <div class="d-flex align-items-center gap-10 m-b-12">
+    <!-- Summary: what happened, and how it ended -->
+    <div class="summary-card" [ngClass]="statusClass">
+      <div class="summary-top">
         <div class="action-icon" [ngClass]="statusClass">
-          <i-tabler [name]="actionIcon" class="icon-18"></i-tabler>
+          <i-tabler [name]="actionIcon" class="icon-22"></i-tabler>
         </div>
-        <div class="min-w-0">
-          <span class="summary-action d-block" dir="auto">{{ item.actionText || item.actionCode }}</span>
-          @if (item.entityDisplayName) {
-            <span class="summary-sub d-block" dir="auto">{{ item.entityDisplayName }}</span>
-          }
+        <div class="summary-text">
+          <span class="summary-action" dir="auto">{{ item.actionText || item.actionCode }}</span>
+          <span class="summary-sub" dir="auto">{{ item.entityDisplayName || entityTypeLabel }}</span>
         </div>
-      </div>
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-8">
         <span class="log-status-badge" [ngClass]="statusClass">
           <span class="dot"></span>
           <span>{{ statusKey | translate }}</span>
         </span>
-        <span class="summary-sub">{{ occurred.date }} · {{ occurred.time }}</span>
+      </div>
+
+      <div class="summary-stats">
+        <div class="stat">
+          <i-tabler name="calendar" class="icon-16"></i-tabler>
+          <div>
+            <span class="stat-label">{{ 'd3.teamManagement.opsLog.details.date' | translate }}</span>
+            <span class="stat-value">{{ occurred.date }}</span>
+          </div>
+        </div>
+        <div class="stat">
+          <i-tabler name="clock" class="icon-16"></i-tabler>
+          <div>
+            <span class="stat-label">{{ 'd3.teamManagement.opsLog.details.time' | translate }}</span>
+            <span class="stat-value">{{ occurred.time }}</span>
+          </div>
+        </div>
+        <div class="stat">
+          <i-tabler name="bolt" class="icon-16"></i-tabler>
+          <div>
+            <span class="stat-label">{{ 'd3.teamManagement.opsLog.details.duration' | translate }}</span>
+            <span class="stat-value">{{ durationLabel }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Actor -->
-    <section class="drawer-section">
-      <h4 class="section-title">{{ 'd3.teamManagement.opsLog.details.actor' | translate }}</h4>
-      <div class="d-flex align-items-center gap-10 m-b-12">
-        <div class="initials-avatar d-flex align-items-center justify-content-center">{{ initials }}</div>
-        <div class="min-w-0">
-          <span class="f-w-900 d-block" dir="auto">{{ item.actorName }}</span>
-          @if (item.actorEmail) {
-            <span class="summary-sub d-block" dir="ltr">{{ item.actorEmail }}</span>
+    @if (detail()?.errorCode) {
+      @let d = detail()!;
+      <div class="error-banner">
+        <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+        <div class="min-w-0 flex-1">
+          <span class="d-block f-w-700">{{ 'd3.teamManagement.opsLog.details.errorCode' | translate }}</span>
+          <span class="mono" dir="ltr">{{ d.errorCode }}</span>
+
+          <!-- Lets the admin hand this exact request to support -->
+          @if (d.correlationId) {
+            <div class="error-trace">
+              <span>{{ 'd3.teamManagement.opsLog.details.correlationId' | translate }}:</span>
+              <span class="mono" dir="ltr">{{ d.correlationId }}</span>
+              <button type="button" class="copy-btn" (click)="copy(d.correlationId)"
+                      [attr.aria-label]="'d3.teamManagement.opsLog.details.copy' | translate">
+                <i-tabler name="copy" class="icon-14"></i-tabler>
+              </button>
+            </div>
           }
         </div>
       </div>
+    }
 
-      @if (item.actorRoles.length) {
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.roles' | translate }}</span>
-          <div class="chips">
+    <!-- Actor -->
+    <section class="drawer-section">
+      <h4 class="section-title">
+        <i-tabler name="user" class="icon-16"></i-tabler>
+        {{ 'd3.teamManagement.opsLog.details.actor' | translate }}
+      </h4>
+
+      <div class="card">
+        <div class="actor-row">
+          <div class="initials-avatar">{{ initials }}</div>
+          <div class="min-w-0 flex-1">
+            <span class="actor-name" dir="auto">{{ item.actorName }}</span>
+            @if (item.actorEmail) {
+              <span class="summary-sub d-block" dir="ltr">{{ item.actorEmail }}</span>
+            }
+          </div>
+        </div>
+
+        @if (item.actorRoles.length || item.actorDepartments.length) {
+          <div class="chips m-t-12">
             @for (role of item.actorRoles; track role.id) {
-              <span class="chip" dir="auto">{{ role.name }}</span>
+              <span class="chip" dir="auto">
+                <i-tabler name="shield" class="icon-14"></i-tabler>{{ role.name }}
+              </span>
             }
-          </div>
-        </div>
-      }
-
-      @if (item.actorDepartments.length) {
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.actorDepartments' | translate }}</span>
-          <div class="chips">
             @for (dept of item.actorDepartments; track dept.id) {
-              <span class="chip" dir="auto">{{ dept.name }}</span>
+              <span class="chip" dir="auto">
+                <i-tabler name="building" class="icon-14"></i-tabler>{{ dept.name }}
+              </span>
             }
           </div>
-        </div>
-      }
-      <p class="snapshot-hint m-0">{{ 'd3.teamManagement.opsLog.details.snapshotHint' | translate }}</p>
+        }
+
+        <!-- Where the operation was done from -->
+        @if (device || ipAddress) {
+          <div class="actor-source">
+            @if (device) {
+              <div class="kv-row">
+                <span class="kv-label">{{ 'd3.teamManagement.opsLog.details.device' | translate }}</span>
+                <span class="kv-value" dir="ltr" [title]="detail()?.userAgent || ''">{{ device }}</span>
+              </div>
+            }
+            @if (ipAddress) {
+              <div class="kv-row">
+                <span class="kv-label">{{ 'd3.teamManagement.opsLog.details.ipAddress' | translate }}</span>
+                <span class="kv-value mono" dir="ltr">{{ ipAddress }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <p class="snapshot-hint">{{ 'd3.teamManagement.opsLog.details.snapshotHint' | translate }}</p>
     </section>
 
-    <!-- Operation -->
+    <!-- What changed -->
     <section class="drawer-section">
-      <h4 class="section-title">{{ 'd3.teamManagement.opsLog.details.operation' | translate }}</h4>
+      <h4 class="section-title">
+        <i-tabler name="list-details" class="icon-16"></i-tabler>
+        {{ 'd3.teamManagement.opsLog.details.changes' | translate }}
+      </h4>
 
-      <div class="field">
-        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.actionCode' | translate }}</span>
-        <span class="field-value mono" dir="ltr">{{ item.actionCode }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.entity' | translate }}</span>
-        <span class="field-value mono" dir="ltr">{{ item.entityType }}{{ item.entityId ? ' · ' + item.entityId : '' }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">{{ 'd3.teamManagement.opsLog.table.department' | translate }}</span>
-        <span class="field-value" dir="auto">{{ departmentName || '—' }}</span>
-      </div>
-      <div class="field">
-        <span class="field-label">{{ 'd3.teamManagement.opsLog.details.duration' | translate }}</span>
-        <span class="field-value" dir="ltr">{{ item.durationMilliseconds }} ms</span>
+      <div class="card kv-list">
+        <div class="kv-row">
+          <span class="kv-label">{{ 'd3.teamManagement.opsLog.details.entityType' | translate }}</span>
+          <span class="kv-value" dir="auto">{{ entityTypeLabel }}</span>
+        </div>
+        @if (item.entityId) {
+          <div class="kv-row">
+            <span class="kv-label">{{ 'd3.teamManagement.opsLog.details.reference' | translate }}</span>
+            <span class="kv-value d-flex align-items-center gap-4">
+              <span class="mono" dir="ltr" [title]="item.entityId">#{{ item.entityId.slice(0, 8) }}</span>
+              <button type="button" class="copy-btn" (click)="copy(item.entityId)"
+                      [attr.aria-label]="'d3.teamManagement.opsLog.details.copy' | translate">
+                <i-tabler name="copy" class="icon-14"></i-tabler>
+              </button>
+            </span>
+          </div>
+        }
+        <div class="kv-row">
+          <span class="kv-label">{{ 'd3.teamManagement.opsLog.table.department' | translate }}</span>
+          <span class="kv-value" dir="auto">{{ departmentName || '—' }}</span>
+        </div>
+
+        @if (isLoading()) {
+          <div class="trace-loading d-flex justify-content-center">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+        } @else if (loadFailed()) {
+          <div class="trace-error d-flex align-items-center justify-content-between gap-8">
+            <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+            <button mat-stroked-button type="button" (click)="load()">
+              {{ 'd3.teamManagement.opsLog.retry' | translate }}
+            </button>
+          </div>
+        } @else {
+          @for (entry of metadataEntries; track entry.key) {
+            <div class="kv-row highlight">
+              <span class="kv-label">{{ entry.label }}</span>
+              <span class="kv-value" dir="auto">{{ entry.value }}</span>
+            </div>
+          }
+        }
       </div>
 
       @if (entityRoute) {
-        <button mat-stroked-button type="button" class="entity-link m-t-8" (click)="openEntity()">
+        <button mat-flat-button type="button" class="entity-link" (click)="openEntity()">
           <i-tabler name="external-link" class="icon-16"></i-tabler>
           {{ 'd3.teamManagement.opsLog.details.openEntity' | translate }}
         </button>
-      }
-    </section>
-
-    <!-- Trace (lazy) -->
-    <section class="drawer-section">
-      <h4 class="section-title d-flex align-items-center gap-6">
-        <i-tabler name="shield-lock" class="icon-16"></i-tabler>
-        {{ 'd3.teamManagement.opsLog.details.trace' | translate }}
-      </h4>
-
-      @if (isLoading()) {
-        <div class="trace-loading d-flex justify-content-center">
-          <mat-spinner diameter="28"></mat-spinner>
-        </div>
-      } @else if (loadFailed()) {
-        <div class="trace-error d-flex align-items-center justify-content-between gap-8">
-          <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
-          <button mat-stroked-button type="button" (click)="load()">
-            {{ 'd3.teamManagement.opsLog.retry' | translate }}
-          </button>
-        </div>
-      } @else if (detail()) {
-        @let d = detail()!;
-        @if (d.errorCode) {
-          <div class="field">
-            <span class="field-label">{{ 'd3.teamManagement.opsLog.details.errorCode' | translate }}</span>
-            <span class="field-value mono text-danger" dir="ltr">{{ d.errorCode }}</span>
-          </div>
-        }
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.request' | translate }}</span>
-          <span class="field-value mono" dir="ltr">{{ d.httpMethod || '—' }} {{ d.requestPath || '' }}</span>
-        </div>
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.ipAddress' | translate }}</span>
-          <span class="field-value mono" dir="ltr">{{ d.ipAddress || '—' }}</span>
-        </div>
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.userAgent' | translate }}</span>
-          <span class="field-value mono small" dir="ltr">{{ d.userAgent || '—' }}</span>
-        </div>
-        <div class="field">
-          <span class="field-label">{{ 'd3.teamManagement.opsLog.details.correlationId' | translate }}</span>
-          <span class="field-value mono" dir="ltr">{{ d.correlationId || '—' }}</span>
-        </div>
-
-        @if (metadataEntries.length) {
-          <div class="field">
-            <span class="field-label">{{ 'd3.teamManagement.opsLog.details.metadata' | translate }}</span>
-            <div class="metadata-box" dir="ltr">
-              @for (entry of metadataEntries; track entry.key) {
-                <div class="metadata-row">
-                  <span class="metadata-key">{{ entry.key }}</span>
-                  <span class="metadata-value">{{ entry.value }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        }
       }
     </section>
   </div>

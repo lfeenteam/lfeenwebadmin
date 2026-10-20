@@ -918,7 +918,40 @@
           "userAgent": "User agent",
           "correlationId": "Correlation ID",
           "metadata": "Metadata",
-          "notFound": "This operation no longer exists"
+          "notFound": "This operation no longer exists",
+          "date": "Date",
+          "time": "Time",
+          "changes": "Operation details",
+          "entityType": "Item type",
+          "reference": "Reference",
+          "copy": "Copy",
+          "copied": "Copied",
+          "device": "Device & browser",
+          "milliseconds": "ms",
+          "seconds": "s",
+          "yes": "Yes",
+          "no": "No",
+          "entityTypes": {
+            "Settlement": "Settlement",
+            "Booking": "Booking",
+            "MerchantAccount": "Merchant account",
+            "SubscriptionOrder": "Subscription order",
+            "Employee": "Employee",
+            "User": "User",
+            "Wallet": "Wallet",
+            "WalletLedgerEntry": "Wallet ledger entry"
+          },
+          "metadataKeys": {
+            "transferredAmount": "Transferred amount",
+            "amount": "Amount",
+            "reason": "Reason",
+            "previousBalance": "Previous balance",
+            "newBalance": "New balance",
+            "roleName": "Role",
+            "departmentName": "Department",
+            "oldUnitName": "Previous unit",
+            "newUnitName": "New unit"
+          }
         },
         "pagination": {
           "total": "operations"

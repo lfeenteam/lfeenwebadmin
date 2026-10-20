@@ -892,7 +892,40 @@
           "userAgent": "المتصفح",
           "correlationId": "معرف التتبع",
           "metadata": "بيانات إضافية",
-          "notFound": "هذه العملية لم تعد موجودة"
+          "notFound": "هذه العملية لم تعد موجودة",
+          "date": "التاريخ",
+          "time": "الوقت",
+          "changes": "تفاصيل العملية",
+          "entityType": "نوع العنصر",
+          "reference": "الرقم المرجعي",
+          "copy": "نسخ",
+          "copied": "تم النسخ",
+          "device": "الجهاز والمتصفح",
+          "milliseconds": "ملي ثانية",
+          "seconds": "ثانية",
+          "yes": "نعم",
+          "no": "لا",
+          "entityTypes": {
+            "Settlement": "تسوية",
+            "Booking": "حجز",
+            "MerchantAccount": "حساب تاجر",
+            "SubscriptionOrder": "طلب اشتراك",
+            "Employee": "موظف",
+            "User": "مستخدم",
+            "Wallet": "محفظة",
+            "WalletLedgerEntry": "قيد محفظة"
+          },
+          "metadataKeys": {
+            "transferredAmount": "المبلغ المحوّل",
+            "amount": "المبلغ",
+            "reason": "السبب",
+            "previousBalance": "الرصيد السابق",
+            "newBalance": "الرصيد الجديد",
+            "roleName": "الدور",
+            "departmentName": "القسم",
+            "oldUnitName": "الوحدة السابقة",
+            "newUnitName": "الوحدة الجديدة"
+          }
         },
         "pagination": {
           "total": "عملية"
