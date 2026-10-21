@@ -25,7 +25,6 @@ function loadFlowReport(): Promise<void> {
     s.src = 'https://flow.roydigi.com/flow-report.js';
     s.dataset['key'] = flow.key;
     s.dataset['project'] = flow.project;
-    s.dataset['channel'] = flow.channel;
     s.onload = s.onerror = () => resolve();
     document.head.appendChild(s);
   });
