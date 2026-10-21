@@ -1,0 +1,66 @@
+<div class="approve-review-dialog" [dir]="currentDir">
+  <button mat-icon-button type="button" class="close-btn" [disabled]="submitting" (click)="dialogRef.close()">
+    <i-tabler name="x" class="icon-18"></i-tabler>
+  </button>
+
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ 'd3.bookings.reviewReports.approveDialog.title' | translate }}</h2>
+  </div>
+
+  <div class="dialog-body">
+
+    <div class="warning-box">
+      <i-tabler name="alert-triangle" class="warning-icon"></i-tabler>
+      <div class="warning-text">
+        <p class="warning-title">{{ 'd3.bookings.reviewReports.approveDialog.warningTitle' | translate }}</p>
+        <p class="warning-desc">{{ 'd3.bookings.reviewReports.approveDialog.warningDesc' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="field-label-row">
+      <label class="field-label">{{ 'd3.bookings.reviewReports.approveDialog.commentLabel' | translate }}</label>
+      <span class="target-chip">{{ targetLabelKey | translate }}</span>
+    </div>
+    <p class="pick-hint">{{ 'd3.bookings.reviewReports.approveDialog.pickHint' | translate }}</p>
+    <div class="comment-box" dir="auto">
+      @for (token of tokens; track $index) {
+        @if (token.word) {
+          <button
+            type="button"
+            class="comment-word"
+            [class.picked]="isPicked(token)"
+            [disabled]="submitting"
+            (click)="pick(token)">{{ token.text }}</button>
+        } @else {
+          <span>{{ token.text }}</span>
+        }
+      }
+    </div>
+
+    <label class="field-label" for="blocked-word-input">{{ 'd3.bookings.reviewReports.approveDialog.blockedWordLabel' | translate }}</label>
+    <div class="input-wrapper">
+      <input
+        id="blocked-word-input"
+        type="text"
+        class="word-input"
+        dir="auto"
+        maxlength="100"
+        autocomplete="off"
+        [(ngModel)]="blockedWord"
+        [disabled]="submitting"
+        [placeholder]="'d3.bookings.reviewReports.approveDialog.blockedWordPlaceholder' | translate"
+        (keydown.enter)="confirm()" />
+    </div>
+    <p class="field-hint">{{ 'd3.bookings.reviewReports.approveDialog.blockedWordHint' | translate }}</p>
+
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="confirm-btn" [disabled]="submitting || !blockedWord.trim()" (click)="confirm()">
+      {{ 'd3.bookings.reviewReports.approveDialog.confirmBtn' | translate }}
+    </button>
+    <button type="button" class="cancel-btn" [disabled]="submitting" (click)="dialogRef.close()">
+      {{ 'common.cancel' | translate }}
+    </button>
+  </div>
+</div>

@@ -80,8 +80,6 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   get unitDescription(): string { return this.unitData?.description?.trim() ?? ''; }
 
-  get hasLock(): boolean { return this.unitData?.hasLock ?? false; }
-
   get unitFacilities(): string[] {
     return this.unitData?.facilities.map(f => f.facilityTypeName) ?? [];
   }

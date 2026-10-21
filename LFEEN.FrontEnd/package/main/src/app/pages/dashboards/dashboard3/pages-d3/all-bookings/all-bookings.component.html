@@ -1,5 +1,41 @@
 <div class="bookings-page" [dir]="currentDir">
 
+  <!-- Page tabs: bookings list | reported guest reviews -->
+  @if (canViewReviews()) {
+    <div class="page-tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="page-tab"
+        [class.active]="activeView === 'bookings'"
+        [attr.aria-selected]="activeView === 'bookings'"
+        (click)="setView('bookings')">
+        <i-tabler name="calendar-time" class="icon-16"></i-tabler>
+        <span>{{ 'd3.bookings.pageTabs.bookings' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="page-tab"
+        [class.active]="activeView === 'reviews'"
+        [attr.aria-selected]="activeView === 'reviews'"
+        (click)="setView('reviews')">
+        <i-tabler name="message-report" class="icon-16"></i-tabler>
+        <span>{{ 'd3.bookings.pageTabs.reviews' | translate }}</span>
+        @if (reviewsCount?.total) {
+          <span
+            class="page-tab-badge"
+            [class.is-urgent]="reviewsCount!.highPriority > 0"
+            [title]="(reviewsCount!.highPriority > 0 ? 'd3.bookings.pageTabs.urgentHint' : 'd3.bookings.pageTabs.pendingHint') | translate">
+            {{ reviewsBadge() }}
+          </span>
+        }
+      </button>
+    </div>
+  }
+
+  @if (activeView === 'bookings') {
+
   <!-- Metric Cards -->
   <section class="sub-header-metrics">
     @for (card of metrics; track card.titleKey) {
@@ -356,6 +392,13 @@
 
   </div>
 
+  }
+
+  } @else {
+    <app-review-reports
+      [canModerate]="canModerateReviews()"
+      (countChange)="onReviewsCountChange($event)">
+    </app-review-reports>
   }
 
   <!-- Booking Detail Drawer (static mock data) -->

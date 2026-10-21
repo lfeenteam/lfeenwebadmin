@@ -72,12 +72,6 @@ export class ReviewBasicInfoComponent implements OnInit {
   get controlFeatures() {
     return [
       {
-        icon: 'key',
-        titleKey: 'd3.buildReview.basicInfo.smartLockTitle',
-        descKey: 'd3.buildReview.basicInfo.smartLockDesc',
-        enabled: !!this.basicData?.hasLock
-      },
-      {
         icon: 'box',
         titleKey: 'd3.buildReview.basicInfo.extraServicesTitle',
         descKey: 'd3.buildReview.basicInfo.extraServicesDesc',

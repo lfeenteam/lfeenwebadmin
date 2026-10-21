@@ -48,16 +48,6 @@
     </div>
   </section>
 
-  @if (hasLock) {
-    <section class="smart-system-card">
-      <span class="smart-system-toggle" aria-hidden="true"></span>
-      <div>
-        <strong>{{ 'd3.unitReview.basicInfoView.smartSystemTitle' | translate }}</strong>
-        <span>{{ 'd3.unitReview.basicInfoView.selfAccessBanner' | translate }}</span>
-      </div>
-      <i-tabler name="check" class="smart-system-check"></i-tabler>
-    </section>
-  }
 
   @if (unitDescription) {
     <section class="description-card">

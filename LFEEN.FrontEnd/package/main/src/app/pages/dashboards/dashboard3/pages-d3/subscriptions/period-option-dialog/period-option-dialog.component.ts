@@ -97,14 +97,14 @@ export class PeriodOptionDialogComponent {
     return this.translate.currentLang === 'en' ? p.nameEn : p.nameAr;
   }
 
-  /** Fills the day count, and the names too while they're still empty or a preset's. */
+  /**
+   * Fills the day count, and each name too while it's still empty or a preset's — checked
+   * per name, so a filled-in Arabic name doesn't stop the English one from following.
+   */
   applyPreset(p: DurationPreset): void {
-    const namesArePreset = PRESETS.some(x => x.nameAr === this.nameAr && x.nameEn === this.nameEn);
     this.durationInDays = p.days;
-    if ((!this.nameAr.trim() && !this.nameEn.trim()) || namesArePreset) {
-      this.nameAr = p.nameAr;
-      this.nameEn = p.nameEn;
-    }
+    if (!this.nameAr.trim() || PRESETS.some(x => x.nameAr === this.nameAr)) this.nameAr = p.nameAr;
+    if (!this.nameEn.trim() || PRESETS.some(x => x.nameEn === this.nameEn)) this.nameEn = p.nameEn;
   }
 
   // ── Validation (mirrors SUBSCRIPTION_PERIOD_OPTION_*) ──

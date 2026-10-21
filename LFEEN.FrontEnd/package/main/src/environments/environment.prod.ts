@@ -2,6 +2,7 @@ export const environment = {
   production: true,
   apiBaseUrl: 'https://operation-admin.lfeen.com',
   googleMapsApiKey: '__GOOGLE_MAPS_API_KEY__',
-  // Loads the Flow "report an issue" button (internal team only). Keep off for real customers.
-  flowReport: false
+  // Flow "report an issue" button; null turns it off. To enable it for customers set
+  // { key: '<Production flw_rep_ key>', project: '<row code>', channel: 'Web' }.
+  flowReport: null as { key: string; project: string; channel: string } | null
 };

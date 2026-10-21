@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, computed, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,12 @@ import { ChangeUnitDialogComponent } from './components/change-unit-dialog/chang
 import { CancelBookingDialogComponent } from './components/cancel-booking-dialog/cancel-booking-dialog.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { LoginService } from '../../services/login/login.service';
+import { ReviewReportsComponent, ReviewReportsCount } from './components/review-reports/review-reports.component';
+import { BOOKING_REVIEW_PERMISSIONS, hasBookingPermission } from './interfaces/review-report.model';
+
+/** Page-level view; the reported-reviews queue lives at ?tab=reviews. */
+type BookingsView = 'bookings' | 'reviews';
 
 interface MetricCard {
   titleKey: string;
@@ -29,7 +35,7 @@ interface MetricCard {
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent, ReviewReportsComponent],
   // Dialog components are opened imperatively via MatDialog, so they are not
   // listed in `imports`.
   templateUrl: './all-bookings.component.html',
@@ -44,6 +50,20 @@ export class AllBookingsComponent implements OnInit {
   private router    = inject(Router);
   private route     = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private loginService = inject(LoginService);
+
+  // ── Reported reviews tab ──────────────────────────────────────────────────
+  readonly canViewReviews = computed(() =>
+    hasBookingPermission(this.loginService.permissions(), BOOKING_REVIEW_PERMISSIONS.view));
+  readonly canModerateReviews = computed(() =>
+    hasBookingPermission(this.loginService.permissions(), BOOKING_REVIEW_PERMISSIONS.moderate));
+
+  activeView: BookingsView = 'bookings';
+  /** Tab badge; null until the queue has been fetched once. */
+  reviewsCount: ReviewReportsCount | null = null;
+  // The bookings list is only fetched while its tab is shown; a reload requested
+  // meanwhile (e.g. a language switch) marks it stale for the next switch back.
+  private bookingsStale = true;
 
   private searchSubject = new Subject<string>();
   // Every filter/paging change pushes here; switchMap cancels any in-flight
@@ -199,15 +219,59 @@ export class AllBookingsComponent implements OnInit {
       });
 
     this.reload();
+
+    // On the bookings tab the queue component isn't mounted, so fetch once for the badge.
+    if (this.activeView === 'bookings') this.loadReviewsCount();
   }
 
   private reload(): void {
+    if (this.activeView !== 'bookings') {
+      this.bookingsStale = true;
+      return;
+    }
+    this.bookingsStale = false;
     this.reload$.next();
+  }
+
+  // ── Page tabs ─────────────────────────────────────────────────────────────
+  setView(view: BookingsView): void {
+    if (view === this.activeView) return;
+    if (view === 'reviews' && !this.canViewReviews()) return;
+    this.activeView = view;
+    this.closeMobileFilter();
+    // reload() syncs the query params itself — one navigation either way, so two
+    // back-to-back 'merge' navigations can't race each other over `tab`.
+    if (view === 'bookings' && this.bookingsStale) this.reload();
+    else this.syncQueryParams();
+  }
+
+  onReviewsCountChange(count: ReviewReportsCount): void {
+    this.reviewsCount = count;
+    this.cdr.markForCheck();
+  }
+
+  private loadReviewsCount(): void {
+    if (!this.canViewReviews()) return;
+    this.bookingService.getReviewReports()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: items => this.onReviewsCountChange({
+          total: items.length,
+          highPriority: items.filter(i => i.isHighPriority).length,
+        }),
+        error: () => { /* badge simply stays hidden */ },
+      });
+  }
+
+  reviewsBadge(): string {
+    return formatLocalizedNumber(this.reviewsCount?.total ?? 0, this.currentLang);
   }
 
   // ── Query-param sync ─────────────────────────────────────────────────────
   private readQueryParams(): void {
     const qp = this.route.snapshot.queryParamMap;
+
+    if (qp.get('tab') === 'reviews' && this.canViewReviews()) this.activeView = 'reviews';
 
     this.searchQuery = qp.get('q') ?? '';
     this.checkInDate = qp.get('checkIn') ?? '';
@@ -231,6 +295,7 @@ export class AllBookingsComponent implements OnInit {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: {
+        tab: this.activeView === 'reviews' ? 'reviews' : null,
         q: this.searchQuery.trim() || null,
         status: this.selectedStatus !== 'all' ? this.selectedStatus : null,
         origin: this.selectedOrigin !== 'all' ? this.selectedOrigin : null,

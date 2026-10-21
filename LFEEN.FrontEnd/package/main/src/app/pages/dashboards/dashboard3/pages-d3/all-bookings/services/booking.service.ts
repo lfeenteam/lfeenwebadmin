@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
+import { ApproveReviewReportRequest, ReviewReportItem, ReviewTargetField } from '../interfaces/review-report.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatNaiveDayMonth } from 'src/app/utils/date-format.util';
@@ -106,6 +107,27 @@ export class BookingService {
     return this.http.post<void>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/cancel`, {
       cancellationReason,
     });
+  }
+
+  // ── Guest review moderation (bare payloads — no { data } envelope) ─────────
+  getReviewReports(): Observable<ReviewReportItem[]> {
+    return this.http
+      .get<ReviewReportItem[]>(`${environment.apiBaseUrl}/api/bookings/reviews/reports`)
+      .pipe(map(res => (Array.isArray(res) ? res : [])));
+  }
+
+  approveReviewReport(bookingReviewId: number, targetField: ReviewTargetField, blockedWord: string): Observable<boolean> {
+    return this.http.post<boolean>(
+      `${environment.apiBaseUrl}/api/bookings/reviews/${bookingReviewId}/${targetField}/approve`,
+      { blockedWord } satisfies ApproveReviewReportRequest,
+    );
+  }
+
+  rejectReviewReport(bookingReviewId: number, targetField: ReviewTargetField): Observable<boolean> {
+    return this.http.post<boolean>(
+      `${environment.apiBaseUrl}/api/bookings/reviews/${bookingReviewId}/${targetField}/reject`,
+      null,
+    );
   }
 
   mapApiItemToBooking(item: BookingApiItem, lang: string): Booking {

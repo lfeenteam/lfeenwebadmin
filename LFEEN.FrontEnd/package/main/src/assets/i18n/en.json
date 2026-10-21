@@ -1532,8 +1532,6 @@
         "organizationLabel": "Operating Organization",
         "totalUnitsLabel": "Total Units",
         "controlTitle": "Features & Controls",
-        "smartLockTitle": "Smart Property Lock",
-        "smartLockDesc": "Keyless entry via access code",
         "extraServicesTitle": "Allow Guest Requests",
         "extraServicesDesc": "Allows guests to request extra services from this property",
         "floorsTitle": "Floor & Unit Details",
@@ -1666,35 +1664,30 @@
           "desc": "Base price: 450 SAR/night, special weekend and seasonal pricing",
           "btn": "Review Pricing"
         },
-        "smartLock": {
-          "title": "5. Smart Lock",
-          "desc": "The approved entry system for this unit uses codes via the smart device/phone",
-          "infoBadge": "Informational",
-          "activeBadge": "Activated via system"
-        },
         "access": {
-          "title": "6. Access Method",
+          "title": "5. Access Method",
           "desc": "Location guidance, elevator code, and dedicated full-time staff number",
           "btn": "Review Access"
         },
         "cancelPolicy": {
-          "title": "7. Cancellation Policy",
+          "title": "6. Cancellation Policy",
           "desc": "Selected policy: Flexible (full refund before 24h of check-in)",
           "btn": "Review Policy"
         },
         "deposit": {
-          "title": "8. Security Deposit",
+          "title": "7. Security Deposit",
           "desc": "Required deposit: 500 SAR, charged at booking and refunded 24h after checkout",
           "btn": "Review Deposit",
-          "infoBadge": "Informational"
+          "infoBadge": "Informational",
+          "activeBadge": "Activated via system"
         },
         "services": {
-          "title": "9. Service Customization",
+          "title": "8. Service Customization",
           "desc": "Additional services: daily cleaning, home breakfast (50 SAR), airport pickup",
           "btn": "Review Services"
         },
         "license": {
-          "title": "10. Unit License",
+          "title": "9. Unit License",
           "desc": "Ministry of Tourism license No: B-9928374-UC, valid until 2026/12/31",
           "btn": "Preview License"
         }
@@ -1704,9 +1697,7 @@
         "backLabel": "Back to review list",
         "heading": "Unit Contents & Facilities",
         "subtitle": "Please review each section separately",
-        "smartSystemTitle": "Smart Lock System",
         "smartBanner": "Smart AC system enabled in the unit",
-        "selfAccessBanner": "Self check-in is available through the Lfeen app",
         "contentsLabel": "Contents",
         "highlightedInDescription": "Highlighted in description",
         "descriptionTitle": "Unit Description",
@@ -2399,6 +2390,62 @@
         "moreFilters": "Filters",
         "dateRangeError": "Check-out date can't be before the check-in date.",
         "checkOutClearedHint": "Check-out date was cleared because it fell before the check-in date."
+      },
+      "pageTabs": {
+        "bookings": "Bookings",
+        "reviews": "Reported Reviews",
+        "urgentHint": "Some reported comments are already hidden and awaiting a decision",
+        "pendingHint": "Reported comments awaiting review"
+      },
+      "reviewReports": {
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "empty": "No reported reviews right now.",
+        "loadError": "Couldn't load reported reviews.",
+        "forbidden": "You don't have permission to view reported reviews.",
+        "summary": {
+          "total": "{{count}} reported comment(s)",
+          "hidden": "{{count}} hidden, awaiting a decision"
+        },
+        "target": {
+          "unit": "Unit comment",
+          "host": "Host comment",
+          "app": "App comment"
+        },
+        "status": {
+          "hidden": "Hidden — awaiting review",
+          "visible": "Reported, still visible"
+        },
+        "reportCount": "{{count}} report(s)",
+        "reasons": "Reasons:",
+        "noReason": "{{count}} without a reason",
+        "firstReported": "First reported {{time}}",
+        "lastReported": "· last {{time}}",
+        "actions": {
+          "approve": "Confirm & remove",
+          "reject": "Dismiss reports"
+        },
+        "approveDialog": {
+          "title": "Confirm offensive comment",
+          "warningTitle": "This can't be undone",
+          "warningDesc": "The comment is permanently deleted, and the word you pick is added to the blocklist — any future comment containing it will be rejected automatically.",
+          "commentLabel": "Reported comment",
+          "pickHint": "Click the offending word in the comment, or type it below.",
+          "blockedWordLabel": "Word / phrase to block",
+          "blockedWordPlaceholder": "e.g. the offensive word",
+          "blockedWordHint": "Only this word or phrase is blocklisted — not the whole comment.",
+          "confirmBtn": "Delete & block word"
+        },
+        "rejectDialog": {
+          "title": "Dismiss reports?",
+          "messageHidden": "The comment was auto-hidden — it will be restored and visible to everyone again. All pending reports on it will be closed.",
+          "messageVisible": "The comment stays as it is. All pending reports on it will be closed and won't count toward auto-hiding again."
+        },
+        "toast": {
+          "approved": "Comment removed and word added to the blocklist.",
+          "rejected": "Reports dismissed.",
+          "alreadyHandled": "This comment was already handled."
+        }
       },
       "origin": {
         "all": "All Sources",
@@ -3643,18 +3690,6 @@
         "dataTypePlaceholder": "Text describing the data type...",
         "fieldNamePlaceholder": "Enter field name..."
       },
-      "operations": {
-        "title": "Operations & subscriptions pricing",
-        "desc": "Align the pricing model across the seasonal price, operation price and setup fee",
-        "searchPlaceholder": "Search for a facility...",
-        "type": "Subscription / operation type",
-        "setupFee": "Setup fee",
-        "operationPrice": "Operation price",
-        "seasonalPrice": "Seasonal price",
-        "empty": "No pricing has been set for this service yet.",
-        "basic": "Basic subscription",
-        "advanced": "Advanced subscription"
-      },
       "facilities": {
         "title": "Service subscribers",
         "desc": "Every subscription to this service (account-wide or for one property), active and expired.",
@@ -3682,9 +3717,7 @@
         "monthlyLabel": "Standard monthly price (SAR)",
         "noPricePlaceholder": "No price set",
         "setupFeeLabel": "Setup fee (one-time)",
-        "annualLabel": "Standard annual price (SAR)",
-        "vatLabel": "Includes VAT (15%)",
-        "vatDesc": "The tax invoice is issued automatically once the subscription is confirmed"
+        "annualLabel": "Standard annual price (SAR)"
       },
       "trial": {
         "title": "Free trial period settings",

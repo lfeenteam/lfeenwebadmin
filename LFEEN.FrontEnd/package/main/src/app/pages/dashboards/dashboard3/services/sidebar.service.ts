@@ -6,7 +6,6 @@ import { LoginService } from './login/login.service';
 import { SidebarItem } from '../interfaces/login.model';
 import { CoreService } from '../../../../services/core.service';
 import { PAGE_FLAGS } from '../../../../config/page-flags';
-import { APP_RUNTIME_PERMISSIONS, hasAppRuntimePermission } from '../pages-d3/control-center/interfaces/control-center-permissions';
 
 export interface NavItem {
   id?: string;
@@ -53,79 +52,18 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
-    // The backend doesn't send a Settlements entry in the sidebar payload, so it's added here.
-    // Not gated on the Settlements.View permission yet: the environments' login response
-    // doesn't carry it until the backend ships it — the API itself still answers 403 without it.
-    if (PAGE_FLAGS['settlements'] && !items.find(i => i.link === '/d3/settlements')) {
-      items.push({ translationKey: 'd3.sidebar.settlements', icon: 'receipt-2', link: '/d3/settlements' });
+    // Every page entry now comes from the backend payload, already filtered by the
+    // user's permissions — no frontend fallbacks. Control Center and Settings form the
+    // last group in the design, so Control Center is moved to the end, below a divider.
+    const controlCenterIndex = items.findIndex(i => i.link === '/d3/control-center');
+    const controlCenter = controlCenterIndex >= 0 ? items.splice(controlCenterIndex, 1)[0] : null;
+    if (controlCenter) {
+      items.push({ divider: true }, controlCenter);
     }
 
-    // The backend doesn't send a Ban Refunds entry either (per the listing-ban handoff, the
-    // frontend adds it). Unlike Settlements it's gated: BanRefunds.View ships in the login
-    // response. Reading permissions() here also makes the effect rebuild when they change.
-    const canViewBanRefunds = this.loginService.permissions().some(p => p.toLowerCase() === 'banrefunds.view');
-    if (canViewBanRefunds && !items.find(i => i.link === '/d3/ban-refunds')) {
-      items.push({ translationKey: 'd3.sidebar.banRefunds', icon: 'receipt-refund', link: '/d3/ban-refunds' });
-    }
-
-    // The backend doesn't send a Contact Us entry yet; gated on ContactUs.View like Ban Refunds.
-    const canViewContactUs = this.loginService.permissions().some(p => p.toLowerCase() === 'contactus.view');
-    if (canViewContactUs && !items.find(i => i.link === '/d3/contact-us')) {
-      items.push({ translationKey: 'd3.sidebar.contactUs', icon: 'mail', link: '/d3/contact-us' });
-    }
-
-    // Temporary fixed entry, same as Contact Us above: the permission-driven
-    // sidebar payload doesn't know about this page yet.
-    if (!items.find(i => i.link === '/d3/platform-offers')) {
-      items.push({ translationKey: 'd3.sidebar.platformOffers', icon: 'discount', link: '/d3/platform-offers' });
-    }
-
-    // Same as Settlements above: not gated on CallScripts.View yet since the
-    // login response doesn't carry that permission — the API still enforces it.
-    if (PAGE_FLAGS['call-scripts'] && !items.find(i => i.link === '/d3/call-scripts')) {
-      items.push({ translationKey: 'd3.sidebar.callScripts', icon: 'phone-call', link: '/d3/call-scripts' });
-    }
-
-    // The backend doesn't send an eSIM entry in the sidebar payload yet.
-    if (PAGE_FLAGS['esim'] && !items.find(i => i.link === '/d3/esim')) {
-      items.push({ translationKey: 'd3.sidebar.esim', icon: 'device-sim', link: '/d3/esim' });
-    }
-
-    if (!items.find(i => i.link === '/d3/subscriptions/management')) {
-      // Order follows the design: settings, management, requests, discount codes, log.
-      const subscriptionChildren: NavItem[] = [
-        { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
-        { translationKey: 'd3.sidebar.subscriptionRequests', icon: 'file-invoice', link: '/d3/subscriptions/requests' },
-        { translationKey: 'd3.sidebar.discountCodes', icon: 'discount', link: '/d3/subscriptions/discount-codes' },
-        { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
-      ];
-      if (PAGE_FLAGS['subscriptions-management']) {
-        subscriptionChildren.splice(1, 0, {
-          translationKey: 'd3.sidebar.subscriptionManagement', icon: 'list-details', link: '/d3/subscriptions/management'
-        });
-      }
-      items.push({
-        translationKey: 'd3.sidebar.subscriptions',
-        icon: 'credit-card',
-        link: null,
-        children: subscriptionChildren
-      });
-    }
-
-    // The payload is meant to carry a "control-center" entry for AppRuntime.View holders, but
-    // some environments don't send it yet. Gated on AppRuntime.View once the login response
-    // carries AppRuntime.* permissions; until then shown to all (the API still answers 403).
-    // Reading permissions() here also makes the effect rebuild when they change.
-    if (PAGE_FLAGS['control-center']
-      && hasAppRuntimePermission(this.loginService, APP_RUNTIME_PERMISSIONS.view)
-      && !items.find(i => i.link === '/d3/control-center')) {
-      items.push({ divider: true });
-      items.push({ translationKey: 'd3.sidebar.controlCenter', icon: 'layout-grid', link: '/d3/control-center' });
-    }
-
+    // Settings isn't in the payload; it's a frontend-only page.
     if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
-      // Settings shares the Control Center group in the design — one divider above both.
-      if (items[items.length - 1]?.link !== '/d3/control-center') items.push({ divider: true });
+      if (!controlCenter) items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
 
@@ -157,7 +95,13 @@ export class SidebarService {
       'contact-us':       'mail',
       'contactus':        'mail',
       'contact_us':       'mail',
-      'control-center':   'layout-grid'
+      'control-center':   'layout-grid',
+      'settlements':      'receipt-2',
+      'ban-refunds':      'receipt-refund',
+      'platform-offers':  'discount',
+      'call-scripts':     'phone-call',
+      'esim':             'device-sim',
+      'subscriptions':    'credit-card'
     };
 
     const exactRouteMap: { [key: string]: string } = {
@@ -176,8 +120,25 @@ export class SidebarService {
       'contact_us':      '/d3/contact-us',
       'roles':           '/d3/roles',
       // Sent only to admins holding AppRuntime.View (the payload's own route is /admin/control-center).
-      'control-center':  '/d3/control-center'
+      'control-center':  '/d3/control-center',
+      'settlements':     '/d3/settlements',
+      'ban-refunds':     '/d3/ban-refunds',
+      'platform-offers': '/d3/platform-offers',
+      'call-scripts':    '/d3/call-scripts',
+      'esim':            '/d3/esim'
     };
+
+    // The payload sends Subscriptions as a single entry; its pages are a frontend group.
+    // Order follows the design: settings, management, requests, discount codes, log.
+    const subscriptionChildren = (): NavItem[] => [
+      { translationKey: 'd3.sidebar.subscriptionSettings', icon: 'adjustments', link: '/d3/subscriptions/settings' },
+      ...(PAGE_FLAGS['subscriptions-management']
+        ? [{ translationKey: 'd3.sidebar.subscriptionManagement', icon: 'list-details', link: '/d3/subscriptions/management' }]
+        : []),
+      { translationKey: 'd3.sidebar.subscriptionRequests', icon: 'file-invoice', link: '/d3/subscriptions/requests' },
+      { translationKey: 'd3.sidebar.discountCodes', icon: 'discount', link: '/d3/subscriptions/discount-codes' },
+      { translationKey: 'd3.sidebar.subscriptionLog', icon: 'history', link: '/d3/subscriptions/log' },
+    ];
 
     // Driven by page-flags.ts: a page with its flag set to false is hidden from
     // the sidebar here, and (where a route exists) blocked by page-flag.guard.ts.
@@ -190,7 +151,18 @@ export class SidebarService {
     return items
       .filter(item => !hiddenKeys.has(item.key))
       .sort((a, b) => a.order - b.order)
-      .map(item => {
+      .map((item): NavItem | null => {
+        if (item.key === 'subscriptions') {
+          return {
+            id: item.id,
+            key: item.key,
+            title: item.title || '',
+            icon: iconMap[item.key],
+            link: null,
+            children: subscriptionChildren()
+          };
+        }
+
         let link: string | null = null;
         if (exactRouteMap[item.key]) {
           link = exactRouteMap[item.key];
@@ -201,11 +173,13 @@ export class SidebarService {
           // Individual department links (e.g. department-it/cs/ops) go to that
           // department's page — not the disabled permissions module below.
           link = `/d3/team-management/${item.entityId ?? item.id}`;
-        } else if (item.entityId) {
-          link = `/d3/permissions/${item.entityId}`;
-        } else if (item.route && !item.children?.length) {
-          link = `/d3/permissions/${item.id}`;
         }
+
+        const children = item.children?.length ? this.mapSidebarToNavItems(item.children) : undefined;
+
+        // A key with no known page (and no children to open) would be a dead link — hide it
+        // until it's added to exactRouteMap above.
+        if (!link && !children?.length) return null;
 
         return {
           id: item.id,
@@ -213,8 +187,9 @@ export class SidebarService {
           title: item.title || '',
           icon: iconMap[item.key] || 'point',
           link,
-          children: item.children?.length ? this.mapSidebarToNavItems(item.children) : undefined
+          children
         };
-      });
+      })
+      .filter((item): item is NavItem => item !== null);
   }
 }
