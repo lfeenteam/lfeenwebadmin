@@ -37,12 +37,20 @@ export class OperationAuditsService {
   readonly loadFailed = signal(false);
   readonly accessDenied = signal(false);
 
-  // Read from the single list response — no extra requests. Until the API returns
-  // `stats`, only the total is known (from totalCount, and only when not filtered by status).
+  // Read from the single list response — no extra requests. If the API omits
+  // `summary`, only the total is known (from totalCount, and only when not filtered by status).
   readonly stats = computed<Partial<AdminOperationAuditStats> | null>(() => {
     const list = this.list();
     if (!list) return null;
-    if (list.stats) return list.stats;
+    const s = list.summary;
+    if (s) {
+      return {
+        total: s.totalOperations ?? undefined,
+        succeeded: s.successfulOperations ?? undefined,
+        failed: s.failedOperations ?? undefined,
+        denied: s.deniedOperations ?? undefined
+      };
+    }
     return this.filters().status ? {} : { total: list.totalCount };
   });
 

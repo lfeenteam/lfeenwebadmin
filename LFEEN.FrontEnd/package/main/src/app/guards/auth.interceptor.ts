@@ -52,7 +52,7 @@ export class AuthInterceptor implements HttpInterceptor {
       'Accept-Language': lang,
     };
 
-    if (token) {
+    if (token && !this.loginService.isAnonymousAuthUrl(req.url)) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
@@ -61,7 +61,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
   private logoutAndRedirect(error: HttpErrorResponse): Observable<never> {
     this.loginService.logout();
-    this.router.navigate(['/en/d3/login']);
+    const lang = this.coreService.getLanguage() === 'en' ? 'en' : 'ar';
+    this.router.navigate(['/', lang, 'd3', 'login']);
     return throwError(() => error);
   }
 }

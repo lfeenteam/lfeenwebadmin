@@ -98,15 +98,17 @@
     flex: 1 1 auto;
     overflow-y: auto;
     padding: 24px 16px;
+    // Room under the last row so the fixed chat FAB (bottom corner) never covers it.
+    padding-bottom: 96px;
     min-height: calc(100vh - 80px);
     width: 100%;
 
     @media (max-width: 768px) {
-      padding: 16px 12px;
+      padding: 16px 12px 88px;
     }
 
     @media (max-width: 576px) {
-      padding: 20px 12px;
+      padding: 20px 12px 88px;
     }
   }
 

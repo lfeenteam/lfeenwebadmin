@@ -13,6 +13,8 @@ export class LoginService {
   private apiUrl = `${environment.apiBaseUrl}/api/auth/Login`;
   private refreshUrl = `${environment.apiBaseUrl}/api/auth/refresh-token`;
   private changePasswordUrl = `${environment.apiBaseUrl}/api/auth/change-password`;
+  private forgotPasswordUrl = `${environment.apiBaseUrl}/api/auth/forgot-password`;
+  private resetPasswordUrl = `${environment.apiBaseUrl}/api/auth/reset-password`;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';
@@ -70,6 +72,20 @@ export class LoginService {
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
     return this.http.post(this.changePasswordUrl, { currentPassword, newPassword });
+  }
+
+  // Always succeeds for a well-formed email, whether or not the account exists.
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(this.forgotPasswordUrl, { email });
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    return this.http.post(this.resetPasswordUrl, { email, token, newPassword });
+  }
+
+  /** Endpoints for signed-out users: must never carry a (possibly stale) bearer token. */
+  isAnonymousAuthUrl(url: string): boolean {
+    return url.startsWith(this.forgotPasswordUrl) || url.startsWith(this.resetPasswordUrl);
   }
 
   private setRememberMe(value: boolean): void {

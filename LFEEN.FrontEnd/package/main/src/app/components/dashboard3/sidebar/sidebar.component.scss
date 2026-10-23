@@ -37,6 +37,8 @@
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  // In LTR the chat FAB sits over the sidebar's bottom corner; let the last item scroll clear of it.
+  padding-bottom: 88px;
   scrollbar-width: thin;
   scrollbar-color: #d4d4d4 transparent;
   background-color: #ffffff;

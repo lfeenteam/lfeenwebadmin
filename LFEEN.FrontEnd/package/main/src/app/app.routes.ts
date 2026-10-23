@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
-import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
 import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, guestGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
 import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 
@@ -26,70 +25,6 @@ export const routes: Routes = [
       },
       {
         path: '',
-        component: FullComponent,
-        children: [
-          {
-            path: 'starter',
-            loadChildren: () =>
-              import('./pages/pages.routes').then((m) => m.PagesRoutes),
-          },
-          {
-            path: 'dashboards',
-            loadChildren: () =>
-              import('./pages/dashboards/dashboards.routes').then(
-                (m) => m.DashboardsRoutes
-              ),
-          },
-          {
-            path: 'forms',
-            loadChildren: () =>
-              import('./pages/forms/forms.routes').then((m) => m.FormsRoutes),
-          },
-          {
-            path: 'charts',
-            loadChildren: () =>
-              import('./pages/charts/charts.routes').then((m) => m.ChartsRoutes),
-          },
-          {
-            path: 'apps',
-            loadChildren: () =>
-              import('./pages/apps/apps.routes').then((m) => m.AppsRoutes),
-          },
-          {
-            path: 'widgets',
-            loadChildren: () =>
-              import('./pages/widgets/widgets.routes').then((m) => m.WidgetsRoutes),
-          },
-          {
-            path: 'tables',
-            loadChildren: () =>
-              import('./pages/tables/tables.routes').then((m) => m.TablesRoutes),
-          },
-          {
-            path: 'datatable',
-            loadChildren: () =>
-              import('./pages/datatable/datatable.routes').then(
-                (m) => m.DatatablesRoutes
-              ),
-          },
-          {
-            path: 'theme-pages',
-            loadChildren: () =>
-              import('./pages/theme-pages/theme-pages.routes').then(
-                (m) => m.ThemePagesRoutes
-              ),
-          },
-          {
-            path: 'ui-components',
-            loadChildren: () =>
-              import('./pages/ui-components/ui-components.routes').then(
-                (m) => m.UiComponentsRoutes
-              ),
-          },
-        ],
-      },
-      {
-        path: '',
         component: BlankComponent,
         children: [
           {
@@ -106,10 +41,30 @@ export const routes: Routes = [
               },
               {
                 path: 'login',
+                canActivate: [guestGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/login/login.component'
                   ).then((m) => m.LoginComponent),
+              },
+              {
+                path: 'forgot-password',
+                canActivate: [guestGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/forgot-password/forgot-password.component'
+                  ).then((m) => m.ForgotPasswordComponent),
+                data: { titleKey: 'd3.forgotPasswordPage.title' },
+              },
+              {
+                // Linked from the reset email: #/{lang}/d3/reset-password?email=...&token=...
+                // No guestGuard: the emailed link must work even in a browser that is still signed in.
+                path: 'reset-password',
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/reset-password/reset-password.component'
+                  ).then((m) => m.ResetPasswordComponent),
+                data: { titleKey: 'd3.resetPasswordPage.title' },
               },
               {
                 path: 'ceo',
@@ -895,17 +850,10 @@ export const routes: Routes = [
             ],
           },
           {
-            path: 'authentication',
-            loadChildren: () =>
-              import('./pages/authentication/authentication.routes').then(
-                (m) => m.AuthenticationRoutes
-              ),
-          },
-          {
-            path: 'landingpage',
-            loadChildren: () =>
-              import('./pages/theme-pages/landingpage/landingpage.routes').then(
-                (m) => m.LandingPageRoutes
+            path: 'authentication/error',
+            loadComponent: () =>
+              import('./pages/authentication/error/error.component').then(
+                (m) => m.AppErrorComponent
               ),
           },
         ],

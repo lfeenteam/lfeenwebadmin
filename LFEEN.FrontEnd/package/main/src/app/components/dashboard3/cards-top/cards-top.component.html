@@ -62,7 +62,7 @@
               <span>
                 <span dir="ltr">{{ card.trend.text }}</span>
                 @if (card.trend.direction !== 'flat' || card.trend.text !== '—') {
-                  {{ (card.trendIsPoints ? 'd3.cards.points' : 'd3.cards.trendUpLastMonth') | translate }}
+                  &nbsp;{{ (card.trendIsPoints ? 'd3.cards.points' : 'd3.cards.trendUpLastMonth') | translate }}
                 }
               </span>
             </div>

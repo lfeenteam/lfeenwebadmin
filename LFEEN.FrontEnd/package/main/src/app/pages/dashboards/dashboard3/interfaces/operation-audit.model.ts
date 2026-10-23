@@ -65,8 +65,16 @@ export interface AdminOperationAuditList {
   page: number;
   pageSize: number;
   totalPages: number;
-  /** Requested from the backend; counts ignore the status filter and paging. */
-  stats?: AdminOperationAuditStats;
+  /** Counts for the summary cards; ignores paging. */
+  summary?: AdminOperationAuditSummary;
+}
+
+/** Raw `summary` object as returned by GET /api/operation-audits. */
+export interface AdminOperationAuditSummary {
+  totalOperations: number | null;
+  successfulOperations: number | null;
+  failedOperations: number | null;
+  deniedOperations: number | null;
 }
 
 export interface AdminOperationAuditFilters {

@@ -130,7 +130,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   }
 
   private updateIsLoginRoute(): void {
-    this.isLoginRoute = this.router.url.includes('/login');
+    // Signed-out pages: no sidebar/header and no realtime hubs.
+    const path = this.router.url.split('?')[0];
+    this.isLoginRoute = ['/login', '/forgot-password', '/reset-password'].some(p => path.includes(p));
   }
 
   private applyRouteHeaderData(): void {

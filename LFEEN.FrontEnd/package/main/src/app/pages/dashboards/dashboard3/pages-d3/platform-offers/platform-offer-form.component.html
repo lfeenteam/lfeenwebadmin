@@ -65,12 +65,18 @@
                             "d3.platformOffers.fields.internalAr" | translate
                           }}*
                           <input formControlName="internalNameAr" />
+                          @if (showError(form.controls.internalNameAr)) {
+                            <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.internalEn" | translate
                           }}*
                           <input formControlName="internalNameEn" dir="ltr" />
+                          @if (showError(form.controls.internalNameEn)) {
+                            <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                          }
                         </label>
                         <label>
                           {{
@@ -140,12 +146,16 @@
                               dir="ltr"
                               (input)="codeChanged($any($event.target).value)"
                             />
-                            <small [class.ok]="codeState() === 'ok'">
-                              {{
-                                "d3.platformOffers.code." + codeState()
-                                  | translate
-                              }}
-                            </small>
+                            @if (showError(form.controls.code)) {
+                              <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                            } @else {
+                              <small [class.ok]="codeState() === 'ok'">
+                                {{
+                                  "d3.platformOffers.code." + codeState()
+                                    | translate
+                                }}
+                              </small>
+                            }
                           </label>
                         }
                         <label>
@@ -173,6 +183,13 @@
                             type="number"
                             formControlName="discountValue"
                           />
+                          @if (showError(form.controls.discountValue)) {
+                            <small class="field-error">{{
+                              (form.controls.discountValue.hasError("min")
+                                ? "d3.platformOffers.validation.positive"
+                                : "d3.platformOffers.validation.required") | translate
+                            }}</small>
+                          }
                         </label>
                         @if (form.value.discountType === "Percentage") {
                           <label>
@@ -707,6 +724,9 @@
                               <i-tabler name="trash"></i-tabler>
                             </button>
                           </div>
+                          @if (showError(row)) {
+                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                          }
                         }
                         <button
                           type="button"
@@ -744,6 +764,9 @@
                               <i-tabler name="trash"></i-tabler>
                             </button>
                           </div>
+                          @if (showError(row)) {
+                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                          }
                         }
                         <button
                           type="button"
@@ -769,6 +792,9 @@
                               <i-tabler name="trash"></i-tabler>
                             </button>
                           </div>
+                          @if (showError(row)) {
+                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                          }
                         }
                         <button
                           type="button"

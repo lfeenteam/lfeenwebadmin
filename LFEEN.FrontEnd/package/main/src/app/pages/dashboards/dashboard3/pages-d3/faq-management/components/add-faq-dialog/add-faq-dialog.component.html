@@ -60,8 +60,15 @@
 
         <div class="meta-col order-col">
           <label class="meta-label">{{ 'd3.faq.dialog.order' | translate }}</label>
-          <input class="faq-input order-input" type="number" min="1" formControlName="order">
-          <span class="order-hint">{{ 'd3.faq.dialog.orderHint' | translate }}</span>
+          <input class="faq-input order-input" type="number" min="1" formControlName="order"
+            [class.is-invalid]="faqForm.get('order')?.invalid && faqForm.get('order')?.touched">
+          @if (faqForm.get('order')?.invalid && faqForm.get('order')?.touched) {
+            <span class="field-error-msg">
+              {{ (faqForm.get('order')?.hasError('min') ? 'd3.faq.dialog.validation.orderMin' : 'd3.faq.dialog.validation.orderRequired') | translate }}
+            </span>
+          } @else {
+            <span class="order-hint">{{ 'd3.faq.dialog.orderHint' | translate }}</span>
+          }
         </div>
       </div>
 

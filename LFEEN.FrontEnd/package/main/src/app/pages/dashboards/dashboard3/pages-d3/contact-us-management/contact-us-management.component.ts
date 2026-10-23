@@ -82,6 +82,18 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   formatBytes(bytes: number): string { if (!bytes) return '0 KB'; const units = ['B', 'KB', 'MB', 'GB']; const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3); return `${(bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0)} ${units[i]}`; }
   readonly visiblePages = computed(() => getVisiblePages(this.page(), this.totalPages()));
   fmt(value: number): string { return formatLocalizedNumber(value, this.translate.currentLang); }
+
+  // Same locale as the page header's date (ar-EG = Gregorian months, Arabic digits), e.g. "٦ أكتوبر ٢٠٢٦" / "١١:٠٩ ص".
+  private dateLocale(): string { return this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG'; }
+  fmtDate(value: string | null | undefined): string {
+    return value ? new Intl.DateTimeFormat(this.dateLocale(), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value)) : '';
+  }
+  fmtTime(value: string | null | undefined): string {
+    return value ? new Intl.DateTimeFormat(this.dateLocale(), { hour: 'numeric', minute: '2-digit' }).format(new Date(value)) : '';
+  }
+  fmtDateTime(value: string | null | undefined): string {
+    return value ? `${this.fmtDate(value)} — ${this.fmtTime(value)}` : '';
+  }
   showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
   isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }

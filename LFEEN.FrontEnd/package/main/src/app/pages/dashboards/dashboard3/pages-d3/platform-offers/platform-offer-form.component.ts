@@ -269,12 +269,18 @@ export class PlatformOfferFormComponent implements OnInit {
       order: [v.order ?? this.terms.length + 1, Validators.required],
     });
   }
+  /** True once the user has touched an invalid control — drives the inline error text. */
+  showError(control: AbstractControl | null | undefined): boolean {
+    return !!control && control.invalid && control.touched;
+  }
+
   submit() {
     const coupon = this.form.value.triggerType === 'Coupon';
     this.form.controls.code.setValidators(coupon ? [Validators.required] : []);
     this.form.controls.code.updateValueAndValidity();
     if (this.form.invalid || this.codeState() === 'taken') {
       this.form.markAllAsTouched();
+      this.toast.error(this.tr.instant('d3.platformOffers.validation.fixErrors'));
       this.open.set(
         new Set([
           'basics',

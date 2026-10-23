@@ -779,6 +779,37 @@
         }
       }
     },
+    "forgotPasswordPage": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your admin email and we'll send you a link to reset your password.",
+      "invalidEmail": "Enter a valid email address.",
+      "submit": "Send reset link",
+      "sentBody": "If an account exists for this email, we've sent a link to reset your password.",
+      "useAnotherEmail": "Use a different email",
+      "backToLogin": "Back to sign in",
+      "error": "Couldn't send the request. Please try again."
+    },
+    "resetPasswordPage": {
+      "title": "Set a new password",
+      "subtitle": "Choose a new password for the account:",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "togglePassword": "Show or hide password",
+      "mismatch": "Passwords don't match.",
+      "submit": "Save new password",
+      "success": "Password updated. Please sign in with your new password.",
+      "error": "Couldn't reset the password. Please try again.",
+      "invalidTitle": "This link is no longer valid",
+      "invalidBody": "Request a new link to reset your password.",
+      "requestNewLink": "Request a new link",
+      "rules": {
+        "length": "At least 8 characters",
+        "upper": "An uppercase letter (A–Z)",
+        "lower": "A lowercase letter (a–z)",
+        "number": "A number (0–9)",
+        "special": "A special character (!@#…)"
+      }
+    },
     "teamManagement": {
       "title": "Team & Administrators Management",
       "stats": {
@@ -4224,6 +4255,7 @@
       "table": { "offer": "Offer", "code": "Code", "discount": "Discount", "validity": "Validity", "status": "Status", "uses": "uses", "actions": "Actions" },
       "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
       "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
+      "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red." },
       "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
       "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
       "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
@@ -4304,7 +4336,8 @@
         "create": "Create Article",
         "validation": {
           "titleRequired": "Title is required in both languages",
-          "orderRequired": "Order is required"
+          "orderRequired": "Order is required",
+          "orderMin": "Order must be 1 or higher"
         }
       },
       "toast": {

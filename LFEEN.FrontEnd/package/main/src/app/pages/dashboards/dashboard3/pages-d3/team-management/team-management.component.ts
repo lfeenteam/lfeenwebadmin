@@ -302,8 +302,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       ];
     } else if (this.activeTab === 'logs') {
       const s = this.audits.stats();
-      const fmt = (n: number | undefined) =>
-        n === undefined ? '—' : n.toLocaleString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US');
+      const fmt = (n: number | null | undefined) =>
+        n == null ? '—' : n.toLocaleString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US');
       this.stats = [
         { label: 'd3.teamManagement.stats.totalOps', value: fmt(s?.total), icon: 'database', color: 'primary', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.successfulOps', value: fmt(s?.succeeded), icon: 'circle-check', color: 'success', valueColor: '#16a34a' },

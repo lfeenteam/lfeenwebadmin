@@ -58,6 +58,9 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   overallStatus = '';
   isDisplayed = false;
   canFinalApprove = false;
+  // False until GET /api/properties/{id} returns, so the approve button is never
+  // decided from the initial defaults (see showApproveButton).
+  isLoaded = false;
   banReason: string | null = null;
   bannedAt: string | null = null;
   private forcedViewOnly = false;
@@ -266,6 +269,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         if (data.locationSection.rejectionReason) {
           this.reviewSections[2].notes = data.locationSection.rejectionReason;
         }
+
+        this.isLoaded = true;
       });
     }
   }
@@ -419,6 +424,12 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   // it's enabled — it already accounts for every section being decided with no rejections.
   get isApproveDisabled(): boolean {
     return !this.canFinalApprove;
+  }
+
+  // The approve button is only rendered once the property has loaded and the backend
+  // allows final approval, so in-app navigation and a page reload always agree.
+  get showApproveButton(): boolean {
+    return this.isLoaded && this.canFinalApprove;
   }
 
   openSection(index: number): void {
