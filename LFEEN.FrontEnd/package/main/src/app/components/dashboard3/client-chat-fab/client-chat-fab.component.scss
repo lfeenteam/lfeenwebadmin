@@ -2,16 +2,29 @@
   font-family: 'Cairo', sans-serif;
 }
 
+// Logical "end" side: bottom-left in Arabic, bottom-right in English — always the
+// corner away from the sidebar, which flips sides with the language.
 .chat-fab {
   position: fixed;
   bottom: 28px;
-  left: 28px;
+  inset-inline-end: 28px;
   z-index: 1050;
   font-family: 'Cairo', sans-serif;
 
   @media (max-width: 576px) {
     bottom: 16px;
-    left: 16px;
+    inset-inline-end: 16px;
+  }
+}
+
+// Where the Flow "report an issue" button is enabled (test builds only — off in
+// production), it sits fixed at the bottom-right. In English that is this button's
+// corner too, so stack above it instead of overlapping.
+:host-context(.dashboard-wrapper.with-flow-report[dir='ltr']) .chat-fab {
+  bottom: 88px;
+
+  @media (max-width: 576px) {
+    bottom: 76px;
   }
 }
 
@@ -74,7 +87,7 @@
 .chat-fab-panel {
   position: absolute;
   bottom: 68px;
-  left: 0;
+  inset-inline-end: 0;
   width: 360px;
   max-width: calc(100vw - 32px);
   max-height: 480px;

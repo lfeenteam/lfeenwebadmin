@@ -18,6 +18,7 @@ import { ClientSupportHubService } from './services/client-support-hub.service';
 import { AdminNotificationsStore } from './services/admin-notifications-store.service';
 import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-dashboard3',
@@ -52,6 +53,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   });
 
   sidebarCollapsed = false;
+  // Test builds show the Flow "report an issue" button; the chat FAB stacks above it in English.
+  readonly flowReportOn = !!environment.flowReport;
   sidebarMobileOpen = false;
 
   headerType: D3HeaderType = 'ceo';

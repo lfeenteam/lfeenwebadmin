@@ -245,7 +245,8 @@
     font-size: 13px;
     font-family: 'Cairo', sans-serif;
     color: #111110;
-    text-align: right;
+    // Follows the page direction: right in Arabic, left in English (next to the icon).
+    text-align: start;
 
     &::placeholder { color: #9e9e9a; }
   }
@@ -485,9 +486,15 @@ table {
   .client-phone {
     font-size: 11px;
     color: #777772;
+    // ltr keeps "+966…" in order; `start` would then resolve to left in Arabic too,
+    // so align by the page direction instead, lining up with the client name.
     direction: ltr;
-    text-align: right;
+    text-align: left;
     line-height: 1.25;
+
+    :host-context([dir='rtl']) & {
+      text-align: right;
+    }
   }
 }
 

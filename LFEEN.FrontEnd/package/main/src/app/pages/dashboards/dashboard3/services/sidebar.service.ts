@@ -128,6 +128,26 @@ export class SidebarService {
       'esim':            '/d3/esim'
     };
 
+    // Labels come from the payload's title; these keys are only the fallback for an
+    // item that arrives without one.
+    const fallbackTranslationMap: { [key: string]: string } = {
+      'dashboard':       'd3.sidebar.dashboard',
+      'client-faq':      'd3.sidebar.faq',
+      'complaints':      'd3.sidebar.complaints',
+      'bookings':        'd3.sidebar.bookings',
+      'accounts':        'd3.sidebar.accountManagement',
+      'properties':      'd3.sidebar.buildings',
+      'units':           'd3.sidebar.units',
+      'control-center':  'd3.sidebar.controlCenter',
+      'settlements':     'd3.sidebar.settlements',
+      'ban-refunds':     'd3.sidebar.banRefunds',
+      'contact-us':      'd3.sidebar.contactUs',
+      'platform-offers': 'd3.sidebar.platformOffers',
+      'call-scripts':    'd3.sidebar.callScripts',
+      'esim':            'd3.sidebar.esim',
+      'subscriptions':   'd3.sidebar.subscriptions'
+    };
+
     // The payload sends Subscriptions as a single entry; its pages are a frontend group.
     // Order follows the design: settings, management, requests, discount codes, log.
     const subscriptionChildren = (): NavItem[] => [
@@ -157,6 +177,7 @@ export class SidebarService {
             id: item.id,
             key: item.key,
             title: item.title || '',
+            translationKey: fallbackTranslationMap[item.key],
             icon: iconMap[item.key],
             link: null,
             children: subscriptionChildren()
@@ -185,6 +206,7 @@ export class SidebarService {
           id: item.id,
           key: item.key,
           title: item.title || '',
+          translationKey: fallbackTranslationMap[item.key],
           icon: iconMap[item.key] || 'point',
           link,
           children

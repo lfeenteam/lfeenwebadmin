@@ -27,7 +27,7 @@
               <span class="d-flex align-items-center gap-12 w-100">
                 <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
                 <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                  {{ item.id ? item.title : (item.translationKey! | translate) }}
+                  {{ getItemTitle(item) }}
                 </span>
                 <i-tabler *ngIf="!collapsed || mobileMode" [name]="isExpanded(item) ? 'chevron-up' : 'chevron-down'" class="icon-16 ms-auto"></i-tabler>
               </span>
@@ -41,7 +41,7 @@
                     <span class="d-flex align-items-center gap-12 w-100">
                       <i-tabler [name]="child.icon!" class="icon-18"></i-tabler>
                       <span class="d3-menu-title sub-title">
-                        {{ child.id ? child.title : (child.translationKey! | translate) }}
+                        {{ getItemTitle(child) }}
                       </span>
                     </span>
                   </a>
@@ -57,7 +57,7 @@
             <span class="d-flex align-items-center gap-12 w-100">
               <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
               <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                {{ item.id ? item.title : (item.translationKey! | translate) }}
+                {{ getItemTitle(item) }}
               </span>
             </span>
           </a>

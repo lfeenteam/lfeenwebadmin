@@ -112,6 +112,12 @@
     }
   }
 
+  // Test builds, English: the chat FAB is stacked above the Flow report button
+  // (top edge ~144px from the bottom), so leave matching room.
+  &.with-flow-report[dir='ltr'] .page-content {
+    padding-bottom: 156px;
+  }
+
   .bg-light {
     background-color: #f4f7fb !important;
   }

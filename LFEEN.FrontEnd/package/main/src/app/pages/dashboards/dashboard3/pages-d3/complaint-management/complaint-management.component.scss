@@ -1,8 +1,26 @@
+// This page manages its own scrolling (.table-column / chat), so the layout's
+// .page-content must not scroll or pad around it. Instead of guessing the header's
+// height with calc(100vh - Npx), the page fills whatever space is left under it.
+::ng-deep .page-content:has(> app-complaint-management) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .complaint-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px);
-  margin: -24px -16px;
+  flex: 1;
+  min-height: 0;
   font-family: 'Cairo', sans-serif;
   overflow: hidden;
   background: #fff;
@@ -61,6 +79,9 @@
   min-width: 0;
   flex-direction: column;
   overflow-y: auto;
+  // Room under the last row so the fixed chat FAB never covers it (moved here from
+  // .page-content's bottom padding, which .complaint-page cancels).
+  padding-bottom: 88px;
 
   app-complaints-table {
     flex: 1;
@@ -197,11 +218,6 @@
 }
 
 @media (max-width: 767px) {
-  .complaint-page {
-    height: calc(100vh - 72px);
-    margin: -16px -12px;
-  }
-
   .tabs-row {
     padding: 0 16px;
     overflow-x: auto;

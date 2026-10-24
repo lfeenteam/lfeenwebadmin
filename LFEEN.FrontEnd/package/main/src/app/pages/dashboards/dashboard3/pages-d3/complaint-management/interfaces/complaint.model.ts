@@ -349,7 +349,7 @@ export interface TicketsOverviewItem {
   userName: string | null;
   accountName?: string | null;
   subject: string;
-  repliedAtUtc: string;
+  repliedAtUtc: string | null;
   createdAt: string;
 }
 

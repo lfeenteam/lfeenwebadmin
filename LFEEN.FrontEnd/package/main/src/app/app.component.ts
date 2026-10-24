@@ -1,4 +1,5 @@
-import { Component, OnInit, computed } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { BidiModule } from '@angular/cdk/bidi';
 import { CoreService } from './services/core.service';
@@ -21,6 +22,18 @@ export class AppComponent implements OnInit {
   // mat-menu/select/tooltip overlays) reacts live to language switches —
   // its root singleton otherwise only reads dir once at bootstrap.
   dir = computed(() => this.settings.getOptionsSignal()().dir);
+
+  // Mirror the active language onto <html> (index.html ships lang="en" and no dir), so
+  // screen readers use the right language and overlays rendered under <body> — dialogs,
+  // menus, selects, datepickers, toasts — get the same direction as the page.
+  private readonly document = inject(DOCUMENT);
+  private readonly syncHtmlLangDir = effect(() => {
+    // Derived from the language alone, so a stale saved `dir` can't pair rtl with English.
+    const isArabic = this.settings.getOptionsSignal()().language === 'ar';
+    const html = this.document.documentElement;
+    html.lang = isArabic ? 'ar' : 'en';
+    html.dir = isArabic ? 'rtl' : 'ltr';
+  });
 
   constructor(private settings: CoreService, private translate: TranslateService) {
     // Bootstrap with the URL's language when it has one (#/ar/... or #/en/...), so

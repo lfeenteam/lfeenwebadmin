@@ -449,7 +449,9 @@ export class ComplaintService {
   }
 
   mapTicketsOverviewItemToComplaint(item: TicketsOverviewItem): Complaint {
-    const repliedAt = new Date(item.repliedAtUtc);
+    // new Date(null) is the 1970 epoch — show '-' instead when the backend has no reply date
+    const repliedAt = item.repliedAtUtc ? new Date(item.repliedAtUtc) : null;
+    const replyDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     const clientName = item.userName ?? item.accountName ?? '-';
     return {
       id: item.externalId,
@@ -464,8 +466,8 @@ export class ComplaintService {
       resolved: true,
       messages: [],
       subject: item.subject,
-      replyDate: repliedAt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      replyDateEn: repliedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      replyDate: repliedAt ? repliedAt.toLocaleDateString('ar-SA', replyDateOptions) : '-',
+      replyDateEn: repliedAt ? repliedAt.toLocaleDateString('en-US', replyDateOptions) : '-',
     };
   }
 

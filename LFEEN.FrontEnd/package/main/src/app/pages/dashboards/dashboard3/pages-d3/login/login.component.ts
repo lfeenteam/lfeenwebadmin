@@ -14,6 +14,16 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { CoreService } from '../../../../../services/core.service';
+import { extractApiErrorMessage } from '../../utils/api-error.util';
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 @Component({
   selector: 'app-login',
@@ -112,7 +122,20 @@ export class LoginComponent {
             this.router.navigate([`/${lang}/d3/ceo`]);
           },
           error: (err) => {
-            const errorMsg = this.translate.instant('d3.loginPage.form.messages.error');
+            // Several field errors (e.g. password rules) → one toast with a bullet per message.
+            const fieldMessages: string[] = (Array.isArray(err?.error?.errors) ? err.error.errors : [])
+              .map((e: any) => e?.message)
+              .filter(Boolean);
+            if (fieldMessages.length > 1) {
+              // enableHtml renders markup, so the server text is escaped first.
+              const list = `<ul class="toast-list">${fieldMessages.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul>`;
+              this.toastr.error(list, undefined, { ...toastOptions, enableHtml: true });
+              return;
+            }
+
+            // Server's localized reason (field error, then message); the generic
+            // "Login Failed" only when there is no response body, e.g. a network failure.
+            const errorMsg = extractApiErrorMessage(err, this.translate.instant('d3.loginPage.form.messages.error'));
             this.toastr.error(errorMsg, undefined, toastOptions);
           },
         });
