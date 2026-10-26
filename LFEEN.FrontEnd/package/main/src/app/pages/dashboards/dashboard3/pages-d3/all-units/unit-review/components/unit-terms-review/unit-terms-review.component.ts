@@ -11,6 +11,8 @@ import { UnitTermsResponse } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
+import { AdminAdditionalCondition } from '../../../../../interfaces/additional-condition.model';
 
 interface UnitRule {
   icon: string;
@@ -21,7 +23,7 @@ interface UnitRule {
 @Component({
   selector: 'app-unit-terms-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent],
   templateUrl: './unit-terms-review.component.html',
   styleUrl: './unit-terms-review.component.scss'
 })
@@ -34,6 +36,7 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   isLoading = false;
   isReadOnly = false;
   mappedConditions: UnitRule[] = [];
+  additionalConditions: AdminAdditionalCondition[] = [];
 
   private readonly conditionIconMap: Record<string, string> = {
     SmokingForbidden: 'smoking-no',
@@ -70,20 +73,7 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
     this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
     if (this.unitId) {
-      this.isLoading = true;
-      this.unitsService.getUnitTerms(this.unitId).subscribe({
-        next: (data) => {
-          this.termsData           = data;
-          this.earlyCheckInEnabled = data.isEarlyCheckInAllowed;
-          this.mappedConditions    = data.conditions.map(c => ({
-            icon:           this.conditionIconMap[c.conditionKey] ?? 'check',
-            translationKey: `d3.unitReview.termsView.conditions.${c.conditionKey}`,
-            approved:       c.isSelected,
-          }));
-          this.isLoading = false;
-        },
-        error: () => { this.isLoading = false; }
-      });
+      this.loadTerms();
       this.unitsService.getUnitBasicData(this.unitId).subscribe(data => {
         const lang = this.translate.currentLang || 'ar';
         this.pageBreadcrumbTrail.set([
@@ -91,6 +81,24 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
         ]);
       });
     }
+  }
+
+  loadTerms(): void {
+    this.isLoading = true;
+    this.unitsService.getUnitTerms(this.unitId).subscribe({
+      next: (data) => {
+        this.termsData            = data;
+        this.earlyCheckInEnabled  = data.isEarlyCheckInAllowed;
+        this.mappedConditions     = data.conditions.map(c => ({
+          icon:           this.conditionIconMap[c.conditionKey] ?? 'check',
+          translationKey: `d3.unitReview.termsView.conditions.${c.conditionKey}`,
+          approved:       c.isSelected,
+        }));
+        this.additionalConditions = data.additionalConditions ?? [];
+        this.isLoading = false;
+      },
+      error: () => { this.isLoading = false; }
+    });
   }
 
   ngOnDestroy(): void {

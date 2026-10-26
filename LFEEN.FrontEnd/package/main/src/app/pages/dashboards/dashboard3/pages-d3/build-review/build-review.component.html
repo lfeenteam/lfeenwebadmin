@@ -211,7 +211,7 @@
   } @else if (currentView === 'location') {
     <app-review-location [building]="building" [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[2].completed" (back)="onBack()" (approve)="onSectionApproved(2, $event)"></app-review-location>
   } @else if (currentView === 'terms') {
-    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[3].completed" (back)="onBack()" (approve)="onSectionApproved(3, $event)"></app-review-terms>
+    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[3].completed" [conditionsReadOnly]="isBanned" (back)="onBack()" (approve)="onSectionApproved(3, $event)"></app-review-terms>
   } @else if (currentView === 'license') {
     <app-review-license [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[4].completed" (back)="onBack()" (approve)="onSectionApproved(4, $event)"></app-review-license>
   } @else if (currentView === 'final') {

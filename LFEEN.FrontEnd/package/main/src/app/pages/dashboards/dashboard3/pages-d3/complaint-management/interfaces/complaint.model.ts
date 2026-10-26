@@ -20,6 +20,9 @@ export interface Ticket {
   lastMessageAtUtc: string | null;
   assignedAdminUserId: string | null;
   assignedAdminName: string | null;
+  /** Requested from the backend — optional until the API sends them. */
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
 }
 
 export interface TicketListResponse {
@@ -173,6 +176,10 @@ export interface ClientTicket {
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
+  /** Requested from the backend — optional until the API sends them. */
+  assignedAgentUserId?: string | null;
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
   createdAt: string;
@@ -407,7 +414,12 @@ export interface Complaint {
   priorityName?: string;
   priorityRaw?: string;
   lastMessageAtUtc?: string | null;
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
 }
+
+/** Hours an assigned ticket may sit without the agent acting before anyone can reassign it. */
+export const ASSIGN_DELAY_THRESHOLD_HOURS = 6;
 
 export interface AssignableEmployee {
   userId: string;

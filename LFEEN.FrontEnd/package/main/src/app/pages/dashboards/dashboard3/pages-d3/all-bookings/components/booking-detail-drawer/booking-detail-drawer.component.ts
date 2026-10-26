@@ -9,6 +9,7 @@ import { BookingService } from '../../services/booking.service';
 import { BookingFinanceTabComponent } from '../booking-finance-tab/booking-finance-tab.component';
 import { BookingServicesTabComponent } from '../booking-services-tab/booking-services-tab.component';
 import { BookingLogTabComponent } from '../booking-log-tab/booking-log-tab.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 import { formatLocalizedDateTime } from 'src/app/utils/date-format.util';
 
 type BookingDetailTab =   'details' | 'finance' |  'log' | 'services'  ;
@@ -27,6 +28,8 @@ interface BookingDetailView {
   unit: {
     number: string;
     type: string;
+    typeIconKey: string | null;
+    typeIconUrl: string | null;
     location: string;
   };
   stay: {
@@ -44,7 +47,7 @@ interface BookingDetailView {
 @Component({
   selector: 'app-booking-detail-drawer',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent, CatalogIconComponent],
   templateUrl: './booking-detail-drawer.component.html',
   styleUrl: './booking-detail-drawer.component.scss'
 })
@@ -189,6 +192,8 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
       unit: {
         number: item.unitNumber?.trim() || '-',
         type: item.unitTypeName?.trim() || '-',
+        typeIconKey: item.unitTypeIconKey ?? null,
+        typeIconUrl: item.unitTypeIconUrl ?? null,
         location: location || '-',
       },
       stay: {

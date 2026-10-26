@@ -150,6 +150,8 @@ export class ComplaintService {
       priorityName: t.priorityName,
       priorityRaw: typeof t.priority === 'string' ? t.priority : undefined,
       lastMessageAtUtc: t.lastMessageAtUtc ?? null,
+      assignedAtUtc: t.assignedAtUtc ?? null,
+      lastAgentReplyAtUtc: t.lastAgentReplyAtUtc ?? null,
     };
   }
 
@@ -289,8 +291,11 @@ export class ComplaintService {
       resolved: t.status === 'Resolved' || t.status === 'Closed',
       messages: [],
       subject: t.subject ?? undefined,
+      assignedAdminUserId: t.assignedAgentUserId ?? null,
       assignedAdminName: t.assignedAgentName,
       lastMessageAtUtc: t.lastMessageAtUtc ?? null,
+      assignedAtUtc: t.assignedAtUtc ?? null,
+      lastAgentReplyAtUtc: t.lastAgentReplyAtUtc ?? null,
     };
   }
 

@@ -14,7 +14,10 @@
         </div>
         <div class="data-item">
           <span class="data-label">{{ 'd3.buildReview.basicInfo.typeLabel' | translate }}</span>
-          <span class="data-value">{{ (basicData?.propertyTypeName || '-') | translate }}</span>
+          <span class="data-value with-icon">
+            <app-catalog-icon [iconUrl]="basicData?.propertyTypeIconUrl" [iconKey]="basicData?.propertyTypeIconKey" [size]="18"></app-catalog-icon>
+            {{ (basicData?.propertyTypeName || '-') | translate }}
+          </span>
         </div>
         <div class="data-item">
           <span class="data-label">{{ 'd3.buildReview.basicInfo.districtLabel' | translate }}</span>
@@ -22,10 +25,13 @@
         </div>
         <div class="data-item">
           <span class="data-label">{{ 'd3.buildReview.basicInfo.viewTypesLabel' | translate }}</span>
-          @if (viewTypeNames.length > 0) {
+          @if (viewTypes.length > 0) {
             <span class="data-value view-types">
-              @for (view of viewTypeNames; track view) {
-                <span class="view-chip">{{ view }}</span>
+              @for (view of viewTypes; track view.name) {
+                <span class="view-chip">
+                  <app-catalog-icon [iconUrl]="view.iconUrl" [iconKey]="view.iconKey" [size]="14"></app-catalog-icon>
+                  {{ view.name }}
+                </span>
               }
             </span>
           } @else {
@@ -103,7 +109,7 @@
       <div class="amenities-grid">
         @for (amenity of amenities; track $index) {
           <div class="amenity-item" [class.amenity-item--highlighted]="amenity.highlighted">
-            <span class="amenity-icon"><i-tabler [name]="amenity.icon"></i-tabler></span>
+            <span class="amenity-icon"><app-catalog-icon [iconUrl]="amenity.iconUrl" [iconKey]="amenity.iconKey" [fallback]="amenity.icon"></app-catalog-icon></span>
             <span class="amenity-label">{{ amenity.label }}</span>
             @if (amenity.highlighted) {
               <span class="highlight-badge">

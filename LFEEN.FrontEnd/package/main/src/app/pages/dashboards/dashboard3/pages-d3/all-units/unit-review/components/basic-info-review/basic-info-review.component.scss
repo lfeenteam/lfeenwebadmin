@@ -48,6 +48,12 @@
   justify-content: flex-start;
 }
 
+.stat-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .unit-stat-chip {
   min-width: 112px;
   min-height: 54px;

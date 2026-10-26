@@ -1,0 +1,138 @@
+<section class="ac-review" [dir]="dir">
+
+  @if (showHeader) {
+    <div class="ac-header">
+      <div class="ac-header__title">
+        <span class="ac-header__indicator"></span>
+        <h3>{{ 'd3.additionalConditions.title' | translate }}</h3>
+        @if (pendingConditions.length) {
+          <span class="ac-count">{{ 'd3.additionalConditions.awaitingCount' | translate: { count: pendingConditions.length } }}</span>
+        }
+      </div>
+      @if (canApproveAll) {
+        <button type="button" class="ac-btn ac-btn--approve ac-btn--sm" [disabled]="isBulkSubmitting" (click)="approveAll()">
+          <i-tabler name="checks"></i-tabler>
+          <span>{{ 'd3.additionalConditions.actions.approveAll' | translate }}</span>
+        </button>
+      }
+    </div>
+    <p class="ac-hint">{{ 'd3.additionalConditions.hint' | translate }}</p>
+  }
+
+  @for (c of conditions; track c.id) {
+    <article class="ac-card" [class.ac-card--inactive]="!c.isActive">
+
+      <div class="ac-card__top">
+        <span class="ac-order">{{ c.displayOrder | number: '2.0-0' }}</span>
+        <div class="ac-chips">
+          <span class="ac-chip ac-chip--{{ statusClass(c) }}">
+            {{ ('d3.additionalConditions.status.' + c.decision) | translate }}
+          </span>
+          @if (!c.isActive) {
+            <span class="ac-chip ac-chip--muted">
+              <i-tabler name="player-pause"></i-tabler>
+              {{ 'd3.additionalConditions.inactive' | translate }}
+            </span>
+          }
+          @if (c.isVisibleToGuests) {
+            <span class="ac-chip ac-chip--visible">
+              <i-tabler name="eye"></i-tabler>
+              {{ 'd3.additionalConditions.visibleToGuests' | translate }}
+            </span>
+          }
+        </div>
+      </div>
+
+      @if (showTarget) {
+        <div class="ac-target">
+          <i-tabler [name]="scope === 'account' ? 'users' : scope === 'property' ? 'building-skyscraper' : 'smart-home'"></i-tabler>
+          <span>{{ targetName(c) }}</span>
+          <button type="button" class="ac-link" (click)="openTarget.emit(c)">
+            {{ 'd3.additionalConditions.actions.openTarget.' + scope | translate }}
+            <i-tabler name="external-link"></i-tabler>
+          </button>
+        </div>
+      }
+
+      @if (hasPendingEdit(c)) {
+        <div class="ac-compare">
+          <div class="ac-compare__col ac-compare__col--old">
+            <span class="ac-compare__label">{{ 'd3.additionalConditions.compare.current' | translate }}</span>
+            <ng-container *ngTemplateOutlet="textBlock; context: { $implicit: c, approved: true }"></ng-container>
+          </div>
+          <div class="ac-compare__col ac-compare__col--new">
+            <span class="ac-compare__label">{{ 'd3.additionalConditions.compare.edited' | translate }}</span>
+            <ng-container *ngTemplateOutlet="textBlock; context: { $implicit: c, approved: false }"></ng-container>
+          </div>
+        </div>
+      } @else {
+        <ng-container *ngTemplateOutlet="textBlock; context: { $implicit: c, approved: false }"></ng-container>
+      }
+
+      @if (c.decision === 'Rejected' && c.rejectionReason) {
+        <div class="ac-reason">
+          <i-tabler name="alert-circle"></i-tabler>
+          <div>
+            <strong>{{ 'd3.additionalConditions.rejectionReason' | translate }}</strong>
+            <p>{{ c.rejectionReason }}</p>
+          </div>
+        </div>
+      }
+
+      <div class="ac-meta">
+        <span>{{ 'd3.additionalConditions.updatedAt' | translate }}: {{ c.updatedAt | date: 'medium' }}</span>
+        @if (c.reviewedAt) {
+          <span>{{ 'd3.additionalConditions.reviewedAt' | translate }}: {{ c.reviewedAt | date: 'medium' }}</span>
+        }
+      </div>
+
+      @if (rejectingId === c.id) {
+        <div class="ac-reject-box">
+          <label [for]="'ac-reason-' + c.id">{{ 'd3.additionalConditions.reasonLabel' | translate }}</label>
+          <textarea
+            [id]="'ac-reason-' + c.id"
+            rows="3"
+            [maxlength]="reasonMax"
+            [(ngModel)]="reasons[c.id]"
+            [placeholder]="'d3.additionalConditions.reasonPlaceholder' | translate"></textarea>
+          <span class="ac-counter">{{ (reasons[c.id] || '').length }} / {{ reasonMax }}</span>
+          <div class="ac-actions">
+            <button type="button" class="ac-btn ac-btn--ghost" [disabled]="isBusy(c)" (click)="cancelReject()">
+              {{ 'd3.additionalConditions.actions.cancel' | translate }}
+            </button>
+            <button type="button" class="ac-btn ac-btn--reject" [disabled]="isBusy(c) || !(reasons[c.id] || '').trim()" (click)="reject(c)">
+              <i-tabler name="circle-x"></i-tabler>
+              <span>{{ 'd3.additionalConditions.actions.confirmReject' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      } @else if (canApprove(c) || canReject(c)) {
+        <div class="ac-actions">
+          @if (canReject(c)) {
+            <button type="button" class="ac-btn ac-btn--reject" [disabled]="isBusy(c)" (click)="startReject(c)">
+              <i-tabler name="circle-x"></i-tabler>
+              <span>{{ 'd3.additionalConditions.actions.reject' | translate }}</span>
+            </button>
+          }
+          @if (canApprove(c)) {
+            <button type="button" class="ac-btn ac-btn--approve" [disabled]="isBusy(c)" (click)="approve(c)">
+              <i-tabler name="circle-check"></i-tabler>
+              <span>{{ 'd3.additionalConditions.actions.approve' | translate }}</span>
+            </button>
+          }
+        </div>
+      }
+    </article>
+  } @empty {
+    <p class="ac-empty">{{ 'd3.additionalConditions.empty' | translate }}</p>
+  }
+</section>
+
+<ng-template #textBlock let-c let-approved="approved">
+  @let t = title(c, approved);
+  @let d = description(c, approved);
+  <div class="ac-text">
+    <h4>{{ t || '—' }}</h4>
+    @if (d) { <p>{{ d }}</p> }
+  </div>
+</ng-template>

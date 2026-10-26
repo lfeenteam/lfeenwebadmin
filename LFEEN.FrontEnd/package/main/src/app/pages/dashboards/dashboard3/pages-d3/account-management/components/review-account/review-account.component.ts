@@ -12,11 +12,13 @@ import { AccountService } from '../../../../services/account.service';
 import { AccountDetail } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
+import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
+import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
 
 @Component({
   selector: 'app-review-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent],
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })
@@ -36,6 +38,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   rejectionReason = '';
   isUnifiedNumberInvalid = false;
+  additionalConditions: AdminAdditionalCondition[] = [];
 
   basicNameAr = '';
   basicNameEn = '';
@@ -61,6 +64,10 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     this.loadAccount();
   }
 
+  reloadAccount(): void {
+    this.loadAccount();
+  }
+
   private loadAccount(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
@@ -69,6 +76,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     this.service.getAccountById(id).subscribe({
       next: data => {
         this.account = data;
+        this.additionalConditions = data.additionalConditions ?? [];
         this.basicNameAr = data.business?.basicNameAr || data.business?.basicName || '';
         this.basicNameEn = data.business?.basicNameEn || '';
         this.isLoading = false;

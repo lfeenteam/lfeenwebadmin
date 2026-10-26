@@ -52,6 +52,18 @@ export class SidebarService {
       items = this.mapSidebarToNavItems(dynamicSidebar);
     }
 
+    // The additional-conditions review queue has no sidebar key in the payload yet;
+    // add it after Units until the backend sends one (mapped in exactRouteMap).
+    if (PAGE_FLAGS['additional-conditions'] && !items.find(i => i.link === '/d3/additional-conditions')) {
+      const unitsIndex = items.findIndex(i => i.link === '/d3/units');
+      items.splice(unitsIndex >= 0 ? unitsIndex + 1 : items.length, 0, {
+        key: 'additional-conditions',
+        translationKey: 'd3.sidebar.additionalConditions',
+        icon: 'list-check',
+        link: '/d3/additional-conditions'
+      });
+    }
+
     // Every page entry now comes from the backend payload, already filtered by the
     // user's permissions — no frontend fallbacks. Control Center and Settings form the
     // last group in the design, so Control Center is moved to the end, below a divider.
@@ -100,6 +112,7 @@ export class SidebarService {
       'ban-refunds':      'receipt-refund',
       'platform-offers':  'discount',
       'call-scripts':     'phone-call',
+      'additional-conditions': 'list-check',
       'esim':             'device-sim',
       'subscriptions':    'credit-card'
     };
@@ -125,7 +138,8 @@ export class SidebarService {
       'ban-refunds':     '/d3/ban-refunds',
       'platform-offers': '/d3/platform-offers',
       'call-scripts':    '/d3/call-scripts',
-      'esim':            '/d3/esim'
+      'esim':            '/d3/esim',
+      'additional-conditions': '/d3/additional-conditions'
     };
 
     // Labels come from the payload's title; these keys are only the fallback for an
@@ -144,6 +158,7 @@ export class SidebarService {
       'contact-us':      'd3.sidebar.contactUs',
       'platform-offers': 'd3.sidebar.platformOffers',
       'call-scripts':    'd3.sidebar.callScripts',
+      'additional-conditions': 'd3.sidebar.additionalConditions',
       'esim':            'd3.sidebar.esim',
       'subscriptions':   'd3.sidebar.subscriptions'
     };

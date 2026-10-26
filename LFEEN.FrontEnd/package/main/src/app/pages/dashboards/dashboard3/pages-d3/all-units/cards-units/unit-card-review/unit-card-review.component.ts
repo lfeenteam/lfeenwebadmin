@@ -6,12 +6,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UnitCardItem } from '../../../../interfaces/unit-card.model';
 import { ViewMode } from '../../../../interfaces/dashboard-sub-header.model';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 import { UnitsService } from '../../../../services/units.service';
 
 @Component({
   selector: 'app-unit-card-review',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent, CatalogIconComponent],
   templateUrl: './unit-card-review.component.html',
   styleUrl: './unit-card-review.component.scss'
 })

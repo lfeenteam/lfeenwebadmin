@@ -168,6 +168,8 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           capacity:    String(totalGuests(data)),
           status:      'underReview',
           type:        data.unitTypeName,
+          typeIconKey: data.unitTypeIconKey ?? null,
+          typeIconUrl: data.unitTypeIconUrl ?? null,
           description: '',
           district:    data.district,
           rooms:       0,

@@ -1,0 +1,147 @@
+.acp {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: 'Cairo', sans-serif;
+}
+
+.acp-views {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #E8E8E4;
+}
+
+.acp-view {
+  height: 40px;
+  padding: 0 4px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #9E9E9A;
+  cursor: pointer;
+
+  &.active { color: #111110; border-bottom-color: #111110; }
+}
+
+.acp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.acp-tabs {
+  display: flex;
+  gap: 6px;
+  background: #F7F7F5;
+  border-radius: 14px;
+  padding: 4px;
+}
+
+.acp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B6B66;
+  cursor: pointer;
+
+  &.active { background: #FFFFFF; color: #111110; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
+
+  &__count {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 100px;
+    background: #FFFBEB;
+    color: #B45309;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.acp-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  min-width: 260px;
+  padding: 0 14px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #9E9E9A;
+
+  i-tabler { width: 18px; height: 18px; ::ng-deep svg { width: 18px; height: 18px; } }
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: #111110;
+  }
+}
+
+.acp-hint {
+  font-size: 12px;
+  color: #9E9E9A;
+  margin: 0;
+}
+
+.acp-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: #9E9E9A;
+  font-size: 14px;
+
+  p { margin: 0; }
+  i-tabler { width: 32px; height: 32px; ::ng-deep svg { width: 32px; height: 32px; } }
+}
+
+.acp-spin { animation: acp-spin 1s linear infinite; }
+
+@keyframes acp-spin { to { transform: rotate(360deg); } }
+
+.acp-more {
+  align-self: center;
+  height: 40px;
+  padding: 0 24px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #FFFFFF;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+@media (max-width: 576px) {
+  .acp { padding: 16px; }
+  .acp-search { min-width: 0; width: 100%; }
+  .acp-tabs { width: 100%; }
+  .acp-tab { flex: 1; justify-content: center; padding: 0 8px; }
+}

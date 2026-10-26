@@ -367,6 +367,18 @@
 
   </div>
 
+  <!-- Account-level additional conditions: reviewed one by one, whatever the account's own status -->
+  @if (additionalConditions.length > 0) {
+    <div class="info-card">
+      <app-additional-conditions-review
+        scope="account"
+        [targetId]="account.accountId"
+        [(conditions)]="additionalConditions"
+        (reloadRequested)="reloadAccount()">
+      </app-additional-conditions-review>
+    </div>
+  }
+
   @if (isPending) {
     <div class="decision-section">
       <div class="decision-header">

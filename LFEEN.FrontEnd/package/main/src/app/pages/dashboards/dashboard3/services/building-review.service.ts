@@ -31,6 +31,8 @@ import {
 export interface PropertyTypeItem {
   id: number;
   name: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
 }
 import { EMPTY, Observable } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
@@ -166,6 +168,8 @@ export class BuildingReviewService {
       location,
       status:     p.isActive ? 'active' : 'stopped',
       typeLabel:  p.propertyTypeName,
+      typeIconKey: p.propertyTypeIconKey ?? null,
+      typeIconUrl: p.propertyTypeIconUrl ?? null,
       units:      p.unitCount,
       occupancy:  occupancyPercent,
       bookings:   p.activeBookingsCount,

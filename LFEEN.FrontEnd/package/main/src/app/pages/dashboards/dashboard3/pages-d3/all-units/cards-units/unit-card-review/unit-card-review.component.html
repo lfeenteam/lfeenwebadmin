@@ -22,7 +22,7 @@
             <i-tabler name="info-circle" class="info-icon"></i-tabler>
             <span class="info-label">{{ 'd3.allUnits.unitCard.type' | translate }}</span>
           </div>
-          <span class="info-value">{{ unit.type }}</span>
+          <span class="info-value"><app-catalog-icon class="inline" [iconUrl]="unit.typeIconUrl" [iconKey]="unit.typeIconKey" [size]="16"></app-catalog-icon>{{ unit.type }}</span>
         </div>
         <div class="info-row info-row--desc">
           <div class="info-right">

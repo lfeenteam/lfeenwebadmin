@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 
@@ -293,20 +293,41 @@ export class ComplaintsTableComponent implements OnChanges {
     return !!user.fullName && user.fullName === complaint.assignedAdminName;
   }
 
-  /** Hours of no activity on a ticket still awaiting the assigned agent's action before
-   * it's considered stalled and opened up for reassignment. */
-  private readonly delayThresholdMs = 6 * 60 * 60 * 1000;
+  /** When the current assignee last acted on the ticket: the later of the assignment and their
+   * last reply. Until the API sends those fields, lastMessageAtUtc stands in as an approximation
+   * (it can't tell who sent the last message or when the ticket was assigned). */
+  private lastAgentActivityMs(complaint: Complaint): number | null {
+    const agentTimes = [complaint.assignedAtUtc, complaint.lastAgentReplyAtUtc]
+      .filter((t): t is string => !!t)
+      .map(t => new Date(t).getTime());
+    if (agentTimes.length) return Math.max(...agentTimes);
+    return complaint.lastMessageAtUtc ? new Date(complaint.lastMessageAtUtc).getTime() : null;
+  }
 
-  /** True once an assigned ticket has sat with no activity past the threshold while still
+  /** Whole hours since the assignee last acted, or null when there's nothing to measure from. */
+  delayedHours(complaint: Complaint): number | null {
+    const since = this.lastAgentActivityMs(complaint);
+    return since === null ? null : Math.floor((Date.now() - since) / (60 * 60 * 1000));
+  }
+
+  /** True once an assigned ticket has sat with no agent activity past the threshold while still
    * awaiting the agent's own action — 'replied'/'closed' mean the ball is elsewhere
-   * (client/host, or resolved), so those never count as the agent stalling.
-   * lastMessageAtUtc is the closest signal available — the API doesn't expose who sent
-   * the last message or when the ticket was assigned, so this is an approximation. */
+   * (client/host, or resolved), so those never count as the agent stalling. */
   isDelayed(complaint: Complaint): boolean {
     if (!complaint.assignedAdminName) return false;
     if (complaint.status === 'replied' || complaint.status === 'closed') return false;
-    if (!complaint.lastMessageAtUtc) return false;
-    return Date.now() - new Date(complaint.lastMessageAtUtc).getTime() > this.delayThresholdMs;
+    const hours = this.delayedHours(complaint);
+    return hours !== null && hours >= ASSIGN_DELAY_THRESHOLD_HOURS;
+  }
+
+  assignButtonTitle(complaint: Complaint): string {
+    if (this.isDelayed(complaint)) {
+      return `${complaint.assignedAdminName} · ${this.translate.instant('d3.complaints.table.assignDelayedMsg', { hours: this.delayedHours(complaint) })}`;
+    }
+    if (this.isAssignLocked(complaint)) {
+      return `${complaint.assignedAdminName} · ${this.translate.instant('d3.complaints.table.assignLockedMsg')}`;
+    }
+    return complaint.assignedAdminName || this.translate.instant('d3.complaints.table.assign');
   }
 
   /** Locked only once someone has actually engaged with the ticket (status moved past 'new') —
@@ -321,7 +342,7 @@ export class ComplaintsTableComponent implements OnChanges {
 
   onAssignBtnClick(complaint: Complaint): void {
     if (this.isAssignLocked(complaint)) {
-      this.toastr.info(this.translate.instant('d3.complaints.table.assignLockedMsg'));
+      this.toastr.info(this.assignButtonTitle(complaint));
       return;
     }
     this.assigningComplaint = complaint;

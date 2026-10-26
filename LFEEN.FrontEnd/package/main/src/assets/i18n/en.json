@@ -191,6 +191,7 @@
       "platformOffers": "Platform Offers",
       "banRefunds": "Ban Refunds",
       "callScripts": "Call Scripts",
+      "additionalConditions": "Additional Conditions",
       "esim": "Smart SIMs",
       "subscriptions": "Subscriptions",
       "subscriptionSettings": "Subscription Settings",
@@ -391,6 +392,80 @@
         "notFound": "Refund not found",
         "loadTitle": "Couldn't load refunds",
         "loadDesc": "Check your connection and try again."
+      }
+    },
+    "additionalConditions": {
+      "title": "Additional Conditions",
+      "pendingTitle": "Additional Conditions Awaiting Review",
+      "awaitingCount": "{{count}} awaiting review",
+      "hint": "Each condition is reviewed on its own, independent of the Terms section decision.",
+      "pendingHint": "New conditions and pending edits, oldest edit first.",
+      "pendingEmpty": "No conditions awaiting review",
+      "allHint": "Every condition of this level, whatever its status: new, pending edit, approved, rejected.",
+      "allEmpty": "No additional conditions at this level",
+      "views": {
+        "pending": "Awaiting review",
+        "all": "All conditions"
+      },
+      "loadError": "Couldn't load conditions",
+      "empty": "No additional conditions",
+      "searchPlaceholder": "Search title, description or name",
+      "scopes": {
+        "account": "Account",
+        "property": "Building",
+        "unit": "Unit"
+      },
+      "status": {
+        "Pending": "New — awaiting review",
+        "PendingUpdate": "Edit awaiting review",
+        "Approved": "Approved",
+        "Rejected": "Rejected"
+      },
+      "inactive": "Turned off by host",
+      "visibleToGuests": "Visible to guests",
+      "compare": {
+        "current": "Current approved text (guests see this)",
+        "edited": "New edit"
+      },
+      "rejectionReason": "Rejection reason",
+      "updatedAt": "Last edited",
+      "reviewedAt": "Last reviewed",
+      "reasonLabel": "Rejection reason (required)",
+      "reasonPlaceholder": "Write the reason the host will see",
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "confirmReject": "Confirm rejection",
+        "cancel": "Cancel",
+        "approveAll": "Approve all pending",
+        "loadMore": "Load more",
+        "retry": "Retry",
+        "openTarget": {
+          "account": "Open account",
+          "property": "Open building",
+          "unit": "Open unit"
+        }
+      },
+      "confirm": {
+        "approveTitle": "Approve condition",
+        "approveMessage": "This text will be shown to guests as soon as it's approved, if the condition is on.",
+        "rejectTitle": "Reject condition",
+        "rejectMessage": "The host will be told the reason. If this is an edit of an approved condition, the previous text stays visible.",
+        "approveAllTitle": "Approve all pending conditions",
+        "approveAllMessage": "All pending conditions in this section will be approved at once."
+      },
+      "toast": {
+        "approveSuccess": "Condition approved",
+        "rejectSuccess": "Condition rejected",
+        "approveAllSuccess": "All pending conditions approved"
+      },
+      "errors": {
+        "changed": "The host edited this condition after it loaded — the list was refreshed so you can review the new text",
+        "reasonRequired": "A rejection reason is required",
+        "targetMismatch": "This condition doesn't belong to this page — the list was refreshed",
+        "duplicate": "The same condition appears twice in the request",
+        "notFound": "Condition not found — the list was refreshed",
+        "forbidden": "You don't have permission to review these conditions"
       }
     },
     "listingBan": {
@@ -2274,7 +2349,7 @@
         "date": "Date",
         "assign": "Assign",
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
-        "assignDelayedMsg": "No activity for a while — you can reassign this complaint",
+        "assignDelayedMsg": "No activity from the assignee for {{hours}} hours — you can reassign this complaint",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
         "allStatuses": "All statuses",
         "allTypes": "All types",

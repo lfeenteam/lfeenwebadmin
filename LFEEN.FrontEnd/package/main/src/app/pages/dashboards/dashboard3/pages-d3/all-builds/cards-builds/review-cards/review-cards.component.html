@@ -40,7 +40,7 @@
     </div>
 
     <div class="card-footer">
-      <span class="type-tag">{{ building.typeLabel | translate }}</span>
+      <span class="type-tag"><app-catalog-icon class="inline" [iconUrl]="building.typeIconUrl" [iconKey]="building.typeIconKey" [size]="14"></app-catalog-icon>{{ building.typeLabel | translate }}</span>
       <div class="footer-actions">
         @if (building.canBan) {
           <app-ban-listing-button

@@ -1,0 +1,17 @@
+@if (showImage) {
+  <img
+    class="catalog-icon-img"
+    [src]="src"
+    alt=""
+    aria-hidden="true"
+    loading="lazy"
+    [style.width.px]="size"
+    [style.height.px]="size"
+    (error)="failed = true" />
+} @else if (fallback) {
+  <i-tabler
+    class="catalog-icon-fallback"
+    [name]="fallback"
+    [style.width.px]="size"
+    [style.height.px]="size"></i-tabler>
+}

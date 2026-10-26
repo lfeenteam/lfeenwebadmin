@@ -1,4 +1,6 @@
-export type OnboardingStatus = 'Draft' | 'PendingReview' | 'Approved' | 'Rejected';
+import { AdminAdditionalCondition } from './additional-condition.model';
+
+export type OnboardingStatus ='Draft' | 'PendingReview' | 'Approved' | 'Rejected';
 
 export interface AccountItem {
   accountId: string;
@@ -97,6 +99,8 @@ export interface AccountDetail {
     vatNumber: string | null;
   } | null;
   documents: any[];
+  // Account-level additional conditions (apply to every property/unit of the account).
+  additionalConditions?: AdminAdditionalCondition[];
 }
 
 export interface AcceptAccountRequest {

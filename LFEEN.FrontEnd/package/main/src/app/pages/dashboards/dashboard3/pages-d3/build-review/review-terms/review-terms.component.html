@@ -76,7 +76,18 @@
     </div>
   }
 
-  @if (!isLoading && generalRules.length === 0 && customRules.length === 0) {
+  <!-- Additional Conditions: reviewed one by one, separate from the section decision below -->
+  @if (additionalConditions.length > 0) {
+    <app-additional-conditions-review
+      scope="property"
+      [targetId]="propertyId"
+      [(conditions)]="additionalConditions"
+      [readOnly]="conditionsReadOnly"
+      (reloadRequested)="reloadTerms()">
+    </app-additional-conditions-review>
+  }
+
+  @if (!isLoading && generalRules.length === 0 && customRules.length === 0 && additionalConditions.length === 0) {
     <app-review-empty-state
       icon="checklist"
       titleKey="d3.buildReview.terms.emptyTitle"

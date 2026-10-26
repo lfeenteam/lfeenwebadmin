@@ -15,11 +15,12 @@ import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-co
 import { BuildingReviewService } from '../../../services/building-review.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 
 @Component({
   selector: 'app-review-basic-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent, CatalogIconComponent],
   templateUrl: './review-basic-info.component.html',
   styleUrl: './review-basic-info.component.scss'
 })
@@ -95,20 +96,26 @@ export class ReviewBasicInfoComponent implements OnInit {
       }));
   }
 
-  get viewTypeNames(): string[] {
+  get viewTypes(): { name: string; iconKey: string | null; iconUrl: string | null }[] {
     return (this.basicData?.availableViewTypes ?? [])
-      .map(view => view.name?.trim())
-      .filter((name): name is string => !!name);
+      .map(view => ({ name: view.name?.trim() ?? '', iconKey: view.iconKey ?? null, iconUrl: view.iconUrl ?? null }))
+      .filter(view => !!view.name);
   }
 
-  get amenities(): { icon: string; label: string; highlighted: boolean }[] {
+  // iconUrl comes from the backend; the name-matched tabler icon stays as the
+  // fallback until every environment sends it.
+  get amenities(): { icon: string; iconKey: string | null; iconUrl: string | null; label: string; highlighted: boolean }[] {
     const services = (this.basicData?.services ?? []).map(service => ({
       icon: this.getServiceIcon(service.serviceTypeNameKey),
+      iconKey: service.iconKey ?? null,
+      iconUrl: service.iconUrl ?? null,
       label: service.displayName,
       highlighted: false
     }));
     const facilities = (this.basicData?.facilities ?? []).map(facility => ({
       icon: this.getFacilityIcon(facility.facilityTypeName),
+      iconKey: facility.iconKey ?? null,
+      iconUrl: facility.iconUrl ?? null,
       label: facility.facilityTypeName,
       highlighted: facility.isHighlightedInDescription === true
     }));

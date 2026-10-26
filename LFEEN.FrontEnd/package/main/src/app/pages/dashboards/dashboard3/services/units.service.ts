@@ -467,6 +467,8 @@ export class UnitsService {
         : '—',
       status:      this.resolveUnitStatus(u),
       type:        u.unitTypeName,
+      typeIconKey: u.unitTypeIconKey ?? null,
+      typeIconUrl: u.unitTypeIconUrl ?? null,
       description: u.description ?? '',
       district:    u.district ?? null,
       rooms:       0,

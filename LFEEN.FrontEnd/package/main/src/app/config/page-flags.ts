@@ -13,6 +13,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
+  'additional-conditions': true,    // wired to /api/{accounts|properties|units}/additional-conditions (pending queue)
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

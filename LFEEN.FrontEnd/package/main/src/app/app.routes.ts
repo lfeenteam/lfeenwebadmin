@@ -421,6 +421,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'additional-conditions',
+                canActivate: [authGuard, pageFlagGuard('additional-conditions')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/additional-conditions-pending/additional-conditions-pending.component'
+                  ).then((m) => m.AdditionalConditionsPendingComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.additionalConditions.pendingTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'wallet/:id',
                 canActivate: [authGuard, pageFlagGuard('wallet')],
                 loadComponent: () =>

@@ -19,7 +19,10 @@
       </div>
       <div class="unit-stat-chip">
         <span>{{ 'd3.unitReview.basicInfoView.stats.type' | translate }}</span>
-        <strong>{{ unitType }}</strong>
+        <strong class="stat-with-icon">
+          <app-catalog-icon [iconUrl]="unitTypeIconUrl" [iconKey]="unitTypeIconKey" [size]="16"></app-catalog-icon>
+          {{ unitType }}
+        </strong>
       </div>
       <div class="unit-stat-chip">
         <span>{{ 'd3.unitReview.basicInfoView.stats.floor' | translate }}</span>
@@ -87,7 +90,7 @@
         <div class="room-content">
           <header class="room-header">
             <span class="room-icon">
-              <i-tabler [name]="room.icon"></i-tabler>
+              <app-catalog-icon [iconUrl]="room.iconUrl" [iconKey]="room.iconKey" [fallback]="room.icon" [size]="21"></app-catalog-icon>
             </span>
             <div>
               <h3>
@@ -110,7 +113,7 @@
                   <div class="amenity-chips">
                     @for (item of room.amenities; track item.label) {
                       <span class="amenity-chip" [class.amenity-chip--highlighted]="item.highlighted">
-                        <i-tabler [name]="item.icon"></i-tabler>
+                        <app-catalog-icon [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [fallback]="item.icon"></app-catalog-icon>
                         {{ item.label }}
                         @if (item.highlighted) {
                           <span class="highlight-badge">
@@ -130,7 +133,7 @@
                   <div class="amenity-chips">
                     @for (item of room.services; track item.label) {
                       <span class="amenity-chip">
-                        <i-tabler [name]="item.icon"></i-tabler>
+                        <app-catalog-icon [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [fallback]="item.icon"></app-catalog-icon>
                         {{ item.label }}
                       </span>
                     }
@@ -141,7 +144,10 @@
               @for (sub of room.subAreas ?? []; track sub.label) {
                 <div class="private-title">
                   <span>{{ 'd3.unitReview.basicInfoView.privateFacilitiesLabel' | translate }}</span>
-                  <strong>{{ sub.label }}</strong>
+                  <strong class="stat-with-icon">
+                    <app-catalog-icon [iconUrl]="sub.iconUrl" [iconKey]="sub.iconKey" [size]="16"></app-catalog-icon>
+                    {{ sub.label }}
+                  </strong>
                 </div>
 
                 @if (sub.amenities.length > 0) {
@@ -150,7 +156,7 @@
                     <div class="amenity-chips amenity-chips--compact">
                       @for (item of sub.amenities; track item.label) {
                         <span class="plain-feature">
-                          <i-tabler [name]="item.icon"></i-tabler>
+                          <app-catalog-icon [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [fallback]="item.icon"></app-catalog-icon>
                           {{ item.label }}
                           @if (item.highlighted) {
                             <span class="highlight-badge">
@@ -170,7 +176,7 @@
                     <div class="amenity-chips amenity-chips--compact">
                       @for (item of sub.services; track item.label) {
                         <span class="plain-feature">
-                          <i-tabler [name]="item.icon"></i-tabler>
+                          <app-catalog-icon [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [fallback]="item.icon"></app-catalog-icon>
                           {{ item.label }}
                         </span>
                       }
@@ -201,7 +207,7 @@
           <div class="amenity-chips">
             @for (facility of unitData!.facilities; track facility.facilityId) {
               <span class="amenity-chip" [class.amenity-chip--highlighted]="facility.isHighlightedInDescription === true">
-                <i-tabler [name]="getFacilityIcon(facility.facilityTypeName)"></i-tabler>
+                <app-catalog-icon [iconUrl]="facility.iconUrl" [iconKey]="facility.iconKey" [fallback]="getFacilityIcon(facility.facilityTypeName)"></app-catalog-icon>
                 {{ facility.facilityTypeName }}
                 @if (facility.isHighlightedInDescription === true) {
                   <span class="highlight-badge">
@@ -231,7 +237,7 @@
           <div class="amenity-chips">
             @for (service of unitServices; track service.serviceExternalId) {
               <span class="amenity-chip">
-                <i-tabler [name]="getServiceIcon(service.displayName)"></i-tabler>
+                <app-catalog-icon [iconUrl]="service.iconUrl" [iconKey]="service.iconKey" [fallback]="getServiceIcon(service.displayName)"></app-catalog-icon>
                 {{ getServiceLabel(service) }}
               </span>
             }

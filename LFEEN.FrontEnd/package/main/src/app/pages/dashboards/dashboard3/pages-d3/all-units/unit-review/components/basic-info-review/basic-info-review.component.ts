@@ -10,6 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import {
+  UnitBasicDataFacility,
   UnitBasicDataResponse,
   UnitBasicDataRoom,
   UnitBasicDataService,
@@ -19,11 +20,12 @@ import {
 } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 
 @Component({
   selector: 'app-basic-info-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, CatalogIconComponent],
   templateUrl: './basic-info-review.component.html',
   styleUrl: './basic-info-review.component.scss'
 })
@@ -58,6 +60,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   get unitNumber(): string { return String(this.unitData?.apartmentNumberInFloor ?? ''); }
   get unitType(): string   { return this.unitData?.unitTypeName ?? ''; }
+  get unitTypeIconUrl(): string | null { return this.unitData?.unitTypeIconUrl ?? null; }
+  get unitTypeIconKey(): string | null { return this.unitData?.unitTypeIconKey ?? null; }
   get unitFloor(): string  { return String(this.unitData?.floorNumber ?? ''); }
 
   get unitArea(): string {
@@ -241,31 +245,48 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     ], 'settings');
   }
 
+  // iconUrl comes from the backend; the name-matched tabler icon stays as the
+  // fallback until every environment sends it.
+  private mapFacility(f: UnitBasicDataFacility): UnitAmenityItem {
+    return {
+      icon:        this.getFacilityIcon(f.facilityTypeName),
+      iconKey:     f.iconKey ?? null,
+      iconUrl:     f.iconUrl ?? null,
+      label:       f.facilityTypeName,
+      highlighted: f.isHighlightedInDescription === true
+    };
+  }
+
+  private mapService(s: UnitBasicDataService): UnitAmenityItem {
+    return {
+      icon:    this.getServiceIcon(s.displayName),
+      iconKey: s.iconKey ?? null,
+      iconUrl: s.iconUrl ?? null,
+      label:   this.getServiceLabel(s)
+    };
+  }
+
   private mapRooms(rooms: UnitBasicDataRoom[]): UnitRoomSection[] {
     return rooms.map(room => {
       const bedBadge = room.beds.length > 0
         ? room.beds.map(b => `${b.quantity}× ${b.bedTypeName}`).join(', ')
         : undefined;
 
-      const amenities: UnitAmenityItem[] = room.facilities.map(f => ({
-        icon:  this.getFacilityIcon(f.facilityTypeName),
-        label: f.facilityTypeName,
-        highlighted: f.isHighlightedInDescription === true
-      }));
-
-      const services: UnitAmenityItem[] = room.services.map(s => ({
-        icon:  this.getServiceIcon(s.displayName),
-        label: this.getServiceLabel(s)
-      }));
+      const amenities: UnitAmenityItem[] = room.facilities.map(f => this.mapFacility(f));
+      const services: UnitAmenityItem[] = room.services.map(s => this.mapService(s));
 
       const subAreas: UnitSubArea[] = room.subRooms.map(sr => ({
         label:     sr.subRoomTypeName,
-        amenities: sr.facilities.map(f => ({ icon: this.getFacilityIcon(f.facilityTypeName), label: f.facilityTypeName, highlighted: f.isHighlightedInDescription === true })),
-        services:  sr.services.map(s  => ({ icon: this.getServiceIcon(s.displayName),  label: this.getServiceLabel(s) }))
+        iconKey:   sr.iconKey ?? null,
+        iconUrl:   sr.iconUrl ?? null,
+        amenities: sr.facilities.map(f => this.mapFacility(f)),
+        services:  sr.services.map(s => this.mapService(s))
       }));
 
       return {
         icon:    this.getRoomIcon(room.roomTypeName),
+        iconKey: room.iconKey ?? null,
+        iconUrl: room.iconUrl ?? null,
         title:   room.roomTypeName,
         desc:    bedBadge ?? '',
         badge:   bedBadge,

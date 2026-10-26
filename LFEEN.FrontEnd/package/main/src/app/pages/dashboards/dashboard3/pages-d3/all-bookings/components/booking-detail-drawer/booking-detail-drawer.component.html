@@ -113,7 +113,7 @@
               <span class="detail-field-icon"><i-tabler name="building" class="icon-16"></i-tabler></span>
               <span class="detail-field-label">{{ 'd3.bookings.detail.unitSection.unitType' | translate }}</span>
             </div>
-            <span class="detail-field-value">{{ bookingDetail.unit.type }}</span>
+            <span class="detail-field-value"><app-catalog-icon class="inline" [iconUrl]="bookingDetail.unit.typeIconUrl" [iconKey]="bookingDetail.unit.typeIconKey" [size]="16"></app-catalog-icon>{{ bookingDetail.unit.type }}</span>
           </div>
 
           <div class="detail-field-card detail-field-card--split">

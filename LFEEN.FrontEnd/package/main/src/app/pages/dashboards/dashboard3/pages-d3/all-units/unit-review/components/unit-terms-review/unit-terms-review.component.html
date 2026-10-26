@@ -102,6 +102,18 @@
     </section>
   }
 
+  <!-- Additional Conditions: reviewed one by one, separate from the section decision below.
+       Not tied to isReadOnly: an approved Terms section opens with ?mode=view, but new
+       conditions or edits can still arrive afterwards and need a decision. -->
+  @if (additionalConditions.length > 0) {
+    <app-additional-conditions-review
+      scope="unit"
+      [targetId]="unitId"
+      [(conditions)]="additionalConditions"
+      (reloadRequested)="loadTerms()">
+    </app-additional-conditions-review>
+  }
+
   @if (!isReadOnly) {
     <section class="final-notes-section">
       <div class="notes-label-row">

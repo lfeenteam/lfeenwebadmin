@@ -92,6 +92,8 @@ export interface BookingDetailApiItem {
   unitId: number | null;
   unitNumber: string | null;
   unitTypeName: string | null;
+  unitTypeIconKey?: string | null;
+  unitTypeIconUrl?: string | null;
   propertyId: number | null;
   propertyName: string | null;
   city: string | null;

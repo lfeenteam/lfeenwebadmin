@@ -643,17 +643,16 @@ export class ComplaintManagementComponent implements OnDestroy {
   // The table already performed the assignTicket call and shown the success/error toast —
   // this just reflects the new assignee in the in-memory lists so the row updates in place.
   onAssignConfirm({ complaintId, employee }: { complaintId: string; employee: AssignableEmployee }): void {
-    const patch = (list: Complaint[]) => list.map(c =>
-      c.id === complaintId
-        ? { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName }
-        : c
-    );
+    // assignedAtUtc restarts the delay clock, so a stalled ticket that was just
+    // reassigned doesn't still show as delayed for the new assignee.
+    const assignment = { assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName, assignedAtUtc: new Date().toISOString() };
+    const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
     this.customerAllTickets.update(patch);
     this.customerQueueTickets.update(patch);
     this.hostTickets.update(patch);
 
     if (this.selectedComplaint()?.id === complaintId) {
-      this.selectedComplaint.update(c => c && { ...c, assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName });
+      this.selectedComplaint.update(c => c && { ...c, ...assignment });
     }
   }
 
@@ -661,16 +660,13 @@ export class ComplaintManagementComponent implements OnDestroy {
   // lists and drops the ticket out of the priority Queue immediately, without waiting on the
   // background refresh below (kept for cases another ticket became claimable/requeued too).
   onTicketClaimed({ complaintId, agentUserId, agentName }: { complaintId: string; agentUserId: string; agentName: string }): void {
-    const patch = (list: Complaint[]) => list.map(c =>
-      c.id === complaintId
-        ? { ...c, assignedAdminUserId: agentUserId, assignedAdminName: agentName }
-        : c
-    );
+    const assignment = { assignedAdminUserId: agentUserId, assignedAdminName: agentName, assignedAtUtc: new Date().toISOString() };
+    const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
     this.customerAllTickets.update(patch);
     this.customerQueueTickets.update(list => list.filter(c => c.id !== complaintId));
 
     if (this.selectedComplaint()?.id === complaintId) {
-      this.selectedComplaint.update(c => c && { ...c, assignedAdminUserId: agentUserId, assignedAdminName: agentName });
+      this.selectedComplaint.update(c => c && { ...c, ...assignment });
     }
 
     this.loadQueueTickets();
