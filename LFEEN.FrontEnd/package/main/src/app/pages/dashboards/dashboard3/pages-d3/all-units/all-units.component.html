@@ -1,4 +1,15 @@
 <div class="all-units-page" [dir]="currentDir">
+  @if (canManageSettings) {
+    <div class="units-toolbar">
+      <button mat-flat-button type="button" class="settings-btn" (click)="openAutoApprovalSettings()">
+        <span class="settings-btn-content">
+          <i-tabler name="adjustments-horizontal" class="icon-18"></i-tabler>
+          {{ 'd3.allUnits.autoApproval.openBtn' | translate }}
+        </span>
+      </button>
+    </div>
+  }
+
   <app-dashboard-sub-header
     [metrics]="metrics"
     [tabs]="tabs"

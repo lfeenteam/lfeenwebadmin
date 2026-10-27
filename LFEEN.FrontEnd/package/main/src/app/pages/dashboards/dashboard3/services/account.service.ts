@@ -76,10 +76,10 @@ export class AccountService {
       type:             this.mapBusinessType(item.businessType),
       status:           this.mapStatus(item.onboardingStatus),
       onboardingStatus: item.onboardingStatus,
-      idNumber:         item.referenceCode,
+      // The card labels this field "Commercial Register"; referenceCode is an internal code, not the CR number
+      idNumber:         item.companyNumber ?? '',
       joinDate:         this.formatDate(item.createdAt, lang),
       propertyCount:    item.propertyCount,
-      unit:             'مبنى',
       avatarInitials:   this.getInitials(displayName),
       logoUrl:          item.logoUrl,
     };
@@ -114,7 +114,7 @@ export class AccountService {
     return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
       day: 'numeric',
       month: 'long',
-      year: '2-digit'
+      year: 'numeric'
     });
   }
 

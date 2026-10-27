@@ -122,7 +122,6 @@ export interface Account {
   idNumber: string;
   joinDate: string;
   propertyCount: number;
-  unit: string;
   avatarInitials?: string;
   paymentBadge?: string;
   tradeName?: string;

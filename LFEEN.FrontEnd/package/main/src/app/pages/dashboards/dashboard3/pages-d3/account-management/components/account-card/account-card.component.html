@@ -83,7 +83,7 @@
           </div>
           <div class="info-row d-flex justify-content-between align-items-center">
             <span class="info-label">{{ 'd3.accountManagement.card.propertyCount' | translate }}</span>
-            <span class="info-value">{{ account.status === 'under_review' ? '—' : (account.propertyCount != null ? account.propertyCount + ' ' + account.unit : '—') }}</span>
+            <span class="info-value">{{ account.status === 'under_review' ? '—' : (account.propertyCount != null ? account.propertyCount + ' ' + ('d3.accountManagement.card.propertiesUnit' | translate) : '—') }}</span>
           </div>
         </div>
       </div>

@@ -1,0 +1,306 @@
+// ── D3 Design Tokens ──────────────────────────────────────────────────────
+$d3-red:     #E7000B;
+$d3-text:    #0F172B;
+$d3-muted:   #62748E;
+$d3-label:   #90A1B9;
+$d3-border:  #E2E8F0;
+$d3-surface: #F8FAFC;
+$d3-gray:    #F1F5F9;
+
+:host ::ng-deep .mat-mdc-dialog-container,
+:host ::ng-deep .mdc-dialog__surface {
+  border-radius: 32px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.aa-dialog {
+  width: min(720px, 95vw);
+  // Fallback only for short screens — on a normal desktop everything fits without scrolling.
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  font-family: 'Cairo', sans-serif;
+  padding: 24px 28px;
+  box-sizing: border-box;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+
+  // ── Header ───────────────────────────────────────────────
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .dialog-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .heading-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: $d3-text;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px -4px rgba(15, 23, 43, 0.3);
+
+    i-tabler { display: flex; width: 24px; height: 24px; }
+  }
+
+  .dialog-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: $d3-text;
+  }
+
+  .updated-at {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $d3-label;
+  }
+
+  .close-btn {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: $d3-surface;
+    color: $d3-label;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+
+    i-tabler { display: flex; width: 20px; height: 20px; }
+
+    &:hover:not(:disabled) { background: $d3-gray; }
+    &:disabled { cursor: not-allowed; opacity: 0.6; }
+  }
+
+  // ── Body ─────────────────────────────────────────────────
+  .dialog-desc {
+    margin: 0 0 18px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.8;
+    color: $d3-muted;
+  }
+
+  .state-box {
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .state-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: $d3-muted;
+  }
+
+  .retry-btn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: $d3-gray;
+    color: $d3-text;
+    font-size: 13px;
+    font-weight: 700;
+
+    &:hover { filter: brightness(0.97); }
+  }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: $d3-text;
+    text-align: start;
+  }
+
+  // flex-grow keeps both inputs on the same line even when one hint wraps to more lines.
+  .field-hint {
+    flex-grow: 1;
+    margin: 4px 0 8px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.7;
+    color: $d3-muted;
+  }
+
+  .percent-input {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    padding-inline: 16px;
+    border: 1px solid $d3-border;
+    border-radius: 16px;
+    background: $d3-surface;
+    transition: border-color 0.2s;
+
+    &:focus-within { border-color: #9AA4B2; }
+    &.invalid { border-color: $d3-red; }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 700;
+      color: $d3-text;
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      &:disabled { color: $d3-label; }
+    }
+
+    .percent-suffix {
+      font-size: 16px;
+      font-weight: 800;
+      color: $d3-label;
+    }
+  }
+
+  .field-error,
+  .field-example {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .field-error { color: $d3-red; }
+  .field-example { color: #00A63E; }
+
+  .rules-box {
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+
+    .rules-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #92400E;
+      margin-bottom: 6px;
+    }
+
+    ul {
+      margin: 0;
+      padding-inline-start: 20px;
+    }
+
+    li {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.7;
+      color: #78350F;
+    }
+  }
+
+  // ── Actions ──────────────────────────────────────────────
+  .dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .cancel-btn,
+  .confirm-btn {
+    height: 48px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: filter 0.18s ease, transform 0.12s ease;
+
+    &:active:not(:disabled) { transform: scale(0.97); }
+  }
+
+  .cancel-btn {
+    background: $d3-gray;
+    color: #45556C;
+
+    &:hover:not(:disabled) { filter: brightness(0.97); }
+    &:disabled { cursor: not-allowed; opacity: 0.6; }
+  }
+
+  .confirm-btn {
+    background: $d3-text;
+    color: #fff;
+    box-shadow: 0 10px 20px -6px rgba(15, 23, 43, 0.35);
+
+    &:hover:not(:disabled) { filter: brightness(1.2); }
+
+    &:disabled {
+      background: #CAD5E2;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .btn-spinner ::ng-deep circle { stroke: #fff !important; }
+  }
+
+  @media (max-width: 600px) {
+    .fields-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+
+    .dialog-title { font-size: 18px; }
+    .dialog-actions { gap: 12px; }
+  }
+}

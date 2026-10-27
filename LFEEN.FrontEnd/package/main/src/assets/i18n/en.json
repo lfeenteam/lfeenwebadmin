@@ -114,7 +114,8 @@
     "activateConfirmTitle": "Confirm Activate",
     "activateConfirmMessage": "Are you sure you want to activate this employee?",
     "done": "Done",
-    "errorOccurred": "Something went wrong, please try again"
+    "errorOccurred": "Something went wrong, please try again",
+    "noInternet": "No internet connection, please try again"
   },
   "d3": {
     "state": {
@@ -744,6 +745,42 @@
       },
       "pagination": {
         "total": "unit"
+      },
+      "autoApproval": {
+        "openBtn": "Auto-approval settings",
+        "title": "Auto-Approval of Edits",
+        "updatedAt": "Last updated",
+        "desc": "Once a unit is approved, a merchant's edit to pricing or the deposit amount is applied immediately without review if it stays within this percentage of the previously approved value; otherwise it goes to review.",
+        "fields": {
+          "pricingTolerancePercent": {
+            "label": "Pricing tolerance",
+            "hint": "Covers base, min/max, companion, occupancy, channel and seasonal prices. Each price is compared only to its own previous value."
+          },
+          "depositTolerancePercent": {
+            "label": "Deposit tolerance",
+            "hint": "Applies to changing the deposit amount when a deposit is already enabled with an approved amount."
+          }
+        },
+        "example": "Example: approved value {{base}} → anything from {{min}} to {{max}} is auto-applied",
+        "rules": {
+          "title": "Fixed rules not affected by these percentages",
+          "newRow": "Adding a new price row (season, channel or occupancy tier) always requires review.",
+          "enableDeposit": "Enabling (or re-enabling) the deposit always requires review.",
+          "disableDeposit": "Turning the deposit off is applied immediately without review.",
+          "zeroValue": "If the previous value was 0, any change requires review.",
+          "platformWide": "This applies to all units and affects the next edits immediately; it doesn't re-evaluate requests already pending."
+        },
+        "save": "Save",
+        "cancel": "Cancel",
+        "saved": "Auto-approval settings saved",
+        "loadFailed": "Couldn't load the settings",
+        "retry": "Retry",
+        "errors": {
+          "range": "Enter a percentage between 0 and 100",
+          "validation": "Values must be between 0 and 100",
+          "forbidden": "You don't have permission to manage these settings",
+          "network": "Couldn't reach the server, please try again"
+        }
       }
     },
     "sections": {
@@ -2595,12 +2632,18 @@
         "unitLabel": "Select the new unit",
         "unitPlaceholder": "Pick a unit from the list...",
         "unitLoading": "Loading units...",
-        "unitEmpty": "No published units available",
-        "unitHint": "Only published units are shown.",
+        "unitEmpty": "No other published units in this property",
+        "unitHint": "Only published units in the booking's property are shown.",
+        "missingProperty": "The booking's property couldn't be determined, so the unit can't be changed.",
         "reasonLabel": "Reason for change (optional)",
         "reasonPlaceholder": "Write the reason for changing the unit here...",
         "cancelBtn": "Back",
-        "confirmBtn": "Confirm Change"
+        "confirmBtn": "Confirm Change",
+        "errors": {
+          "sameUnit": "The selected unit is the same as the current unit",
+          "unitNotFound": "Unit not found",
+          "differentProperty": "The unit must be in the same property"
+        }
       },
       "cancelBookingDialog": {
         "title": "Cancel Booking",
@@ -2704,6 +2747,7 @@
         "requestDate": "Request Date",
         "joinDate": "Join Date",
         "propertyCount": "Number of Properties",
+        "propertiesUnit": "Properties",
         "statusActive": "Active",
         "statusUnderReview": "Under Review",
         "statusPending": "Pending Review",

@@ -13,7 +13,16 @@ export interface ChangeUnitDialogData {
   bookingId: string;
   bookingNumber: string;
   currentUnitId: number | null;
+  propertyId: number | null;
 }
+
+// change-unit errorCode → message; anything else falls back to the generic error
+const CHANGE_UNIT_ERROR_KEYS: Record<string, string> = {
+  LISTING_BANNED:     'd3.listingBan.errors.targetUnitBanned',
+  SAME_UNIT:          'd3.bookings.changeUnitDialog.errors.sameUnit',
+  UNIT_NOT_FOUND:     'd3.bookings.changeUnitDialog.errors.unitNotFound',
+  DIFFERENT_PROPERTY: 'd3.bookings.changeUnitDialog.errors.differentProperty',
+};
 
 @Component({
   selector: 'app-change-unit-dialog',
@@ -34,15 +43,26 @@ export class ChangeUnitDialogComponent implements OnInit {
   selectedUnitId: number | null = null;
   reason = '';
   submitting = false;
+  /** The booking has no property, so no unit can be offered safely. */
+  missingProperty = false;
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
   ngOnInit(): void {
-    this.bookingService.getPublishedUnits().subscribe({
+    const propertyId = this.data.propertyId;
+    // Never fall back to every published unit — a booking can only move within its own property
+    if (propertyId == null) {
+      this.missingProperty = true;
+      this.loadingUnits = false;
+      return;
+    }
+
+    this.bookingService.getPublishedUnits(propertyId).subscribe({
       next: units => {
-        this.units = units.filter(u => u.id !== this.data.currentUnitId);
+        // Also filter client-side in case the API ignores propertyId
+        this.units = units.filter(u => u.propertyId === propertyId && u.id !== this.data.currentUnitId);
         this.loadingUnits = false;
       },
       error: () => {
@@ -53,7 +73,7 @@ export class ChangeUnitDialogComponent implements OnInit {
   }
 
   confirm(): void {
-    if (this.selectedUnitId == null || this.submitting) return;
+    if (this.selectedUnitId == null || this.submitting || this.missingProperty) return;
     this.submitting = true;
     this.bookingService
       .changeBookingUnit(this.data.bookingId, this.selectedUnitId, this.reason.trim())
@@ -64,10 +84,7 @@ export class ChangeUnitDialogComponent implements OnInit {
         },
         error: (err) => {
           this.submitting = false;
-          // The target unit (or its property) is banned.
-          const key = err?.error?.errorCode === 'LISTING_BANNED'
-            ? 'd3.listingBan.errors.targetUnitBanned'
-            : 'd3.toast.errorOp';
+          const key = CHANGE_UNIT_ERROR_KEYS[err?.error?.errorCode] ?? 'd3.toast.errorOp';
           this.toastr.error(this.translate.instant(key));
         },
       });

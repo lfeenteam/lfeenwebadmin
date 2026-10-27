@@ -16,7 +16,7 @@
     <p  class="d3-message">{{ data.messageKey | translate }}</p>
 
     @if (isError) {
-      <p class="d3-error-msg">{{ 'common.errorOccurred' | translate }}</p>
+      <p class="d3-error-msg">{{ (isOffline ? 'common.noInternet' : 'common.errorOccurred') | translate }}</p>
     }
 
     <div class="d3-actions">

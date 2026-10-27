@@ -16,7 +16,7 @@
       <mat-select
         class="unit-select"
         [(value)]="selectedUnitId"
-        [disabled]="loadingUnits"
+        [disabled]="loadingUnits || missingProperty"
         disableOptionCentering
         panelClass="permission-group-select-panel"
         [placeholder]="(loadingUnits ? 'd3.bookings.changeUnitDialog.unitLoading' : 'd3.bookings.changeUnitDialog.unitPlaceholder') | translate">
@@ -28,7 +28,7 @@
         }
       </mat-select>
     </div>
-    <p class="field-hint">{{ 'd3.bookings.changeUnitDialog.unitHint' | translate }}</p>
+    <p class="field-hint">{{ (missingProperty ? 'd3.bookings.changeUnitDialog.missingProperty' : 'd3.bookings.changeUnitDialog.unitHint') | translate }}</p>
 
     <!-- Reason -->
     <label class="field-label m-t-20">{{ 'd3.bookings.changeUnitDialog.reasonLabel' | translate }}</label>
@@ -43,7 +43,7 @@
   </div>
 
   <div class="dialog-actions">
-    <button type="button" class="confirm-btn" [disabled]="selectedUnitId == null || submitting" (click)="confirm()">
+    <button type="button" class="confirm-btn" [disabled]="selectedUnitId == null || submitting || missingProperty" (click)="confirm()">
       {{ 'd3.bookings.changeUnitDialog.confirmBtn' | translate }}
     </button>
     <button type="button" class="cancel-btn" (click)="dialogRef.close()">

@@ -525,6 +525,18 @@ export interface UnitPricingCalendarResponse {
   days: UnitPricingCalendarDay[];
 }
 
+// ── Auto-approval settings (/units/auto-approval-settings) ────────────────────
+
+/** Platform-wide: how far (in % of the last-approved value) a post-approval edit can move and still skip review. */
+export interface UnitAutoApprovalSettings {
+  pricingTolerancePercent: number;
+  depositTolerancePercent: number;
+  updatedAtUtc: string;
+}
+
+/** The PUT replaces the whole row — both fields must always be sent, or the missing one is zeroed. */
+export type UnitAutoApprovalSettingsUpdate = Omit<UnitAutoApprovalSettings, 'updatedAtUtc'>;
+
 // ── Deposit endpoint (/units/{id}/deposit) ────────────────────────────────────
 
 export interface UnitDepositResponse {

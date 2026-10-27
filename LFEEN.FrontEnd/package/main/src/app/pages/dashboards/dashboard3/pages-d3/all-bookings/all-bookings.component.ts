@@ -125,6 +125,7 @@ export class AllBookingsComponent implements OnInit {
         bookingId: booking.id,
         bookingNumber: booking.bookingNumber,
         currentUnitId: booking.unit.id,
+        propertyId: booking.unit.propertyId,
       },
     });
 
