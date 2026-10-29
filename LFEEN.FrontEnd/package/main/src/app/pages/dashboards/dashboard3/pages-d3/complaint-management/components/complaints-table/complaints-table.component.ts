@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isUnengagedStatus } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 
@@ -186,10 +186,12 @@ export class ComplaintsTableComponent implements OnChanges {
   statusLabelKey(status: Complaint['status']): string {
     const map: Record<string, string> = {
       new:         'd3.complaints.status.new',
+      bot:         'd3.complaints.status.bot',
       in_progress: 'd3.complaints.status.inProgress',
       closed:      'd3.complaints.status.closed',
       pending:     'd3.complaints.status.pending',
       replied:     'd3.complaints.status.replied',
+      resolved:    'd3.complaints.status.resolved',
     };
     return map[status] ?? '';
   }
@@ -311,11 +313,11 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   /** True once an assigned ticket has sat with no agent activity past the threshold while still
-   * awaiting the agent's own action — 'replied'/'closed' mean the ball is elsewhere
-   * (client/host, or resolved), so those never count as the agent stalling. */
+   * awaiting the agent's own action — 'replied'/'resolved'/'closed' mean the ball is elsewhere
+   * (client/host, or done), so those never count as the agent stalling. */
   isDelayed(complaint: Complaint): boolean {
     if (!complaint.assignedAdminName) return false;
-    if (complaint.status === 'replied' || complaint.status === 'closed') return false;
+    if (complaint.status === 'replied' || complaint.status === 'resolved' || complaint.status === 'closed') return false;
     const hours = this.delayedHours(complaint);
     return hours !== null && hours >= ASSIGN_DELAY_THRESHOLD_HOURS;
   }
@@ -337,7 +339,7 @@ export class ComplaintsTableComponent implements OnChanges {
   isAssignLocked(complaint: Complaint): boolean {
     if (!complaint.assignedAdminName || this.isAssignedToMe(complaint)) return false;
     if (this.isDelayed(complaint)) return false;
-    return complaint.status !== 'new';
+    return !isUnengagedStatus(complaint.status);
   }
 
   onAssignBtnClick(complaint: Complaint): void {

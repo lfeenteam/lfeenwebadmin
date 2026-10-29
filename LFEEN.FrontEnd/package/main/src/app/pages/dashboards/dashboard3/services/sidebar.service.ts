@@ -1,11 +1,12 @@
 import { Injectable, signal, effect, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, distinctUntilChanged, skip } from 'rxjs/operators';
+import { EMPTY, Observable, of } from 'rxjs';
+import { map, distinctUntilChanged, skip, filter, switchMap, catchError } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LoginService } from './login/login.service';
 import { SidebarItem } from '../interfaces/login.model';
 import { CoreService } from '../../../../services/core.service';
 import { PAGE_FLAGS } from '../../../../config/page-flags';
+import { SETTINGS_PERMISSIONS, hasSettingsPermission } from '../interfaces/platform-settings.model';
 
 export interface NavItem {
   id?: string;
@@ -33,16 +34,17 @@ export class SidebarService {
       this.buildNavItems(this.loginService.sidebar());
     });
 
-    // when language changes, refresh the token → server returns sidebar in new language
+    // when language changes, refetch the sidebar → server returns it in the new language.
+    // switchMap drops a stale response if the language is toggled again mid-request.
     toObservable(this.coreService.getOptionsSignal())
       .pipe(
         map(opts => opts.language),
         distinctUntilChanged(),
-        skip(1)
+        skip(1),
+        filter(() => this.loginService.isLoggedIn()),
+        switchMap(() => this.loginService.reloadSidebar().pipe(catchError(() => EMPTY)))
       )
-      .subscribe(() => {
-        this.loginService.refreshToken().subscribe({ error: () => {} });
-      });
+      .subscribe();
   }
 
   private buildNavItems(dynamicSidebar: any[]): void {
@@ -73,8 +75,10 @@ export class SidebarService {
       items.push({ divider: true }, controlCenter);
     }
 
-    // Settings isn't in the payload; it's a frontend-only page.
-    if (PAGE_FLAGS['settings'] && !items.find(i => i.link === '/d3/settings')) {
+    // Settings isn't in the payload; it's a frontend-only page, shown only with Settings.View.
+    const canViewSettings = hasSettingsPermission(this.loginService, SETTINGS_PERMISSIONS.view);
+    items = items.filter(i => i.link !== '/d3/settings' || canViewSettings);
+    if (PAGE_FLAGS['settings'] && canViewSettings && !items.find(i => i.link === '/d3/settings')) {
       if (!controlCenter) items.push({ divider: true });
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }

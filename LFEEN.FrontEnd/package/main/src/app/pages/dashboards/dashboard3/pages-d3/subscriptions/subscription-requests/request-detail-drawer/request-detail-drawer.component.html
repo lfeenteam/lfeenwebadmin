@@ -18,7 +18,7 @@
           <span class="summary-merchant">{{ order.merchantName?.trim() || '-' }}</span>
           <span class="summary-date">{{ requestedAtLabel }}</span>
         </div>
-        <span class="status-pill" [class]="'status-pill status-' + kind">{{ order.statusLabel || order.status || '-' }}</span>
+        <span class="status-pill" [class]="'status-pill status-' + kind">{{ kind === 'other' ? (order.statusLabel || order.status || '-') : lineStatusLabel(order.status) }}</span>
         @if (processedAtLabel) {
           <span class="summary-processed">{{ 'd3.subscriptionRequests.detail.processedAt' | translate }}: {{ processedAtLabel }}</span>
         }

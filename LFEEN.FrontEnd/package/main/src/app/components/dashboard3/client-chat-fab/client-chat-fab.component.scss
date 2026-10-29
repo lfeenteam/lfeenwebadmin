@@ -28,6 +28,17 @@
   }
 }
 
+// Complaints page with its chat open (body class set by complaint-management): the
+// composer is pinned to the bottom of the screen, so lift above it rather than cover
+// the reply field / send button. Declared after the rule above so it wins in English too.
+:host-context(body.complaint-composer-open) .chat-fab {
+  bottom: 108px;
+
+  @media (max-width: 576px) {
+    bottom: 84px;
+  }
+}
+
 .chat-fab-btn {
   position: relative;
   width: 56px;

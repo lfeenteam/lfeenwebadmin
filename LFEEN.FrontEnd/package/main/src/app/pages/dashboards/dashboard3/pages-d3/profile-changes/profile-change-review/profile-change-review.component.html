@@ -1,0 +1,198 @@
+<div class="pcr" [dir]="dir">
+
+  @if (isLoading && !profile) {
+    <div class="pcr-state">
+      <i-tabler name="loader-2" class="pcr-spin"></i-tabler>
+    </div>
+  } @else if (isError && !profile) {
+    <div class="pcr-state">
+      <p>{{ 'd3.profileChanges.loadError' | translate }}</p>
+      <button type="button" class="pcr-btn pcr-btn--ghost" (click)="load()">{{ 'd3.profileChanges.actions.retry' | translate }}</button>
+    </div>
+  } @else if (profile) {
+
+    <!-- Fixed data, not editable from settings -->
+    <section class="pcr-card">
+      <div class="pcr-card__head">
+        <div class="pcr-card__title">
+          <span class="pcr-indicator"></span>
+          <h3>{{ 'd3.profileChanges.locked.title' | translate }}</h3>
+        </div>
+      </div>
+      <dl class="pcr-info">
+        <div><dt>{{ 'd3.profileChanges.locked.legalName' | translate }}</dt><dd>{{ profile.locked.legalName || '—' }}</dd></div>
+        <div><dt>{{ 'd3.profileChanges.locked.companyNumber' | translate }}</dt><dd>{{ profile.locked.companyNumber || '—' }}</dd></div>
+        <div><dt>{{ 'd3.profileChanges.locked.vatNumber' | translate }}</dt><dd>{{ profile.locked.vatNumber || '—' }}</dd></div>
+        <div><dt>{{ 'd3.profileChanges.table.businessType' | translate }}</dt><dd>{{ businessTypeLabel(profile.businessType) }}</dd></div>
+      </dl>
+    </section>
+
+    <!-- Branding -->
+    @let b = profile.branding;
+    @if (b) {
+      <section class="pcr-card" [class.pcr-card--pending]="isPending(b)">
+        <ng-container *ngTemplateOutlet="sectionHead; context: { view: b, section: 'Branding' }"></ng-container>
+
+        <div class="pcr-compare" [class.pcr-compare--single]="!showRequested(b)">
+          <div class="pcr-col pcr-col--old">
+            @if (showRequested(b)) {
+              <span class="pcr-col__label">{{ 'd3.profileChanges.compare.current' | translate }}</span>
+            }
+            <ng-container *ngTemplateOutlet="brandingValues; context: { $implicit: b.current, other: null }"></ng-container>
+          </div>
+          @if (showRequested(b)) {
+            <div class="pcr-col pcr-col--new">
+              <span class="pcr-col__label">{{ 'd3.profileChanges.compare.requested' | translate }}</span>
+              <ng-container *ngTemplateOutlet="brandingValues; context: { $implicit: b.requested, other: b.current }"></ng-container>
+            </div>
+          }
+        </div>
+
+        <ng-container *ngTemplateOutlet="sectionFoot; context: { view: b, section: 'Branding' }"></ng-container>
+      </section>
+    }
+
+    <!-- Commercial register (null for sole proprietorships) -->
+    @let cr = profile.commercialRegister;
+    @if (cr) {
+      <section class="pcr-card" [class.pcr-card--pending]="isPending(cr)">
+        <ng-container *ngTemplateOutlet="sectionHead; context: { view: cr, section: 'CommercialRegister' }"></ng-container>
+
+        <div class="pcr-compare" [class.pcr-compare--single]="!showRequested(cr)">
+          <div class="pcr-col pcr-col--old">
+            @if (showRequested(cr)) {
+              <span class="pcr-col__label">{{ 'd3.profileChanges.compare.current' | translate }}</span>
+            }
+            <div class="pcr-field">
+              <span class="pcr-field__label">{{ 'd3.profileChanges.fields.expiryDate' | translate }}</span>
+              <span class="pcr-field__value">{{ cr.current.expiryDate ? (cr.current.expiryDate | date: 'mediumDate') : '—' }}</span>
+            </div>
+            <ng-container *ngTemplateOutlet="certificateBtn; context: { version: 'current', has: cr.current.hasCertificate }"></ng-container>
+          </div>
+          @let req = cr.requested;
+          @if (showRequested(cr) && req) {
+            <div class="pcr-col pcr-col--new">
+              <span class="pcr-col__label">{{ 'd3.profileChanges.compare.requested' | translate }}</span>
+              <div class="pcr-field" [class.pcr-field--changed]="differs(req.expiryDate, cr.current.expiryDate)">
+                <span class="pcr-field__label">{{ 'd3.profileChanges.fields.expiryDate' | translate }}</span>
+                <span class="pcr-field__value">{{ req.expiryDate ? (req.expiryDate | date: 'mediumDate') : '—' }}</span>
+              </div>
+              @if (isPending(cr)) {
+                <ng-container *ngTemplateOutlet="certificateBtn; context: { version: 'requested', has: req.hasCertificate }"></ng-container>
+              }
+            </div>
+          }
+        </div>
+
+        <ng-container *ngTemplateOutlet="sectionFoot; context: { view: cr, section: 'CommercialRegister' }"></ng-container>
+      </section>
+    }
+  }
+</div>
+
+<!-- Section title + status chip -->
+<ng-template #sectionHead let-view="view" let-section="section">
+  <div class="pcr-card__head">
+    <div class="pcr-card__title">
+      <span class="pcr-indicator"></span>
+      <h3>{{ ('d3.profileChanges.sections.' + section) | translate }}</h3>
+    </div>
+    <span class="pcr-chip pcr-chip--{{ statusClass(view) }}">
+      {{ ('d3.profileChanges.status.' + view.status) | translate }}
+    </span>
+  </div>
+</ng-template>
+
+<!-- Rejection reason, dates and the decision actions -->
+<ng-template #sectionFoot let-view="view" let-section="section">
+  @if (view.status === 'Rejected' && view.rejectionReason) {
+    <div class="pcr-reason">
+      <i-tabler name="alert-circle"></i-tabler>
+      <div>
+        <strong>{{ 'd3.profileChanges.rejectionReason' | translate }}</strong>
+        <p>{{ view.rejectionReason }}</p>
+      </div>
+    </div>
+  }
+
+  @if (view.submittedAt || view.reviewedAt) {
+    <div class="pcr-meta">
+      @if (view.submittedAt) {
+        <span>{{ 'd3.profileChanges.submittedAt' | translate }}: {{ view.submittedAt | date: 'medium' }}</span>
+      }
+      @if (view.reviewedAt) {
+        <span>{{ 'd3.profileChanges.reviewedAt' | translate }}: {{ view.reviewedAt | date: 'medium' }}</span>
+      }
+    </div>
+  }
+
+  @if (canDecide(view)) {
+    @if (rejecting === section) {
+      <div class="pcr-reject-box">
+        <label [for]="'pcr-reason-' + section">{{ 'd3.profileChanges.reasonLabel' | translate }}</label>
+        <textarea
+          [id]="'pcr-reason-' + section"
+          rows="3"
+          [maxlength]="reasonMax"
+          [(ngModel)]="reasons[section]"
+          [placeholder]="'d3.profileChanges.reasonPlaceholder' | translate"></textarea>
+        <span class="pcr-counter">{{ reasons[section].length }} / {{ reasonMax }}</span>
+        <div class="pcr-actions">
+          <button type="button" class="pcr-btn pcr-btn--ghost" [disabled]="submitting === section" (click)="cancelReject()">
+            {{ 'd3.profileChanges.actions.cancel' | translate }}
+          </button>
+          <button type="button" class="pcr-btn pcr-btn--reject"
+                  [disabled]="submitting === section || !reasons[section].trim()"
+                  (click)="reject(section)">
+            <i-tabler name="circle-x"></i-tabler>
+            <span>{{ 'd3.profileChanges.actions.confirmReject' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="pcr-actions">
+        <button type="button" class="pcr-btn pcr-btn--reject" [disabled]="!!submitting" (click)="startReject(section)">
+          <i-tabler name="circle-x"></i-tabler>
+          <span>{{ 'd3.profileChanges.actions.reject' | translate }}</span>
+        </button>
+        <button type="button" class="pcr-btn pcr-btn--approve" [disabled]="!!submitting" (click)="approve(section)">
+          <i-tabler name="circle-check"></i-tabler>
+          <span>{{ 'd3.profileChanges.actions.approve' | translate }}</span>
+        </button>
+      </div>
+    }
+  } @else if (isPending(view) && !canReview()) {
+    <p class="pcr-hint">{{ 'd3.profileChanges.noReviewPermission' | translate }}</p>
+  }
+</ng-template>
+
+<!-- Logo + brand names; `other` is the current values, used to mark what changed -->
+<ng-template #brandingValues let-v let-other="other">
+  <div class="pcr-field" [class.pcr-field--changed]="other && differs(v?.logoUrl, other.logoUrl)">
+    <span class="pcr-field__label">{{ 'd3.profileChanges.fields.logo' | translate }}</span>
+    @if (v?.logoUrl) {
+      <img class="pcr-logo" [src]="v.logoUrl" [alt]="'d3.profileChanges.fields.logo' | translate">
+    } @else {
+      <span class="pcr-field__value pcr-field__value--muted">{{ 'd3.profileChanges.noLogo' | translate }}</span>
+    }
+  </div>
+  <div class="pcr-field" [class.pcr-field--changed]="other && differs(v?.tradeNameAr, other.tradeNameAr)">
+    <span class="pcr-field__label">{{ 'd3.profileChanges.fields.tradeNameAr' | translate }}</span>
+    <span class="pcr-field__value" [class.pcr-field__value--muted]="!v?.tradeNameAr" dir="rtl">{{ v?.tradeNameAr || ('d3.profileChanges.cleared' | translate) }}</span>
+  </div>
+  <div class="pcr-field" [class.pcr-field--changed]="other && differs(v?.tradeNameEn, other.tradeNameEn)">
+    <span class="pcr-field__label">{{ 'd3.profileChanges.fields.tradeNameEn' | translate }}</span>
+    <span class="pcr-field__value" [class.pcr-field__value--muted]="!v?.tradeNameEn" dir="ltr">{{ v?.tradeNameEn || ('d3.profileChanges.cleared' | translate) }}</span>
+  </div>
+</ng-template>
+
+<ng-template #certificateBtn let-version="version" let-has="has">
+  @if (has) {
+    <button type="button" class="pcr-btn pcr-btn--ghost pcr-btn--sm" [disabled]="downloading === version" (click)="openCertificate(version)">
+      <i-tabler [name]="downloading === version ? 'loader-2' : 'file-certificate'" [class.pcr-spin]="downloading === version"></i-tabler>
+      <span>{{ ('d3.profileChanges.actions.view' + (version === 'current' ? 'Current' : 'Requested') + 'Certificate') | translate }}</span>
+    </button>
+  } @else {
+    <span class="pcr-field__value pcr-field__value--muted">{{ 'd3.profileChanges.noCertificate' | translate }}</span>
+  }
+</ng-template>

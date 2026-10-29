@@ -14,6 +14,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
   'additional-conditions': true,    // wired to /api/{accounts|properties|units}/additional-conditions (pending queue)
+  'profile-changes': true,          // account-management tab; wired to /api/accounts/profile-changes (branding / commercial register review)
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

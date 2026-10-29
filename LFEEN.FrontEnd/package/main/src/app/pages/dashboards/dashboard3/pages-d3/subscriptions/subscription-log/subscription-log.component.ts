@@ -120,6 +120,12 @@ export class SubscriptionLogComponent implements OnInit {
         this.services = [...catalog].sort((a, b) => a.displayOrder - b.displayOrder);
       });
     this.loadPage();
+
+    // Row labels are resolved once per load, and service names come back per
+    // Accept-Language — refetch so a language switch doesn't leave the old one.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadPage());
   }
 
   private loadPage(): void {

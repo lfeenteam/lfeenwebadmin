@@ -6,7 +6,7 @@ const KIND_BY_STATUS: Record<string, OrderStatusKind> = {
   failed: 'failed',
 };
 
-/** Only drives tab filtering and badge color — the label always comes from statusLabel. */
+/** Drives tab filtering, badge color and the label: known kinds use the tab translations. */
 export function orderStatusKind(status: string | null | undefined): OrderStatusKind {
   return KIND_BY_STATUS[(status ?? '').toLowerCase()] ?? 'other';
 }

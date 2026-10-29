@@ -39,6 +39,8 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   currentLang = 'ar';
   isLoading = false;
+  // A failed request must not look like "the host added no services".
+  loadState: 'loaded' | 'notFound' | 'error' = 'loaded';
   serviceGroups: ServiceGroup[] = [];
 
   get currencyIconSrc(): string {
@@ -89,20 +91,26 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadServices(): void {
+  loadServices(): void {
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitServices(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => {
-          this.serviceGroups = data.groups.map(g => ({
+          this.serviceGroups = (data.groups ?? []).map(g => ({
             id: g.groupKey,
             title: g.groupName,
             items: g.services.map(s => this.mapServiceItem(s)),
           }));
           this.isLoading = false;
         },
-        error: () => { this.isLoading = false; }
+        error: (err) => {
+          const code = err?.error?.code ?? err?.error?.errorCode;
+          this.serviceGroups = [];
+          this.loadState = err?.status === 404 || code === 'UNIT_NOT_FOUND' ? 'notFound' : 'error';
+          this.isLoading = false;
+        }
       });
   }
 
@@ -122,6 +130,12 @@ export class UnitServicesReviewComponent implements OnInit, OnDestroy {
 
   onBack(): void {
     this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  // A unit that doesn't exist has no review page to go back to either.
+  goToUnits(): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.router.navigate(['/', lang, 'd3', 'units']);
   }
 
   private mapServiceItem(service: UnitServicesServiceItem): ServiceItem {

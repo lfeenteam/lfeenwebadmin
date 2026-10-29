@@ -1,0 +1,79 @@
+<div class="pcq" [class.pcq--embedded]="embedded" [dir]="dir">
+
+  <div class="pcq-toolbar">
+    <div class="pcq-tabs" role="tablist">
+      @for (filter of filters; track filter) {
+        <button type="button" role="tab" class="pcq-tab" [class.active]="activeFilter === filter"
+                [attr.aria-selected]="activeFilter === filter" (click)="setFilter(filter)">
+          <span>{{ ('d3.profileChanges.filters.' + filter) | translate }}</span>
+          @if (activeFilter === filter && totalCount !== null) {
+            <span class="pcq-tab__count">{{ totalCount }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="pcq-hint">{{ 'd3.profileChanges.queueHint' | translate }}</p>
+
+  @if (isLoading && !items.length) {
+    <div class="pcq-state">
+      <i-tabler name="loader-2" class="pcq-spin"></i-tabler>
+    </div>
+  } @else if (isError && !items.length) {
+    <div class="pcq-state">
+      <p>{{ 'd3.profileChanges.loadError' | translate }}</p>
+      <button type="button" class="pcq-more" (click)="load()">{{ 'd3.profileChanges.actions.retry' | translate }}</button>
+    </div>
+  } @else if (!items.length) {
+    <div class="pcq-state">
+      <i-tabler name="circle-check"></i-tabler>
+      <p>{{ 'd3.profileChanges.queueEmpty' | translate }}</p>
+    </div>
+  } @else {
+    <div class="pcq-table-wrap">
+      <table class="pcq-table">
+        <thead>
+          <tr>
+            <th>{{ 'd3.profileChanges.table.reference' | translate }}</th>
+            <th>{{ 'd3.profileChanges.table.account' | translate }}</th>
+            <th>{{ 'd3.profileChanges.table.businessType' | translate }}</th>
+            <th>{{ 'd3.profileChanges.table.section' | translate }}</th>
+            <th>{{ 'd3.profileChanges.table.submittedAt' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items; track item.changeId) {
+            <tr (click)="open(item)">
+              <td class="pcq-ref">{{ item.referenceCode || '—' }}</td>
+              <td class="pcq-name">{{ item.accountName || '—' }}</td>
+              <td>{{ businessTypeLabel(item.businessType) }}</td>
+              <td>
+                <span class="pcq-chip pcq-chip--{{ item.section === 'Branding' ? 'branding' : 'register' }}">
+                  <i-tabler [name]="item.section === 'Branding' ? 'palette' : 'file-certificate'"></i-tabler>
+                  {{ ('d3.profileChanges.sections.' + item.section) | translate }}
+                </span>
+              </td>
+              <td class="pcq-date">{{ item.submittedAt | date: 'medium' }}</td>
+              <td class="pcq-open">
+                <button type="button" class="pcq-icon-btn"
+                        [attr.aria-label]="'d3.profileChanges.actions.review' | translate"
+                        [title]="'d3.profileChanges.actions.review' | translate"
+                        (click)="$event.stopPropagation(); open(item)">
+                  <i-tabler [name]="dir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (hasNextPage) {
+      <button type="button" class="pcq-more" [disabled]="isLoading" (click)="load(true)">
+        {{ 'd3.profileChanges.actions.loadMore' | translate }}
+      </button>
+    }
+  }
+</div>

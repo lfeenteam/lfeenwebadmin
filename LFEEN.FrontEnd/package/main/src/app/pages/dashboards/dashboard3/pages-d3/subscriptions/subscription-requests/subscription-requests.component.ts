@@ -136,6 +136,14 @@ export class SubscriptionRequestsComponent implements OnInit {
     return formatLocalizedNumber(value, this.currentLang);
   }
 
+  // Known statuses use our own labels (the backend's statusLabel isn't localized);
+  // anything else falls back to what the backend sent.
+  statusLabel(row: RequestRow): string {
+    return row.kind === 'other'
+      ? (row.order.statusLabel || row.order.status || '-')
+      : this.translate.instant(`d3.subscriptionRequests.tabs.${row.kind}`);
+  }
+
   fmtAmount(value: number): string {
     return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
   }

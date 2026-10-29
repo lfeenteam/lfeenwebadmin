@@ -101,18 +101,20 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
   statusLabelKey(status: Complaint['status']): string {
     const map: Record<string, string> = {
       new: 'd3.complaints.status.new',
+      bot: 'd3.complaints.status.bot',
       in_progress: 'd3.complaints.status.inProgress',
       closed: 'd3.complaints.status.closed',
       pending: 'd3.complaints.status.pending',
       replied: 'd3.complaints.status.replied',
+      resolved: 'd3.complaints.status.resolved',
     };
     return map[status] ?? '';
   }
 
-  // 'new'/'pending' — nobody has replied yet, so both the dot and the pill stay in the
+  // 'new'/'bot'/'pending' — no agent has replied yet, so both the dot and the pill stay in the
   // more urgent (dark/green) treatment; everything already being worked gets the neutral one.
   isUrgent(status: Complaint['status']): boolean {
-    return status === 'new' || status === 'pending';
+    return status === 'new' || status === 'bot' || status === 'pending';
   }
 
   formatListTime(iso: string | null | undefined): string {

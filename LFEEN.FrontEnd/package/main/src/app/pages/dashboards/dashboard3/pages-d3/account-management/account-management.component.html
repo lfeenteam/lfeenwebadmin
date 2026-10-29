@@ -3,31 +3,39 @@
   <!-- Stats -->
   <app-stats-row [stats]="stats"></app-stats-row>
 
-  <!-- Search + Filter header -->
-  <app-account-header
-    [searchQuery]="searchQuery"
-    [activeTab]="activeTab"
-    [newestFirst]="newestFirst"
-    (searchQueryChange)="onSearchChange($event)"
-    (tabChange)="setActiveTab($event)"
-    (sortChange)="onSortChange($event)">
-  </app-account-header>
+  <!-- Search + Filter header (account statuses only) -->
+  @if (!isProfileChangesTab) {
+    <app-account-header
+      [searchQuery]="searchQuery"
+      [activeTab]="accountTab"
+      [newestFirst]="newestFirst"
+      (searchQueryChange)="onSearchChange($event)"
+      (tabChange)="setActiveTab($event)"
+      (sortChange)="onSortChange($event)">
+    </app-account-header>
+  }
 
   <!-- Tabs -->
   <div class="border-bottom-gray m-b-24">
     <app-account-tabs-bar
       [activeTab]="activeTab"
+      [profileChangesCount]="profileChangesCount"
       (tabChange)="setActiveTab($event)">
     </app-account-tabs-bar>
   </div>
 
+  <!-- Settings change requests (branding / commercial register) -->
+  @if (isProfileChangesTab) {
+    <app-profile-changes [embedded]="true" (countChange)="profileChangesCount = $event"></app-profile-changes>
+  }
+
   <!-- Loading -->
-  @if (isLoading) {
+  @if (!isProfileChangesTab && isLoading) {
     <app-dashboard-loading [rows]="6"></app-dashboard-loading>
   }
 
   <!-- Cards grid -->
-  @if (!isLoading) {
+  @if (!isProfileChangesTab && !isLoading) {
     <div class="row">
       @for (account of filteredAccounts; track account.id) {
         <div class="col-md-6 col-lg-4 m-b-8">

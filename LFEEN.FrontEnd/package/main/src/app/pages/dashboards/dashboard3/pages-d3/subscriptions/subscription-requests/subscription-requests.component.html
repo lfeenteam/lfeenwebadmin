@@ -82,7 +82,7 @@
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
-                    <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
+                    <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ statusLabel(row) }}</span>
                   </td>
                   <td>
                     <button type="button" class="row-action-btn" (click)="openDetail(row)">

@@ -472,7 +472,8 @@
     order: 0;
   }
 
-  &.status-new {
+  &.status-new,
+  &.status-bot {
     color: #2563EB;
     background: #EFF6FF;
     border-color: #CFE0FF;
@@ -503,6 +504,14 @@
     border-color: #BBF7D0;
 
     &::before { background: #22C55E; }
+  }
+
+  &.status-resolved {
+    color: #047857;
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+
+    &::before { background: #059669; }
   }
 }
 

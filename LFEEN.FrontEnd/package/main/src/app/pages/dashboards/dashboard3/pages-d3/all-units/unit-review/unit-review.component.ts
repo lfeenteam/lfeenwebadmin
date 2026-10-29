@@ -16,6 +16,7 @@ import { PageTitleOverrideService } from '../../../services/page-title-override.
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
 interface UnitReviewSection {
   key: string;
@@ -221,13 +222,16 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.reviewSections.filter(s => {
       if (s.key === 'license') return !this.unitDetail || this.unitDetail.licenseApplicable;
       if (s.key === 'deposit') return !this.unitDetail || !!this.unitDetail.depositSection;
-      // Services are no longer part of the approval flow — servicesApplicable
-      // is always false today, but the check stays flag-driven (like license)
-      // rather than a hard removal, and defaults to visible for older API
-      // responses that don't send the flag yet.
-      if (s.key === 'services') return !this.unitDetail || this.unitDetail.servicesApplicable;
+      // Shown only when the API returns a services section (null = nothing to show).
+      // When services aren't part of approval the card is view-only — see isInformationalSection.
+      if (s.key === 'services') return !this.unitDetail || !!this.unitDetail.servicesSection;
       return true;
     });
+  }
+
+  // Numbered by position among the visible cards, so hidden sections leave no gap.
+  sectionNumber(index: number): string {
+    return formatLocalizedNumber(index + 1, this.translate.currentLang || 'ar');
   }
 
   // hasSecurityDeposit=false means a deposit isn't required for this unit — the section
@@ -239,7 +243,14 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
 
   isInformationalSection(section: UnitReviewSection): boolean {
     if (section.key === 'deposit') return this.isDepositInformational;
+    if (section.key === 'services') return !!this.unitDetail && !this.unitDetail.servicesApplicable;
     return false;
+  }
+
+  // Informational cards with their own page (services) keep a button to open it;
+  // the deposit one has nothing to open and shows the "active" badge instead.
+  opensInformationalPage(section: UnitReviewSection): boolean {
+    return section.key === 'services';
   }
 
   infoBadgeKey(section: UnitReviewSection): string {
@@ -373,9 +384,10 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onReviewSection(section: UnitReviewSection): void {
+    const viewOnly = this.shouldOpenSectionInViewMode(section.key) || this.isInformationalSection(section);
     const extras = {
       relativeTo: this.route,
-      ...(this.shouldOpenSectionInViewMode(section.key) ? { queryParams: { mode: 'view' } } : {})
+      ...(viewOnly ? { queryParams: { mode: 'view' } } : {})
     };
 
     const routeMap: Record<string, string> = {

@@ -48,6 +48,9 @@ export interface AdminNotificationRealtimeEvent {
   referenceId: string | null;
   referenceType: string | null;
   unreadCount: number;
+  // browser.realtime (platform AND personal) at send time; only the pop-up honours it.
+  // Optional: older backends don't send it.
+  showBrowserAlert?: boolean;
 }
 
 export interface UnreadCountResponse {

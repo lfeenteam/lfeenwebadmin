@@ -9,6 +9,9 @@
       @if (tab.hasDot) {
         <span class="tab-dot"></span>
       }
+      @if (tab.key === 'profile_changes' && profileChangesCount) {
+        <span class="tab-count">{{ profileChangesCount }}</span>
+      }
     </button>
   }
 </div>

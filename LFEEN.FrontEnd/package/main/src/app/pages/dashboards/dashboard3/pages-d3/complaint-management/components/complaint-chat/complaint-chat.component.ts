@@ -5,7 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { AR_DATE_LOCALE, CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
@@ -335,7 +335,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
       return isEn ? `Today - ${time}` : `اليوم - ${time}`;
     }
 
-    const day = createdAt.toLocaleDateString(isEn ? 'en-US' : 'ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+    const day = createdAt.toLocaleDateString(isEn ? 'en-US' : AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' });
     return `${day} - ${time}`;
   }
 

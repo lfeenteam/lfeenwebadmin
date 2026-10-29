@@ -1,4 +1,15 @@
-export type ComplaintStatus = 'new' | 'in_progress' | 'closed' | 'pending' | 'replied';
+export type ComplaintStatus = 'new' | 'bot' | 'in_progress' | 'closed' | 'pending' | 'replied' | 'resolved';
+
+/** Statuses where no agent has engaged yet ('bot' = still with the virtual assistant). */
+export function isUnengagedStatus(status: ComplaintStatus): boolean {
+  return status === 'new' || status === 'bot';
+}
+
+/**
+ * Arabic dates must stay Gregorian like the rest of the admin — plain 'ar-SA'
+ * formats with the Umm al-Qura (Hijri) calendar by default.
+ */
+export const AR_DATE_LOCALE = 'ar-SA-u-ca-gregory';
 export type ComplaintTab    = 'customers' | 'hosts' | 'resolved' | 'ratings';
 
 export interface Ticket {

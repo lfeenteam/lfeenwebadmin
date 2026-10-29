@@ -23,32 +23,68 @@
           <span class="card-icon-box"><i-tabler name="info-circle" class="icon-18 text-muted"></i-tabler></span>
           <h3>{{ 'd3.settings.sysInfo.sectionTitle' | translate }}</h3>
         </div>
-        <button mat-flat-button class="save-btn" (click)="onSave()">
-          <i-tabler name="check" class="icon-18"></i-tabler>
-          {{ 'd3.settings.saveBtn' | translate }}
-        </button>
+        @if (canManage()) {
+          <button mat-flat-button class="save-btn" (click)="onSave()"
+                  [disabled]="saving() || generalLoading() || generalError()">
+            @if (saving()) {
+              <mat-spinner diameter="16"></mat-spinner>
+            } @else {
+              <i-tabler name="check" class="icon-18"></i-tabler>
+            }
+            {{ 'd3.settings.saveBtn' | translate }}
+          </button>
+        }
       </div>
-      <div class="info-grid">
-        <div class="info-field">
-          <label>{{ 'd3.settings.sysInfo.platformName' | translate }}</label>
-          <span class="info-val">{{ platformName }}</span>
+      @if (generalLoading()) {
+        <div class="card-state"><mat-spinner diameter="24"></mat-spinner></div>
+      } @else if (generalError()) {
+        <div class="card-state">
+          <span class="notif-desc">{{ 'd3.settings.errors.loadFailed' | translate }}</span>
+          <button mat-stroked-button type="button" (click)="loadGeneral()">{{ 'd3.settings.errors.retry' | translate }}</button>
         </div>
-        <div class="info-field">
-          <label>{{ 'd3.settings.sysInfo.platformUrl' | translate }}</label>
-          <span class="info-val">{{ platformUrl }}</span>
+      } @else {
+        <div class="info-grid">
+          <div class="info-field">
+            <label for="platformName">{{ 'd3.settings.sysInfo.platformName' | translate }}</label>
+            <input id="platformName" class="info-val info-input" type="text" maxlength="200"
+                   [class.has-error]="fieldErrors.platformName"
+                   [(ngModel)]="form.platformName" (ngModelChange)="clearFieldError('platformName')"
+                   [disabled]="!canManage() || saving()" />
+            @if (fieldErrors.platformName) { <span class="field-error">{{ fieldErrors.platformName }}</span> }
+          </div>
+          <div class="info-field">
+            <label for="platformUrl">{{ 'd3.settings.sysInfo.platformUrl' | translate }}</label>
+            <input id="platformUrl" class="info-val info-input" type="url" dir="ltr" maxlength="500"
+                   [class.has-error]="fieldErrors.platformUrl"
+                   [(ngModel)]="form.platformUrl" (ngModelChange)="clearFieldError('platformUrl')"
+                   [disabled]="!canManage() || saving()" />
+            @if (fieldErrors.platformUrl) { <span class="field-error">{{ fieldErrors.platformUrl }}</span> }
+          </div>
+          <div class="info-field">
+            <label for="supportEmail">{{ 'd3.settings.sysInfo.supportEmail' | translate }}</label>
+            <input id="supportEmail" class="info-val info-input" type="email" dir="ltr" maxlength="256"
+                   [class.has-error]="fieldErrors.supportEmail"
+                   [(ngModel)]="form.supportEmail" (ngModelChange)="clearFieldError('supportEmail')"
+                   [disabled]="!canManage() || saving()" />
+            @if (fieldErrors.supportEmail) { <span class="field-error">{{ fieldErrors.supportEmail }}</span> }
+          </div>
+          <div class="info-field">
+            <label for="timeZone">{{ 'd3.settings.sysInfo.timezone' | translate }}</label>
+            <select id="timeZone" class="info-val info-input timezone-val"
+                    [class.has-error]="fieldErrors.timeZone"
+                    [(ngModel)]="form.timeZone" (ngModelChange)="clearFieldError('timeZone')"
+                    [disabled]="!canManage() || saving()">
+              @for (tz of timeZoneOptions; track tz.id) {
+                <option [value]="tz.id">{{ tz.label }}</option>
+              }
+            </select>
+            @if (fieldErrors.timeZone) { <span class="field-error">{{ fieldErrors.timeZone }}</span> }
+          </div>
         </div>
-        <div class="info-field">
-          <label>{{ 'd3.settings.sysInfo.supportEmail' | translate }}</label>
-          <span class="info-val">{{ supportEmail }}</span>
-        </div>
-        <div class="info-field">
-          <label>{{ 'd3.settings.sysInfo.timezone' | translate }}</label>
-          <span class="info-val timezone-val">
-            {{ timezone }}
-            <i-tabler name="external-link" class="icon-14 tz-icon"></i-tabler>
-          </span>
-        </div>
-      </div>
+        @if (!generalUpdatedAt()) {
+          <p class="defaults-note">{{ 'd3.settings.sysInfo.defaultsNote' | translate }}</p>
+        }
+      }
     </div>
 
     <div class="settings-card">
@@ -63,29 +99,40 @@
      
       </div>
 
-      <div class="notif-row">
-        <div class="notif-text">
-          <span class="notif-name">{{ 'd3.settings.sysInfo.emailNotif' | translate }}</span>
-          <span class="notif-desc">{{ 'd3.settings.sysInfo.emailNotifDesc' | translate }}</span>
+      @if (notifLoading() && !notifications().length) {
+        <div class="card-state"><mat-spinner diameter="24"></mat-spinner></div>
+      } @else if (notifError() && !notifications().length) {
+        <div class="card-state">
+          <span class="notif-desc">{{ 'd3.settings.errors.loadFailed' | translate }}</span>
+          <button mat-stroked-button type="button" (click)="loadNotifications()">{{ 'd3.settings.errors.retry' | translate }}</button>
         </div>
-        <mat-slide-toggle [(ngModel)]="notifEmail" color="primary"></mat-slide-toggle>
-      </div>
-      <mat-divider></mat-divider>
-      <div class="notif-row">
-        <div class="notif-text">
-          <span class="notif-name">{{ 'd3.settings.sysInfo.urgentBookings' | translate }}</span>
-          <span class="notif-desc">{{ 'd3.settings.sysInfo.urgentBookingsDesc' | translate }}</span>
-        </div>
-        <mat-slide-toggle [(ngModel)]="notifUrgentBookings" color="primary"></mat-slide-toggle>
-      </div>
-      <mat-divider></mat-divider>
-      <div class="notif-row">
-        <div class="notif-text">
-          <span class="notif-name">{{ 'd3.settings.sysInfo.monthlyReports' | translate }}</span>
-          <span class="notif-desc">{{ 'd3.settings.sysInfo.monthlyReportsDesc' | translate }}</span>
-        </div>
-        <mat-slide-toggle [(ngModel)]="notifMonthlyReports" color="primary"></mat-slide-toggle>
-      </div>
+      } @else {
+        @if (notifCardError()) {
+          <p class="field-error">{{ notifCardError() }}</p>
+        }
+        <!-- Rendered as returned: new backend keys appear without a frontend release. -->
+        @for (row of notifications(); track row.key; let last = $last) {
+          <div class="notif-row">
+            <div class="notif-text">
+              <span class="notif-name">
+                {{ row.title }}
+                @if (!row.isDeliveryActive) {
+                  <span class="soon-badge">{{ 'd3.notifPrefs.comingSoon' | translate }}</span>
+                }
+              </span>
+              <span class="notif-desc">{{ row.description }}</span>
+              @if (row.scope === 'PlatformAndUser') {
+                <span class="notif-scope">{{ 'd3.notifPrefs.userCanOptOut' | translate }}</span>
+              }
+            </div>
+            <mat-slide-toggle color="primary"
+                              [checked]="row.isEnabled"
+                              [disabled]="!canManage() || isSavingKey(row.key)"
+                              (change)="onToggleNotification(row, $event.checked)"></mat-slide-toggle>
+          </div>
+          @if (!last) { <mat-divider></mat-divider> }
+        }
+      }
     </div>
 
     <div class="settings-card">
@@ -94,34 +141,29 @@
           <span class="card-icon-box"><i-tabler name="code" class="icon-18 text-muted"></i-tabler></span>
           <h3>{{ 'd3.settings.sysInfo.apiSection' | translate }}</h3>
         </div>
-        <span class="dev-badge">{{ 'd3.settings.sysInfo.apiSectionLink' | translate }}</span>
+        <span class="soon-badge">{{ 'd3.notifPrefs.comingSoon' | translate }}</span>
       </div>
 
-      <div class="api-field">
-        <label class="api-label">{{ 'd3.settings.sysInfo.secretKey' | translate }}</label>
-        <div class="api-input-row">
-          <div class="api-value-with-copy">
-            <span class="api-key-text">{{ maskedSecretKey }}</span>
-            <button class="api-copy-btn" (click)="copySecretKey()" [title]="'d3.settings.sysInfo.copy' | translate">
-              <i-tabler name="copy" class="icon-16"></i-tabler>
-            </button>
-          </div>
-          <button mat-stroked-button class="api-gen-btn" (click)="generateNewKey()">
-            {{ 'd3.settings.sysInfo.generateNew' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <div class="api-field">
-        <label class="api-label">{{ 'd3.settings.sysInfo.webhookUrl' | translate }}</label>
-        <span class="api-value webhook-val">{{ webhookUrl }}</span>
-        <p class="webhook-note">{{ 'd3.settings.sysInfo.webhookDesc' | translate }}</p>
-      </div>
+      <!-- No backend for API keys / webhooks yet — nothing is shown or generated client-side. -->
+      <p class="notif-desc">{{ 'd3.settings.sysInfo.apiComingSoon' | translate }}</p>
     </div>
 
   }
 
-  @if (activeTab === 'security') {
+  @if (activeTab === 'security' && !securityReady) {
+    <div class="settings-card">
+      <div class="card-head">
+        <div class="card-head-title">
+          <span class="card-icon-box"><i-tabler name="shield-check" class="icon-18 text-muted"></i-tabler></span>
+          <h3>{{ 'd3.settings.security.sectionTitle' | translate }}</h3>
+        </div>
+        <span class="soon-badge">{{ 'd3.notifPrefs.comingSoon' | translate }}</span>
+      </div>
+      <p class="notif-desc">{{ 'd3.settings.security.comingSoon' | translate }}</p>
+    </div>
+  }
+
+  @if (activeTab === 'security' && securityReady) {
 
     <div class="mt-4">
       <h2 class="sec-title">{{ 'd3.settings.security.sectionTitle' | translate }}</h2>

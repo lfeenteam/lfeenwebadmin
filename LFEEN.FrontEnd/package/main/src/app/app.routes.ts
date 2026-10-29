@@ -5,6 +5,7 @@ import { languageSyncGuard, languageSyncChildGuard } from './guards/language-syn
 import { authGuard, guestGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
 import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
+import { settingsViewGuard } from './guards/settings-view.guard';
 
 export const routes: Routes = [
   {
@@ -421,6 +422,22 @@ export const routes: Routes = [
                 },
               },
               {
+                // Opened from the "profile changes" tab of account management.
+                path: 'account-management/profile-changes/:accountId',
+                canActivate: [authGuard, pageFlagGuard('profile-changes')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/profile-changes/profile-change-review/profile-change-review.component'
+                  ).then((m) => m.ProfileChangeReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.profileChanges.reviewTitle',
+                  breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
+                  showBack: true
+                },
+              },
+              {
                 path: 'additional-conditions',
                 canActivate: [authGuard, pageFlagGuard('additional-conditions')],
                 loadComponent: () =>
@@ -817,7 +834,7 @@ export const routes: Routes = [
               },
               {
                 path: 'settings',
-                canActivate: [authGuard, pageFlagGuard('settings')],
+                canActivate: [authGuard, pageFlagGuard('settings'), settingsViewGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-settings/platform-settings.component'

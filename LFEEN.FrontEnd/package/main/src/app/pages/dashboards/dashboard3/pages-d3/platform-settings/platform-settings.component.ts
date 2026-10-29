@@ -1,10 +1,32 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'src/app/material.module';
 import { Subscription } from 'rxjs';
+import { LoginService } from '../../services/login/login.service';
+import { PlatformSettingsService } from '../../services/platform-settings.service';
+import {
+  PlatformGeneralSettings,
+  PlatformNotificationSetting,
+  SETTINGS_PERMISSIONS,
+  TIME_ZONE_OPTIONS,
+  UpdatePlatformGeneralSettings,
+  hasSettingsPermission,
+} from '../../interfaces/platform-settings.model';
+
+type GeneralField = keyof UpdatePlatformGeneralSettings;
+
+// Backend validation field → form input ("Request.PlatformName" → "platformName").
+const GENERAL_FIELD_MAP: Record<string, GeneralField> = {
+  'request.platformname': 'platformName',
+  'request.platformurl': 'platformUrl',
+  'request.supportemail': 'supportEmail',
+  'request.timezone': 'timeZone',
+};
 
 interface ActiveSession {
   id: string;
@@ -34,28 +56,38 @@ interface LoginLog {
 export class PlatformSettingsComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
+  private toastr = inject(ToastrService);
+  private api = inject(PlatformSettingsService);
+  private login = inject(LoginService);
   private langSub?: Subscription;
+  private generalSub?: Subscription;
+  private notifSub?: Subscription;
 
   showLogTable = true;
 
   activeTab: 'sysInfo' | 'security' = 'sysInfo';
 
-  // System info (static)
-  platformName = 'منصة لفين للضيافة';
-  platformUrl = 'https://lfeen.sa';
-  supportEmail = 'support@lfeen.sa';
-  timezone = '(GMT+03:00) الرياض، المملكة العربية السعودية';
+  /** Settings.View without Settings.Manage → everything read-only, no Save button. */
+  readonly canManage = computed(() => hasSettingsPermission(this.login, SETTINGS_PERMISSIONS.manage));
 
-  // Notifications
-  notifEmail = true;
-  notifUrgentBookings = false;
-  notifMonthlyReports = true;
+  // System info — GET/PUT /api/settings/general
+  form: UpdatePlatformGeneralSettings = { platformName: '', platformUrl: '', supportEmail: '', timeZone: '' };
+  readonly generalUpdatedAt = signal<string | null>(null);
+  readonly generalLoading = signal(false);
+  readonly generalError = signal(false);
+  readonly saving = signal(false);
+  fieldErrors: Partial<Record<GeneralField, string>> = {};
 
-  // API Keys
-  secretKey = 'sk_live_S1P5xK9mN3qR7tY2wZ8vA4c';
-  webhookUrl = 'https://your-domain.com/webhooks';
+  // Platform notification switches — GET/PUT /api/settings/notifications
+  readonly notifications = signal<PlatformNotificationSetting[]>([]);
+  readonly notifLoading = signal(false);
+  readonly notifError = signal(false);
+  readonly notifCardError = signal<string | null>(null);
+  readonly savingKeys = signal<ReadonlySet<string>>(new Set());
 
-  // Security
+  // Security — 2FA, sessions and the login log below are sample data with no API
+  // behind them, so the tab shows "coming soon" until this is wired.
+  readonly securityReady = false;
   twoFaEnabled = true;
 
   activeSessions: ActiveSession[] = [
@@ -105,7 +137,11 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   logColumns = ['event', 'dateTime', 'ip', 'location'];
 
   ngOnInit(): void {
+    this.loadGeneral();
+    this.loadNotifications();
     this.langSub = this.translate.onLangChange.subscribe(() => {
+      // Notification titles/descriptions come localized from Accept-Language.
+      this.loadNotifications();
       this.showLogTable = false;
       setTimeout(() => {
         this.showLogTable = true;
@@ -116,14 +152,88 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    this.generalSub?.unsubscribe();
+    this.notifSub?.unsubscribe();
   }
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
-  get maskedSecretKey(): string {
-    return this.secretKey.slice(0, 15) + ' . . .';
+  /** Static list, plus the saved id if it isn't in it so the select never shows blank. */
+  get timeZoneOptions(): { id: string; label: string }[] {
+    const en = this.translate.currentLang === 'en';
+    const options = TIME_ZONE_OPTIONS.map(tz => ({
+      id: tz.id,
+      label: `(GMT${tz.offset}) ${en ? tz.labelEn : tz.labelAr}`,
+    }));
+    if (this.form.timeZone && !options.some(o => o.id === this.form.timeZone)) {
+      options.unshift({ id: this.form.timeZone, label: this.form.timeZone });
+    }
+    return options;
+  }
+
+  loadGeneral(): void {
+    this.generalSub?.unsubscribe();
+    this.generalLoading.set(true);
+    this.generalError.set(false);
+    this.generalSub = this.api.getGeneral().subscribe({
+      next: res => {
+        this.fillForm(res);
+        this.generalLoading.set(false);
+      },
+      error: () => {
+        this.generalError.set(true);
+        this.generalLoading.set(false);
+      },
+    });
+  }
+
+  loadNotifications(): void {
+    this.notifSub?.unsubscribe();
+    this.notifLoading.set(true);
+    this.notifError.set(false);
+    this.notifSub = this.api.getPlatformNotifications().subscribe({
+      next: list => {
+        this.notifications.set(list);
+        this.notifLoading.set(false);
+      },
+      error: () => {
+        this.notifError.set(true);
+        this.notifLoading.set(false);
+      },
+    });
+  }
+
+  clearFieldError(field: GeneralField): void {
+    if (this.fieldErrors[field]) this.fieldErrors = { ...this.fieldErrors, [field]: undefined };
+  }
+
+  isSavingKey(key: string): boolean {
+    return this.savingKeys().has(key);
+  }
+
+  onToggleNotification(row: PlatformNotificationSetting, isEnabled: boolean): void {
+    if (!this.canManage() || this.isSavingKey(row.key)) return;
+
+    const previous = row.isEnabled;
+    this.patchNotification(row.key, { isEnabled });
+    this.setSavingKey(row.key, true);
+    this.notifCardError.set(null);
+
+    this.api.updatePlatformNotifications({ items: [{ key: row.key, isEnabled }] }).subscribe({
+      next: list => {
+        this.notifications.set(list);
+        this.setSavingKey(row.key, false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.patchNotification(row.key, { isEnabled: previous });
+        this.setSavingKey(row.key, false);
+        const message = this.errorMessage(err);
+        this.notifCardError.set(message);
+        this.toastr.error(message);
+      },
+    });
   }
 
   setTab(tab: 'sysInfo' | 'security'): void {
@@ -131,20 +241,65 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   }
 
   onSave(): void {
-    // static data — no action needed
+    if (!this.canManage() || this.saving()) return;
+
+    // Full replace: all four fields every time.
+    const body: UpdatePlatformGeneralSettings = {
+      platformName: this.form.platformName.trim(),
+      platformUrl: this.form.platformUrl.trim(),
+      supportEmail: this.form.supportEmail.trim(),
+      timeZone: this.form.timeZone,
+    };
+    this.fieldErrors = {};
+    this.saving.set(true);
+
+    this.api.updateGeneral(body).subscribe({
+      next: res => {
+        this.fillForm(res);
+        this.saving.set(false);
+        this.toastr.success(this.translate.instant('d3.toast.successOp'));
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saving.set(false);
+        const errors: { field?: string; message?: string }[] = Array.isArray(err.error?.errors) ? err.error.errors : [];
+        const mapped: Partial<Record<GeneralField, string>> = {};
+        for (const e of errors) {
+          const field = GENERAL_FIELD_MAP[(e.field ?? '').toLowerCase()];
+          if (field && e.message && !mapped[field]) mapped[field] = e.message;
+        }
+        this.fieldErrors = mapped;
+        this.toastr.error(this.errorMessage(err));
+      },
+    });
   }
 
-  copySecretKey(): void {
-    navigator.clipboard.writeText(this.secretKey).catch(() => {});
+  private fillForm(res: PlatformGeneralSettings): void {
+    this.form = {
+      platformName: res.platformName ?? '',
+      platformUrl: res.platformUrl ?? '',
+      supportEmail: res.supportEmail ?? '',
+      timeZone: res.timeZone ?? '',
+    };
+    this.generalUpdatedAt.set(res.updatedAt);
+    this.fieldErrors = {};
   }
 
-  generateNewKey(): void {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let key = 'sk_live_';
-    for (let i = 0; i < 26; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    this.secretKey = key;
+  private errorMessage(err: HttpErrorResponse): string {
+    if (err.status === 403) return this.translate.instant('d3.settings.errors.forbidden');
+    return err.error?.message || this.translate.instant('d3.toast.errorOp');
+  }
+
+  private patchNotification(key: string, changes: Partial<PlatformNotificationSetting>): void {
+    this.notifications.update(list => list.map(n => (n.key === key ? { ...n, ...changes } : n)));
+  }
+
+  private setSavingKey(key: string, saving: boolean): void {
+    this.savingKeys.update(set => {
+      const next = new Set(set);
+      if (saving) next.add(key);
+      else next.delete(key);
+      return next;
+    });
   }
 
   logoutAll(): void {

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
-import { LoginRequest, LoginResponse } from '../../interfaces/login.model';
+import { LoginRequest, LoginResponse, SidebarItem } from '../../interfaces/login.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -15,6 +15,7 @@ export class LoginService {
   private changePasswordUrl = `${environment.apiBaseUrl}/api/auth/change-password`;
   private forgotPasswordUrl = `${environment.apiBaseUrl}/api/auth/forgot-password`;
   private resetPasswordUrl = `${environment.apiBaseUrl}/api/auth/reset-password`;
+  private sidebarUrl = `${environment.apiBaseUrl}/api/auth/sidebar`;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';
@@ -63,6 +64,19 @@ export class LoginService {
 
     return this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
       tap((response) => this.handleAuthentication(response))
+    );
+  }
+
+  /**
+   * Same sidebar as the login response, translated per Accept-Language. Uses the
+   * access token only, so a language switch doesn't rotate the refresh token.
+   */
+  reloadSidebar(): Observable<SidebarItem[]> {
+    return this.http.get<SidebarItem[]>(this.sidebarUrl).pipe(
+      tap((sidebar) => {
+        sessionStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
+        this.sidebar.set(sidebar);
+      })
     );
   }
 

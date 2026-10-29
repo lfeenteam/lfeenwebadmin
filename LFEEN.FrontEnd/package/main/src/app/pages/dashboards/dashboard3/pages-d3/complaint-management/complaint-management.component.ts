@@ -1,5 +1,5 @@
-import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,6 +14,9 @@ import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filte
 import { ComplaintService } from './services/complaint.service';
 import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
+
+// Read by client-chat-fab.component.scss — keep the two in sync.
+const COMPOSER_OPEN_BODY_CLASS = 'complaint-composer-open';
 
 @Component({
   selector: 'app-complaint-management',
@@ -46,6 +49,15 @@ export class ComplaintManagementComponent implements OnDestroy {
   private customerSearchSubject = new Subject<string>();
   private langSub?: Subscription;
   private openTicketSub?: Subscription;
+  private document = inject(DOCUMENT);
+
+  // The floating chat button lives in the dashboard layout; this body class lets it lift
+  // above the chat composer instead of covering the reply field and send button.
+  private composerFlag = effect(() => {
+    const tab = this.activeTab();
+    const composerVisible = this.selectedComplaint() !== null && tab !== 'resolved' && tab !== 'ratings';
+    this.document.body.classList.toggle(COMPOSER_OPEN_BODY_CLASS, composerVisible);
+  });
   private currentLangSignal = signal(this.translate.currentLang || this.translate.defaultLang || 'ar');
 
   activeTab         = signal<ComplaintTab>('customers');
@@ -294,6 +306,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.document.body.classList.remove(COMPOSER_OPEN_BODY_CLASS);
     this.hubSubs.unsubscribe();
     this.hostSearchSub?.unsubscribe();
     this.customerSearchSub?.unsubscribe();

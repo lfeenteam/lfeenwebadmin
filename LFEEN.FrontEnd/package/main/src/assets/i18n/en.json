@@ -136,7 +136,7 @@
     },
     "header": {
       "title": "CEO Dashboard",
-      "platform": "Leven Platform · Kingdom of Saudi Arabia",
+      "platform": "Lfeen Platform · Kingdom of Saudi Arabia",
       "live": "Live",
       "online": "Online",
       "offline": "Offline",
@@ -144,6 +144,11 @@
       "supervisorTitle": "LFEEN Supervisor",
       "userName": "Hassan Maghfouri",
       "userRole": "Chief Executive Officer"
+    },
+    "notifPrefs": {
+      "comingSoon": "Coming soon",
+      "disabledByAdmin": "Turned off by the administration",
+      "userCanOptOut": "Each employee can turn it off from their profile"
     },
     "profile": {
       "title": "Profile",
@@ -161,6 +166,8 @@
       "emailNotifDesc": "Receive a daily summary of operations via email",
       "browserNotifTitle": "Browser Notifications",
       "browserNotifDesc": "Receive instant alerts when a new booking is made",
+      "notifLoadError": "Couldn't load notification preferences",
+      "retry": "Retry",
       "changePasswordDialog": {
         "title": "Change Password",
         "subtitle": "Enter your details to update your account security",
@@ -467,6 +474,94 @@
         "duplicate": "The same condition appears twice in the request",
         "notFound": "Condition not found — the list was refreshed",
         "forbidden": "You don't have permission to review these conditions"
+      }
+    },
+    "profileChanges": {
+      "reviewTitle": "Review Account Profile Change",
+      "queueHint": "Branding and commercial register changes waiting for a decision, oldest first. Guests keep seeing the current values until approval.",
+      "queueEmpty": "No changes waiting for review",
+      "loadError": "Couldn't load the data",
+      "filters": {
+        "all": "All",
+        "branding": "Branding",
+        "commercial-register": "Commercial Register"
+      },
+      "sections": {
+        "Branding": "Branding",
+        "CommercialRegister": "Commercial Register"
+      },
+      "businessTypes": {
+        "RegisteredEntity": "Registered entity",
+        "SoleProprietorship": "Sole proprietorship",
+        "Individual": "Individual"
+      },
+      "table": {
+        "reference": "Account No.",
+        "account": "Account",
+        "businessType": "Business type",
+        "section": "Section",
+        "submittedAt": "Submitted"
+      },
+      "locked": {
+        "title": "Core details",
+        "legalName": "Legal name",
+        "companyNumber": "Commercial register no.",
+        "vatNumber": "VAT number"
+      },
+      "status": {
+        "PendingReview": "Pending review",
+        "Approved": "Approved",
+        "Rejected": "Rejected",
+        "None": "Not changed"
+      },
+      "compare": {
+        "current": "Current (visible to guests)",
+        "requested": "Requested"
+      },
+      "fields": {
+        "logo": "Logo",
+        "tradeNameAr": "Brand name (Arabic)",
+        "tradeNameEn": "Brand name (English)",
+        "expiryDate": "Register expiry date"
+      },
+      "noLogo": "No logo",
+      "cleared": "Empty",
+      "noCertificate": "No certificate",
+      "submittedAt": "Submitted",
+      "reviewedAt": "Reviewed",
+      "rejectionReason": "Rejection reason",
+      "reasonLabel": "Rejection reason (required)",
+      "reasonPlaceholder": "Tell the host what's wrong and what to send instead",
+      "noReviewPermission": "You don't have permission to approve or reject this request",
+      "actions": {
+        "review": "Review",
+        "approve": "Approve",
+        "reject": "Reject",
+        "confirmReject": "Confirm rejection",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "loadMore": "Load more",
+        "viewCurrentCertificate": "View current certificate",
+        "viewRequestedCertificate": "View new certificate"
+      },
+      "confirm": {
+        "approveTitle": "Approve change",
+        "approveMessage": "The new values become visible to guests right away, and the account owner is notified.",
+        "rejectTitle": "Reject change",
+        "rejectMessage": "The current values stay as they are, and the owner receives your reason as written."
+      },
+      "toast": {
+        "approveSuccess": "Change approved",
+        "rejectSuccess": "Change rejected"
+      },
+      "errors": {
+        "stale": "The host updated this request. The page was reloaded to show the latest version",
+        "noDraft": "There's no request waiting in this section (already decided or withdrawn) — the page was reloaded",
+        "reasonRequired": "A rejection reason is required",
+        "reasonTooLong": "The rejection reason must be at most {{max}} characters",
+        "accountNotFound": "Account not found",
+        "certificateNotFound": "Certificate not found",
+        "forbidden": "You don't have permission to review this request"
       }
     },
     "listingBan": {
@@ -1788,49 +1883,50 @@
       },
       "sections": {
         "basicInfo": {
-          "title": "1. Basic Information",
+          "title": "Basic Information",
           "desc": "Includes area, floor, occupancy and unit contents",
           "btn": "Review Basic Information"
         },
         "photos": {
-          "title": "2. Unit Photos",
+          "title": "Unit Photos",
           "desc": "Contains 8 high-quality photos covering bedrooms, living room and amenities",
           "btn": "Review Photos"
         },
         "terms": {
-          "title": "3. Unit Terms",
+          "title": "Unit Terms",
           "desc": "House rules for guests, booking/cancellation and general tenant obligations",
           "btn": "Review Terms"
         },
         "pricing": {
-          "title": "4. Unit Pricing",
+          "title": "Unit Pricing",
           "desc": "Base price: 450 SAR/night, special weekend and seasonal pricing",
           "btn": "Review Pricing"
         },
         "access": {
-          "title": "5. Access Method",
+          "title": "Access Method",
           "desc": "Location guidance, elevator code, and dedicated full-time staff number",
           "btn": "Review Access"
         },
         "cancelPolicy": {
-          "title": "6. Cancellation Policy",
+          "title": "Cancellation Policy",
           "desc": "Selected policy: Flexible (full refund before 24h of check-in)",
           "btn": "Review Policy"
         },
         "deposit": {
-          "title": "7. Security Deposit",
+          "title": "Security Deposit",
           "desc": "Required deposit: 500 SAR, charged at booking and refunded 24h after checkout",
           "btn": "Review Deposit",
           "infoBadge": "Informational",
           "activeBadge": "Activated via system"
         },
         "services": {
-          "title": "8. Service Customization",
-          "desc": "Additional services: daily cleaning, home breakfast (50 SAR), airport pickup",
-          "btn": "Review Services"
+          "title": "Additional Services",
+          "desc": "Services the host offers and their cost",
+          "btn": "View Services",
+          "infoBadge": "View only"
         },
         "license": {
-          "title": "9. Unit License",
+          "title": "Unit License",
           "desc": "Ministry of Tourism license No: B-9928374-UC, valid until 2026/12/31",
           "btn": "Preview License"
         }
@@ -2244,6 +2340,12 @@
         "subtitle": "Services selected by the host and their pricing — view only",
         "emptyTitle": "No additional services",
         "emptyDescription": "The host has not added any additional services for this unit.",
+        "notFoundTitle": "Unit not found",
+        "notFoundDescription": "The unit may have been deleted, or the link is incorrect.",
+        "backToUnits": "Back to units",
+        "errorTitle": "Couldn't load the services",
+        "errorDescription": "Check your connection and try again.",
+        "retry": "Retry",
         "wifi": {
           "title": "Wi-Fi Connection",
           "desc": "Network details for the unit",
@@ -2402,7 +2504,9 @@
         "inProgress": "In Progress",
         "closed": "Closed",
         "pending": "Pending",
-        "replied": "Replied"
+        "replied": "Replied",
+        "resolved": "Resolved",
+        "bot": "With assistant"
       },
       "hostFilters": {
         "searchPlaceholder": "Search by subject, ticket number...",
@@ -2735,7 +2839,8 @@
         "all": "All",
         "active": "Active Accounts",
         "rejected": "Rejected Accounts",
-        "underReview": "Accounts Under Review"
+        "underReview": "Accounts Under Review",
+        "profileChanges": "Changes Pending Review"
       },
       "filters": {
         "all": "All Accounts",
@@ -3962,22 +4067,43 @@
         "DeactivatedPricingRows": "Prices closed",
         "DeactivatedTiers": "Tiers closed",
         "DisplayOrder": "Order",
+        "Category": "Category",
         "DescriptionAr": "Description",
         "MaxRedemptions": "Max uses",
+        "Price": "Price",
         "Setup": "Setup fee",
         "SetupFee": "Setup fee",
+        "Discount": "Discount",
+        "Total": "Total",
+        "Subtotal": "Before tax",
+        "Tax": "Tax",
+        "Amount": "Amount",
+        "Code": "Code",
+        "Type": "Type",
+        "Value": "Value",
+        "Usage": "Usage",
+        "Period": "Period",
+        "Tier": "Tier",
+        "Service": "Service",
+        "Name": "Name",
+        "Reason": "Reason",
+        "Note": "Note",
         "IsActive": "Active",
         "IsAvailable": "Available",
         "IsDefault": "Default",
         "TrialDays": "Trial days"
       },
       "detailValues": {
+        "Paid": "Paid",
+        "Free": "Free",
         "BuiltIn": "Built-in",
         "Package": "Period packages",
         "Transaction": "Per operation",
         "MessagePack": "Message pack",
         "True": "Yes",
         "False": "No",
+        "None": "None",
+        "Percentage": "Percentage",
         "FixedAmount": "Fixed amount",
         "PerUnit": "Per unit",
         "PercentageOfValue": "% of value"
@@ -4305,15 +4431,23 @@
         "monthlyReportsDesc": "Download and send a comprehensive PDF report at the end of each calendar month",
         "apiSection": "Access Keys (API)",
         "apiSectionLink": "Developers only",
+        "apiComingSoon": "API key and webhook management isn't available yet. It will be enabled once it's connected to the server.",
         "secretKey": "Secret Access Key",
         "webhookUrl": "Webhook URL",
         "webhookDesc": "Use this URL to receive real-time notifications in your system when any booking or cancellation occurs",
         "generateNew": "Generate New",
-        "copy": "Copy"
+        "copy": "Copy",
+        "defaultsNote": "These are the built-in defaults; the settings haven't been saved yet"
+      },
+      "errors": {
+        "loadFailed": "Couldn't load the data",
+        "retry": "Retry",
+        "forbidden": "You don't have permission to change platform settings"
       },
       "security": {
         "sectionTitle": "Security & Privacy",
         "sectionSub": "Control access settings and protect your admin account data",
+        "comingSoon": "Two-factor authentication, active sessions and the login log aren't available yet. They will be enabled once connected to the server.",
         "twoFa": "Two-Factor Authentication (2FA)",
         "twoFaDesc": "Add an extra layer of security when logging in. You will need to enter a code sent to your phone or authentication app",
         "enabled": "Enabled",
