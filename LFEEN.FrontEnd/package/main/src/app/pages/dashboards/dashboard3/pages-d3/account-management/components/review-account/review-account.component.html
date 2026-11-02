@@ -64,7 +64,7 @@
         @if (account.business?.commercialExpiryDate) {
           <div class="field-row">
             <span class="field-label">{{ 'd3.reviewAccount.facilityInfo.commercialExpiryDate' | translate }}</span>
-            <span class="field-value">{{ account.business!.commercialExpiryDate | date:'mediumDate' }}</span>
+            <span class="field-value">{{ account.business!.commercialExpiryDate | appDate: 'mediumDate' }}</span>
           </div>
         }
       </div>
@@ -319,7 +319,7 @@
         @if (account.birthDateGregorian) {
           <div class="field-col">
             <span class="field-label">{{ 'd3.reviewAccount.accountOverview.birthDate' | translate }}</span>
-            <span class="field-value">{{ account.birthDateGregorian | date:'mediumDate' }}</span>
+            <span class="field-value">{{ account.birthDateGregorian | appDate: 'mediumDate' }}</span>
           </div>
         }
         <div class="field-col">
@@ -332,12 +332,12 @@
         </div>
         <div class="field-col">
           <span class="field-label">{{ 'd3.reviewAccount.accountOverview.createdAt' | translate }}</span>
-          <span class="field-value">{{ account.createdAt | date:'mediumDate' }}</span>
+          <span class="field-value">{{ account.createdAt | appDate: 'mediumDate' }}</span>
         </div>
         @if (account.updatedAt) {
           <div class="field-col">
             <span class="field-label">{{ 'd3.reviewAccount.accountOverview.updatedAt' | translate }}</span>
-            <span class="field-value">{{ account.updatedAt | date:'mediumDate' }}</span>
+            <span class="field-value">{{ account.updatedAt | appDate: 'mediumDate' }}</span>
           </div>
         }
         <div class="field-col">

@@ -14,6 +14,7 @@ import { CALL_SCRIPT_SCENARIOS, CallScript, scenarioDisplayName } from './interf
 import { resolveCallScriptError } from './interfaces/call-script-error.util';
 import { CallScriptsService } from './services/call-scripts.service';
 import { CallScriptDialogComponent, CallScriptDialogResult } from './components/call-script-dialog/call-script-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-call-scripts',
@@ -86,7 +87,7 @@ export class CallScriptsComponent implements OnInit {
   formatDate(value: string): string {
     const date = new Date(value);
     if (isNaN(date.getTime())) return '-';
-    return date.toLocaleDateString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return date.toLocaleDateString(appLocale(this.translate.currentLang), {
       year: 'numeric', month: 'short', day: 'numeric',
     });
   }

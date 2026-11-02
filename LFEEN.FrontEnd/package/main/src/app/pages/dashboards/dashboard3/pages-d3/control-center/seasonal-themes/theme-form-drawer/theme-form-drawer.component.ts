@@ -14,6 +14,7 @@ import { ControlCenterError, parseControlCenterError } from '../../interfaces/co
 import { riyadhToday } from '../../interfaces/riyadh-time.util';
 import { ControlCenterService } from '../../services/control-center.service';
 import { ColorFieldComponent } from '../../color-field/color-field.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 /** #RRGGBB or #AARRGGBB, as the API accepts. */
 const HEX_PATTERN = /^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
@@ -187,7 +188,7 @@ export class ThemeFormDrawerComponent implements OnChanges, OnDestroy {
   dateLabel(iso: string): string {
     if (!iso) return '';
     const [y, m, d] = iso.split('-').map(Number);
-    const locale = this.currentDir === 'rtl' ? 'ar-SA' : 'en-US';
+    const locale = appLocale(this.currentDir === 'rtl' ? 'ar' : 'en');
     return new Intl.DateTimeFormat(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', calendar: 'gregory' })
       .format(new Date(Date.UTC(y, m - 1, d)));
   }

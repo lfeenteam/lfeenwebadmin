@@ -18,6 +18,7 @@ import { DiscountCodeState, SubscriptionCatalogItem, SubscriptionDiscountCode } 
 import { isStaleSubscriptionError, resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { discountCodeState, isPercentageDiscount } from './discount-code.util';
 import { CreateDiscountCodeDialogComponent, CreateDiscountCodeDialogData } from './create-discount-code-dialog/create-discount-code-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface DiscountCodeRow {
   code: SubscriptionDiscountCode;
@@ -81,7 +82,7 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 2 });
   }
 
   formatDate(iso: string | null): string | null {

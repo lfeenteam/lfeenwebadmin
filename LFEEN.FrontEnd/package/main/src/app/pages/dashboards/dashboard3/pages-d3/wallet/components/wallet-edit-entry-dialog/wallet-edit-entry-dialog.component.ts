@@ -19,6 +19,7 @@ import {
 import { resolveWalletError } from '../../interfaces/wallet-error.util';
 import { WalletService } from '../../services/wallet.service';
 import { WalletFilePickerComponent } from '../wallet-file-picker/wallet-file-picker.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 export interface WalletEditEntryDialogData {
   merchantAccountId: string;
@@ -76,7 +77,7 @@ export class WalletEditEntryDialogComponent {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return value.toLocaleString(appLocale(this.translate.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

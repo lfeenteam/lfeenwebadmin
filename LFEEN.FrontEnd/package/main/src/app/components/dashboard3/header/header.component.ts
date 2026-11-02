@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
 import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
 import { AdminNotificationsStore } from 'src/app/pages/dashboards/dashboard3/services/admin-notifications-store.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 interface AppLanguage {
   language: string;
   code: string;
@@ -63,7 +64,7 @@ export class HeaderComponent {
   }
 
   get currentDate(): string {
-    const locale = this.selectedLanguage.code === 'ar' ? 'ar-EG' : 'en-US';
+    const locale = appLocale(this.selectedLanguage.code);
     return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
   }
 

@@ -80,9 +80,9 @@
       }
 
       <div class="ac-meta">
-        <span>{{ 'd3.additionalConditions.updatedAt' | translate }}: {{ c.updatedAt | date: 'medium' }}</span>
+        <span>{{ 'd3.additionalConditions.updatedAt' | translate }}: {{ c.updatedAt | appDate: 'medium' }}</span>
         @if (c.reviewedAt) {
-          <span>{{ 'd3.additionalConditions.reviewedAt' | translate }}: {{ c.reviewedAt | date: 'medium' }}</span>
+          <span>{{ 'd3.additionalConditions.reviewedAt' | translate }}: {{ c.reviewedAt | appDate: 'medium' }}</span>
         }
       </div>
 

@@ -16,6 +16,7 @@ import { resolveSubscriptionError } from '../interfaces/subscription-error.util'
 import { RequestDetailDrawerComponent } from './request-detail-drawer/request-detail-drawer.component';
 import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type RequestTab = 'all' | 'pending' | 'succeeded' | 'failed';
 
@@ -145,7 +146,7 @@ export class SubscriptionRequestsComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 2 });
   }
 
   formatDate(row: RequestRow): string {

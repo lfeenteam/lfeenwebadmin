@@ -468,6 +468,31 @@
   color: #9E9E9A;
 }
 
+// Why the transfer action is locked (no IBAN on file / IBAN changed mid-review).
+.action-blocked-hint {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #DC2626;
+}
+
+.action-blocked-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+
+  i-tabler { flex-shrink: 0; }
+}
+
 // ── Receipt upload ──────────────────────────────────────────
 .upload-dropzone {
   display: flex;

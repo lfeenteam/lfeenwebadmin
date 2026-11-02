@@ -257,7 +257,7 @@
               {{ booking.client.initials }}
             </div>
             <div class="client-info">
-              <span class="client-name">{{ booking.client.name }}</span>
+              <span class="client-name" [title]="booking.client.name">{{ booking.client.name }}</span>
               <span class="client-phone">{{ booking.client.phone }}</span>
             </div>
           </div>

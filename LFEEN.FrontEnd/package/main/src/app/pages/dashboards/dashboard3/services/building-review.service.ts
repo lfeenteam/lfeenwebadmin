@@ -25,6 +25,7 @@ import {
   LocationReviewResponse,
   PropertyFinalDecisionPayload,
   PropertyFinalDecisionResult,
+  PropertyAdminReviewStatus,
   PropertyAdminReviewStatusValue
 } from '../interfaces/building-card.model';
 
@@ -34,10 +35,11 @@ export interface PropertyTypeItem {
   iconKey?: string | null;
   iconUrl?: string | null;
 }
-import { EMPTY, Observable } from 'rxjs';
+import { EMPTY, Observable, forkJoin } from 'rxjs';
 import { expand, map, reduce } from 'rxjs/operators';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Injectable({ providedIn: 'root' })
 export class BuildingReviewService {
@@ -53,13 +55,16 @@ export class BuildingReviewService {
   readonly propertyTypeId = signal('');
   readonly newestFirst = signal(true);
 
-  // The backend's numeric `status` filter can't be trusted to stay in sync with our
-  // BuildingTab enum (e.g. it may still reflect a pre-Draft numbering scheme), so for
-  // every tab except 'draft' we fetch everything unfiltered and classify client-side
-  // from each property's actual `reviewStatus`. 'draft' is the one tab whose backing
-  // data has no distinct reviewStatus name yet (it still comes back as "Pending"), so
-  // per product decision we trust the `status=0` filter itself and label whatever it
-  // returns as Draft, instead of relying on the (currently unreliable) reviewStatus field.
+  // The backend filters by status name, so every tab is a single server-paginated request.
+  private readonly tabStatus: Record<Exclude<BuildingTab, 'pendingChanges'>, PropertyAdminReviewStatus> = {
+    draft:       'Draft',
+    new:         'Pending',
+    underReview: 'UnderReview',
+    published:   'Approved',
+    rejected:    'Rejected',
+    banned:      'Banned',
+  };
+
   private readonly _propertiesResource = rxResource({
     request: () => ({
       page:     this.currentPage(),
@@ -77,20 +82,25 @@ export class BuildingReviewService {
         propertyTypeId: request.propertyTypeId,
         newestFirst: request.newestFirst,
       };
-      const isDraft = request.tab === 'draft';
-      const source$ = isDraft
-        ? this.getAllProperties(filters, PropertyAdminReviewStatusValue.Draft)
-        : this.getAllProperties(filters);
 
-      return source$.pipe(
-        map(res => {
-          const matching = isDraft ? res.data : res.data.filter(p => this.resolveTab(p) === request.tab);
+      if (request.tab !== 'pendingChanges') {
+        return this.fetchPropertiesPage(request.page, request.pageSize, filters, this.tabStatus[request.tab]);
+      }
+
+      // 'pendingChanges' spans two statuses and the backend takes one per request, so this
+      // (small) tab pulls both lists and paginates client-side.
+      return forkJoin([
+        this.getAllProperties(filters, 'HasPendingChanges'),
+        this.getAllProperties(filters, 'PendingAfterRejection'),
+      ]).pipe(
+        map(([hasPendingChanges, pendingAfterRejection]) => {
+          const matching   = [...hasPendingChanges.data, ...pendingAfterRejection.data];
           const totalCount = matching.length;
           const totalPages = Math.max(1, Math.ceil(totalCount / request.pageSize));
-          const start = (request.page - 1) * request.pageSize;
+          const start      = (request.page - 1) * request.pageSize;
 
           return {
-            ...res,
+            ...hasPendingChanges,
             data: matching.slice(start, start + request.pageSize),
             totalCount,
             page: request.page,
@@ -102,25 +112,30 @@ export class BuildingReviewService {
     }
   });
 
+  private fetchPropertiesPage(
+    page: number,
+    pageSize: number | string,
+    filters: { search: string; city: string; propertyTypeId: string; newestFirst: boolean },
+    status: PropertyAdminReviewStatus
+  ): Observable<PaginatedPropertyResponse> {
+    const params = new URLSearchParams({
+      pageNumber: String(page),
+      pageSize:   String(pageSize),
+      newestFirst: String(filters.newestFirst),
+      status,
+    });
+    if (filters.search) params.set('search', filters.search);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.propertyTypeId) params.set('propertyTypeId', filters.propertyTypeId);
+    return this.http.get<PaginatedPropertyResponse>(`${this.apiUrl}?${params}`);
+  }
+
   private getAllProperties(
     filters: { search: string; city: string; propertyTypeId: string; newestFirst: boolean },
-    status?: PropertyAdminReviewStatusValue
+    status: PropertyAdminReviewStatus
   ): Observable<PaginatedPropertyResponse> {
-    const fetchPage = (page: number): Observable<PaginatedPropertyResponse> => {
-      const params = new URLSearchParams({
-        pageNumber: String(page),
-        pageSize:   '50',
-        newestFirst: String(filters.newestFirst),
-      });
-      if (filters.search) params.set('search', filters.search);
-      if (filters.city) params.set('city', filters.city);
-      if (filters.propertyTypeId) params.set('propertyTypeId', filters.propertyTypeId);
-      if (status !== undefined) params.set('status', String(status));
-      return this.http.get<PaginatedPropertyResponse>(`${this.apiUrl}?${params}`);
-    };
-
-    return fetchPage(1).pipe(
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage) : EMPTY),
+    return this.fetchPropertiesPage(1, 50, filters, status).pipe(
+      expand(res => res.nextpage != null ? this.fetchPropertiesPage(res.nextpage, 50, filters, status) : EMPTY),
       reduce((acc, res) => ({
         ...res,
         data: [...acc.data, ...res.data],
@@ -145,6 +160,7 @@ export class BuildingReviewService {
   readonly totalPages    = computed(() => this._propertiesResource.value()?.totalPages ?? 1);
   readonly totalCount    = computed(() => this._propertiesResource.value()?.totalCount ?? 0);
   readonly isLoading     = this._propertiesResource.isLoading;
+  // The backend returns global stats on every list response, regardless of status/filters.
   readonly propertyStats = computed<PropertyApiStats | null>(() => this._propertiesResource.value()?.stats ?? null);
 
   readonly buildings = computed<BuildingCardItem[]>(() =>
@@ -205,7 +221,7 @@ export class BuildingReviewService {
 
   private formatDate(dateStr: string, lang: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+    return d.toLocaleDateString(appLocale(lang), {
       day: 'numeric', month: 'long', year: '2-digit'
     });
   }

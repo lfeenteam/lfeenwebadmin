@@ -22,6 +22,7 @@ import { APP_RUNTIME_PERMISSIONS, hasAppRuntimePermission } from '../interfaces/
 import { riyadhLocalToOffset, riyadhNowLocal, riyadhToday, utcToRiyadhLocal } from '../interfaces/riyadh-time.util';
 import { ControlCenterService } from '../services/control-center.service';
 import { PhoneFrameComponent } from '../phone-frame/phone-frame.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 const MESSAGE_MAX = 1000;
 
@@ -240,7 +241,7 @@ export class MaintenanceComponent implements OnInit {
     const [h, min] = (this.timePart(value) || '00:00').split(':').map(Number);
     // Built as a UTC date and formatted in UTC so the browser's own zone never shifts it.
     const at = new Date(Date.UTC(y, m - 1, d, h, min));
-    const locale = this.currentDir === 'rtl' ? 'ar-SA' : 'en-US';
+    const locale = appLocale(this.currentDir === 'rtl' ? 'ar' : 'en');
     const date = new Intl.DateTimeFormat(locale, { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', calendar: 'gregory' }).format(at);
     const time = new Intl.DateTimeFormat(locale, { timeZone: 'UTC', hour: 'numeric', minute: '2-digit', hour12: true }).format(at);
     return `${date} · ${time}`;

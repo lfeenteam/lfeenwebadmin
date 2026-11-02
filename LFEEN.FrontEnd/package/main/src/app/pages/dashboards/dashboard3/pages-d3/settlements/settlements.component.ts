@@ -19,6 +19,7 @@ import { SettlementDetailDialogComponent, SettlementDetailDialogData, Settlement
 import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type SettlementTab = 'current' | 'previous';
 type StatusClass = 'status-pending' | 'status-approved' | 'status-rejected' | '';
@@ -127,14 +128,14 @@ export class SettlementsComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return value.toLocaleString(appLocale(this.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
   }
 
   fmtHours(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 1 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 1 });
   }
 
   load(): void {
@@ -249,7 +250,7 @@ export class SettlementsComponent implements OnInit {
         netAmount: detail.netAmount,
         canExecute: this.canExecute() && ACTIONABLE_STATUSES.includes(detail.status),
         accountName: detail.merchantName?.trim() || EMPTY,
-        hostName: EMPTY,
+        hostName: detail.hostName?.trim() || EMPTY,
         phone: detail.contactPhoneNumber?.trim() || EMPTY,
         amountFormatted: this.fmtAmount(detail.netAmount),
         currencyIconSrc: this.currencyIconSrc,
@@ -258,6 +259,7 @@ export class SettlementsComponent implements OnInit {
         bankName: detail.bank?.bankName?.trim() || EMPTY,
         bankAccountNumber: EMPTY,
         iban: iban || EMPTY,
+        confirmedIban: detail.bank?.iban ?? '',
         hasIban: !!iban,
         swiftCode: detail.bank?.swiftCode?.trim() || EMPTY,
         bankVerified: detail.bankInfoStatus === 'Approved',

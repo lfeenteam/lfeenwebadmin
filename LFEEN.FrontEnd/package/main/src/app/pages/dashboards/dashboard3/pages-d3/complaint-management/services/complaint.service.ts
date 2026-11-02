@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { ClientRatingByAgentItem, ClientRatingByAgentQueryParams, ClientRatingListResponse, ClientRatingQueryParams } from '../interfaces/ratings.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
@@ -33,7 +33,7 @@ export class ComplaintService {
       senderName: 'فريق الدعم',
       senderNameEn: 'Support',
       content,
-      timestamp: now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+      timestamp: now.toLocaleTimeString(AR_DATE_LOCALE, { hour: '2-digit', minute: '2-digit' }),
       timestampEn: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       createdAtUtc: now.toISOString()
     };
@@ -324,14 +324,12 @@ export class ComplaintService {
   }
 
   private mapClientTicketMessage(m: ClientTicketMessage): ChatMessage {
-    const createdAt = new Date(m.createdAt);
     return {
       id: m.externalId,
       senderRole: m.senderType === 'Client' ? 'client' : 'support',
       senderName: m.senderName,
       content: m.body,
-      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      ...this.formatMessageTime(m.createdAt),
       createdAtUtc: m.createdAt,
       attachment: m.attachment
         ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
@@ -404,19 +402,33 @@ export class ComplaintService {
     };
   }
 
-  private mapClientChatMessage(m: ClientChatMessage): ChatMessage {
-    const createdAt = new Date(m.createdAt);
+  /** Shared by the loaded thread and live hub messages, so both render identically.
+   * Only the attachment fields the bubble shows are required (the hub event omits the rest). */
+  mapClientChatMessage(
+    m: Omit<ClientChatMessage, 'options' | 'attachment'> & {
+      attachment: Pick<ClientTicketMessageAttachment, 'fileName' | 'url' | 'contentType'> | null;
+    }
+  ): ChatMessage {
     return {
       id: m.externalId,
       senderRole: m.senderType === 'Client' ? 'client' : 'support',
       senderName: m.senderName,
       content: m.body,
-      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      ...this.formatMessageTime(m.createdAt),
       createdAtUtc: m.createdAt,
       attachment: m.attachment
         ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
         : null,
+    };
+  }
+
+  // A missing/unparseable date shows "-" rather than the literal "Invalid Date".
+  private formatMessageTime(value: string | null | undefined): { timestamp: string; timestampEn: string } {
+    const createdAt = value ? new Date(value) : null;
+    if (!createdAt || isNaN(createdAt.getTime())) return { timestamp: '-', timestampEn: '-' };
+    return {
+      timestamp: createdAt.toLocaleTimeString(AR_DATE_LOCALE, { hour: '2-digit', minute: '2-digit' }),
+      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     };
   }
 

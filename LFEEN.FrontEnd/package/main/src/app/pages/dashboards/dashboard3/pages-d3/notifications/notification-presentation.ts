@@ -3,6 +3,7 @@ import {
   NotificationCategory,
   NotificationSeverity,
 } from '../../interfaces/admin-notification.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface TypePresentation {
   category: Exclude<NotificationCategory, 'all'>;
@@ -83,7 +84,7 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 // createdAt is offset-aware ISO-8601 — parse it as-is, never strip the offset.
 export function relativeTime(iso: string, lang: string, now = Date.now()): string {
   const seconds = Math.round((new Date(iso).getTime() - now) / 1000);
-  const rtf = new Intl.RelativeTimeFormat(lang === 'ar' ? 'ar' : 'en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(appLocale(lang === 'ar' ? 'ar' : 'en'), { numeric: 'auto' });
   for (const [unit, size] of RELATIVE_UNITS) {
     if (Math.abs(seconds) >= size) return rtf.format(Math.trunc(seconds / size), unit);
   }

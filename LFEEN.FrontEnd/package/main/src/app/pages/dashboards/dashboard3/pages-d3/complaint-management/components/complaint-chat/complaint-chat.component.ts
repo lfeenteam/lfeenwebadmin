@@ -5,10 +5,11 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { AR_DATE_LOCALE, CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-complaint-chat',
@@ -215,19 +216,14 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     if (!this.complaint || event.chatExternalId !== this.complaint.chatExternalId) return;
     if (this.complaint.messages.some(m => m.id === event.externalId)) return;
 
-    const createdAt = new Date(event.sentAt);
-    const message: ChatMessage = {
-      id: event.externalId,
-      senderRole: event.senderType === 'Client' ? 'client' : 'support',
+    const message: ChatMessage = this.service.mapClientChatMessage({
+      externalId: event.externalId,
+      senderType: event.senderType,
       senderName: event.senderName,
-      content: event.body,
-      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      createdAtUtc: event.sentAt,
-      attachment: event.attachment
-        ? { fileName: event.attachment.fileName, url: event.attachment.url, contentType: event.attachment.contentType }
-        : null,
-    };
+      body: event.body,
+      attachment: event.attachment,
+      createdAt: event.createdAt,
+    });
 
     this.shouldScroll = true;
     this.complaint = { ...this.complaint, messages: [...this.complaint.messages, message] };
@@ -329,13 +325,13 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
     const isEn = this.translate.currentLang === 'en';
     const createdAt = new Date(firstMessage.createdAtUtc);
-    const time = createdAt.toLocaleTimeString(isEn ? 'en-US' : 'ar-SA', { hour: '2-digit', minute: '2-digit' });
+    const time = createdAt.toLocaleTimeString(appLocale(isEn ? 'en' : 'ar'), { hour: '2-digit', minute: '2-digit' });
 
     if (createdAt.toDateString() === new Date().toDateString()) {
       return isEn ? `Today - ${time}` : `اليوم - ${time}`;
     }
 
-    const day = createdAt.toLocaleDateString(isEn ? 'en-US' : AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' });
+    const day = createdAt.toLocaleDateString(appLocale(isEn ? 'en' : 'ar'), { year: 'numeric', month: 'short', day: 'numeric' });
     return `${day} - ${time}`;
   }
 

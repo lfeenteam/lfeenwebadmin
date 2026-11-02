@@ -164,6 +164,15 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
     return this.translate.instant(map[status]);
   }
 
+  /** Arabic: 1 ليلة واحدة، 2 ليلتان، 3–10 ليالٍ، 11+ ليلة. English only uses one/many. */
+  nightsKey(count: number): string {
+    const base = 'd3.bookings.detail.staySection.';
+    if (count === 1) return base + 'nightsOne';
+    if (count === 2) return base + 'nightsTwo';
+    if (count >= 3 && count <= 10) return base + 'nightsFew';
+    return base + 'nightsMany';
+  }
+
   private fetchBookingDetail(bookingId: string): void {
     this.detailRequest$.next(bookingId);
   }
@@ -173,7 +182,8 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
     const checkOut = this.formatDateParts(item.checkOut);
     const actualCheckIn = this.formatDateParts(item.checkedInAtUtc);
     const actualCheckOut = this.formatDateParts(item.checkedOutAtUtc);
-    const location = [item.propertyName?.trim(), item.city?.trim()].filter(Boolean).join('، ');
+    const separator = this.translate.currentLang === 'ar' ? '، ' : ', ';
+    const location = [item.propertyName?.trim(), item.city?.trim()].filter(Boolean).join(separator);
     const companions: string[] = (item.companions ?? [])
       .map(c => c.name?.trim())
       .filter((name): name is string => !!name);

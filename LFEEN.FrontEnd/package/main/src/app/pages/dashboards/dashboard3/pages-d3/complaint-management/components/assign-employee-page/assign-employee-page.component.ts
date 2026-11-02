@@ -9,6 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { ComplaintService } from '../../services/complaint.service';
 import { AssignableEmployee } from '../../interfaces/complaint.model';
 import { PageBreadcrumbTrailService } from '../../../../services/page-breadcrumb-trail.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface AssignPageNavState {
   ticketNumber?: string;
@@ -207,11 +208,11 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
   }
 
   displayPage(page: number): string {
-    return new Intl.NumberFormat(this.currentDir === 'rtl' ? 'ar-EG' : 'en-US').format(page);
+    return new Intl.NumberFormat(appLocale(this.currentDir === 'rtl' ? 'ar' : 'en')).format(page);
   }
 
   get paginationSummary(): string {
-    const formatter = new Intl.NumberFormat(this.currentDir === 'rtl' ? 'ar-EG' : 'en-US');
+    const formatter = new Intl.NumberFormat(appLocale(this.currentDir === 'rtl' ? 'ar' : 'en'));
     const total = formatter.format(this.totalCount());
     const shownCount = Math.min(((this.currentPage() - 1) * this.pageSize) + this.employees().length, this.totalCount());
     const shown = formatter.format(shownCount);

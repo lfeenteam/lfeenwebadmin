@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
-import { BuildingWithUnits, UnitCardItem, UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
+import { UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
@@ -56,8 +56,8 @@ const GROUP_ICON_MAP: Record<string, string> = {
 export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
-  building: BuildingWithUnits | undefined;
-  unit: UnitCardItem | undefined;
+  unitTitle = '';
+  unitNumber = '';
   buildingId = '';
   unitId = '';
   finalNotes = '';
@@ -120,14 +120,21 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
     this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
-    this.unitsService.getBuildingsWithUnits().subscribe(buildings => {
-      this.building = buildings.find(b => b.id === this.buildingId);
-      this.unit = this.building?.units.find(u => u.id === this.unitId);
-      const lang = this.translate.currentLang || 'ar';
-      this.pageBreadcrumbTrail.set([
-        { label: this.unit?.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-      ]);
-    });
+    // Fetched by id rather than looked up in getBuildingsWithUnits(): that list only
+    // holds the units page currently loaded in the list view, so a direct link or a
+    // reload left the title and unit number blank.
+    if (this.unitId) {
+      this.unitsService.getUnitBasicData(this.unitId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(data => {
+          this.unitTitle  = data.title ?? '';
+          this.unitNumber = String(data.apartmentNumberInFloor ?? '');
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: this.unitTitle, translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        });
+    }
 
     this.loadPhotos();
 

@@ -25,6 +25,7 @@ import {
   PlatformOfferListItem,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-platform-offers-list',
@@ -147,13 +148,13 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   discount(item: PlatformOfferListItem) {
     return item.discountType === 'Percentage'
       ? `${item.discountValue}%`
-      : item.discountValue.toLocaleString();
+      : item.discountValue.toLocaleString(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'));
   }
   formatListDate(value?: string | null): string {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    return new Intl.DateTimeFormat(this.dir() === 'rtl' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'), {
       day: 'numeric', month: 'short', year: 'numeric',
     }).format(date);
   }

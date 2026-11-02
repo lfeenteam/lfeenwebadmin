@@ -26,10 +26,12 @@ type AnySectionView = ProfileSectionView<BrandingValues> | ProfileSectionView<Co
 
 // One account's pending settings changes: each section shows current vs requested
 // and is approved / rejected on its own with the section's changeId (guide sections 5–7).
+import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+
 @Component({
   selector: 'app-profile-change-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AppDatePipe],
   templateUrl: './profile-change-review.component.html',
   styleUrl: './profile-change-review.component.scss'
 })

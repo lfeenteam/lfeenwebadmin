@@ -25,6 +25,7 @@ import { resolveEsimError } from './interfaces/esim-error.util';
 import { EsimService } from './services/esim.service';
 import { EsimDetailDrawerComponent } from './esim-detail-drawer/esim-detail-drawer.component';
 import { EsimFilterDialogComponent } from './esim-filter-dialog/esim-filter-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type ScopeTab = EsimScope | 'all';
 
@@ -153,7 +154,7 @@ export class EsimComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return value.toLocaleString(appLocale(this.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

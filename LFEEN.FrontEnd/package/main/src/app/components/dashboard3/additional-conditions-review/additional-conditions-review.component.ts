@@ -18,10 +18,12 @@ import {
 // Used inside the account / property terms / unit terms review screens, and by the
 // pending-review list page (showTarget) where rows belong to different targets.
 // Deciding a condition here never touches the Terms section's own decision.
+import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+
 @Component({
   selector: 'app-additional-conditions-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AppDatePipe],
   templateUrl: './additional-conditions-review.component.html',
   styleUrl: './additional-conditions-review.component.scss'
 })

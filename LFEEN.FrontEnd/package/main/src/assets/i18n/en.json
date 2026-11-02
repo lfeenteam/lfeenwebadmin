@@ -1600,6 +1600,14 @@
       "reviewRequestsBC": "Review Requests",
       "buildingCrumbLabel": "Building",
       "urgentRequest": "Urgent Request",
+      "loadState": {
+        "notFoundTitle": "Building not found",
+        "notFoundDescription": "This building couldn't be found. It may have been deleted, or the link is incorrect.",
+        "backToBuildings": "Back to buildings",
+        "errorTitle": "Couldn't load the building",
+        "errorDescription": "Something went wrong while loading the building details. Please try again.",
+        "retry": "Try again"
+      },
       "buildingInfo": {
         "imageAlt": "Building Image",
         "orgLabel": "Operating Organization",
@@ -2786,6 +2794,10 @@
           "checkIn": "Check-in",
           "duration": "Stay Duration",
           "nights": "nights",
+          "nightsOne": "1 night",
+          "nightsTwo": "2 nights",
+          "nightsFew": "{{count}} nights",
+          "nightsMany": "{{count}} nights",
           "actualCheckIn": "Actual check-in",
           "actualCheckOut": "Actual check-out",
           "notCheckedInYet": "Guest hasn't checked in yet",
@@ -3091,6 +3103,7 @@
       "stats": {
         "totalSales": "Total Sales",
         "salesDelta": "{{value}} SAR vs last month",
+        "salesDeltaSuffix": "vs last month",
         "totalUsers": "Total Users",
         "newUsers": "{{value}} new users",
         "activeSims": "Active SIMs",
@@ -3265,6 +3278,7 @@
         "notFound": "Settlement not found",
         "stale": "This settlement has already been handled — the page was refreshed",
         "noBankAccount": "No bank account on file for this merchant — the transfer can't be executed",
+        "ibanMismatch": "The host's IBAN changed after this request was opened, and the transfer was not recorded. Check which account the money was sent to, then close and reopen the request to see the new details.",
         "amountExceeds": "The transferred amount exceeds the requested amount",
         "partialReasonRequired": "A reason is required for a partial transfer",
         "generic": "Something went wrong, please try again",

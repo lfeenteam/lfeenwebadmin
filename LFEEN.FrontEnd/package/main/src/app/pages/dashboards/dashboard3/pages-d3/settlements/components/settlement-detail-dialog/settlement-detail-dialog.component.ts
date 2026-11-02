@@ -11,8 +11,9 @@ import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { RECEIPT_ALLOWED_TYPES, RECEIPT_MAX_BYTES, SettlementActionResult } from '../../interfaces/settlement.model';
-import { isStaleStateError, resolveSettlementError } from '../../interfaces/settlement-error.util';
+import { isIbanMismatchError, isStaleStateError, resolveSettlementError } from '../../interfaces/settlement-error.util';
 import { SettlementsService } from '../../services/settlements.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 export interface SettlementDetailDialogData {
   id: string;
@@ -29,6 +30,9 @@ export interface SettlementDetailDialogData {
   bankName: string;
   bankAccountNumber: string;
   iban: string;
+  /** Raw bank.iban, sent back as confirmedIban — `iban` above is trimmed and may be the "-" placeholder. */
+  confirmedIban: string;
+  /** Execute is blocked without one: the backend fails the payout outright instead of rejecting the request. */
   hasIban: boolean;
   swiftCode: string;
   bankVerified: boolean;
@@ -89,6 +93,10 @@ export class SettlementDetailDialogComponent {
   partialReason = '';
   receiptFile: File | null = null;
   isDragging = false;
+  // The host changed their IBAN after this dialog was opened. The money was most likely
+  // already sent to the old one, so this needs a person to check — never a silent retry
+  // against the new IBAN, which would record a transfer that didn't happen.
+  ibanMismatch = false;
 
   // ── Success step ────────────────────────────────────────────
   trxNumber = '';
@@ -202,6 +210,8 @@ export class SettlementDetailDialogComponent {
     if (this.submitting) return;
     if (this.step === 'success') return this.finish();
     if (this.step === 'rejectSuccess') return this.finishReject();
+    // The bank details on the list are stale now — reload so a reopen shows the new IBAN.
+    if (this.ibanMismatch) return this.dialogRef.close({ decision: 'refresh' });
     this.dialogRef.close(undefined);
   }
 
@@ -275,6 +285,7 @@ export class SettlementDetailDialogComponent {
     const amount = this.actualAmount;
     const trx = this.trxId.trim();
     return !this.submitting
+      && this.data.hasIban && !this.ibanMismatch
       && amount !== null && amount > 0 && !this.amountExceedsNet
       && !!trx && trx.length <= TRX_REFERENCE_MAX
       && (!this.isPartialTransfer || !!this.partialReason.trim())
@@ -287,6 +298,7 @@ export class SettlementDetailDialogComponent {
 
     this.service.execute(this.data.id, {
       bankTransferReference: this.trxId.trim(),
+      confirmedIban: this.data.confirmedIban,
       transferredAmount: round2(this.actualAmount),
       ...(this.isPartialTransfer ? { partialReason: this.partialReason.trim() } : {}),
     }).subscribe({
@@ -336,14 +348,20 @@ export class SettlementDetailDialogComponent {
   private handleActionError(err: unknown): void {
     this.submitting = false;
     this.toastr.error(resolveSettlementError(err, this.translate));
-    // 409 means the payout already left Pending/Processing — nothing here can succeed anymore.
+    // IBAN mismatch: keep the dialog (and what the admin typed) open, with confirm locked —
+    // resending the same IBAN can only 409 again.
+    if (isIbanMismatchError(err)) {
+      this.ibanMismatch = true;
+      return;
+    }
+    // Any other 409 means the payout already left Pending/Processing — nothing here can succeed anymore.
     if (isStaleStateError(err)) {
       this.dialogRef.close({ decision: 'refresh' });
     }
   }
 
   get formattedTransferredAmount(): string {
-    return this.transferredAmount.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return this.transferredAmount.toLocaleString(appLocale(this.translate.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

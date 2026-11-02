@@ -1,4 +1,5 @@
 import { AdminAuditStatus, AdminOperationAuditItem } from '../../../../interfaces/operation-audit.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 const ACTION_ICONS: Record<string, string> = {
   UserRoleAssigned: 'shield-plus',
@@ -52,7 +53,7 @@ export function formatAuditDate(value: string, lang: string): { date: string; ti
   const d = new Date(value);
   if (isNaN(d.getTime())) return { date: value, time: '' };
 
-  const locale = lang === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = appLocale(lang);
   return {
     date: d.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }),
     time: d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })

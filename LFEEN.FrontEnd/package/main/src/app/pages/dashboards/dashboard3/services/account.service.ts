@@ -7,6 +7,7 @@ import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDe
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -111,7 +112,7 @@ export class AccountService {
 
   private formatDate(dateStr: string, lang: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+    return d.toLocaleDateString(appLocale(lang), {
       day: 'numeric',
       month: 'long',
       year: 'numeric'

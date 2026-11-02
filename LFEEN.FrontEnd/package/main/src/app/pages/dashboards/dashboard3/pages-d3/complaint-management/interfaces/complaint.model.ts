@@ -1,15 +1,14 @@
-export type ComplaintStatus = 'new' | 'bot' | 'in_progress' | 'closed' | 'pending' | 'replied' | 'resolved';
+import { AR_LOCALE } from 'src/app/utils/locale-format.util';
+
+export type ComplaintStatus ='new' | 'bot' | 'in_progress' | 'closed' | 'pending' | 'replied' | 'resolved';
 
 /** Statuses where no agent has engaged yet ('bot' = still with the virtual assistant). */
 export function isUnengagedStatus(status: ComplaintStatus): boolean {
   return status === 'new' || status === 'bot';
 }
 
-/**
- * Arabic dates must stay Gregorian like the rest of the admin — plain 'ar-SA'
- * formats with the Umm al-Qura (Hijri) calendar by default.
- */
-export const AR_DATE_LOCALE = 'ar-SA-u-ca-gregory';
+/** Arabic locale for the complaint screens — the admin-wide one (Gregorian, Latin digits). */
+export const AR_DATE_LOCALE = AR_LOCALE;
 export type ComplaintTab    = 'customers' | 'hosts' | 'resolved' | 'ratings';
 
 export interface Ticket {

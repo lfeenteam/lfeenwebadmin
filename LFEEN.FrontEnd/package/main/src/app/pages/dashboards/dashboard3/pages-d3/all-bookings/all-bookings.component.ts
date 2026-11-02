@@ -20,6 +20,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { LoginService } from '../../services/login/login.service';
 import { ReviewReportsComponent, ReviewReportsCount } from './components/review-reports/review-reports.component';
 import { BOOKING_REVIEW_PERMISSIONS, hasBookingPermission } from './interfaces/review-report.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 /** Page-level view; the reported-reviews queue lives at ?tab=reviews. */
 type BookingsView = 'bookings' | 'reviews';
@@ -347,7 +348,7 @@ export class AllBookingsComponent implements OnInit {
   get paginationSummary(): string {
     const start = this.totalCount === 0 ? 0 : Math.min((this.currentPage - 1) * this.pageSize + 1, this.totalCount);
     const end   = Math.min(this.currentPage * this.pageSize, this.totalCount);
-    const locale = this.currentLang === 'en' ? 'en-US' : 'ar-SA';
+    const locale = appLocale(this.currentLang);
     return this.currentDir === 'rtl'
       ? `عرض ${start.toLocaleString(locale)} - ${end.toLocaleString(locale)} من أصل ${this.totalCount.toLocaleString(locale)} حجز`
       : `Showing ${start.toLocaleString(locale)} - ${end.toLocaleString(locale)} of ${this.totalCount.toLocaleString(locale)} bookings`;
@@ -418,6 +419,6 @@ export class AllBookingsComponent implements OnInit {
 
   displayPage(page: number | '...'): string {
     if (page === '...') return '...';
-    return page.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA');
+    return page.toLocaleString(appLocale(this.currentLang));
   }
 }

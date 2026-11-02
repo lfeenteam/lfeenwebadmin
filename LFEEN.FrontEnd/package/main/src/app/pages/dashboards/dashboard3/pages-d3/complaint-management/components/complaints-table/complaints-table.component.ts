@@ -12,6 +12,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isUnengagedStatus } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-complaints-table',
@@ -155,11 +156,11 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   displayPage(page: number): string {
-    return new Intl.NumberFormat(this.currentDir === 'rtl' ? 'ar-EG' : 'en-US').format(page);
+    return new Intl.NumberFormat(appLocale(this.currentDir === 'rtl' ? 'ar' : 'en')).format(page);
   }
 
   get paginationSummary(): string {
-    const formatter = new Intl.NumberFormat(this.currentDir === 'rtl' ? 'ar-EG' : 'en-US');
+    const formatter = new Intl.NumberFormat(appLocale(this.currentDir === 'rtl' ? 'ar' : 'en'));
 
     if (this.serverMode) {
       const totalCount = this.serverTotalCount ?? 0;

@@ -14,6 +14,7 @@ import {
   SubscriptionDiscountType,
 } from '../../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../../interfaces/subscription-error.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 export interface CreateDiscountCodeDialogData {
   services: SubscriptionCatalogItem[];
@@ -147,7 +148,7 @@ export class CreateDiscountCodeDialogComponent {
   dateLabel(value: string): string {
     if (!value) return this.translate.instant('d3.discountCodes.create.pickDate');
     const [y, m, d] = value.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
+    return new Date(y, m - 1, d).toLocaleDateString(appLocale(this.translate.currentLang), {
       day: 'numeric',
       month: 'long',
       year: 'numeric',

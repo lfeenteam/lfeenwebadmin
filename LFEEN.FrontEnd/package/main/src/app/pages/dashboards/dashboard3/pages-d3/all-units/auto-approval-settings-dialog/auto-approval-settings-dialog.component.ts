@@ -9,6 +9,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { UnitsService } from '../../../services/units.service';
 import { UnitAutoApprovalSettings } from '../../../interfaces/unit-card.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type SettingsField = 'pricingTolerancePercent' | 'depositTolerancePercent';
 
@@ -56,7 +57,7 @@ export class AutoApprovalSettingsDialogComponent implements OnInit {
     if (!this.updatedAtUtc) return '—';
     const date = new Date(this.updatedAtUtc);
     if (isNaN(date.getTime())) return '—';
-    return date.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return date.toLocaleString(appLocale(this.translate.currentLang), {
       dateStyle: 'medium',
       timeStyle: 'short',
     });
@@ -153,6 +154,6 @@ export class AutoApprovalSettingsDialogComponent implements OnInit {
   }
 
   private fmt(value: number): string {
-    return value.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.translate.currentLang), { maximumFractionDigits: 2 });
   }
 }

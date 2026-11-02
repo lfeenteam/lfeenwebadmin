@@ -8,6 +8,7 @@ import { ComplaintService } from 'src/app/pages/dashboards/dashboard3/pages-d3/c
 import { ClientSupportHubService } from 'src/app/pages/dashboards/dashboard3/services/client-support-hub.service';
 import { Complaint } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/interfaces/complaint.model';
 import { ComplaintChatComponent } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/components/complaint-chat/complaint-chat.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 // Global floating action button (all d3 pages) surfacing the customer-support "Help
 // Center" panel — a short list of active (non-closed) customer chats. Opening an item
@@ -123,7 +124,7 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
     if (isNaN(date.getTime())) return '';
 
     const now = new Date();
-    const locale = this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA';
+    const locale = appLocale(this.translate.currentLang);
 
     if (date.toDateString() === now.toDateString()) {
       return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });

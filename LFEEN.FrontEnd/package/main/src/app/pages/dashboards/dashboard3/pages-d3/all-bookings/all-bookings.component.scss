@@ -473,6 +473,9 @@ table {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  // Without a cap the table cell grows to fit the whole name, so the ellipsis
+  // below never kicks in and one long name stretches the table off-screen.
+  max-width: 240px;
 
   .client-name {
     font-size: 14px;

@@ -38,6 +38,7 @@ import {
 } from './interfaces/wallet.model';
 import { resolveWalletError } from './interfaces/wallet-error.util';
 import { WalletService } from './services/wallet.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type TypeFilter = 'all' | WalletEntryType;
 type TypeClass = 'type-topup' | 'type-charge' | 'type-refund' | 'type-adjustment' | '';
@@ -180,7 +181,7 @@ export class WalletComponent implements OnInit, OnDestroy {
   }
 
   fmtAmount(value: number): string {
-    return Math.abs(value).toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return Math.abs(value).toLocaleString(appLocale(this.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

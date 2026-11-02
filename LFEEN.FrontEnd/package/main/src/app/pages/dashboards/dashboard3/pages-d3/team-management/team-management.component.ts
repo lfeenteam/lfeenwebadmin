@@ -31,6 +31,7 @@ import {
 } from './components/audit-detail-drawer/audit-detail-drawer.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-team-management',
@@ -303,7 +304,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     } else if (this.activeTab === 'logs') {
       const s = this.audits.stats();
       const fmt = (n: number | null | undefined) =>
-        n == null ? '—' : n.toLocaleString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US');
+        n == null ? '—' : n.toLocaleString(appLocale(this.currentLang));
       this.stats = [
         { label: 'd3.teamManagement.stats.totalOps', value: fmt(s?.total), icon: 'database', color: 'primary', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.successfulOps', value: fmt(s?.succeeded), icon: 'circle-check', color: 'success', valueColor: '#16a34a' },

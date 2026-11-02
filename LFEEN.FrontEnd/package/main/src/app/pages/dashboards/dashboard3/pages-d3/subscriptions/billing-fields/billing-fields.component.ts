@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { SubscriptionBillingModel, SubscriptionBillingStyle } from '../interfaces/subscription.model';
 import { BillingFormValue, billingFieldsError } from '../interfaces/billing-fields.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 /**
  * A service's billing setup as the catalog stores it: the type (Paid / Free / BuiltIn, only
@@ -70,7 +71,7 @@ export class BillingFieldsComponent {
     const v = this.value;
     if (v.billingModel !== 'Paid' || !v.billingStyle) return '';
     const t = (key: string, params?: object) => this.translate.instant(`d3.billingFields.summary.${key}`, params);
-    const fmt = (n: number) => n.toLocaleString(this.isEn ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    const fmt = (n: number) => n.toLocaleString(appLocale(this.isEn ? 'en' : 'ar'), { maximumFractionDigits: 2 });
     const parts = [this.translate.instant(`d3.billingFields.styles.${v.billingStyle}.title`)];
 
     parts.push(v.hasSetupFee && v.setupFeePrice && v.setupFeePrice > 0

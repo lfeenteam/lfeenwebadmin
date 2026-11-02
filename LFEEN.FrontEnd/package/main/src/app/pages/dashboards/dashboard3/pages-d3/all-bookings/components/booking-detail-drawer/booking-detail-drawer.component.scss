@@ -218,6 +218,7 @@ border-bottom: 1px solid #E8E8E4;
     font-size: 14px;
     font-weight: 800;
     color: #111110;
+    overflow-wrap: anywhere;
   }
 
   .detail-guest-daterange {
@@ -364,6 +365,9 @@ border-bottom: 1px solid #E8E8E4;
   font-size: 13px;
   font-weight: 700;
   color: #111110;
+  // Long unbroken values (e.g. a junk guest name) wrap instead of widening the drawer.
+  overflow-wrap: anywhere;
+  min-width: 0;
 
   &.detail-field-value--ltr { direction: ltr; text-align: end; }
   &.detail-field-value--lg { font-size: 16px; font-weight: 900; }

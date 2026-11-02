@@ -17,6 +17,7 @@ import { parseControlCenterError } from '../interfaces/control-center-error.util
 import { APP_RUNTIME_PERMISSIONS, hasAppRuntimePermission } from '../interfaces/control-center-permissions';
 import { ControlCenterService } from '../services/control-center.service';
 import { ThemeFormDrawerComponent } from './theme-form-drawer/theme-form-drawer.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-control-center-themes',
@@ -120,7 +121,7 @@ export class SeasonalThemesComponent implements OnInit {
 
   /** "01 مارس – 31 مارس"; the year shows only when the window crosses years. Days are Saudi days. */
   dateRange(theme: SeasonalTheme): string {
-    const locale = this.currentDir === 'rtl' ? 'ar-SA-u-nu-latn' : 'en-US';
+    const locale = appLocale(this.currentDir === 'rtl' ? 'ar' : 'en');
     const parse = (iso: string) => {
       const [y, m, d] = iso.split('-').map(Number);
       return new Date(Date.UTC(y, m - 1, d));

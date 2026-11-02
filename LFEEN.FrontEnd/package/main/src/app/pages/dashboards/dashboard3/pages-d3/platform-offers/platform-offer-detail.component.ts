@@ -10,6 +10,7 @@ import {
   PlatformOfferStatistics,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 @Component({
   selector: 'app-platform-offer-detail',
   standalone: true,
@@ -80,6 +81,6 @@ export class PlatformOfferDetailComponent implements OnInit {
     const options: Intl.DateTimeFormatOptions = includeTime
       ? { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }
       : { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Intl.DateTimeFormat(this.dir() === 'rtl' ? 'ar-EG' : 'en-US', options).format(date);
+    return new Intl.DateTimeFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'), options).format(date);
   }
 }

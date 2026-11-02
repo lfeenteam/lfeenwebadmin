@@ -22,6 +22,7 @@ import {
   humanizeKey,
   summarizeUserAgent
 } from '../ops-log-table/audit-presentation';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 const I18N = 'd3.teamManagement.opsLog.details';
 
@@ -123,7 +124,7 @@ export class AuditDetailDrawerComponent implements OnInit {
   }
 
   private get locale(): string {
-    return this.data.lang === 'ar' ? 'ar-EG' : 'en-US';
+    return appLocale(this.data.lang);
   }
 
   private formatValue(value: unknown): string {

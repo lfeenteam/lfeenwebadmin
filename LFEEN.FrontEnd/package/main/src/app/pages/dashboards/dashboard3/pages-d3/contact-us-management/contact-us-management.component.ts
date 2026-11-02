@@ -14,6 +14,7 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
 import { ContactUsService } from './services/contact-us.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-contact-us-management', standalone: true,
@@ -84,7 +85,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   fmt(value: number): string { return formatLocalizedNumber(value, this.translate.currentLang); }
 
   // Same locale as the page header's date (ar-EG = Gregorian months, Arabic digits), e.g. "٦ أكتوبر ٢٠٢٦" / "١١:٠٩ ص".
-  private dateLocale(): string { return this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG'; }
+  private dateLocale(): string { return appLocale(this.translate.currentLang); }
   fmtDate(value: string | null | undefined): string {
     return value ? new Intl.DateTimeFormat(this.dateLocale(), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value)) : '';
   }

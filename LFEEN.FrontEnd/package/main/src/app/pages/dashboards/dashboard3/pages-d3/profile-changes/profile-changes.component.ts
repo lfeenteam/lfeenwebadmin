@@ -15,10 +15,12 @@ type SectionFilter = 'all' | ProfileSectionRoute;
 // Queue of account settings changes waiting for a decision (branding / commercial
 // register), oldest first. Shown as a tab inside account management; a row opens
 // that account's review screen.
+import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+
 @Component({
   selector: 'app-profile-changes',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, AppDatePipe],
   templateUrl: './profile-changes.component.html',
   styleUrl: './profile-changes.component.scss'
 })

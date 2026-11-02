@@ -100,6 +100,22 @@
   &.is-text-currency { width: 28px; height: auto; }
 }
 
+.es-stat-note--amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// Same grey as the note text around it.
+.es-riyal-note {
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  opacity: 0.45;
+
+  &.is-text-currency { width: 18px; height: auto; }
+}
+
 .es-riyal-sm {
   width: 13px;
   height: 13px;

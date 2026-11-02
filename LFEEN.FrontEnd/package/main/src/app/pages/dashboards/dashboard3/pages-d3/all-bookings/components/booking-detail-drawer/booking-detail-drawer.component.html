@@ -150,7 +150,7 @@
 
           <div class="detail-duration-badge">
             <i-tabler name="clock-hour-3" class="icon-14"></i-tabler>
-            <span>{{ 'd3.bookings.detail.staySection.duration' | translate }}: {{ bookingDetail.stay.nights }} {{ 'd3.bookings.detail.staySection.nights' | translate }}</span>
+            <span>{{ 'd3.bookings.detail.staySection.duration' | translate }}: {{ nightsKey(bookingDetail.stay.nights) | translate: { count: bookingDetail.stay.nights } }}</span>
           </div>
 
           <div class="detail-actual-stay">

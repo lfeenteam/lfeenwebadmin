@@ -78,6 +78,8 @@ export interface SettlementEntry {
 }
 
 export interface SettlementDetail extends Settlement {
+  /** Detail endpoint only — the list response doesn't carry it. */
+  hostName: string | null;
   bank: SettlementBank | null;
   bankInfoStatus: string | null;
   contactPhoneNumber: string | null;
@@ -104,6 +106,8 @@ export interface SettlementActionResult {
 
 export interface ExecuteSettlementRequest {
   bankTransferReference: string;
+  /** bank.iban exactly as GET /api/settlements/{id} returned it — the backend 409s if it no longer matches. */
+  confirmedIban: string;
   transferredAmount?: number;
   partialReason?: string;
   note?: string;

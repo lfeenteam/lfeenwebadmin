@@ -23,6 +23,7 @@ import {
   ClientRatingSummary,
   RATING_STARS
 } from '../../interfaces/ratings.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type RatingsView = 'list' | 'agents';
 
@@ -337,7 +338,7 @@ export class ClientRatingsComponent implements OnInit {
   /** 'YYYY-MM-DD' (a local calendar day) → localized short date. */
   fmtDay(day: string): string {
     const [y, m, d] = day.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
+    return new Date(y, m - 1, d).toLocaleDateString(appLocale(this.translate.currentLang), {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -353,7 +354,7 @@ export class ClientRatingsComponent implements OnInit {
   }
 
   fmtAverage(n: number | null | undefined): string {
-    return (n ?? 0).toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return (n ?? 0).toLocaleString(appLocale(this.translate.currentLang), {
       minimumFractionDigits: 1,
       maximumFractionDigits: 2,
     });

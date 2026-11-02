@@ -7,6 +7,7 @@ import { SubscriptionOrder, SubscriptionOrderItem, subscriptionLineTotal } from 
 import { orderStatusKind, OrderStatusKind } from '../request-status.util';
 import { serviceVisual } from '../../interfaces/service-visual.util';
 import { periodText } from '../../interfaces/period-text.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 /** Read-only order details — orders activate on payment, the admin doesn't approve or reject them. */
 @Component({
@@ -113,11 +114,11 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 2 });
   }
 
   fmtPrecise(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 4 });
   }
 
   close(): void {

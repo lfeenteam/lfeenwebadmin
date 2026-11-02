@@ -36,6 +36,7 @@ import { periodText } from '../interfaces/period-text.util';
 import { BillingFormValue, billingFieldsError, billingRequestFields } from '../interfaces/billing-fields.util';
 import { MatDialog } from '@angular/material/dialog';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 // The catalog only has two flags, so only three states exist:
 //   active    = isActive && isAvailable
@@ -197,11 +198,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 2 });
   }
 
   fmtPrecise(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 4 });
   }
 
   // ── Permissions (hide what the admin can't do rather than wait for a 403) ──

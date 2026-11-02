@@ -106,18 +106,12 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
+              // A review page without a building id has nothing to show — send it to the list
+              // instead of rendering an empty review (truncated link, stale bookmark).
               {
                 path: 'build-review',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
-                  ).then((m) => m.BuildReviewComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.buildReview.title',
-                  breadcrumbKey: 'd3.header.platform',
-                },
+                redirectTo: 'buildings',
+                pathMatch: 'full',
               },
               {
                 path: 'build-review/:id',
@@ -132,6 +126,7 @@ export const routes: Routes = [
                   breadcrumbKey: 'd3.buildReview.reviewRequestsBC',
                   breadcrumbRoute: 'buildings',
                   showBack: true,
+                  recreateOnParamChange: true,
                   statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
               },
@@ -145,6 +140,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.basicInfoView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -160,6 +156,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.imagesView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -175,6 +172,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.termsView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -190,6 +188,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.pricingView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -205,6 +204,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.accessView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -220,6 +220,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.cancelPolicyView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -235,6 +236,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.depositView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -250,6 +252,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.servicesView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -265,6 +268,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.licenseView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -280,6 +284,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.title',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -302,7 +307,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management/add',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('add-department')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'

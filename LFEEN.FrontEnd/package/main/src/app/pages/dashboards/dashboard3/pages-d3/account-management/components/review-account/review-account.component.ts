@@ -16,10 +16,12 @@ import { PageTitleOverrideService } from '../../../../services/page-title-overri
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
 
+import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+
 @Component({
   selector: 'app-review-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe],
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })

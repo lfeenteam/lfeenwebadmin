@@ -55,7 +55,7 @@
                   {{ ('d3.profileChanges.sections.' + item.section) | translate }}
                 </span>
               </td>
-              <td class="pcq-date">{{ item.submittedAt | date: 'medium' }}</td>
+              <td class="pcq-date">{{ item.submittedAt | appDate: 'medium' }}</td>
               <td class="pcq-open">
                 <button type="button" class="pcq-icon-btn"
                         [attr.aria-label]="'d3.profileChanges.actions.review' | translate"

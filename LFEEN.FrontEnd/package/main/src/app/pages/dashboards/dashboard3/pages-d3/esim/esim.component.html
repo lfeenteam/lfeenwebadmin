@@ -19,8 +19,12 @@
           <img [src]="currencyIconSrc" alt="" class="es-riyal" [class.is-text-currency]="currentLang === 'en'">
         } @else { - }
       </span>
-      <span class="es-stat-note">
-        @if (summary) { {{ 'd3.esim.stats.salesDelta' | translate:{ value: fmtSignedAmount(summary.salesDeltaVsLastMonthSar) } }} }
+      <span class="es-stat-note es-stat-note--amount">
+        @if (summary) {
+          <span dir="ltr">{{ fmtSignedAmount(summary.salesDeltaVsLastMonthSar) }}</span>
+          <img [src]="currencyIconSrc" alt="" class="es-riyal-note" [class.is-text-currency]="currentLang === 'en'">
+          <span>{{ 'd3.esim.stats.salesDeltaSuffix' | translate }}</span>
+        }
       </span>
     </div>
 

@@ -74,7 +74,7 @@ export class LoginService {
   reloadSidebar(): Observable<SidebarItem[]> {
     return this.http.get<SidebarItem[]>(this.sidebarUrl).pipe(
       tap((sidebar) => {
-        sessionStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
+        localStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
         this.sidebar.set(sidebar);
       })
     );
@@ -164,18 +164,32 @@ export class LoginService {
   }
 
   private getStoredUser(): any {
-    const user = sessionStorage.getItem(this.userKey);
+    const user = this.readSessionData(this.userKey);
     return user ? JSON.parse(user) : null;
   }
 
   private getStoredSidebar(): any[] {
-    const sidebar = sessionStorage.getItem(this.sidebarKey);
+    const sidebar = this.readSessionData(this.sidebarKey);
     return sidebar ? JSON.parse(sidebar) : [];
   }
 
   private getStoredPermissions(): string[] {
-    const permissions = sessionStorage.getItem(this.permissionsKey);
+    const permissions = this.readSessionData(this.permissionsKey);
     return permissions ? JSON.parse(permissions) : [];
+  }
+
+  // User, sidebar and permissions live in localStorage next to the tokens, so a new tab
+  // gets the whole session. Older sessions kept them in sessionStorage: move them over once.
+  private readSessionData(key: string): string | null {
+    const value = localStorage.getItem(key);
+    if (value !== null) return value;
+
+    const legacy = sessionStorage.getItem(key);
+    if (legacy !== null) {
+      localStorage.setItem(key, legacy);
+      sessionStorage.removeItem(key);
+    }
+    return legacy;
   }
 
   isAuthenticated(): boolean {
@@ -207,8 +221,11 @@ export class LoginService {
     localStorage.removeItem(this.tokenExpiresKey);
     localStorage.removeItem(this.refreshTokenExpiresKey);
     localStorage.removeItem(this.rememberMeKey);
-    
-    // مسح البيانات من sessionStorage
+    localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.sidebarKey);
+    localStorage.removeItem(this.permissionsKey);
+
+    // بقايا الجلسات القديمة اللي كانت بتتخزن في sessionStorage
     sessionStorage.removeItem(this.userKey);
     sessionStorage.removeItem(this.sidebarKey);
     sessionStorage.removeItem(this.permissionsKey);
@@ -226,9 +243,9 @@ export class LoginService {
     localStorage.setItem(this.tokenExpiresKey, response.accessTokenExpiresAt);
     localStorage.setItem(this.refreshTokenExpiresKey, response.refreshTokenExpiresAt);
     
-    // تخزين البيانات في sessionStorage بدلاً من localStorage
-    sessionStorage.setItem(this.sidebarKey, JSON.stringify(response.sidebar));
-    sessionStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
+    // مع التوكن في localStorage علشان أي تبويب جديد ياخد الجلسة كاملة
+    localStorage.setItem(this.sidebarKey, JSON.stringify(response.sidebar));
+    localStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
     const userData = {
       userId: response.userId,
       fullName: response.fullName || (response as any).userName,
@@ -236,7 +253,7 @@ export class LoginService {
       phoneNumber: response.phoneNumber || null,
       roles: response.roles,
     };
-    sessionStorage.setItem(this.userKey, JSON.stringify(userData));
+    localStorage.setItem(this.userKey, JSON.stringify(userData));
 
     // تحديث Signals للواجهة
     this.sidebar.set(response.sidebar);

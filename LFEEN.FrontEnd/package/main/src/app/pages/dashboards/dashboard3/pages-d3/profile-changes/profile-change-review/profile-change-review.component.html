@@ -65,7 +65,7 @@
             }
             <div class="pcr-field">
               <span class="pcr-field__label">{{ 'd3.profileChanges.fields.expiryDate' | translate }}</span>
-              <span class="pcr-field__value">{{ cr.current.expiryDate ? (cr.current.expiryDate | date: 'mediumDate') : '—' }}</span>
+              <span class="pcr-field__value">{{ cr.current.expiryDate ? (cr.current.expiryDate | appDate: 'mediumDate') : '—' }}</span>
             </div>
             <ng-container *ngTemplateOutlet="certificateBtn; context: { version: 'current', has: cr.current.hasCertificate }"></ng-container>
           </div>
@@ -75,7 +75,7 @@
               <span class="pcr-col__label">{{ 'd3.profileChanges.compare.requested' | translate }}</span>
               <div class="pcr-field" [class.pcr-field--changed]="differs(req.expiryDate, cr.current.expiryDate)">
                 <span class="pcr-field__label">{{ 'd3.profileChanges.fields.expiryDate' | translate }}</span>
-                <span class="pcr-field__value">{{ req.expiryDate ? (req.expiryDate | date: 'mediumDate') : '—' }}</span>
+                <span class="pcr-field__value">{{ req.expiryDate ? (req.expiryDate | appDate: 'mediumDate') : '—' }}</span>
               </div>
               @if (isPending(cr)) {
                 <ng-container *ngTemplateOutlet="certificateBtn; context: { version: 'requested', has: req.hasCertificate }"></ng-container>
@@ -118,10 +118,10 @@
   @if (view.submittedAt || view.reviewedAt) {
     <div class="pcr-meta">
       @if (view.submittedAt) {
-        <span>{{ 'd3.profileChanges.submittedAt' | translate }}: {{ view.submittedAt | date: 'medium' }}</span>
+        <span>{{ 'd3.profileChanges.submittedAt' | translate }}: {{ view.submittedAt | appDate: 'medium' }}</span>
       }
       @if (view.reviewedAt) {
-        <span>{{ 'd3.profileChanges.reviewedAt' | translate }}: {{ view.reviewedAt | date: 'medium' }}</span>
+        <span>{{ 'd3.profileChanges.reviewedAt' | translate }}: {{ view.reviewedAt | appDate: 'medium' }}</span>
       }
     </div>
   }

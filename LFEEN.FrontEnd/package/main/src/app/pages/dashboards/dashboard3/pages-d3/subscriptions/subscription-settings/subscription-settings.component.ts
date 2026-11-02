@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { MatDialog } from '@angular/material/dialog';
 import { ServiceFormDialogComponent, ServiceFormDialogData } from '../service-form-dialog/service-form-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type StatusFilter = 'all' | 'enabled' | 'disabled';
 
@@ -186,7 +187,7 @@ export class SubscriptionSettingsComponent implements OnInit {
   }
 
   fmtPrecise(value: number): string {
-    return value.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
+    return value.toLocaleString(appLocale(this.translate.currentLang), { maximumFractionDigits: 4 });
   }
 
   get filteredOffers(): SubscriptionOfferCard[] {

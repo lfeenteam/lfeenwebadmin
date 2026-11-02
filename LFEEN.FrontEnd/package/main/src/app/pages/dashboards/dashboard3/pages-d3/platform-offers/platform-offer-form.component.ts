@@ -24,6 +24,7 @@ import {
   PlatformOfferDetail,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-platform-offer-form',
@@ -215,7 +216,7 @@ export class PlatformOfferFormComponent implements OnInit {
     const iso = this.datePart(c);
     if (!iso) return '';
     const [y, m, d] = iso.split('-').map(Number);
-    const locale = this.dir() === 'rtl' ? 'ar-SA' : 'en-US';
+    const locale = appLocale(this.dir() === 'rtl' ? 'ar' : 'en');
     const formatted = new Intl.DateTimeFormat(locale, {
       day: 'numeric',
       month: 'short',
@@ -275,6 +276,9 @@ export class PlatformOfferFormComponent implements OnInit {
   }
 
   submit() {
+    // [disabled]="saving()" only lands on the next render, so a fast double click can
+    // reach here twice before the button is actually disabled — and create two offers.
+    if (this.saving()) return;
     const coupon = this.form.value.triggerType === 'Coupon';
     this.form.controls.code.setValidators(coupon ? [Validators.required] : []);
     this.form.controls.code.updateValueAndValidity();

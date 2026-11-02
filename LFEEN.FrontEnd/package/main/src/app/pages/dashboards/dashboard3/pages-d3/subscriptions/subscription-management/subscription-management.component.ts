@@ -15,6 +15,7 @@ import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { periodText } from '../interfaces/period-text.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface SubscriptionStatCard {
   labelKey: string;
@@ -82,7 +83,7 @@ export class SubscriptionManagementComponent implements OnInit {
 
   /** Rates can be fractions (0.5 SAR, 2.5%), which fmt() would round away. */
   fmtPrecise(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 4 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 4 });
   }
 
   /** Lines without a start or expiry (message balance, free) leave the date columns out. */

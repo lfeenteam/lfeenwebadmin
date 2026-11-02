@@ -1,3 +1,4 @@
+import { appLocale } from 'src/app/utils/locale-format.util';
 // The API works in Saudi time (UTC+3, no DST). These helpers keep the admin's own
 // browser time zone out of it: what the admin picks is always read as Riyadh time.
 
@@ -27,7 +28,7 @@ export function riyadhLocalToOffset(local: string): string {
 
 /** Shows a UTC instant in Riyadh time, e.g. "20 أكتوبر 2026، 2:00 ص". */
 export function formatRiyadh(utc: string, lang: string, withDate = true): string {
-  const locale = lang === 'en' ? 'en-US' : 'ar-SA';
+  const locale = appLocale(lang);
   return new Intl.DateTimeFormat(locale, {
     timeZone: 'Asia/Riyadh',
     calendar: 'gregory',
