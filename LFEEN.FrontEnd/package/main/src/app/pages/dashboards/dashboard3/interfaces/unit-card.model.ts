@@ -52,13 +52,20 @@ export interface UnitSubArea {
   services: UnitAmenityItem[];
 }
 
+export interface UnitRoomBed {
+  label: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
+}
+
 export interface UnitRoomSection {
   icon: string;
   iconKey?: string | null;
   iconUrl?: string | null;
   title: string;
   desc: string;
-  badge?: string;
+  // One badge per bed type, each with its catalog icon.
+  beds: UnitRoomBed[];
   amenities: UnitAmenityItem[];
   services: UnitAmenityItem[];
   subAreas?: UnitSubArea[];

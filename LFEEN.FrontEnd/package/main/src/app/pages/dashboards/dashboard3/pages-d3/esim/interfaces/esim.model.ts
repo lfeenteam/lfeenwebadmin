@@ -149,12 +149,15 @@ export function esimIsUnlimited(dataPlanLabel: string | null | undefined): boole
   return label === 'unlimited' || label === 'غير محدود' || label === 'غير محدودة';
 }
 
-/** Translation key for totalDuration + durationUnit; Arabic uses the plural noun for 3–10. */
+/**
+ * Translation key for totalDuration + durationUnit.
+ * Arabic: 1 يوم واحد، 2 يومان، 3–10 أيام، 11+ يومًا. English only differs for 1 (day vs days).
+ */
 export function esimDurationKey(count: number, unit: string): string {
-  const few = count >= 3 && count <= 10;
+  const form = count === 1 ? 'One' : count === 2 ? 'Two' : count >= 3 && count <= 10 ? 'Few' : 'Many';
   switch ((unit ?? '').toUpperCase()) {
-    case 'DAY': return few ? 'd3.esim.plan.daysFew' : 'd3.esim.plan.days';
-    case 'MONTH': return few ? 'd3.esim.plan.monthsFew' : 'd3.esim.plan.months';
+    case 'DAY': return `d3.esim.plan.days${form}`;
+    case 'MONTH': return `d3.esim.plan.months${form}`;
     default: return 'd3.esim.plan.other';
   }
 }

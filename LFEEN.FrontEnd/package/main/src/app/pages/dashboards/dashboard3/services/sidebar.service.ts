@@ -167,6 +167,12 @@ export class SidebarService {
       'subscriptions':   'd3.sidebar.subscriptions'
     };
 
+    // The payload's titles for these arrive mis-cased ("Esim", "Client Faq"), so the
+    // frontend translation is used instead (TAS-1816).
+    const localTitleKeys = new Set(['esim', 'client-faq']);
+    const titleFor = (item: SidebarItem): string =>
+      localTitleKeys.has(item.key) ? '' : item.title || '';
+
     // The payload sends Subscriptions as a single entry; its pages are a frontend group.
     // Order follows the design: settings, management, requests, discount codes, log.
     const subscriptionChildren = (): NavItem[] => [
@@ -195,7 +201,7 @@ export class SidebarService {
           return {
             id: item.id,
             key: item.key,
-            title: item.title || '',
+            title: titleFor(item),
             translationKey: fallbackTranslationMap[item.key],
             icon: iconMap[item.key],
             link: null,
@@ -224,7 +230,7 @@ export class SidebarService {
         return {
           id: item.id,
           key: item.key,
-          title: item.title || '',
+          title: titleFor(item),
           translationKey: fallbackTranslationMap[item.key],
           icon: iconMap[item.key] || 'point',
           link,

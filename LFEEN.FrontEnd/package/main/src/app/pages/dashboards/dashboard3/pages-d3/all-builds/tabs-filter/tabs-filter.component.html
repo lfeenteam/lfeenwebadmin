@@ -64,7 +64,7 @@
                   type="button"
                   [class.selected]="isFilterSelected(filter.id, item.value)"
                   (click)="selectFilterOption(filter.id, item.value)">
-                  {{ item.labelKey | translate }}
+                  <app-catalog-icon class="inline" [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [size]="16"></app-catalog-icon>{{ item.labelKey | translate }}
                 </button>
               }
             </mat-menu>
@@ -132,7 +132,7 @@
                   type="button"
                   [class.selected]="isFilterSelected(filter.id, item.value)"
                   (click)="selectFilterOption(filter.id, item.value)">
-                  {{ item.labelKey | translate }}
+                  <app-catalog-icon class="inline" [iconUrl]="item.iconUrl" [iconKey]="item.iconKey" [size]="16"></app-catalog-icon>{{ item.labelKey | translate }}
                 </button>
               }
             </mat-menu>

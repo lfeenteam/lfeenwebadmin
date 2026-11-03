@@ -109,12 +109,10 @@ export class AccountManagementComponent implements OnInit {
     return this.isProfileChangesTab ? this.accountService.activeTab() : this.activeTab as AccountTab;
   }
 
+  // Every tab is filtered by the API; filtering a page here again would drop cards
+  // while the count and page numbers still describe the unfiltered list.
   get filteredAccounts(): Account[] {
-    switch (this.activeTab) {
-      case 'all':          return this.accounts;
-      case 'under_review': return this.accounts.filter(a => a.status === 'under_review');
-      default:             return this.accounts;
-    }
+    return this.accounts;
   }
 
   get emptyTitleKey(): string {

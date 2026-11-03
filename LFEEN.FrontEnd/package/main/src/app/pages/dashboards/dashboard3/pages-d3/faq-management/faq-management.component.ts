@@ -11,6 +11,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { FAQ_DEPARTMENT_OPTIONS, FaqArticle, FaqArticleDto, FaqDepartment, FaqDepartmentOption } from './interfaces/faq.model';
 import { FaqService } from './services/faq.service';
 import { CoreService } from 'src/app/services/core.service';
+import { extractApiErrorMessage } from '../../utils/api-error.util';
 
 @Component({
   selector: 'app-faq-management',
@@ -108,23 +109,11 @@ export class FaqManagementComponent implements OnInit {
       data: { nextOrder }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (!result) return;
-
-      this.faqService.createArticle({
-        titleEn: result.titleEn,
-        titleAr: result.titleAr,
-        bodyEn: result.contentEn,
-        bodyAr: result.contentAr,
-        department: result.department,
-        displayOrder: result.order,
-      }).subscribe({
-        next: (dto) => {
-          this.articles.update(list => [...list, this.mapDtoToArticle(dto)]);
-          this.toastr.success(this.translate.instant('d3.faq.toast.addSuccess'));
-        },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
-      });
+    // The dialog saves the article itself and closes only with the saved result.
+    dialogRef.afterClosed().subscribe((dto?: FaqArticleDto) => {
+      if (!dto) return;
+      this.articles.update(list => [...list, this.mapDtoToArticle(dto)]);
+      this.toastr.success(this.translate.instant('d3.faq.toast.addSuccess'));
     });
   }
 
@@ -138,27 +127,18 @@ export class FaqManagementComponent implements OnInit {
           data: { article: fresh, nextOrder: fresh.order }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-          if (!result) return;
-
-          this.faqService.updateArticle(fresh.externalId, {
-            titleEn: result.titleEn,
-            titleAr: result.titleAr,
-            bodyEn: result.contentEn,
-            bodyAr: result.contentAr,
-            department: result.department,
-            displayOrder: result.order,
-          }).subscribe({
-            next: (updatedDto) => {
-              this.articles.update(list => list.map(a => a.externalId === fresh.externalId ? this.mapDtoToArticle(updatedDto) : a));
-              this.toastr.success(this.translate.instant('d3.faq.toast.updateSuccess'));
-            },
-            error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
-          });
+        dialogRef.afterClosed().subscribe((updatedDto?: FaqArticleDto) => {
+          if (!updatedDto) return;
+          this.articles.update(list => list.map(a => a.externalId === fresh.externalId ? this.mapDtoToArticle(updatedDto) : a));
+          this.toastr.success(this.translate.instant('d3.faq.toast.updateSuccess'));
         });
       },
-      error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
+      error: err => this.showError(err)
     });
+  }
+
+  private showError(err: unknown): void {
+    this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.errorOp')));
   }
 
   toggleStatus(article: FaqArticle): void {
@@ -184,7 +164,7 @@ export class FaqManagementComponent implements OnInit {
           this.articles.update(list => list.map(a => a.externalId === article.externalId ? this.mapDtoToArticle(updatedDto) : a));
           this.toastr.success(this.translate.instant('d3.faq.toast.statusUpdateSuccess'));
         },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
+        error: err => this.showError(err)
       });
     });
   }
@@ -204,7 +184,7 @@ export class FaqManagementComponent implements OnInit {
           this.articles.update(list => list.filter(a => a.externalId !== article.externalId));
           this.toastr.success(this.translate.instant('d3.faq.toast.deleteSuccess'));
         },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
+        error: err => this.showError(err)
       });
     });
   }

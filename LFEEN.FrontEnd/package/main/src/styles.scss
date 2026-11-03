@@ -253,6 +253,82 @@ html .cdk-overlay-container .team-filter-panel.mat-mdc-select-panel {
   }
 }
 
+// Ops-log action-type filter: long labels grouped by section.
+html .cdk-overlay-container .team-filter-panel.ops-log-action-panel.mat-mdc-select-panel {
+  width: auto !important;
+  min-width: 260px !important;
+  max-height: 420px !important;
+  padding-top: 0 !important;
+
+  // Pinned search box; the options scroll underneath it.
+  .ops-log-action-search {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 -10px 6px;
+    padding: 10px 12px 8px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #F1F1F0;
+    color: #9E9E9A;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      height: 36px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 10px;
+      background: #F7F7F5;
+      color: #111110;
+      font-family: 'Cairo', sans-serif;
+      font-size: 12px;
+      outline: none;
+
+      &::placeholder {
+        color: #9E9E9A;
+      }
+    }
+  }
+
+  .ops-log-action-empty {
+    padding: 16px 12px;
+    color: #9E9E9A;
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .mat-mdc-optgroup {
+    display: block;
+
+    & + .mat-mdc-optgroup {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #F1F1F0;
+    }
+  }
+
+  .mat-mdc-optgroup-label {
+    min-height: 32px;
+    padding: 0 12px;
+    color: #9E9E9A;
+    font-family: 'Cairo', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+
+    .mdc-list-item__primary-text {
+      font-family: 'Cairo', sans-serif;
+    }
+  }
+
+  .mat-mdc-optgroup .mat-mdc-option {
+    padding-inline-start: 20px;
+  }
+}
+
 // ── Menu direction fix ──────────────────────────────────────────────────────
 // الـ mat-menu overlay بيتفتح خارج شجرة الكومبوننت فمش بيورث الـ dir تلقائيًا
 html[dir="ltr"] .cdk-overlay-container .mat-mdc-menu-panel {

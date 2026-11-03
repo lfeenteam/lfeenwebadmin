@@ -8,7 +8,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { DepartmentService } from '../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../interfaces/department.model';
 import { StatItem } from '../../interfaces/stats.model';
-import { ADMIN_AUDIT_ACTION_CODES, ADMIN_AUDIT_STATUSES, AdminOperationAuditItem } from '../../interfaces/operation-audit.model';
+import { ADMIN_AUDIT_ACTION_GROUPS, ADMIN_AUDIT_STATUSES, AdminOperationAuditItem } from '../../interfaces/operation-audit.model';
 import { OperationAuditsService } from '../../services/operation-audits.service';
 import { LoginService } from '../../services/login/login.service';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
@@ -80,6 +80,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   currentPage = 1;
   pageNumbers: number[] = [];
   isLoadingDepts = false;
+  deptsLoadFailed = false;
 
   employees: Employee[] = [];
   filterDepartments: Department[] = [];
@@ -89,8 +90,9 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   employeeCurrentPage = 1;
   employeePageNumbers: number[] = [];
   isLoadingEmployees = false;
+  employeesLoadFailed = false;
 
-  readonly auditActionCodes = ADMIN_AUDIT_ACTION_CODES;
+  readonly auditActionGroups = ADMIN_AUDIT_ACTION_GROUPS;
   readonly auditStatuses = ADMIN_AUDIT_STATUSES;
   logsDeptOptions: LogsFilterOption[] = [];
 
@@ -117,6 +119,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       this.totalCount = this.departmentService.totalCount();
       this.currentPage = this.departmentService.currentPage();
       this.isLoadingDepts = this.departmentService.isLoading();
+      this.deptsLoadFailed = !!this.departmentService.departmentsError();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
       if (!this.departmentId) this.updateStats();
       this.cdr.markForCheck();
@@ -129,6 +132,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       this.employeeTotalCount = this.departmentService.employeeTotalCount();
       this.employeeCurrentPage = this.departmentService.employeeCurrentPage();
       this.isLoadingEmployees = this.departmentService.isLoadingEmployees();
+      this.employeesLoadFailed = !!this.departmentService.employeesError();
       this.employeePageNumbers = Array.from({ length: this.employeeTotalPages }, (_, i) => i + 1);
       if (this.departmentId) this.updateStats();
       this.cdr.markForCheck();
@@ -199,6 +203,14 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       },
       error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
     });
+  }
+
+  retryDepartments(): void {
+    this.departmentService.reloadDepartments();
+  }
+
+  retryEmployees(): void {
+    this.departmentService.reloadEmployees();
   }
 
   onEmployeeSearch(query: string): void {

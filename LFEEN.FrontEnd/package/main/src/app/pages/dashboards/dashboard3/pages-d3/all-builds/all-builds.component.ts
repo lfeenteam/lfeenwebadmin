@@ -158,7 +158,7 @@ export class AllBuildsComponent implements OnInit {
               ...filter,
               items: [
                 { value: 'all', labelKey: 'd3.allBuilds.filters.options.all' },
-                ...types.map(t => ({ value: String(t.id), labelKey: t.name }))
+                ...types.map(t => ({ value: String(t.id), labelKey: t.name, iconUrl: t.iconUrl ?? null, iconKey: t.iconKey ?? null }))
               ]
             };
           }

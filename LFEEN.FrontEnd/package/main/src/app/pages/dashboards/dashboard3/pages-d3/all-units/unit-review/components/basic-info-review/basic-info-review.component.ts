@@ -15,6 +15,7 @@ import {
   UnitBasicDataRoom,
   UnitBasicDataService,
   UnitAmenityItem,
+  UnitRoomBed,
   UnitRoomSection,
   UnitSubArea
 } from '../../../../../interfaces/unit-card.model';
@@ -268,9 +269,11 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   private mapRooms(rooms: UnitBasicDataRoom[]): UnitRoomSection[] {
     return rooms.map(room => {
-      const bedBadge = room.beds.length > 0
-        ? room.beds.map(b => `${b.quantity}× ${b.bedTypeName}`).join(', ')
-        : undefined;
+      const beds: UnitRoomBed[] = room.beds.map(b => ({
+        label:   `${b.quantity}× ${b.bedTypeName}`,
+        iconKey: b.iconKey ?? null,
+        iconUrl: b.iconUrl ?? null
+      }));
 
       const amenities: UnitAmenityItem[] = room.facilities.map(f => this.mapFacility(f));
       const services: UnitAmenityItem[] = room.services.map(s => this.mapService(s));
@@ -288,8 +291,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
         iconKey: room.iconKey ?? null,
         iconUrl: room.iconUrl ?? null,
         title:   room.roomTypeName,
-        desc:    bedBadge ?? '',
-        badge:   bedBadge,
+        desc:    beds.map(b => b.label).join(', '),
+        beds,
         amenities,
         services,
         subAreas,

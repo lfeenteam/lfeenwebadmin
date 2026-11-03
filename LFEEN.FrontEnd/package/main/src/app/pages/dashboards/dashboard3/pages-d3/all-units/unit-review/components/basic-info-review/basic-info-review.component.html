@@ -95,8 +95,8 @@
             <div>
               <h3>
                 {{ room.title }}
-                @if (room.badge) {
-                  <span class="room-badge">{{ room.badge }}</span>
+                @for (bed of room.beds; track $index) {
+                  <span class="room-badge"><app-catalog-icon class="inline" [iconUrl]="bed.iconUrl" [iconKey]="bed.iconKey" [size]="12"></app-catalog-icon>{{ bed.label }}</span>
                 }
               </h3>
               @if (room.desc) {

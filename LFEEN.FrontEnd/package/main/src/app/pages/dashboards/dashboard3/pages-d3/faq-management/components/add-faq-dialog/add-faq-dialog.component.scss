@@ -213,8 +213,56 @@
   color: #e53935;
 }
 
-.faq-input.is-invalid {
+.faq-input.is-invalid,
+.faq-textarea.is-invalid {
   border-color: #e53935;
+}
+
+// Error on the start side, character counter on the end side, under each text field.
+.field-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 16px;
+
+  .field-error-msg {
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.char-count {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  font-size: 11px;
+  color: #9E9E9A;
+  direction: ltr;
+
+  &.is-full {
+    color: #e53935;
+    font-weight: 700;
+  }
+}
+
+.form-error-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 24px;
+  padding: 10px 14px;
+  border: 1px solid #FBD5D5;
+  border-radius: 12px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  i-tabler {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────
@@ -240,11 +288,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   transition: background 0.15s;
 
   &:hover {
     background: #2b2b29;
   }
+
+  &:disabled {
+    cursor: default;
+    background: #4b4b48;
+  }
+
+  .submit-spinner {
+    --mdc-circular-progress-active-indicator-color: #fff;
+  }
+}
+
+.cancel-link:disabled,
+.clear-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .clear-btn {

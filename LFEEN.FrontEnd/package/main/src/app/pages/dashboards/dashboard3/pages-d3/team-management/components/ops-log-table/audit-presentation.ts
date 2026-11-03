@@ -1,3 +1,4 @@
+import { Params } from '@angular/router';
 import { AdminAuditStatus, AdminOperationAuditItem } from '../../../../interfaces/operation-audit.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
@@ -17,7 +18,50 @@ const ACTION_ICONS: Record<string, string> = {
   SubscriptionOrderApproved: 'circle-check',
   SubscriptionOrderRejected: 'circle-x',
   WalletBalanceAdjusted: 'wallet',
-  WalletLedgerEntryUpdated: 'receipt'
+  WalletLedgerEntryUpdated: 'receipt',
+  UnitBanned: 'ban',
+  UnitUnbanned: 'lock-open',
+  UnitApproved: 'home-check',
+  UnitRejected: 'home-x',
+  UnitBanReasonUpdated: 'pencil',
+  PropertyBanned: 'ban',
+  PropertyUnbanned: 'lock-open',
+  PropertyApproved: 'circle-check',
+  PropertyRejected: 'circle-x',
+  PropertyBanReasonUpdated: 'pencil',
+  ComplaintCreated: 'message-report',
+  ComplaintAssigned: 'user-share',
+  ComplaintStatusUpdated: 'progress-check',
+  ComplaintNoteAdded: 'note',
+  ClientTicketAssigned: 'user-share',
+  ClientTicketClaimed: 'hand-grab',
+  ClientTicketMessageSent: 'message-reply',
+  ClientTicketPriorityUpdated: 'flag',
+  ClientTicketStatusUpdated: 'progress-check',
+  TicketReplyAdded: 'message-reply',
+  TicketAssigned: 'user-share',
+  TicketPriorityUpdated: 'flag',
+  TicketStatusUpdated: 'progress-check',
+  PlatformOfferCreated: 'discount',
+  PlatformOfferUpdated: 'edit',
+  PlatformOfferActivated: 'player-play',
+  PlatformOfferDeactivated: 'player-pause',
+  PlatformOfferDeleted: 'trash',
+  PlatformOfferExclusionPeriodAdded: 'calendar-off',
+  PlatformOfferExclusionPeriodDeleted: 'calendar-minus',
+  PlatformOfferTermAdded: 'file-plus',
+  PlatformOfferTermDeleted: 'file-minus',
+  PlatformOfferUnitAdded: 'home-plus',
+  PlatformOfferUnitDeleted: 'home-minus',
+  PlatformOfferMessageUpserted: 'message',
+  PlatformOfferMessageDeleted: 'message-off',
+  IvrCallScriptCreated: 'phone-plus',
+  IvrCallScriptUpdated: 'phone-call',
+  ClientFaqCreated: 'help',
+  ClientFaqUpdated: 'edit',
+  ClientFaqActivated: 'eye',
+  ClientFaqDeactivated: 'eye-off',
+  ClientFaqDeleted: 'trash'
 };
 
 // Unknown (future) action codes get a neutral icon.
@@ -99,17 +143,37 @@ export function humanizeKey(key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+export interface AuditEntityRoute {
+  /** Path segments relative to /:lang/d3. */
+  path: string[];
+  queryParams?: Params;
+}
+
 /**
- * Maps an audited entity to a page in this admin app (relative to /:lang/d3).
- * Only MerchantAccount has a per-entity page; the others open their list page.
+ * Maps an audited entity to a page in this admin app.
+ * Entities with a per-entity page open it when the id is known (create actions
+ * have no id yet); the others open their list page.
  * Returns null when there is nowhere sensible to go.
  */
-export function auditEntityRoute(item: AdminOperationAuditItem): string[] | null {
-  const routes: Record<string, (id: string | null) => string[] | null> = {
-    MerchantAccount: id => (id ? ['wallet', id] : null),
-    Booking: () => ['bookings'],
-    Settlement: () => ['settlements'],
-    SubscriptionOrder: () => ['subscriptions', 'requests']
+export function auditEntityRoute(item: AdminOperationAuditItem): AuditEntityRoute | null {
+  const routes: Record<string, (id: string | null) => AuditEntityRoute | null> = {
+    MerchantAccount: id => (id ? { path: ['wallet', id] } : null),
+    Booking: () => ({ path: ['bookings'] }),
+    Settlement: () => ({ path: ['settlements'] }),
+    SubscriptionOrder: () => ({ path: ['subscriptions', 'requests'] }),
+    // Unit review pages also need the building id, which the audit row doesn't carry.
+    Unit: () => ({ path: ['units'] }),
+    Property: () => ({ path: ['buildings'] }),
+    Complaint: () => ({ path: ['complaints'] }),
+    // Ticket ids are TicketExternalId strings, which is what the complaints pages take.
+    Ticket: id => ({ path: id ? ['complaints', id] : ['complaints'] }),
+    ClientTicket: id => ({
+      path: ['complaints'],
+      queryParams: id ? { tab: 'customers', type: 'customer', openTicket: id } : { tab: 'customers' }
+    }),
+    PlatformOffer: id => ({ path: id ? ['platform-offers', id] : ['platform-offers'] }),
+    IvrCallScript: () => ({ path: ['call-scripts'] }),
+    ClientFaq: () => ({ path: ['client-faq'] })
   };
 
   return routes[item.entityType]?.(item.entityId) ?? null;

@@ -27,6 +27,11 @@ export const FAQ_DEPARTMENT_OPTIONS: FaqDepartmentOption[] = [
   { value: 'Account',   labelEn: 'Account',   labelAr: 'الحساب' },
 ];
 
+// Server-side limits (BUG-0899); the server still validates, these only fail fast in the form.
+export const FAQ_TITLE_MIN_LENGTH = 2;
+export const FAQ_TITLE_MAX_LENGTH = 300;
+export const FAQ_BODY_MAX_LENGTH = 5000;
+
 // POST and PUT /api/client-faq use the same editable-field payload.
 export interface CreateFaqArticleRequest {
   titleEn: string;

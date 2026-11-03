@@ -150,7 +150,9 @@ export class AuditDetailDrawerComponent implements OnInit {
   openEntity(): void {
     if (!this.entityRoute) return;
     this.dialogRef.close();
-    this.router.navigate(['/', this.data.lang, 'd3', ...this.entityRoute]);
+    this.router.navigate(['/', this.data.lang, 'd3', ...this.entityRoute.path], {
+      queryParams: this.entityRoute.queryParams
+    });
   }
 
   close(): void {

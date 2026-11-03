@@ -17,5 +17,6 @@ export type ViewMode = 'grid' | 'list';
 export interface BuildFilterOption {
   id: string;
   labelKey: string;
-  items: { value: string; labelKey: string }[];
+  // iconUrl/iconKey: catalog icon drawn before the label (e.g. property types).
+  items: { value: string; labelKey: string; iconUrl?: string | null; iconKey?: string | null }[];
 }

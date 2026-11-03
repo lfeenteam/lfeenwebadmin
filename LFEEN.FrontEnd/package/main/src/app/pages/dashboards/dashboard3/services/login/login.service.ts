@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize, shareReplay, tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
 import { LoginRequest, LoginResponse, SidebarItem } from '../../interfaces/login.model';
 import { environment } from 'src/environments/environment';
@@ -26,6 +26,11 @@ export class LoginService {
   private permissionsKey = 'auth_permissions';
 
   private refreshTimeout: any;
+
+  // The refresh call in progress, shared by everyone who needs a new token meanwhile.
+  // The backend rotates the refresh token, so a second call with the same one would
+  // be rejected — parallel 401s must wait on this one instead of starting their own.
+  private refreshInFlight$: Observable<LoginResponse> | null = null;
 
   loading = signal<boolean>(false);
   isLoggedIn = signal<boolean>(this.checkAuthentication());
@@ -57,14 +62,19 @@ export class LoginService {
   }
 
   refreshToken(): Observable<LoginResponse> {
+    if (this.refreshInFlight$) return this.refreshInFlight$;
+
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
-      tap((response) => this.handleAuthentication(response))
+    this.refreshInFlight$ = this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
+      tap((response) => this.handleAuthentication(response)),
+      finalize(() => this.refreshInFlight$ = null),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+    return this.refreshInFlight$;
   }
 
   /**

@@ -41,14 +41,16 @@
   <!-- Logs tab: filter header + tabs -->
   @if (activeTab === 'logs' && !departmentId) {
     <app-logs-filter
-      [actionCodes]="auditActionCodes"
+      [initialSelection]="audits.filterSelection()"
+      [actionGroups]="auditActionGroups"
       [depts]="logsDeptOptions"
       [statuses]="auditStatuses"
       (searchQueryChange)="audits.setSearch($event)"
       (filterActionChange)="audits.setActionCode($event)"
       (filterDeptChange)="audits.setDepartment($event)"
       (filterStatusChange)="audits.setStatus($event)"
-      (filterDateChange)="audits.setDatePreset($event)">
+      (filterDateChange)="audits.setDatePreset($event)"
+      (clearFilters)="audits.clearFilters()">
     </app-logs-filter>
 
     <div class="border-bottom-gray m-b-24">
@@ -60,6 +62,13 @@
   @if (activeTab === 'structure' && !departmentId) {
     @if (isLoadingDepts) {
       <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+    } @else if (deptsLoadFailed) {
+      <div class="logs-error-bar d-flex align-items-center justify-content-between gap-8 m-b-16">
+        <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+        <button mat-stroked-button type="button" (click)="retryDepartments()">
+          {{ 'd3.teamManagement.opsLog.retry' | translate }}
+        </button>
+      </div>
     } @else {
       <div class="row">
         @for(dept of departments; track dept.id) {
@@ -106,6 +115,13 @@
     }
     @if (isLoadingEmployees) {
       <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+    } @else if (employeesLoadFailed) {
+      <div class="logs-error-bar d-flex align-items-center justify-content-between gap-8 m-b-16">
+        <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+        <button mat-stroked-button type="button" (click)="retryEmployees()">
+          {{ 'd3.teamManagement.opsLog.retry' | translate }}
+        </button>
+      </div>
     } @else {
       <app-employee-list
         [employees]="employees"

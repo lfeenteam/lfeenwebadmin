@@ -37,20 +37,21 @@ export class AccountService {
         newestFirst: String(request.newestFirst),
       });
       if (request.search) params.set('search', request.search);
-      // API accepts string status: Approved | Rejected | Pending (leave empty for all)
+      // Filtered on the server so totalCount/totalPages match the tab (empty = all).
       const statusParam = this.tabToStatusParam(request.tab);
       if (statusParam !== null) params.set('status', statusParam);
       return this.http.get<PaginatedAccountResponse>(`${this.apiUrl}?${params}`);
     }
   });
 
-  // PendingReview=1 | Approved=2 | Rejected=3
+  // PendingReview=1 | Approved=2 | Rejected=3. Draft accounts haven't been submitted yet,
+  // so they appear under "all" only, not in the review queue.
   private tabToStatusParam(tab: AccountTab): string | null {
     switch (tab) {
-      case 'active':   return '2';
-      case 'rejected': return '3';
-      // under_review and all: fetch without filter, filter client-side
-      default:         return null;
+      case 'under_review': return '1';
+      case 'active':       return '2';
+      case 'rejected':     return '3';
+      default:             return null;
     }
   }
 
