@@ -87,6 +87,82 @@
       }
     </div>
 
+    @if (!rewardForbidden()) {
+      <div class="settings-card">
+        <div class="card-head">
+          <div class="card-head-title">
+            <span class="card-icon-box"><i-tabler name="gift" class="icon-18 text-muted"></i-tabler></span>
+            <div>
+              <h3>{{ 'd3.settings.reviewReward.title' | translate }}</h3>
+              <p class="card-head-sub">{{ 'd3.settings.reviewReward.subtitle' | translate }}</p>
+            </div>
+          </div>
+          @if (reward()) {
+            <div class="reward-switch">
+              <span class="reward-switch-lbl">
+                {{ (rewardEnabled ? 'd3.settings.reviewReward.on' : 'd3.settings.reviewReward.off') | translate }}
+              </span>
+              <mat-slide-toggle color="primary"
+                                [checked]="rewardEnabled"
+                                [disabled]="!canManage() || rewardSaving()"
+                                (change)="onToggleReward($event)"></mat-slide-toggle>
+            </div>
+          }
+        </div>
+
+        @if (rewardLoading() && !reward()) {
+          <div class="card-state"><mat-spinner diameter="24"></mat-spinner></div>
+        } @else if (rewardError() && !reward()) {
+          <div class="card-state">
+            <span class="notif-desc">{{ 'd3.settings.errors.loadFailed' | translate }}</span>
+            <button mat-stroked-button type="button" (click)="loadReviewReward()">{{ 'd3.settings.errors.retry' | translate }}</button>
+          </div>
+        } @else if (reward()) {
+          <div class="reward-body">
+            <div class="info-field reward-field">
+              <label for="rewardAmount">{{ 'd3.settings.reviewReward.amount' | translate }}</label>
+              <input id="rewardAmount" class="info-val info-input" type="number" dir="ltr" inputmode="decimal"
+                     step="0.01" [min]="rewardLimits.min" [max]="rewardLimits.max"
+                     [class.has-error]="rewardFieldError"
+                     [(ngModel)]="rewardAmount" (ngModelChange)="onRewardAmountChange()"
+                     (keydown.enter)="onSaveReward()"
+                     [disabled]="!canManage() || !rewardEnabled || rewardSaving()" />
+              @if (rewardFieldError) {
+                <span class="field-error">{{ rewardFieldError }}</span>
+              } @else if (rewardEnabled && rewardPoints !== null) {
+                <span class="reward-points">{{ 'd3.settings.reviewReward.pointsHint' | translate: { points: rewardPointsLabel } }}</span>
+              }
+            </div>
+          </div>
+
+          <p class="reward-note">
+            <i-tabler name="info-circle" class="icon-16"></i-tabler>
+            {{ 'd3.settings.reviewReward.note' | translate }}
+          </p>
+          @if (!reward()?.updatedAt) {
+            <p class="defaults-note">{{ 'd3.settings.reviewReward.defaultsNote' | translate }}</p>
+          }
+
+          @if (canManage() && rewardEnabled) {
+            <div class="reward-actions">
+              @if (rewardDirty) {
+                <span class="reward-unsaved">{{ 'd3.settings.reviewReward.unsaved' | translate }}</span>
+              }
+              <button mat-flat-button class="save-btn" type="button" (click)="onSaveReward()"
+                      [disabled]="rewardSaving() || !rewardDirty">
+                @if (rewardSaving()) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                } @else {
+                  <i-tabler name="check" class="icon-18"></i-tabler>
+                }
+                {{ 'd3.settings.reviewReward.save' | translate }}
+              </button>
+            </div>
+          }
+        }
+      </div>
+    }
+
     <div class="settings-card">
       <div class="card-head">
         <div class="card-head-title">

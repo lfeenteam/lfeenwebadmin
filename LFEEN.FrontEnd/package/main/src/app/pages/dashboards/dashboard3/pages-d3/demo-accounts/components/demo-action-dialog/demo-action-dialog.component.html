@@ -1,0 +1,141 @@
+<form class="da-root da-dialog" novalidate (ngSubmit)="submit()">
+  <div class="da-dialog__head">
+    <span class="da-dialog__icon" [class.danger]="isDanger"><i-tabler [name]="icon" class="icon-20"></i-tabler></span>
+    <h2>{{ titleKey | translate }}</h2>
+  </div>
+
+  <div class="da-dialog__body">
+    @if (error) {
+      <div class="da-alert danger" role="alert">
+        <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+        <p>{{ error }}</p>
+      </div>
+    }
+
+    @switch (action) {
+      <!-- Resend invitation -->
+      @case ('resend') {
+        <div class="da-field">
+          <span class="da-label">{{ 'd3.demoAccounts.create.channel' | translate }}</span>
+          <div class="da-segmented" role="radiogroup">
+            @for (ch of channels; track ch) {
+              <span class="seg-slot" [matTooltip]="noContactTip(ch)" [matTooltipDisabled]="hasContact(ch)">
+                <button type="button" role="radio" [class.active]="channel === ch" [attr.aria-checked]="channel === ch"
+                        [disabled]="submitting || !hasContact(ch)" (click)="setChannel(ch)">
+                  <i-tabler [name]="channelIcons[ch]" class="icon-16"></i-tabler>
+                  {{ ('d3.demoAccounts.channels.' + ch) | translate }}
+                </button>
+              </span>
+            }
+          </div>
+          @if (channel !== account.channel) {
+            <p class="da-helper">{{ 'd3.demoAccounts.dialogs.resend.channelChanged' | translate }}</p>
+          }
+        </div>
+
+        @if (account.mustChangePin) {
+          <div class="da-alert warning">
+            <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+            <p>{{ 'd3.demoAccounts.dialogs.resend.newPinWarning' | translate }}</p>
+          </div>
+        } @else {
+          <div class="da-alert info">
+            <i-tabler name="info-circle" class="icon-18"></i-tabler>
+            <p>{{ 'd3.demoAccounts.dialogs.resend.noPinInfo' | translate }}</p>
+          </div>
+        }
+      }
+
+      <!-- New PIN -->
+      @case ('resetPin') {
+        <p>{{ 'd3.demoAccounts.dialogs.resetPin.text' | translate }}</p>
+
+        <div class="da-field">
+          <label for="da-new-pin">{{ 'd3.demoAccounts.create.pin' | translate }}</label>
+          <div class="da-input-wrap">
+            <input id="da-new-pin" name="pin" class="da-input da-mono" dir="ltr" inputmode="numeric" maxlength="6"
+                   autocomplete="off" [type]="showPin ? 'text' : 'password'" [class.invalid]="fieldError"
+                   [disabled]="submitting" [ngModel]="pin" #pinInput
+                   (ngModelChange)="onPinInput($event, pinInput)" (blur)="fieldError = validatePin()" />
+            <button type="button" class="da-icon-btn" (click)="showPin = !showPin"
+                    [attr.aria-label]="(showPin ? 'd3.demoAccounts.actions.hide' : 'd3.demoAccounts.actions.show') | translate">
+              <i-tabler [name]="showPin ? 'eye-off' : 'eye'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+          <p class="da-helper">{{ 'd3.demoAccounts.create.pinHelp' | translate }}</p>
+          @if (fieldError) { <p class="da-error">{{ fieldError }}</p> }
+        </div>
+
+        <label class="da-check">
+          <input type="checkbox" name="sendInvitation" [disabled]="submitting" [(ngModel)]="sendInvitation" />
+          {{ 'd3.demoAccounts.dialogs.resetPin.sendInvitation' | translate }}
+        </label>
+      }
+
+      <!-- Extend -->
+      @case ('extend') {
+        <div class="da-field">
+          <label for="da-extend-days">{{ 'd3.demoAccounts.dialogs.extend.days' | translate }}</label>
+          <div class="da-stepper">
+            <button type="button" class="da-btn sm" [disabled]="submitting || (days ?? 0) <= limits.minDays"
+                    [attr.aria-label]="'d3.demoAccounts.create.decrease' | translate" (click)="stepDays(-1)">
+              <i-tabler name="minus" class="icon-16"></i-tabler>
+            </button>
+            <input id="da-extend-days" name="days" type="number" class="da-input" dir="ltr" inputmode="numeric"
+                   [min]="limits.minDays" [max]="limits.maxDays" step="1" [class.invalid]="fieldError || !daysValid"
+                   [disabled]="submitting" [(ngModel)]="days" (ngModelChange)="fieldError = null" />
+            <button type="button" class="da-btn sm" [disabled]="submitting || (days ?? 0) >= limits.maxDays"
+                    [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="stepDays(1)">
+              <i-tabler name="plus" class="icon-16"></i-tabler>
+            </button>
+          </div>
+          @if (fieldError || !daysValid) {
+            <p class="da-error">{{ fieldError || ('d3.demoAccounts.validation.duration' | translate) }}</p>
+          }
+        </div>
+
+        @if (extendPreview; as preview) {
+          <p class="extend-preview">
+            {{ 'd3.demoAccounts.dialogs.extend.preview' | translate }}
+            <strong class="da-ltr" dir="ltr">{{ preview }}</strong>
+          </p>
+        }
+        <p class="da-helper">{{ 'd3.demoAccounts.dialogs.extend.cap' | translate }}</p>
+
+        @if (account.status === 'Expired') {
+          <div class="da-alert info">
+            <i-tabler name="info-circle" class="icon-18"></i-tabler>
+            <p>{{ 'd3.demoAccounts.dialogs.extend.expiredNote' | translate }}</p>
+          </div>
+        }
+      }
+
+      <!-- Unlock -->
+      @case ('unlock') {
+        <p>{{ 'd3.demoAccounts.dialogs.unlock.text' | translate }}</p>
+      }
+
+      <!-- Disable -->
+      @case ('disable') {
+        <div class="da-alert danger">
+          <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.dialogs.disable.text' | translate }}</p>
+        </div>
+        <label class="da-check">
+          <input type="checkbox" name="understood" [disabled]="submitting" [(ngModel)]="understood" />
+          {{ 'd3.demoAccounts.dialogs.disable.understand' | translate }}
+        </label>
+      }
+    }
+  </div>
+
+  <div class="da-dialog__footer">
+    <button type="button" class="da-btn" [disabled]="submitting" (click)="cancel()">
+      {{ 'd3.demoAccounts.actions.cancel' | translate }}
+    </button>
+    <button type="submit" class="da-btn" [class.primary]="!isDanger" [class.danger]="isDanger" [disabled]="!canSubmit">
+      @if (submitting) { <span class="da-spin"></span> }
+      {{ confirmKey | translate }}
+    </button>
+  </div>
+</form>

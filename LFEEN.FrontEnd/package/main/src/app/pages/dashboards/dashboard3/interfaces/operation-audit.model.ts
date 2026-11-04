@@ -59,7 +59,8 @@ export const ADMIN_AUDIT_ACTION_GROUPS: readonly AdminAuditActionGroup[] = [
   {
     key: 'clientFaq',
     codes: ['ClientFaqCreated', 'ClientFaqUpdated', 'ClientFaqActivated', 'ClientFaqDeactivated', 'ClientFaqDeleted']
-  }
+  },
+  { key: 'platformSettings', codes: ['ReviewRewardSettingsUpdated'] }
 ];
 
 export type AuditDatePreset = 'today' | 'week' | 'month';

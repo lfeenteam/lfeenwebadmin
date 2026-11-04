@@ -118,7 +118,8 @@ export class SidebarService {
       'call-scripts':     'phone-call',
       'additional-conditions': 'list-check',
       'esim':             'device-sim',
-      'subscriptions':    'credit-card'
+      'subscriptions':    'credit-card',
+      'demo-accounts':    'flask'
     };
 
     const exactRouteMap: { [key: string]: string } = {
@@ -143,7 +144,9 @@ export class SidebarService {
       'platform-offers': '/d3/platform-offers',
       'call-scripts':    '/d3/call-scripts',
       'esim':            '/d3/esim',
-      'additional-conditions': '/d3/additional-conditions'
+      'additional-conditions': '/d3/additional-conditions',
+      // Sent only to admins holding DemoAccounts.View (the payload's own route is /admin/demo-accounts).
+      'demo-accounts':   '/d3/demo-accounts'
     };
 
     // Labels come from the payload's title; these keys are only the fallback for an
@@ -164,7 +167,8 @@ export class SidebarService {
       'call-scripts':    'd3.sidebar.callScripts',
       'additional-conditions': 'd3.sidebar.additionalConditions',
       'esim':            'd3.sidebar.esim',
-      'subscriptions':   'd3.sidebar.subscriptions'
+      'subscriptions':   'd3.sidebar.subscriptions',
+      'demo-accounts':   'd3.sidebar.demoAccounts'
     };
 
     // The payload's titles for these arrive mis-cased ("Esim", "Client Faq"), so the

@@ -353,6 +353,36 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'demo-accounts',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-accounts.component'
+                  ).then((m) => m.DemoAccountsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'demo-accounts/:id',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-details/demo-account-details.component'
+                  ).then((m) => m.DemoAccountDetailsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.detailsTitle',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true,
+                  recreateOnParamChange: true
+                },
+              },
+              {
                 path: 'esim',
                 canActivate: [authGuard, pageFlagGuard('esim')],
                 loadComponent: () =>

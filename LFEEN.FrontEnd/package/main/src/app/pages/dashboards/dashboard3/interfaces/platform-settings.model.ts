@@ -45,6 +45,30 @@ export interface PlatformGeneralSettings {
 
 export type UpdatePlatformGeneralSettings = Omit<PlatformGeneralSettings, 'updatedAt'>;
 
+/** GET/PUT /api/settings/review-reward — stay-review cashback, paid as wallet points. */
+export interface ReviewRewardSettings {
+  /** 0 = reward off. */
+  amountSar: number;
+  /** round(amountSar / pointsToSarRate), display only. */
+  points: number;
+  /** SAR value of one point (wallet setting, read-only here). */
+  pointsToSarRate: number;
+  isEnabled: boolean;
+  /** null = still the platform default of 5 SAR. */
+  updatedAt: string | null;
+}
+
+export interface UpdateReviewReward {
+  amountSar: number;
+}
+
+export const REVIEW_REWARD_LIMITS = {
+  min: 0,
+  max: 1000,
+  /** Shown when the admin turns the reward back on (the off state stores 0). */
+  defaultAmount: 5,
+} as const;
+
 export const NotificationKeys = {
   BrowserRealtime: 'browser.realtime',
   EmailDailyDigest: 'email.daily_digest',

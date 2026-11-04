@@ -61,7 +61,8 @@ const ACTION_ICONS: Record<string, string> = {
   ClientFaqUpdated: 'edit',
   ClientFaqActivated: 'eye',
   ClientFaqDeactivated: 'eye-off',
-  ClientFaqDeleted: 'trash'
+  ClientFaqDeleted: 'trash',
+  ReviewRewardSettingsUpdated: 'gift'
 };
 
 // Unknown (future) action codes get a neutral icon.

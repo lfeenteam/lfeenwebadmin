@@ -267,6 +267,57 @@ select.info-input {
   line-height: 1.5;
 }
 
+// ─── Review reward ───
+.reward-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.reward-switch-lbl {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+}
+
+.reward-field {
+  max-width: 320px;
+}
+
+.reward-points {
+  font-size: 13px;
+  font-weight: 600;
+  color: #16803A;
+}
+
+.reward-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: #6B6B67;
+  line-height: 1.6;
+  margin: 16px 0 0;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+}
+
+.reward-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+
+  .save-btn { margin-bottom: 0; }
+}
+
+.reward-unsaved {
+  font-size: 12px;
+  color: #B45309;
+}
+
 // ─── API Keys ───
 .dev-badge {
   font-family: 'Cairo', sans-serif;
@@ -711,6 +762,10 @@ select.info-input {
 
   .notif-row {
     flex-wrap: wrap;
+  }
+
+  .reward-field {
+    max-width: none;
   }
 }
 

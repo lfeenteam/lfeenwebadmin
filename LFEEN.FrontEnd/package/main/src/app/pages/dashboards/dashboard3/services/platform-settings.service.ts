@@ -6,7 +6,9 @@ import {
   NotificationPreferenceUpdate,
   PlatformGeneralSettings,
   PlatformNotificationSetting,
+  ReviewRewardSettings,
   UpdatePlatformGeneralSettings,
+  UpdateReviewReward,
   UserNotificationPreference,
 } from '../interfaces/platform-settings.model';
 
@@ -40,5 +42,13 @@ export class PlatformSettingsService {
 
   updatePlatformNotifications(body: NotificationPreferenceUpdate): Observable<PlatformNotificationSetting[]> {
     return this.http.put<PlatformNotificationSetting[]>(`${this.settingsUrl}/notifications`, body);
+  }
+
+  getReviewReward(): Observable<ReviewRewardSettings> {
+    return this.http.get<ReviewRewardSettings>(`${this.settingsUrl}/review-reward`);
+  }
+
+  updateReviewReward(body: UpdateReviewReward): Observable<ReviewRewardSettings> {
+    return this.http.put<ReviewRewardSettings>(`${this.settingsUrl}/review-reward`, body);
   }
 }

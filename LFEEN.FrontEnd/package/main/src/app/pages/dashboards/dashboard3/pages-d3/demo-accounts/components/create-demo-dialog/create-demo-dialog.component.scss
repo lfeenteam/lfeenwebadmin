@@ -1,0 +1,26 @@
+@use '../../demo-accounts';
+
+:host { display: block; }
+
+// Two fields side by side so the whole form fits on a desktop screen without scrolling.
+.da-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+
+  @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
+// Scrolling is still possible on short screens — keep the bar thin.
+.da-dialog__body {
+  scrollbar-width: thin;
+  scrollbar-color: #E2E8F0 transparent;
+}
+
+// Hide the native number spinners; the stepper buttons replace them.
+input[type='number'] {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}

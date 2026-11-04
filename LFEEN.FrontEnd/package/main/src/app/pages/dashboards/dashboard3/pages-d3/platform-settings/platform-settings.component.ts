@@ -5,18 +5,24 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MaterialModule } from 'src/app/material.module';
 import { Subscription } from 'rxjs';
+import { formatAppNumber } from 'src/app/utils/locale-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { PlatformSettingsService } from '../../services/platform-settings.service';
 import {
   PlatformGeneralSettings,
   PlatformNotificationSetting,
+  REVIEW_REWARD_LIMITS,
+  ReviewRewardSettings,
   SETTINGS_PERMISSIONS,
   TIME_ZONE_OPTIONS,
   UpdatePlatformGeneralSettings,
   hasSettingsPermission,
 } from '../../interfaces/platform-settings.model';
+import { ReviewConfirmDialogComponent } from '../build-review/review-confirm-dialog/review-confirm-dialog.component';
 
 type GeneralField = keyof UpdatePlatformGeneralSettings;
 
@@ -59,9 +65,11 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   private toastr = inject(ToastrService);
   private api = inject(PlatformSettingsService);
   private login = inject(LoginService);
+  private dialog = inject(MatDialog);
   private langSub?: Subscription;
   private generalSub?: Subscription;
   private notifSub?: Subscription;
+  private rewardSub?: Subscription;
 
   showLogTable = true;
 
@@ -84,6 +92,20 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   readonly notifError = signal(false);
   readonly notifCardError = signal<string | null>(null);
   readonly savingKeys = signal<ReadonlySet<string>>(new Set());
+
+  // Stay-review cashback — GET/PUT /api/settings/review-reward
+  readonly rewardLimits = REVIEW_REWARD_LIMITS;
+  readonly reward = signal<ReviewRewardSettings | null>(null);
+  readonly rewardLoading = signal(false);
+  readonly rewardError = signal(false);
+  /** 403 on GET (permission removed mid-session) → the card is hidden. */
+  readonly rewardForbidden = signal(false);
+  readonly rewardSaving = signal(false);
+  rewardEnabled = false;
+  rewardAmount: number | null = null;
+  rewardFieldError: string | null = null;
+  // Off is stored as 0, so remember the last amount above 0 to refill the field when switched back on.
+  private lastRewardAmount: number = REVIEW_REWARD_LIMITS.defaultAmount;
 
   // Security — 2FA, sessions and the login log below are sample data with no API
   // behind them, so the tab shows "coming soon" until this is wired.
@@ -139,6 +161,7 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadGeneral();
     this.loadNotifications();
+    this.loadReviewReward();
     this.langSub = this.translate.onLangChange.subscribe(() => {
       // Notification titles/descriptions come localized from Accept-Language.
       this.loadNotifications();
@@ -154,6 +177,7 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
     this.langSub?.unsubscribe();
     this.generalSub?.unsubscribe();
     this.notifSub?.unsubscribe();
+    this.rewardSub?.unsubscribe();
   }
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -271,6 +295,153 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
         this.toastr.error(this.errorMessage(err));
       },
     });
+  }
+
+  loadReviewReward(): void {
+    this.rewardSub?.unsubscribe();
+    this.rewardLoading.set(true);
+    this.rewardError.set(false);
+    this.rewardSub = this.api.getReviewReward().subscribe({
+      next: res => {
+        this.fillReward(res);
+        this.rewardLoading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 403) this.rewardForbidden.set(true);
+        else this.rewardError.set(true);
+        this.rewardLoading.set(false);
+      },
+    });
+  }
+
+  /** True while the field differs from the last saved value. */
+  get rewardDirty(): boolean {
+    const saved = this.reward();
+    if (!saved) return false;
+    return this.rewardEnabled !== saved.isEnabled || (this.rewardAmount ?? 0) !== saved.amountSar;
+  }
+
+  /** Live while typing; the server's value once the field matches what was saved. */
+  get rewardPoints(): number | null {
+    const saved = this.reward();
+    if (!saved) return null;
+    if (!this.rewardDirty) return saved.points;
+    const amount = this.rewardAmount;
+    if (amount === null || !isFinite(amount) || !(saved.pointsToSarRate > 0)) return null;
+    // toFixed drops float noise (7.5 / 0.05 = 149.99999999999997) before rounding.
+    return Math.round(Number((amount / saved.pointsToSarRate).toFixed(6)));
+  }
+
+  get rewardPointsLabel(): string {
+    return formatAppNumber(this.rewardPoints, this.translate.currentLang);
+  }
+
+  onRewardAmountChange(): void {
+    this.rewardFieldError = null;
+  }
+
+  onToggleReward(event: MatSlideToggleChange): void {
+    if (!this.canManage() || this.rewardSaving()) {
+      event.source.checked = this.rewardEnabled;
+      return;
+    }
+    this.rewardFieldError = null;
+
+    if (event.checked) {
+      // Turning on only unlocks the field; the admin saves an amount above 0.
+      this.rewardEnabled = true;
+      if (!this.rewardAmount || this.rewardAmount <= 0) this.rewardAmount = this.lastRewardAmount;
+      return;
+    }
+
+    // Switched on but never saved → nothing to send, just go back to the saved off state.
+    if (!this.reward()?.isEnabled) {
+      this.rewardEnabled = false;
+      this.rewardAmount = 0;
+      return;
+    }
+
+    // Off is saved right away and hits every client, so confirm first.
+    const ref = this.dialog.open(ReviewConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '92vw',
+      panelClass: 'review-confirm-panel',
+      data: {
+        titleKey: 'd3.settings.reviewReward.confirmOffTitle',
+        messageKey: 'd3.settings.reviewReward.confirmOffMessage',
+        confirmKey: 'd3.settings.reviewReward.confirmOffAction',
+        tone: 'reject',
+      },
+    });
+    ref.afterClosed().subscribe(confirmed => {
+      if (confirmed) this.saveReward(0);
+      else event.source.checked = true;
+    });
+  }
+
+  onSaveReward(): void {
+    if (!this.canManage() || this.rewardSaving() || !this.rewardEnabled) return;
+
+    const amount = this.rewardAmount;
+    const errorKey = this.rewardValidationKey(amount);
+    if (errorKey) {
+      this.rewardFieldError = this.translate.instant(errorKey, {
+        min: REVIEW_REWARD_LIMITS.min,
+        max: REVIEW_REWARD_LIMITS.max,
+      });
+      return;
+    }
+    this.saveReward(amount as number);
+  }
+
+  private saveReward(amountSar: number): void {
+    this.rewardFieldError = null;
+    this.rewardSaving.set(true);
+
+    this.api.updateReviewReward({ amountSar }).subscribe({
+      next: res => {
+        this.fillReward(res);
+        this.rewardSaving.set(false);
+        this.toastr.success(this.translate.instant('d3.toast.successOp'));
+      },
+      error: (err: HttpErrorResponse) => {
+        this.rewardSaving.set(false);
+
+        if (err.status === 400) {
+          const errors: { field?: string; message?: string }[] = Array.isArray(err.error?.errors) ? err.error.errors : [];
+          const fieldMsg = errors.find(e => /amountsar$/i.test(e.field ?? '') && e.message)?.message;
+          if (fieldMsg) {
+            this.rewardFieldError = fieldMsg;
+            return;
+          }
+        }
+
+        // 409 (locked) / 502 (main backend down) / anything else → keep the old value.
+        const saved = this.reward();
+        if (saved) this.fillReward(saved);
+        const message = err.status === 502
+          ? this.translate.instant('d3.toast.errorOp')
+          : this.errorMessage(err);
+        this.toastr.error(message);
+      },
+    });
+  }
+
+  /** Mirrors the backend rules (0–1000, ≤ 2 decimals); above 0 while the switch is on. */
+  private rewardValidationKey(amount: number | null): string | null {
+    if (amount === null || amount === undefined || !isFinite(amount)) return 'd3.settings.reviewReward.errors.required';
+    if (amount <= 0) return 'd3.settings.reviewReward.errors.aboveZero';
+    if (amount > REVIEW_REWARD_LIMITS.max) return 'd3.settings.reviewReward.errors.range';
+    if (Math.abs(amount * 100 - Math.round(amount * 100)) > 1e-6) return 'd3.settings.reviewReward.errors.decimals';
+    return null;
+  }
+
+  private fillReward(res: ReviewRewardSettings): void {
+    this.reward.set(res);
+    this.rewardEnabled = res.isEnabled;
+    this.rewardAmount = res.amountSar;
+    if (res.amountSar > 0) this.lastRewardAmount = res.amountSar;
+    this.rewardFieldError = null;
   }
 
   private fillForm(res: PlatformGeneralSettings): void {

@@ -118,6 +118,219 @@
     "noInternet": "No internet connection, please try again"
   },
   "d3": {
+    "demoAccounts": {
+      "title": "Demo Accounts",
+      "subtitle": "Trial host accounts for prospective hosts to try Lfeen",
+      "detailsTitle": "Demo account details",
+      "searchPlaceholder": "Search by name, email, phone, login number or ID number",
+      "dayUnit": "days",
+      "ended": "Ended",
+      "copied": "Copied",
+      "copyFailed": "Could not copy, please copy the value manually",
+      "pinHidden": "Cannot be shown. Use “New PIN” when needed.",
+      "pinNotChanged": "Not changed by the host yet",
+      "pinChangedAt": "Changed by the host on",
+      "neverDelivered": "No invitation delivered yet",
+      "filters": {
+        "all": "All"
+      },
+      "status": {
+        "Ready": "Ready",
+        "Sent": "Sent",
+        "SendFailed": "Send failed",
+        "Expired": "Expired",
+        "Disabled": "Disabled"
+      },
+      "channels": {
+        "Email": "Email",
+        "WhatsApp": "WhatsApp",
+        "Sms": "SMS"
+      },
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "contactPhone": "Contact phone",
+        "channel": "Channel",
+        "status": "Status",
+        "daysLeft": "Days left",
+        "expiresAt": "Expires on",
+        "createdBy": "Created by"
+      },
+      "pagination": {
+        "total": "accounts",
+        "pageSize": "Rows",
+        "perPage": "page"
+      },
+      "empty": {
+        "title": "No demo accounts yet",
+        "desc": "Create a trial for a prospective host and it will show up here.",
+        "noMatchTitle": "No matching results",
+        "errorTitle": "Could not load demo accounts",
+        "disabledTitle": "Feature not enabled"
+      },
+      "actions": {
+        "create": "Create trial",
+        "cancel": "Cancel",
+        "retry": "Retry",
+        "clearFilters": "Clear filters",
+        "viewDetails": "View details",
+        "more": "More",
+        "copy": "Copy",
+        "copyAll": "Copy all",
+        "show": "Show",
+        "hide": "Hide",
+        "resend": "Resend invitation",
+        "resendShort": "Resend",
+        "resetPin": "New PIN",
+        "extend": "Extend",
+        "unlock": "Unlock",
+        "disable": "Disable"
+      },
+      "create": {
+        "title": "Create demo account",
+        "fullName": "Full name",
+        "channel": "Invitation channel",
+        "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
+        "email": "Email",
+        "phone": "Contact phone",
+        "phoneHelp": "The person's real number, used only to send the invitation, never to sign in.",
+        "duration": "Trial length (days)",
+        "decrease": "Decrease",
+        "increase": "Increase",
+        "pin": "PIN (optional)",
+        "pinHelp": "Leave empty to generate a strong PIN automatically.",
+        "note": "Internal note",
+        "noteHelp": "Not shown to the host.",
+        "submit": "Create and send invitation"
+      },
+      "credentials": {
+        "titleCreated": "Demo account created",
+        "titleReopened": "Demo account reopened",
+        "titleNewPin": "New PIN issued",
+        "sentPrefix": "The invitation was sent to",
+        "sentVia": "via",
+        "notSentCreate": "The account was created, but the invitation was not delivered. You can resend it from the account page, use another channel, or hand the details to the person yourself.",
+        "notSentPin": "No invitation was sent. Hand the new PIN to the person yourself.",
+        "reopened": "This person already had a demo account, so it was reopened with the same login number and ID number, a new PIN and a new period. The old PIN no longer works.",
+        "expiresAt": "Trial ends on",
+        "onceWarning": "This PIN is shown only once and can never be shown again. If it is lost, issue a new PIN.",
+        "confirmClose": "I've saved the details, close",
+        "copyAll": {
+          "heading": "Lfeen sign-in details (demo account)",
+          "sid": "ID number",
+          "phone": "Phone number",
+          "pin": "PIN",
+          "expires": "Trial ends"
+        }
+      },
+      "fields": {
+        "fullName": "Full name",
+        "email": "Email",
+        "contactPhone": "Contact phone",
+        "channel": "Channel",
+        "note": "Internal note",
+        "loginSid": "ID number (sign-in)",
+        "loginPhone": "Phone number (sign-in)",
+        "pin": "PIN",
+        "pinStatus": "PIN status",
+        "status": "Status",
+        "expiresAt": "Expires on",
+        "daysLeft": "Days left",
+        "createdBy": "Created by",
+        "lastSentAt": "Last successful send"
+      },
+      "sections": {
+        "person": "Person",
+        "login": "Sign-in details",
+        "period": "Period",
+        "deliveries": "Invitation log"
+      },
+      "banners": {
+        "mustChangePin": "The host has not changed the PIN yet.",
+        "expired": "The trial has ended. The account is read-only for the host until it is extended.",
+        "disabled": "The account is disabled and cannot be signed in to. To reopen it, create a new trial with the same email or phone.",
+        "sendFailed": "The last invitation attempt failed."
+      },
+      "deliveries": {
+        "time": "Time",
+        "channel": "Channel",
+        "recipient": "Recipient",
+        "result": "Result",
+        "reason": "Reason",
+        "by": "By",
+        "sent": "Sent",
+        "failed": "Failed",
+        "empty": "No send attempts yet."
+      },
+      "dialogs": {
+        "resend": {
+          "title": "Resend invitation",
+          "confirm": "Send",
+          "noEmail": "This account has no email",
+          "noPhone": "This account has no phone",
+          "channelChanged": "This will become the account's invitation channel.",
+          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN will stop working. You will not see the new PIN.",
+          "noPinInfo": "The sign-in details will be sent without a PIN, because the host chose their own PIN."
+        },
+        "resetPin": {
+          "title": "Issue a new PIN",
+          "confirm": "Issue",
+          "text": "The host will be signed out of every device, the current PIN will stop working, and they will be asked to change the PIN after signing in.",
+          "sendInvitation": "Send the invitation with the new PIN"
+        },
+        "extend": {
+          "title": "Extend trial",
+          "confirm": "Extend",
+          "days": "Number of days",
+          "preview": "New end date (approx.):",
+          "cap": "A trial cannot run more than 60 days from today.",
+          "expiredNote": "The account will work again right away."
+        },
+        "unlock": {
+          "title": "Unlock",
+          "confirm": "Unlock",
+          "text": "Unlocking resets the wrong-PIN attempts. It does not change the PIN."
+        },
+        "disable": {
+          "title": "Disable demo account",
+          "confirm": "Disable",
+          "text": "The account will be disabled and the host signed out of every device at once, and they will not be able to sign in. This can only be undone by creating a new trial with the same email or phone.",
+          "understand": "I understand"
+        }
+      },
+      "toasts": {
+        "resent": "Invitation sent.",
+        "resendFailed": "The invitation was not delivered",
+        "extended": "Extended until {{date}}",
+        "unlocked": "Unlocked.",
+        "disabled": "Account disabled."
+      },
+      "validation": {
+        "fullNameRequired": "Full name is required.",
+        "fullNameMax": "The name must not exceed 200 characters.",
+        "emailRequired": "Email is required to send by email.",
+        "emailInvalid": "Enter a valid email.",
+        "phoneRequired": "A phone number is required to send by WhatsApp or SMS.",
+        "phoneInvalid": "Enter a Saudi mobile number as 05XXXXXXXX or +9665XXXXXXXX.",
+        "duration": "The length must be between 1 and 60 days.",
+        "pin": "The PIN must be 6 digits, not all the same and not sequential.",
+        "noteMax": "The note must not exceed 500 characters."
+      },
+      "errors": {
+        "DEMO_DISABLED": "Demo accounts are currently not enabled on the platform.",
+        "DEMO_LIMIT_REACHED": "The maximum number of open demo accounts has been reached. Disable an old one first.",
+        "DEMO_REQUEST_DUPLICATE": "This request was already processed. Refresh the list and search by name; if needed, issue a new PIN.",
+        "DEMO_EMAIL_REQUIRED": "This account has no email. Choose another channel.",
+        "DEMO_PHONE_REQUIRED": "This account has no phone. Choose email.",
+        "DEMO_DURATION_INVALID": "The length is longer than allowed. Reduce the number of days.",
+        "DEMO_ACCOUNT_NOT_FOUND": "Account not found",
+        "DEMO_ACCOUNT_DISABLED": "The account is disabled and accepts no actions.",
+        "DEMO_CREATE_FAILED": "Could not create the account and nothing was saved. Try again.",
+        "DEMO_USER_MISSING": "This account's user data is missing. Contact the development team.",
+        "forbidden": "You do not have permission to perform this action",
+        "unexpected": "An unexpected error occurred. Try again."
+      }
+    },
     "state": {
       "loadError": "Could not load data",
       "retry": "Retry"
@@ -185,6 +398,7 @@
       }
     },
     "sidebar": {
+      "demoAccounts": "Demo Accounts",
       "brand": "LFEEN",
       "dashboard": "Dashboard",
       "buildings": "Buildings",
@@ -1181,7 +1395,8 @@
           "ClientFaqUpdated": "FAQ article updated",
           "ClientFaqActivated": "FAQ article activated",
           "ClientFaqDeactivated": "FAQ article deactivated",
-          "ClientFaqDeleted": "FAQ article deleted"
+          "ClientFaqDeleted": "FAQ article deleted",
+          "ReviewRewardSettingsUpdated": "Stay review reward updated"
         },
         "actionGroups": {
           "employees": "Employees & roles",
@@ -1196,7 +1411,8 @@
           "merchantTickets": "Host tickets",
           "platformOffers": "Platform offers",
           "callScripts": "Call scripts",
-          "clientFaq": "FAQ"
+          "clientFaq": "FAQ",
+          "platformSettings": "Platform settings"
         },
         "details": {
           "title": "Operation Details",
@@ -4525,6 +4741,27 @@
         "generateNew": "Generate New",
         "copy": "Copy",
         "defaultsNote": "These are the built-in defaults; the settings haven't been saved yet"
+      },
+      "reviewReward": {
+        "title": "Stay Review Reward",
+        "subtitle": "Cashback added to the client's wallet as points after reviewing a finished stay",
+        "on": "On",
+        "off": "Off",
+        "amount": "Amount (SAR)",
+        "pointsHint": "= {{points}} points",
+        "note": "Given only when the client reviews the unit, the host and the platform together, once per booking.",
+        "defaultsNote": "This is the platform default (5 SAR); it hasn't been changed yet",
+        "save": "Save",
+        "unsaved": "You have unsaved changes",
+        "confirmOffTitle": "Turn off the stay review reward?",
+        "confirmOffMessage": "Clients will stop getting a reward for reviewing their stays. The change applies to the app right away; reviews already submitted keep their reward.",
+        "confirmOffAction": "Turn off",
+        "errors": {
+          "required": "Enter the reward amount",
+          "aboveZero": "Enter an amount above 0 to turn the reward on",
+          "range": "The amount must be between {{min}} and {{max}} SAR",
+          "decimals": "The amount allows at most 2 decimal places"
+        }
       },
       "errors": {
         "loadFailed": "Couldn't load the data",

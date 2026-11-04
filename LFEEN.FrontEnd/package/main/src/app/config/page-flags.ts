@@ -15,6 +15,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
   'additional-conditions': true,    // wired to /api/{accounts|properties|units}/additional-conditions (pending queue)
   'profile-changes': true,          // account-management tab; wired to /api/accounts/profile-changes (branding / commercial register review)
+  'demo-accounts': true,            // wired to /api/admin/demo-accounts (list, details, create, resend, new PIN, extend, unlock, disable)
   'add-department': false,          // departments come seeded from the backend; the admin has no "add department" flow
 };
 

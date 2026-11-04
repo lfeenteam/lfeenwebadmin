@@ -1,0 +1,25 @@
+@use '../../demo-accounts';
+
+:host { display: block; }
+
+// A disabled button swallows hover, so the tooltip sits on this wrapper instead.
+.seg-slot {
+  display: flex;
+
+  button { width: 100%; }
+}
+
+.extend-preview {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #45556C;
+
+  strong { color: #111110; font-weight: 800; }
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}
