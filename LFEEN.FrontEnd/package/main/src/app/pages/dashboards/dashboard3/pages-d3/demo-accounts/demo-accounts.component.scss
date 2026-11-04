@@ -162,6 +162,8 @@
   color: #111110;
 
   i-tabler { color: #6B6B67; display: inline-flex; }
+
+  &.danger, &.danger i-tabler { color: #dc2626; }
 }
 
 .da-load-error {

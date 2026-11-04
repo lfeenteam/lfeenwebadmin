@@ -23,7 +23,14 @@ import {
   DemoChannel,
   toLocalPhone
 } from '../../../interfaces/demo-account.model';
-import { DemoApiError, demoErrorMessage, formatRiyadhDate, readDemoError } from '../demo-accounts.util';
+import {
+  DEMO_ACTION_BUTTONS,
+  DemoApiError,
+  demoActionToast,
+  demoErrorMessage,
+  formatRiyadhDate,
+  readDemoError
+} from '../demo-accounts.util';
 import {
   DemoAction,
   DemoActionDialogComponent,
@@ -33,20 +40,6 @@ import {
 import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
 
 const EMPTY = '—';
-
-interface ActionButton {
-  action: DemoAction;
-  icon: string;
-  labelKey: string;
-}
-
-// Header order (§5.3); Disable is rendered apart as the danger button.
-const ACTIONS: ActionButton[] = [
-  { action: 'resend', icon: 'send', labelKey: 'd3.demoAccounts.actions.resend' },
-  { action: 'resetPin', icon: 'key', labelKey: 'd3.demoAccounts.actions.resetPin' },
-  { action: 'extend', icon: 'calendar-plus', labelKey: 'd3.demoAccounts.actions.extend' },
-  { action: 'unlock', icon: 'lock-open', labelKey: 'd3.demoAccounts.actions.unlock' },
-];
 
 @Component({
   selector: 'app-demo-account-details',
@@ -71,7 +64,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     this.login.permissions().some(p => p.toLowerCase() === DEMO_PERMISSIONS.manage)
   );
 
-  readonly actions = ACTIONS;
+  readonly actions = DEMO_ACTION_BUTTONS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
   readonly emptyValue = EMPTY;
 
@@ -234,28 +227,8 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   }
 
   private toastAfter(action: DemoAction, account: DemoAccount): void {
-    const t = (key: string, params?: object) => this.translate.instant(`d3.demoAccounts.toasts.${key}`, params);
-    switch (action) {
-      case 'resend': {
-        // 200 even when delivery failed — the real result is the newest attempt.
-        const last = account.deliveries?.[0];
-        if (last?.succeeded === true) {
-          this.toastr.success(t('resent'));
-        } else {
-          this.toastr.error(`${t('resendFailed')}${last?.error ? `: ${last.error}` : ''}`);
-        }
-        break;
-      }
-      case 'extend':
-        this.toastr.success(t('extended', { date: formatRiyadhDate(account.expiresAt, this.currentLang) ?? '' }));
-        break;
-      case 'unlock':
-        this.toastr.success(t('unlocked'));
-        break;
-      case 'disable':
-        this.toastr.success(t('disabled'));
-        break;
-    }
+    const toast = demoActionToast(action, account, this.translate, this.currentLang);
+    if (toast) toast.ok ? this.toastr.success(toast.message) : this.toastr.error(toast.message);
   }
 
   private handleActionError(e: DemoApiError): void {

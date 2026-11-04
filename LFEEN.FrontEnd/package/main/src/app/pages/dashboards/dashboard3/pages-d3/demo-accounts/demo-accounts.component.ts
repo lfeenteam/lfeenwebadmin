@@ -23,8 +23,15 @@ import {
   DemoChannel,
   toLocalPhone
 } from '../../interfaces/demo-account.model';
-import { demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
+import { ToastrService } from 'ngx-toastr';
+import { DEMO_ACTION_BUTTONS, demoActionToast, demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
 import { CreateDemoDialogComponent, CreateDemoDialogResult } from './components/create-demo-dialog/create-demo-dialog.component';
+import {
+  DemoAction,
+  DemoActionDialogComponent,
+  DemoActionDialogData,
+  DemoActionDialogResult
+} from './components/demo-action-dialog/demo-action-dialog.component';
 import { CredentialsDialogComponent, CredentialsDialogData } from './components/credentials-dialog/credentials-dialog.component';
 
 const PAGE_SIZE = 20;
@@ -45,6 +52,7 @@ export class DemoAccountsComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly service = inject(DemoAccountsService);
   private readonly login = inject(LoginService);
+  private readonly toastr = inject(ToastrService);
 
   readonly canManage = computed(() =>
     this.login.permissions().some(p => p.toLowerCase() === DEMO_PERMISSIONS.manage)
@@ -54,6 +62,7 @@ export class DemoAccountsComponent implements OnInit {
   // mat-select shows nothing for a null value, so "All" gets its own option value.
   readonly allStatuses = 'all';
   readonly channelIcons = DEMO_CHANNEL_ICONS;
+  readonly actions = DEMO_ACTION_BUTTONS;
   readonly searchMax = DEMO_LIMITS.search;
   readonly emptyValue = EMPTY;
 
@@ -73,6 +82,8 @@ export class DemoAccountsComponent implements OnInit {
   loadError: string | null = null;
   /** The feature is off on the backend (DEMO_DISABLED): banner, empty table, create disabled. */
   demoDisabled = false;
+  /** A row action dialog is open — the other row actions are off. */
+  busy = false;
 
   private readonly searchInput$ = new Subject<string>();
   private listRequest?: Subscription;
@@ -169,6 +180,51 @@ export class DemoAccountsComponent implements OnInit {
 
   open(item: DemoAccount): void {
     this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', item.id]);
+  }
+
+  // Row ⋮ menu: the same dialogs as the details header. The list is reloaded afterwards
+  // so status/days left (and the status filter) stay right.
+  openAction(item: DemoAccount, action: DemoAction): void {
+    if (!this.canManage() || this.busy || item.status === 'Disabled') return;
+    this.busy = true;
+
+    const ref = this.dialog.open(DemoActionDialogComponent, {
+      width: action === 'disable' ? '480px' : '520px',
+      maxWidth: '94vw',
+      disableClose: true,
+      direction: this.dir,
+      data: { action, account: item } as DemoActionDialogData,
+    });
+
+    ref.afterClosed().subscribe((result?: DemoActionDialogResult) => {
+      this.busy = false;
+      if (!result) return;
+
+      if (result.type === 'error') {
+        // Not found / already disabled by someone else — say so and show the list as it is now.
+        this.toastr.error(demoErrorMessage(result.error, this.translate));
+        this.load();
+        return;
+      }
+
+      if (result.type === 'credentials') {
+        const account = result.credentials.account;
+        const recipient = account.channel === 'Email' ? account.email : toLocalPhone(account.contactPhone);
+        this.load();
+        this.dialog.open(CredentialsDialogComponent, {
+          width: '520px',
+          maxWidth: '94vw',
+          disableClose: true,
+          direction: this.dir,
+          data: { credentials: result.credentials, mode: 'resetPin', recipient } as CredentialsDialogData,
+        });
+        return;
+      }
+
+      const toast = demoActionToast(action, result.account, this.translate, this.currentLang);
+      if (toast) toast.ok ? this.toastr.success(toast.message) : this.toastr.error(toast.message);
+      this.load();
+    });
   }
 
   openCreate(): void {

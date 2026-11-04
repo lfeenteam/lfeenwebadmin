@@ -141,6 +141,25 @@
                         <span>{{ 'd3.demoAccounts.actions.viewDetails' | translate }}</span>
                       </span>
                     </button>
+                    <!-- Same actions as the details header; none on a disabled account. -->
+                    @if (canManage() && item.status !== 'Disabled') {
+                      <mat-divider></mat-divider>
+                      @for (a of actions; track a.action) {
+                        <button mat-menu-item [disabled]="busy" (click)="openAction(item, a.action)">
+                          <span class="menu-item-row">
+                            <i-tabler [name]="a.icon" class="icon-16"></i-tabler>
+                            <span>{{ a.labelKey | translate }}</span>
+                          </span>
+                        </button>
+                      }
+                      <mat-divider></mat-divider>
+                      <button mat-menu-item [disabled]="busy" (click)="openAction(item, 'disable')">
+                        <span class="menu-item-row danger">
+                          <i-tabler name="ban" class="icon-16"></i-tabler>
+                          <span>{{ 'd3.demoAccounts.actions.disable' | translate }}</span>
+                        </span>
+                      </button>
+                    }
                   </mat-menu>
                 </td>
               </tr>

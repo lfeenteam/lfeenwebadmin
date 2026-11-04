@@ -1,5 +1,50 @@
 import { TranslateService } from '@ngx-translate/core';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
+import type { DemoAccount } from '../../interfaces/demo-account.model';
+import type { DemoAction } from './components/demo-action-dialog/demo-action-dialog.component';
+
+// ── Actions (§5.3) — shared by the details header and the list's ⋮ menu ──
+
+export interface DemoActionButton {
+  action: DemoAction;
+  icon: string;
+  labelKey: string;
+}
+
+/** In display order; Disable is rendered apart as the danger item. */
+export const DEMO_ACTION_BUTTONS: DemoActionButton[] = [
+  { action: 'resend', icon: 'send', labelKey: 'd3.demoAccounts.actions.resend' },
+  { action: 'resetPin', icon: 'key', labelKey: 'd3.demoAccounts.actions.resetPin' },
+  { action: 'extend', icon: 'calendar-plus', labelKey: 'd3.demoAccounts.actions.extend' },
+  { action: 'unlock', icon: 'lock-open', labelKey: 'd3.demoAccounts.actions.unlock' },
+];
+
+/** The toast after an action that returned the account. Reset PIN has its own dialog instead. */
+export function demoActionToast(
+  action: DemoAction,
+  account: DemoAccount,
+  translate: TranslateService,
+  lang: string
+): { ok: boolean; message: string } | null {
+  const t = (key: string, params?: object) => translate.instant(`d3.demoAccounts.toasts.${key}`, params);
+  switch (action) {
+    case 'resend': {
+      // 200 even when delivery failed — the real result is the newest attempt.
+      const last = account.deliveries?.[0];
+      return last?.succeeded === true
+        ? { ok: true, message: t('resent') }
+        : { ok: false, message: `${t('resendFailed')}${last?.error ? `: ${last.error}` : ''}` };
+    }
+    case 'extend':
+      return { ok: true, message: t('extended', { date: formatRiyadhDate(account.expiresAt, lang) ?? '' }) };
+    case 'unlock':
+      return { ok: true, message: t('unlocked') };
+    case 'disable':
+      return { ok: true, message: t('disabled') };
+    default:
+      return null;
+  }
+}
 
 // ── Errors (§8) ─────────────────────────────────────────────────────────
 // Branch on errorCode only — never on the HTTP status or the message text.
