@@ -17,6 +17,7 @@
     [searchPlaceholder]="searchPlaceholder"
     [activeTab]="activeTab"
     [searchQuery]="searchQuery"
+    [activeFilters]="activeFilters"
     [viewMode]="viewMode"
     (activeTabChange)="onTabChange($event)"
     (searchQueryChange)="onSearch($event)"
@@ -31,7 +32,9 @@
       [buildings]="buildingsWithUnits"
       [isReviewTab]="isReviewTab"
       [viewMode]="viewMode"
-      [activeTab]="activeTab">
+      [activeTab]="activeTab"
+      [hasFilters]="hasFilters"
+      (clearFilters)="clearFilters()">
     </app-cards-units>
   }
 

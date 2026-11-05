@@ -30,6 +30,10 @@
         </div>
       } @else if (growth.initialLoading()) {
         <div class="d3-skeleton d3-chart-skeleton"></div>
+      } @else if (isEmpty()) {
+        <div class="d3-chart-empty" role="status">
+          <span>{{ 'd3.chart.empty' | translate }}</span>
+        </div>
       } @else {
         <apx-chart
           [series]="chartOptions().series"

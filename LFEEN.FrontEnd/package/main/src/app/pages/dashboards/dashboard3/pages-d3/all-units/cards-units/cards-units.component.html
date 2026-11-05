@@ -1,6 +1,14 @@
 <div class="cards-units" [dir]="currentDir">
 
-@if (buildings.length === 0) {
+@if (buildings.length === 0 && hasFilters) {
+  <app-dashboard-empty variant="search"
+    titleKey="d3.emptyState.noResults.title"
+    descKey="d3.emptyState.noResults.desc"
+    actionKey="d3.emptyState.noResults.clear"
+    actionIcon="x"
+    (action)="clearFilters.emit()">
+  </app-dashboard-empty>
+} @else if (buildings.length === 0) {
   <app-dashboard-empty icon="home"
     [titleKey]="emptyTitleKey"
     [descKey]="emptyDescKey">

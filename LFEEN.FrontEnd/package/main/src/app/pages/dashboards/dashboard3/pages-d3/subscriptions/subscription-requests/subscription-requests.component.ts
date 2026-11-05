@@ -64,7 +64,8 @@ export class SubscriptionRequestsComponent implements OnInit {
   /** Every order, newest first. */
   private rows: RequestRow[] = [];
   private orders: SubscriptionOrder[] = [];
-  logoByServiceId = new Map<number, string | null>();
+  /** Logos and both-language names; the order's own serviceName is always Arabic. */
+  catalogById = new Map<number, SubscriptionCatalogItem>();
   /** Logo URLs that failed to load — shown as the fallback icon instead of a broken image. */
   readonly brokenLogos = new Set<string>();
   private listRequest?: Subscription;
@@ -79,14 +80,19 @@ export class SubscriptionRequestsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // The catalog only supplies service logos — the list still works without it.
+    // The catalog supplies service logos and names — the list still works without it.
     this.service.getCatalog()
       .pipe(catchError(() => of([] as SubscriptionCatalogItem[])), takeUntilDestroyed(this.destroyRef))
       .subscribe(catalog => {
-        this.logoByServiceId = new Map(catalog.map(c => [c.id, c.logoUrl]));
+        this.catalogById = new Map(catalog.map(c => [c.id, c]));
         this.rebuildRows();
       });
     this.load();
+
+    // Service names are picked per language when the rows are built.
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.rebuildRows());
   }
 
   get currentLang(): string {
@@ -143,6 +149,11 @@ export class SubscriptionRequestsComponent implements OnInit {
     return row.kind === 'other'
       ? (row.order.statusLabel || row.order.status || '-')
       : this.translate.instant(`d3.subscriptionRequests.tabs.${row.kind}`);
+  }
+
+  /** Names of the services hidden behind "+N". */
+  moreServicesTooltip(row: RequestRow): string {
+    return row.services.slice(MAX_SERVICE_ICONS).map(s => s.name).join('\n');
   }
 
   fmtAmount(value: number): string {
@@ -205,9 +216,11 @@ export class SubscriptionRequestsComponent implements OnInit {
     for (const item of order.items ?? []) {
       if (seen.has(item.subscriptionServiceId)) continue;
       seen.add(item.subscriptionServiceId);
+      const catalogItem = this.catalogById.get(item.subscriptionServiceId);
+      const catalogName = catalogItem ? (this.currentLang === 'en' ? catalogItem.nameEn : catalogItem.nameAr) : null;
       services.push({
-        name: item.serviceName,
-        logoUrl: this.logoByServiceId.get(item.subscriptionServiceId) ?? null,
+        name: catalogName || item.serviceName,
+        logoUrl: catalogItem?.logoUrl ?? null,
         icon: serviceVisual(item.serviceKey).icon,
       });
     }

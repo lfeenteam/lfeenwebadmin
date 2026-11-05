@@ -189,9 +189,17 @@
 }
 
 .log-date {
+  display: block;
   font-size: 12px;
   font-weight: 600;
   color: #6B6B67;
+}
+
+.log-time {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #90A1B9;
 }
 
 .action-badge {
@@ -306,9 +314,9 @@
   // Details gets the most room: it is the only cell with more than a word or two.
   th:nth-child(1), td:nth-child(1) { width: 13%; }
   th:nth-child(2), td:nth-child(2) { width: 13%; }
-  th:nth-child(3), td:nth-child(3) { width: 19%; }
+  th:nth-child(3), td:nth-child(3) { width: 17%; }
   th:nth-child(4), td:nth-child(4) { width: 9%; }
-  th:nth-child(5), td:nth-child(5) { width: 14%; }
+  th:nth-child(5), td:nth-child(5) { width: 16%; }
   th:nth-child(6), td:nth-child(6) { width: 32%; }
 
   td { vertical-align: middle; overflow-wrap: anywhere; }

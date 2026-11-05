@@ -44,10 +44,20 @@
       }
       @empty {
         <div class="col-12">
-          <app-dashboard-empty icon="users"
-            [titleKey]="emptyTitleKey"
-            [descKey]="emptyDescKey">
-          </app-dashboard-empty>
+          @if (searchQuery.trim()) {
+            <app-dashboard-empty variant="search"
+              titleKey="d3.emptyState.noResults.title"
+              descKey="d3.emptyState.noResults.desc"
+              actionKey="d3.emptyState.noResults.clear"
+              actionIcon="x"
+              (action)="onSearchChange('')">
+            </app-dashboard-empty>
+          } @else {
+            <app-dashboard-empty icon="users"
+              [titleKey]="emptyTitleKey"
+              [descKey]="emptyDescKey">
+            </app-dashboard-empty>
+          }
         </div>
       }
     </div>

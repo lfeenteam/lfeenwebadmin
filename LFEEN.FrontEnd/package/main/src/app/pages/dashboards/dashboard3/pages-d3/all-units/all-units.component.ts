@@ -38,6 +38,7 @@ export class AllUnitsComponent {
 
   activeTab: string = this.unitsService.activeTab();
   searchQuery       = '';
+  activeFilters: Record<string, string> | undefined;
   viewMode: ViewMode = 'list';
   buildingsWithUnits: BuildingWithUnits[] = [];
   isLoading    = false;
@@ -173,6 +174,19 @@ export class AllUnitsComponent {
   onSearch(query: string): void {
     this.searchQuery = query;
     this.unitsService.setSearch(query);
+  }
+
+  /** Search / account / property narrow the list; sort only reorders it, so it doesn't count. */
+  get hasFilters(): boolean {
+    return !!(this.unitsService.searchQuery().trim() || this.unitsService.accountId() || this.unitsService.propertyId());
+  }
+
+  clearFilters(): void {
+    this.onSearch('');
+    // A new object each time so the dropdown pills pick up the reset.
+    this.activeFilters = { account: 'all', property: 'all' };
+    this.unitsService.setAccountFilter('');
+    this.unitsService.setPropertyFilter('');
   }
 
   onFiltersChange(filters: Record<string, string>): void {

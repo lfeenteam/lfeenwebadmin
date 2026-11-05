@@ -14,7 +14,7 @@
       }
     </section>
   } @else {
-    <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+    <ng-container *ngTemplateOutlet="emptyState"></ng-container>
   }
 } @else {
 <section class="buildings-grid" [class.list-view]="viewMode === 'list'">
@@ -43,7 +43,7 @@
   <!-- ══ Empty state for published / rejected tabs ══ -->
   @if ((activeTab === 'published' || activeTab === 'rejected' || activeTab === 'draft') && buildings.length === 0) {
     <div class="empty-state-span">
-      <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+      <ng-container *ngTemplateOutlet="emptyState"></ng-container>
     </div>
   }
 
@@ -109,9 +109,21 @@
 
 <!-- ══ Empty state for review tabs ══ -->
 @if ((activeTab === 'new' || activeTab === 'underReview' || activeTab === 'pendingChanges') && buildings.length === 0) {
-  <app-dashboard-empty icon="home"
-    [titleKey]="emptyTitleKey"
-    [descKey]="emptyDescKey">
-  </app-dashboard-empty>
+  <ng-container *ngTemplateOutlet="emptyState"></ng-container>
 }
 }
+
+<!-- Searching/filtering with no matches is not the same as an empty tab. -->
+<ng-template #emptyState>
+  @if (hasFilters) {
+    <app-dashboard-empty variant="search"
+      titleKey="d3.emptyState.noResults.title"
+      descKey="d3.emptyState.noResults.desc"
+      actionKey="d3.emptyState.noResults.clear"
+      actionIcon="x"
+      (action)="clearFilters.emit()">
+    </app-dashboard-empty>
+  } @else {
+    <app-dashboard-empty icon="home" [titleKey]="emptyTitleKey" [descKey]="emptyDescKey"></app-dashboard-empty>
+  }
+</ng-template>

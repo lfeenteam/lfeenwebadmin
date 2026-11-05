@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -22,6 +22,9 @@ export class CardsUnitsComponent {
   @Input() buildings: BuildingWithUnits[] = [];
   @Input() isReviewTab: boolean = false;
   @Input() viewMode: ViewMode = 'grid';
+  /** A search or filter is applied, so an empty list means "no matches", not "no units". */
+  @Input() hasFilters = false;
+  @Output() clearFilters = new EventEmitter<void>();
   @Input() activeTab: string = 'published';
 
   private unitsService = inject(UnitsService);

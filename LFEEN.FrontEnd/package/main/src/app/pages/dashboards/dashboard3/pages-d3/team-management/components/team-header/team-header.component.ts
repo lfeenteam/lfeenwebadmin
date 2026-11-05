@@ -21,6 +21,12 @@ export class TeamHeaderComponent {
   @Input() showAction: boolean = true;
   @Input() departments: Department[] = [];
   @Input() roles: DepartmentRole[] = [];
+  /** Optional: lets the parent reset the inputs (e.g. "clear search and filters"). */
+  @Input() set searchValue(value: string | null | undefined) {
+    this.searchQuery = value ?? '';
+  }
+  @Input() deptValue: string | null = '';
+  @Input() roleValue: string | null = '';
 
   @Output() search = new EventEmitter<string>();
   @Output() filterDept = new EventEmitter<string>();

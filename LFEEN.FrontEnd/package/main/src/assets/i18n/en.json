@@ -201,6 +201,29 @@
         "pinHelp": "Leave empty to generate a strong PIN automatically.",
         "note": "Internal note",
         "noteHelp": "Not shown to the host.",
+        "message": {
+          "title": "Invitation message",
+          "edit": "Edit",
+          "preview": "Preview",
+          "variablesHint": "Click a variable to insert it at the cursor. It's replaced with the real value when sent.",
+          "subject": "Subject",
+          "body": "Message",
+          "bodyHelp": "You can use variables like {{name}} and {{days}}.",
+          "previewHelp": "Approximate preview using what's typed in the form.",
+          "defaultSubject": "Hi {{name}}, your Lfeen demo account is ready",
+          "defaultBody": "Hello {{name}},\nA demo account has been created for you for {{days}} days, ending on {{expiryDate}}.\n\nEmail: {{email}}\nPIN: {{pin}}",
+          "vars": {
+            "name": "Name",
+            "days": "Duration",
+            "expiryDate": "Expiry date",
+            "email": "Email",
+            "pin": "PIN"
+          },
+          "sample": {
+            "name": "Host name",
+            "pin": "Auto-generated"
+          }
+        },
         "submit": "Create and send invitation"
       },
       "credentials": {
@@ -314,7 +337,12 @@
         "phoneInvalid": "Enter a Saudi mobile number as 05XXXXXXXX or +9665XXXXXXXX.",
         "duration": "The length must be between 1 and 60 days.",
         "pin": "The PIN must be 6 digits, not all the same and not sequential.",
-        "noteMax": "The note must not exceed 500 characters."
+        "noteMax": "The note must not exceed 500 characters.",
+        "subjectRequired": "Subject is required.",
+        "subjectMax": "The subject must not exceed 150 characters.",
+        "bodyRequired": "Message is required.",
+        "bodyMax": "The message must not exceed 1000 characters.",
+        "unknownVariable": "Unknown variable: {{vars}}"
       },
       "errors": {
         "DEMO_DISABLED": "Demo accounts are currently not enabled on the platform.",
@@ -475,6 +503,11 @@
       "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
     },
     "emptyState": {
+      "noResults": {
+        "title": "No results match your search",
+        "desc": "Try a different search term or change the selected filters.",
+        "clear": "Clear search and filters"
+      },
       "builds": {
         "draft": {
           "title": "No draft buildings",
@@ -482,7 +515,7 @@
         },
         "published": {
           "title": "No published buildings",
-          "desc": "No buildings have been published yet, or no results match your search."
+          "desc": "No buildings have been published yet."
         },
         "new": {
           "title": "No new building requests",
@@ -498,11 +531,11 @@
         },
         "rejected": {
           "title": "No rejected buildings",
-          "desc": "No buildings have been rejected yet, or no results match your search."
+          "desc": "No buildings have been rejected yet."
         },
         "banned": {
           "title": "No banned buildings",
-          "desc": "No buildings have been banned yet, or no results match your search."
+          "desc": "No buildings have been banned yet."
         }
       },
       "units": {
@@ -512,7 +545,7 @@
         },
         "published": {
           "title": "No published units",
-          "desc": "No units have been published yet, or no results match your search."
+          "desc": "No units have been published yet."
         },
         "new": {
           "title": "No new units awaiting review",
@@ -528,17 +561,17 @@
         },
         "rejected": {
           "title": "No rejected units",
-          "desc": "No units have been rejected yet, or no results match your search."
+          "desc": "No units have been rejected yet."
         },
         "banned": {
           "title": "No banned units",
-          "desc": "No units have been banned yet, or no results match your search."
+          "desc": "No units have been banned yet."
         }
       },
       "accounts": {
         "all": {
           "title": "No accounts found",
-          "desc": "No accounts have been registered yet, or no results match your search."
+          "desc": "No accounts have been registered yet."
         },
         "active": {
           "title": "No active accounts",
@@ -1120,6 +1153,7 @@
     "chart": {
       "title": "Platform Growth Analysis",
       "subtitle": "Internal comparison between bookings and user growth",
+      "empty": "No data for this period",
       "tabNewGuests": "New Guests",
       "tabNewHosts": "New Hosts",
       "tabBookings": "Bookings",
@@ -3666,6 +3700,7 @@
         "topUp": "Top Ups",
         "callCharge": "Call Charges",
         "callRefund": "Call Refunds",
+        "subscriptionPayment": "Subscription Payments",
         "adminAdjustment": "Admin Adjustments",
         "newest": "Newest first",
         "oldest": "Oldest first"
@@ -3719,7 +3754,8 @@
         "topUp": "Top Up",
         "callCharge": "Call Charge",
         "callRefund": "Call Refund",
-        "adminAdjustment": "Admin Adjustment"
+        "adminAdjustment": "Admin Adjustment",
+        "subscriptionPayment": "Subscription Payment"
       },
       "errors": {
         "loadTitle": "Couldn't load the wallet",
@@ -4059,7 +4095,7 @@
       },
       "empty": {
         "title": "No subscribers yet",
-        "desc": "No subscriber accounts have been registered yet, or no results match your search."
+        "desc": "No subscriber accounts have been registered yet."
       },
       "configurationWarning": "{{count}} services need configuration. Review service pricing.",
       "pagination": {
@@ -4394,7 +4430,8 @@
         "IsActive": "Active",
         "IsAvailable": "Available",
         "IsDefault": "Default",
-        "TrialDays": "Trial days"
+        "TrialDays": "Trial days",
+        "MessagesPerPack": "Messages per pack"
       },
       "detailValues": {
         "Paid": "Paid",
@@ -4423,7 +4460,7 @@
       },
       "empty": {
         "title": "No operations yet",
-        "desc": "No subscription operations have been recorded yet, or no results match your search."
+        "desc": "No subscription operations have been recorded yet."
       },
       "pagination": {
         "total": "operation",

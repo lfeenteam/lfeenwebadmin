@@ -81,6 +81,9 @@
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.date' | translate }}</span>
                   <span class="log-date">{{ entry.date }}</span>
+                  @if (entry.time) {
+                    <span class="log-time">{{ entry.time }}</span>
+                  }
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.details' | translate }}</span>

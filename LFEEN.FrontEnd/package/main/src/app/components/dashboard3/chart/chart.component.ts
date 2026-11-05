@@ -17,9 +17,10 @@ import {
 } from 'ng-apexcharts';
 import { DashboardService } from '../../../pages/dashboards/dashboard3/services/dashboard.service';
 import { createDashboardPanel } from '../../../pages/dashboards/dashboard3/services/dashboard-panel';
-import { DashboardSummary } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/interfaces/dashboard.model';
+import { DashboardGrowth, DashboardSummary } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/interfaces/dashboard.model';
 import {
   EM_DASH,
+  dashboardLocale,
   formatDecimal,
   formatInteger,
   formatRate,
@@ -51,20 +52,29 @@ type GrowthSeriesKey = 'newGuests' | 'newMerchants' | 'bookings';
 
 const SERIES_KEYS: GrowthSeriesKey[] = ['newGuests', 'newMerchants', 'bookings'];
 
-// Relative positions (matching the design's rhythm) at which the curve gets a visible dot,
-// scaled to however many points the current period actually returns.
-const MARKER_FRACTIONS = [0.2, 0.4, 0.8, 1];
+const AXIS_COLOR = '#94A3B8';
+const GRID_COLOR = '#F1F5F9';
+/** Most date labels under the chart; the rest are skipped so they never overlap. */
+const MAX_X_LABELS = 6;
 
-function buildDiscreteMarkers(pointCount: number) {
-  if (pointCount < 2) return [];
-  const indices = new Set(MARKER_FRACTIONS.map((f) => Math.round(f * (pointCount - 1))));
-  return Array.from(indices).map((dataPointIndex) => ({
-    seriesIndex: 0,
-    dataPointIndex,
-    fillColor: '#FFFFFF',
-    strokeColor: '#0F172B',
-    size: 5,
-  }));
+type GrowthPoint = DashboardGrowth['points'][number];
+
+/**
+ * Bucket dates in the period's own time zone (the API sends it), so a Riyadh day never
+ * shows as the previous day. A monthly bucket is named by its month, others by their day.
+ */
+function bucketDate(point: GrowthPoint, growth: DashboardGrowth, lang: string, long: boolean): string {
+  const date = new Date(point.startUtc);
+  if (isNaN(date.getTime())) return point.label;
+  const options: Intl.DateTimeFormatOptions = growth.granularity === 'monthly'
+    ? { month: 'long', year: 'numeric' }
+    : { day: 'numeric', month: long ? 'long' : 'short', ...(long ? { year: 'numeric' } : {}) };
+  try {
+    return date.toLocaleDateString(dashboardLocale(lang), { ...options, timeZone: growth.period?.timeZone });
+  } catch {
+    // Unknown time zone name: fall back to the browser's.
+    return date.toLocaleDateString(dashboardLocale(lang), options);
+  }
 }
 
 @Component({
@@ -86,22 +96,34 @@ export class ChartComponent {
   tabs: string[] = ['d3.chart.tabNewGuests', 'd3.chart.tabNewHosts', 'd3.chart.tabBookings'];
   readonly activeTab = signal(0);
 
+  /** Every value of the active tab is zero — a flat line would read as a broken chart. */
+  readonly isEmpty = computed(() => {
+    const key = SERIES_KEYS[this.activeTab()];
+    return this.growthPoints().every((p) => !p[key]);
+  });
+
   // Tabs switch locally — no extra request; all three series come from the same response.
   readonly chartOptions = computed<ChartOptions>(() => {
-    const points = this.growth.data()?.points ?? [];
+    const growth = this.growth.data();
+    const points = growth?.points ?? [];
     const key = SERIES_KEYS[this.activeTab()];
     const values = points.map((p) => p[key]);
     const max = Math.max(1, ...values);
+    // Read so the axis dates and series name follow a language switch.
+    const lang = this.lang();
+    const axisDates = growth ? points.map((p) => bucketDate(p, growth, lang, false)) : [];
+    const tooltipDates = growth ? points.map((p) => bucketDate(p, growth, lang, true)) : [];
+    // Whole numbers only: never more ticks than the top value (no "0.5 bookings").
+    const yTicks = Math.min(4, Math.ceil(max));
 
     return {
-      series: [{ name: this.translate.instant('d3.chart.growthSeries'), data: values }],
+      series: [{ name: this.translate.instant(this.tabs[this.activeTab()]), data: values }],
       chart: {
         type: 'area',
-        height: 230,
+        height: 260,
         toolbar: { show: false },
         zoom: { enabled: false },
         fontFamily: 'Cairo, sans-serif',
-        sparkline: { enabled: true },
         animations: { enabled: false },
       },
       colors: ['#0F172B'],
@@ -120,33 +142,53 @@ export class ChartComponent {
           ],
         },
       },
-      grid: { show: false, padding: { left: -10, right: 10, top: 8, bottom: -10 } },
+      // Light horizontal lines only, so the values can be read without cluttering the card.
+      grid: {
+        show: true,
+        borderColor: GRID_COLOR,
+        strokeDashArray: 4,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } },
+        padding: { left: 8, right: 16, top: 0, bottom: 0 },
+      },
       dataLabels: { enabled: false },
+      // A dot only on the hovered day — fixed decorative dots looked like data points.
       markers: {
         size: 0,
         colors: ['#FFFFFF'],
         strokeColors: '#0F172B',
         strokeWidth: 2,
         hover: { size: 6 },
-        discrete: buildDiscreteMarkers(points.length),
       },
       tooltip: {
         enabled: true,
-        x: { formatter: (_v, opts) => points[opts?.dataPointIndex]?.label ?? '' },
-        y: { formatter: (v) => formatInteger(v, this.lang()) },
+        x: { formatter: (_v, opts) => tooltipDates[opts?.dataPointIndex] ?? '' },
+        y: { formatter: (v) => formatInteger(v, lang) },
       },
       xaxis: {
-        categories: points.map((p) => p.label),
-        labels: { show: false },
+        categories: axisDates,
+        tickAmount: Math.min(MAX_X_LABELS, Math.max(1, points.length - 1)),
+        labels: {
+          show: true,
+          rotate: 0,
+          hideOverlappingLabels: true,
+          style: { colors: AXIS_COLOR, fontSize: '11px', fontWeight: 600 },
+        },
         axisBorder: { show: false },
         axisTicks: { show: false },
-        crosshairs: { show: false },
+        crosshairs: { show: true, stroke: { color: '#CBD5E1', width: 1, dashArray: 3 } },
         tooltip: { enabled: false },
       },
       yaxis: {
         min: 0,
         max: Math.ceil(max * 1.1),
-        labels: { show: false },
+        tickAmount: yTicks,
+        forceNiceScale: true,
+        labels: {
+          show: true,
+          style: { colors: AXIS_COLOR, fontSize: '11px', fontWeight: 600 },
+          formatter: (v) => formatInteger(v, lang),
+        },
         axisBorder: { show: false },
         axisTicks: { show: false },
       },

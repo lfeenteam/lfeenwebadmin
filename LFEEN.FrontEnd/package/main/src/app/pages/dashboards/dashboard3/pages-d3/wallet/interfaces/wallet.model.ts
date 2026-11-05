@@ -7,6 +7,8 @@ export type WalletEntryType =
   | 'AdminAdjustment'
   | 'CallCharge'
   | 'CallRefundAdjustment'
+  | 'SubscriptionPayment'
+  | 'TopUp'
   | (string & {});
 
 export type WalletCategoryValue = 'Compensation' | 'Refund' | 'Penalty' | 'Correction' | 'Other';

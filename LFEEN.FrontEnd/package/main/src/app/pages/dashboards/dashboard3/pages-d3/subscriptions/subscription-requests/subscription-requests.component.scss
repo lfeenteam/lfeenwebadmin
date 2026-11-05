@@ -134,8 +134,26 @@
   color: #111110;
 }
 
-.service-icons {
-  gap: 4px;
+.service-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.service-line {
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.service-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111110;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .service-icon {

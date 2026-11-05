@@ -125,7 +125,7 @@
               class="row-action-btn"
               type="button"
               (click)="$event.stopPropagation(); onResolvedAction(c)">
-              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
             </button>
           </div>
 
@@ -173,7 +173,7 @@
 
           <div class="col-action">
             <button class="row-action-btn" type="button" (click)="$event.stopPropagation(); detailSelect.emit(c)">
-              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
             </button>
           </div>
         } @else {

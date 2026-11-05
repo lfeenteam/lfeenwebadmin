@@ -24,9 +24,12 @@
       actionLabel="d3.teamManagement.addEmployee"
       actionIcon="user-plus"
       [showFilters]="true"
-      [showAction]="employees.length > 0"
+      [showAction]="employees.length > 0 || hasEmployeeFilters"
       [departments]="filterDepartments"
       [roles]="filterRoles"
+      [searchValue]="employeeFilters.search"
+      [deptValue]="employeeFilters.deptId"
+      [roleValue]="employeeFilters.roleId"
       (search)="onEmployeeSearch($event)"
       (filterDept)="onFilterDept($event)"
       (filterRole)="onFilterRole($event)"
@@ -87,7 +90,7 @@
             <button type="button" class="page-nav-btn"
               [disabled]="currentPage === 1"
               (click)="changePage(currentPage - 1)">
-              <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+              <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
             </button>
             @for (p of pageNumbers; track p) {
               <button type="button" class="page-number-btn"
@@ -99,7 +102,7 @@
             <button type="button" class="page-nav-btn"
               [disabled]="currentPage === totalPages"
               (click)="changePage(currentPage + 1)">
-              <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+              <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>
             </button>
           </div>
         </div>
@@ -129,6 +132,8 @@
         [totalPages]="employeeTotalPages"
         [currentPage]="employeeCurrentPage"
         [totalCount]="employeeTotalCount"
+        [hasFilters]="hasEmployeeFilters"
+        (clearFilters)="clearEmployeeFilters()"
         (edit)="onEditEmployee($event)"
         (delete)="onDeleteEmployee($event)"
         (toggleStatus)="onToggleStatusEmployee($event)"

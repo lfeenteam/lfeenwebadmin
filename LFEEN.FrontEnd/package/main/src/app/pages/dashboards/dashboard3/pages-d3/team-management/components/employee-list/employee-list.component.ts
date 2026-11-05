@@ -23,7 +23,9 @@ export class EmployeeListComponent implements OnDestroy {
   @Input() totalPages = 1;
   @Input() currentPage = 1;
   @Input() totalCount = 0;
+  @Input() hasFilters = false;
 
+  @Output() clearFilters = new EventEmitter<void>();
   @Output() edit = new EventEmitter<Employee>();
   @Output() delete = new EventEmitter<Employee>();
   @Output() toggleStatus = new EventEmitter<Employee>();
@@ -50,6 +52,11 @@ export class EmployeeListComponent implements OnDestroy {
 
   onSearch(query: string): void {
     this.searchSubject.next(query);
+  }
+
+  onClearFilters(): void {
+    this.searchQuery = '';
+    this.clearFilters.emit();
   }
 
   get pageNumbers(): number[] {

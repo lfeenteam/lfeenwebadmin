@@ -25,6 +25,8 @@ export class DashboardSubHeaderComponent {
   @Input() viewMode: ViewMode = 'grid';
   @Input() filterOptions: BuildFilterOption[] = [];
   @Input() searchPlaceholder: string = 'd3.allBuilds.filters.searchPlaceholder';
+  /** Optional: lets the parent reset the filter dropdowns (see app-tabs-filter). */
+  @Input() activeFilters: Record<string, string> | undefined;
 
   @Output() activeTabChange = new EventEmitter<string>();
   @Output() searchQueryChange = new EventEmitter<string>();

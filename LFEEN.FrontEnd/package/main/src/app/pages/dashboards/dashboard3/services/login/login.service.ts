@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { CoreService } from 'src/app/services/core.service';
 import { Observable, Subject, throwError } from 'rxjs';
 import { finalize, shareReplay, tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
@@ -23,8 +24,11 @@ export class LoginService {
   private userKey = 'auth_user';
   private rememberMeKey = 'auth_remember_me';
   private sidebarKey = 'auth_sidebar';
+  // The language the stored sidebar was fetched in — its titles come translated by the server.
+  private sidebarLangKey = 'auth_sidebar_lang';
   private permissionsKey = 'auth_permissions';
 
+  private coreService = inject(CoreService);
   private refreshTimeout: any;
 
   // The refresh call in progress, shared by everyone who needs a new token meanwhile.
@@ -83,11 +87,20 @@ export class LoginService {
    */
   reloadSidebar(): Observable<SidebarItem[]> {
     return this.http.get<SidebarItem[]>(this.sidebarUrl).pipe(
-      tap((sidebar) => {
-        localStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
-        this.sidebar.set(sidebar);
-      })
+      tap((sidebar) => this.storeSidebar(sidebar))
     );
+  }
+
+  /** null for sessions saved before the language was stored — treated as stale. */
+  getSidebarLanguage(): string | null {
+    return localStorage.getItem(this.sidebarLangKey);
+  }
+
+  private storeSidebar(sidebar: SidebarItem[]): void {
+    localStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
+    // The request went out with the current language as Accept-Language (AuthInterceptor).
+    localStorage.setItem(this.sidebarLangKey, this.coreService.getLanguage());
+    this.sidebar.set(sidebar);
   }
 
   setToken(response: LoginResponse): void {
@@ -233,6 +246,7 @@ export class LoginService {
     localStorage.removeItem(this.rememberMeKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.sidebarKey);
+    localStorage.removeItem(this.sidebarLangKey);
     localStorage.removeItem(this.permissionsKey);
 
     // بقايا الجلسات القديمة اللي كانت بتتخزن في sessionStorage
@@ -254,7 +268,7 @@ export class LoginService {
     localStorage.setItem(this.refreshTokenExpiresKey, response.refreshTokenExpiresAt);
     
     // مع التوكن في localStorage علشان أي تبويب جديد ياخد الجلسة كاملة
-    localStorage.setItem(this.sidebarKey, JSON.stringify(response.sidebar));
+    this.storeSidebar(response.sidebar);
     localStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
     const userData = {
       userId: response.userId,
@@ -266,7 +280,6 @@ export class LoginService {
     localStorage.setItem(this.userKey, JSON.stringify(userData));
 
     // تحديث Signals للواجهة
-    this.sidebar.set(response.sidebar);
     this.permissions.set(response.permissions);
     this.currentUser.set(userData);
 

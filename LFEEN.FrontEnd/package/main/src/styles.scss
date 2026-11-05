@@ -339,6 +339,14 @@ html[dir="rtl"] .cdk-overlay-container .mat-mdc-menu-panel {
   direction: rtl;
 }
 
+// ── Direction-aware arrows ──────────────────────────────────────────────────
+// Write the icon as it should look in English (e.g. "next" = chevron-right),
+// add class="dir-icon", and it is mirrored automatically in Arabic.
+html[dir="rtl"] .dir-icon {
+  display: inline-flex;
+  transform: scaleX(-1);
+}
+
 // ── Menu global styles ──────────────────────────────────────────────────────
 .cdk-overlay-container .mat-mdc-menu-panel {
   border-radius: 12px !important;

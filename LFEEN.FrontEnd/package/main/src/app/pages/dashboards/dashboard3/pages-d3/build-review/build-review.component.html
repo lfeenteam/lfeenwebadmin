@@ -329,7 +329,7 @@
             <div class="modal-actions">
                 <button class="btn-primary-modal" (click)="goToUnits()">
                     <span>{{ 'd3.buildReview.successModal.reviewUnitsBtn' | translate: { count: building.totalUnits } }}</span>
-                    <i-tabler name="arrow-left"></i-tabler>
+                    <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
                 </button>
                 <button class="btn-secondary-modal" (click)="closeModal()">
                     {{ 'd3.buildReview.successModal.laterBtn' | translate }}

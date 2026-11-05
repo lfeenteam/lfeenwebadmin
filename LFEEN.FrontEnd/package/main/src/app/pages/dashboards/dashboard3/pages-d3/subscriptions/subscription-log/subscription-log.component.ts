@@ -8,7 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { formatApiDateLocal } from 'src/app/utils/date-format.util';
+import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
+import { appLocale, formatAppNumber } from 'src/app/utils/locale-format.util';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { SubscriptionAuditLog, SubscriptionCatalogItem } from '../interfaces/subscription.model';
@@ -25,6 +26,8 @@ interface LogRow {
   actorLabel: string;
   actorInitial: string;
   date: string;
+  /** Shown on its own line under the date, so the column stays narrow. */
+  time: string;
   /** The first few meaningful "Key=Value" pairs; empty when `details` is free text (see detailsText). */
   detailPairs: DetailPair[];
   /** How many more pairs exist beyond the ones shown. */
@@ -48,6 +51,10 @@ const HIDDEN_DETAIL_KEYS = new Set(['Key', 'NameAr', 'NameEn', 'ServiceKey']);
 
 // `details` on system-generated entries is a technical "Key=Value, Key=Value" string.
 const DETAIL_PAIR = /^\s*([A-Za-z][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/;
+
+// Values that are names, not amounts: a numeric discount code must stay as typed.
+const TEXT_DETAIL_KEYS = new Set(['Code', 'Name', 'Note', 'Reason', 'Tier', 'Service']);
+const PLAIN_NUMBER = /^-?\d+(\.\d+)?$/;
 
 const PAGE_SIZE = 20;
 
@@ -163,7 +170,8 @@ export class SubscriptionLogComponent implements OnInit {
       serviceName: e.serviceName?.trim() || '-',
       actorLabel: actor,
       actorInitial: actor !== '-' ? actor.charAt(0).toUpperCase() : '-',
-      date: formatApiDateLocal(e.createdAt, this.currentLang, true) ?? '-',
+      date: formatApiDateLocal(e.createdAt, this.currentLang) ?? '-',
+      time: parseApiUtc(e.createdAt)?.toLocaleTimeString(appLocale(this.currentLang), { hour: 'numeric', minute: '2-digit' }) ?? '',
       ...this.parseDetails(e.details),
     };
   }
@@ -193,12 +201,12 @@ export class SubscriptionLogComponent implements OnInit {
         if (from === to) continue;
         pairs.push({
           label: this.detailLabel('detailKeys', key),
-          from: this.detailLabel('detailValues', from) || '—',
-          value: this.detailLabel('detailValues', to) || '—',
+          from: this.detailValue(key, from),
+          value: this.detailValue(key, to),
         });
         continue;
       }
-      pairs.push({ label: this.detailLabel('detailKeys', key), value: this.detailLabel('detailValues', value) || '—' });
+      pairs.push({ label: this.detailLabel('detailKeys', key), value: this.detailValue(key, value) });
     }
 
     // Every field was unchanged or already shown elsewhere.
@@ -211,6 +219,23 @@ export class SubscriptionLogComponent implements OnInit {
       detailsTooltip: pairs.map(p => `${p.label}: ${p.from ? `${p.from} → ` : ''}${p.value}`).join('\n'),
       detailsText: '',
     };
+  }
+
+  // The backend writes some amounts with the Arabic decimal mark ("80٫00") and others with a
+  // dot ("80.00"); numbers are re-formatted for the page language so a column reads one way.
+  private detailValue(key: string, raw: string): string {
+    if (!raw) return '—';
+    if (!TEXT_DETAIL_KEYS.has(key)) {
+      const normalized = raw
+        .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660))
+        .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+        .replace(/٫/g, '.')
+        .replace(/٬/g, '');
+      if (PLAIN_NUMBER.test(normalized)) {
+        return formatAppNumber(Number(normalized), this.currentLang, { maximumFractionDigits: 2 });
+      }
+    }
+    return this.detailLabel('detailValues', raw);
   }
 
   // Known keys/values get a translation; anything else is shown exactly as the backend sent it.

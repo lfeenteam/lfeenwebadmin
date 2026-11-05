@@ -73,6 +73,7 @@ const TYPE_META: Record<string, { key: string; icon: string; cls: TypeClass }> =
   CallCharge: { key: 'callCharge', icon: 'phone-outgoing', cls: 'type-charge' },
   CallRefundAdjustment: { key: 'callRefund', icon: 'rotate', cls: 'type-refund' },
   AdminAdjustment: { key: 'adminAdjustment', icon: 'user-cog', cls: 'type-adjustment' },
+  SubscriptionPayment: { key: 'subscriptionPayment', icon: 'receipt', cls: 'type-charge' },
 };
 
 @Component({
@@ -124,6 +125,7 @@ export class WalletComponent implements OnInit, OnDestroy {
     { value: 'TopUp', labelKey: 'd3.wallet.filters.topUp' },
     { value: 'CallCharge', labelKey: 'd3.wallet.filters.callCharge' },
     { value: 'CallRefundAdjustment', labelKey: 'd3.wallet.filters.callRefund' },
+    { value: 'SubscriptionPayment', labelKey: 'd3.wallet.filters.subscriptionPayment' },
     { value: 'AdminAdjustment', labelKey: 'd3.wallet.filters.adminAdjustment' },
   ];
 

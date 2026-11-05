@@ -51,18 +51,21 @@
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.services' | translate }}</span>
-                    <div class="service-icons d-flex align-items-center">
+                    <div class="service-list">
                       @for (svc of row.services.slice(0, maxServiceIcons); track $index) {
-                        <span class="service-icon" [matTooltip]="svc.name">
-                          @if (svc.logoUrl && !brokenLogos.has(svc.logoUrl)) {
-                            <img [src]="svc.logoUrl" [alt]="svc.name" (error)="brokenLogos.add(svc.logoUrl)" />
-                          } @else {
-                            <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
-                          }
+                        <span class="service-line d-flex align-items-center">
+                          <span class="service-icon">
+                            @if (svc.logoUrl && !brokenLogos.has(svc.logoUrl)) {
+                              <img [src]="svc.logoUrl" alt="" (error)="brokenLogos.add(svc.logoUrl)" />
+                            } @else {
+                              <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                            }
+                          </span>
+                          <span class="service-name">{{ svc.name }}</span>
                         </span>
                       }
                       @if (row.services.length > maxServiceIcons) {
-                        <span class="service-more">+{{ fmt(row.services.length - maxServiceIcons) }}</span>
+                        <span class="service-more" [matTooltip]="moreServicesTooltip(row)">+{{ fmt(row.services.length - maxServiceIcons) }}</span>
                       }
                     </div>
                   </td>
@@ -141,7 +144,7 @@
 
   <app-request-detail-drawer
     [order]="selectedOrder"
-    [logoByServiceId]="logoByServiceId"
+    [catalogById]="catalogById"
     (closed)="selectedOrder = null">
   </app-request-detail-drawer>
 

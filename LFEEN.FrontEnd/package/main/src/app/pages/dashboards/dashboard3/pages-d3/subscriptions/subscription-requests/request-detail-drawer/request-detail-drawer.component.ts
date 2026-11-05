@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { formatApiDateLocal } from 'src/app/utils/date-format.util';
-import { SubscriptionOrder, SubscriptionOrderItem, subscriptionLineTotal } from '../../interfaces/subscription.model';
+import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderItem, subscriptionLineTotal } from '../../interfaces/subscription.model';
 import { orderStatusKind, OrderStatusKind } from '../request-status.util';
 import { serviceVisual } from '../../interfaces/service-visual.util';
 import { periodText } from '../../interfaces/period-text.util';
@@ -21,7 +21,7 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
 
   @Input() order: SubscriptionOrder | null = null;
-  @Input() logoByServiceId = new Map<number, string | null>();
+  @Input() catalogById = new Map<number, SubscriptionCatalogItem>();
   @Output() closed = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -101,8 +101,14 @@ export class RequestDetailDrawerComponent implements OnChanges, OnDestroy {
   private readonly brokenLogos = new Set<string>();
 
   logoOf(item: SubscriptionOrderItem): string | null {
-    const url = this.logoByServiceId.get(item.subscriptionServiceId) ?? null;
+    const url = this.catalogById.get(item.subscriptionServiceId)?.logoUrl ?? null;
     return url && !this.brokenLogos.has(url) ? url : null;
+  }
+
+  // The order line's serviceName comes back in Arabic only; the catalog has both languages.
+  nameOf(item: SubscriptionOrderItem): string {
+    const c = this.catalogById.get(item.subscriptionServiceId);
+    return (c && (this.currentLang === 'en' ? c.nameEn : c.nameAr)) || item.serviceName;
   }
 
   onLogoError(url: string): void {

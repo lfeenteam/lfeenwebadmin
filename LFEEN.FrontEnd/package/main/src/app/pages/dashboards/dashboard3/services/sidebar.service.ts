@@ -1,6 +1,6 @@
 import { Injectable, signal, effect, inject } from '@angular/core';
 import { EMPTY, Observable, of } from 'rxjs';
-import { map, distinctUntilChanged, skip, filter, switchMap, catchError } from 'rxjs/operators';
+import { map, distinctUntilChanged, filter, switchMap, catchError } from 'rxjs/operators';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LoginService } from './login/login.service';
 import { SidebarItem } from '../interfaces/login.model';
@@ -34,14 +34,16 @@ export class SidebarService {
       this.buildNavItems(this.loginService.sidebar());
     });
 
-    // when language changes, refetch the sidebar → server returns it in the new language.
+    // Refetch whenever the page language differs from the stored sidebar's — the server
+    // translates the titles. That covers a header toggle and also a page opened straight
+    // on another language's URL (e.g. #/en/... after logging in on Arabic), where the URL
+    // language is applied before this service exists.
     // switchMap drops a stale response if the language is toggled again mid-request.
     toObservable(this.coreService.getOptionsSignal())
       .pipe(
         map(opts => opts.language),
         distinctUntilChanged(),
-        skip(1),
-        filter(() => this.loginService.isLoggedIn()),
+        filter(lang => this.loginService.isLoggedIn() && lang !== this.loginService.getSidebarLanguage()),
         switchMap(() => this.loginService.reloadSidebar().pipe(catchError(() => EMPTY)))
       )
       .subscribe();

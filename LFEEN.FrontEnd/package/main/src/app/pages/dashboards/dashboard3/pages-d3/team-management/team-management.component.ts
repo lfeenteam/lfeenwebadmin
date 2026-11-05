@@ -225,6 +225,26 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     this.departmentService.setEmployeeRoleId(roleId || null);
   }
 
+  /** On a department's page the department id is the page itself, not a filter. */
+  get employeeFilters(): { search: string; deptId: string; roleId: string } {
+    return {
+      search: this.departmentService.employeeSearch(),
+      deptId: this.departmentId ? '' : this.departmentService.employeeDeptId() ?? '',
+      roleId: this.departmentService.employeeRoleId() ?? '',
+    };
+  }
+
+  get hasEmployeeFilters(): boolean {
+    const f = this.employeeFilters;
+    return !!(f.search.trim() || f.deptId || f.roleId);
+  }
+
+  clearEmployeeFilters(): void {
+    this.departmentService.setEmployeeSearch('');
+    this.departmentService.setEmployeeRoleId(null);
+    if (!this.departmentId) this.departmentService.setEmployeeDeptFilter(null);
+  }
+
   loadDepartmentDetails(id: string): void {
     this.departmentService.getDepartmentById(id).subscribe({
       next: (dept) => {

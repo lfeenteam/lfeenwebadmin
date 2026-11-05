@@ -6,6 +6,7 @@
   [searchPlaceholder]="searchPlaceholder"
   [activeTab]="activeTab"
   [searchQuery]="searchQuery"
+  [activeFilters]="activeFilters"
   [viewMode]="viewMode"
   (activeTabChange)="onTabChange($event)"
   (searchQueryChange)="onSearch($event)"
@@ -16,7 +17,8 @@
 @if (isLoading) {
   <app-dashboard-loading [rows]="6"></app-dashboard-loading>
 } @else {
-  <app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"></app-cards-builds>
+  <app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"
+    [hasFilters]="hasFilters" (clearFilters)="clearFilters()"></app-cards-builds>
 }
 
 @if (!isLoading && totalPages > 1) {

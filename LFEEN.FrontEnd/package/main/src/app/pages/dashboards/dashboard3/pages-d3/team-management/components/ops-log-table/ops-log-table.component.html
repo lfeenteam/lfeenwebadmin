@@ -90,7 +90,7 @@
         <button mat-icon-button class="expand-row-btn"
                 [attr.aria-label]="'d3.teamManagement.opsLog.details.title' | translate"
                 (click)="$event.stopPropagation(); openDetails.emit(row)">
-          <i-tabler name="chevron-left" class="icon-16 text-muted"></i-tabler>
+          <i-tabler name="chevron-right" class="icon-16 text-muted dir-icon"></i-tabler>
         </button>
       </td>
     </ng-container>
@@ -116,7 +116,7 @@
       <button type="button" class="page-nav-btn"
         [disabled]="currentPage === 1 || isLoading"
         (click)="pageChange.emit(currentPage - 1)">
-        <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+        <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
       </button>
       @for (p of pageNumbers; track p) {
         <button type="button" class="page-number-btn"
@@ -129,7 +129,7 @@
       <button type="button" class="page-nav-btn"
         [disabled]="currentPage === totalPages || isLoading"
         (click)="pageChange.emit(currentPage + 1)">
-        <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+        <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>
       </button>
     </div>
   </div>

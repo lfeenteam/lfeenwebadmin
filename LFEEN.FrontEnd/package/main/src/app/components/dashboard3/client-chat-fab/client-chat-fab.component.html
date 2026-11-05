@@ -7,7 +7,7 @@
       @if (selectedTicket(); as ticket) {
         <div class="chat-fab-chat-topbar">
           <button type="button" class="chat-fab-back-btn" (click)="backToList()">
-            <i-tabler name="arrow-right" class="icon-18"></i-tabler>
+            <i-tabler [name]="currentDir === 'rtl' ? 'arrow-right' : 'arrow-left'" class="icon-18"></i-tabler>
           </button>
           <button type="button" class="chat-fab-panel-close" (click)="closePanel()">
             <i-tabler name="x" class="icon-18"></i-tabler>

@@ -40,6 +40,7 @@ export class AllBuildsComponent implements OnInit {
     type: 'all',
     sort: 'newest'
   };
+  activeFilters: Record<string, string> | undefined;
   viewMode: ViewMode         = 'list';
   allBuildings: BuildingCardItem[] = [];
   isLoading                  = false;
@@ -199,6 +200,22 @@ export class AllBuildsComponent implements OnInit {
 
   private readonly statusFilterTabs: BuildingTab[] =
     ['draft', 'published', 'new', 'underReview', 'pendingChanges', 'rejected', 'banned'];
+
+  /** Search / city / type narrow the list; status switches the tab and sort only reorders. */
+  get hasFilters(): boolean {
+    const f = this.selectedFilters;
+    return !!(this.searchQuery.trim() || (f['city'] && f['city'] !== 'all') || (f['type'] && f['type'] !== 'all'));
+  }
+
+  clearFilters(): void {
+    this.onSearch('');
+    const reset: Record<string, string> = { ...this.selectedFilters, city: 'all', type: 'all' };
+    // A new object each time so the dropdown pills pick up the reset.
+    this.activeFilters = reset;
+    this.selectedFilters = reset;
+    // Not via onFiltersChange: a stale status value there could switch the tab.
+    this.buildingService.setFilters({ city: '', propertyTypeId: '', newestFirst: reset['sort'] !== 'oldest' });
+  }
 
   onFiltersChange(filters: Record<string, string>): void {
     this.selectedFilters = filters;
