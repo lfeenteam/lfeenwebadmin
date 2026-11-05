@@ -127,9 +127,9 @@
       "ended": "Ended",
       "copied": "Copied",
       "copyFailed": "Could not copy, please copy the value manually",
-      "pinHidden": "Cannot be shown. Use “New PIN” when needed.",
-      "pinNotChanged": "Not changed by the host yet",
-      "pinChangedAt": "Changed by the host on",
+      "pinHidden": "Cannot be shown. The host can't change it; use “New PIN” when needed.",
+      "defaultSubject": "Default subject",
+      "noAttachments": "No attachments.",
       "neverDelivered": "No invitation delivered yet",
       "filters": {
         "all": "All"
@@ -184,7 +184,9 @@
         "resetPin": "New PIN",
         "extend": "Extend",
         "unlock": "Unlock",
-        "disable": "Disable"
+        "disable": "Disable",
+        "remove": "Remove",
+        "download": "Download"
       },
       "create": {
         "title": "Create demo account",
@@ -201,29 +203,22 @@
         "pinHelp": "Leave empty to generate a strong PIN automatically.",
         "note": "Internal note",
         "noteHelp": "Not shown to the host.",
-        "message": {
-          "title": "Invitation message",
-          "edit": "Edit",
-          "preview": "Preview",
-          "variablesHint": "Click a variable to insert it at the cursor. It's replaced with the real value when sent.",
-          "subject": "Subject",
-          "body": "Message",
-          "bodyHelp": "You can use variables like {{name}} and {{days}}.",
-          "previewHelp": "Approximate preview using what's typed in the form.",
-          "defaultSubject": "Hi {{name}}, your Lfeen demo account is ready",
-          "defaultBody": "Hello {{name}},\nA demo account has been created for you for {{days}} days, ending on {{expiryDate}}.\n\nEmail: {{email}}\nPIN: {{pin}}",
-          "vars": {
-            "name": "Name",
-            "days": "Duration",
-            "expiryDate": "Expiry date",
-            "email": "Email",
-            "pin": "PIN"
-          },
-          "sample": {
-            "name": "Host name",
-            "pin": "Auto-generated"
-          }
+        "subject": "Invitation subject (optional)",
+        "subjectHelp": "Leave empty to use the default subject.",
+        "attachments": "Invitation attachments (optional)",
+        "chooseFiles": "Choose files",
+        "uploading": "Uploading files...",
+        "preview": {
+          "title": "Invitation preview",
+          "to": "To:",
+          "subject": "Subject:",
+          "sampleName": "Host name",
+          "greeting": "Hello {{name}},",
+          "period": "A Lfeen demo account has been created for you for {{days}} days, ending on",
+          "auto": "Generated automatically",
+          "help": "Approximate preview. The system writes the final text when sending."
         },
+        "attachmentsHelp": "PDF, Word or PNG/JPEG images — up to 5 files and 10 MB in total.",
         "submit": "Create and send invitation"
       },
       "credentials": {
@@ -232,7 +227,7 @@
         "titleNewPin": "New PIN issued",
         "sentPrefix": "The invitation was sent to",
         "sentVia": "via",
-        "notSentCreate": "The account was created, but the invitation was not delivered. You can resend it from the account page, use another channel, or hand the details to the person yourself.",
+        "notSentCreate": "The account was created, but the invitation was not delivered. Hand the details to the person yourself, or issue a new PIN with the invitation from the account page.",
         "notSentPin": "No invitation was sent. Hand the new PIN to the person yourself.",
         "reopened": "This person already had a demo account, so it was reopened with the same login number and ID number, a new PIN and a new period. The old PIN no longer works.",
         "expiresAt": "Trial ends on",
@@ -255,7 +250,8 @@
         "loginSid": "ID number (sign-in)",
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
-        "pinStatus": "PIN status",
+        "invitationSubject": "Invitation subject",
+        "attachments": "Attachments",
         "status": "Status",
         "expiresAt": "Expires on",
         "daysLeft": "Days left",
@@ -266,10 +262,10 @@
         "person": "Person",
         "login": "Sign-in details",
         "period": "Period",
+        "invitationContent": "Email invitation content",
         "deliveries": "Invitation log"
       },
       "banners": {
-        "mustChangePin": "The host has not changed the PIN yet.",
         "expired": "The trial has ended. The account is read-only for the host until it is extended.",
         "disabled": "The account is disabled and cannot be signed in to. To reopen it, create a new trial with the same email or phone.",
         "sendFailed": "The last invitation attempt failed."
@@ -292,13 +288,12 @@
           "noEmail": "This account has no email",
           "noPhone": "This account has no phone",
           "channelChanged": "This will become the account's invitation channel.",
-          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN will stop working. You will not see the new PIN.",
-          "noPinInfo": "The sign-in details will be sent without a PIN, because the host chose their own PIN."
+          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN stops working at once. You will not see the new PIN. To know the PIN, use “New PIN” instead."
         },
         "resetPin": {
           "title": "Issue a new PIN",
           "confirm": "Issue",
-          "text": "The host will be signed out of every device, the current PIN will stop working, and they will be asked to change the PIN after signing in.",
+          "text": "The host will be signed out of every device, and the current PIN will stop working.",
           "sendInvitation": "Send the invitation with the new PIN"
         },
         "extend": {
@@ -322,8 +317,8 @@
         }
       },
       "toasts": {
-        "resent": "Invitation sent.",
-        "resendFailed": "The invitation was not delivered",
+        "resent": "Invitation sent with a new PIN.",
+        "resendFailed": "The invitation was not delivered{{reason}}. The old PIN has stopped; use “New PIN” to hand the host a PIN.",
         "extended": "Extended until {{date}}",
         "unlocked": "Unlocked.",
         "disabled": "Account disabled."
@@ -338,11 +333,11 @@
         "duration": "The length must be between 1 and 60 days.",
         "pin": "The PIN must be 6 digits, not all the same and not sequential.",
         "noteMax": "The note must not exceed 500 characters.",
-        "subjectRequired": "Subject is required.",
-        "subjectMax": "The subject must not exceed 150 characters.",
-        "bodyRequired": "Message is required.",
-        "bodyMax": "The message must not exceed 1000 characters.",
-        "unknownVariable": "Unknown variable: {{vars}}"
+        "invitationSubject": "The invitation subject must be one line of at most 200 characters.",
+        "attachmentsCount": "You can attach at most 5 files.",
+        "attachmentsSize": "The files together must not exceed 10 MB.",
+        "attachmentType": "File type not allowed. Allowed: PDF, Word, PNG and JPEG images.",
+        "attachmentEmpty": "The file is empty. Choose another file."
       },
       "errors": {
         "DEMO_DISABLED": "Demo accounts are currently not enabled on the platform.",
@@ -355,6 +350,13 @@
         "DEMO_ACCOUNT_DISABLED": "The account is disabled and accepts no actions.",
         "DEMO_CREATE_FAILED": "Could not create the account and nothing was saved. Try again.",
         "DEMO_USER_MISSING": "This account's user data is missing. Contact the development team.",
+        "DEMO_SAMPLE_CATALOG_MISSING": "Property types are not available. Contact the technical team.",
+        "DEMO_ATTACHMENT_TYPE_NOT_ALLOWED": "File type not allowed.",
+        "DEMO_ATTACHMENTS_TOO_MANY": "You can attach at most 5 files.",
+        "DEMO_ATTACHMENTS_TOO_LARGE": "The files together are larger than 10 MB.",
+        "DEMO_ATTACHMENT_INVALID": "One of the files is invalid or has expired. Upload it again.",
+        "DEMO_ATTACHMENTS_EMAIL_ONLY": "Attachments are for email only.",
+        "DEMO_ATTACHMENT_NOT_FOUND": "The file was not found.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }

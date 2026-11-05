@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -15,9 +15,12 @@ import {
   DemoAccount,
   DemoAccountCredentials,
   DemoChannel,
+  ResendDemoRequest,
   isStrongDemoPin
 } from '../../../../interfaces/demo-account.model';
-import { DemoApiError, demoErrorMessage, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
+import { DEMO_FIELD_ALIASES, DemoApiError, demoErrorMessage, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
+import { DemoAttachmentsComponent } from '../demo-attachments/demo-attachments.component';
+import { validateInvitationSubject } from '../create-demo-dialog/create-demo-dialog.component';
 
 export type DemoAction = 'resend' | 'resetPin' | 'extend' | 'unlock' | 'disable';
 
@@ -41,18 +44,21 @@ const PAGE_LEVEL_CODES = new Set(['DEMO_ACCOUNT_NOT_FOUND', 'DEMO_ACCOUNT_DISABL
 @Component({
   selector: 'app-demo-action-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTooltipModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, MatTooltipModule, TablerIconsModule, TranslateModule, DemoAttachmentsComponent],
   templateUrl: './demo-action-dialog.component.html',
   styleUrl: './demo-action-dialog.component.scss'
 })
-export class DemoActionDialogComponent {
+export class DemoActionDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<DemoActionDialogComponent, DemoActionDialogResult>);
   private readonly data = inject<DemoActionDialogData>(MAT_DIALOG_DATA);
   private readonly service = inject(DemoAccountsService);
   private readonly translate = inject(TranslateService);
 
+  @ViewChild(DemoAttachmentsComponent) private attachments?: DemoAttachmentsComponent;
+
   readonly action = this.data.action;
-  readonly account = this.data.account;
+  /** Replaced by the full account on open for resend (list items carry no subject/files). */
+  account = this.data.account;
   readonly channels = DEMO_CHANNELS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
   readonly limits = DEMO_LIMITS;
@@ -64,6 +70,12 @@ export class DemoActionDialogComponent {
 
   // resend
   channel: DemoChannel = this.account.channel;
+  /** Pre-filled with the saved subject (empty when null). */
+  subject = '';
+  subjectError: string | null = null;
+  /** The saved subject/files are loaded before the form shows. */
+  detailsReady = this.action !== 'resend';
+  detailsError: string | null = null;
   // reset PIN
   pin = '';
   showPin = false;
@@ -98,11 +110,61 @@ export class DemoActionDialogComponent {
   get canSubmit(): boolean {
     if (this.submitting) return false;
     if (this.action === 'disable') return this.understood;
-    if (this.action === 'resend') return this.hasContact(this.channel);
+    if (this.action === 'resend') {
+      return this.detailsReady && !this.attachments?.uploading && this.hasContact(this.channel);
+    }
     return true;
   }
 
+  ngOnInit(): void {
+    if (this.action === 'resend') this.loadDetails();
+  }
+
   // ── resend ─────────────────────────────────────────────────
+
+  get isEmail(): boolean {
+    return this.channel === 'Email';
+  }
+
+  /** Fetches the saved subject and files so they can be pre-filled (§6). */
+  loadDetails(): void {
+    this.detailsError = null;
+    this.service.get(this.account.id).subscribe({
+      next: account => {
+        this.account = { ...account, attachments: account.attachments ?? [] };
+        this.subject = account.invitationSubject ?? '';
+        this.detailsReady = true;
+      },
+      error: err => {
+        const e = readDemoError(err);
+        if (e.code && PAGE_LEVEL_CODES.has(e.code)) {
+          this.dialogRef.close({ type: 'error', error: e });
+          return;
+        }
+        this.detailsError = demoErrorMessage(e, this.translate);
+      },
+    });
+  }
+
+  onSubjectInput(): void {
+    if (this.subjectError) this.subjectError = this.validateSubject();
+  }
+
+  validateSubject(): string | null {
+    return validateInvitationSubject(this.subject, k => this.translate.instant(`d3.demoAccounts.validation.${k}`));
+  }
+
+  /** Only what changed is sent (§6). Subject and files only for Email. */
+  private resendBody(): ResendDemoRequest {
+    const body: ResendDemoRequest = {};
+    if (this.channel !== this.account.channel) body.channel = this.channel;
+    if (this.isEmail) {
+      const subject = this.subject.trim();
+      if (subject !== (this.account.invitationSubject ?? '').trim()) body.invitationSubject = subject; // "" = default
+      if (this.attachments?.touched) body.attachmentIds = this.attachments.ids; // full list; [] removes all
+    }
+    return body;
+  }
 
   hasContact(channel: DemoChannel): boolean {
     return channel === 'Email' ? !!this.account.email : !!this.account.contactPhone;
@@ -170,6 +232,10 @@ export class DemoActionDialogComponent {
       this.fieldError = this.validatePin();
       if (this.fieldError) return;
     }
+    if (this.action === 'resend' && this.isEmail) {
+      this.subjectError = this.validateSubject();
+      if (this.subjectError) return;
+    }
     if (this.action === 'extend' && !this.daysValid) {
       this.fieldError = this.translate.instant('d3.demoAccounts.validation.duration');
       return;
@@ -179,8 +245,7 @@ export class DemoActionDialogComponent {
     let request: Observable<DemoAccount | DemoAccountCredentials>;
     switch (this.action) {
       case 'resend':
-        // Body carries the channel only when the admin changed it.
-        request = this.service.resend(id, this.channel !== this.account.channel ? this.channel : undefined);
+        request = this.service.resend(id, this.resendBody());
         break;
       case 'resetPin':
         request = this.service.resetPin(id, { pin: this.pin || null, sendInvitation: this.sendInvitation });
@@ -214,6 +279,24 @@ export class DemoActionDialogComponent {
         if (e.code === 'PIN_TOO_WEAK') {
           this.fieldError = demoErrorMessage(e, this.translate);
           return;
+        }
+        if (this.action === 'resend') {
+          // Attachment errors go under the picker, subject errors under the subject.
+          if (e.code?.startsWith('DEMO_ATTACHMENT')) {
+            this.attachments?.setError(demoErrorMessage(e, this.translate));
+            return;
+          }
+          if (e.code === 'VALIDATION_ERROR' && e.fieldErrors.length) {
+            const unplaced: string[] = [];
+            for (const fe of e.fieldErrors) {
+              const name = fe.field ? (DEMO_FIELD_ALIASES[fe.field] ?? fe.field) : null;
+              if (name === 'subject') this.subjectError = fe.message;
+              else if (name === 'attachments') this.attachments?.setError(fe.message);
+              else unplaced.push(fe.message);
+            }
+            this.error = unplaced.length ? unplaced.join(' - ') : null;
+            return;
+          }
         }
         // Validation errors of these forms have a single field (Pin / Days / Channel).
         if (e.code === 'VALIDATION_ERROR' && e.fieldErrors.length === 1 && e.fieldErrors[0].field !== 'channel') {

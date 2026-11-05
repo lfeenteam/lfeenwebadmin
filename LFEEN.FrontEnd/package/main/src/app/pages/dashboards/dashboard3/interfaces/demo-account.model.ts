@@ -29,6 +29,20 @@ export interface DemoDelivery {
   adminName: string | null;
 }
 
+/** An email invitation file (§5). */
+export interface DemoAttachment {
+  id: string;
+  fileName: string;
+  contentType: string;
+  // TODO(backend): confirm the size field name — read through attachmentSize().
+  sizeBytes?: number;
+  size?: number;
+}
+
+export function attachmentSize(a: DemoAttachment): number {
+  return a.sizeBytes ?? a.size ?? 0;
+}
+
 export interface DemoAccount {
   id: string;
   fullName: string;
@@ -40,14 +54,16 @@ export interface DemoAccount {
   status: DemoAccountStatus;
   expiresAt: string;
   daysLeft: number;
-  mustChangePin: boolean;
   note: string | null;
   userId: string;
   accountId: string;
   createdAt: string;
   createdByAdminName: string | null;
   lastSentAt: string | null;
-  pinChangedAt: string | null;
+  /** Email invitation subject; null = the default subject. Empty in list items. */
+  invitationSubject: string | null;
+  /** Email invitation files. Empty in list items; filled in details and action responses. */
+  attachments: DemoAttachment[];
   /** Newest first, max 20. Empty in list items and in credentials responses. */
   deliveries: DemoDelivery[];
 }
@@ -85,6 +101,20 @@ export interface CreateDemoAccountRequest {
   durationDays: number;
   pin: string | null;
   note: string | null;
+  /** Email only; left out = the server's default subject. */
+  invitationSubject?: string;
+  /** Email only; ids from the attachments upload. */
+  attachmentIds?: string[];
+}
+
+/**
+ * Resend sends only what changed (§6): a field left out keeps the saved value.
+ * invitationSubject "" = back to the default; attachmentIds is the full list ([] removes all).
+ */
+export interface ResendDemoRequest {
+  channel?: DemoChannel;
+  invitationSubject?: string;
+  attachmentIds?: string[];
 }
 
 export interface ResetDemoPinRequest {
@@ -98,10 +128,19 @@ export const DEMO_LIMITS = {
   fullName: 200,
   email: 256,
   note: 500,
+  invitationSubject: 200,
   search: 100,
   minDays: 1,
   maxDays: 60,
   defaultDays: 14,
+} as const;
+
+/** Email invitation attachments (§5.2) — the server also checks the real file type. */
+export const DEMO_ATTACHMENT_LIMITS = {
+  extensions: ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'],
+  accept: '.pdf,.doc,.docx,.png,.jpg,.jpeg',
+  maxCount: 5,
+  maxTotalBytes: 10 * 1024 * 1024,
 } as const;
 
 export const SAUDI_MOBILE_PATTERN = /^(05[013-9]\d{7}|\+9665[013-9]\d{7})$/;

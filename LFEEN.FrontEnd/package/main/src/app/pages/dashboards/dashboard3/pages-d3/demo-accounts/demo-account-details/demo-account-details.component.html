@@ -49,12 +49,6 @@
 
     <!-- Banners -->
     <div class="dd-banners">
-      @if (account.mustChangePin && account.status !== 'Disabled') {
-        <div class="da-alert soft">
-          <i-tabler name="key" class="icon-18"></i-tabler>
-          <p>{{ 'd3.demoAccounts.banners.mustChangePin' | translate }}</p>
-        </div>
-      }
       @if (account.status === 'Expired') {
         <div class="da-alert warning">
           <i-tabler name="clock" class="icon-18"></i-tabler>
@@ -140,17 +134,6 @@
             <dt>{{ 'd3.demoAccounts.fields.pin' | translate }}</dt>
             <dd class="da-muted">{{ 'd3.demoAccounts.pinHidden' | translate }}</dd>
           </div>
-          <div>
-            <dt>{{ 'd3.demoAccounts.fields.pinStatus' | translate }}</dt>
-            <dd>
-              @if (account.mustChangePin) {
-                {{ 'd3.demoAccounts.pinNotChanged' | translate }}
-              } @else {
-                {{ 'd3.demoAccounts.pinChangedAt' | translate }}
-                <span class="da-ltr" dir="ltr">{{ date(account.pinChangedAt) || emptyValue }}</span>
-              }
-            </dd>
-          </div>
         </dl>
       </section>
 
@@ -202,6 +185,49 @@
           </div>
         </dl>
       </section>
+
+      <!-- Section: email invitation content (§5.4) -->
+      @if (showInvitationContent) {
+        <section class="dd-card dd-card--wide">
+          <h3>{{ 'd3.demoAccounts.sections.invitationContent' | translate }}</h3>
+          <dl class="dd-list">
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.invitationSubject' | translate }}</dt>
+              <dd>
+                @if (account.invitationSubject) {
+                  <span dir="auto">{{ account.invitationSubject }}</span>
+                } @else {
+                  <span class="da-muted">{{ 'd3.demoAccounts.defaultSubject' | translate }}</span>
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.attachments' | translate }}</dt>
+              <dd>
+                @if (account.attachments.length) {
+                  <ul class="dd-files">
+                    @for (f of account.attachments; track f.id) {
+                      <li>
+                        <i-tabler [name]="fileIcon(f.contentType, f.fileName)" class="icon-18"></i-tabler>
+                        <span class="dd-files__name" dir="auto" [title]="f.fileName">{{ f.fileName }}</span>
+                        @if (fileSizeOf(f); as size) {
+                          <span class="dd-files__size da-ltr" dir="ltr">{{ size }}</span>
+                        }
+                        <button type="button" class="da-btn sm" [disabled]="downloading === f.id" (click)="download(f)">
+                          @if (downloading === f.id) { <span class="da-spin"></span> } @else { <i-tabler name="download" class="icon-16"></i-tabler> }
+                          {{ 'd3.demoAccounts.actions.download' | translate }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <span class="da-muted">{{ 'd3.demoAccounts.noAttachments' | translate }}</span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </section>
+      }
 
       <!-- Section 4: delivery log -->
       <section class="dd-card dd-card--wide">

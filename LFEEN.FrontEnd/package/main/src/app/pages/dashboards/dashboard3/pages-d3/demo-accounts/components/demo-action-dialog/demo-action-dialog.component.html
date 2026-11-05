@@ -15,6 +15,12 @@
     @switch (action) {
       <!-- Resend invitation -->
       @case ('resend') {
+        <!-- Every resend issues a new PIN the admin never sees -->
+        <div class="da-alert warning">
+          <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.dialogs.resend.newPinWarning' | translate }}</p>
+        </div>
+
         <div class="da-field">
           <span class="da-label">{{ 'd3.demoAccounts.create.channel' | translate }}</span>
           <div class="da-segmented" role="radiogroup">
@@ -33,16 +39,31 @@
           }
         </div>
 
-        @if (account.mustChangePin) {
-          <div class="da-alert warning">
-            <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
-            <p>{{ 'd3.demoAccounts.dialogs.resend.newPinWarning' | translate }}</p>
+        <!-- Saved subject and files, pre-filled; shown when the chosen channel is Email (§4, §6) -->
+        @if (detailsError) {
+          <div class="da-alert danger" role="alert">
+            <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+            <div class="da-alert__body">
+              <p>{{ detailsError }}</p>
+              <button type="button" class="da-link-btn" (click)="loadDetails()">
+                {{ 'd3.demoAccounts.actions.retry' | translate }}
+              </button>
+            </div>
           </div>
+        } @else if (!detailsReady) {
+          <div class="resend-loading"><span class="da-spin"></span></div>
         } @else {
-          <div class="da-alert info">
-            <i-tabler name="info-circle" class="icon-18"></i-tabler>
-            <p>{{ 'd3.demoAccounts.dialogs.resend.noPinInfo' | translate }}</p>
+          <div class="da-field" [hidden]="!isEmail">
+            <label for="da-resend-subject">{{ 'd3.demoAccounts.create.subject' | translate }}</label>
+            <input id="da-resend-subject" name="subject" type="text" class="da-input" autocomplete="off" dir="auto"
+                   [maxLength]="limits.invitationSubject" [class.invalid]="subjectError" [disabled]="submitting"
+                   [(ngModel)]="subject" (ngModelChange)="onSubjectInput()" (blur)="subjectError = validateSubject()" />
+            <p class="da-helper">{{ 'd3.demoAccounts.create.subjectHelp' | translate }}</p>
+            @if (subjectError) { <p class="da-error">{{ subjectError }}</p> }
           </div>
+
+          <app-demo-attachments [hidden]="!isEmail" [initial]="account.attachments" [disabled]="submitting"
+                                inputId="da-resend-files"></app-demo-attachments>
         }
       }
 

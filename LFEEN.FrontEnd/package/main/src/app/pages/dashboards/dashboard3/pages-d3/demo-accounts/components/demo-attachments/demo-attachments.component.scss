@@ -1,0 +1,50 @@
+@use '../../demo-accounts';
+
+:host { display: block; }
+
+.att-drop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px dashed #CBD5E1;
+  background: #F8FAFC;
+  color: #45556C;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  &:hover:not(.disabled) { background: #F1F5F9; border-color: #94a3b8; color: #111110; }
+  &.disabled { opacity: 0.6; cursor: not-allowed; input { cursor: not-allowed; } }
+}
+
+.att-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #111110;
+
+    > i-tabler { color: #6B6B67; flex-shrink: 0; }
+    &.pending { opacity: 0.6; }
+  }
+
+  &__name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+  &__size { font-size: 12px; color: #9E9E9A; flex-shrink: 0; }
+}

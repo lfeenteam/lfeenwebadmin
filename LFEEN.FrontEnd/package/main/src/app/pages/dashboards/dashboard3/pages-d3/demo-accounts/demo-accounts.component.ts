@@ -231,7 +231,7 @@ export class DemoAccountsComponent implements OnInit {
     if (!this.canManage() || this.demoDisabled) return;
 
     const ref = this.dialog.open(CreateDemoDialogComponent, {
-      width: '640px',
+      width: '980px',
       maxWidth: '94vw',
       disableClose: true,
       autoFocus: 'first-tabbable',

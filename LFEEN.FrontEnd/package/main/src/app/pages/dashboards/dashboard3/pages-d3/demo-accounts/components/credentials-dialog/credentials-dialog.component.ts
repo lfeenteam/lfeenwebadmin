@@ -15,8 +15,8 @@ export interface CredentialsDialogData {
   recipient: string | null;
 }
 
-/** 'resend' = the admin chose "resend" from the not-delivered warning. */
-export type CredentialsDialogResult = 'closed' | 'resend';
+// No "resend" way out: a resend would replace the PIN shown in this dialog.
+export type CredentialsDialogResult = 'closed';
 
 type CopyKey = 'sid' | 'phone' | 'pin' | 'all';
 

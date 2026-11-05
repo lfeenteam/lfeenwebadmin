@@ -20,7 +20,9 @@ import {
   DEMO_PERMISSIONS,
   DemoAccount,
   DemoAccountCredentials,
+  DemoAttachment,
   DemoChannel,
+  attachmentSize,
   toLocalPhone
 } from '../../../interfaces/demo-account.model';
 import {
@@ -28,8 +30,11 @@ import {
   DemoApiError,
   demoActionToast,
   demoErrorMessage,
+  demoFileIcon,
+  formatFileSize,
   formatRiyadhDate,
-  readDemoError
+  readDemoError,
+  saveBlob
 } from '../demo-accounts.util';
 import {
   DemoAction,
@@ -40,6 +45,18 @@ import {
 import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
 
 const EMPTY = '—';
+
+/** Turns a Blob error body (responseType: 'blob') back into JSON so readDemoError can read it. */
+async function parseBlobError(err: any): Promise<any> {
+  if (err?.error instanceof Blob) {
+    try {
+      return { ...err, status: err.status, error: JSON.parse(await err.error.text()) };
+    } catch {
+      return { ...err, status: err.status, error: {} };
+    }
+  }
+  return err;
+}
 
 @Component({
   selector: 'app-demo-account-details',
@@ -67,6 +84,9 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   readonly actions = DEMO_ACTION_BUTTONS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
   readonly emptyValue = EMPTY;
+  readonly fileIcon = demoFileIcon;
+  /** The attachment being downloaded, if any. */
+  downloading: string | null = null;
 
   currentLang = this.translate.currentLang || 'ar';
   id = '';
@@ -173,6 +193,42 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     this.toastr.success(this.translate.instant('d3.demoAccounts.copied'));
   }
 
+  // ── Email invitation content (§5.4) ───────────────────────
+
+  /** Shown for Email accounts, or when a subject or file is saved. */
+  get showInvitationContent(): boolean {
+    const a = this.account;
+    return !!a && (a.channel === 'Email' || !!a.invitationSubject || a.attachments.length > 0);
+  }
+
+  fileSizeOf(f: DemoAttachment): string | null {
+    const size = attachmentSize(f);
+    return size ? formatFileSize(size) : null;
+  }
+
+  // Fetched as a blob so the access token is sent, then saved under its fileName.
+  download(f: DemoAttachment): void {
+    if (!this.account || this.downloading) return;
+    this.downloading = f.id;
+    this.service.downloadAttachment(this.account.id, f.id).subscribe({
+      next: blob => {
+        this.downloading = null;
+        saveBlob(blob, f.fileName);
+      },
+      error: async err => {
+        this.downloading = null;
+        // A blob request returns its JSON error as a Blob — read it before branching.
+        const e = readDemoError(await parseBlobError(err));
+        if (e.code === 'DEMO_ATTACHMENT_NOT_FOUND' || e.status === 404) {
+          this.toastr.error(this.translate.instant('d3.demoAccounts.errors.DEMO_ATTACHMENT_NOT_FOUND'));
+          this.load();
+          return;
+        }
+        this.toastr.error(demoErrorMessage(e, this.translate));
+      },
+    });
+  }
+
   // ── Display helpers ────────────────────────────────────────
 
   statusClass(status: string): string {
@@ -206,14 +262,18 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   // ── Internals ──────────────────────────────────────────────
 
   private setAccount(account: DemoAccount): void {
-    this.account = { ...account, deliveries: account.deliveries ?? [] };
+    this.account = { ...account, deliveries: account.deliveries ?? [], attachments: account.attachments ?? [] };
     this.pageTitle.set(account.fullName);
   }
 
-  // After a new PIN: show it once, then re-read the account (the response has no deliveries).
+  // After a new PIN: show it once, then re-read the account (the response has no deliveries or attachments).
   private showNewPin(credentials: DemoAccountCredentials): void {
     const account = credentials.account;
-    this.setAccount({ ...account, deliveries: this.account?.deliveries ?? [] });
+    this.setAccount({
+      ...account,
+      deliveries: this.account?.deliveries ?? [],
+      attachments: this.account?.attachments ?? [],
+    });
 
     const recipient = account.channel === 'Email' ? account.email : toLocalPhone(account.contactPhone);
     const ref = this.dialog.open(CredentialsDialogComponent, {

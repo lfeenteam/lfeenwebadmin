@@ -8,7 +8,8 @@ import {
   DemoAccountCredentials,
   DemoAccountsPage,
   DemoAccountsQuery,
-  DemoChannel,
+  DemoAttachment,
+  ResendDemoRequest,
   ResetDemoPinRequest
 } from '../interfaces/demo-account.model';
 
@@ -41,11 +42,12 @@ export class DemoAccountsService {
   }
 
   // 200 even when delivery failed — the real result is deliveries[0].succeeded.
-  resend(id: string, channel?: DemoChannel): Observable<DemoAccount> {
-    return this.http.post<DemoAccount>(`${this.baseUrl}/${id}/resend`, channel ? { channel } : {});
+  // Always issues a new PIN; the response never contains it.
+  resend(id: string, body: ResendDemoRequest): Observable<DemoAccount> {
+    return this.http.post<DemoAccount>(`${this.baseUrl}/${id}/resend`, body);
   }
 
-  // The response carries no deliveries; the details page re-fetches after it.
+  // The response carries no deliveries/attachments; the details page re-fetches after it.
   resetPin(id: string, body: ResetDemoPinRequest): Observable<DemoAccountCredentials> {
     return this.http.post<DemoAccountCredentials>(`${this.baseUrl}/${id}/reset-pin`, body);
   }
@@ -60,5 +62,20 @@ export class DemoAccountsService {
 
   disable(id: string): Observable<DemoAccount> {
     return this.http.post<DemoAccount>(`${this.baseUrl}/${id}/disable`, {});
+  }
+
+  // ── Email invitation attachments (§5) ─────────────────────
+
+  // One request with every newly chosen file. Plain array response (no data wrapper).
+  // TODO(backend): confirm the multipart field name ("files", per the Files[0] validation names).
+  uploadAttachments(files: File[]): Observable<DemoAttachment[]> {
+    const form = new FormData();
+    files.forEach(f => form.append('files', f, f.name));
+    return this.http.post<DemoAttachment[]>(`${this.baseUrl}/attachments`, form);
+  }
+
+  // Through HttpClient so the access token is sent (a plain <a href> would not send it).
+  downloadAttachment(id: string, attachmentId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/attachments/${attachmentId}`, { responseType: 'blob' });
   }
 }

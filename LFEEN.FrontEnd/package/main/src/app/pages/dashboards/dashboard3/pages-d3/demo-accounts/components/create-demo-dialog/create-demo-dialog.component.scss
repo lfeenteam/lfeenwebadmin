@@ -18,6 +18,143 @@
   scrollbar-color: #E2E8F0 transparent;
 }
 
+[hidden] { display: none !important; }
+
+// Form on the start side, live preview on the end side (stacked on small screens).
+.cd-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.cd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+// ── Live preview ────────────────────────────────────────────
+.cd-preview {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #111110;
+  }
+
+  &__channel {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B6B67;
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+
+  @media (max-width: 900px) { position: static; }
+}
+
+.cd-msg {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #111110;
+  overflow: hidden;
+
+  &__meta {
+    padding: 10px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+
+    > div { display: flex; gap: 6px; min-width: 0; }
+    strong { font-weight: 800; overflow-wrap: anywhere; }
+  }
+
+  &__key { color: #9E9E9A; font-weight: 700; flex-shrink: 0; }
+
+  &__body {
+    padding: 12px;
+    p { margin: 0 0 6px; }
+  }
+
+  &__creds {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+
+    > div { display: flex; justify-content: space-between; gap: 8px; }
+    > div > span:first-child { color: #6B6B67; font-weight: 700; }
+  }
+
+  &__files {
+    padding: 0 12px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // WhatsApp / SMS: a chat bubble instead of an email.
+  &.is-chat {
+    background: #f0fdf4;
+    border-color: #dcfce7;
+
+    .cd-msg__meta { border-bottom-color: #dcfce7; }
+    .cd-msg__body {
+      margin: 10px 12px 12px;
+      background: #fff;
+      border-radius: 12px 12px 12px 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+  }
+}
+
+.cd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  font-size: 11px;
+  font-weight: 700;
+  color: #45556C;
+
+  span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
 // Hide the native number spinners; the stepper buttons replace them.
 input[type='number'] {
   -moz-appearance: textfield;
