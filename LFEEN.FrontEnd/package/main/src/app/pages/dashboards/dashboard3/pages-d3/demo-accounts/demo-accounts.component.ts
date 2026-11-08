@@ -25,7 +25,6 @@ import {
 } from '../../interfaces/demo-account.model';
 import { ToastrService } from 'ngx-toastr';
 import { DEMO_ACTION_BUTTONS, demoActionToast, demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
-import { CreateDemoDialogComponent, CreateDemoDialogResult } from './components/create-demo-dialog/create-demo-dialog.component';
 import {
   DemoAction,
   DemoActionDialogComponent,
@@ -33,6 +32,7 @@ import {
   DemoActionDialogResult
 } from './components/demo-action-dialog/demo-action-dialog.component';
 import { CredentialsDialogComponent, CredentialsDialogData } from './components/credentials-dialog/credentials-dialog.component';
+import { DemoTabsComponent } from './components/demo-tabs/demo-tabs.component';
 
 const PAGE_SIZE = 20;
 const EMPTY = '—';
@@ -40,7 +40,7 @@ const EMPTY = '—';
 @Component({
   selector: 'app-demo-accounts',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
   templateUrl: './demo-accounts.component.html',
   styleUrl: './demo-accounts.component.scss'
 })
@@ -186,6 +186,12 @@ export class DemoAccountsComponent implements OnInit {
   // so status/days left (and the status filter) stay right.
   openAction(item: DemoAccount, action: DemoAction): void {
     if (!this.canManage() || this.busy || item.status === 'Disabled') return;
+
+    // Resend holds the invitation editor and its preview — it has its own page.
+    if (action === 'resend') {
+      this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', item.id, 'resend']);
+      return;
+    }
     this.busy = true;
 
     const ref = this.dialog.open(DemoActionDialogComponent, {
@@ -227,54 +233,10 @@ export class DemoAccountsComponent implements OnInit {
     });
   }
 
+  // The create form has its own page (/demo-accounts/new): it holds the invitation editor and preview.
   openCreate(): void {
     if (!this.canManage() || this.demoDisabled) return;
-
-    const ref = this.dialog.open(CreateDemoDialogComponent, {
-      width: '980px',
-      maxWidth: '94vw',
-      disableClose: true,
-      autoFocus: 'first-tabbable',
-      direction: this.dir,
-    });
-
-    ref.afterClosed().subscribe((result?: CreateDemoDialogResult) => {
-      if (!result) return;
-
-      if (result.type === 'duplicate') {
-        // The account exists but the PIN of that response is lost (§6.2): show it by name.
-        const search = result.fullName.trim().slice(0, DEMO_LIMITS.search);
-        if (search === this.searchText && !this.status && this.page === 1) {
-          this.load();
-        } else {
-          this.updateQuery({ search: search || null, status: null, page: null });
-        }
-        return;
-      }
-
-      if (result.type === 'disabled') {
-        this.demoDisabled = true;
-        this.items = [];
-        return;
-      }
-
-      this.load();
-      const accountId = result.credentials.account.id;
-      const credentialsRef = this.dialog.open(CredentialsDialogComponent, {
-        width: '520px',
-        maxWidth: '94vw',
-        disableClose: true,
-        direction: this.dir,
-        data: {
-          credentials: result.credentials,
-          mode: 'create',
-          recipient: result.recipient,
-        } as CredentialsDialogData,
-      });
-      credentialsRef.afterClosed().subscribe(() => {
-        this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', accountId]);
-      });
-    });
+    this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', 'new']);
   }
 
   // ── Display helpers ────────────────────────────────────────

@@ -1,0 +1,7 @@
+// Shares the demo-accounts list styles; only the mobile card layout differs (8 columns, no menu).
+@media (max-width: 576px) {
+  .ar-table .da-row {
+    td:nth-child(1) { grid-column: 1 / -1; grid-row: auto; }
+    td:nth-child(2) { grid-column: auto; border-top: 1px solid #F1F5F9; }
+  }
+}

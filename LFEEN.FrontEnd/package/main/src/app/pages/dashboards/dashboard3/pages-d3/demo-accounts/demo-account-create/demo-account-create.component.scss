@@ -1,0 +1,24 @@
+@use '../demo-accounts';
+
+:host { display: block; }
+
+[hidden] { display: none !important; }
+
+.da-acc__summary + .da-acc__chevron { margin-inline-start: 0; }
+
+// Two fields side by side.
+.da-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+
+  @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
+// Hide the native number spinners; the stepper buttons replace them.
+input[type='number'] {
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}

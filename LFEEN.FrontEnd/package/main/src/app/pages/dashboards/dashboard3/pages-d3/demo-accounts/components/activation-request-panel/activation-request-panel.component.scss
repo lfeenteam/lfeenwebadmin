@@ -1,0 +1,90 @@
+@use '../../demo-accounts';
+
+:host { display: block; }
+
+.arp {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.arp-badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.arp-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+
+  > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  dt { font-size: 12px; font-weight: 700; color: #6B6B67; }
+  dd { margin: 0; font-size: 14px; font-weight: 600; color: #111110; overflow-wrap: anywhere; }
+
+  @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
+.arp-note { white-space: pre-line; }
+
+.arp-link {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover { text-decoration: underline; }
+}
+
+.arp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #F1F5F9;
+
+  h4 { margin: 0; font-size: 13px; font-weight: 800; color: #111110; }
+}
+
+.arp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+
+.arp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+
+  strong { font-size: 18px; font-weight: 800; color: #111110; }
+  span { font-size: 11px; font-weight: 700; color: #6B6B67; }
+}
+
+.arp-demo {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #45556C;
+}
+
+.arp-admin-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+  white-space: pre-line;
+}
+
+.arp-buttons { display: flex; flex-wrap: wrap; gap: 8px; }

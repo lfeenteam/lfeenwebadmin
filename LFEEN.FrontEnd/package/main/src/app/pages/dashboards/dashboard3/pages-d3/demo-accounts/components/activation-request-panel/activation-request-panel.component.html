@@ -1,0 +1,127 @@
+<div class="da-root arp">
+  <!-- Status · interest · times pressed -->
+  <div class="arp-badges">
+    <span class="ar-status" [ngClass]="'ar-' + request.status.toLowerCase()">
+      <span class="dot"></span>{{ ('d3.demoAccounts.activation.status.' + request.status) | translate }}
+    </span>
+    <span class="ar-interest" [ngClass]="'in-' + request.interest.toLowerCase()">
+      <span class="dot"></span>{{ ('d3.demoAccounts.activation.interest.' + request.interest) | translate }}
+    </span>
+    @if (request.timesRequested > 1) {
+      <span class="ar-times" [title]="'d3.demoAccounts.activation.timesHint' | translate">
+        <i-tabler name="hand-click" class="icon-14"></i-tabler>
+        {{ 'd3.demoAccounts.activation.times' | translate: { count: num(request.timesRequested) } }}
+      </span>
+    }
+  </div>
+
+  <!-- Contact -->
+  <dl class="arp-list">
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.name' | translate }}</dt>
+      <dd>{{ request.contactName }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.phone' | translate }}</dt>
+      <dd>
+        @if (phone(request.contactPhone); as p) {
+          <a class="da-ltr arp-link" dir="ltr" [href]="'tel:' + request.contactPhone">{{ p }}</a>
+        } @else { <span class="da-muted">—</span> }
+      </dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.email' | translate }}</dt>
+      <dd>
+        @if (request.contactEmail) {
+          <a class="da-ltr arp-link" dir="ltr" [href]="'mailto:' + request.contactEmail">{{ request.contactEmail }}</a>
+        } @else { <span class="da-muted">—</span> }
+      </dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.preferredTime' | translate }}</dt>
+      <dd>{{ request.preferredContactTime || '—' }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.hostNote' | translate }}</dt>
+      <dd class="arp-note" dir="auto">{{ request.note || '—' }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.demoAccounts.activation.fields.requestedAt' | translate }}</dt>
+      <dd><span class="da-ltr" dir="ltr">{{ date(request.createdAt) }}</span></dd>
+    </div>
+  </dl>
+
+  <!-- Trial summary -->
+  <div class="arp-section">
+    <h4>{{ 'd3.demoAccounts.activation.trialSummary' | translate }}</h4>
+    <div class="arp-stats">
+      @for (s of trialStats; track s.key) {
+        <div class="arp-stat">
+          <strong class="da-ltr" dir="ltr">{{ num(s.value) }}</strong>
+          <span>{{ ('d3.demoAccounts.activation.trial.' + s.key) | translate }}</span>
+        </div>
+      }
+    </div>
+    <p class="arp-demo">
+      <span class="da-status" [ngClass]="'status-' + request.demoAccountStatus.toLowerCase()">
+        <span class="dot"></span>{{ ('d3.demoAccounts.status.' + request.demoAccountStatus) | translate }}
+      </span>
+      <span>{{ 'd3.demoAccounts.activation.expiresAt' | translate }}
+        <span class="da-ltr" dir="ltr">{{ date(request.demoExpiresAt, false) }}</span></span>
+      @if (showAccountLink) {
+        <a class="arp-link" [routerLink]="['/', lang, 'd3', 'demo-accounts', request.demoAccountId]">
+          {{ 'd3.demoAccounts.activation.openAccount' | translate }}
+          <i-tabler [name]="lang === 'en' ? 'arrow-right' : 'arrow-left'" class="icon-14"></i-tabler>
+        </a>
+      }
+    </p>
+  </div>
+
+  <!-- Who handled it -->
+  @if (request.adminNote || request.handledByAdminName) {
+    <div class="arp-section">
+      <h4>{{ 'd3.demoAccounts.activation.followUp' | translate }}</h4>
+      @if (request.adminNote) { <p class="arp-admin-note" dir="auto">{{ request.adminNote }}</p> }
+      @if (request.handledByAdminName) {
+        <p class="da-helper">
+          <span>{{ 'd3.demoAccounts.activation.handledBy' | translate: { name: request.handledByAdminName } }}
+            @if (date(request.handledAt); as at) { — <span class="da-ltr" dir="ltr">{{ at }}</span> }</span>
+        </p>
+      }
+    </div>
+  }
+
+  <!-- Follow-up actions -->
+  @if (canManage) {
+    <div class="arp-section arp-actions">
+      <div class="da-field">
+        <label [for]="'arp-note-' + request.id">{{ 'd3.demoAccounts.activation.adminNote' | translate }}</label>
+        <textarea [id]="'arp-note-' + request.id" class="da-input" rows="2" dir="auto"
+                  [placeholder]="'d3.demoAccounts.activation.adminNotePlaceholder' | translate"
+                  [class.invalid]="noteError" [disabled]="!!saving"
+                  [(ngModel)]="adminNote" (ngModelChange)="noteError = null"></textarea>
+        <p class="da-helper">
+          <span>{{ 'd3.demoAccounts.activation.adminNoteHelp' | translate }}</span>
+          <span class="da-ltr" dir="ltr">{{ adminNote.length }}/{{ noteMax }}</span>
+        </p>
+        @if (noteError) { <p class="da-error">{{ noteError }}</p> }
+      </div>
+
+      @if (error) {
+        <div class="da-alert danger" role="alert">
+          <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+          <p>{{ error }}</p>
+        </div>
+      }
+
+      <div class="arp-buttons">
+        @for (f of followUps; track f.status) {
+          <button type="button" class="da-btn sm" [class.primary]="f.primary" [disabled]="!!saving" (click)="setStatus(f.status)">
+            @if (saving === f.status) { <span class="da-spin"></span> } @else { <i-tabler [name]="f.icon" class="icon-16"></i-tabler> }
+            {{ ('d3.demoAccounts.activation.actions.' + f.status) | translate }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

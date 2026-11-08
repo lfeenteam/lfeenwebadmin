@@ -143,6 +143,14 @@
   color: #0F172B;
 }
 
+// "Activation request" badge next to the name.
+.da-req-badge {
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
 .da-cell-text {
   font-size: 13px;
   color: #45556C;

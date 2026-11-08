@@ -43,6 +43,9 @@ import {
   DemoActionDialogResult
 } from '../components/demo-action-dialog/demo-action-dialog.component';
 import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
+import { ActivationRequestPanelComponent } from '../components/activation-request-panel/activation-request-panel.component';
+import { InvitationTextComponent } from '../components/invitation-editor/invitation-text.component';
+import type { ActivationRequest, InvitationVariable } from '../../../interfaces/demo-account.model';
 
 const EMPTY = '—';
 
@@ -61,7 +64,10 @@ async function parseBlobError(err: any): Promise<any> {
 @Component({
   selector: 'app-demo-account-details',
   standalone: true,
-  imports: [CommonModule, MatTooltipModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent, DashboardEmptyComponent],
+  imports: [
+    CommonModule, MatTooltipModule, TablerIconsModule, TranslateModule,
+    DashboardLoadingComponent, DashboardEmptyComponent, ActivationRequestPanelComponent, InvitationTextComponent,
+  ],
   templateUrl: './demo-account-details.component.html',
   styleUrl: './demo-account-details.component.scss'
 })
@@ -110,7 +116,15 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
     this.load();
+    // The variables, so the saved texts show chips instead of {{tokens}}. Without them
+    // (an error), the texts just show as saved.
+    this.service.getInvitationTemplates()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: t => (this.variables = t.variables ?? []), error: () => {} });
   }
+
+  /** From GET /invitation-templates — turns saved {{tokens}} into readable chips. */
+  variables: InvitationVariable[] = [];
 
   ngOnDestroy(): void {
     clearTimeout(this.copiedTimer);
@@ -151,6 +165,12 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
 
   openAction(action: DemoAction): void {
     if (!this.account || this.busy || !this.showActions) return;
+
+    // Resend holds the invitation editor and its preview — it has its own page.
+    if (action === 'resend') {
+      this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', this.account.id, 'resend']);
+      return;
+    }
     this.busy = true;
 
     const ref = this.dialog.open(DemoActionDialogComponent, {
@@ -193,12 +213,23 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     this.toastr.success(this.translate.instant('d3.demoAccounts.copied'));
   }
 
+  /** A follow-up on the request card: keep the account's copy in step. */
+  onRequestChanged(request: ActivationRequest): void {
+    if (!this.account) return;
+    this.account = { ...this.account, activationRequest: request, activationRequestStatus: request.status };
+  }
+
   // ── Email invitation content (§5.4) ───────────────────────
 
   /** Shown for Email accounts, or when a subject or file is saved. */
   get showInvitationContent(): boolean {
+    return !!this.account; // the message and language apply to every channel
+  }
+
+  /** The files row: Email accounts, or when files are saved. */
+  get showAttachments(): boolean {
     const a = this.account;
-    return !!a && (a.channel === 'Email' || !!a.invitationSubject || a.attachments.length > 0);
+    return !!a && (a.channel === 'Email' || a.attachments.length > 0);
   }
 
   fileSizeOf(f: DemoAttachment): string | null {

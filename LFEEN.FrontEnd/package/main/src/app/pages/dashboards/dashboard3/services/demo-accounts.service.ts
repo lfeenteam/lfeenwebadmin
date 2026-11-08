@@ -3,12 +3,21 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
+  ActivationRequest,
+  ActivationRequestsPage,
+  ActivationRequestsQuery,
+  UpdateActivationRequestStatus,
   CreateDemoAccountRequest,
   DemoAccount,
   DemoAccountCredentials,
   DemoAccountsPage,
   DemoAccountsQuery,
   DemoAttachment,
+  InvitationPreview,
+  InvitationPreviewRequest,
+  InvitationTemplates,
+  InvitationTestSendRequest,
+  InvitationTestSendResult,
   ResendDemoRequest,
   ResetDemoPinRequest
 } from '../interfaces/demo-account.model';
@@ -72,6 +81,39 @@ export class DemoAccountsService {
     const form = new FormData();
     files.forEach(f => form.append('files', f, f.name));
     return this.http.post<DemoAttachment[]>(`${this.baseUrl}/attachments`, form);
+  }
+
+  // ── Activation requests ───────────────────────────────────
+
+  // Newest activity first (the order can't be changed). status is optional.
+  listActivationRequests(query: ActivationRequestsQuery): Observable<ActivationRequestsPage> {
+    let params = new HttpParams()
+      .set('pageNumber', String(query.pageNumber))
+      .set('pageSize', String(query.pageSize));
+    if (query.status) params = params.set('status', query.status);
+    return this.http.get<ActivationRequestsPage>(`${this.baseUrl}/activation-requests`, { params });
+  }
+
+  // Returns the request after the change. adminId/adminName are never sent (taken from the token).
+  updateActivationRequestStatus(requestId: string, body: UpdateActivationRequestStatus): Observable<ActivationRequest> {
+    return this.http.post<ActivationRequest>(`${this.baseUrl}/activation-requests/${requestId}/status`, body);
+  }
+
+  // ── Invitation editor ─────────────────────────────────────
+
+  // Variables, presets, limits and default subjects. Asked once when the editor opens.
+  getInvitationTemplates(): Observable<InvitationTemplates> {
+    return this.http.get<InvitationTemplates>(`${this.baseUrl}/invitation-templates`);
+  }
+
+  // Renders the invitation for every channel. Saves and sends nothing.
+  previewInvitation(body: InvitationPreviewRequest): Observable<InvitationPreview> {
+    return this.http.post<InvitationPreview>(`${this.baseUrl}/invitation-preview`, body);
+  }
+
+  // Always goes to the signed-in admin's own email; the PIN is masked. 429 when the hourly limit is used.
+  sendTestInvitation(body: InvitationTestSendRequest): Observable<InvitationTestSendResult> {
+    return this.http.post<InvitationTestSendResult>(`${this.baseUrl}/invitation-test-send`, body);
   }
 
   // Through HttpClient so the access token is sent (a plain <a href> would not send it).

@@ -233,11 +233,16 @@ export interface UnitApiDetailItem {
   // this unit but the section is still shown as an informational badge).
   depositSection: UnitApiSection | null;
   hasSecurityDeposit: boolean;
-  // Services are no longer part of the approval flow — this is always null now.
+  // Services are no longer part of the approval flow — this is always null now
+  // (use hasAdditionalServices to know whether there are services to show).
   servicesSection: UnitApiSection | null;
   // Always false — services never require approval anymore, kept only so a
   // future business type could reintroduce them without a breaking change.
   servicesApplicable: boolean;
+  // true when the unit has any active additional service (its own or inherited from
+  // the property). Drives the view-only "Additional services" card, since
+  // servicesSection stays null now that services aren't reviewed.
+  hasAdditionalServices?: boolean;
   // null when the unit's type/business setup doesn't require a license section at all
   // (as opposed to Pending, which means it's required but undecided).
   licenseSection: UnitApiSection | null;

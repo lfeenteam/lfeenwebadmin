@@ -222,9 +222,12 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.reviewSections.filter(s => {
       if (s.key === 'license') return !this.unitDetail || this.unitDetail.licenseApplicable;
       if (s.key === 'deposit') return !this.unitDetail || !!this.unitDetail.depositSection;
-      // Shown only when the API returns a services section (null = nothing to show).
-      // When services aren't part of approval the card is view-only — see isInformationalSection.
-      if (s.key === 'services') return !this.unitDetail || !!this.unitDetail.servicesSection;
+      // Shown when the unit has services to look at. servicesSection is always null now
+      // (services aren't reviewed), so hasAdditionalServices is what normally shows it;
+      // the card is then view-only — see isInformationalSection.
+      if (s.key === 'services') {
+        return !this.unitDetail || !!this.unitDetail.servicesSection || !!this.unitDetail.hasAdditionalServices;
+      }
       return true;
     });
   }

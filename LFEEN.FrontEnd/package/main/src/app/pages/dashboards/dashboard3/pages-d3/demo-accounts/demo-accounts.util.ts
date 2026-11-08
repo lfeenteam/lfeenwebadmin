@@ -83,12 +83,19 @@ const KNOWN_CODES = new Set([
   'DEMO_ATTACHMENT_INVALID',
   'DEMO_ATTACHMENTS_EMAIL_ONLY',
   'DEMO_ATTACHMENT_NOT_FOUND',
+  'DEMO_SUBJECT_INVALID',
+  'DEMO_MESSAGE_INVALID',
+  'DEMO_INVITATION_TEMPLATE_INVALID',
+  'DEMO_TEST_SEND_FAILED',
+  'DEMO_ACTIVATION_REQUEST_NOT_FOUND',
   'PIN_TOO_WEAK',
 ]);
 
 /** Server field names (lower-cased) → the form field they belong to. */
 export const DEMO_FIELD_ALIASES: Record<string, string> = {
   invitationsubject: 'subject',
+  invitationmessage: 'message',
+  invitationlanguage: 'language',
   attachmentids: 'attachments',
   files: 'attachments',
   'files[0].length': 'attachments',

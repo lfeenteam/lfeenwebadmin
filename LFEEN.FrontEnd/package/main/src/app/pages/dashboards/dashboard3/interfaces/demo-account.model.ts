@@ -60,8 +60,18 @@ export interface DemoAccount {
   createdAt: string;
   createdByAdminName: string | null;
   lastSentAt: string | null;
-  /** Email invitation subject; null = the default subject. Empty in list items. */
+  /** Email invitation subject (may hold variables); null = the default subject. Empty in list items. */
   invitationSubject: string | null;
+  /** Invitation text for every channel (may hold variables); null = the standard invitation. */
+  invitationMessage: string | null;
+  /** Language of the invitation text; null = Ar. */
+  invitationLanguage: InvitationLanguage | null;
+  /** The subject exactly as the host received it; null for WhatsApp/SMS. */
+  renderedSubject: string | null;
+  /** Status of the latest activation request, or null when the host never asked. */
+  activationRequestStatus: ActivationRequestStatus | null;
+  /** The latest activation request in full — details (GET /{id}) only. */
+  activationRequest?: ActivationRequest | null;
   /** Email invitation files. Empty in list items; filled in details and action responses. */
   attachments: DemoAttachment[];
   /** Newest first, max 20. Empty in list items and in credentials responses. */
@@ -103,18 +113,187 @@ export interface CreateDemoAccountRequest {
   note: string | null;
   /** Email only; left out = the server's default subject. */
   invitationSubject?: string;
+  /** Every channel; left out = the standard invitation. Sent exactly as typed. */
+  invitationMessage?: string;
+  invitationLanguage?: InvitationLanguage;
   /** Email only; ids from the attachments upload. */
   attachmentIds?: string[];
 }
 
 /**
- * Resend sends only what changed (§6): a field left out keeps the saved value.
- * invitationSubject "" = back to the default; attachmentIds is the full list ([] removes all).
+ * Resend sends only what changed: a field left out keeps the saved value.
+ * invitationSubject / invitationMessage "" = back to the default;
+ * attachmentIds is the full list ([] removes all).
  */
 export interface ResendDemoRequest {
   channel?: DemoChannel;
   invitationSubject?: string;
+  invitationMessage?: string;
+  invitationLanguage?: InvitationLanguage;
   attachmentIds?: string[];
+}
+
+// ── Activation requests: demo hosts asking for a real account ──────────────
+
+export type ActivationRequestStatus = 'New' | 'Contacted' | 'Converted' | 'Closed';
+export type ActivationInterest = 'Hot' | 'Warm' | 'Cold';
+
+export const ACTIVATION_STATUSES: ActivationRequestStatus[] = ['New', 'Contacted', 'Converted', 'Closed'];
+
+export interface ActivationRequest {
+  id: string;
+  demoAccountId: string;
+  accountId: string;
+  status: ActivationRequestStatus;
+  contactName: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  preferredContactTime: string | null;
+  /** The host's own note. */
+  note: string | null;
+  /** > 1 = the host pressed again on the same open request (high interest). */
+  timesRequested: number;
+  interest: ActivationInterest;
+  trial: {
+    daysUsed: number;
+    propertiesCount: number;
+    unitsCount: number;
+    bookingsCount: number;
+    paymentsCount: number;
+    customersCount: number;
+    servicesCount: number;
+  };
+  adminNote: string | null;
+  handledByAdminName: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  handledAt: string | null;
+  demoAccountStatus: DemoAccountStatus;
+  demoExpiresAt: string;
+}
+
+export interface ActivationRequestsQuery {
+  status?: ActivationRequestStatus | null;
+  pageNumber: number;
+  /** 1–100. */
+  pageSize: number;
+}
+
+export interface ActivationRequestsPage {
+  items: ActivationRequest[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+/** An empty note keeps the saved one. The admin is taken from the session. */
+export interface UpdateActivationRequestStatus {
+  status: ActivationRequestStatus;
+  adminNote?: string;
+}
+
+export const ACTIVATION_NOTE_MAX = 1000;
+
+// ── Invitation editor (GET /invitation-templates, POST /invitation-preview) ──
+
+export type InvitationLanguage = 'Ar' | 'En';
+export type InvitationField = 'Subject' | 'Message';
+
+export interface InvitationVariable {
+  /** Fixed forever; {{1}} and {{name}} mean the same variable. */
+  number: number;
+  key: string;
+  /** What a chip inserts, e.g. "{{1}}". */
+  token: string;
+  labelAr: string;
+  labelEn: string;
+  exampleAr: string;
+  exampleEn: string;
+  /** false for the PIN — it never goes in a subject. */
+  allowedInSubject: boolean;
+  /** Sign-in data; added at the end of the message when missing. */
+  isCredential: boolean;
+}
+
+export interface InvitationPreset {
+  id: string;
+  tone: string;
+  nameAr: string;
+  nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  ar: { subject: string; message: string };
+  en: { subject: string; message: string };
+}
+
+export interface InvitationTemplates {
+  variables: InvitationVariable[];
+  presets: InvitationPreset[];
+  languages: InvitationLanguage[];
+  limits: {
+    subjectMaxLength: number;
+    renderedSubjectMaxLength: number;
+    messageMaxLength: number;
+    maxAttachments: number;
+    maxAttachmentsTotalMb: number;
+    allowedAttachmentExtensions: string[];
+  };
+  defaultSubjectAr: string;
+  defaultSubjectEn: string;
+}
+
+export interface InvitationPreviewRequest {
+  invitationSubject?: string;
+  invitationMessage?: string;
+  invitationLanguage?: InvitationLanguage;
+  /** Fill with this account's real values (details/resend); without it, example values. */
+  demoAccountId?: string;
+}
+
+export interface InvitationIssue {
+  code: string;
+  field: InvitationField;
+  /** Range in that field's text. */
+  start: number;
+  end: number;
+  text: string;
+  message: string;
+  /** One-click fix, when there is one. */
+  suggestion?: string | null;
+}
+
+export interface InvitationWarning {
+  code: string;
+  message: string;
+  keys?: string[];
+}
+
+export interface InvitationPreview {
+  isValid: boolean;
+  language: InvitationLanguage;
+  usesAccountValues: boolean;
+  issues: InvitationIssue[];
+  warnings: InvitationWarning[];
+  usedVariables: number[];
+  addedCredentials: string[];
+  email: { subject: string; subjectLength: number; body: string; html: string } | null;
+  whatsApp: { body: string; characters: number } | null;
+  sms: { body: string; characters: number; segments: number; encoding: string } | null;
+}
+
+export interface InvitationTestSendRequest extends InvitationPreviewRequest {
+  attachmentIds?: string[];
+}
+
+export interface InvitationTestSendResult {
+  sent: boolean;
+  /** Masked admin email. */
+  recipient: string;
+  subject: string;
+  attachments: number;
 }
 
 export interface ResetDemoPinRequest {

@@ -12,11 +12,13 @@
   text-align: start;
 }
 
+// Title on top, stat chips under it across the full width — seven chips don't
+// fit beside the title once the sidebar is open, and wrapping there left one
+// chip alone on its own row.
 .unit-hero {
   display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
   padding: 22px 0 8px;
 }
 
@@ -40,12 +42,12 @@
   }
 }
 
+// Equal-width columns: one row on wide screens, and when it wraps the rows stay
+// evenly filled instead of leaving a single chip behind.
 .unit-stats-row {
-  flex: 0 0 auto;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
-  justify-content: flex-start;
 }
 
 .stat-with-icon {
@@ -55,7 +57,7 @@
 }
 
 .unit-stat-chip {
-  min-width: 112px;
+  min-width: 0;
   min-height: 54px;
   border: 1px solid #E8E8E4;
   border-radius: 16px;

@@ -366,6 +366,53 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
+              // These must stay above 'demo-accounts/:id', or "new" / "activation-requests" would be read as an id.
+              ...['demo-accounts/activation-requests', 'demo-accounts/activation-requests/:requestId'].map(path => ({
+                path,
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/activation-requests/activation-requests.component'
+                  ).then((m) => m.ActivationRequestsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.activation.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showDate: true
+                },
+              })),
+              {
+                path: 'demo-accounts/new',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-create/demo-account-create.component'
+                  ).then((m) => m.DemoAccountCreateComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.create.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true
+                },
+              },
+              {
+                path: 'demo-accounts/:id/resend',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-resend/demo-account-resend.component'
+                  ).then((m) => m.DemoAccountResendComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.dialogs.resend.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true,
+                  recreateOnParamChange: true
+                },
+              },
               {
                 path: 'demo-accounts/:id',
                 canActivate: [authGuard, pageFlagGuard('demo-accounts')],

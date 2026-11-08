@@ -43,6 +43,38 @@
   &.status-disabled   { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
 }
 
+// ── Activation requests: status, interest and press-count badges ──
+.ar-status,
+.ar-interest,
+.ar-times {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid transparent;
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+}
+
+.ar-status {
+  &.ar-new       { color: #1d4ed8; background: #eff6ff; border-color: #dbeafe; }
+  &.ar-contacted { color: #b45309; background: #fffbeb; border-color: #fef3c7; }
+  &.ar-converted { color: #15803d; background: #f0fdf4; border-color: #dcfce7; }
+  &.ar-closed    { color: #475569; background: #F1F5F9; border-color: #E2E8F0; }
+}
+
+.ar-interest {
+  &.in-hot  { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+  &.in-warm { color: #ea580c; background: #fff7ed; border-color: #ffedd5; }
+  &.in-cold { color: #64748b; background: #fff; border-color: #E2E8F0; .dot { background: #fff; border: 1.5px solid #94a3b8; } }
+}
+
+.ar-times { color: #7c3aed; background: #f5f3ff; border-color: #ede9fe; padding: 2px 8px; font-size: 11px; }
+
 .da-channel {
   display: inline-flex;
   align-items: center;
@@ -279,6 +311,158 @@ textarea.da-input {
   cursor: pointer;
 
   input { width: 16px; height: 16px; accent-color: #111110; cursor: pointer; }
+}
+
+// ── Form page (create / resend): form on the start side, sticky preview on the end ──
+.da-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.da-page__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  h2 { margin: 0; font-size: 20px; font-weight: 800; color: #111110; }
+  p { margin: 4px 0 0; font-size: 13px; font-weight: 600; color: #6B6B67; }
+}
+
+.da-page__actions { display: flex; gap: 10px; }
+
+.da-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr; }
+}
+
+.da-page__main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.da-page__aside {
+  position: sticky;
+  top: 16px;
+  min-width: 0;
+
+  @media (max-width: 1100px) { position: static; }
+}
+
+.da-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  > h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #111110;
+  }
+}
+
+.da-step {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #111110;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.da-step.invalid { background: #dc2626; }
+
+// Collapsible card: the whole header row toggles it; folded, it shows a one-line summary.
+.da-acc {
+  gap: 0;
+
+  &__head {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+
+    &:focus-visible { outline: 2px solid #94a3b8; outline-offset: 4px; border-radius: 8px; }
+  }
+
+  &__title { font-size: 15px; font-weight: 800; color: #111110; flex-shrink: 0; }
+
+  &__summary {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #9E9E9A;
+  }
+
+  &__chevron {
+    margin-inline-start: auto;
+    color: #6B6B67;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  &.collapsed .da-acc__chevron { transform: rotate(90deg); }
+  [dir='rtl'] &.collapsed .da-acc__chevron { transform: rotate(-90deg); }
+}
+
+// Bottom bar on small screens so the submit button is always in reach.
+.da-page__footer {
+  display: none;
+
+  @media (max-width: 1100px) {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0;
+    background: linear-gradient(to top, #fff 75%, rgba(255, 255, 255, 0));
+  }
+}
+
+@media (max-width: 1100px) {
+  .da-page__bar .da-page__actions { display: none; }
+}
+
+@media (max-width: 576px) {
+  .da-page__footer { flex-direction: column-reverse; .da-btn { width: 100%; } }
 }
 
 // ── Dialog shell ────────────────────────────────────────────

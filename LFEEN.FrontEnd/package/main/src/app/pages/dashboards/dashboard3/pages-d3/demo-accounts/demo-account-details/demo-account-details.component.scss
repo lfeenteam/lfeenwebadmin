@@ -97,6 +97,24 @@
 
 .dd-note { white-space: pre-line; }
 
+.dd-request h3 { display: flex; align-items: center; gap: 8px; }
+
+// Saved invitation text: kept exactly as typed.
+.dd-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-weight: 500;
+  line-height: 1.8;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dd-list dd .da-mono-soft { color: #45556C; }
+
 // Email invitation files.
 .dd-files {
   list-style: none;

@@ -2,22 +2,6 @@
 
 :host { display: block; }
 
-// A disabled button swallows hover, so the tooltip sits on this wrapper instead.
-.seg-slot {
-  display: flex;
-
-  button { width: 100%; }
-}
-
-[hidden] { display: none !important; }
-
-.resend-loading {
-  display: flex;
-  justify-content: center;
-  padding: 8px 0;
-  color: #9E9E9A;
-}
-
 .extend-preview {
   margin: 0;
   font-size: 13px;

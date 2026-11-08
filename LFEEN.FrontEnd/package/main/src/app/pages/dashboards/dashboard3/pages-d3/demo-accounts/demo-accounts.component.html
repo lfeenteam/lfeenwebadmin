@@ -1,4 +1,5 @@
 <div class="da-root da-list" [dir]="dir">
+  <app-demo-tabs></app-demo-tabs>
 
   <!-- Header -->
   <div class="da-list__head">
@@ -79,6 +80,14 @@
               <tr class="da-row" tabindex="0" (click)="open(item)" (keydown.enter)="open(item)">
                 <td>
                   <span class="da-name">{{ item.fullName }}</span>
+                  <!-- Latest activation request, coloured by its status -->
+                  @if (item.activationRequestStatus; as rs) {
+                    <span class="ar-status da-req-badge" [ngClass]="'ar-' + rs.toLowerCase()"
+                          [title]="('d3.demoAccounts.activation.status.' + rs) | translate">
+                      <i-tabler name="user-star" class="icon-14"></i-tabler>
+                      {{ 'd3.demoAccounts.activation.badge' | translate }}
+                    </span>
+                  }
                 </td>
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.table.email' | translate }}</span>

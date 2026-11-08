@@ -129,7 +129,105 @@
       "copyFailed": "Could not copy, please copy the value manually",
       "pinHidden": "Cannot be shown. The host can't change it; use “New PIN” when needed.",
       "defaultSubject": "Default subject",
+      "standardInvitation": "Standard invitation",
+      "tabs": {
+        "accounts": "Demo accounts",
+        "activationRequests": "Activation requests"
+      },
+      "activation": {
+        "title": "Activation requests",
+        "subtitle": "Demo hosts who asked for a real account. Most recent activity first.",
+        "badge": "Activation request",
+        "cardTitle": "Activation request",
+        "status": {
+          "New": "New",
+          "Contacted": "Contacted",
+          "Converted": "Signed up",
+          "Closed": "Closed"
+        },
+        "interest": {
+          "Hot": "Hot",
+          "Warm": "Warm",
+          "Cold": "Cold"
+        },
+        "times": "Pressed {{count}} times",
+        "timesHint": "Pressed more than once on the same open request — high interest.",
+        "table": {
+          "name": "Host name",
+          "phone": "Phone",
+          "email": "Email",
+          "interest": "Interest",
+          "times": "Times pressed",
+          "bookingsPayments": "Bookings & payments",
+          "status": "Status",
+          "lastActivity": "Last activity"
+        },
+        "bookingsPayments": "{{bookings}} bookings · {{payments}} payments",
+        "total": "requests",
+        "errorTitle": "Could not load activation requests",
+        "emptyTitle": "No activation requests yet",
+        "emptyDesc": "When a demo host asks for a real account, the request shows up here.",
+        "fields": {
+          "name": "Name",
+          "phone": "Phone",
+          "email": "Email",
+          "preferredTime": "Preferred contact time",
+          "hostNote": "Host's note",
+          "requestedAt": "Requested on"
+        },
+        "trialSummary": "Trial summary",
+        "trial": {
+          "daysUsed": "days used",
+          "properties": "properties",
+          "units": "units",
+          "bookings": "bookings",
+          "payments": "payments",
+          "customers": "guests",
+          "services": "services"
+        },
+        "expiresAt": "Trial ends on",
+        "openAccount": "Open the demo account",
+        "followUp": "Follow-up",
+        "handledBy": "Handled by {{name}}",
+        "adminNote": "Note (optional)",
+        "adminNotePlaceholder": "e.g. We called; they'll sign up tomorrow",
+        "adminNoteHelp": "Left empty, the saved note stays as it is.",
+        "noteMax": "The note must not exceed 1000 characters.",
+        "actions": {
+          "Contacted": "Contacted",
+          "Converted": "Signed up",
+          "Closed": "Close",
+          "New": "Back to new"
+        },
+        "updated": "Request updated: {{status}}"
+      },
       "noAttachments": "No attachments.",
+      "invitation": {
+        "title": "Invitation message",
+        "language": "Message language",
+        "languages": { "Ar": "العربية", "En": "English" },
+        "presets": "Ready-made templates — pick one, then edit freely",
+        "variablesHint": "Click a variable to insert it at the cursor. It's replaced with the real value when sent.",
+        "message": "Invitation text (optional)",
+        "messagePlaceholder": "Leave empty to send the standard invitation.",
+        "messageHelp": "Lines and spaces are sent as typed. Missing sign-in details are added at the end automatically.",
+        "fix": "Fix:",
+        "preview": "Invitation preview",
+        "subjectLabel": "Subject:",
+        "noPreview": "No preview for this channel.",
+        "characters": "Characters",
+        "smsStats": "{{characters}} characters · {{segments}} parts",
+        "encoding": {
+          "UCS2": "Arabic or emoji: 70 characters per part",
+          "GSM7": "160 characters per part"
+        },
+        "exampleValues": "Preview uses example values. Type the name and use the name variable in the text to see your data.",
+        "typedValues": "Preview uses what you typed. Sign-in details show example values — they're made on create.",
+        "invalid": "Fix the marked problems in the text before sending.",
+        "sendTest": "Send a copy to my email",
+        "testSent": "Sent to {{recipient}}",
+        "testLimit": "The test-copy limit has been reached. Try again shortly."
+      },
       "neverDelivered": "No invitation delivered yet",
       "filters": {
         "all": "All"
@@ -186,10 +284,14 @@
         "unlock": "Unlock",
         "disable": "Disable",
         "remove": "Remove",
-        "download": "Download"
+        "download": "Download",
+        "close": "Close"
       },
       "create": {
         "title": "Create demo account",
+        "pageHelp": "Enter the host's details, then write the invitation and check it before sending.",
+        "accountSection": "Account details",
+        "noName": "No name",
         "fullName": "Full name",
         "channel": "Invitation channel",
         "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
@@ -208,16 +310,6 @@
         "attachments": "Invitation attachments (optional)",
         "chooseFiles": "Choose files",
         "uploading": "Uploading files...",
-        "preview": {
-          "title": "Invitation preview",
-          "to": "To:",
-          "subject": "Subject:",
-          "sampleName": "Host name",
-          "greeting": "Hello {{name}},",
-          "period": "A Lfeen demo account has been created for you for {{days}} days, ending on",
-          "auto": "Generated automatically",
-          "help": "Approximate preview. The system writes the final text when sending."
-        },
         "attachmentsHelp": "PDF, Word or PNG/JPEG images — up to 5 files and 10 MB in total.",
         "submit": "Create and send invitation"
       },
@@ -251,6 +343,9 @@
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
         "invitationSubject": "Invitation subject",
+        "renderedSubject": "Subject as received",
+        "invitationMessage": "Invitation text",
+        "invitationLanguage": "Invitation language",
         "attachments": "Attachments",
         "status": "Status",
         "expiresAt": "Expires on",
@@ -262,7 +357,7 @@
         "person": "Person",
         "login": "Sign-in details",
         "period": "Period",
-        "invitationContent": "Email invitation content",
+        "invitationContent": "Invitation content",
         "deliveries": "Invitation log"
       },
       "banners": {
@@ -357,6 +452,11 @@
         "DEMO_ATTACHMENT_INVALID": "One of the files is invalid or has expired. Upload it again.",
         "DEMO_ATTACHMENTS_EMAIL_ONLY": "Attachments are for email only.",
         "DEMO_ATTACHMENT_NOT_FOUND": "The file was not found.",
+        "DEMO_SUBJECT_INVALID": "There is a problem in the invitation subject. Check the marks in the text.",
+        "DEMO_MESSAGE_INVALID": "There is a problem in the invitation text. Check the marks in the text.",
+        "DEMO_INVITATION_TEMPLATE_INVALID": "There is a problem in the invitation text. Check the marks in the text.",
+        "DEMO_TEST_SEND_FAILED": "The test copy could not be sent. Try again shortly.",
+        "DEMO_ACTIVATION_REQUEST_NOT_FOUND": "The request was not found.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }

@@ -186,21 +186,64 @@
         </dl>
       </section>
 
-      <!-- Section: email invitation content (§5.4) -->
+      <!-- Section: the host's latest activation request, with the same follow-up buttons as the tab -->
+      @if (account.activationRequest; as req) {
+        <section class="dd-card dd-card--wide dd-request">
+          <h3>
+            <i-tabler name="user-star" class="icon-18"></i-tabler>
+            {{ 'd3.demoAccounts.activation.cardTitle' | translate }}
+          </h3>
+          <app-activation-request-panel [request]="req" [canManage]="canManage()" [showAccountLink]="false"
+                                        (changed)="onRequestChanged($event)" (missing)="load()"></app-activation-request-panel>
+        </section>
+      }
+
+      <!-- Section: invitation content — saved texts, language, subject as received, files -->
       @if (showInvitationContent) {
         <section class="dd-card dd-card--wide">
           <h3>{{ 'd3.demoAccounts.sections.invitationContent' | translate }}</h3>
           <dl class="dd-list">
             <div>
-              <dt>{{ 'd3.demoAccounts.fields.invitationSubject' | translate }}</dt>
+              <dt>{{ 'd3.demoAccounts.fields.invitationLanguage' | translate }}</dt>
+              <dd>{{ ('d3.demoAccounts.invitation.languages.' + (account.invitationLanguage || 'Ar')) | translate }}</dd>
+            </div>
+            @if (account.channel === 'Email' || account.invitationSubject || account.renderedSubject) {
+              <div>
+                <dt>{{ 'd3.demoAccounts.fields.invitationSubject' | translate }}</dt>
+                <dd>
+                  @if (account.invitationSubject) {
+                    <app-invitation-text dir="auto" [text]="account.invitationSubject"
+                                         [variables]="variables" [english]="currentLang === 'en'"></app-invitation-text>
+                  } @else {
+                    <span class="da-muted">{{ 'd3.demoAccounts.defaultSubject' | translate }}</span>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>{{ 'd3.demoAccounts.fields.renderedSubject' | translate }}</dt>
+                <dd>
+                  @if (account.renderedSubject) {
+                    <span dir="auto">{{ account.renderedSubject }}</span>
+                  } @else {
+                    <span class="da-muted">{{ emptyValue }}</span>
+                  }
+                </dd>
+              </div>
+            }
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.invitationMessage' | translate }}</dt>
               <dd>
-                @if (account.invitationSubject) {
-                  <span dir="auto">{{ account.invitationSubject }}</span>
+                @if (account.invitationMessage) {
+                  <div class="dd-message" dir="auto">
+                    <app-invitation-text [text]="account.invitationMessage"
+                                         [variables]="variables" [english]="currentLang === 'en'"></app-invitation-text>
+                  </div>
                 } @else {
-                  <span class="da-muted">{{ 'd3.demoAccounts.defaultSubject' | translate }}</span>
+                  <span class="da-muted">{{ 'd3.demoAccounts.standardInvitation' | translate }}</span>
                 }
               </dd>
             </div>
+            @if (showAttachments) {
             <div>
               <dt>{{ 'd3.demoAccounts.fields.attachments' | translate }}</dt>
               <dd>
@@ -225,6 +268,7 @@
                 }
               </dd>
             </div>
+            }
           </dl>
         </section>
       }
