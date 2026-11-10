@@ -1,0 +1,78 @@
+:host { display: block; }
+
+.tf {
+  box-sizing: border-box;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  color: #111110;
+  outline: none;
+  cursor: text;
+  transition: border-color 0.2s ease;
+
+  // Single line (subject): one row, scrolls sideways.
+  min-height: 44px;
+  padding: 9px 14px;
+  line-height: 24px;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  &:focus { border-color: #94a3b8; background: #fff; }
+  &.invalid { border-color: #fca5a5; background: #fff; }
+  &.disabled { opacity: 0.6; cursor: not-allowed; }
+
+  // Message: wraps and grows, scrolls past a height.
+  &--multi {
+    min-height: 170px;
+    max-height: 420px;
+    padding: 10px 14px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  &--empty::before {
+    content: attr(data-placeholder);
+    color: #9E9E9A;
+    pointer-events: none;
+  }
+}
+
+// A variable: one locked pill with its label.
+:host ::ng-deep .tf-chip {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #e0ecff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 22px;
+  white-space: nowrap;
+  vertical-align: baseline;
+  user-select: all;
+  cursor: default;
+
+  &.tf-chip--cred { background: #f1e8ff; color: #7c3aed; }
+  &.tf-chip--issue { background: #fee2e2; color: #b91c1c; box-shadow: 0 0 0 1.5px #fca5a5; }
+}
+
+// A problem the preview found.
+:host ::ng-deep .tf-issue {
+  background: rgba(220, 38, 38, 0.12);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0;
+  text-decoration: underline wavy #dc2626;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+}

@@ -50,7 +50,17 @@ export class DepartmentService {
   readonly totalPages       = computed(() => this._departmentsResource.value()?.totalPages ?? 1);
   readonly totalCount       = computed(() => this._departmentsResource.value()?.totalCount ?? 0);
   readonly isLoading        = this._departmentsResource.isLoading;
+  readonly departmentsError = this._departmentsResource.error;
   readonly departmentStats  = computed<DepartmentStats | null>(() => this._departmentsResource.value()?.stats ?? null);
+
+  // The service outlives the page, so a failed load stays failed until reloaded.
+  reloadDepartments(): void {
+    this._departmentsResource.reload();
+  }
+
+  reloadEmployees(): void {
+    this._employeesResource.reload();
+  }
 
   goToPage(page: number): void {
     this.currentPage.set(page);

@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { CoreService } from 'src/app/services/core.service';
 import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
 import { AdminNotificationsStore } from 'src/app/pages/dashboards/dashboard3/services/admin-notifications-store.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 interface AppLanguage {
   language: string;
   code: string;
@@ -28,7 +29,6 @@ export class HeaderComponent {
 
   @Output() sidebarToggle = new EventEmitter<void>();
 
-  public selectedLanguage: AppLanguage;
   public languages: AppLanguage[] = [
     {
       language: 'العربية',
@@ -53,15 +53,18 @@ export class HeaderComponent {
     const user = this.loginService.getUser();
     this.fullName = user?.fullName || '';
     this.userRole = Array.isArray(user?.roles) ? user.roles.join(', ') : user?.roles || '';
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    const langCode = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
-      ? urlSegments[0]
-      : (this.settings.getOptions().language || 'ar');
-    this.selectedLanguage = this.languages.find(l => l.code === langCode) || this.languages[0];
+  }
+
+  // Read live, not stored once: switching language (e.g. from the sidebar) only changes
+  // the :lang param, so Angular reuses this component and the constructor never re-runs.
+  // CoreService is updated by every language switch and by languageSyncGuard from the URL.
+  get selectedLanguage(): AppLanguage {
+    const code = this.settings.getOptionsSignal()().language;
+    return this.languages.find(l => l.code === code) || this.languages[0];
   }
 
   get currentDate(): string {
-    const locale = this.selectedLanguage.code === 'ar' ? 'ar-EG' : 'en-US';
+    const locale = appLocale(this.selectedLanguage.code);
     return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
   }
 
@@ -80,7 +83,6 @@ export class HeaderComponent {
   }
 
   changeLanguage(lang: AppLanguage): void {
-    this.selectedLanguage = lang;
 
     const dir = lang.code === 'ar' ? 'rtl' : 'ltr';
     this.settings.setOptions({ language: lang.code, dir }, true);

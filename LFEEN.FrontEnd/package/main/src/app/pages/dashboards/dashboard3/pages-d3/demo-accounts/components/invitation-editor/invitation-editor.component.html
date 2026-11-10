@@ -1,0 +1,119 @@
+<div class="da-root ie" [class.ie--bare]="bare">
+  <div class="ie-head">
+    @if (bare) {
+      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.language' | translate }}</span>
+    } @else {
+      <span class="da-label">{{ 'd3.demoAccounts.invitation.title' | translate }}</span>
+    }
+
+    <!-- Language of the text (dates and day counts) -->
+    <div class="da-segmented ie-lang" role="radiogroup" [attr.aria-label]="'d3.demoAccounts.invitation.language' | translate">
+      @for (l of store.languages; track l) {
+        <button type="button" role="radio" [class.active]="store.language === l" [attr.aria-checked]="store.language === l"
+                [disabled]="disabled" (click)="store.setLanguage(l)">
+          {{ ('d3.demoAccounts.invitation.languages.' + l) | translate }}
+        </button>
+      }
+    </div>
+  </div>
+  @if (store.fieldErrors.language) { <p class="da-error">{{ store.fieldErrors.language }}</p> }
+
+  @if (store.templatesError) {
+    <div class="da-alert warning">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <div class="da-alert__body">
+        <p>{{ store.templatesError }}</p>
+        <button type="button" class="da-link-btn" (click)="store.loadTemplates()">{{ 'd3.demoAccounts.actions.retry' | translate }}</button>
+      </div>
+    </div>
+  }
+
+  <!-- Ready-made templates -->
+  @if (store.presets.length) {
+    <div class="ie-block">
+      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.presets' | translate }}</span>
+      <div class="ie-chips">
+        @for (p of store.presets; track p.id) {
+          <button type="button" class="ie-preset" [class.active]="store.activePreset === p.id" [disabled]="disabled"
+                  [matTooltip]="store.presetDescription(p)" (click)="store.applyPreset(p)">
+            {{ store.presetName(p) }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Variables: insert the token at the cursor of the last focused field -->
+  @if (store.variables.length) {
+    <div class="ie-block">
+      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.variablesHint' | translate }}</span>
+      <div class="ie-chips">
+        @for (v of store.variables; track v.number) {
+          <button type="button" class="ie-chip" [disabled]="!canInsert(v)"
+                  [matTooltip]="store.tokenOf(v) + ' · ' + store.variableExample(v)"
+                  (mousedown)="$event.preventDefault()" (click)="insert(v)">
+            <i-tabler [name]="v.isCredential ? 'key' : 'braces'" class="icon-14"></i-tabler>
+            {{ store.variableLabel(v) }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Subject: Email only -->
+  @if (store.isEmail) {
+    <div class="da-field">
+      <label for="ie-subject" (click)="subjectField.focus()">{{ 'd3.demoAccounts.create.subject' | translate }}</label>
+      <app-token-field #subjectField fieldId="ie-subject"
+                       [value]="store.subject" (valueChange)="store.setSubject($event)"
+                       [variables]="store.variables" [english]="store.uiEnglish" [issues]="store.issues('Subject')"
+                       [placeholder]="store.subjectPlaceholder" [disabled]="disabled"
+                       [invalid]="!!(store.issues('Subject').length || store.fieldErrors.subject)"
+                       (focused)="focusedField = 'Subject'"></app-token-field>
+      <p class="da-helper">
+        <span>{{ 'd3.demoAccounts.create.subjectHelp' | translate }}</span>
+        <span class="da-ltr" dir="ltr" [class.over]="store.subject.length > store.subjectMax">{{ store.subject.length }}/{{ store.subjectMax }}</span>
+      </p>
+      @for (i of store.issues('Subject'); track $index) {
+        <p class="da-error ie-issue">
+          {{ i.message }}
+          @if (i.suggestion != null) {
+            <button type="button" class="ie-fix" [disabled]="disabled" (click)="store.applySuggestion(i)">
+              <i-tabler name="wand" class="icon-14"></i-tabler>
+              {{ 'd3.demoAccounts.invitation.fix' | translate }} <span class="da-ltr" dir="ltr">{{ store.suggestionLabel(i.suggestion) }}</span>
+            </button>
+          }
+        </p>
+      }
+      @if (store.fieldErrors.subject) { <p class="da-error">{{ store.fieldErrors.subject }}</p> }
+    </div>
+  }
+
+  <!-- Message: every channel -->
+  <div class="da-field">
+    <label for="ie-message" (click)="messageField.focus()">{{ 'd3.demoAccounts.invitation.message' | translate }}</label>
+    <app-token-field #messageField fieldId="ie-message" [multiline]="true"
+                     [value]="store.message" (valueChange)="store.setMessage($event)"
+                     [variables]="store.variables" [english]="store.uiEnglish" [issues]="store.issues('Message')"
+                     [placeholder]="'d3.demoAccounts.invitation.messagePlaceholder' | translate" [disabled]="disabled"
+                     [invalid]="!!(store.issues('Message').length || store.fieldErrors.message)"
+                     (focused)="focusedField = 'Message'"></app-token-field>
+    <p class="da-helper">
+      <span>{{ 'd3.demoAccounts.invitation.messageHelp' | translate }}</span>
+      <span class="da-ltr" dir="ltr" [class.over]="store.message.length > store.messageMax">{{ store.message.length }}/{{ store.messageMax }}</span>
+    </p>
+    @for (i of store.issues('Message'); track $index) {
+      <p class="da-error ie-issue">
+        {{ i.message }}
+        @if (i.suggestion != null) {
+          <button type="button" class="ie-fix" [disabled]="disabled" (click)="store.applySuggestion(i)">
+            <i-tabler name="wand" class="icon-14"></i-tabler>
+            {{ 'd3.demoAccounts.invitation.fix' | translate }} <span class="da-ltr" dir="ltr">{{ store.suggestionLabel(i.suggestion) }}</span>
+          </button>
+        }
+      </p>
+    }
+    @if (store.fieldErrors.message) { <p class="da-error">{{ store.fieldErrors.message }}</p> }
+  </div>
+</div>
+

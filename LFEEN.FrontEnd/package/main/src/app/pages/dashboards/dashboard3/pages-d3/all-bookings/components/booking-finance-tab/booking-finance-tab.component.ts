@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { BookingService } from '../../services/booking.service';
 import { BookingFinancialSummary } from '../../interfaces/booking.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface FinanceSummaryView {
   nightlyRate: number;
@@ -79,7 +80,7 @@ export class BookingFinanceTabComponent implements OnChanges {
 
   formatAmount(amount: number): string {
     const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    return amount.toLocaleString(lang === 'en' ? 'en-US' : 'ar-SA');
+    return amount.toLocaleString(appLocale(lang));
   }
 
   get currencyIconEn(): boolean {

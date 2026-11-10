@@ -36,7 +36,7 @@ export interface Booking {
   id: string;
   bookingNumber: string;
   client: { name: string; phone: string; initials: string; colorIndex: number };
-  unit: { id: number | null; name: string; property: string; location: string };
+  unit: { id: number | null; name: string; propertyId: number | null; property: string; location: string };
   checkIn: Date | null;
   checkOut: Date | null;
   amount: number;
@@ -53,6 +53,7 @@ export interface Booking {
 export interface BookingUnitOption {
   id: number;
   name: string;
+  propertyId: number;
 }
 
 export interface BookingApiItem {
@@ -92,6 +93,8 @@ export interface BookingDetailApiItem {
   unitId: number | null;
   unitNumber: string | null;
   unitTypeName: string | null;
+  unitTypeIconKey?: string | null;
+  unitTypeIconUrl?: string | null;
   propertyId: number | null;
   propertyName: string | null;
   city: string | null;

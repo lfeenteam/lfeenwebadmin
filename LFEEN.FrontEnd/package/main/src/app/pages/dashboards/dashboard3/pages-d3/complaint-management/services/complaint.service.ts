@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { ClientRatingByAgentItem, ClientRatingByAgentQueryParams, ClientRatingListResponse, ClientRatingQueryParams } from '../interfaces/ratings.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
@@ -20,7 +20,7 @@ export class ComplaintService {
 
   resolveComplaint(id: string): Observable<void> {
     this._complaints.update(list =>
-      list.map(c => c.id === id ? { ...c, resolved: true, status: 'replied' as const } : c)
+      list.map(c => c.id === id ? { ...c, resolved: true, status: 'resolved' as const } : c)
     );
     return of(undefined).pipe(delay(300));
   }
@@ -33,7 +33,7 @@ export class ComplaintService {
       senderName: 'فريق الدعم',
       senderNameEn: 'Support',
       content,
-      timestamp: now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+      timestamp: now.toLocaleTimeString(AR_DATE_LOCALE, { hour: '2-digit', minute: '2-digit' }),
       timestampEn: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       createdAtUtc: now.toISOString()
     };
@@ -137,7 +137,7 @@ export class ComplaintService {
       clientInitials: this.getInitials(t.createdByName ?? '-'),
       clientCode: t.propertyName ?? '-',
       status: this.mapTicketStatus(t.status),
-      date: new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      date: new Date(t.createdAt).toLocaleDateString(AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' }),
       dateEn: new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       type: 'host',
       resolved: t.status === 5 || t.status === 'Closed' || t.status === 'Resolved',
@@ -150,6 +150,8 @@ export class ComplaintService {
       priorityName: t.priorityName,
       priorityRaw: typeof t.priority === 'string' ? t.priority : undefined,
       lastMessageAtUtc: t.lastMessageAtUtc ?? null,
+      assignedAtUtc: t.assignedAtUtc ?? null,
+      lastAgentReplyAtUtc: t.lastAgentReplyAtUtc ?? null,
     };
   }
 
@@ -283,14 +285,17 @@ export class ComplaintService {
       clientCode: '-',
       status: this.mapClientTicketStatus(t.status),
       department: t.department,
-      date: t.createdAt ? new Date(t.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
+      date: t.createdAt ? new Date(t.createdAt).toLocaleDateString(AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
       dateEn: t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-',
       type: 'customer',
       resolved: t.status === 'Resolved' || t.status === 'Closed',
       messages: [],
       subject: t.subject ?? undefined,
+      assignedAdminUserId: t.assignedAgentUserId ?? null,
       assignedAdminName: t.assignedAgentName,
       lastMessageAtUtc: t.lastMessageAtUtc ?? null,
+      assignedAtUtc: t.assignedAtUtc ?? null,
+      lastAgentReplyAtUtc: t.lastAgentReplyAtUtc ?? null,
     };
   }
 
@@ -308,7 +313,7 @@ export class ComplaintService {
       clientInitials: this.getInitials(clientName),
       clientCode: fallback?.clientCode ?? '-',
       status: this.mapClientTicketStatus(detail.status),
-      date: new Date(detail.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      date: new Date(detail.createdAt).toLocaleDateString(AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' }),
       dateEn: new Date(detail.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       type: 'customer',
       resolved: detail.status === 'Resolved' || detail.status === 'Closed' || !!detail.closedAtUtc,
@@ -319,14 +324,12 @@ export class ComplaintService {
   }
 
   private mapClientTicketMessage(m: ClientTicketMessage): ChatMessage {
-    const createdAt = new Date(m.createdAt);
     return {
       id: m.externalId,
       senderRole: m.senderType === 'Client' ? 'client' : 'support',
       senderName: m.senderName,
       content: m.body,
-      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      ...this.formatMessageTime(m.createdAt),
       createdAtUtc: m.createdAt,
       attachment: m.attachment
         ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
@@ -388,7 +391,7 @@ export class ComplaintService {
       clientInitials: this.getInitials(clientName),
       clientCode: fallback?.clientCode ?? '-',
       status: this.mapClientTicketStatus(session.status),
-      date: new Date(session.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      date: new Date(session.createdAt).toLocaleDateString(AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' }),
       dateEn: new Date(session.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       type: 'customer',
       resolved: session.status === 'Resolved' || session.status === 'Closed' || !!session.closedAtUtc,
@@ -399,15 +402,19 @@ export class ComplaintService {
     };
   }
 
-  private mapClientChatMessage(m: ClientChatMessage): ChatMessage {
-    const createdAt = new Date(m.createdAt);
+  /** Shared by the loaded thread and live hub messages, so both render identically.
+   * Only the attachment fields the bubble shows are required (the hub event omits the rest). */
+  mapClientChatMessage(
+    m: Omit<ClientChatMessage, 'options' | 'attachment'> & {
+      attachment: Pick<ClientTicketMessageAttachment, 'fileName' | 'url' | 'contentType'> | null;
+    }
+  ): ChatMessage {
     return {
       id: m.externalId,
       senderRole: m.senderType === 'Client' ? 'client' : 'support',
       senderName: m.senderName,
       content: m.body,
-      timestamp: createdAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      ...this.formatMessageTime(m.createdAt),
       createdAtUtc: m.createdAt,
       attachment: m.attachment
         ? { fileName: m.attachment.fileName, url: m.attachment.url, contentType: m.attachment.contentType }
@@ -415,16 +422,27 @@ export class ComplaintService {
     };
   }
 
+  // A missing/unparseable date shows "-" rather than the literal "Invalid Date".
+  private formatMessageTime(value: string | null | undefined): { timestamp: string; timestampEn: string } {
+    const createdAt = value ? new Date(value) : null;
+    if (!createdAt || isNaN(createdAt.getTime())) return { timestamp: '-', timestampEn: '-' };
+    return {
+      timestamp: createdAt.toLocaleTimeString(AR_DATE_LOCALE, { hour: '2-digit', minute: '2-digit' }),
+      timestampEn: createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    };
+  }
+
   mapClientTicketStatus(status: string): ComplaintStatus {
     const map: Record<string, ComplaintStatus> = {
       New:          'new',
       Open:         'new',
-      BotHandling:  'new',
+      BotHandling:  'bot',
       Pending:      'pending',
       PendingAgent: 'pending',
+      Assigned:     'in_progress',
       InProgress:   'in_progress',
       WaitingForClient: 'replied',
-      Resolved:     'replied',
+      Resolved:     'resolved',
       Closed:       'closed',
       ClosedByClient: 'closed',
       ClosedByAdmin:  'closed',
@@ -449,7 +467,9 @@ export class ComplaintService {
   }
 
   mapTicketsOverviewItemToComplaint(item: TicketsOverviewItem): Complaint {
-    const repliedAt = new Date(item.repliedAtUtc);
+    // new Date(null) is the 1970 epoch — show '-' instead when the backend has no reply date
+    const repliedAt = item.repliedAtUtc ? new Date(item.repliedAtUtc) : null;
+    const replyDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     const clientName = item.userName ?? item.accountName ?? '-';
     return {
       id: item.externalId,
@@ -457,15 +477,15 @@ export class ComplaintService {
       clientName,
       clientInitials: this.getInitials(clientName),
       clientCode: '-',
-      status: 'replied',
-      date: new Date(item.createdAt).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }),
+      status: 'resolved',
+      date: new Date(item.createdAt).toLocaleDateString(AR_DATE_LOCALE, { year: 'numeric', month: 'short', day: 'numeric' }),
       dateEn: new Date(item.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       type: item.ticketType === 'Client' ? 'customer' : 'host',
       resolved: true,
       messages: [],
       subject: item.subject,
-      replyDate: repliedAt.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      replyDateEn: repliedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      replyDate: repliedAt ? repliedAt.toLocaleDateString(AR_DATE_LOCALE, replyDateOptions) : '-',
+      replyDateEn: repliedAt ? repliedAt.toLocaleDateString('en-US', replyDateOptions) : '-',
     };
   }
 
@@ -474,11 +494,11 @@ export class ComplaintService {
       'New':                'new',
       'PendingAdminReply':  'pending',
       'WaitingMerchant':    'in_progress',
-      'Resolved':           'replied',
+      'Resolved':           'resolved',
       'Closed':             'closed',
     };
     const byNum: Record<number, ComplaintStatus> = {
-      1: 'new', 2: 'pending', 3: 'in_progress', 4: 'replied', 5: 'closed',
+      1: 'new', 2: 'pending', 3: 'in_progress', 4: 'resolved', 5: 'closed',
     };
     if (typeof status === 'number') return byNum[status] ?? 'new';
     return byName[status] ?? byNum[+status] ?? 'new';

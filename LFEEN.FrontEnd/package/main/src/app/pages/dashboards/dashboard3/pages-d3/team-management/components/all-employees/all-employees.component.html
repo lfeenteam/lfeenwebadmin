@@ -96,15 +96,25 @@
 
         <tr class="mat-row empty-state-row" *matNoDataRow>
           <td [attr.colspan]="displayedColumns.length" class="empty-state-cell">
-            <div class="empty-state">
-              <img src="assets/images/backgrounds/employee.jpg" alt="no employees" class="empty-state-img" />
-              <h5>{{ 'd3.teamManagement.noEmployees.title' | translate }}</h5>
-              <p>{{ 'd3.teamManagement.noEmployees.description' | translate }}</p>
-              <button class="add-first-btn" (click)="onAddEmployee()">
-                <i-tabler name="plus" class="icon-18"></i-tabler>
-                {{ 'd3.teamManagement.noEmployees.addFirstBtn' | translate }}
-              </button>
-            </div>
+            @if (hasFilters) {
+              <app-dashboard-empty variant="search"
+                titleKey="d3.emptyState.noResults.title"
+                descKey="d3.emptyState.noResults.desc"
+                actionKey="d3.emptyState.noResults.clear"
+                actionIcon="x"
+                (action)="clearFilters.emit()">
+              </app-dashboard-empty>
+            } @else {
+              <div class="empty-state">
+                <img src="assets/images/backgrounds/employee.jpg" alt="no employees" class="empty-state-img" />
+                <h5>{{ 'd3.teamManagement.noEmployees.title' | translate }}</h5>
+                <p>{{ 'd3.teamManagement.noEmployees.description' | translate }}</p>
+                <button class="add-first-btn" (click)="onAddEmployee()">
+                  <i-tabler name="plus" class="icon-18"></i-tabler>
+                  {{ 'd3.teamManagement.noEmployees.addFirstBtn' | translate }}
+                </button>
+              </div>
+            }
           </td>
         </tr>
       </table>

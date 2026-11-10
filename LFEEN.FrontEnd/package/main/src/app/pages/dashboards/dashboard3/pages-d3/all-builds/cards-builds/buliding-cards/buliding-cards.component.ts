@@ -5,11 +5,12 @@ import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 import { BuildingReviewService } from '../../../../services/building-review.service';
 
 @Component({
   selector: 'app-buliding-cards',
-   imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent],
+   imports: [CommonModule, TablerIconsModule, TranslateModule, BanListingButtonComponent, CatalogIconComponent],
   templateUrl: './buliding-cards.component.html',
   styleUrl: './buliding-cards.component.scss'
 })

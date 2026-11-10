@@ -6,7 +6,7 @@
   <!-- Header row: tabs (structure) + action button -->
   <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
     @if (activeTab === 'structure' && !departmentId) {
-      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
       <app-team-header
         [isBoxed]="false"
         actionLabel="d3.teamManagement.addDept"
@@ -24,9 +24,12 @@
       actionLabel="d3.teamManagement.addEmployee"
       actionIcon="user-plus"
       [showFilters]="true"
-      [showAction]="employees.length > 0"
+      [showAction]="employees.length > 0 || hasEmployeeFilters"
       [departments]="filterDepartments"
       [roles]="filterRoles"
+      [searchValue]="employeeFilters.search"
+      [deptValue]="employeeFilters.deptId"
+      [roleValue]="employeeFilters.roleId"
       (search)="onEmployeeSearch($event)"
       (filterDept)="onFilterDept($event)"
       (filterRole)="onFilterRole($event)"
@@ -34,25 +37,27 @@
     </app-team-header>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
     </div>
   }
 
   <!-- Logs tab: filter header + tabs -->
   @if (activeTab === 'logs' && !departmentId) {
     <app-logs-filter
-      [actionCodes]="auditActionCodes"
+      [initialSelection]="audits.filterSelection()"
+      [actionGroups]="auditActionGroups"
       [depts]="logsDeptOptions"
       [statuses]="auditStatuses"
       (searchQueryChange)="audits.setSearch($event)"
       (filterActionChange)="audits.setActionCode($event)"
       (filterDeptChange)="audits.setDepartment($event)"
       (filterStatusChange)="audits.setStatus($event)"
-      (filterDateChange)="audits.setDatePreset($event)">
+      (filterDateChange)="audits.setDatePreset($event)"
+      (clearFilters)="audits.clearFilters()">
     </app-logs-filter>
 
     <div class="border-bottom-gray m-b-24">
-      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="setActiveTab($event)"></app-tabs-bar>
+      <app-tabs-bar [activeTab]="activeTab" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
     </div>
   }
 
@@ -60,6 +65,13 @@
   @if (activeTab === 'structure' && !departmentId) {
     @if (isLoadingDepts) {
       <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+    } @else if (deptsLoadFailed) {
+      <div class="logs-error-bar d-flex align-items-center justify-content-between gap-8 m-b-16">
+        <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+        <button mat-stroked-button type="button" (click)="retryDepartments()">
+          {{ 'd3.teamManagement.opsLog.retry' | translate }}
+        </button>
+      </div>
     } @else {
       <div class="row">
         @for(dept of departments; track dept.id) {
@@ -78,7 +90,7 @@
             <button type="button" class="page-nav-btn"
               [disabled]="currentPage === 1"
               (click)="changePage(currentPage - 1)">
-              <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+              <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
             </button>
             @for (p of pageNumbers; track p) {
               <button type="button" class="page-number-btn"
@@ -90,7 +102,7 @@
             <button type="button" class="page-nav-btn"
               [disabled]="currentPage === totalPages"
               (click)="changePage(currentPage + 1)">
-              <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+              <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>
             </button>
           </div>
         </div>
@@ -106,6 +118,13 @@
     }
     @if (isLoadingEmployees) {
       <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+    } @else if (employeesLoadFailed) {
+      <div class="logs-error-bar d-flex align-items-center justify-content-between gap-8 m-b-16">
+        <span>{{ 'd3.teamManagement.opsLog.loadFailed' | translate }}</span>
+        <button mat-stroked-button type="button" (click)="retryEmployees()">
+          {{ 'd3.teamManagement.opsLog.retry' | translate }}
+        </button>
+      </div>
     } @else {
       <app-employee-list
         [employees]="employees"
@@ -113,6 +132,8 @@
         [totalPages]="employeeTotalPages"
         [currentPage]="employeeCurrentPage"
         [totalCount]="employeeTotalCount"
+        [hasFilters]="hasEmployeeFilters"
+        (clearFilters)="clearEmployeeFilters()"
         (edit)="onEditEmployee($event)"
         (delete)="onDeleteEmployee($event)"
         (toggleStatus)="onToggleStatusEmployee($event)"

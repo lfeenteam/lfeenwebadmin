@@ -20,6 +20,17 @@ html {
   .toast-container .ngx-toastr {
     box-shadow: var(--mat-sys-level2);
     border-radius: $border-radius;
+
+    // Several server validation messages shown as bullet points in one toast.
+    .toast-list {
+      margin: 0;
+      padding-inline-start: 18px;
+      list-style: disc;
+
+      li + li {
+        margin-top: 4px;
+      }
+    }
   }
 
   // ngx-toastr pins the icon to the left; mirror it for RTL. The toast container

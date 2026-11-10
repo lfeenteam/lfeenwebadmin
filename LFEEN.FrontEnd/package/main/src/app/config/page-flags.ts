@@ -6,13 +6,18 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'permission-groups': false,
   'call-scripts': true,             // wired to /api/call-scripts (list, create, update)
   esim: true,                       // design sample data from EsimService — no backend endpoint yet
-  'control-center': true,           // in-memory sample data from ControlCenterService — no backend endpoint yet
+  'control-center': true,           // wired to /api/app-runtime (summary, themes, releases, maintenance)
   dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // platform-settings: all fields are static literals
   settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
+  'wallet-approvals': true,         // wired to /api/wallet/adjustments (pending, approve, reject) — maker-checker queue
+  'additional-conditions': true,    // wired to /api/{accounts|properties|units}/additional-conditions (pending queue)
+  'profile-changes': true,          // account-management tab; wired to /api/accounts/profile-changes (branding / commercial register review)
+  'demo-accounts': true,            // wired to /api/admin/demo-accounts (list, details, create, resend, new PIN, extend, unlock, disable)
+  'add-department': false,          // departments come seeded from the backend; the admin has no "add department" flow
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

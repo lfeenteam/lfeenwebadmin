@@ -9,6 +9,7 @@ import { BookingService } from '../../services/booking.service';
 import { BookingFinanceTabComponent } from '../booking-finance-tab/booking-finance-tab.component';
 import { BookingServicesTabComponent } from '../booking-services-tab/booking-services-tab.component';
 import { BookingLogTabComponent } from '../booking-log-tab/booking-log-tab.component';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 import { formatLocalizedDateTime } from 'src/app/utils/date-format.util';
 
 type BookingDetailTab =   'details' | 'finance' |  'log' | 'services'  ;
@@ -27,6 +28,8 @@ interface BookingDetailView {
   unit: {
     number: string;
     type: string;
+    typeIconKey: string | null;
+    typeIconUrl: string | null;
     location: string;
   };
   stay: {
@@ -44,7 +47,7 @@ interface BookingDetailView {
 @Component({
   selector: 'app-booking-detail-drawer',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent, CatalogIconComponent],
   templateUrl: './booking-detail-drawer.component.html',
   styleUrl: './booking-detail-drawer.component.scss'
 })
@@ -161,6 +164,15 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
     return this.translate.instant(map[status]);
   }
 
+  /** Arabic: 1 ليلة واحدة، 2 ليلتان، 3–10 ليالٍ، 11+ ليلة. English only uses one/many. */
+  nightsKey(count: number): string {
+    const base = 'd3.bookings.detail.staySection.';
+    if (count === 1) return base + 'nightsOne';
+    if (count === 2) return base + 'nightsTwo';
+    if (count >= 3 && count <= 10) return base + 'nightsFew';
+    return base + 'nightsMany';
+  }
+
   private fetchBookingDetail(bookingId: string): void {
     this.detailRequest$.next(bookingId);
   }
@@ -170,7 +182,8 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
     const checkOut = this.formatDateParts(item.checkOut);
     const actualCheckIn = this.formatDateParts(item.checkedInAtUtc);
     const actualCheckOut = this.formatDateParts(item.checkedOutAtUtc);
-    const location = [item.propertyName?.trim(), item.city?.trim()].filter(Boolean).join('، ');
+    const separator = this.translate.currentLang === 'ar' ? '، ' : ', ';
+    const location = [item.propertyName?.trim(), item.city?.trim()].filter(Boolean).join(separator);
     const companions: string[] = (item.companions ?? [])
       .map(c => c.name?.trim())
       .filter((name): name is string => !!name);
@@ -189,6 +202,8 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
       unit: {
         number: item.unitNumber?.trim() || '-',
         type: item.unitTypeName?.trim() || '-',
+        typeIconKey: item.unitTypeIconKey ?? null,
+        typeIconUrl: item.unitTypeIconUrl ?? null,
         location: location || '-',
       },
       stay: {

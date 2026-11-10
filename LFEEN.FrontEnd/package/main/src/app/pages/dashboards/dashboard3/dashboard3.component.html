@@ -1,4 +1,4 @@
-<div class="dashboard-wrapper d-flex" [attr.dir]="currentDir()" [class.sidebar-mobile-open]="sidebarMobileOpen">
+<div class="dashboard-wrapper d-flex" [attr.dir]="currentDir()" [class.sidebar-mobile-open]="sidebarMobileOpen" [class.with-flow-report]="flowReportOn">
   <!-- Sidebar -->
   @if (!isLoginRoute) {
     <app-dashboard3-sidebar

@@ -210,11 +210,15 @@
 
     <!-- Actions — only for a payout the backend still accepts execute/fail on, and only with the Execute permission -->
     @if (data.canExecute) {
+      <!-- No IBAN = no transfer, even when bankInfoStatus is Approved; rejecting stays available -->
+      @if (!data.hasIban) {
+        <span class="action-blocked-hint">* {{ 'd3.settlements.errors.noBankAccount' | translate }}</span>
+      }
       <div class="detail-actions">
         <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
           {{ 'd3.settlements.detail.rejectBtn' | translate }}
         </button>
-        <button type="button" class="btn btn-accept" (click)="goToConfirmTransfer()">
+        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban" (click)="goToConfirmTransfer()">
           {{ 'd3.settlements.detail.acceptBtn' | translate }}
         </button>
       </div>
@@ -410,6 +414,13 @@
         }
       </div>
     </div>
+
+    @if (ibanMismatch) {
+      <div class="action-blocked-alert" role="alert">
+        <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+        <span>{{ 'd3.settlements.errors.ibanMismatch' | translate }}</span>
+      </div>
+    }
 
     <!-- Actions -->
     <div class="detail-actions">

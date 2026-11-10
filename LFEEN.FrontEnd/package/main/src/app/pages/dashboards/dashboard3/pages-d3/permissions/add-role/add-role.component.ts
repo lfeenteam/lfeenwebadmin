@@ -75,7 +75,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       descriptionAr: [''],
       descriptionEn: [''],
       isManagerRole: [false],
-      departmentId: ['', this.deptId ? [] : [Validators.required]]
+      departmentId: ['']
     });
   }
 

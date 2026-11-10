@@ -125,7 +125,7 @@
               class="row-action-btn"
               type="button"
               (click)="$event.stopPropagation(); onResolvedAction(c)">
-              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
             </button>
           </div>
 
@@ -164,7 +164,7 @@
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
               [matMenuTriggerFor]="assignMenuFor(c)"
-              [title]="isDelayed(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignDelayedMsg' | translate)) : isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
               <span class="assign-name">{{ displayAssignedAdminName(c) }}</span>
@@ -173,7 +173,7 @@
 
           <div class="col-action">
             <button class="row-action-btn" type="button" (click)="$event.stopPropagation(); detailSelect.emit(c)">
-              <i-tabler name="arrow-left" class="icon-18"></i-tabler>
+              <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
             </button>
           </div>
         } @else {
@@ -217,7 +217,7 @@
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
               [matMenuTriggerFor]="assignMenuFor(c)"
-              [title]="isDelayed(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignDelayedMsg' | translate)) : isAssignLocked(c) ? (c.assignedAdminName + ' · ' + ('d3.complaints.table.assignLockedMsg' | translate)) : (c.assignedAdminName || ('d3.complaints.table.assign' | translate))"
+              [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
               <i-tabler name="user-plus" class="icon-16"></i-tabler>
               @if (c.assignedAdminName) {

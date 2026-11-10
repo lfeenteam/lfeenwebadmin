@@ -1,9 +1,10 @@
 import { MetricComparison, RateComparison } from './interfaces/dashboard.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 export const EM_DASH = '—';
 
 export function dashboardLocale(lang: string): string {
-  return lang === 'en' ? 'en-US' : 'ar-SA';
+  return appLocale(lang);
 }
 
 export function formatInteger(value: number, lang: string): string {

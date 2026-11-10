@@ -77,7 +77,7 @@
       font-size: 10px;
       text-align: start;
       color: #90A1B9;
-      padding: 16px;
+      padding: 16px 12px;
       white-space: nowrap;
     }
   }
@@ -85,7 +85,7 @@
   tbody td {
     text-align: start;
     vertical-align: middle;
-    padding: 18px 16px;
+    padding: 18px 12px;
   }
 
   .code-row {
@@ -99,6 +99,9 @@
   font-weight: 800;
   color: #111110;
   letter-spacing: 0.5px;
+  // Long codes wrap instead of widening the table.
+  max-width: 140px;
+  word-break: break-all;
 }
 
 .copy-btn {
@@ -232,6 +235,24 @@
     .knob { inset-inline-start: 19px; }
   }
 
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.delete-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #9E9E9A;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover:not(:disabled) { color: #dc2626; background: #fef2f2; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 

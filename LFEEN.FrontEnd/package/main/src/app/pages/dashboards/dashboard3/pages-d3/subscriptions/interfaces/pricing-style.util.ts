@@ -1,28 +1,27 @@
-import { SubscriptionPricingItem } from './subscription.model';
+import { SubscriptionCatalogItem, SubscriptionPricingItem } from './subscription.model';
 
 /**
- * Which pricing section the service settings page shows:
- *   Subscription = tiers × Monthly/Yearly rows, setup/usage fees, trial, seasonal prices
- *   MessagePack  = one pack price + messages per pack (a prepaid balance with no expiry)
- * Usage-only services are priced through Subscription rows (price 0 + a usage fee).
+ * Which pricing section a service shows, and which endpoint prices it:
+ *   Package     = period options (GET/POST/PUT /period-options)
+ *   Transaction = one per-operation rate (POST /pricing, period "None")
+ *   MessagePack = one pack price + messages per pack (POST /pricing, period "MessagePack")
+ *   none        = Free / BuiltIn — no pricing at all
  */
-export type PricingStyle = 'Subscription' | 'MessagePack';
+export type PricingStyle = 'Package' | 'Transaction' | 'MessagePack' | 'none';
 
 // `id` differs per server, so services are matched by their fixed `key`.
 const MESSAGE_PACK_KEYS = ['smsGateway'];
 
 /**
- * The catalog's own `pricingStyle` wins once the backend sends it. Until then it's derived
- * from the service key, then from whether any of its pricing rows is a MessagePack.
+ * The admin picks Package or Transaction on the service. MessagePack isn't a billing style of
+ * its own, so a service is treated as one when it already has a MessagePack price, or is the
+ * SMS gateway.
  */
 export function pricingStyleOf(
-  key: string | null | undefined,
+  item: Pick<SubscriptionCatalogItem, 'key' | 'billingModel' | 'billingStyle'> | null | undefined,
   pricing: SubscriptionPricingItem[] = [],
-  declared?: string | null,
 ): PricingStyle {
-  const style = declared?.trim().toLowerCase();
-  if (style === 'messagepack') return 'MessagePack';
-  if (style === 'subscription' || style === 'usage') return 'Subscription';
-  if (key && MESSAGE_PACK_KEYS.includes(key)) return 'MessagePack';
-  return pricing.some(p => p.period === 'MessagePack') ? 'MessagePack' : 'Subscription';
+  if (!item || item.billingModel !== 'Paid') return 'none';
+  if (MESSAGE_PACK_KEYS.includes(item.key) || pricing.some(p => p.period === 'MessagePack')) return 'MessagePack';
+  return item.billingStyle === 'Transaction' ? 'Transaction' : 'Package';
 }

@@ -558,3 +558,9 @@
     }
   }
 }
+
+// Leave room below the actions so the fixed chat FAB (bottom-left, ~84px tall
+// including its offset) doesn't sit on top of the save button.
+.form-actions {
+  padding-bottom: 88px;
+}

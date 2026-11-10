@@ -14,7 +14,7 @@
     @if (showFilters) {
       <mat-select
         class="filter-select-native"
-        value=""
+        [value]="deptValue ?? ''"
         disableOptionCentering
         panelClass="team-filter-panel"
         (selectionChange)="onDeptFilterChange($event.value)">
@@ -26,7 +26,7 @@
 
       <mat-select
         class="filter-select-native"
-        value=""
+        [value]="roleValue ?? ''"
         disableOptionCentering
         panelClass="team-filter-panel"
         (selectionChange)="onRoleFilterChange($event.value)">

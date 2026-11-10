@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { BlankComponent } from './layouts/blank/blank.component';
-import { FullComponent } from './layouts/full/full.component';
 import { LanguageRedirectGuard } from './guards/language-redirect.guard';
 import { languageSyncGuard, languageSyncChildGuard } from './guards/language-sync.guard';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, guestGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
+import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
+import { settingsViewGuard } from './guards/settings-view.guard';
 
 export const routes: Routes = [
   {
@@ -25,70 +26,6 @@ export const routes: Routes = [
       },
       {
         path: '',
-        component: FullComponent,
-        children: [
-          {
-            path: 'starter',
-            loadChildren: () =>
-              import('./pages/pages.routes').then((m) => m.PagesRoutes),
-          },
-          {
-            path: 'dashboards',
-            loadChildren: () =>
-              import('./pages/dashboards/dashboards.routes').then(
-                (m) => m.DashboardsRoutes
-              ),
-          },
-          {
-            path: 'forms',
-            loadChildren: () =>
-              import('./pages/forms/forms.routes').then((m) => m.FormsRoutes),
-          },
-          {
-            path: 'charts',
-            loadChildren: () =>
-              import('./pages/charts/charts.routes').then((m) => m.ChartsRoutes),
-          },
-          {
-            path: 'apps',
-            loadChildren: () =>
-              import('./pages/apps/apps.routes').then((m) => m.AppsRoutes),
-          },
-          {
-            path: 'widgets',
-            loadChildren: () =>
-              import('./pages/widgets/widgets.routes').then((m) => m.WidgetsRoutes),
-          },
-          {
-            path: 'tables',
-            loadChildren: () =>
-              import('./pages/tables/tables.routes').then((m) => m.TablesRoutes),
-          },
-          {
-            path: 'datatable',
-            loadChildren: () =>
-              import('./pages/datatable/datatable.routes').then(
-                (m) => m.DatatablesRoutes
-              ),
-          },
-          {
-            path: 'theme-pages',
-            loadChildren: () =>
-              import('./pages/theme-pages/theme-pages.routes').then(
-                (m) => m.ThemePagesRoutes
-              ),
-          },
-          {
-            path: 'ui-components',
-            loadChildren: () =>
-              import('./pages/ui-components/ui-components.routes').then(
-                (m) => m.UiComponentsRoutes
-              ),
-          },
-        ],
-      },
-      {
-        path: '',
         component: BlankComponent,
         children: [
           {
@@ -105,10 +42,30 @@ export const routes: Routes = [
               },
               {
                 path: 'login',
+                canActivate: [guestGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/login/login.component'
                   ).then((m) => m.LoginComponent),
+              },
+              {
+                path: 'forgot-password',
+                canActivate: [guestGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/forgot-password/forgot-password.component'
+                  ).then((m) => m.ForgotPasswordComponent),
+                data: { titleKey: 'd3.forgotPasswordPage.title' },
+              },
+              {
+                // Linked from the reset email: #/{lang}/d3/reset-password?email=...&token=...
+                // No guestGuard: the emailed link must work even in a browser that is still signed in.
+                path: 'reset-password',
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/reset-password/reset-password.component'
+                  ).then((m) => m.ResetPasswordComponent),
+                data: { titleKey: 'd3.resetPasswordPage.title' },
               },
               {
                 path: 'ceo',
@@ -149,18 +106,12 @@ export const routes: Routes = [
                   showDate: true
                 },
               },
+              // A review page without a building id has nothing to show — send it to the list
+              // instead of rendering an empty review (truncated link, stale bookmark).
               {
                 path: 'build-review',
-                canActivate: [authGuard],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
-                  ).then((m) => m.BuildReviewComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.buildReview.title',
-                  breadcrumbKey: 'd3.header.platform',
-                },
+                redirectTo: 'buildings',
+                pathMatch: 'full',
               },
               {
                 path: 'build-review/:id',
@@ -175,6 +126,7 @@ export const routes: Routes = [
                   breadcrumbKey: 'd3.buildReview.reviewRequestsBC',
                   breadcrumbRoute: 'buildings',
                   showBack: true,
+                  recreateOnParamChange: true,
                   statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
               },
@@ -188,6 +140,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.basicInfoView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -203,6 +156,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.imagesView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -218,6 +172,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.termsView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -233,6 +188,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.pricingView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -248,6 +204,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.accessView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -263,6 +220,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.cancelPolicyView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -278,6 +236,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.depositView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -293,6 +252,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.servicesView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -308,6 +268,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.licenseView.pageTitle',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -323,6 +284,7 @@ export const routes: Routes = [
                 data: {
                   header: 'page',
                   titleKey: 'd3.unitReview.title',
+                  recreateOnParamChange: true,
                   breadcrumbKey: 'd3.unitReview.reviewRequestsBC',
                   breadcrumbRoute: 'units',
                   showBack: true,
@@ -345,7 +307,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management/add',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageFlagGuard('add-department')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'
@@ -391,6 +353,83 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'demo-accounts',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-accounts.component'
+                  ).then((m) => m.DemoAccountsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              // These must stay above 'demo-accounts/:id', or "new" / "activation-requests" would be read as an id.
+              ...['demo-accounts/activation-requests', 'demo-accounts/activation-requests/:requestId'].map(path => ({
+                path,
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/activation-requests/activation-requests.component'
+                  ).then((m) => m.ActivationRequestsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.activation.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showDate: true
+                },
+              })),
+              {
+                path: 'demo-accounts/new',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-create/demo-account-create.component'
+                  ).then((m) => m.DemoAccountCreateComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.create.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true
+                },
+              },
+              {
+                path: 'demo-accounts/:id/resend',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-resend/demo-account-resend.component'
+                  ).then((m) => m.DemoAccountResendComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.dialogs.resend.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true,
+                  recreateOnParamChange: true
+                },
+              },
+              {
+                path: 'demo-accounts/:id',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-details/demo-account-details.component'
+                  ).then((m) => m.DemoAccountDetailsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.detailsTitle',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showBack: true,
+                  recreateOnParamChange: true
+                },
+              },
+              {
                 path: 'esim',
                 canActivate: [authGuard, pageFlagGuard('esim')],
                 loadComponent: () =>
@@ -406,7 +445,8 @@ export const routes: Routes = [
               },
               {
                 path: 'control-center',
-                canActivate: [authGuard, pageFlagGuard('control-center')],
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, pageFlagGuard('control-center'), appRuntimeViewGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/control-center/control-center.component'
@@ -461,6 +501,50 @@ export const routes: Routes = [
                   breadcrumbKey: 'd3.accountManagement.title',
                   breadcrumbRoute: 'account-management',
                   showBack: true
+                },
+              },
+              {
+                // Opened from the "profile changes" tab of account management.
+                path: 'account-management/profile-changes/:accountId',
+                canActivate: [authGuard, pageFlagGuard('profile-changes')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/profile-changes/profile-change-review/profile-change-review.component'
+                  ).then((m) => m.ProfileChangeReviewComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.profileChanges.reviewTitle',
+                  breadcrumbKey: 'd3.accountManagement.title',
+                  breadcrumbRoute: 'account-management',
+                  showBack: true
+                },
+              },
+              {
+                path: 'additional-conditions',
+                canActivate: [authGuard, pageFlagGuard('additional-conditions')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/additional-conditions-pending/additional-conditions-pending.component'
+                  ).then((m) => m.AdditionalConditionsPendingComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.additionalConditions.pendingTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'wallet-approvals',
+                canActivate: [authGuard, pageFlagGuard('wallet-approvals')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/wallet/wallet-approvals/wallet-approvals.component'
+                  ).then((m) => m.WalletApprovalsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.wallet.approvals.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
                 },
               },
               {
@@ -846,7 +930,7 @@ export const routes: Routes = [
               },
               {
                 path: 'settings',
-                canActivate: [authGuard, pageFlagGuard('settings')],
+                canActivate: [authGuard, pageFlagGuard('settings'), settingsViewGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-settings/platform-settings.component'
@@ -893,17 +977,10 @@ export const routes: Routes = [
             ],
           },
           {
-            path: 'authentication',
-            loadChildren: () =>
-              import('./pages/authentication/authentication.routes').then(
-                (m) => m.AuthenticationRoutes
-              ),
-          },
-          {
-            path: 'landingpage',
-            loadChildren: () =>
-              import('./pages/theme-pages/landingpage/landingpage.routes').then(
-                (m) => m.LandingPageRoutes
+            path: 'authentication/error',
+            loadComponent: () =>
+              import('./pages/authentication/error/error.component').then(
+                (m) => m.AppErrorComponent
               ),
           },
         ],

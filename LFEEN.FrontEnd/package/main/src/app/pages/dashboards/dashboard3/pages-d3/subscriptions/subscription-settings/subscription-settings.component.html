@@ -87,17 +87,28 @@
               </div>
             </div>
 
-            <!-- Badge line: the offer highlight first (trial / free / built-in), then how it's activated -->
+            <!-- Badge line: the offer highlight first (trial / free / built-in), then availability -->
             <div class="offer-tags">
-              @if (offer.billingModel === 'Paid' && offer.trialDays > 0) {
+              @if (offer.trialDays) {
                 <span class="offer-badge tone-amber">
                   <i-tabler name="gift" class="icon-13"></i-tabler>
                   {{ 'd3.subscriptions.settings.trialBadge' | translate: { days: fmt(offer.trialDays) } }}
+                </span>
+              } @else if (offer.trialTransactions) {
+                <span class="offer-badge tone-amber">
+                  <i-tabler name="gift" class="icon-13"></i-tabler>
+                  {{ 'd3.subscriptions.settings.trialOpsBadge' | translate: { count: fmt(offer.trialTransactions) } }}
                 </span>
               } @else if (offer.billingModel) {
                 <span class="offer-badge" [class.tone-purple]="offer.billingModel === 'Free'" [class.tone-blue]="offer.billingModel === 'Paid'" [class.tone-slate]="offer.billingModel === 'BuiltIn'">
                   <i-tabler [name]="offer.billingModel === 'Free' ? 'gift' : offer.billingModel === 'BuiltIn' ? 'puzzle' : 'coin'" class="icon-13"></i-tabler>
                   {{ ('d3.subscriptions.settings.typeBadge.' + offer.billingModel) | translate }}
+                </span>
+              }
+              @if (offer.billingStyle && offer.billingModel === 'Paid' && offer.priceKind !== 'messagePack') {
+                <span class="offer-badge tone-slate">
+                  <i-tabler [name]="offer.billingStyle === 'Transaction' ? 'receipt' : 'calendar-repeat'" class="icon-13"></i-tabler>
+                  {{ ('d3.billingFields.styles.' + offer.billingStyle + '.title') | translate }}
                 </span>
               }
               @if (offer.active && !offer.available) {
@@ -125,46 +136,71 @@
               }
             </ul>
 
-            <!-- Price box: always two cells, so every card ends the same way -->
-            @if (offer.isMessagePack) {
-              <!-- A message balance has no monthly/annual price: pack price and the per-message price it gives -->
-              <div class="offer-price-box d-flex align-items-stretch">
-                <div class="offer-price-cell">
-                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packPrice' | translate }}</span>
-                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.packPriceValue, monthly: true }"></ng-container>
-                  @if (offer.packPriceValue !== null && offer.messagesPerPack) {
-                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packMessages' | translate: { count: fmt(offer.messagesPerPack) } }}</span>
-                  }
-                </div>
-                <div class="offer-price-divider"></div>
-                <div class="offer-price-cell">
-                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.perMessage' | translate }}</span>
-                  @if (pricePerMessage(offer); as perMessage) {
-                    <span class="offer-price-value d-flex align-items-center gap-4">
-                      <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
-                        [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
-                        [style.mask-image]="'url(' + currencyIconSrc + ')'"
-                        role="img" [attr.aria-label]="currencyIconAlt"></span>
-                      {{ fmtMessagePrice(perMessage) }}
-                    </span>
-                  } @else {
-                    <span class="offer-price-value is-unset">{{ 'd3.subscriptions.settings.noPrice' | translate }}</span>
-                  }
-                </div>
-              </div>
-            } @else {
-              <div class="offer-price-box d-flex align-items-stretch">
-                <div class="offer-price-cell">
-                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.monthlyPrice' | translate }}</span>
-                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.monthlyPriceValue, monthly: true }"></ng-container>
-                </div>
-                <div class="offer-price-divider"></div>
-                <div class="offer-price-cell">
-                  <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.annualPrice' | translate }}</span>
-                  <ng-container *ngTemplateOutlet="priceCell; context: { offer: offer, value: offer.annualPriceValue, monthly: false }"></ng-container>
-                </div>
-              </div>
-            }
+            <!-- Price box: always two cells, so every card ends the same way. What the cells hold
+                 follows how the service is charged. -->
+            <div class="offer-price-box d-flex align-items-stretch">
+              @switch (offer.priceKind) {
+                @case ('package') {
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.fromPrice' | translate }}</span>
+                    <ng-container *ngTemplateOutlet="amount; context: { value: offer.fromPrice, main: true }"></ng-container>
+                  </div>
+                  <div class="offer-price-divider"></div>
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.periodOptions' | translate }}</span>
+                    @if (offer.optionsCount) {
+                      <span class="offer-price-value">{{ 'd3.subscriptions.settings.optionsCount' | translate: { count: fmt(offer.optionsCount) } }}</span>
+                    } @else {
+                      <span class="offer-price-value is-unset">{{ 'd3.subscriptions.settings.noPrice' | translate }}</span>
+                    }
+                  </div>
+                }
+                @case ('transaction') {
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.perOperation' | translate }}</span>
+                    @if (offer.ratePercent !== null) {
+                      <span class="offer-price-value offer-price-value--monthly">{{ fmtPrecise(offer.ratePercent) }}%</span>
+                    } @else {
+                      <ng-container *ngTemplateOutlet="amount; context: { value: offer.rateAmount, main: true, precise: true }"></ng-container>
+                    }
+                  </div>
+                  <div class="offer-price-divider"></div>
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.maxFee' | translate }}</span>
+                    @if (offer.rateCap !== null) {
+                      <ng-container *ngTemplateOutlet="amount; context: { value: offer.rateCap }"></ng-container>
+                    } @else {
+                      <span class="offer-price-value is-unset">—</span>
+                    }
+                  </div>
+                }
+                @case ('messagePack') {
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packPrice' | translate }}</span>
+                    <ng-container *ngTemplateOutlet="amount; context: { value: offer.packPrice, main: true }"></ng-container>
+                    @if (offer.packPrice !== null && offer.messagesPerPack) {
+                      <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.packMessages' | translate: { count: fmt(offer.messagesPerPack) } }}</span>
+                    }
+                  </div>
+                  <div class="offer-price-divider"></div>
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.perMessage' | translate }}</span>
+                    <ng-container *ngTemplateOutlet="amount; context: { value: pricePerMessage(offer), precise: true }"></ng-container>
+                  </div>
+                }
+                @default {
+                  <!-- Free / built-in: never priced -->
+                  <div class="offer-price-cell">
+                    <span class="offer-price-label d-block">{{ 'd3.subscriptions.settings.price' | translate }}</span>
+                    @if (offer.priceKind === 'builtIn') {
+                      <span class="offer-price-free-badge is-built-in">{{ 'd3.subscriptionTypes.BuiltIn' | translate }}</span>
+                    } @else {
+                      <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
+                    }
+                  </div>
+                }
+              }
+            </div>
 
           </mat-card-content>
         </mat-card>
@@ -180,19 +216,15 @@
 
 </div>
 
-<!-- One price cell. Free and built-in services never have a price (the API sends null), so they show their type instead. -->
-<ng-template #priceCell let-offer="offer" let-value="value" let-monthly="monthly">
-  @if (offer.billingModel === 'Free' || value === 0) {
-    <span class="offer-price-free-badge">{{ 'd3.subscriptions.detail.free' | translate }}</span>
-  } @else if (offer.billingModel === 'BuiltIn') {
-    <span class="offer-price-free-badge is-built-in">{{ 'd3.subscriptionTypes.BuiltIn' | translate }}</span>
-  } @else if (value !== null) {
-    <span class="offer-price-value d-flex align-items-center gap-4" [class.offer-price-value--monthly]="monthly">
+<!-- One money value with the riyal mark; null = not priced yet. -->
+<ng-template #amount let-value="value" let-main="main" let-precise="precise">
+  @if (value !== null && value !== undefined) {
+    <span class="offer-price-value d-flex align-items-center gap-4" [class.offer-price-value--monthly]="main">
       <span class="offer-currency-icon" [class.currency-icon-en]="currencyIconEn"
         [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
         [style.mask-image]="'url(' + currencyIconSrc + ')'"
         role="img" [attr.aria-label]="currencyIconAlt"></span>
-      {{ fmt(value) }}
+      {{ precise ? fmtPrecise(value) : fmt(value) }}
     </span>
   } @else {
     <span class="offer-price-value is-unset">{{ 'd3.subscriptions.settings.noPrice' | translate }}</span>

@@ -14,6 +14,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { MaterialModule } from 'src/app/material.module';
 import { MatDialog } from '@angular/material/dialog';
 import { CoreService } from 'src/app/services/core.service';
@@ -25,6 +26,7 @@ import {
   PlatformOfferListItem,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-platform-offers-list',
@@ -36,6 +38,7 @@ import { PlatformOffersService } from './services/platform-offers.service';
     TranslateModule,
     TablerIconsModule,
     DashboardLoadingComponent,
+    DashboardEmptyComponent,
     MaterialModule,
   ],
   templateUrl: './platform-offers-list.component.html',
@@ -54,6 +57,8 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   items = signal<PlatformOfferListItem[]>([]);
   loading = signal(false);
   error = signal('');
+  /** Whether the list on screen was loaded with a search/filter (decides the empty message). */
+  hasFilters = signal(false);
   busyId = signal<number | null>(null);
   search = '';
   triggerType = '';
@@ -88,6 +93,7 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
     this.load();
   }
   reset() {
+    const hadSearch = !!this.search.trim();
     this.search = '';
     this.triggerType = '';
     this.offerStatus = '';
@@ -95,11 +101,23 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
     this.maxDiscount = undefined;
     this.startDateFrom = '';
     this.startDateTo = '';
-    this.apply();
+    // Go through the search stream when it had a value, so it forgets the old term
+    // (otherwise typing the same term again is swallowed by distinctUntilChanged).
+    if (hadSearch) this.search$.next('');
+    else this.apply();
+  }
+  private get filtersActive(): boolean {
+    const hasNumber = (v: number | null | undefined) => v !== undefined && v !== null && `${v}` !== '';
+    return !!(
+      this.search.trim() || this.triggerType || this.offerStatus ||
+      hasNumber(this.minDiscount) || hasNumber(this.maxDiscount) ||
+      this.startDateFrom || this.startDateTo
+    );
   }
   load() {
     this.loading.set(true);
     this.error.set('');
+    this.hasFilters.set(this.filtersActive);
     this.service
       .list({
         search: this.search.trim() || undefined,
@@ -147,13 +165,13 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   discount(item: PlatformOfferListItem) {
     return item.discountType === 'Percentage'
       ? `${item.discountValue}%`
-      : item.discountValue.toLocaleString();
+      : item.discountValue.toLocaleString(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'));
   }
   formatListDate(value?: string | null): string {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    return new Intl.DateTimeFormat(this.dir() === 'rtl' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'), {
       day: 'numeric', month: 'short', year: 'numeric',
     }).format(date);
   }

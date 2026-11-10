@@ -15,6 +15,7 @@ import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { periodText } from '../interfaces/period-text.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface SubscriptionStatCard {
   labelKey: string;
@@ -27,7 +28,8 @@ interface SubscriptionStatCard {
 }
 
 const PAGE_SIZE = 10;
-const MAX_SERVICE_ICONS = 3;
+/** Service chips carry the name, so fewer fit than bare icons did. */
+const MAX_SERVICE_ICONS = 2;
 
 @Component({
   selector: 'app-subscription-management',
@@ -77,6 +79,16 @@ export class SubscriptionManagementComponent implements OnInit {
 
   fmt(value: number): string {
     return formatLocalizedNumber(value, this.currentLang);
+  }
+
+  /** Rates can be fractions (0.5 SAR, 2.5%), which fmt() would round away. */
+  fmtPrecise(value: number): string {
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 4 });
+  }
+
+  /** Lines without a start or expiry (message balance, free) leave the date columns out. */
+  hasDates(account: SubscriberAccount): boolean {
+    return account.services.some(s => s.startDate !== '-' || s.endDate !== '-');
   }
 
   stats: SubscriptionStatCard[] = [
@@ -145,25 +157,34 @@ export class SubscriptionManagementComponent implements OnInit {
       facilityName: m.merchantName?.trim() || '-',
       // "Active" if any service is active, "Expired" once all of them have lapsed.
       status: (m.overallStatus ?? '').toLowerCase() === 'active' ? 'active' : 'expired',
-      // Both totals only count currently-active lines, normalized across billing periods.
+      // Already localized by the API; the badge falls back to our own label without it.
+      statusLabel: m.overallStatusLabel?.trim() || '',
+      // Only currently-active lines, as a monthly figure. The annual total is just this ×12 —
+      // there's no annual price any more — so it isn't shown.
       feesAmountValue: m.monthlyEquivalentTotal ?? 0,
-      feesAnnualValue: m.annualEquivalentTotal ?? 0,
       services: (m.services ?? []).map(s => this.toServiceItem(s)),
     };
   }
 
   private toServiceItem(s: MerchantSubscriptionLine): SubscriptionServiceItem {
+    // A Transaction line's charge is its usage rate; `price` is only meaningful otherwise.
+    const rate = s.usageUnitType && s.usageUnitType !== 'None' && typeof s.usageUnitPrice === 'number' ? s.usageUnitPrice : null;
+    const percent = rate !== null && s.usageUnitType === 'PercentageOfValue';
+    const periodName = periodText(s.periodLabel, s.period);
     return {
       name: s.serviceName?.trim() || '-',
       categoryLabel: s.categoryLabel?.trim() || '-',
       icon: serviceVisual(s.serviceKey, s.categoryLabel).icon,
-      priceValue: typeof s.price === 'number' ? s.price : null,
-      periodLabel: [s.tierName?.trim(), periodText(s.periodLabel, s.period)].filter(Boolean).join(' · ') || '-',
+      priceKind: rate === null ? 'amount' : percent ? 'percent' : 'perUnit',
+      priceValue: rate === null ? (typeof s.price === 'number' ? s.price : null) : percent ? rate * 100 : rate,
+      periodName,
+      periodLabel: [s.tierName?.trim(), periodName].filter(Boolean).join(' · ') || '-',
       startDate: formatApiDateLocal(s.startDate, this.currentLang) ?? '-',
       endDate: formatApiDateLocal(s.expiresAt, this.currentLang) ?? '-',
-      expired: (s.status ?? '').toLowerCase() === 'expired',
+      // NotSubscribed | Active | Expired — anything not active is shown as lapsed.
+      expired: (s.status ?? '').toLowerCase() !== 'active',
       billingModel: s.billingModel ?? 'Paid',
-      isAutoActivated: s.isAutoActivated ?? false,
+      statusLabel: s.statusLabel?.trim() || '',
     };
   }
 
@@ -198,5 +219,18 @@ export class SubscriptionManagementComponent implements OnInit {
 
   extraServicesCount(account: SubscriberAccount): number {
     return Math.max(0, account.services.length - MAX_SERVICE_ICONS);
+  }
+
+  /**
+   * With one active line the row shows that line's own price — the same as the details —
+   * instead of the monthly equivalent, which can differ (or be 0) and would contradict them.
+   */
+  singleActiveService(account: SubscriberAccount): SubscriptionServiceItem | null {
+    const active = account.services.filter(s => !s.expired);
+    return active.length === 1 ? active[0] : null;
+  }
+
+  activeServiceCount(account: SubscriberAccount): number {
+    return account.services.filter(s => !s.expired).length;
   }
 }

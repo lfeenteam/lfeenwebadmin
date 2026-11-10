@@ -38,6 +38,7 @@ import {
 } from './interfaces/wallet.model';
 import { resolveWalletError } from './interfaces/wallet-error.util';
 import { WalletService } from './services/wallet.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type TypeFilter = 'all' | WalletEntryType;
 type TypeClass = 'type-topup' | 'type-charge' | 'type-refund' | 'type-adjustment' | '';
@@ -72,6 +73,7 @@ const TYPE_META: Record<string, { key: string; icon: string; cls: TypeClass }> =
   CallCharge: { key: 'callCharge', icon: 'phone-outgoing', cls: 'type-charge' },
   CallRefundAdjustment: { key: 'callRefund', icon: 'rotate', cls: 'type-refund' },
   AdminAdjustment: { key: 'adminAdjustment', icon: 'user-cog', cls: 'type-adjustment' },
+  SubscriptionPayment: { key: 'subscriptionPayment', icon: 'receipt', cls: 'type-charge' },
 };
 
 @Component({
@@ -123,6 +125,7 @@ export class WalletComponent implements OnInit, OnDestroy {
     { value: 'TopUp', labelKey: 'd3.wallet.filters.topUp' },
     { value: 'CallCharge', labelKey: 'd3.wallet.filters.callCharge' },
     { value: 'CallRefundAdjustment', labelKey: 'd3.wallet.filters.callRefund' },
+    { value: 'SubscriptionPayment', labelKey: 'd3.wallet.filters.subscriptionPayment' },
     { value: 'AdminAdjustment', labelKey: 'd3.wallet.filters.adminAdjustment' },
   ];
 
@@ -180,7 +183,7 @@ export class WalletComponent implements OnInit, OnDestroy {
   }
 
   fmtAmount(value: number): string {
-    return Math.abs(value).toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return Math.abs(value).toLocaleString(appLocale(this.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -323,8 +326,9 @@ export class WalletComponent implements OnInit, OnDestroy {
 
       // The response carries the new balance and the new entry's id, not the ledger
       // itself, so the ledger is re-fetched to show the entry immediately.
+      // A pending (above-threshold) request changes nothing until a second admin approves it.
       dialogRef.afterClosed().subscribe((result?: WalletAdjustDialogResult) => {
-        if (!result) return;
+        if (!result || 'pending' in result) return;
         this.balance = result.newBalance;
         this.load();
       });

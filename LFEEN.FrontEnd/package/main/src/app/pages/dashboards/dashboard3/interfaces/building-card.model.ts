@@ -1,3 +1,5 @@
+import { AdminAdditionalCondition } from './additional-condition.model';
+
 export type BuildingTab = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges' | 'banned';
 export type BuildingViewMode = 'grid' | 'list';
 export type BuildingStatus = 'active' | 'stopped';
@@ -25,6 +27,8 @@ export interface BuildingCardItem {
   location: string;
   status: BuildingStatus;
   typeLabel: string;
+  typeIconKey?: string | null;
+  typeIconUrl?: string | null;
   units: number;
   occupancy: number;
   bookings: number;
@@ -47,6 +51,8 @@ export interface PropertyApiItem {
   accountName: string | null;
   businessType: string;
   propertyTypeName: string;
+  propertyTypeIconKey?: string | null;
+  propertyTypeIconUrl?: string | null;
   unitCount: number;
   reviewStatus: PropertyAdminReviewStatus | PropertyAdminReviewStatusValue;
   photosSectionDecision: AdminReviewStatus;
@@ -161,6 +167,9 @@ export interface PropertyTermsResponse {
   earlyCheckInFrom: string | null;
   conditions: PropertyTermCondition[];
   customRules: PropertyCustomRule[];
+  // This property's own additional conditions only (not its units'), each
+  // reviewed on its own — see additional-condition.model.ts.
+  additionalConditions?: AdminAdditionalCondition[];
 }
 
 export interface TermsReviewPayload {
@@ -215,13 +224,20 @@ export interface PropertyBasicDataFloor {
   floorIndex: number;
 }
 
-export interface PropertyBasicDataViewType {
+// Catalog icon picked by the backend for an item (optional until Production is
+// deployed). Draw iconUrl through <app-catalog-icon>; never build it from iconKey.
+export interface PropertyCatalogIconFields {
+  iconKey?: string | null;
+  iconUrl?: string | null;
+}
+
+export interface PropertyBasicDataViewType extends PropertyCatalogIconFields {
   id: number;
   key: string;
   name: string;
 }
 
-export interface PropertyBasicDataService {
+export interface PropertyBasicDataService extends PropertyCatalogIconFields {
   serviceExternalId: string;
   serviceTypeId: number;
   serviceTypeNameKey: string;
@@ -232,7 +248,7 @@ export interface PropertyBasicDataService {
   costType: string | null;
 }
 
-export interface PropertyBasicDataFacility {
+export interface PropertyBasicDataFacility extends PropertyCatalogIconFields {
   facilityId: number;
   facilityTypeName: string;
   // Merchant-controlled, read-only for admin: the facility is named explicitly
@@ -247,6 +263,8 @@ export interface PropertyBasicDataResponse {
   reviewedAt: string | null;
   propertyTypeId: number;
   propertyTypeName: string;
+  propertyTypeIconKey?: string | null;
+  propertyTypeIconUrl?: string | null;
   name: string;
   usage: string;
   hasLock: boolean;
@@ -366,6 +384,8 @@ export interface PropertyDetailResponse {
   accountLogoUrl: string | null;
   businessType: string;
   propertyTypeName: string;
+  propertyTypeIconKey?: string | null;
+  propertyTypeIconUrl?: string | null;
   mainPhotoUrl: string | null;
   totalUnits: number;
   region: string | null;

@@ -1,0 +1,39 @@
+<div class="da-root da-field">
+  <label [for]="inputId">{{ 'd3.demoAccounts.create.attachments' | translate }}</label>
+
+  <label class="att-drop" [class.disabled]="disabled || uploading || full">
+    <input type="file" multiple [id]="inputId" [accept]="limits.accept" #fileInput
+           [disabled]="disabled || uploading || full" (change)="onPick(fileInput)" />
+    @if (uploading) {
+      <span class="da-spin"></span>
+      <span>{{ 'd3.demoAccounts.create.uploading' | translate }}</span>
+    } @else {
+      <i-tabler name="paperclip" class="icon-18"></i-tabler>
+      <span>{{ 'd3.demoAccounts.create.chooseFiles' | translate }}</span>
+    }
+  </label>
+  <p class="da-helper">
+    <span>{{ 'd3.demoAccounts.create.attachmentsHelp' | translate }}</span>
+    @if (items.length) {
+      <span class="da-ltr" dir="ltr">{{ items.length }}/{{ limits.maxCount }} · {{ fileSize(totalSize) }}</span>
+    }
+  </p>
+
+  @if (items.length) {
+    <ul class="att-list">
+      @for (f of items; track $index) {
+        <li [class.pending]="!f.id">
+          <i-tabler [name]="fileIcon(f.contentType, f.fileName)" class="icon-18"></i-tabler>
+          <span class="att-list__name" dir="auto" [title]="f.fileName">{{ f.fileName }}</span>
+          <span class="att-list__size da-ltr" dir="ltr">{{ fileSize(f.size) }}</span>
+          <button type="button" class="da-icon-btn" [disabled]="disabled || uploading"
+                  [attr.aria-label]="'d3.demoAccounts.actions.remove' | translate" (click)="remove($index)">
+            <i-tabler name="x" class="icon-16"></i-tabler>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (error) { <p class="da-error">{{ error }}</p> }
+</div>

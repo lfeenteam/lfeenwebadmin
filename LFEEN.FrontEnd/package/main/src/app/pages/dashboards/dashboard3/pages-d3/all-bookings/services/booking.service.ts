@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
+import { ApproveReviewReportRequest, ReviewReportItem, ReviewTargetField } from '../interfaces/review-report.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatNaiveDayMonth } from 'src/app/utils/date-format.util';
@@ -65,15 +66,16 @@ export class BookingService {
   }
 
   /**
-   * Units offered when moving a booking to another unit — only published
-   * (review status 3 = Approved) units are eligible.
+   * Published (review status 3 = Approved) units. Pass propertyId to limit them to
+   * one property (change-unit dialog); platform offers call it without one for all units.
    */
-  getPublishedUnits(): Observable<BookingUnitOption[]> {
-    const params = new HttpParams()
+  getPublishedUnits(propertyId?: number): Observable<BookingUnitOption[]> {
+    let params = new HttpParams()
       .set('pageNumber', '1')
       .set('pageSize', '500')
       .set('status', '3')
       .set('newestFirst', 'true');
+    if (propertyId != null) params = params.set('propertyId', String(propertyId));
 
     return this.http
       .get<PaginatedUnitResponse>(`${environment.apiBaseUrl}/api/units`, { params })
@@ -81,6 +83,7 @@ export class BookingService {
         map(res => (res.data ?? []).map(u => ({
           id: u.unitId,
           name: this.buildUnitOptionLabel(u.name, u.unitTypeName, u.apartmentNumberInFloor, u.propertyName),
+          propertyId: u.propertyId,
         })))
       );
   }
@@ -108,6 +111,27 @@ export class BookingService {
     });
   }
 
+  // ── Guest review moderation (bare payloads — no { data } envelope) ─────────
+  getReviewReports(): Observable<ReviewReportItem[]> {
+    return this.http
+      .get<ReviewReportItem[]>(`${environment.apiBaseUrl}/api/bookings/reviews/reports`)
+      .pipe(map(res => (Array.isArray(res) ? res : [])));
+  }
+
+  approveReviewReport(bookingReviewId: number, targetField: ReviewTargetField, blockedWord: string): Observable<boolean> {
+    return this.http.post<boolean>(
+      `${environment.apiBaseUrl}/api/bookings/reviews/${bookingReviewId}/${targetField}/approve`,
+      { blockedWord } satisfies ApproveReviewReportRequest,
+    );
+  }
+
+  rejectReviewReport(bookingReviewId: number, targetField: ReviewTargetField): Observable<boolean> {
+    return this.http.post<boolean>(
+      `${environment.apiBaseUrl}/api/bookings/reviews/${bookingReviewId}/${targetField}/reject`,
+      null,
+    );
+  }
+
   mapApiItemToBooking(item: BookingApiItem, lang: string): Booking {
     const customerName = item.customerName?.trim() || '-';
     const checkIn = item.checkIn ? new Date(item.checkIn) : null;
@@ -128,6 +152,7 @@ export class BookingService {
       unit: {
         id: item.unitId,
         name: item.unitName?.trim() || '-',
+        propertyId: item.propertyId ?? null,
         property: item.propertyName?.trim() || '-',
         location: item.city?.trim() || '-',
       },

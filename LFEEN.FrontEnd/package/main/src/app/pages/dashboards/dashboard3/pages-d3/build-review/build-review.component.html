@@ -1,5 +1,33 @@
 <div class="build-review" [dir]="currentDir">
 
+  @if (loadState === 'loading') {
+    <div class="load-state-wrap">
+      <i-tabler name="loader-2" class="spin-icon"></i-tabler>
+    </div>
+  } @else if (loadState === 'notFound') {
+    <app-review-empty-state
+      icon="home-off"
+      titleKey="d3.buildReview.loadState.notFoundTitle"
+      descKey="d3.buildReview.loadState.notFoundDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button class="state-action-btn" type="button" (click)="goToBuildings()">
+        {{ 'd3.buildReview.loadState.backToBuildings' | translate }}
+      </button>
+    </div>
+  } @else if (loadState === 'error') {
+    <app-review-empty-state
+      icon="alert-circle"
+      titleKey="d3.buildReview.loadState.errorTitle"
+      descKey="d3.buildReview.loadState.errorDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button class="state-action-btn" type="button" (click)="retryLoad()">
+        {{ 'd3.buildReview.loadState.retry' | translate }}
+      </button>
+    </div>
+  } @else {
+
   <!-- Review Status + Progress -->
 <div class="status-progress-row">
   <span class="status-badge" [ngClass]="'status-badge--' + headerStatusConfig.mod">
@@ -177,7 +205,8 @@
     <!-- Action Buttons -->
     <div class="action-wrapper">
       @if (!viewOnly) {
-      <div class="action-buttons">
+      <div class="action-buttons" [class.single-action]="!showApproveButton">
+        @if (showApproveButton) {
         <button
           class="btn btn-approve"
           [class.active]="!isApproveDisabled"
@@ -187,6 +216,7 @@
           <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
           <i-tabler name="circle-check" class="btn-icon"></i-tabler>
         </button>
+        }
 
         <button class="btn btn-reject" [class.active]="!isRejectDisabled" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
           <span>{{ 'd3.buildReview.actions.reject' | translate }}</span>
@@ -209,7 +239,7 @@
   } @else if (currentView === 'location') {
     <app-review-location [building]="building" [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[2].completed" (back)="onBack()" (approve)="onSectionApproved(2, $event)"></app-review-location>
   } @else if (currentView === 'terms') {
-    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[3].completed" (back)="onBack()" (approve)="onSectionApproved(3, $event)"></app-review-terms>
+    <app-review-terms [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[3].completed" [conditionsReadOnly]="isBanned" (back)="onBack()" (approve)="onSectionApproved(3, $event)"></app-review-terms>
   } @else if (currentView === 'license') {
     <app-review-license [propertyId]="buildingId || ''" [readOnly]="viewOnly || reviewSections[4].completed" (back)="onBack()" (approve)="onSectionApproved(4, $event)"></app-review-license>
   } @else if (currentView === 'final') {
@@ -261,10 +291,12 @@
         <!-- Final Action Buttons -->
         @if (!isFinalApproved) {
         <div class="action-buttons-final">
+            @if (showApproveButton) {
             <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">
                 <span>{{ 'd3.buildReview.actions.approve' | translate }}</span>
                 <i-tabler name="circle-check"></i-tabler>
             </button>
+            }
             <button class="btn-reject-final" [class.active]="!isFinalSuccess" [disabled]="isRejectDisabled || isFinalSubmitting" (click)="onReject()">
                 <span>{{ 'd3.buildReview.actions.rejectFinal' | translate }}</span>
                 <i-tabler name="circle-x"></i-tabler>
@@ -272,6 +304,8 @@
         </div>
         }
     </div>
+  }
+
   }
 
   <!-- Success Modal Overlay -->
@@ -295,7 +329,7 @@
             <div class="modal-actions">
                 <button class="btn-primary-modal" (click)="goToUnits()">
                     <span>{{ 'd3.buildReview.successModal.reviewUnitsBtn' | translate: { count: building.totalUnits } }}</span>
-                    <i-tabler name="arrow-left"></i-tabler>
+                    <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
                 </button>
                 <button class="btn-secondary-modal" (click)="closeModal()">
                     {{ 'd3.buildReview.successModal.laterBtn' | translate }}

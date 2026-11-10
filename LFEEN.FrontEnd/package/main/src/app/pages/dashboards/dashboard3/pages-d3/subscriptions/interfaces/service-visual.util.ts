@@ -46,6 +46,7 @@ const CATEGORY_BY_LABEL: Record<string, string> = {
   'أنظمة إدارة الموارد': 'Erp',
   'المدفوعات': 'Payments',
   'الأقفال الذكية': 'SmartLock',
+  'القفل الذكي': 'SmartLock',
   'أخرى': 'Other',
   'tax compliance': 'Compliance',
   'compliance': 'Compliance',

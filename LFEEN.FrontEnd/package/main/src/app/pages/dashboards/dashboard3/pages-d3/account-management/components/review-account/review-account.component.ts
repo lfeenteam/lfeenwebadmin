@@ -7,16 +7,21 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AccountService } from '../../../../services/account.service';
 import { AccountDetail } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
+import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
+import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
+
+import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-review-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe],
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })
@@ -30,12 +35,16 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private pageTitleOverride = inject(PageTitleOverrideService);
 
+  private accountId: string | null = null;
+  private loadSub?: Subscription;
+
   account: AccountDetail | null = null;
   isLoading    = true;
   isError      = false;
   isSubmitting = false;
   rejectionReason = '';
   isUnifiedNumberInvalid = false;
+  additionalConditions: AdminAdditionalCondition[] = [];
 
   basicNameAr = '';
   basicNameEn = '';
@@ -54,21 +63,47 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Angular reuses this component when only :id changes (notification, Back, URL edit),
+    // so react to every param change instead of reading the snapshot once.
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.accountId = params.get('id');
+        this.resetState();
+        this.loadAccount();
+      });
+
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadAccount());
+  }
 
+  reloadAccount(): void {
     this.loadAccount();
   }
 
+  // Clear the previous account so its decision buttons and form input never show under another id
+  private resetState(): void {
+    this.account = null;
+    this.additionalConditions = [];
+    this.rejectionReason = '';
+    this.isUnifiedNumberInvalid = false;
+    this.isSubmitting = false;
+    this.basicNameAr = '';
+    this.basicNameEn = '';
+    this.showBasicNameSecondary = false;
+  }
+
   private loadAccount(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = this.accountId;
     if (!id) return;
+    this.loadSub?.unsubscribe();
     this.isLoading = true;
     this.isError = false;
-    this.service.getAccountById(id).subscribe({
+    this.loadSub = this.service.getAccountById(id).subscribe({
       next: data => {
         this.account = data;
+        this.additionalConditions = data.additionalConditions ?? [];
         this.basicNameAr = data.business?.basicNameAr || data.business?.basicName || '';
         this.basicNameEn = data.business?.basicNameEn || '';
         this.isLoading = false;
@@ -83,6 +118,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.loadSub?.unsubscribe();
     this.pageTitleOverride.clear();
   }
 

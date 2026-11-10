@@ -13,6 +13,7 @@ import { UnitReviewDecision, UnitsService } from '../../../../../services/units.
 import { UnitLicenseResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { formatAppDate } from 'src/app/utils/locale-format.util';
 
 interface LicenseDetailItem {
   labelKey: string;
@@ -99,11 +100,11 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
       },
       {
         labelKey: 'd3.unitReview.licenseView.details.issueDateLabel',
-        value: l?.issueDate ? new Date(l.issueDate).toLocaleDateString() : null
+        value: formatAppDate(l?.issueDate, this.translate.currentLang) || null
       },
       {
         labelKey: 'd3.unitReview.licenseView.details.expiryDateLabel',
-        value: l?.expiryDate ? new Date(l.expiryDate).toLocaleDateString() : null
+        value: formatAppDate(l?.expiryDate, this.translate.currentLang) || null
       },
       {
         labelKey: 'd3.unitReview.licenseView.details.sourceLabel',

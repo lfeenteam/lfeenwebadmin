@@ -1,8 +1,13 @@
-import { Component, OnInit, computed } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { BidiModule } from '@angular/cdk/bidi';
 import { CoreService } from './services/core.service';
 import { TranslateService } from '@ngx-translate/core';
+
+function langFromUrl(): 'ar' | 'en' | undefined {
+  return /^#\/(ar|en)(\/|\?|$)/.exec(window.location.hash)?.[1] as 'ar' | 'en' | undefined;
+}
 
 @Component({
     selector: 'app-root',
@@ -18,15 +23,33 @@ export class AppComponent implements OnInit {
   // its root singleton otherwise only reads dir once at bootstrap.
   dir = computed(() => this.settings.getOptionsSignal()().dir);
 
+  // Mirror the active language onto <html> (index.html ships lang="en" and no dir), so
+  // screen readers use the right language and overlays rendered under <body> — dialogs,
+  // menus, selects, datepickers, toasts — get the same direction as the page.
+  private readonly document = inject(DOCUMENT);
+  private readonly syncHtmlLangDir = effect(() => {
+    // Derived from the language alone, so a stale saved `dir` can't pair rtl with English.
+    const isArabic = this.settings.getOptionsSignal()().language === 'ar';
+    const html = this.document.documentElement;
+    html.lang = isArabic ? 'ar' : 'en';
+    html.dir = isArabic ? 'rtl' : 'ltr';
+  });
+
   constructor(private settings: CoreService, private translate: TranslateService) {
-    // Bootstrap default; the ':lang' route's languageSyncGuard keeps CoreService
-    // and ngx-translate in sync with the URL from then on (early enough that the
-    // AuthInterceptor's Accept-Language header is correct on the first request).
+    // Bootstrap with the URL's language when it has one (#/ar/... or #/en/...), so
+    // translate.use() runs once with the same language languageSyncGuard will apply.
+    // ngx-translate v14 lets whichever file loads LAST win, so starting with the saved
+    // preference and then switching to the URL language could end up on the wrong one.
+    const urlLang = langFromUrl();
+    if (urlLang && urlLang !== this.settings.getLanguage()) {
+      this.settings.setOptions({ language: urlLang, dir: urlLang === 'ar' ? 'rtl' : 'ltr' });
+    }
     this.translate.use(this.settings.getOptions().language);
   }
 
   ngOnInit() {
-    if (!this.settings.hasPreferredLanguage()) {
+    // The browser language is only a fallback when the URL doesn't name one.
+    if (!this.settings.hasPreferredLanguage() && !langFromUrl()) {
       this.settings.updateFromBrowserLanguage();
     }
 

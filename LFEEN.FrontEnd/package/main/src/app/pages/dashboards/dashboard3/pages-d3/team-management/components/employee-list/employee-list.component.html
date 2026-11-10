@@ -9,7 +9,7 @@
     </div>
   }
 
-  <app-all-employees [employees]="employees" (edit)="onEdit($event)" (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
+  <app-all-employees [employees]="employees" [hasFilters]="hasFilters" (clearFilters)="onClearFilters()" (edit)="onEdit($event)" (delete)="onDelete($event)" (toggleStatus)="onToggleStatus($event)" (addEmployee)="addEmployee.emit()"></app-all-employees>
 
   @if (totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">
@@ -20,7 +20,7 @@
         <button type="button" class="page-nav-btn"
           [disabled]="currentPage === 1"
           (click)="changePage(currentPage - 1)">
-          <i-tabler name="chevron-right" class="icon-18"></i-tabler>
+          <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
         </button>
         @for (p of pageNumbers; track p) {
           <button type="button" class="page-number-btn"
@@ -32,7 +32,7 @@
         <button type="button" class="page-nav-btn"
           [disabled]="currentPage === totalPages"
           (click)="changePage(currentPage + 1)">
-          <i-tabler name="chevron-left" class="icon-18"></i-tabler>
+          <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>
         </button>
       </div>
     </div>

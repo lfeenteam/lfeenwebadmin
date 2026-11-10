@@ -1,3 +1,5 @@
+import { appLocale } from './locale-format.util';
+
 /**
  * Builds a compact page-number list for a pager, e.g. [1, 2, 3, '...', 8, 9, 10].
  * `edgeCount` controls how many pages are shown around the current page / far edge
@@ -22,12 +24,12 @@ export function getVisiblePages(
   return [...leftEdge, '...', c, '...', ...rightEdge];
 }
 
-/** Locale-agnostic thousands grouping, e.g. 12345 -> "12,345". */
+/** Thousands grouping with Latin digits, e.g. 12345 -> "12,345" (same in both languages). */
 export function formatNumber(value: number): string {
-  return new Intl.NumberFormat().format(value);
+  return value.toLocaleString(appLocale('en'));
 }
 
-/** Thousands grouping using the active UI language's locale (ar-SA vs en-US). */
+/** Thousands grouping using the active UI language's locale (see locale-format.util). */
 export function formatLocalizedNumber(value: number, lang: string): string {
-  return value.toLocaleString(lang === 'en' ? 'en-US' : 'ar-SA');
+  return value.toLocaleString(appLocale(lang));
 }

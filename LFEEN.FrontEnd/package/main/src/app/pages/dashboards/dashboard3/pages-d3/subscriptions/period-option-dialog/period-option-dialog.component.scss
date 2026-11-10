@@ -1,0 +1,35 @@
+// Layout and controls come from the discount-code dialog's stylesheet; these are the extras.
+
+// An informational line under a field, as opposed to a validation error.
+.field-error.is-note {
+  color: #9E9E9A;
+}
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-chip {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 6px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B6B67;
+  background: #fff;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:hover { border-color: #CBD5E1; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+
+  &.active {
+    border-color: #111110;
+    background: #111110;
+    color: #fff;
+  }
+}

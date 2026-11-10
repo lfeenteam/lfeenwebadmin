@@ -1,0 +1,19 @@
+@use '../demo-accounts';
+
+:host { display: block; }
+
+[hidden] { display: none !important; }
+
+// A disabled button swallows hover, so the tooltip sits on this wrapper instead.
+.seg-slot {
+  display: flex;
+
+  button { width: 100%; }
+}
+
+.rs-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+  color: #9E9E9A;
+}

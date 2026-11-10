@@ -84,6 +84,14 @@
           {{ "d3.platformOffers.retry" | translate }}
         </button>
       </div>
+    } @else if (!items().length && hasFilters()) {
+      <app-dashboard-empty variant="search"
+        titleKey="d3.emptyState.noResults.title"
+        descKey="d3.emptyState.noResults.desc"
+        actionKey="d3.emptyState.noResults.clear"
+        actionIcon="x"
+        (action)="reset()">
+      </app-dashboard-empty>
     } @else if (!items().length) {
       <div class="state">
         <span class="empty-icon">

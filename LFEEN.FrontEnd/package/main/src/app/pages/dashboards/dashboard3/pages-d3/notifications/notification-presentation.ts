@@ -3,6 +3,7 @@ import {
   NotificationCategory,
   NotificationSeverity,
 } from '../../interfaces/admin-notification.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface TypePresentation {
   category: Exclude<NotificationCategory, 'all'>;
@@ -28,6 +29,8 @@ const TYPE_PRESENTATION: Record<string, TypePresentation> = {
   RefundRequested:               { category: 'finance',    icon: 'receipt-refund',   severity: 'warning' },
   // Severity isn't a backend field yet, so a SystemAlert is not assumed to be an error.
   SystemAlert:                   { category: 'system',     icon: 'alert-circle',     severity: 'neutral' },
+  // A demo host asked for a real account (name, bookings, payments and interest in the text).
+  DemoActivationRequested:       { category: 'reviews',    icon: 'user-star',        severity: 'warning' },
 };
 
 const DEFAULT_PRESENTATION = { icon: 'bell', severity: 'neutral' as NotificationSeverity };
@@ -63,6 +66,8 @@ const REFERENCE_ROUTES: Record<string, (id: string) => string[]> = {
   SubscriptionOrder: () => ['subscriptions', 'requests'],
   Settlement:        () => ['settlements'],
   Booking:           () => ['bookings'],
+  // Opens the activation-requests tab with this request open (no single-request endpoint).
+  DemoActivationRequest: id => ['demo-accounts', 'activation-requests', id],
 };
 
 export function routeFor(item: AdminNotification): string[] | null {
@@ -83,7 +88,7 @@ const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 // createdAt is offset-aware ISO-8601 — parse it as-is, never strip the offset.
 export function relativeTime(iso: string, lang: string, now = Date.now()): string {
   const seconds = Math.round((new Date(iso).getTime() - now) / 1000);
-  const rtf = new Intl.RelativeTimeFormat(lang === 'ar' ? 'ar' : 'en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(appLocale(lang === 'ar' ? 'ar' : 'en'), { numeric: 'auto' });
   for (const [unit, size] of RELATIVE_UNITS) {
     if (Math.abs(seconds) >= size) return rtf.format(Math.trunc(seconds / size), unit);
   }

@@ -307,3 +307,10 @@
     font-size: 16px;
   }
 }
+
+// Action under the not-found / error state (the empty-state component has no slot).
+.state-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}

@@ -13,6 +13,7 @@ import {
 import { routes } from './app.routes';
 import {
   provideRouter,
+  RouteReuseStrategy,
   withComponentInputBinding,
   withInMemoryScrolling,
 } from '@angular/router';
@@ -25,6 +26,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
 import { AuthInterceptor } from './guards/auth.interceptor';
 import { ChunkLoadErrorHandler } from './guards/chunk-load-error.handler';
+import { ParamAwareRouteReuseStrategy } from './guards/param-aware-route-reuse.strategy';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -73,6 +75,7 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding()
     ),
     { provide: LocationStrategy, useClass: HashLocationStrategy },
+    { provide: RouteReuseStrategy, useClass: ParamAwareRouteReuseStrategy },
     provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,

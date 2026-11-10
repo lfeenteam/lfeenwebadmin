@@ -73,20 +73,40 @@
       </div>
     </div>
     <div class="notif-list">
-      <div class="notif-row">
-        <mat-slide-toggle [(ngModel)]="notifEmail" class="profile-toggle"></mat-slide-toggle>
-        <div class="notif-info">
-          <span class="notif-title">{{ 'd3.profile.emailNotifTitle' | translate }}</span>
-          <span class="notif-desc">{{ 'd3.profile.emailNotifDesc' | translate }}</span>
+      @if (prefsLoading() && !preferences().length) {
+        <div class="notif-state">
+          <mat-spinner diameter="22"></mat-spinner>
         </div>
-      </div>
-      <div class="notif-row">
-        <mat-slide-toggle [(ngModel)]="notifBrowser" class="profile-toggle"></mat-slide-toggle>
-        <div class="notif-info">
-          <span class="notif-title">{{ 'd3.profile.browserNotifTitle' | translate }}</span>
-          <span class="notif-desc">{{ 'd3.profile.browserNotifDesc' | translate }}</span>
+      } @else if (prefsError() && !preferences().length) {
+        <div class="notif-state">
+          <span class="notif-desc">{{ 'd3.profile.notifLoadError' | translate }}</span>
+          <button class="retry-btn" type="button" (click)="loadPreferences()">
+            {{ 'd3.profile.retry' | translate }}
+          </button>
         </div>
-      </div>
+      } @else {
+        @for (pref of preferences(); track pref.key) {
+          <div class="notif-row" [class.notif-row-off]="!pref.isPlatformEnabled">
+            <mat-slide-toggle
+              class="profile-toggle"
+              [checked]="pref.isEnabled"
+              [disabled]="!pref.isPlatformEnabled || isSaving(pref.key)"
+              (change)="onToggle(pref, $event.checked)"></mat-slide-toggle>
+            <div class="notif-info">
+              <span class="notif-title">
+                {{ pref.title }}
+                @if (!pref.isDeliveryActive) {
+                  <span class="soon-badge">{{ 'd3.notifPrefs.comingSoon' | translate }}</span>
+                }
+              </span>
+              <span class="notif-desc">{{ pref.description }}</span>
+              @if (!pref.isPlatformEnabled) {
+                <span class="notif-hint">{{ 'd3.notifPrefs.disabledByAdmin' | translate }}</span>
+              }
+            </div>
+          </div>
+        }
+      }
     </div>
   </div>
 

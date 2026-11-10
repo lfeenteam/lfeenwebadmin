@@ -31,6 +31,37 @@
       </button>
     </div>
 
+  } @else if (step === 'pending') {
+
+    <!-- Above the threshold: sent for a second admin's approval, nothing applied yet -->
+    <div class="success-view">
+      <div class="pending-icon-wrap">
+        <i-tabler name="hourglass" class="icon-32"></i-tabler>
+      </div>
+
+      <h2 class="success-title">{{ 'd3.wallet.adjust.pendingTitle' | translate }}</h2>
+      <p class="success-message">{{ 'd3.wallet.adjust.pendingMessage' | translate }}</p>
+
+      <div class="detail-card success-card">
+        <div class="detail-row">
+          <span class="row-label">
+            {{ (isCredit ? 'd3.wallet.adjust.creditAmount' : 'd3.wallet.adjust.debitAmount') | translate }}
+          </span>
+          <span class="amount-value" [class.amount-value--accent]="isCredit" [class.amount-value--danger]="!isCredit">
+            {{ isCredit ? '+' : '−' }}{{ fmt(signedAmount) }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="row-label">{{ 'd3.wallet.adjust.currentBalance' | translate }}</span>
+          <span class="row-value">{{ fmt(data.currentBalance) }}</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-close-window" (click)="finish()">
+        {{ 'd3.wallet.adjust.closeWindowBtn' | translate }}
+      </button>
+    </div>
+
   } @else {
 
   <!-- Header -->
@@ -121,6 +152,9 @@
 
           @if (noChangeNeeded) {
             <span class="field-hint field-hint--danger span-2">* {{ 'd3.wallet.correct.noChange' | translate }}</span>
+          }
+          @if (tooManyDecimals) {
+            <span class="field-hint field-hint--danger span-2">* {{ 'd3.wallet.errors.tooManyDecimals' | translate }}</span>
           }
           @if (exceedsBalance) {
             <span class="field-hint field-hint--danger span-2">* {{ 'd3.wallet.errors.insufficientBalance' | translate }}</span>

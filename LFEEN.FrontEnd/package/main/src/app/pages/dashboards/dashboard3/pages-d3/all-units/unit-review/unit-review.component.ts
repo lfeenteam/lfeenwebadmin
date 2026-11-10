@@ -16,13 +16,13 @@ import { PageTitleOverrideService } from '../../../services/page-title-override.
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
 interface UnitReviewSection {
   key: string;
   titleKey: string;
   descKey: string;
   icon: string;
-  isSmartLockBadge: boolean;
   reviewBtnKey?: string;
 }
 
@@ -50,21 +50,20 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   private originTab = '';
 
   readonly reviewSections: UnitReviewSection[] = [
-    { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',             isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
-    { key: 'photos',       titleKey: 'd3.unitReview.sections.photos.title',       descKey: 'd3.unitReview.sections.photos.desc',       icon: 'photo',            isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.photos.btn'       },
-    { key: 'terms',        titleKey: 'd3.unitReview.sections.terms.title',        descKey: 'd3.unitReview.sections.terms.desc',        icon: 'file-text',        isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.terms.btn'        },
-    { key: 'pricing',      titleKey: 'd3.unitReview.sections.pricing.title',      descKey: 'd3.unitReview.sections.pricing.desc',      icon: 'currency-dollar',  isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.pricing.btn'      },
-    { key: 'smartLock',    titleKey: 'd3.unitReview.sections.smartLock.title',    descKey: 'd3.unitReview.sections.smartLock.desc',    icon: 'lock',             isSmartLockBadge: true                                                               },
-    { key: 'access',       titleKey: 'd3.unitReview.sections.access.title',       descKey: 'd3.unitReview.sections.access.desc',       icon: 'map-pin',          isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.access.btn'       },
-    { key: 'cancelPolicy', titleKey: 'd3.unitReview.sections.cancelPolicy.title', descKey: 'd3.unitReview.sections.cancelPolicy.desc', icon: 'calendar-event',   isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.cancelPolicy.btn' },
-    { key: 'deposit',      titleKey: 'd3.unitReview.sections.deposit.title',      descKey: 'd3.unitReview.sections.deposit.desc',      icon: 'shield-check',     isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.deposit.btn'      },
-    { key: 'services',     titleKey: 'd3.unitReview.sections.services.title',     descKey: 'd3.unitReview.sections.services.desc',     icon: 'settings',         isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.services.btn'     },
-    { key: 'license',      titleKey: 'd3.unitReview.sections.license.title',      descKey: 'd3.unitReview.sections.license.desc',      icon: 'certificate',      isSmartLockBadge: false, reviewBtnKey: 'd3.unitReview.sections.license.btn'      }
+    { key: 'basicInfo',    titleKey: 'd3.unitReview.sections.basicInfo.title',    descKey: 'd3.unitReview.sections.basicInfo.desc',    icon: 'home',            reviewBtnKey: 'd3.unitReview.sections.basicInfo.btn'    },
+    { key: 'photos',       titleKey: 'd3.unitReview.sections.photos.title',       descKey: 'd3.unitReview.sections.photos.desc',       icon: 'photo',           reviewBtnKey: 'd3.unitReview.sections.photos.btn'       },
+    { key: 'terms',        titleKey: 'd3.unitReview.sections.terms.title',        descKey: 'd3.unitReview.sections.terms.desc',        icon: 'file-text',       reviewBtnKey: 'd3.unitReview.sections.terms.btn'        },
+    { key: 'pricing',      titleKey: 'd3.unitReview.sections.pricing.title',      descKey: 'd3.unitReview.sections.pricing.desc',      icon: 'currency-dollar', reviewBtnKey: 'd3.unitReview.sections.pricing.btn'      },
+    { key: 'access',       titleKey: 'd3.unitReview.sections.access.title',       descKey: 'd3.unitReview.sections.access.desc',       icon: 'map-pin',         reviewBtnKey: 'd3.unitReview.sections.access.btn'       },
+    { key: 'cancelPolicy', titleKey: 'd3.unitReview.sections.cancelPolicy.title', descKey: 'd3.unitReview.sections.cancelPolicy.desc', icon: 'calendar-event',  reviewBtnKey: 'd3.unitReview.sections.cancelPolicy.btn' },
+    { key: 'deposit',      titleKey: 'd3.unitReview.sections.deposit.title',      descKey: 'd3.unitReview.sections.deposit.desc',      icon: 'shield-check',    reviewBtnKey: 'd3.unitReview.sections.deposit.btn'      },
+    { key: 'services',     titleKey: 'd3.unitReview.sections.services.title',     descKey: 'd3.unitReview.sections.services.desc',     icon: 'settings',        reviewBtnKey: 'd3.unitReview.sections.services.btn'     },
+    { key: 'license',      titleKey: 'd3.unitReview.sections.license.title',      descKey: 'd3.unitReview.sections.license.desc',      icon: 'certificate',     reviewBtnKey: 'd3.unitReview.sections.license.btn'      }
   ];
 
   // Computed from reviewableSections rather than the backend's completedSections/
-  // totalSections, because those count informational-only sections (smartLock, and
-  // deposit when hasSecurityDeposit=false) toward the total without ever marking them
+  // totalSections, because those count informational-only sections (deposit when
+  // hasSecurityDeposit=false) toward the total without ever marking them
   // "completed" — that mismatch is what made the header progress ("8 of 9") disagree
   // with the final-review tally ("7 approved") for units with a non-applicable deposit.
   get completedCount(): number {
@@ -170,6 +169,8 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           capacity:    String(totalGuests(data)),
           status:      'underReview',
           type:        data.unitTypeName,
+          typeIconKey: data.unitTypeIconKey ?? null,
+          typeIconUrl: data.unitTypeIconUrl ?? null,
           description: '',
           district:    data.district,
           rooms:       0,
@@ -221,33 +222,45 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
     return this.reviewSections.filter(s => {
       if (s.key === 'license') return !this.unitDetail || this.unitDetail.licenseApplicable;
       if (s.key === 'deposit') return !this.unitDetail || !!this.unitDetail.depositSection;
-      // Services are no longer part of the approval flow — servicesApplicable
-      // is always false today, but the check stays flag-driven (like license)
-      // rather than a hard removal, and defaults to visible for older API
-      // responses that don't send the flag yet.
-      if (s.key === 'services') return !this.unitDetail || this.unitDetail.servicesApplicable;
+      // Shown when the unit has services to look at. servicesSection is always null now
+      // (services aren't reviewed), so hasAdditionalServices is what normally shows it;
+      // the card is then view-only — see isInformationalSection.
+      if (s.key === 'services') {
+        return !this.unitDetail || !!this.unitDetail.servicesSection || !!this.unitDetail.hasAdditionalServices;
+      }
       return true;
     });
   }
 
+  // Numbered by position among the visible cards, so hidden sections leave no gap.
+  sectionNumber(index: number): string {
+    return formatLocalizedNumber(index + 1, this.translate.currentLang || 'ar');
+  }
+
   // hasSecurityDeposit=false means a deposit isn't required for this unit — the section
-  // stays visible but, like smartLock, is shown as an informational badge instead of a
+  // stays visible but is shown as an informational badge instead of a
   // decision the reviewer has to approve/reject.
   get isDepositInformational(): boolean {
     return !!this.unitDetail && !!this.unitDetail.depositSection && !this.unitDetail.hasSecurityDeposit;
   }
 
   isInformationalSection(section: UnitReviewSection): boolean {
-    if (section.isSmartLockBadge) return true;
     if (section.key === 'deposit') return this.isDepositInformational;
+    if (section.key === 'services') return !!this.unitDetail && !this.unitDetail.servicesApplicable;
     return false;
+  }
+
+  // Informational cards with their own page (services) keep a button to open it;
+  // the deposit one has nothing to open and shows the "active" badge instead.
+  opensInformationalPage(section: UnitReviewSection): boolean {
+    return section.key === 'services';
   }
 
   infoBadgeKey(section: UnitReviewSection): string {
     return `d3.unitReview.sections.${section.key}.infoBadge`;
   }
 
-  readonly activeBadgeKey = 'd3.unitReview.sections.smartLock.activeBadge';
+  readonly activeBadgeKey = 'd3.unitReview.sections.deposit.activeBadge';
 
   get reviewableSections(): UnitReviewSection[] {
     return this.visibleSections.filter(s => !this.isInformationalSection(s));
@@ -374,9 +387,10 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onReviewSection(section: UnitReviewSection): void {
+    const viewOnly = this.shouldOpenSectionInViewMode(section.key) || this.isInformationalSection(section);
     const extras = {
       relativeTo: this.route,
-      ...(this.shouldOpenSectionInViewMode(section.key) ? { queryParams: { mode: 'view' } } : {})
+      ...(viewOnly ? { queryParams: { mode: 'view' } } : {})
     };
 
     const routeMap: Record<string, string> = {

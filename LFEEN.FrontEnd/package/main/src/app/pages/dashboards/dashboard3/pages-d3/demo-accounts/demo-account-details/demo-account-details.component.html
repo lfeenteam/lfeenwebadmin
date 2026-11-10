@@ -1,0 +1,336 @@
+<div class="da-root da-details" [dir]="dir">
+
+  @if (loading && !account) {
+    <app-dashboard-loading variant="review" [rows]="4"></app-dashboard-loading>
+  } @else if (!account) {
+    @if (demoDisabled) {
+      <div class="da-alert info">
+        <i-tabler name="info-circle" class="icon-18"></i-tabler>
+        <p>{{ 'd3.demoAccounts.errors.DEMO_DISABLED' | translate }}</p>
+      </div>
+    } @else {
+      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.demoAccounts.empty.errorTitle" descKey="">
+        <p class="da-load-error">{{ loadError }}</p>
+        <button type="button" class="da-btn sm" (click)="load()">
+          <i-tabler name="refresh" class="icon-16"></i-tabler>
+          {{ 'd3.demoAccounts.actions.retry' | translate }}
+        </button>
+      </app-dashboard-empty>
+    }
+  } @else {
+
+    <!-- Header: name, status, actions -->
+    <div class="dd-head">
+      <div class="dd-head__title">
+        <h2>{{ account.fullName }}</h2>
+        <span class="da-status" [ngClass]="statusClass(account.status)">
+          <span class="dot"></span>
+          {{ statusLabel(account.status) }}
+        </span>
+        @if (loading) { <span class="da-spin dd-head__spin"></span> }
+      </div>
+
+      @if (showActions) {
+        <div class="dd-actions">
+          @for (a of actions; track a.action) {
+            <button type="button" class="da-btn sm" [disabled]="busy" (click)="openAction(a.action)">
+              <i-tabler [name]="a.icon" class="icon-16"></i-tabler>
+              {{ a.labelKey | translate }}
+            </button>
+          }
+          <span class="dd-actions__sep" aria-hidden="true"></span>
+          <button type="button" class="da-btn sm danger-outline" [disabled]="busy" (click)="openAction('disable')">
+            <i-tabler name="ban" class="icon-16"></i-tabler>
+            {{ 'd3.demoAccounts.actions.disable' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Banners -->
+    <div class="dd-banners">
+      @if (account.status === 'Expired') {
+        <div class="da-alert warning">
+          <i-tabler name="clock" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.banners.expired' | translate }}</p>
+        </div>
+      }
+      @if (account.status === 'Disabled') {
+        <div class="da-alert danger">
+          <i-tabler name="ban" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.banners.disabled' | translate }}</p>
+        </div>
+      }
+      @if (account.status === 'SendFailed') {
+        <div class="da-alert warning">
+          <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+          <p>
+            {{ 'd3.demoAccounts.banners.sendFailed' | translate }}
+            @if (showActions) {
+              <button type="button" class="da-link-btn" [disabled]="busy" (click)="openAction('resend')">
+                {{ 'd3.demoAccounts.actions.resendShort' | translate }}
+              </button>
+            }
+          </p>
+        </div>
+      }
+    </div>
+
+    <div class="dd-grid">
+      <!-- Section 1: person -->
+      <section class="dd-card">
+        <h3>{{ 'd3.demoAccounts.sections.person' | translate }}</h3>
+        <dl class="dd-list">
+          <div><dt>{{ 'd3.demoAccounts.fields.fullName' | translate }}</dt><dd>{{ account.fullName }}</dd></div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.email' | translate }}</dt>
+            <dd>@if (account.email) { <span class="da-ltr" dir="ltr">{{ account.email }}</span> } @else { <span class="da-muted">{{ emptyValue }}</span> }</dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.contactPhone' | translate }}</dt>
+            <dd>@if (phone(account.contactPhone); as p) { <span class="da-ltr" dir="ltr">{{ p }}</span> } @else { <span class="da-muted">{{ emptyValue }}</span> }</dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.channel' | translate }}</dt>
+            <dd>
+              <span class="da-channel" [class.ch-whatsapp]="account.channel === 'WhatsApp'">
+                <i-tabler [name]="channelIcons[account.channel] || 'send'" class="icon-16"></i-tabler>
+                {{ channelLabel(account.channel) }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.note' | translate }}</dt>
+            <dd class="dd-note">{{ account.note || emptyValue }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Section 2: login -->
+      <section class="dd-card">
+        <h3>{{ 'd3.demoAccounts.sections.login' | translate }}</h3>
+        <dl class="dd-list">
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.loginSid' | translate }}</dt>
+            <dd class="dd-copy">
+              <span class="da-mono da-ltr" dir="ltr">{{ account.loginSid }}</span>
+              <button type="button" class="da-icon-btn" [class.copied]="copied === 'sid'"
+                      [attr.aria-label]="'d3.demoAccounts.actions.copy' | translate" (click)="copy('sid')">
+                <i-tabler [name]="copied === 'sid' ? 'check' : 'copy'" class="icon-16"></i-tabler>
+              </button>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.loginPhone' | translate }}</dt>
+            <dd class="dd-copy">
+              <span class="da-mono da-ltr" dir="ltr">{{ phone(account.loginPhone) }}</span>
+              <button type="button" class="da-icon-btn" [class.copied]="copied === 'phone'"
+                      [attr.aria-label]="'d3.demoAccounts.actions.copy' | translate" (click)="copy('phone')">
+                <i-tabler [name]="copied === 'phone' ? 'check' : 'copy'" class="icon-16"></i-tabler>
+              </button>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.pin' | translate }}</dt>
+            <dd class="da-muted">{{ 'd3.demoAccounts.pinHidden' | translate }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Section 3: period -->
+      <section class="dd-card dd-card--wide">
+        <h3>{{ 'd3.demoAccounts.sections.period' | translate }}</h3>
+        <dl class="dd-list dd-list--cols">
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.status' | translate }}</dt>
+            <dd>
+              <span class="da-status" [ngClass]="statusClass(account.status)">
+                <span class="dot"></span>
+                {{ statusLabel(account.status) }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.expiresAt' | translate }}</dt>
+            <dd><span class="da-ltr" dir="ltr">{{ date(account.expiresAt) || emptyValue }}</span></dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.daysLeft' | translate }}</dt>
+            <dd>
+              @switch (account.status) {
+                @case ('Expired') { {{ 'd3.demoAccounts.ended' | translate }} }
+                @case ('Disabled') { <span class="da-muted">{{ emptyValue }}</span> }
+                @default {
+                  <span class="da-ltr" dir="ltr">{{ num(account.daysLeft) }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+                }
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.createdBy' | translate }}</dt>
+            <dd>
+              {{ account.createdByAdminName || emptyValue }} —
+              <span class="da-ltr" dir="ltr">{{ date(account.createdAt) || emptyValue }}</span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.demoAccounts.fields.lastSentAt' | translate }}</dt>
+            <dd>
+              @if (date(account.lastSentAt); as sent) {
+                <span class="da-ltr" dir="ltr">{{ sent }}</span>
+              } @else {
+                <span class="da-muted">{{ 'd3.demoAccounts.neverDelivered' | translate }}</span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Section: the host's latest activation request, with the same follow-up buttons as the tab -->
+      @if (account.activationRequest; as req) {
+        <section class="dd-card dd-card--wide dd-request">
+          <h3>
+            <i-tabler name="user-star" class="icon-18"></i-tabler>
+            {{ 'd3.demoAccounts.activation.cardTitle' | translate }}
+          </h3>
+          <app-activation-request-panel [request]="req" [canManage]="canManage()" [showAccountLink]="false"
+                                        (changed)="onRequestChanged($event)" (missing)="load()"></app-activation-request-panel>
+        </section>
+      }
+
+      <!-- Section: invitation content — saved texts, language, subject as received, files -->
+      @if (showInvitationContent) {
+        <section class="dd-card dd-card--wide">
+          <h3>{{ 'd3.demoAccounts.sections.invitationContent' | translate }}</h3>
+          <dl class="dd-list">
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.invitationLanguage' | translate }}</dt>
+              <dd>{{ ('d3.demoAccounts.invitation.languages.' + (account.invitationLanguage || 'Ar')) | translate }}</dd>
+            </div>
+            @if (account.channel === 'Email' || account.invitationSubject || account.renderedSubject) {
+              <div>
+                <dt>{{ 'd3.demoAccounts.fields.invitationSubject' | translate }}</dt>
+                <dd>
+                  @if (account.invitationSubject) {
+                    <app-invitation-text dir="auto" [text]="account.invitationSubject"
+                                         [variables]="variables" [english]="currentLang === 'en'"></app-invitation-text>
+                  } @else {
+                    <span class="da-muted">{{ 'd3.demoAccounts.defaultSubject' | translate }}</span>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>{{ 'd3.demoAccounts.fields.renderedSubject' | translate }}</dt>
+                <dd>
+                  @if (account.renderedSubject) {
+                    <span dir="auto">{{ account.renderedSubject }}</span>
+                  } @else {
+                    <span class="da-muted">{{ emptyValue }}</span>
+                  }
+                </dd>
+              </div>
+            }
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.invitationMessage' | translate }}</dt>
+              <dd>
+                @if (account.invitationMessage) {
+                  <div class="dd-message" dir="auto">
+                    <app-invitation-text [text]="account.invitationMessage"
+                                         [variables]="variables" [english]="currentLang === 'en'"></app-invitation-text>
+                  </div>
+                } @else {
+                  <span class="da-muted">{{ 'd3.demoAccounts.standardInvitation' | translate }}</span>
+                }
+              </dd>
+            </div>
+            @if (showAttachments) {
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.attachments' | translate }}</dt>
+              <dd>
+                @if (account.attachments.length) {
+                  <ul class="dd-files">
+                    @for (f of account.attachments; track f.id) {
+                      <li>
+                        <i-tabler [name]="fileIcon(f.contentType, f.fileName)" class="icon-18"></i-tabler>
+                        <span class="dd-files__name" dir="auto" [title]="f.fileName">{{ f.fileName }}</span>
+                        @if (fileSizeOf(f); as size) {
+                          <span class="dd-files__size da-ltr" dir="ltr">{{ size }}</span>
+                        }
+                        <button type="button" class="da-btn sm" [disabled]="downloading === f.id" (click)="download(f)">
+                          @if (downloading === f.id) { <span class="da-spin"></span> } @else { <i-tabler name="download" class="icon-16"></i-tabler> }
+                          {{ 'd3.demoAccounts.actions.download' | translate }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <span class="da-muted">{{ 'd3.demoAccounts.noAttachments' | translate }}</span>
+                }
+              </dd>
+            </div>
+            }
+          </dl>
+        </section>
+      }
+
+      <!-- Section 4: delivery log -->
+      <section class="dd-card dd-card--wide">
+        <h3>{{ 'd3.demoAccounts.sections.deliveries' | translate }}</h3>
+        @if (account.deliveries.length) {
+          <div class="dd-table-wrap">
+            <table class="dd-table">
+              <thead>
+                <tr>
+                  <th>{{ 'd3.demoAccounts.deliveries.time' | translate }}</th>
+                  <th>{{ 'd3.demoAccounts.deliveries.channel' | translate }}</th>
+                  <th>{{ 'd3.demoAccounts.deliveries.recipient' | translate }}</th>
+                  @if (hasDeliverySubjects) { <th>{{ 'd3.demoAccounts.deliveries.subject' | translate }}</th> }
+                  <th>{{ 'd3.demoAccounts.deliveries.result' | translate }}</th>
+                  <th>{{ 'd3.demoAccounts.deliveries.reason' | translate }}</th>
+                  <th>{{ 'd3.demoAccounts.deliveries.by' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (d of account.deliveries; track $index) {
+                  <tr>
+                    <td><span class="da-ltr" dir="ltr">{{ date(d.attemptedAt) || emptyValue }}</span></td>
+                    <td>
+                      <span class="da-channel" [class.ch-whatsapp]="d.channel === 'WhatsApp'">
+                        <i-tabler [name]="channelIcons[d.channel] || 'send'" class="icon-16"></i-tabler>
+                        {{ channelLabel(d.channel) }}
+                      </span>
+                    </td>
+                    <td><span class="da-ltr" dir="ltr">{{ d.recipient || emptyValue }}</span></td>
+                    @if (hasDeliverySubjects) {
+                      <!-- The subject this attempt carried, exactly as the host got it -->
+                      <td>
+                        @if (d.renderedSubject) {
+                          <span class="dd-reason" dir="auto" [matTooltip]="d.renderedSubject">{{ d.renderedSubject }}</span>
+                        } @else { <span class="da-muted">{{ emptyValue }}</span> }
+                      </td>
+                    }
+                    <td>
+                      @if (d.succeeded) {
+                        <span class="dd-result ok"><i-tabler name="circle-check" class="icon-16"></i-tabler>{{ 'd3.demoAccounts.deliveries.sent' | translate }}</span>
+                      } @else {
+                        <span class="dd-result fail"><i-tabler name="circle-x" class="icon-16"></i-tabler>{{ 'd3.demoAccounts.deliveries.failed' | translate }}</span>
+                      }
+                    </td>
+                    <td>
+                      @if (!d.succeeded && d.error) {
+                        <span class="dd-reason" [matTooltip]="d.error">{{ d.error }}</span>
+                      }
+                    </td>
+                    <td>{{ d.adminName || emptyValue }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="da-muted dd-empty">{{ 'd3.demoAccounts.deliveries.empty' | translate }}</p>
+        }
+      </section>
+    </div>
+  }
+</div>

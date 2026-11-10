@@ -14,6 +14,8 @@ import {
 import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-confirm-dialog.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
+import { AdminAdditionalCondition } from '../../../interfaces/additional-condition.model';
 
 interface Rule {
   id: number;
@@ -25,13 +27,17 @@ interface Rule {
 @Component({
   selector: 'app-review-terms',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, TablerIconsModule, FormsModule, TranslateModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent],
   templateUrl: './review-terms.component.html',
   styleUrl: './review-terms.component.scss'
 })
 export class ReviewTermsComponent implements OnInit {
   @Input() propertyId = '';
   @Input() readOnly = false;
+  // Additional conditions are decided one by one and can arrive after the Terms
+  // section (or the whole building) is already approved, so they don't follow
+  // `readOnly` — only a hard lock (e.g. a banned building) disables them.
+  @Input() conditionsReadOnly = false;
   @Output() back = new EventEmitter<void>();
   @Output() approve = new EventEmitter<TermsReviewResponse>();
 
@@ -50,12 +56,17 @@ export class ReviewTermsComponent implements OnInit {
   rejectionReason = '';
   generalRules: Rule[] = [];
   customRules: string[] = [];
+  additionalConditions: AdminAdditionalCondition[] = [];
 
   ngOnInit(): void {
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadTerms());
 
+    this.loadTerms();
+  }
+
+  reloadTerms(): void {
     this.loadTerms();
   }
 
@@ -73,6 +84,7 @@ export class ReviewTermsComponent implements OnInit {
         this.rejectionReason = data.rejectionReason ?? '';
         this.generalRules = data.conditions.map(condition => this.mapCondition(condition));
         this.customRules = data.customRules.map(rule => rule.description);
+        this.additionalConditions = data.additionalConditions ?? [];
       },
       error: () => {
         this.isLoading = false;

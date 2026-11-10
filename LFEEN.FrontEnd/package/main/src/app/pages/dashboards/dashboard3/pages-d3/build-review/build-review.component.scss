@@ -3,6 +3,48 @@
   font-family: 'Cairo', sans-serif;
 }
 
+// Loading / not-found / error states shown instead of the review body.
+.load-state-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+
+  .spin-icon {
+    width: 32px;
+    height: 32px;
+    color: #6B6B67;
+    animation: build-review-spin 1s linear infinite;
+  }
+}
+
+@keyframes build-review-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.state-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.state-action-btn {
+  height: 44px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 12px;
+  background: #111110;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.2s;
+
+  &:hover { filter: brightness(1.25); }
+}
+
 .build-review {
   margin: 0 auto;
   padding: 24px;

@@ -2,12 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MaterialModule } from 'src/app/material.module';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { UnitsService, UnitSortOrder } from '../../services/units.service';
 import { BuildingWithUnits, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
+import { AutoApprovalSettingsDialogComponent } from './auto-approval-settings-dialog/auto-approval-settings-dialog.component';
+import { LoginService } from '../../services/login/login.service';
 import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
 
 @Component({
@@ -17,6 +21,7 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     CommonModule,
     TablerIconsModule,
     TranslateModule,
+    MaterialModule,
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
     CardsUnitsComponent
@@ -28,9 +33,12 @@ export class AllUnitsComponent {
   private unitsService = inject(UnitsService);
   private cdr          = inject(ChangeDetectorRef);
   private translate    = inject(TranslateService);
+  private dialog       = inject(MatDialog);
+  private login        = inject(LoginService);
 
   activeTab: string = this.unitsService.activeTab();
   searchQuery       = '';
+  activeFilters: Record<string, string> | undefined;
   viewMode: ViewMode = 'list';
   buildingsWithUnits: BuildingWithUnits[] = [];
   isLoading    = false;
@@ -140,6 +148,20 @@ export class AllUnitsComponent {
     return getVisiblePages(this.currentPage, this.totalPages);
   }
 
+  /** Units.ManageSettings — only SuperAdmin has it by default. */
+  get canManageSettings(): boolean {
+    return this.login.permissions().some(p => p.toLowerCase() === 'units.managesettings');
+  }
+
+  openAutoApprovalSettings(): void {
+    if (!this.canManageSettings) return;
+    this.dialog.open(AutoApprovalSettingsDialogComponent, {
+      width: '720px',
+      maxWidth: '95vw',
+      autoFocus: 'dialog',
+    });
+  }
+
   get isReviewTab(): boolean {
     return this.activeTab === 'new' || this.activeTab === 'underReview' || this.activeTab === 'pendingChanges';
   }
@@ -152,6 +174,19 @@ export class AllUnitsComponent {
   onSearch(query: string): void {
     this.searchQuery = query;
     this.unitsService.setSearch(query);
+  }
+
+  /** Search / account / property narrow the list; sort only reorders it, so it doesn't count. */
+  get hasFilters(): boolean {
+    return !!(this.unitsService.searchQuery().trim() || this.unitsService.accountId() || this.unitsService.propertyId());
+  }
+
+  clearFilters(): void {
+    this.onSearch('');
+    // A new object each time so the dropdown pills pick up the reset.
+    this.activeFilters = { account: 'all', property: 'all' };
+    this.unitsService.setAccountFilter('');
+    this.unitsService.setPropertyFilter('');
   }
 
   onFiltersChange(filters: Record<string, string>): void {

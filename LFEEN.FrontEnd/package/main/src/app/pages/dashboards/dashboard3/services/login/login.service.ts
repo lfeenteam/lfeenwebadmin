@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { CoreService } from 'src/app/services/core.service';
 import { Observable, Subject, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize, shareReplay, tap } from 'rxjs/operators';
 import { signal } from '@angular/core';
-import { LoginRequest, LoginResponse } from '../../interfaces/login.model';
+import { LoginRequest, LoginResponse, SidebarItem } from '../../interfaces/login.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -13,6 +14,9 @@ export class LoginService {
   private apiUrl = `${environment.apiBaseUrl}/api/auth/Login`;
   private refreshUrl = `${environment.apiBaseUrl}/api/auth/refresh-token`;
   private changePasswordUrl = `${environment.apiBaseUrl}/api/auth/change-password`;
+  private forgotPasswordUrl = `${environment.apiBaseUrl}/api/auth/forgot-password`;
+  private resetPasswordUrl = `${environment.apiBaseUrl}/api/auth/reset-password`;
+  private sidebarUrl = `${environment.apiBaseUrl}/api/auth/sidebar`;
   private tokenKey = 'auth_token';
   private refreshTokenKey = 'auth_refresh_token';
   private tokenExpiresKey = 'auth_token_expires_at';
@@ -20,9 +24,17 @@ export class LoginService {
   private userKey = 'auth_user';
   private rememberMeKey = 'auth_remember_me';
   private sidebarKey = 'auth_sidebar';
+  // The language the stored sidebar was fetched in — its titles come translated by the server.
+  private sidebarLangKey = 'auth_sidebar_lang';
   private permissionsKey = 'auth_permissions';
 
+  private coreService = inject(CoreService);
   private refreshTimeout: any;
+
+  // The refresh call in progress, shared by everyone who needs a new token meanwhile.
+  // The backend rotates the refresh token, so a second call with the same one would
+  // be rejected — parallel 401s must wait on this one instead of starting their own.
+  private refreshInFlight$: Observable<LoginResponse> | null = null;
 
   loading = signal<boolean>(false);
   isLoggedIn = signal<boolean>(this.checkAuthentication());
@@ -54,14 +66,41 @@ export class LoginService {
   }
 
   refreshToken(): Observable<LoginResponse> {
+    if (this.refreshInFlight$) return this.refreshInFlight$;
+
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
-      tap((response) => this.handleAuthentication(response))
+    this.refreshInFlight$ = this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
+      tap((response) => this.handleAuthentication(response)),
+      finalize(() => this.refreshInFlight$ = null),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+    return this.refreshInFlight$;
+  }
+
+  /**
+   * Same sidebar as the login response, translated per Accept-Language. Uses the
+   * access token only, so a language switch doesn't rotate the refresh token.
+   */
+  reloadSidebar(): Observable<SidebarItem[]> {
+    return this.http.get<SidebarItem[]>(this.sidebarUrl).pipe(
+      tap((sidebar) => this.storeSidebar(sidebar))
+    );
+  }
+
+  /** null for sessions saved before the language was stored — treated as stale. */
+  getSidebarLanguage(): string | null {
+    return localStorage.getItem(this.sidebarLangKey);
+  }
+
+  private storeSidebar(sidebar: SidebarItem[]): void {
+    localStorage.setItem(this.sidebarKey, JSON.stringify(sidebar));
+    // The request went out with the current language as Accept-Language (AuthInterceptor).
+    localStorage.setItem(this.sidebarLangKey, this.coreService.getLanguage());
+    this.sidebar.set(sidebar);
   }
 
   setToken(response: LoginResponse): void {
@@ -70,6 +109,20 @@ export class LoginService {
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
     return this.http.post(this.changePasswordUrl, { currentPassword, newPassword });
+  }
+
+  // Always succeeds for a well-formed email, whether or not the account exists.
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(this.forgotPasswordUrl, { email });
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    return this.http.post(this.resetPasswordUrl, { email, token, newPassword });
+  }
+
+  /** Endpoints for signed-out users: must never carry a (possibly stale) bearer token. */
+  isAnonymousAuthUrl(url: string): boolean {
+    return url.startsWith(this.forgotPasswordUrl) || url.startsWith(this.resetPasswordUrl);
   }
 
   private setRememberMe(value: boolean): void {
@@ -134,18 +187,32 @@ export class LoginService {
   }
 
   private getStoredUser(): any {
-    const user = sessionStorage.getItem(this.userKey);
+    const user = this.readSessionData(this.userKey);
     return user ? JSON.parse(user) : null;
   }
 
   private getStoredSidebar(): any[] {
-    const sidebar = sessionStorage.getItem(this.sidebarKey);
+    const sidebar = this.readSessionData(this.sidebarKey);
     return sidebar ? JSON.parse(sidebar) : [];
   }
 
   private getStoredPermissions(): string[] {
-    const permissions = sessionStorage.getItem(this.permissionsKey);
+    const permissions = this.readSessionData(this.permissionsKey);
     return permissions ? JSON.parse(permissions) : [];
+  }
+
+  // User, sidebar and permissions live in localStorage next to the tokens, so a new tab
+  // gets the whole session. Older sessions kept them in sessionStorage: move them over once.
+  private readSessionData(key: string): string | null {
+    const value = localStorage.getItem(key);
+    if (value !== null) return value;
+
+    const legacy = sessionStorage.getItem(key);
+    if (legacy !== null) {
+      localStorage.setItem(key, legacy);
+      sessionStorage.removeItem(key);
+    }
+    return legacy;
   }
 
   isAuthenticated(): boolean {
@@ -177,8 +244,12 @@ export class LoginService {
     localStorage.removeItem(this.tokenExpiresKey);
     localStorage.removeItem(this.refreshTokenExpiresKey);
     localStorage.removeItem(this.rememberMeKey);
-    
-    // مسح البيانات من sessionStorage
+    localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.sidebarKey);
+    localStorage.removeItem(this.sidebarLangKey);
+    localStorage.removeItem(this.permissionsKey);
+
+    // بقايا الجلسات القديمة اللي كانت بتتخزن في sessionStorage
     sessionStorage.removeItem(this.userKey);
     sessionStorage.removeItem(this.sidebarKey);
     sessionStorage.removeItem(this.permissionsKey);
@@ -196,9 +267,9 @@ export class LoginService {
     localStorage.setItem(this.tokenExpiresKey, response.accessTokenExpiresAt);
     localStorage.setItem(this.refreshTokenExpiresKey, response.refreshTokenExpiresAt);
     
-    // تخزين البيانات في sessionStorage بدلاً من localStorage
-    sessionStorage.setItem(this.sidebarKey, JSON.stringify(response.sidebar));
-    sessionStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
+    // مع التوكن في localStorage علشان أي تبويب جديد ياخد الجلسة كاملة
+    this.storeSidebar(response.sidebar);
+    localStorage.setItem(this.permissionsKey, JSON.stringify(response.permissions));
     const userData = {
       userId: response.userId,
       fullName: response.fullName || (response as any).userName,
@@ -206,10 +277,9 @@ export class LoginService {
       phoneNumber: response.phoneNumber || null,
       roles: response.roles,
     };
-    sessionStorage.setItem(this.userKey, JSON.stringify(userData));
+    localStorage.setItem(this.userKey, JSON.stringify(userData));
 
     // تحديث Signals للواجهة
-    this.sidebar.set(response.sidebar);
     this.permissions.set(response.permissions);
     this.currentUser.set(userData);
 

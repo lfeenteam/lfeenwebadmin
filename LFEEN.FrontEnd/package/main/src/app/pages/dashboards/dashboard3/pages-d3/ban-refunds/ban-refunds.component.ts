@@ -16,6 +16,7 @@ import { ListingBanService } from '../../services/listing-ban.service';
 import { LoginService } from '../../services/login/login.service';
 import { ListingBanRefund, RefundStatus } from '../../interfaces/listing-ban.model';
 import { RefundResolveDialogComponent, RefundResolveDialogData } from './refund-resolve-dialog/refund-resolve-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 type RefundTab = RefundStatus | 'All';
 
@@ -233,7 +234,7 @@ export class BanRefundsComponent implements OnInit {
 
   /** Number only — the table renders the riyal symbol next to it (see `isSar`). */
   fmtAmountValue(row: ListingBanRefund): string {
-    return row.amount.toLocaleString(this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG', {
+    return row.amount.toLocaleString(appLocale(this.translate.currentLang), {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });

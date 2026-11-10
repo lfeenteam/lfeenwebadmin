@@ -18,6 +18,7 @@ import { DiscountCodeState, SubscriptionCatalogItem, SubscriptionDiscountCode } 
 import { isStaleSubscriptionError, resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { discountCodeState, isPercentageDiscount } from './discount-code.util';
 import { CreateDiscountCodeDialogComponent, CreateDiscountCodeDialogData } from './create-discount-code-dialog/create-discount-code-dialog.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface DiscountCodeRow {
   code: SubscriptionDiscountCode;
@@ -47,6 +48,7 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
   loadError = false;
   rows: DiscountCodeRow[] = [];
   togglingId: number | null = null;
+  deletingId: number | null = null;
 
   private catalog: SubscriptionCatalogItem[] = [];
 
@@ -81,7 +83,7 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', { maximumFractionDigits: 2 });
+    return value.toLocaleString(appLocale(this.currentLang), { maximumFractionDigits: 2 });
   }
 
   formatDate(iso: string | null): string | null {
@@ -167,6 +169,48 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
         this.togglingId = null;
         this.toastr.error(resolveSubscriptionError(err, this.translate));
         if (isStaleSubscriptionError(err)) this.load();
+      },
+    });
+  }
+
+  /** A code can be deleted only while nobody has used it yet. */
+  canDelete(row: DiscountCodeRow): boolean {
+    return this.canManage && row.code.redemptionCount === 0;
+  }
+
+  deleteCode(row: DiscountCodeRow): void {
+    if (!this.canDelete(row) || this.deletingId !== null) return;
+
+    const ref = this.dialog.open(OfferConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '95vw',
+      panelClass: 'custom-confirm-dialog',
+      data: {
+        title: 'd3.discountCodes.confirmDelete.title',
+        message: 'd3.discountCodes.confirmDelete.message',
+        confirmLabel: 'd3.discountCodes.confirmDelete.action',
+        icon: 'trash',
+        tone: 'danger',
+      } as OfferConfirmDialogData,
+    });
+    ref.afterClosed().subscribe(confirmed => {
+      if (confirmed) this.applyDelete(row);
+    });
+  }
+
+  private applyDelete(row: DiscountCodeRow): void {
+    this.deletingId = row.code.id;
+    this.service.deleteDiscountCode(row.code.id).subscribe({
+      next: () => {
+        this.deletingId = null;
+        this.rows = this.rows.filter(r => r.code.id !== row.code.id);
+        this.toastr.success(this.translate.instant('d3.discountCodes.deleted'));
+      },
+      error: err => {
+        this.deletingId = null;
+        this.toastr.error(resolveSubscriptionError(err, this.translate));
+        // Already redeemed means our usage count is out of date, so refresh it too.
+        if (isStaleSubscriptionError(err) || err?.error?.errorCode === 'SUBSCRIPTION_DISCOUNT_CODE_ALREADY_REDEEMED') this.load();
       },
     });
   }

@@ -28,6 +28,7 @@ export type D3DialogState = 'idle' | 'loading' | 'success' | 'error';
 })
 export class ReviewConfirmDialogComponent {
   state: D3DialogState = 'idle';
+  isOffline = false;
 
   constructor(
     public dialogRef: MatDialogRef<ReviewConfirmDialogComponent>,
@@ -48,9 +49,10 @@ export class ReviewConfirmDialogComponent {
         this.state = 'success';
         setTimeout(() => this.dialogRef.close(true), 1700);
       },
-      error: () => {
+      // Keep the error visible until the user retries or cancels — it used to vanish after 2.5s
+      error: (err) => {
         this.state = 'error';
-        setTimeout(() => { this.state = 'idle'; }, 2500);
+        this.isOffline = !navigator.onLine || err?.status === 0;
       }
     });
   }

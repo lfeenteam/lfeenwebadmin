@@ -31,9 +31,14 @@
 .illustration-wrapper {
   margin-bottom: 20px;
   
+  // Shrinks with the screen height so the image + text below it fit without a scrollbar
+  // (~260px is the text, margins and padding around the image).
   .login-illustration {
-    width: 580px;
-    height: 580px;
+    height: min(580px, calc(100vh - 260px));
+    min-height: 260px;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 1;
     object-fit: contain;
   }
 }

@@ -1,0 +1,91 @@
+<div class="da-root da-page" [dir]="lang === 'en' ? 'ltr' : 'rtl'">
+  @if (loading) {
+    <div class="rs-loading"><span class="da-spin"></span></div>
+  } @else if (loadError) {
+    <div class="da-alert danger" role="alert">
+      <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+      <div class="da-alert__body">
+        <p>{{ loadError }}</p>
+        <button type="button" class="da-link-btn" (click)="load()">{{ 'd3.demoAccounts.actions.retry' | translate }}</button>
+      </div>
+    </div>
+  } @else if (account) {
+    <!-- Title bar with the actions -->
+    <div class="da-page__bar">
+      <div>
+        <h2>{{ 'd3.demoAccounts.dialogs.resend.title' | translate }}</h2>
+        <p>{{ account.fullName }}</p>
+      </div>
+      <div class="da-page__actions">
+        <button type="button" class="da-btn" [disabled]="submitting" (click)="cancel()">
+          {{ 'd3.demoAccounts.actions.cancel' | translate }}
+        </button>
+        <button type="button" class="da-btn primary" [disabled]="!canSubmit" (click)="submit()">
+          @if (submitting) { <span class="da-spin"></span> } @else { <i-tabler name="send" class="icon-16"></i-tabler> }
+          {{ 'd3.demoAccounts.dialogs.resend.confirm' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Every resend issues a new PIN the admin never sees -->
+    <div class="da-alert warning">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <p>{{ 'd3.demoAccounts.dialogs.resend.newPinWarning' | translate }}</p>
+    </div>
+
+    @if (error) {
+      <div class="da-alert danger" role="alert">
+        <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+        <p>{{ error }}</p>
+      </div>
+    }
+
+    <div class="da-page__grid">
+      <div class="da-page__main">
+        <!-- ① Channel -->
+        <section class="da-card">
+          <h3><span class="da-step">1</span>{{ 'd3.demoAccounts.create.channel' | translate }}</h3>
+          <div class="da-field">
+            <div class="da-segmented" role="radiogroup">
+              @for (ch of channels; track ch) {
+                <span class="seg-slot" [matTooltip]="noContactTip(ch)" [matTooltipDisabled]="hasContact(ch)">
+                  <button type="button" role="radio" [class.active]="channel === ch" [attr.aria-checked]="channel === ch"
+                          [disabled]="submitting || !hasContact(ch)" (click)="setChannel(ch)">
+                    <i-tabler [name]="channelIcons[ch]" class="icon-16"></i-tabler>
+                    {{ ('d3.demoAccounts.channels.' + ch) | translate }}
+                  </button>
+                </span>
+              }
+            </div>
+            @if (channel !== account.channel) {
+              <p class="da-helper">{{ 'd3.demoAccounts.dialogs.resend.channelChanged' | translate }}</p>
+            }
+          </div>
+        </section>
+
+        <!-- ② Invitation message (pre-filled with the saved one) -->
+        <section class="da-card">
+          <h3><span class="da-step">2</span>{{ 'd3.demoAccounts.invitation.title' | translate }}</h3>
+          <app-invitation-editor [bare]="true" [disabled]="submitting"></app-invitation-editor>
+          <!-- Email only. [hidden] (not @if) keeps the files when switching channels. -->
+          <app-demo-attachments [hidden]="!isEmail" [initial]="account.attachments" [disabled]="submitting"
+                                inputId="da-resend-files"></app-demo-attachments>
+        </section>
+      </div>
+
+      <!-- Filled with this account's real values -->
+      <app-invitation-preview class="da-page__aside" [disabled]="submitting"></app-invitation-preview>
+    </div>
+
+    <!-- Small screens: the actions stay at the bottom -->
+    <div class="da-page__footer">
+      <button type="button" class="da-btn" [disabled]="submitting" (click)="cancel()">
+        {{ 'd3.demoAccounts.actions.cancel' | translate }}
+      </button>
+      <button type="button" class="da-btn primary" [disabled]="!canSubmit" (click)="submit()">
+        @if (submitting) { <span class="da-spin"></span> }
+        {{ 'd3.demoAccounts.dialogs.resend.confirm' | translate }}
+      </button>
+    </div>
+  }
+</div>

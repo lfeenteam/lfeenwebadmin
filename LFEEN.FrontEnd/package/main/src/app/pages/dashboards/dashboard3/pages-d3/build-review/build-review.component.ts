@@ -20,13 +20,15 @@ import { PageTitleOverrideService } from '../../services/page-title-override.ser
 import { PageBreadcrumbTrailService } from '../../services/page-breadcrumb-trail.service';
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type SectionView = 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final';
 
 @Component({
   selector: 'app-build-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, ReviewBasicInfoComponent, ReviewLocationComponent, TranslateModule, ListingBanBannerComponent, BanListingButtonComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, ReviewImageComponent, ReviewTermsComponent, ReviewLicenseComponent, ReviewBasicInfoComponent, ReviewLocationComponent, TranslateModule, ListingBanBannerComponent, BanListingButtonComponent, ReviewEmptyStateComponent],
   templateUrl: './build-review.component.html',
   styleUrl: './build-review.component.scss'
 })
@@ -46,7 +48,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     ['basicInfo', 'images', 'location', 'terms', 'license', 'final'];
 
   private readonly backHandler = () => {
-    if (this.currentView === 'list') return false;
+    // Nothing loaded means no section view to step back from — let the header leave the page.
+    if (this.currentView === 'list' || this.loadState !== 'loaded') return false;
     this.setView('list');
     return true;
   };
@@ -58,6 +61,12 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   overallStatus = '';
   isDisplayed = false;
   canFinalApprove = false;
+  // False until GET /api/properties/{id} returns, so the approve button is never
+  // decided from the initial defaults (see showApproveButton).
+  isLoaded = false;
+  // The page body (and every decision button in it) renders only once this is 'loaded',
+  // so an unknown or deleted building never shows an empty review with a reject button.
+  loadState: 'loading' | 'loaded' | 'notFound' | 'error' = 'loading';
   banReason: string | null = null;
   bannedAt: string | null = null;
   private forcedViewOnly = false;
@@ -196,7 +205,7 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     if (this.buildingId) {
       this.imageError = false;
       this.orgLogoError = false;
-      this.buildingService.getPropertyById(this.buildingId).subscribe(data => {
+      this.buildingService.getPropertyById(this.buildingId).subscribe({ next: data => {
         this.building = {
           id:                  data.externalId,
           name:                data.name,
@@ -266,8 +275,26 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
         if (data.locationSection.rejectionReason) {
           this.reviewSections[2].notes = data.locationSection.rejectionReason;
         }
-      });
+
+        this.isLoaded = true;
+        this.loadState = 'loaded';
+      }, error: (err: HttpErrorResponse) => {
+        // A reload that fails (language switch, ban change) keeps the page already shown.
+        if (this.isLoaded) return;
+        this.loadState = err?.status === 404 || err?.status === 400 ? 'notFound' : 'error';
+      } });
+    } else {
+      this.loadState = 'notFound';
     }
+  }
+
+  retryLoad(): void {
+    this.loadState = 'loading';
+    this.loadProperty();
+  }
+
+  goToBuildings(): void {
+    this.router.navigate(['../../buildings'], { relativeTo: this.route });
   }
 
   // A section is only "done" once it has a final decision. Anything else
@@ -419,6 +446,12 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   // it's enabled — it already accounts for every section being decided with no rejections.
   get isApproveDisabled(): boolean {
     return !this.canFinalApprove;
+  }
+
+  // The approve button is only rendered once the property has loaded and the backend
+  // allows final approval, so in-app navigation and a page reload always agree.
+  get showApproveButton(): boolean {
+    return this.isLoaded && this.canFinalApprove;
   }
 
   openSection(index: number): void {

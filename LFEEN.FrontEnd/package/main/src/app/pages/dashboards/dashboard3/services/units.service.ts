@@ -25,6 +25,8 @@ import {
   UnitDepositResponse,
   UnitServicesResponse,
   UnitLicenseResponse,
+  UnitAutoApprovalSettings,
+  UnitAutoApprovalSettingsUpdate,
 } from '../interfaces/unit-card.model';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -425,6 +427,18 @@ export class UnitsService {
     return this.http.post<void>(`${this.apiUrl}/${unitId}/license/review`, { decision, rejectionReason });
   }
 
+  // Both endpoints return the bare settings object (no { data } envelope).
+  getAutoApprovalSettings(): Observable<UnitAutoApprovalSettings> {
+    return this.http.get<UnitAutoApprovalSettings>(`${this.apiUrl}/auto-approval-settings`);
+  }
+
+  updateAutoApprovalSettings(body: UnitAutoApprovalSettingsUpdate): Observable<UnitAutoApprovalSettings> {
+    return this.http.put<UnitAutoApprovalSettings>(`${this.apiUrl}/auto-approval-settings`, {
+      pricingTolerancePercent: body.pricingTolerancePercent,
+      depositTolerancePercent: body.depositTolerancePercent,
+    });
+  }
+
   approveUnit(unitId: string, finalNotes: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${unitId}/approve`, { finalNotes });
   }
@@ -467,6 +481,8 @@ export class UnitsService {
         : '—',
       status:      this.resolveUnitStatus(u),
       type:        u.unitTypeName,
+      typeIconKey: u.unitTypeIconKey ?? null,
+      typeIconUrl: u.unitTypeIconUrl ?? null,
       description: u.description ?? '',
       district:    u.district ?? null,
       rooms:       0,

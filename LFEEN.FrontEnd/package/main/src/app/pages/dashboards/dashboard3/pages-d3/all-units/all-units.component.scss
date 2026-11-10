@@ -11,6 +11,32 @@
   text-align: start;
 }
 
+.units-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+// Same look as the team-management header action button.
+.settings-btn {
+  --mdc-filled-button-container-color: #111110;
+  --mdc-filled-button-label-text-color: #fff;
+  background-color: #111110;
+  color: #fff;
+  height: 40px;
+  border-radius: 14px;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+
+  .settings-btn-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 .pagination-wrapper {
   border-top: 1px solid #E8E8E4;
   margin-top: 8px;

@@ -1,0 +1,84 @@
+<div class="create-code-dialog" [dir]="currentDir">
+
+  <h2 class="dialog-title">{{ (isEdit ? 'd3.periodOption.editTitle' : 'd3.periodOption.addTitle') | translate }}</h2>
+
+  <div class="form-scroll">
+
+    @if (!isEdit && data.tiers.length > 1) {
+      <div class="form-field">
+        <span class="field-label">{{ 'd3.pricingRow.tier' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="tierSelection" disableOptionCentering>
+          <mat-option value="default">{{ 'd3.pricingRow.defaultTier' | translate }}</mat-option>
+          @for (t of data.tiers; track t.id) {
+            @if (!t.isDefault) {
+              <mat-option [value]="t.id">{{ tierName(t) }}</mat-option>
+            }
+          }
+        </mat-select>
+      </div>
+    }
+
+    <!-- Duration: stored as a day count; the presets only fill it in -->
+    <div class="form-field">
+      <label class="field-label" for="po-days">{{ 'd3.periodOption.duration' | translate }} *</label>
+      <div class="preset-row">
+        @for (p of presets; track p.days) {
+          <button type="button" class="preset-chip" [class.active]="durationInDays === p.days" (click)="applyPreset(p)">
+            {{ presetLabel(p) }}
+          </button>
+        }
+      </div>
+      <div class="field-input-wrap">
+        <input id="po-days" type="number" min="1" step="1" class="field-input" placeholder="30" [(ngModel)]="durationInDays" />
+        <span class="field-suffix">{{ 'd3.periodOption.days' | translate }}</span>
+      </div>
+      @if (durationError) { <span class="field-error">{{ 'd3.periodOption.errors.duration' | translate }}</span> }
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="po-name-ar">{{ 'd3.periodOption.nameAr' | translate }} *</label>
+        <input id="po-name-ar" type="text" class="field-input" placeholder="شهر واحد" [(ngModel)]="nameAr" />
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="po-name-en">{{ 'd3.periodOption.nameEn' | translate }} *</label>
+        <input id="po-name-en" type="text" class="field-input" dir="ltr" placeholder="1 Month" [(ngModel)]="nameEn" />
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="po-price">{{ 'd3.periodOption.price' | translate }} *</label>
+        <div class="field-input-wrap">
+          <input id="po-price" type="number" min="0.01" step="0.01" class="field-input" placeholder="0" [(ngModel)]="price" />
+          <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+        </div>
+        @if (priceError) { <span class="field-error">{{ 'd3.periodOption.errors.price' | translate }}</span> }
+      </div>
+      <div class="form-field">
+        <label class="field-label" for="po-order">{{ 'd3.periodOption.displayOrder' | translate }} *</label>
+        <input id="po-order" type="number" min="0" step="1" class="field-input" [(ngModel)]="displayOrder" />
+        @if (displayOrderError) { <span class="field-error">{{ 'd3.serviceForm.errors.displayOrder' | translate }}</span> }
+      </div>
+    </div>
+
+    <span class="field-error is-note">
+      {{ (isEdit ? 'd3.periodOption.editNote' : 'd3.periodOption.priceNote') | translate }}
+    </span>
+
+    @if (serverError) {
+      <div class="server-error">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ serverError }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="dialog-actions">
+    <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">
+      {{ (submitting ? 'd3.subscriptions.serviceSettings.saving' : 'd3.periodOption.save') | translate }}
+    </button>
+    <button type="button" class="btn-outline" [disabled]="submitting" (click)="close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+
+</div>

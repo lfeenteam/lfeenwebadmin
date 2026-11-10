@@ -9,15 +9,17 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { CoreService } from 'src/app/services/core.service';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
 import { ContactUsService } from './services/contact-us.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-contact-us-management', standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, A11yModule],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, DashboardEmptyComponent, A11yModule],
   templateUrl: './contact-us-management.component.html', styleUrl: './contact-us-management.component.scss'
 })
 export class ContactUsManagementComponent implements OnInit, OnDestroy {
@@ -40,6 +42,8 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   status = signal<ContactUsStatus | 'all'>('all'); search = ''; page = signal(1); pageSize = 20;
   totalCount = signal(0); totalPages = signal(1); closeDialogOpen = signal(false); closing = signal(false); closeNote = '';
   previewAttachment = signal<ContactUsAttachment | null>(null);
+  /** Whether the list on screen was loaded with a search term (decides the empty message). */
+  hasSearch = signal(false);
 
   ngOnInit(): void {
     this.searchChanges.pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$)).subscribe(() => { this.page.set(1); this.load(); });
@@ -47,10 +51,12 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void { this.detailRequest?.unsubscribe(); this.listRequest?.unsubscribe(); this.destroy$.next(); this.destroy$.complete(); }
   onSearch(value: string): void { this.search = value; this.searchChanges.next(value.trim()); }
+  clearSearch(): void { this.onSearch(''); }
   setStatus(value: ContactUsStatus | 'all'): void { this.status.set(value); this.page.set(1); this.load(); }
   load(): void {
     this.listRequest?.unsubscribe();
     this.loading.set(true); this.error.set('');
+    this.hasSearch.set(!!this.search.trim());
     this.listRequest = this.service.getRequests({ status: this.status() === 'all' ? undefined : this.status() as ContactUsStatus, search: this.search.trim() || undefined, page: this.page(), pageSize: this.pageSize }).subscribe({
       next: r => {
         const pages = Math.max(1, r.totalPages || 1);
@@ -82,6 +88,18 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   formatBytes(bytes: number): string { if (!bytes) return '0 KB'; const units = ['B', 'KB', 'MB', 'GB']; const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3); return `${(bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0)} ${units[i]}`; }
   readonly visiblePages = computed(() => getVisiblePages(this.page(), this.totalPages()));
   fmt(value: number): string { return formatLocalizedNumber(value, this.translate.currentLang); }
+
+  // Same locale as the page header's date (ar-EG = Gregorian months, Arabic digits), e.g. "٦ أكتوبر ٢٠٢٦" / "١١:٠٩ ص".
+  private dateLocale(): string { return appLocale(this.translate.currentLang); }
+  fmtDate(value: string | null | undefined): string {
+    return value ? new Intl.DateTimeFormat(this.dateLocale(), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value)) : '';
+  }
+  fmtTime(value: string | null | undefined): string {
+    return value ? new Intl.DateTimeFormat(this.dateLocale(), { hour: 'numeric', minute: '2-digit' }).format(new Date(value)) : '';
+  }
+  fmtDateTime(value: string | null | undefined): string {
+    return value ? `${this.fmtDate(value)} — ${this.fmtTime(value)}` : '';
+  }
   showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
   isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }

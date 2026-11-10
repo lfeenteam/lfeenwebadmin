@@ -1,0 +1,108 @@
+.decision-dialog {
+  padding: 24px;
+  font-family: 'Cairo', sans-serif !important;
+
+  h2, p, span, label, button, textarea {
+    font-family: 'Cairo', sans-serif !important;
+  }
+}
+
+.decision-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  h2 { margin: 0; font-size: 18px; font-weight: 800; color: #111110; }
+  p { margin: 2px 0 0; font-size: 12px; color: #6B6B67; }
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+  color: #16a34a;
+
+  &.is-reject { background: #fef2f2; color: #dc2626; }
+}
+
+.decision-card {
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 6px 16px;
+  margin-bottom: 16px;
+}
+
+.decision-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+
+  & + & { border-top: 1px solid #F1F5F9; }
+}
+
+.row-label { font-size: 12px; font-weight: 700; color: #6B6B67; }
+.row-value { font-size: 13px; font-weight: 700; color: #111110; text-align: end; word-break: break-word; }
+
+.amount-credit { color: #16a34a; }
+.amount-debit { color: #dc2626; }
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #45556C;
+}
+
+.reason-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
+}
+
+.warning-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  font-size: 12px;
+  color: #d97706;
+}
+
+.decision-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outline { border: 1px solid #E2E8F0; color: #111110; background: #fff; }
+.btn-accept { background: #16a34a; color: #fff; }
+.btn-danger { background: #dc2626; color: #fff; }

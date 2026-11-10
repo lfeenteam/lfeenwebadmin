@@ -1,0 +1,214 @@
+@use '../demo-accounts';
+
+// ── Header ──────────────────────────────────────────────────
+.dd-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.dd-head__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+
+  h2 { margin: 0; font-size: 20px; font-weight: 800; color: #111110; word-break: break-word; }
+}
+
+.dd-head__spin { color: #9E9E9A; }
+
+.dd-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dd-actions__sep {
+  width: 1px;
+  height: 24px;
+  background: #E2E8F0;
+  margin: 0 4px;
+}
+
+.dd-banners {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+
+  &:empty { display: none; }
+
+  .da-link-btn { margin-inline-start: 6px; }
+}
+
+// ── Cards ───────────────────────────────────────────────────
+.dd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dd-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  padding: 18px 20px;
+  min-width: 0;
+
+  h3 { margin: 0 0 12px; font-size: 15px; font-weight: 800; color: #111110; }
+
+  &--wide { grid-column: 1 / -1; }
+}
+
+.dd-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  dt { font-size: 12px; font-weight: 700; color: #6B6B67; }
+  dd { margin: 0; font-size: 14px; font-weight: 600; color: #111110; min-width: 0; word-break: break-word; }
+
+  &--cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    column-gap: 24px;
+
+    > div { grid-template-columns: minmax(0, 1fr); gap: 4px; align-items: start; }
+  }
+}
+
+.dd-note { white-space: pre-line; }
+
+.dd-request h3 { display: flex; align-items: center; gap: 8px; }
+
+// Saved invitation text: kept exactly as typed.
+.dd-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-weight: 500;
+  line-height: 1.8;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dd-list dd .da-mono-soft { color: #45556C; }
+
+// Email invitation files.
+.dd-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+
+    > i-tabler { color: #6B6B67; flex-shrink: 0; }
+  }
+
+  &__name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  &__size { font-size: 12px; color: #9E9E9A; flex-shrink: 0; }
+}
+
+.dd-copy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// ── Delivery log ────────────────────────────────────────────
+.dd-table-wrap { overflow-x: auto; }
+
+.dd-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #F8FAFC;
+    font-size: 11px;
+    font-weight: 700;
+    color: #90A1B9;
+    text-align: start;
+    padding: 12px;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px;
+    font-size: 13px;
+    color: #45556C;
+    border-bottom: 1px solid #F1F5F9;
+    text-align: start;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: none; }
+}
+
+.dd-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+
+  &.ok { color: #16a34a; }
+  &.fail { color: #dc2626; }
+}
+
+.dd-reason {
+  display: inline-block;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  font-size: 11px;
+  color: #9E9E9A;
+}
+
+.dd-empty { margin: 0; font-size: 13px; font-weight: 600; }
+
+.da-load-error {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B6B67;
+}
+
+@media (max-width: 991px) {
+  .dd-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 576px) {
+  .dd-actions { width: 100%; }
+  .dd-actions .da-btn { flex: 1 1 auto; }
+  .dd-actions__sep { display: none; }
+  .dd-list > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

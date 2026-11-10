@@ -37,3 +37,20 @@ export const authGuard: CanActivateFn = (
 
   return loginUrl;
 };
+
+// For signed-out pages (login, forgot/reset password): a signed-in admin is sent
+// to the dashboard instead of seeing a login form that would replace their session.
+export const guestGuard: CanActivateFn = (
+  _route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  const loginService = inject(LoginService);
+  const router = inject(Router);
+
+  if (loginService.isAuthenticated() || loginService.hasValidRefreshToken()) {
+    const lang = state.url.split('/')[1] || 'ar';
+    return router.parseUrl(`/${lang}/d3/ceo`);
+  }
+
+  return true;
+};

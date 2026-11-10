@@ -1,0 +1,171 @@
+<form class="da-root da-page da-create" novalidate (ngSubmit)="submit()" [dir]="lang === 'en' ? 'ltr' : 'rtl'">
+  <!-- Title bar with the actions -->
+  <div class="da-page__bar">
+    <div>
+      <h2>{{ 'd3.demoAccounts.create.title' | translate }}</h2>
+      <p>{{ 'd3.demoAccounts.create.pageHelp' | translate }}</p>
+    </div>
+    <div class="da-page__actions">
+      <button type="button" class="da-btn" [disabled]="submitting" (click)="cancel()">
+        {{ 'd3.demoAccounts.actions.cancel' | translate }}
+      </button>
+      <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
+        @if (submitting) { <span class="da-spin"></span> } @else { <i-tabler name="send" class="icon-16"></i-tabler> }
+        {{ 'd3.demoAccounts.create.submit' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (formError) {
+    <div class="da-alert danger" role="alert">
+      <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+      <p>{{ formError }}</p>
+    </div>
+  }
+
+  <div class="da-page__grid">
+    <div class="da-page__main">
+      <!-- ① Account details (accordion; [hidden] keeps the fields while collapsed) -->
+      <section class="da-card da-acc" [class.collapsed]="!open.account">
+        <button type="button" class="da-acc__head" [attr.aria-expanded]="open.account" aria-controls="acc-account"
+                (click)="toggle('account')">
+          <span class="da-step" [class.invalid]="accountHasErrors">1</span>
+          <span class="da-acc__title">{{ 'd3.demoAccounts.create.accountSection' | translate }}</span>
+          @if (!open.account) { <span class="da-acc__summary" dir="auto">{{ accountSummary }}</span> }
+          <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+        </button>
+
+        <div class="da-acc__body" id="acc-account" [hidden]="!open.account">
+        <div class="da-field">
+          <label for="da-fullName">{{ 'd3.demoAccounts.create.fullName' | translate }}<span class="req">*</span></label>
+          <input id="da-fullName" name="fullName" type="text" class="da-input" autocomplete="off"
+                 [class.invalid]="errors.fullName" [disabled]="submitting"
+                 [(ngModel)]="fullName" (blur)="onBlur('fullName')" (ngModelChange)="onInput('fullName')" />
+          @if (errors.fullName) { <p class="da-error">{{ errors.fullName }}</p> }
+        </div>
+
+        <div class="da-field">
+          <span class="da-label">{{ 'd3.demoAccounts.create.channel' | translate }}<span class="req">*</span></span>
+          <div class="da-segmented" role="radiogroup">
+            @for (ch of channels; track ch) {
+              <button type="button" role="radio" [class.active]="channel === ch" [attr.aria-checked]="channel === ch"
+                      [disabled]="submitting" (click)="setChannel(ch)">
+                <i-tabler [name]="channelIcons[ch]" class="icon-16"></i-tabler>
+                {{ ('d3.demoAccounts.channels.' + ch) | translate }}
+              </button>
+            }
+          </div>
+          <p class="da-helper">{{ 'd3.demoAccounts.create.channelHelp' | translate }}</p>
+          @if (errors.channel) { <p class="da-error">{{ errors.channel }}</p> }
+        </div>
+
+        <div class="da-row">
+          <div class="da-field">
+            <label for="da-email">
+              {{ 'd3.demoAccounts.create.email' | translate }}
+              @if (emailRequired) { <span class="req">*</span> }
+            </label>
+            <input id="da-email" name="email" type="email" class="da-input" dir="ltr" autocomplete="off"
+                   [maxLength]="limits.email" [class.invalid]="errors.email" [disabled]="submitting"
+                   [(ngModel)]="email" (blur)="onBlur('email')" (ngModelChange)="onInput('email')" />
+            @if (errors.email) { <p class="da-error">{{ errors.email }}</p> }
+          </div>
+
+          <div class="da-field">
+            <label for="da-phone">
+              {{ 'd3.demoAccounts.create.phone' | translate }}
+              @if (phoneRequired) { <span class="req">*</span> }
+            </label>
+            <input id="da-phone" name="phoneNumber" type="tel" class="da-input" dir="ltr" autocomplete="off"
+                   placeholder="05XXXXXXXX" [class.invalid]="errors.phoneNumber" [disabled]="submitting"
+                   [(ngModel)]="phoneNumber" (blur)="onBlur('phoneNumber')" (ngModelChange)="onInput('phoneNumber')" />
+            <p class="da-helper">{{ 'd3.demoAccounts.create.phoneHelp' | translate }}</p>
+            @if (errors.phoneNumber) { <p class="da-error">{{ errors.phoneNumber }}</p> }
+          </div>
+        </div>
+
+        <div class="da-row">
+          <div class="da-field">
+            <label for="da-days">{{ 'd3.demoAccounts.create.duration' | translate }}<span class="req">*</span></label>
+            <div class="da-stepper">
+              <button type="button" class="da-btn sm" [disabled]="submitting || (durationDays ?? 0) <= limits.minDays"
+                      [attr.aria-label]="'d3.demoAccounts.create.decrease' | translate" (click)="stepDays(-1)">
+                <i-tabler name="minus" class="icon-16"></i-tabler>
+              </button>
+              <input id="da-days" name="durationDays" type="number" class="da-input" dir="ltr" inputmode="numeric"
+                     [min]="limits.minDays" [max]="limits.maxDays" step="1" [class.invalid]="errors.durationDays"
+                     [disabled]="submitting" [(ngModel)]="durationDays"
+                     (blur)="onBlur('durationDays')" (ngModelChange)="onInput('durationDays')" />
+              <button type="button" class="da-btn sm" [disabled]="submitting || (durationDays ?? 0) >= limits.maxDays"
+                      [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="stepDays(1)">
+                <i-tabler name="plus" class="icon-16"></i-tabler>
+              </button>
+            </div>
+            @if (errors.durationDays) { <p class="da-error">{{ errors.durationDays }}</p> }
+          </div>
+
+          <div class="da-field">
+            <label for="da-pin">{{ 'd3.demoAccounts.create.pin' | translate }}</label>
+            <div class="da-input-wrap">
+              <input id="da-pin" name="pin" class="da-input da-mono" dir="ltr" inputmode="numeric" maxlength="6"
+                     autocomplete="off" [type]="showPin ? 'text' : 'password'"
+                     [class.invalid]="errors.pin" [disabled]="submitting"
+                     [ngModel]="pin" (ngModelChange)="onPinInput($event, pinInput)" #pinInput
+                     (blur)="onBlur('pin')" />
+              <button type="button" class="da-icon-btn" (click)="showPin = !showPin"
+                      [attr.aria-label]="(showPin ? 'd3.demoAccounts.actions.hide' : 'd3.demoAccounts.actions.show') | translate">
+                <i-tabler [name]="showPin ? 'eye-off' : 'eye'" class="icon-18"></i-tabler>
+              </button>
+            </div>
+            <p class="da-helper">{{ 'd3.demoAccounts.create.pinHelp' | translate }}</p>
+            @if (errors.pin) { <p class="da-error">{{ errors.pin }}</p> }
+          </div>
+        </div>
+
+        <div class="da-field">
+          <label for="da-note">{{ 'd3.demoAccounts.create.note' | translate }}</label>
+          <textarea id="da-note" name="note" class="da-input" rows="2"
+                    [class.invalid]="errors.note" [disabled]="submitting"
+                    [(ngModel)]="note" (blur)="onBlur('note')" (ngModelChange)="onInput('note')"></textarea>
+          <p class="da-helper">
+            <span>{{ 'd3.demoAccounts.create.noteHelp' | translate }}</span>
+            <span class="da-ltr" dir="ltr">{{ note.length }}/{{ limits.note }}</span>
+          </p>
+          @if (errors.note) { <p class="da-error">{{ errors.note }}</p> }
+        </div>
+        </div>
+      </section>
+
+      <!-- ② Invitation message (accordion) -->
+      <section class="da-card da-acc" [class.collapsed]="!open.message">
+        <button type="button" class="da-acc__head" [attr.aria-expanded]="open.message" aria-controls="acc-message"
+                (click)="toggle('message')">
+          <span class="da-step" [class.invalid]="invitation.preview?.isValid === false">2</span>
+          <span class="da-acc__title">{{ 'd3.demoAccounts.invitation.title' | translate }}</span>
+          @if (!open.message) { <span class="da-acc__summary" dir="auto">{{ messageSummary }}</span> }
+          <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+        </button>
+
+        <div class="da-acc__body" id="acc-message" [hidden]="!open.message">
+          <app-invitation-editor [bare]="true" [disabled]="submitting"></app-invitation-editor>
+          <!-- Email only. [hidden] (not @if) keeps the files when switching channels. -->
+          <app-demo-attachments [hidden]="!isEmail" [disabled]="submitting" inputId="da-create-files"></app-demo-attachments>
+        </div>
+      </section>
+    </div>
+
+    <!-- Live preview from the server (example values — the account doesn't exist yet) -->
+    <app-invitation-preview class="da-page__aside" [disabled]="submitting"></app-invitation-preview>
+  </div>
+
+  <!-- Small screens: the actions stay at the bottom -->
+  <div class="da-page__footer">
+    <button type="button" class="da-btn" [disabled]="submitting" (click)="cancel()">
+      {{ 'd3.demoAccounts.actions.cancel' | translate }}
+    </button>
+    <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
+      @if (submitting) { <span class="da-spin"></span> }
+      {{ 'd3.demoAccounts.create.submit' | translate }}
+    </button>
+  </div>
+</form>

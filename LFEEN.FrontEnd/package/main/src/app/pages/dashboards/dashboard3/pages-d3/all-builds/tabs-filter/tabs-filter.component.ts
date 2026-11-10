@@ -15,16 +15,18 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
+import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 export interface BuildFilterOption {
   id: string;
   labelKey: string;
-  items: { value: string; labelKey: string }[];
+  // iconUrl/iconKey: catalog icon drawn before the label (e.g. property types).
+  items: { value: string; labelKey: string; iconUrl?: string | null; iconKey?: string | null }[];
 }
 
 @Component({
   selector: 'app-tabs-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, CatalogIconComponent],
   templateUrl: './tabs-filter.component.html',
   styleUrl: './tabs-filter.component.scss'
 })
@@ -168,7 +170,7 @@ export class TabsFilterComponent implements AfterViewInit, OnChanges, OnDestroy 
     el.scrollBy({ left: amount, behavior: 'smooth' });
   }
 
-  getFilteredItems(filter: BuildFilterOption): { value: string; labelKey: string }[] {
+  getFilteredItems(filter: BuildFilterOption): BuildFilterOption['items'] {
     const term = (this.filterSearchTerms[filter.id] ?? '').toLowerCase().trim();
     if (!term) return filter.items;
     return filter.items.filter(item =>

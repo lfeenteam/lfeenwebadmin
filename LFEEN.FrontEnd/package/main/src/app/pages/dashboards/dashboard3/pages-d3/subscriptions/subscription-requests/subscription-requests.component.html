@@ -10,14 +10,14 @@
         </div>
 
         <div class="tabs-bar d-flex align-items-center gap-8" role="tablist">
-          @for (tab of visibleTabs; track tab.value) {
+          @for (tab of tabs; track tab.value) {
             <button type="button" class="tab-btn" role="tab"
               [class.active]="activeTab === tab.value"
               [attr.aria-selected]="activeTab === tab.value"
               (click)="setTab(tab.value)">
               {{ tab.labelKey | translate }}
-              @if (tab.value === 'underReview' && underReviewCount > 0) {
-                <span class="tab-count">{{ fmt(underReviewCount) }}</span>
+              @if (tab.value === 'pending' && pendingCount > 0) {
+                <span class="tab-count">{{ fmt(pendingCount) }}</span>
               }
             </button>
           }
@@ -51,18 +51,21 @@
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.services' | translate }}</span>
-                    <div class="service-icons d-flex align-items-center">
+                    <div class="service-list">
                       @for (svc of row.services.slice(0, maxServiceIcons); track $index) {
-                        <span class="service-icon" [matTooltip]="svc.name">
-                          @if (svc.logoUrl && !brokenLogos.has(svc.logoUrl)) {
-                            <img [src]="svc.logoUrl" [alt]="svc.name" (error)="brokenLogos.add(svc.logoUrl)" />
-                          } @else {
-                            <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
-                          }
+                        <span class="service-line d-flex align-items-center">
+                          <span class="service-icon">
+                            @if (svc.logoUrl && !brokenLogos.has(svc.logoUrl)) {
+                              <img [src]="svc.logoUrl" alt="" (error)="brokenLogos.add(svc.logoUrl)" />
+                            } @else {
+                              <i-tabler [name]="svc.icon" class="icon-14"></i-tabler>
+                            }
+                          </span>
+                          <span class="service-name">{{ svc.name }}</span>
                         </span>
                       }
                       @if (row.services.length > maxServiceIcons) {
-                        <span class="service-more">+{{ fmt(row.services.length - maxServiceIcons) }}</span>
+                        <span class="service-more" [matTooltip]="moreServicesTooltip(row)">+{{ fmt(row.services.length - maxServiceIcons) }}</span>
                       }
                     </div>
                   </td>
@@ -82,12 +85,7 @@
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.subscriptionRequests.table.status' | translate }}</span>
-                    <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ row.order.statusLabel || row.order.status || '-' }}</span>
-                    @if (row.autoTopUp) {
-                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.autoTopUp' | translate }}</span>
-                    } @else if (row.order.isAutoActivated) {
-                      <span class="status-pill status-automatic m-s-6">{{ 'd3.subscriptionRequests.automatic' | translate }}</span>
-                    }
+                    <span class="status-pill" [class]="'status-pill status-' + row.kind">{{ statusLabel(row) }}</span>
                   </td>
                   <td>
                     <button type="button" class="row-action-btn" (click)="openDetail(row)">
@@ -146,7 +144,7 @@
 
   <app-request-detail-drawer
     [order]="selectedOrder"
-    [logoByServiceId]="logoByServiceId"
+    [catalogById]="catalogById"
     (closed)="selectedOrder = null">
   </app-request-detail-drawer>
 

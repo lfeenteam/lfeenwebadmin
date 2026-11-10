@@ -903,6 +903,13 @@
 .ng-invalid.ng-touched:not(form) {
   border-color: #d64242 !important;
 }
+.field-error {
+  display: block;
+  margin-top: 4px;
+  color: #d64242 !important;
+  font-size: 12px;
+  font-weight: 500;
+}
 @media (max-width: 1000px) {
   .filters {
     grid-template-columns: 1fr 1fr 1fr;

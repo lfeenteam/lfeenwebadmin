@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BuildingCardItem, BuildingViewMode } from '../../../interfaces/building-card.model';
@@ -27,6 +27,9 @@ export class CardsBuildsComponent {
   @Input() buildings: BuildingCardItem[] = [];
   @Input() viewMode: BuildingViewMode = 'grid';
   @Input() activeTab: string = 'published';
+  /** A search or filter is applied, so an empty list means "no matches", not "no buildings". */
+  @Input() hasFilters = false;
+  @Output() clearFilters = new EventEmitter<void>();
 
   private buildingService = inject(BuildingReviewService);
 

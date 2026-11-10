@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { EMPTY, Observable, Subject, defer, merge } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, filter, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, debounceTime, filter, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { CoreService } from 'src/app/services/core.service';
@@ -13,7 +13,8 @@ import {
   AdminOperationAuditFilters,
   AdminOperationAuditList,
   AdminOperationAuditStats,
-  AuditDatePreset
+  AuditDatePreset,
+  AuditFilterSelection
 } from '../interfaces/operation-audit.model';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -32,17 +33,39 @@ export class OperationAuditsService {
   private readonly apiUrl = `${environment.apiBaseUrl}/api/operation-audits`;
 
   readonly filters = signal<AdminOperationAuditFilters>({ page: 1, pageSize: DEFAULT_PAGE_SIZE });
+  // Kept beside `filters` because the API only receives the resolved `from` date.
+  private readonly datePreset = signal<AuditDatePreset | ''>('');
+
+  /** Current filter choices, so a re-created filter bar can show what is applied. */
+  readonly filterSelection = computed<AuditFilterSelection>(() => {
+    const f = this.filters();
+    return {
+      search: f.search ?? '',
+      actionCode: f.actionCode ?? '',
+      departmentId: f.departmentId ?? '',
+      status: f.status ?? '',
+      datePreset: this.datePreset()
+    };
+  });
   readonly list = signal<AdminOperationAuditList | null>(null);
   readonly isLoading = signal(false);
   readonly loadFailed = signal(false);
   readonly accessDenied = signal(false);
 
-  // Read from the single list response — no extra requests. Until the API returns
-  // `stats`, only the total is known (from totalCount, and only when not filtered by status).
+  // Read from the single list response — no extra requests. If the API omits
+  // `summary`, only the total is known (from totalCount, and only when not filtered by status).
   readonly stats = computed<Partial<AdminOperationAuditStats> | null>(() => {
     const list = this.list();
     if (!list) return null;
-    if (list.stats) return list.stats;
+    const s = list.summary;
+    if (s) {
+      return {
+        total: s.totalOperations ?? undefined,
+        succeeded: s.successfulOperations ?? undefined,
+        failed: s.failedOperations ?? undefined,
+        denied: s.deniedOperations ?? undefined
+      };
+    }
     return this.filters().status ? {} : { total: list.totalCount };
   });
 
@@ -87,7 +110,14 @@ export class OperationAuditsService {
       .subscribe();
 
     this.search$
-      .pipe(debounceTime(400), map(q => q.trim()), distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(
+        debounceTime(400),
+        map(q => q.trim()),
+        // Compared against the live filters (not the last emission) so a search typed
+        // again after clearFilters() still applies.
+        filter(search => search !== (this.filters().search ?? '')),
+        takeUntilDestroyed()
+      )
       .subscribe(search => this.patchFilters({ search: search || undefined }));
   }
 
@@ -118,7 +148,14 @@ export class OperationAuditsService {
   }
 
   setDatePreset(preset: AuditDatePreset | ''): void {
+    this.datePreset.set(preset);
     this.patchFilters({ from: preset ? toOffsetIso(presetStart(preset)) : undefined, to: undefined });
+  }
+
+  /** Drops every filter at once, so clearing costs a single request. */
+  clearFilters(): void {
+    this.datePreset.set('');
+    this.filters.update(f => ({ page: 1, pageSize: f.pageSize }));
   }
 
   goToPage(page: number): void {

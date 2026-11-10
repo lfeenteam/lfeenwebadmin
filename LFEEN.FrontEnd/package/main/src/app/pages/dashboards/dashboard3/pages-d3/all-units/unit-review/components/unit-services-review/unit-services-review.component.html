@@ -11,7 +11,29 @@
     <p>{{ 'd3.unitReview.servicesView.subtitle' | translate }}</p>
   </section>
 
-  @if (!hasRealServicesData) {
+  @if (loadState === 'notFound') {
+    <app-review-empty-state
+      icon="home-off"
+      titleKey="d3.unitReview.servicesView.notFoundTitle"
+      descKey="d3.unitReview.servicesView.notFoundDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button mat-stroked-button type="button" (click)="goToUnits()">
+        {{ 'd3.unitReview.servicesView.backToUnits' | translate }}
+      </button>
+    </div>
+  } @else if (loadState === 'error') {
+    <app-review-empty-state
+      icon="alert-circle"
+      titleKey="d3.unitReview.servicesView.errorTitle"
+      descKey="d3.unitReview.servicesView.errorDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button mat-stroked-button type="button" (click)="loadServices()">
+        {{ 'd3.unitReview.servicesView.retry' | translate }}
+      </button>
+    </div>
+  } @else if (!hasRealServicesData) {
     <app-review-empty-state
       icon="settings-off"
       titleKey="d3.unitReview.servicesView.emptyTitle"

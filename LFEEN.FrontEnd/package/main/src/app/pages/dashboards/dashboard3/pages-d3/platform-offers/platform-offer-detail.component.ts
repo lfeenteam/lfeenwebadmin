@@ -10,6 +10,7 @@ import {
   PlatformOfferStatistics,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 @Component({
   selector: 'app-platform-offer-detail',
   standalone: true,
@@ -70,8 +71,12 @@ export class PlatformOfferDetailComponent implements OnInit {
   }
   formatDateTime(value?: string | null): string { return this.formatDate(value, true); }
   formatMediumDate(value?: string | null): string { return this.formatDate(value, false); }
-  enumLabel(value: string): string {
-    return this.tr.instant(`d3.platformOffers.enums.${value}`);
+  /** Falls back to "—" when the API sends a value we have no label for (e.g. a bare number). */
+  enumLabel(value: string | number | null | undefined): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const key = `d3.platformOffers.enums.${value}`;
+    const label = this.tr.instant(key);
+    return label === key ? '—' : label;
   }
   private formatDate(value: string | null | undefined, includeTime: boolean): string {
     if (!value) return '—';
@@ -80,6 +85,6 @@ export class PlatformOfferDetailComponent implements OnInit {
     const options: Intl.DateTimeFormatOptions = includeTime
       ? { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }
       : { day: 'numeric', month: 'short', year: 'numeric' };
-    return new Intl.DateTimeFormat(this.dir() === 'rtl' ? 'ar-EG' : 'en-US', options).format(date);
+    return new Intl.DateTimeFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'), options).format(date);
   }
 }

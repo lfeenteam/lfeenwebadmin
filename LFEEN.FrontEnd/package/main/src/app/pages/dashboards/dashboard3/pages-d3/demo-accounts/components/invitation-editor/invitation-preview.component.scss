@@ -1,0 +1,134 @@
+@use '../../demo-accounts';
+
+:host { display: block; }
+
+.ip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+}
+
+.ip-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111110;
+}
+
+.ip-spin { margin-inline-start: auto; color: #9E9E9A; width: 14px; height: 14px; }
+
+.ip-tabs button { height: 32px; font-size: 11px; }
+
+// On the create / resend pages the panel is as tall as the screen and the message
+// fills the free space. The email iframe can't be sized to its content (sandbox=""
+// blocks reading it), so filling the panel is what avoids a scroll inside the scroll.
+:host(.da-page__aside) {
+  .ip { height: calc(100vh - 120px); min-height: 520px; }
+  .ip-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .ip-mail { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .ip-frame { flex: 1 1 auto; height: auto; min-height: 0; }
+  .ip-text, .ip-chat { flex: 1 1 auto; min-height: 0; max-height: none; }
+
+  @media (max-width: 1100px) {
+    .ip { height: auto; min-height: 0; }
+    .ip-frame { flex: none; height: 480px; }
+    .ip-text, .ip-chat { flex: none; max-height: 480px; }
+  }
+}
+
+.ip-body {
+  transition: opacity 0.2s ease;
+  &.stale { opacity: 0.55; }
+}
+
+.ip-mail {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &__subject {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 12px;
+
+    strong { flex: 1 1 auto; min-width: 0; font-weight: 800; color: #111110; overflow-wrap: anywhere; }
+  }
+}
+
+.ip-key { color: #9E9E9A; font-weight: 700; flex-shrink: 0; }
+.ip-count { font-size: 11px; color: #9E9E9A; flex-shrink: 0; }
+
+.ip-frame {
+  display: block;
+  width: 100%;
+  height: 360px;
+  border: 0;
+  background: #fff;
+}
+
+.ip-text {
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.ip-chat {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+  max-height: 380px;
+  overflow-y: auto;
+
+  &--sms { background: #F1F5F9; border-color: #E2E8F0; }
+}
+
+.ip-bubble {
+  background: #fff;
+  border-radius: 12px 12px 12px 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #111110;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ip-empty { margin: 0; font-size: 12px; font-weight: 600; padding: 12px 0; text-align: center; }
+
+.ip-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+  color: #9E9E9A;
+}
+
+.ip-note { padding: 8px 10px; font-size: 12px; }
+
+.ip-test {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #E2E8F0;
+
+  &__ok { margin: 0; font-size: 12px; font-weight: 700; color: #16a34a; }
+}

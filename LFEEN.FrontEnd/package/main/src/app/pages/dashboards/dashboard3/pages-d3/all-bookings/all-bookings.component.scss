@@ -99,6 +99,70 @@
   &.orange { color: #b45309; background: #fffbeb; }
 }
 
+// ── Page tabs (bookings | reported reviews) ───────────────────────────────────
+// Segmented control so it reads as switching the whole page, unlike the
+// underline origin tabs below which only filter the bookings list.
+.page-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: #f3f3ef;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.page-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b6b67;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+
+  &:hover:not(.active) { color: #111110; }
+
+  &.active {
+    background: #fff;
+    color: #111110;
+    font-weight: 900;
+    box-shadow: 0 1px 3px 0 #0000001a;
+  }
+}
+
+.page-tab-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #e8e8e4;
+  color: #3f3f3c;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+
+  &.is-urgent {
+    background: #FB2C36;
+    color: #fff;
+  }
+}
+
 // ── Origin tabs ───────────────────────────────────────────────────────────────
 .origin-tabs {
   display: flex;
@@ -181,7 +245,8 @@
     font-size: 13px;
     font-family: 'Cairo', sans-serif;
     color: #111110;
-    text-align: right;
+    // Follows the page direction: right in Arabic, left in English (next to the icon).
+    text-align: start;
 
     &::placeholder { color: #9e9e9a; }
   }
@@ -408,6 +473,9 @@ table {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  // Without a cap the table cell grows to fit the whole name, so the ellipsis
+  // below never kicks in and one long name stretches the table off-screen.
+  max-width: 240px;
 
   .client-name {
     font-size: 14px;
@@ -421,9 +489,15 @@ table {
   .client-phone {
     font-size: 11px;
     color: #777772;
+    // ltr keeps "+966…" in order; `start` would then resolve to left in Arabic too,
+    // so align by the page direction instead, lining up with the client name.
     direction: ltr;
-    text-align: right;
+    text-align: left;
     line-height: 1.25;
+
+    :host-context([dir='rtl']) & {
+      text-align: right;
+    }
   }
 }
 

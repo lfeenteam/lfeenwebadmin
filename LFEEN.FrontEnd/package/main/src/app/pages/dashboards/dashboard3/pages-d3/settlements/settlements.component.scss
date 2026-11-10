@@ -272,10 +272,16 @@
   height: 13px;
   object-fit: contain;
 
+  // English "SAR" is an SVG of text with empty space around it, so it needs a wider box.
   &.is-text-currency {
-    width: 20px;
+    width: 30px;
     height: auto;
   }
+}
+
+// Larger next to the big stat-card numbers.
+.stat-value .riyal-icon-sm.is-text-currency {
+  width: 40px;
 }
 
 .payment-icon {

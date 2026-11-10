@@ -1,3 +1,5 @@
+import { AdminAdditionalCondition } from './additional-condition.model';
+
 export type UnitStatus = 'active' | 'stopped' | 'pending' | 'underReview' | 'pendingChanges' | 'pendingAfterRejection' | 'draft' | 'banned';
 export type UnitTab    = 'draft' | 'published' | 'new' | 'underReview' | 'rejected' | 'pendingChanges' | 'banned';
 export type CancelPolicyType = 'NonRefundable' | 'Flexible' | 'PartialRefundOnly';
@@ -11,6 +13,8 @@ export interface UnitCardItem {
   capacity: string;
   status: UnitStatus;
   type: string;
+  typeIconKey?: string | null;
+  typeIconUrl?: string | null;
   description: string;
   district: string | null;
   rooms: number;
@@ -31,7 +35,10 @@ export interface UnitCardItem {
 }
 
 export interface UnitAmenityItem {
+  // Tabler fallback — drawn only while the backend doesn't send iconUrl.
   icon: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
   label: string;
   // Facilities only — true when the merchant named it in the generated description.
   highlighted?: boolean;
@@ -39,15 +46,26 @@ export interface UnitAmenityItem {
 
 export interface UnitSubArea {
   label: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
   amenities: UnitAmenityItem[];
   services: UnitAmenityItem[];
 }
 
+export interface UnitRoomBed {
+  label: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
+}
+
 export interface UnitRoomSection {
   icon: string;
+  iconKey?: string | null;
+  iconUrl?: string | null;
   title: string;
   desc: string;
-  badge?: string;
+  // One badge per bed type, each with its catalog icon.
+  beds: UnitRoomBed[];
   amenities: UnitAmenityItem[];
   services: UnitAmenityItem[];
   subAreas?: UnitSubArea[];
@@ -111,6 +129,8 @@ export interface UnitApiItem {
   accountLogoUrl: string | null;
   accountAdminReviewStatus?: string | null;
   unitTypeName: string;
+  unitTypeIconKey?: string | null;
+  unitTypeIconUrl?: string | null;
   floorNumber: number;
   apartmentNumberInFloor: number;
   mainPhotoUrl: string | null;
@@ -173,6 +193,8 @@ export interface UnitApiDetailItem {
   accountName: string | null;
   accountLogoUrl: string | null;
   unitTypeName: string;
+  unitTypeIconKey?: string | null;
+  unitTypeIconUrl?: string | null;
   floorNumber: number;
   apartmentNumberInFloor: number;
   // Adult capacity (legacy name) — same value as adultCapacity, NOT the total.
@@ -211,11 +233,16 @@ export interface UnitApiDetailItem {
   // this unit but the section is still shown as an informational badge).
   depositSection: UnitApiSection | null;
   hasSecurityDeposit: boolean;
-  // Services are no longer part of the approval flow — this is always null now.
+  // Services are no longer part of the approval flow — this is always null now
+  // (use hasAdditionalServices to know whether there are services to show).
   servicesSection: UnitApiSection | null;
   // Always false — services never require approval anymore, kept only so a
   // future business type could reintroduce them without a breaking change.
   servicesApplicable: boolean;
+  // true when the unit has any active additional service (its own or inherited from
+  // the property). Drives the view-only "Additional services" card, since
+  // servicesSection stays null now that services aren't reviewed.
+  hasAdditionalServices?: boolean;
   // null when the unit's type/business setup doesn't require a license section at all
   // (as opposed to Pending, which means it's required but undecided).
   licenseSection: UnitApiSection | null;
@@ -280,6 +307,8 @@ export interface UnitTermsResponse {
   conditions: UnitTermsCondition[];
   customRules: UnitTermsCustomRule[];
   pendingData: unknown;
+  // This unit's own additional conditions, each reviewed on its own.
+  additionalConditions?: AdminAdditionalCondition[];
 }
 
 // ── Photos endpoint (/units/{id}/photos) ─────────────────────────────────────
@@ -319,12 +348,19 @@ export interface UnitPhotosResponse {
 
 // ── Basic-data endpoint (/units/{id}/basic-data) ──────────────────────────────
 
-export interface UnitBasicDataBed {
+// Catalog icon picked by the backend for an item (optional until Production is
+// deployed). Draw iconUrl through <app-catalog-icon>; never build it from iconKey.
+export interface CatalogIconFields {
+  iconKey?: string | null;
+  iconUrl?: string | null;
+}
+
+export interface UnitBasicDataBed extends CatalogIconFields {
   bedTypeName: string;
   quantity: number;
 }
 
-export interface UnitBasicDataFacility {
+export interface UnitBasicDataFacility extends CatalogIconFields {
   facilityId: number;
   facilityTypeName: string;
   // Merchant-controlled, read-only for admin: the facility is named explicitly
@@ -337,7 +373,7 @@ export interface UnitBasicDataFacility {
 
 // Shared by the basic-data endpoint's services[] (top-level and per-room) and
 // the services endpoint's groups[].services[] — both return the same shape.
-export interface UnitBasicDataService {
+export interface UnitBasicDataService extends CatalogIconFields {
   serviceExternalId: string;
   serviceTypeId: number;
   displayName: string;
@@ -352,7 +388,7 @@ export interface UnitBasicDataService {
   hasPersonOption: boolean;
 }
 
-export interface UnitBasicDataSubRoom {
+export interface UnitBasicDataSubRoom extends CatalogIconFields {
   subRoomId: number;
   subRoomTypeName: string;
   sizeM: number;
@@ -360,7 +396,7 @@ export interface UnitBasicDataSubRoom {
   facilities: UnitBasicDataFacility[];
 }
 
-export interface UnitBasicDataRoom {
+export interface UnitBasicDataRoom extends CatalogIconFields {
   roomId: number;
   roomTypeName: string;
   beds: UnitBasicDataBed[];
@@ -379,6 +415,8 @@ export interface UnitBasicDataResponse {
   title: string | null;
   description: string | null;
   unitTypeName: string;
+  unitTypeIconKey?: string | null;
+  unitTypeIconUrl?: string | null;
   propertyName: string;
   district: string | null;
   floorNumber: number;
@@ -498,6 +536,18 @@ export interface UnitPricingCalendarResponse {
   currencyCode: string;
   days: UnitPricingCalendarDay[];
 }
+
+// ── Auto-approval settings (/units/auto-approval-settings) ────────────────────
+
+/** Platform-wide: how far (in % of the last-approved value) a post-approval edit can move and still skip review. */
+export interface UnitAutoApprovalSettings {
+  pricingTolerancePercent: number;
+  depositTolerancePercent: number;
+  updatedAtUtc: string;
+}
+
+/** The PUT replaces the whole row — both fields must always be sent, or the missing one is zeroed. */
+export type UnitAutoApprovalSettingsUpdate = Omit<UnitAutoApprovalSettings, 'updatedAtUtc'>;
 
 // ── Deposit endpoint (/units/{id}/deposit) ────────────────────────────────────
 

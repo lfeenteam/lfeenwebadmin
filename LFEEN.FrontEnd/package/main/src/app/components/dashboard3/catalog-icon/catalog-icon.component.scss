@@ -1,0 +1,40 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+// Placed before plain text (not inside a flex row with a gap).
+:host(.inline) {
+  vertical-align: middle;
+  margin-inline-end: 4px;
+}
+
+// Nothing to draw (no iconUrl and no fallback) — take no space.
+:host(:empty) {
+  display: none;
+}
+
+.catalog-icon-img {
+  display: block;
+  object-fit: contain;
+}
+
+.catalog-icon-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  ::ng-deep svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// The CDN icons are stroke="currentColor" with no dark variant; inside <img> that
+// resolves to black, so invert them on the dark theme.
+:host-context(html.dark-theme) .catalog-icon-img {
+  filter: invert(1);
+}

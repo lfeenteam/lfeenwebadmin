@@ -4,93 +4,65 @@
 
   <div class="form-scroll">
 
-    <div class="form-grid">
-      @if (data.tiers.length > 1) {
-        <div class="form-field">
-          <span class="field-label">{{ 'd3.seasonalPrice.tier' | translate }}</span>
-          <mat-select class="field-select" [(ngModel)]="tierSelection" (selectionChange)="loadExisting()" disableOptionCentering>
-            <mat-option value="default">{{ 'd3.seasonalPrice.defaultTier' | translate }}</mat-option>
-            @for (t of data.tiers; track t.id) {
-              @if (!t.isDefault) {
-                <mat-option [value]="t.id">{{ tierName(t) }}</mat-option>
-              }
-            }
-          </mat-select>
-        </div>
-      }
+    @if (data.tiers.length > 1) {
       <div class="form-field">
-        <span class="field-label">{{ 'd3.seasonalPrice.period' | translate }}</span>
-        <mat-select class="field-select" [(ngModel)]="period" (selectionChange)="loadExisting()" disableOptionCentering>
-          @for (p of periods; track p) {
-            <mat-option [value]="p">{{ ('d3.subscriptionLog.detailValues.' + p) | translate }}</mat-option>
+        <span class="field-label">{{ 'd3.pricingRow.tier' | translate }}</span>
+        <mat-select class="field-select" [(ngModel)]="tierSelection" (selectionChange)="loadExisting()" disableOptionCentering>
+          <mat-option value="default">{{ 'd3.pricingRow.defaultTier' | translate }}</mat-option>
+          @for (t of data.tiers; track t.id) {
+            @if (!t.isDefault) {
+              <mat-option [value]="t.id">{{ tierName(t) }}</mat-option>
+            }
           }
         </mat-select>
       </div>
-    </div>
+    }
 
     @if (replacesExisting) {
       <span class="field-error is-note">{{ 'd3.pricingRow.replacesNote' | translate }}</span>
     }
 
-    <div class="form-grid">
-      <div class="form-field">
-        <label class="field-label" for="pr-price">{{ 'd3.pricingRow.price' | translate }} *</label>
-        <div class="field-input-wrap">
-          <input id="pr-price" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="price" />
-          <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
-        </div>
-        @if (priceError) {
-          <span class="field-error">{{ priceError | translate: { min: minimumPriceLabel } }}</span>
-        }
-      </div>
-      <div class="form-field">
-        <label class="field-label" for="pr-setup">{{ 'd3.subscriptions.serviceSettings.operations.setupFee' | translate }}</label>
-        <div class="field-input-wrap">
-          <input id="pr-setup" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="setupFee" />
-          <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
-        </div>
-        @if (setupFeeInvalid) { <span class="field-error">{{ 'd3.subscriptions.serviceSettings.errors.negativePrice' | translate }}</span> }
-      </div>
-    </div>
-
-    <!-- Operation (usage) price -->
     <div class="form-field">
-      <span class="field-label">{{ 'd3.subscriptions.serviceSettings.operations.operationPrice' | translate }}</span>
+      <span class="field-label">{{ 'd3.pricingRow.type' | translate }}</span>
       <mat-select class="field-select" [(ngModel)]="usageUnitType" disableOptionCentering>
-        @for (t of usageUnitTypes; track t) {
+        @for (t of rateTypes; track t) {
           <mat-option [value]="t">{{ ('d3.subscriptions.serviceSettings.usage.types.' + t) | translate }}</mat-option>
         }
       </mat-select>
     </div>
 
-    @if (hasUsageFee) {
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="field-label" for="pr-unit">
-            {{ (isPercentage ? 'd3.subscriptions.serviceSettings.usage.percentLabel' : 'd3.subscriptions.serviceSettings.usage.perUnitLabel') | translate }} *
-          </label>
-          <div class="field-input-wrap">
-            <input id="pr-unit" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="usageUnitPrice" />
-            @if (isPercentage) {
-              <span class="field-suffix">%</span>
-            } @else {
-              <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
-            }
-          </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label class="field-label" for="pr-unit">
+          {{ (isPercentage ? 'd3.subscriptions.serviceSettings.usage.percentLabel' : 'd3.subscriptions.serviceSettings.usage.perUnitLabel') | translate }} *
+        </label>
+        <div class="field-input-wrap">
+          <input id="pr-unit" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="usageUnitPrice" />
+          @if (isPercentage) {
+            <span class="field-suffix">%</span>
+          } @else {
+            <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+          }
         </div>
-        @if (isPercentage) {
-          <div class="form-field">
-            <label class="field-label" for="pr-cap">{{ 'd3.subscriptions.serviceSettings.usage.capLabel' | translate }} *</label>
-            <div class="field-input-wrap">
-              <input id="pr-cap" type="number" min="0" step="0.01" class="field-input" placeholder="0" [(ngModel)]="usageMaxFeeAmount" />
-              <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
-            </div>
-          </div>
-        }
-        @if (usageError) { <span class="field-error span-2">{{ usageError | translate }}</span> }
-        <span class="field-error is-note span-2">{{ 'd3.subscriptions.serviceSettings.usage.hint' | translate }}</span>
+        @if (unitPriceError) { <span class="field-error">{{ unitPriceError | translate }}</span> }
       </div>
-    }
+      <div class="form-field">
+        <label class="field-label" for="pr-cap">
+          {{ 'd3.subscriptions.serviceSettings.usage.capLabel' | translate }}{{ isPercentage ? ' *' : '' }}
+        </label>
+        <div class="field-input-wrap">
+          <input id="pr-cap" type="number" min="0" step="0.01" class="field-input"
+            [placeholder]="(isPercentage ? '0' : ('d3.pricingRow.noCap' | translate))" [(ngModel)]="usageMaxFeeAmount" />
+          <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+        </div>
+        @if (capError) { <span class="field-error">{{ capError | translate }}</span> }
+      </div>
+    </div>
+
+    <span class="field-error is-note">
+      {{ (isPercentage ? 'd3.pricingRow.capHintPercent' : 'd3.pricingRow.capHintPerUnit') | translate }}
+    </span>
+    <span class="field-error is-note">{{ 'd3.subscriptions.serviceSettings.usage.hint' | translate }}</span>
 
     @if (serverError) {
       <div class="server-error">

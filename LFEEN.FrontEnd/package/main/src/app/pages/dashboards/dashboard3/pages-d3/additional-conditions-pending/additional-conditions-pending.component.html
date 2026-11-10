@@ -1,0 +1,65 @@
+<div class="acp" [dir]="dir">
+
+  <div class="acp-views" role="tablist">
+    @for (view of views; track view) {
+      <button type="button" role="tab" class="acp-view" [class.active]="activeView === view"
+              [attr.aria-selected]="activeView === view" (click)="setView(view)">
+        {{ ('d3.additionalConditions.views.' + view) | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="acp-toolbar">
+    <div class="acp-tabs" role="tablist">
+      @for (tab of tabs; track tab) {
+        <button type="button" role="tab" class="acp-tab" [class.active]="activeTab === tab"
+                [attr.aria-selected]="activeTab === tab" (click)="setTab(tab)">
+          <span>{{ ('d3.additionalConditions.scopes.' + tab) | translate }}</span>
+          @if (counts[tab] !== null) {
+            <span class="acp-tab__count">{{ counts[tab] }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <label class="acp-search">
+      <i-tabler name="search"></i-tabler>
+      <input type="search" [(ngModel)]="search" (ngModelChange)="onSearch($event)"
+             [placeholder]="'d3.additionalConditions.searchPlaceholder' | translate">
+    </label>
+  </div>
+
+  <p class="acp-hint">{{ (activeView === 'pending' ? 'd3.additionalConditions.pendingHint' : 'd3.additionalConditions.allHint') | translate }}</p>
+
+  @if (isLoading && !items.length) {
+    <div class="acp-state">
+      <i-tabler name="loader-2" class="acp-spin"></i-tabler>
+    </div>
+  } @else if (isError && !items.length) {
+    <div class="acp-state">
+      <p>{{ 'd3.additionalConditions.loadError' | translate }}</p>
+      <button type="button" class="acp-more" (click)="load()">{{ 'd3.additionalConditions.actions.retry' | translate }}</button>
+    </div>
+  } @else if (!items.length) {
+    <div class="acp-state">
+      <i-tabler name="circle-check"></i-tabler>
+      <p>{{ (activeView === 'pending' ? 'd3.additionalConditions.pendingEmpty' : 'd3.additionalConditions.allEmpty') | translate }}</p>
+    </div>
+  } @else {
+    <app-additional-conditions-review
+      [scope]="activeTab"
+      [(conditions)]="items"
+      [showHeader]="false"
+      [showTarget]="true"
+      (decided)="onDecided($event)"
+      (openTarget)="openTarget($event)"
+      (reloadRequested)="load()">
+    </app-additional-conditions-review>
+
+    @if (hasNextPage) {
+      <button type="button" class="acp-more" [disabled]="isLoading" (click)="load(true)">
+        {{ 'd3.additionalConditions.actions.loadMore' | translate }}
+      </button>
+    }
+  }
+</div>

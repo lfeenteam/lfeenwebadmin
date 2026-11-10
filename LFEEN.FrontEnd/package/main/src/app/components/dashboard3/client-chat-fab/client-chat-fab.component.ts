@@ -8,6 +8,7 @@ import { ComplaintService } from 'src/app/pages/dashboards/dashboard3/pages-d3/c
 import { ClientSupportHubService } from 'src/app/pages/dashboards/dashboard3/services/client-support-hub.service';
 import { Complaint } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/interfaces/complaint.model';
 import { ComplaintChatComponent } from 'src/app/pages/dashboards/dashboard3/pages-d3/complaint-management/components/complaint-chat/complaint-chat.component';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 // Global floating action button (all d3 pages) surfacing the customer-support "Help
 // Center" panel — a short list of active (non-closed) customer chats. Opening an item
@@ -101,18 +102,20 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
   statusLabelKey(status: Complaint['status']): string {
     const map: Record<string, string> = {
       new: 'd3.complaints.status.new',
+      bot: 'd3.complaints.status.bot',
       in_progress: 'd3.complaints.status.inProgress',
       closed: 'd3.complaints.status.closed',
       pending: 'd3.complaints.status.pending',
       replied: 'd3.complaints.status.replied',
+      resolved: 'd3.complaints.status.resolved',
     };
     return map[status] ?? '';
   }
 
-  // 'new'/'pending' — nobody has replied yet, so both the dot and the pill stay in the
+  // 'new'/'bot'/'pending' — no agent has replied yet, so both the dot and the pill stay in the
   // more urgent (dark/green) treatment; everything already being worked gets the neutral one.
   isUrgent(status: Complaint['status']): boolean {
-    return status === 'new' || status === 'pending';
+    return status === 'new' || status === 'bot' || status === 'pending';
   }
 
   formatListTime(iso: string | null | undefined): string {
@@ -121,7 +124,7 @@ export class ClientChatFabComponent implements OnInit, OnDestroy {
     if (isNaN(date.getTime())) return '';
 
     const now = new Date();
-    const locale = this.translate.currentLang === 'en' ? 'en-US' : 'ar-SA';
+    const locale = appLocale(this.translate.currentLang);
 
     if (date.toDateString() === now.toDateString()) {
       return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });

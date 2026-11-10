@@ -108,14 +108,25 @@
                     </span>
                   </td>
                   <td>
-                    <button type="button" class="switch" role="switch"
-                      [class.on]="row.code.isActive"
-                      [attr.aria-checked]="row.code.isActive"
-                      [attr.aria-label]="'d3.discountCodes.table.enabled' | translate"
-                      [disabled]="!canManage || togglingId === row.code.id"
-                      (click)="toggleActive(row)">
-                      <span class="knob"></span>
-                    </button>
+                    <span class="actions-cell d-inline-flex align-items-center gap-4">
+                      <button type="button" class="switch" role="switch"
+                        [class.on]="row.code.isActive"
+                        [attr.aria-checked]="row.code.isActive"
+                        [attr.aria-label]="'d3.discountCodes.table.enabled' | translate"
+                        [disabled]="!canManage || togglingId === row.code.id || deletingId === row.code.id"
+                        (click)="toggleActive(row)">
+                        <span class="knob"></span>
+                      </button>
+                      @if (canDelete(row)) {
+                        <button type="button" class="delete-btn"
+                          [attr.aria-label]="'d3.discountCodes.deleteBtn' | translate"
+                          [matTooltip]="'d3.discountCodes.deleteBtn' | translate"
+                          [disabled]="deletingId !== null"
+                          (click)="deleteCode(row)">
+                          <i-tabler name="trash" class="icon-16"></i-tabler>
+                        </button>
+                      }
+                    </span>
                   </td>
                 </tr>
               } @empty {

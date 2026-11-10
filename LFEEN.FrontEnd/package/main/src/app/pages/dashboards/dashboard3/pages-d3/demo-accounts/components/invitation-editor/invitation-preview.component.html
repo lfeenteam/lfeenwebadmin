@@ -1,0 +1,105 @@
+<aside class="da-root ip" [attr.aria-label]="'d3.demoAccounts.invitation.preview' | translate">
+  <div class="ip-head">
+    <i-tabler name="eye" class="icon-16"></i-tabler>
+    <span>{{ 'd3.demoAccounts.invitation.preview' | translate }}</span>
+    @if (store.previewLoading) { <span class="da-spin ip-spin"></span> }
+  </div>
+
+  <div class="da-segmented ip-tabs" role="tablist">
+    @for (t of tabs; track t) {
+      <button type="button" role="tab" [class.active]="tab === t" [attr.aria-selected]="tab === t" (click)="pick(t)">
+        <i-tabler [name]="channelIcons[t]" class="icon-14"></i-tabler>
+        {{ ('d3.demoAccounts.channels.' + t) | translate }}
+      </button>
+    }
+  </div>
+
+  @if (store.previewError) {
+    <div class="da-alert danger">
+      <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+      <div class="da-alert__body">
+        <p>{{ store.previewError }}</p>
+        <button type="button" class="da-link-btn" (click)="store.refresh()">{{ 'd3.demoAccounts.actions.retry' | translate }}</button>
+      </div>
+    </div>
+  }
+
+  @if (store.preview; as p) {
+    <div class="ip-body" [class.stale]="store.previewLoading">
+      @switch (tab) {
+        @case ('Email') {
+          @if (p.email; as mail) {
+            <div class="ip-mail">
+              <div class="ip-mail__subject">
+                <span class="ip-key">{{ 'd3.demoAccounts.invitation.subjectLabel' | translate }}</span>
+                <strong dir="auto">{{ mail.subject }}</strong>
+                <span class="ip-count da-ltr" dir="ltr">{{ mail.subjectLength }}</span>
+              </div>
+              @if (emailHtml; as html) {
+                <iframe class="ip-frame" sandbox="" [srcdoc]="html" [title]="'d3.demoAccounts.invitation.preview' | translate"></iframe>
+              } @else {
+                <div class="ip-text" dir="auto">{{ mail.body }}</div>
+              }
+            </div>
+          } @else {
+            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+          }
+        }
+        @case ('WhatsApp') {
+          @if (p.whatsApp; as wa) {
+            <div class="ip-chat"><div class="ip-bubble" dir="auto">{{ wa.body }}</div></div>
+            <p class="da-helper"><span>{{ 'd3.demoAccounts.invitation.characters' | translate }}</span><span class="da-ltr" dir="ltr">{{ wa.characters }}</span></p>
+          } @else {
+            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+          }
+        }
+        @case ('Sms') {
+          @if (p.sms; as sms) {
+            <div class="ip-chat ip-chat--sms"><div class="ip-bubble" dir="auto">{{ sms.body }}</div></div>
+            <p class="da-helper">
+              <span>{{ 'd3.demoAccounts.invitation.smsStats' | translate: { characters: sms.characters, segments: sms.segments } }}</span>
+              <span class="da-ltr" dir="ltr" [title]="('d3.demoAccounts.invitation.encoding.' + sms.encoding) | translate">{{ sms.encoding }}</span>
+            </p>
+          } @else {
+            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+          }
+        }
+      }
+    </div>
+
+    @if (!p.usesAccountValues) {
+      <p class="da-helper">
+        {{ (store.usesTypedValues ? 'd3.demoAccounts.invitation.typedValues' : 'd3.demoAccounts.invitation.exampleValues') | translate }}
+      </p>
+    }
+
+    <!-- Warnings never block anything -->
+    @for (w of p.warnings; track $index) {
+      <div class="da-alert info ip-note">
+        <i-tabler name="info-circle" class="icon-16"></i-tabler>
+        <p>{{ w.message }}</p>
+      </div>
+    }
+
+    @if (!p.isValid && !store.previewLoading) {
+      <div class="da-alert danger ip-note">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <p>{{ 'd3.demoAccounts.invitation.invalid' | translate }}</p>
+      </div>
+    }
+  } @else if (!store.previewError) {
+    <div class="ip-loading"><span class="da-spin"></span></div>
+  }
+
+  <!-- Test copy to the signed-in admin's own email -->
+  @if (canSendTest) {
+    <div class="ip-test">
+      <button type="button" class="da-btn sm" [disabled]="disabled || store.blocked || store.testSending" (click)="store.sendTest()">
+        @if (store.testSending) { <span class="da-spin"></span> } @else { <i-tabler name="mail-forward" class="icon-16"></i-tabler> }
+        {{ 'd3.demoAccounts.invitation.sendTest' | translate }}
+      </button>
+      @if (store.testResult) { <p class="ip-test__ok">{{ store.testResult }}</p> }
+      @if (store.testError) { <p class="da-error">{{ store.testError }}</p> }
+    </div>
+  }
+</aside>

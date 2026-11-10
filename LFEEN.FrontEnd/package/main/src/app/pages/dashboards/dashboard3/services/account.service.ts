@@ -7,6 +7,7 @@ import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDe
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -36,20 +37,21 @@ export class AccountService {
         newestFirst: String(request.newestFirst),
       });
       if (request.search) params.set('search', request.search);
-      // API accepts string status: Approved | Rejected | Pending (leave empty for all)
+      // Filtered on the server so totalCount/totalPages match the tab (empty = all).
       const statusParam = this.tabToStatusParam(request.tab);
       if (statusParam !== null) params.set('status', statusParam);
       return this.http.get<PaginatedAccountResponse>(`${this.apiUrl}?${params}`);
     }
   });
 
-  // PendingReview=1 | Approved=2 | Rejected=3
+  // PendingReview=1 | Approved=2 | Rejected=3. Draft accounts haven't been submitted yet,
+  // so they appear under "all" only, not in the review queue.
   private tabToStatusParam(tab: AccountTab): string | null {
     switch (tab) {
-      case 'active':   return '2';
-      case 'rejected': return '3';
-      // under_review and all: fetch without filter, filter client-side
-      default:         return null;
+      case 'under_review': return '1';
+      case 'active':       return '2';
+      case 'rejected':     return '3';
+      default:             return null;
     }
   }
 
@@ -76,10 +78,10 @@ export class AccountService {
       type:             this.mapBusinessType(item.businessType),
       status:           this.mapStatus(item.onboardingStatus),
       onboardingStatus: item.onboardingStatus,
-      idNumber:         item.referenceCode,
+      // The card labels this field "Commercial Register"; referenceCode is an internal code, not the CR number
+      idNumber:         item.companyNumber ?? '',
       joinDate:         this.formatDate(item.createdAt, lang),
       propertyCount:    item.propertyCount,
-      unit:             'مبنى',
       avatarInitials:   this.getInitials(displayName),
       logoUrl:          item.logoUrl,
     };
@@ -111,10 +113,10 @@ export class AccountService {
 
   private formatDate(dateStr: string, lang: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+    return d.toLocaleDateString(appLocale(lang), {
       day: 'numeric',
       month: 'long',
-      year: '2-digit'
+      year: 'numeric'
     });
   }
 

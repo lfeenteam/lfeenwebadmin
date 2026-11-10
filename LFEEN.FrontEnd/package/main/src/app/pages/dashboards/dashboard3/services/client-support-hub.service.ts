@@ -33,7 +33,8 @@ export interface NewMessageEvent {
   body: string;
   optionsJson: string | null;
   attachment: HubMessageAttachment | null;
-  sentAt: string;
+  // Same field name as the REST message DTO (there's no `sentAt` on this event).
+  createdAt: string;
 }
 
 // Personal notification to the assigned agent when a client messages a ticket that

@@ -1,4 +1,14 @@
-export type ComplaintStatus = 'new' | 'in_progress' | 'closed' | 'pending' | 'replied';
+import { AR_LOCALE } from 'src/app/utils/locale-format.util';
+
+export type ComplaintStatus ='new' | 'bot' | 'in_progress' | 'closed' | 'pending' | 'replied' | 'resolved';
+
+/** Statuses where no agent has engaged yet ('bot' = still with the virtual assistant). */
+export function isUnengagedStatus(status: ComplaintStatus): boolean {
+  return status === 'new' || status === 'bot';
+}
+
+/** Arabic locale for the complaint screens — the admin-wide one (Gregorian, Latin digits). */
+export const AR_DATE_LOCALE = AR_LOCALE;
 export type ComplaintTab    = 'customers' | 'hosts' | 'resolved' | 'ratings';
 
 export interface Ticket {
@@ -20,6 +30,9 @@ export interface Ticket {
   lastMessageAtUtc: string | null;
   assignedAdminUserId: string | null;
   assignedAdminName: string | null;
+  /** Requested from the backend — optional until the API sends them. */
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
 }
 
 export interface TicketListResponse {
@@ -173,6 +186,10 @@ export interface ClientTicket {
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
+  /** Requested from the backend — optional until the API sends them. */
+  assignedAgentUserId?: string | null;
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
   createdAt: string;
@@ -349,7 +366,7 @@ export interface TicketsOverviewItem {
   userName: string | null;
   accountName?: string | null;
   subject: string;
-  repliedAtUtc: string;
+  repliedAtUtc: string | null;
   createdAt: string;
 }
 
@@ -407,7 +424,12 @@ export interface Complaint {
   priorityName?: string;
   priorityRaw?: string;
   lastMessageAtUtc?: string | null;
+  assignedAtUtc?: string | null;
+  lastAgentReplyAtUtc?: string | null;
 }
+
+/** Hours an assigned ticket may sit without the agent acting before anyone can reassign it. */
+export const ASSIGN_DELAY_THRESHOLD_HOURS = 6;
 
 export interface AssignableEmployee {
   userId: string;

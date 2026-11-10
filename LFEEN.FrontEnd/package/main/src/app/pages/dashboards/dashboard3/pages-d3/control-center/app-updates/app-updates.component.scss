@@ -12,8 +12,21 @@
 // ── Update policy cards ─────────────────────────────────────
 .up-policies {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
+}
+
+.up-impact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  ul {
+    margin: 0;
+    padding-inline-start: 18px;
+    font-weight: 500;
+  }
 }
 
 .up-policy {
@@ -30,7 +43,8 @@
   background: #FFFFFF;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-  &:hover:not(.active) { border-color: #CBD5E1; }
+  &:hover:not(.active):not(:disabled) { border-color: #CBD5E1; }
+  &:disabled { cursor: default; }
   &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
 
   &.active {
@@ -73,7 +87,15 @@
 }
 
 // ── Preview extras ──────────────────────────────────────────
-.mp-icon.is-muted { background: #E2E8F0; color: #6B6B67; }
+// "Update now" really opens the store link, like the app does.
+.mp-retry.is-clickable {
+  border: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: inherit;
+
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+}
 
 .mp-later {
   font-size: 1.15em;
@@ -81,6 +103,6 @@
   color: #6B6B67;
 }
 
-@media (max-width: 1199px) {
+@media (max-width: 599px) {
   .up-policies { grid-template-columns: 1fr; }
 }

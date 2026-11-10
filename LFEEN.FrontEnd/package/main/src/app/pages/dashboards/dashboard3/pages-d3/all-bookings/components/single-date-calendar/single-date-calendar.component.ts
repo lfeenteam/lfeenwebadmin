@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, injec
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateService } from '@ngx-translate/core';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface CalendarDay {
   date: Date;
@@ -53,7 +54,7 @@ export class SingleDateCalendarComponent implements OnChanges {
   }
 
   private get locale(): string {
-    return this.currentDir === 'rtl' ? 'ar-SA' : 'en-US';
+    return appLocale(this.currentDir === 'rtl' ? 'ar' : 'en');
   }
 
   get weekdayLabels(): string[] {

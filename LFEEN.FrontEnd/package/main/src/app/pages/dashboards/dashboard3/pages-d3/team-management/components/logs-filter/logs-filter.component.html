@@ -4,40 +4,85 @@
   <div class="logs-search-wrapper position-relative flex-grow-1">
     <i-tabler name="search" class="icon-18 logs-search-icon"></i-tabler>
     <input type="text" class="logs-search-input"
+           [value]="searchQuery"
            [placeholder]="'d3.teamManagement.opsLog.filters.searchPlaceholder' | translate"
-           (input)="searchQueryChange.emit($any($event.target).value)" />
+           (input)="onSearchChange($any($event.target).value)" />
   </div>
 
   <!-- Action Type -->
-  <select class="filter-select-native" (change)="filterActionChange.emit($any($event.target).value)">
-    <option value="">{{ 'd3.teamManagement.opsLog.filters.actionType' | translate }}</option>
-    @for (code of actionCodes; track code) {
-      <option [value]="code">{{ 'd3.teamManagement.opsLog.actions.' + code | translate }}</option>
+  <mat-select
+    class="filter-select-native"
+    [value]="selectedAction"
+    disableOptionCentering
+    panelClass="team-filter-panel ops-log-action-panel"
+    (openedChange)="onActionPanelToggle($event)"
+    (selectionChange)="onActionChange($event.value)">
+    <div class="ops-log-action-search">
+      <i-tabler name="search" class="icon-16"></i-tabler>
+      <input #actionSearchInput type="text"
+             [value]="actionSearch"
+             [placeholder]="'d3.teamManagement.opsLog.filters.searchActions' | translate"
+             (input)="onActionSearch($any($event.target).value)"
+             (keydown)="onActionSearchKeydown($event)" />
+    </div>
+    <mat-option value="">{{ 'd3.teamManagement.opsLog.filters.actionType' | translate }}</mat-option>
+    @if (noActionMatches) {
+      <div class="ops-log-action-empty">{{ 'd3.teamManagement.opsLog.filters.noActionsFound' | translate }}</div>
     }
-  </select>
+    @for (group of visibleActionGroups; track group.key) {
+      <mat-optgroup [label]="'d3.teamManagement.opsLog.actionGroups.' + group.key | translate">
+        @for (code of group.codes; track code) {
+          <mat-option [value]="code">{{ 'd3.teamManagement.opsLog.actions.' + code | translate }}</mat-option>
+        }
+      </mat-optgroup>
+    }
+  </mat-select>
 
   <!-- Departments -->
-  <select class="filter-select-native" (change)="filterDeptChange.emit($any($event.target).value)">
-    <option value="">{{ 'd3.teamManagement.opsLog.filters.allDepts' | translate }}</option>
+  <mat-select
+    class="filter-select-native"
+    [value]="selectedDept"
+    disableOptionCentering
+    panelClass="team-filter-panel"
+    (selectionChange)="onDeptChange($event.value)">
+    <mat-option value="">{{ 'd3.teamManagement.opsLog.filters.allDepts' | translate }}</mat-option>
     @for (opt of depts; track opt.value) {
-      <option [value]="opt.value">{{ opt.label }}</option>
+      <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
     }
-  </select>
+  </mat-select>
 
   <!-- Status -->
-  <select class="filter-select-native" (change)="filterStatusChange.emit($any($event.target).value)">
-    <option value="">{{ 'd3.teamManagement.opsLog.filters.allStatuses' | translate }}</option>
+  <mat-select
+    class="filter-select-native"
+    [value]="selectedStatus"
+    disableOptionCentering
+    panelClass="team-filter-panel"
+    (selectionChange)="onStatusChange($event.value)">
+    <mat-option value="">{{ 'd3.teamManagement.opsLog.filters.allStatuses' | translate }}</mat-option>
     @for (status of statuses; track status) {
-      <option [value]="status">{{ 'd3.teamManagement.opsLog.status.' + status | translate }}</option>
+      <mat-option [value]="status">{{ 'd3.teamManagement.opsLog.status.' + status | translate }}</mat-option>
     }
-  </select>
+  </mat-select>
 
   <!-- Dates -->
-  <select class="filter-select-native" (change)="filterDateChange.emit($any($event.target).value)">
-    <option value="">{{ 'd3.teamManagement.opsLog.filters.allDates' | translate }}</option>
+  <mat-select
+    class="filter-select-native"
+    [value]="selectedDate"
+    disableOptionCentering
+    panelClass="team-filter-panel"
+    (selectionChange)="onDateChange($event.value)">
+    <mat-option value="">{{ 'd3.teamManagement.opsLog.filters.allDates' | translate }}</mat-option>
     @for (preset of datePresets; track preset) {
-      <option [value]="preset">{{ 'd3.teamManagement.opsLog.filters.dates.' + preset | translate }}</option>
+      <mat-option [value]="preset">{{ 'd3.teamManagement.opsLog.filters.dates.' + preset | translate }}</mat-option>
     }
-  </select>
+  </mat-select>
+
+  <!-- Clear -->
+  @if (hasActiveFilters) {
+    <button type="button" class="clear-filters-btn" (click)="onClearFilters()">
+      <i-tabler name="filter-off" class="icon-16"></i-tabler>
+      {{ 'd3.teamManagement.opsLog.filters.clear' | translate }}
+    </button>
+  }
 
 </div>

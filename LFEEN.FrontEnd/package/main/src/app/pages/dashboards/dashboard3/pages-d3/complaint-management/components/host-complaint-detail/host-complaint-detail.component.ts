@@ -6,7 +6,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplaintService } from '../../services/complaint.service';
-import { TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
+import { AR_DATE_LOCALE, TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 import { LoginService } from '../../../../services/login/login.service';
 
@@ -94,7 +94,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
 
   formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString(
-      this.currentDir === 'rtl' ? 'ar-SA' : 'en-US',
+      this.currentDir === 'rtl' ? AR_DATE_LOCALE : 'en-US',
       { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }
     );
   }

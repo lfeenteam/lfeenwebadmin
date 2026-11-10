@@ -3,7 +3,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CoreService } from 'src/app/services/core.service';import { LoginService } from './login/login.service';
+import { ToastrService } from 'ngx-toastr';
+import { CoreService } from 'src/app/services/core.service';
+import { LoginService } from './login/login.service';
 import { AdminNotificationsService } from './admin-notifications.service';
 import {
   AdminNotification,
@@ -43,6 +45,14 @@ export class AdminNotificationsStore {
   private api = inject(AdminNotificationsService);
   private loginService = inject(LoginService);
   private settings = inject(CoreService);
+  private toastr = inject(ToastrService);
+
+  /**
+   * Local mirror of the admin's browser.realtime switch. The server already decides
+   * per event via showBrowserAlert; this only lets the profile page stop alerts in the
+   * current tab right away, before the next event reflects the change.
+   */
+  readonly browserAlertsEnabled = signal(true);
 
   readonly items = signal<AdminNotification[]>([]);
   readonly unreadCount = signal(0);
@@ -213,6 +223,12 @@ export class AdminNotificationsStore {
     this.items.update(list => (list.some(n => n.id === item.id) ? list : [item, ...list]));
     if (this.listSub) this.liveDuringRefresh.push(item);
     this.unreadCount.set(event.unreadCount);
+
+    // Inbox + badge always update; only the pop-up honours the flag. Missing flag
+    // (older backend) keeps the alert off, matching the behaviour before it existed.
+    if (event.showBrowserAlert && this.browserAlertsEnabled()) {
+      this.toastr.info(item.body, item.title);
+    }
   }
 
   private refreshFirstPage(): void {
@@ -285,6 +301,7 @@ export class AdminNotificationsStore {
     this.listSub = this.loadMoreSub = this.countSub = null;
     this.liveDuringRefresh = [];
     this.countFailed = false;
+    this.browserAlertsEnabled.set(true);
     this.items.set([]);
     this.unreadCount.set(0);
     this.page.set(0);

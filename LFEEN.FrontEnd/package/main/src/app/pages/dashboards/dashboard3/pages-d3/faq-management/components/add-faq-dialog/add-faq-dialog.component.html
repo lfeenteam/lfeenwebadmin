@@ -3,7 +3,7 @@
   <div class="faq-dialog-header">
     <span class="title-accent"></span>
     <h2 class="dialog-title">{{ (isEditMode ? 'd3.faq.dialog.editTitle' : 'd3.faq.dialog.addTitle') | translate }}</h2>
-    <button class="cancel-link" type="button" (click)="dialogRef.close()">
+    <button class="cancel-link" type="button" [disabled]="saving" (click)="close()">
       {{ 'd3.faq.dialog.cancel' | translate }}
       <i-tabler name="x" class="icon-16"></i-tabler>
     </button>
@@ -17,16 +17,23 @@
         <div class="bilingual-row">
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
-            <input class="faq-input" type="text" formControlName="titleAr" [placeholder]="'d3.faq.dialog.titleArPlaceholder' | translate">
+            <input class="faq-input" type="text" formControlName="titleAr" [maxlength]="titleMax"
+              [class.is-invalid]="showError('titleAr')" [placeholder]="'d3.faq.dialog.titleArPlaceholder' | translate">
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('titleAr') ? fieldError('titleAr') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('titleAr') >= titleMax">{{ length('titleAr') }} / {{ titleMax }}</span>
+            </div>
           </div>
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
-            <input class="faq-input" type="text" dir="ltr" formControlName="titleEn" [placeholder]="'d3.faq.dialog.titleEnPlaceholder' | translate">
+            <input class="faq-input" type="text" dir="ltr" formControlName="titleEn" [maxlength]="titleMax"
+              [class.is-invalid]="showError('titleEn')" [placeholder]="'d3.faq.dialog.titleEnPlaceholder' | translate">
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('titleEn') ? fieldError('titleEn') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('titleEn') >= titleMax">{{ length('titleEn') }} / {{ titleMax }}</span>
+            </div>
           </div>
         </div>
-        @if ((faqForm.get('titleAr')?.invalid && faqForm.get('titleAr')?.touched) || (faqForm.get('titleEn')?.invalid && faqForm.get('titleEn')?.touched)) {
-          <p class="field-error-msg">{{ 'd3.faq.dialog.validation.titleRequired' | translate }}</p>
-        }
       </div>
 
       <div class="field-section">
@@ -34,11 +41,21 @@
         <div class="bilingual-row">
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
-            <textarea class="faq-textarea" rows="4" formControlName="contentAr" [placeholder]="'d3.faq.dialog.contentArPlaceholder' | translate"></textarea>
+            <textarea class="faq-textarea" rows="4" formControlName="contentAr" [maxlength]="bodyMax"
+              [class.is-invalid]="showError('contentAr')" [placeholder]="'d3.faq.dialog.contentArPlaceholder' | translate"></textarea>
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('contentAr') ? fieldError('contentAr') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('contentAr') >= bodyMax">{{ length('contentAr') }} / {{ bodyMax }}</span>
+            </div>
           </div>
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
-            <textarea class="faq-textarea" rows="4" dir="ltr" formControlName="contentEn" [placeholder]="'d3.faq.dialog.contentEnPlaceholder' | translate"></textarea>
+            <textarea class="faq-textarea" rows="4" dir="ltr" formControlName="contentEn" [maxlength]="bodyMax"
+              [class.is-invalid]="showError('contentEn')" [placeholder]="'d3.faq.dialog.contentEnPlaceholder' | translate"></textarea>
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('contentEn') ? fieldError('contentEn') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('contentEn') >= bodyMax">{{ length('contentEn') }} / {{ bodyMax }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -60,19 +77,36 @@
 
         <div class="meta-col order-col">
           <label class="meta-label">{{ 'd3.faq.dialog.order' | translate }}</label>
-          <input class="faq-input order-input" type="number" min="1" formControlName="order">
-          <span class="order-hint">{{ 'd3.faq.dialog.orderHint' | translate }}</span>
+          <input class="faq-input order-input" type="number" min="1" formControlName="order"
+            [class.is-invalid]="showError('order')">
+          @if (showError('order')) {
+            <span class="field-error-msg">{{ orderError() }}</span>
+          } @else {
+            <span class="order-hint">{{ 'd3.faq.dialog.orderHint' | translate }}</span>
+          }
         </div>
       </div>
 
     </form>
   </mat-dialog-content>
 
+  @if (formError) {
+    <div class="form-error-banner" role="alert">
+      <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+      <span>{{ formError }}</span>
+    </div>
+  }
+
   <div class="faq-dialog-footer">
-    <button class="submit-btn" type="button" (click)="save()">
-      {{ (isEditMode ? 'common.save' : 'd3.faq.dialog.create') | translate }}
+    <button class="submit-btn" type="button" [disabled]="saving" (click)="save()">
+      @if (saving) {
+        <mat-spinner diameter="18" class="submit-spinner"></mat-spinner>
+        {{ 'd3.faq.dialog.saving' | translate }}
+      } @else {
+        {{ (isEditMode ? 'common.save' : 'd3.faq.dialog.create') | translate }}
+      }
     </button>
-    <button class="clear-btn" type="button" (click)="clear()">
+    <button class="clear-btn" type="button" [disabled]="saving" (click)="clear()">
       {{ 'd3.faq.dialog.clear' | translate }}
     </button>
   </div>

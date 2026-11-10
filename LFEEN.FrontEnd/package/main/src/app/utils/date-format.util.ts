@@ -1,3 +1,5 @@
+import { appLocale } from './locale-format.util';
+
 export const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 export const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -26,7 +28,7 @@ export function parseApiUtc(iso: string | null | undefined): Date | null {
 export function formatApiDateLocal(iso: string | null | undefined, lang: string, withTime = false): string | null {
   const d = parseApiUtc(iso);
   if (!d) return null;
-  return d.toLocaleString(lang === 'en' ? 'en-US' : 'ar-EG', {
+  return d.toLocaleString(appLocale(lang), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

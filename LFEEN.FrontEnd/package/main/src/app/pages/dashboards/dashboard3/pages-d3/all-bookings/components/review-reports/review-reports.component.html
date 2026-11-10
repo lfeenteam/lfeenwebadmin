@@ -1,0 +1,126 @@
+<div class="review-reports" [dir]="currentDir">
+
+  <!-- Toolbar: summary + refresh -->
+  <div class="queue-toolbar">
+    <div class="queue-summary">
+      @if (!loading && !loadError && !forbidden && rows.length) {
+        <span class="summary-total">
+          {{ 'd3.bookings.reviewReports.summary.total' | translate: { count: fmt(rows.length) } }}
+        </span>
+        @if (highPriorityCount) {
+          <span class="summary-urgent">
+            <i-tabler name="eye-off" class="icon-14"></i-tabler>
+            {{ 'd3.bookings.reviewReports.summary.hidden' | translate: { count: fmt(highPriorityCount) } }}
+          </span>
+        }
+      }
+    </div>
+    <button type="button" class="refresh-btn" [disabled]="loading" (click)="load()">
+      <i-tabler name="refresh" class="icon-16"></i-tabler>
+      <span>{{ 'd3.bookings.reviewReports.refresh' | translate }}</span>
+    </button>
+  </div>
+
+  @if (loading) {
+    <app-dashboard-loading variant="cards" [rows]="3"></app-dashboard-loading>
+  } @else if (forbidden) {
+    <div class="state-box">
+      <i-tabler name="shield-lock" class="icon-40"></i-tabler>
+      <span>{{ 'd3.bookings.reviewReports.forbidden' | translate }}</span>
+    </div>
+  } @else if (loadError) {
+    <div class="state-box">
+      <i-tabler name="alert-triangle" class="icon-40"></i-tabler>
+      <span>{{ 'd3.bookings.reviewReports.loadError' | translate }}</span>
+      <button type="button" class="retry-btn" (click)="load()">{{ 'd3.bookings.reviewReports.retry' | translate }}</button>
+    </div>
+  } @else if (!rows.length) {
+    <div class="state-box">
+      <i-tabler name="message-check" class="icon-40"></i-tabler>
+      <span>{{ 'd3.bookings.reviewReports.empty' | translate }}</span>
+    </div>
+  } @else {
+    <div class="report-list">
+      @for (row of rows; track row.key) {
+        <article class="report-card" [class.is-urgent]="row.item.isHighPriority" [class.is-busy]="busyKeys.has(row.key)">
+
+          <header class="card-head">
+            <div class="head-chips">
+              <span class="target-chip">
+                <i-tabler [name]="row.targetIcon" class="icon-14"></i-tabler>
+                {{ row.targetLabelKey | translate }}
+              </span>
+              @if (row.item.isHighPriority) {
+                <span class="status-chip hidden">
+                  <i-tabler name="eye-off" class="icon-14"></i-tabler>
+                  {{ 'd3.bookings.reviewReports.status.hidden' | translate }}
+                </span>
+              } @else {
+                <span class="status-chip visible">
+                  <i-tabler name="eye" class="icon-14"></i-tabler>
+                  {{ 'd3.bookings.reviewReports.status.visible' | translate }}
+                </span>
+              }
+            </div>
+            <span class="report-count" [class.is-urgent]="row.item.isHighPriority">
+              <i-tabler name="flag" class="icon-14"></i-tabler>
+              {{ 'd3.bookings.reviewReports.reportCount' | translate: { count: fmt(row.item.reportCount) } }}
+            </span>
+          </header>
+
+          <blockquote class="comment-text" dir="auto">{{ row.item.commentText }}</blockquote>
+
+          @if (row.reasonGroups.length || row.silentCount) {
+            <div class="reasons">
+              <span class="reasons-label">{{ 'd3.bookings.reviewReports.reasons' | translate }}</span>
+              <div class="reason-chips">
+                @for (reason of row.reasonGroups; track reason.text) {
+                  <span class="reason-chip" dir="auto">
+                    {{ reason.text }}
+                    @if (reason.count > 1) {
+                      <span class="reason-count">×{{ fmt(reason.count) }}</span>
+                    }
+                  </span>
+                }
+                @if (row.silentCount) {
+                  <span class="reason-chip muted">
+                    {{ 'd3.bookings.reviewReports.noReason' | translate: { count: fmt(row.silentCount) } }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          <footer class="card-foot">
+            <div class="timestamps">
+              <span [title]="fmtDate(row.item.firstReportedAt)">
+                <i-tabler name="clock" class="icon-14"></i-tabler>
+                {{ 'd3.bookings.reviewReports.firstReported' | translate: { time: fmtRelative(row.item.firstReportedAt) } }}
+              </span>
+              @if (row.item.reportCount > 1) {
+                <span [title]="fmtDate(row.item.lastReportedAt)">
+                  {{ 'd3.bookings.reviewReports.lastReported' | translate: { time: fmtRelative(row.item.lastReportedAt) } }}
+                </span>
+              }
+            </div>
+
+            @if (canModerate) {
+              <div class="card-actions">
+                <button type="button" class="action-btn reject" [disabled]="busyKeys.has(row.key)" (click)="openReject(row)">
+                  <i-tabler name="arrow-back-up" class="icon-16"></i-tabler>
+                  <span>{{ 'd3.bookings.reviewReports.actions.reject' | translate }}</span>
+                </button>
+                <button type="button" class="action-btn approve" [disabled]="busyKeys.has(row.key)" (click)="openApprove(row)">
+                  <i-tabler name="ban" class="icon-16"></i-tabler>
+                  <span>{{ 'd3.bookings.reviewReports.actions.approve' | translate }}</span>
+                </button>
+              </div>
+            }
+          </footer>
+
+        </article>
+      }
+    </div>
+  }
+
+</div>

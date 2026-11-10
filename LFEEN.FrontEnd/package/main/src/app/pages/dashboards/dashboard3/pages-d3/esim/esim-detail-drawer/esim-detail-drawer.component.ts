@@ -8,6 +8,7 @@ import { ar, enUS } from 'date-fns/locale';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { EsimDetail, EsimTimelineKey, esimDurationKey, esimIsUnlimited, esimStatusKey } from '../interfaces/esim.model';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface JourneyStep {
   titleKey: string;
@@ -124,7 +125,7 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
   }
 
   fmtAmount(value: number): string {
-    return value.toLocaleString(this.currentLang === 'en' ? 'en-US' : 'ar-SA', {
+    return value.toLocaleString(appLocale(this.currentLang), {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });

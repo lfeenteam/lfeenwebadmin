@@ -1,0 +1,154 @@
+<div class="da-root da-list" [dir]="dir">
+  <app-demo-tabs></app-demo-tabs>
+
+  <div class="da-list__head">
+    <div>
+      <h2>{{ 'd3.demoAccounts.activation.title' | translate }}</h2>
+      <p>{{ 'd3.demoAccounts.activation.subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  <!-- Status filter (kept in the URL) -->
+  <div class="filter-bar">
+    <mat-select
+      class="filter-select-native"
+      [value]="status ?? allStatuses"
+      disableOptionCentering
+      [attr.aria-label]="'d3.demoAccounts.activation.table.status' | translate"
+      (selectionChange)="onStatusChange($event.value)">
+      <mat-select-trigger>
+        <span class="d-flex align-items-center gap-6">
+          <i-tabler name="filter" class="icon-16"></i-tabler>
+          {{ status ? statusLabel(status) : ('d3.demoAccounts.filters.all' | translate) }}
+        </span>
+      </mat-select-trigger>
+      <mat-option [value]="allStatuses">{{ 'd3.demoAccounts.filters.all' | translate }}</mat-option>
+      @for (s of statuses; track s) {
+        <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
+      }
+    </mat-select>
+  </div>
+
+  @if (loading) {
+    <app-dashboard-loading variant="table" [rows]="8"></app-dashboard-loading>
+  } @else {
+    <div class="table-box">
+      <div class="table-responsive">
+        <table class="table da-table ar-table m-0">
+          <thead>
+            <tr>
+              <th>{{ 'd3.demoAccounts.activation.table.name' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.phone' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.email' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.interest' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.times' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.bookingsPayments' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.status' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.activation.table.lastActivity' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of items; track r.id) {
+              <tr class="da-row" tabindex="0" (click)="open(r)" (keydown.enter)="open(r)">
+                <td><span class="da-name">{{ r.contactName }}</span></td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.phone' | translate }}</span>
+                  @if (phone(r.contactPhone); as p) {
+                    <span class="da-ltr da-cell-text" dir="ltr">{{ p }}</span>
+                  } @else { <span class="da-muted">—</span> }
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.email' | translate }}</span>
+                  @if (r.contactEmail) {
+                    <span class="da-ltr da-cell-text">{{ r.contactEmail }}</span>
+                  } @else { <span class="da-muted">—</span> }
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.interest' | translate }}</span>
+                  <span class="ar-interest" [ngClass]="'in-' + r.interest.toLowerCase()">
+                    <span class="dot"></span>{{ ('d3.demoAccounts.activation.interest.' + r.interest) | translate }}
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.times' | translate }}</span>
+                  @if (r.timesRequested > 1) {
+                    <span class="ar-times" [title]="'d3.demoAccounts.activation.timesHint' | translate">
+                      <i-tabler name="hand-click" class="icon-14"></i-tabler>
+                      <span class="da-ltr" dir="ltr">×{{ fmt(r.timesRequested) }}</span>
+                    </span>
+                  } @else {
+                    <span class="da-cell-text da-ltr" dir="ltr">{{ fmt(r.timesRequested) }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.bookingsPayments' | translate }}</span>
+                  <span class="da-cell-text">
+                    {{ 'd3.demoAccounts.activation.bookingsPayments' | translate: { bookings: fmt(r.trial.bookingsCount), payments: fmt(r.trial.paymentsCount) } }}
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.status' | translate }}</span>
+                  <span class="ar-status" [ngClass]="'ar-' + r.status.toLowerCase()">
+                    <span class="dot"></span>{{ statusLabel(r.status) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.lastActivity' | translate }}</span>
+                  <span class="da-ltr da-cell-text" dir="ltr">{{ lastActivity(r) }}</span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="p-0">
+                  @if (loadError) {
+                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.demoAccounts.activation.errorTitle" descKey="">
+                      <p class="da-load-error">{{ loadError }}</p>
+                      <button type="button" class="da-btn sm" (click)="load()">
+                        <i-tabler name="refresh" class="icon-16"></i-tabler>
+                        {{ 'd3.demoAccounts.actions.retry' | translate }}
+                      </button>
+                    </app-dashboard-empty>
+                  } @else if (status) {
+                    <app-dashboard-empty icon="filter-off" titleKey="d3.demoAccounts.empty.noMatchTitle" descKey="">
+                      <button type="button" class="da-link-btn" (click)="clearFilters()">
+                        {{ 'd3.demoAccounts.actions.clearFilters' | translate }}
+                      </button>
+                    </app-dashboard-empty>
+                  } @else {
+                    <app-dashboard-empty icon="user-star" titleKey="d3.demoAccounts.activation.emptyTitle"
+                                         descKey="d3.demoAccounts.activation.emptyDesc"></app-dashboard-empty>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (!loading && totalPages > 1) {
+    <div class="pagination-wrapper">
+      <span class="pagination-total">
+        {{ fmt(totalCount) }} {{ 'd3.demoAccounts.activation.total' | translate }}
+      </span>
+      <div class="pagination-controls">
+        <button type="button" class="page-nav-btn" [disabled]="page === 1" (click)="changePage(page - 1)">
+          <i-tabler [name]="dir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
+        </button>
+        @for (p of visiblePages; track $index) {
+          @if (p === '...') {
+            <span class="page-ellipsis">...</span>
+          } @else {
+            <button type="button" class="page-number-btn" [class.active]="page === p" (click)="changePage($any(p))">
+              {{ fmt($any(p)) }}
+            </button>
+          }
+        }
+        <button type="button" class="page-nav-btn" [disabled]="page === totalPages" (click)="changePage(page + 1)">
+          <i-tabler [name]="dir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+        </button>
+      </div>
+    </div>
+  }
+</div>

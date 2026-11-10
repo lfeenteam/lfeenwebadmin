@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { PageBreadcrumbCrumb } from '../../../pages/dashboards/dashboard3/services/page-breadcrumb-trail.service';
 import { CoreService } from '../../../services/core.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-dashboard3-page-header',
@@ -41,7 +42,7 @@ export class PageHeaderComponent {
   readonly isRtl = computed(() => this.dir() === 'rtl');
 
   get currentDate(): string {
-    const locale = this.translate.currentLang === 'en' ? 'en-US' : 'ar-EG';
+    const locale = appLocale(this.translate.currentLang);
     return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
   }
 

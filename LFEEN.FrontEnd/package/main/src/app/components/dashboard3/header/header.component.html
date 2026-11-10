@@ -57,8 +57,8 @@
     <div class="d3-user-profile" role="button" tabindex="0" [matMenuTriggerFor]="d3UserMenu">
       <img src="/assets/images/profile/user-1.jpg" alt="user" class="d3-user-avatar" />
         <div class="d3-user-info">
-          <h4 class="d3-user-name">{{ loginService.getUser()?.fullName || ('d3.header.userName' | translate) }}</h4>
-          <p class="d3-user-role">{{ loginService.getUser()?.roles?.join(', ') || ('d3.header.userRole' | translate) }}</p>
+          <h4 class="d3-user-name">{{ loginService.getUser()?.fullName || loginService.getUser()?.email || '' }}</h4>
+          <p class="d3-user-role">{{ loginService.getUser()?.roles?.join(', ') || '' }}</p>
         </div>
       <i-tabler name="chevron-down" class="d3-user-chevron"></i-tabler>
     </div>

@@ -8,7 +8,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { DepartmentService } from '../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../interfaces/department.model';
 import { StatItem } from '../../interfaces/stats.model';
-import { ADMIN_AUDIT_ACTION_CODES, ADMIN_AUDIT_STATUSES, AdminOperationAuditItem } from '../../interfaces/operation-audit.model';
+import { ADMIN_AUDIT_ACTION_GROUPS, ADMIN_AUDIT_STATUSES, AdminOperationAuditItem } from '../../interfaces/operation-audit.model';
 import { OperationAuditsService } from '../../services/operation-audits.service';
 import { LoginService } from '../../services/login/login.service';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
@@ -31,6 +31,7 @@ import {
 } from './components/audit-detail-drawer/audit-detail-drawer.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 @Component({
   selector: 'app-team-management',
@@ -79,6 +80,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   currentPage = 1;
   pageNumbers: number[] = [];
   isLoadingDepts = false;
+  deptsLoadFailed = false;
 
   employees: Employee[] = [];
   filterDepartments: Department[] = [];
@@ -88,8 +90,9 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   employeeCurrentPage = 1;
   employeePageNumbers: number[] = [];
   isLoadingEmployees = false;
+  employeesLoadFailed = false;
 
-  readonly auditActionCodes = ADMIN_AUDIT_ACTION_CODES;
+  readonly auditActionGroups = ADMIN_AUDIT_ACTION_GROUPS;
   readonly auditStatuses = ADMIN_AUDIT_STATUSES;
   logsDeptOptions: LogsFilterOption[] = [];
 
@@ -116,6 +119,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       this.totalCount = this.departmentService.totalCount();
       this.currentPage = this.departmentService.currentPage();
       this.isLoadingDepts = this.departmentService.isLoading();
+      this.deptsLoadFailed = !!this.departmentService.departmentsError();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
       if (!this.departmentId) this.updateStats();
       this.cdr.markForCheck();
@@ -128,6 +132,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       this.employeeTotalCount = this.departmentService.employeeTotalCount();
       this.employeeCurrentPage = this.departmentService.employeeCurrentPage();
       this.isLoadingEmployees = this.departmentService.isLoadingEmployees();
+      this.employeesLoadFailed = !!this.departmentService.employeesError();
       this.employeePageNumbers = Array.from({ length: this.employeeTotalPages }, (_, i) => i + 1);
       if (this.departmentId) this.updateStats();
       this.cdr.markForCheck();
@@ -200,6 +205,14 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  retryDepartments(): void {
+    this.departmentService.reloadDepartments();
+  }
+
+  retryEmployees(): void {
+    this.departmentService.reloadEmployees();
+  }
+
   onEmployeeSearch(query: string): void {
     this.departmentService.setEmployeeSearch(query);
   }
@@ -210,6 +223,26 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
 
   onFilterRole(roleId: string): void {
     this.departmentService.setEmployeeRoleId(roleId || null);
+  }
+
+  /** On a department's page the department id is the page itself, not a filter. */
+  get employeeFilters(): { search: string; deptId: string; roleId: string } {
+    return {
+      search: this.departmentService.employeeSearch(),
+      deptId: this.departmentId ? '' : this.departmentService.employeeDeptId() ?? '',
+      roleId: this.departmentService.employeeRoleId() ?? '',
+    };
+  }
+
+  get hasEmployeeFilters(): boolean {
+    const f = this.employeeFilters;
+    return !!(f.search.trim() || f.deptId || f.roleId);
+  }
+
+  clearEmployeeFilters(): void {
+    this.departmentService.setEmployeeSearch('');
+    this.departmentService.setEmployeeRoleId(null);
+    if (!this.departmentId) this.departmentService.setEmployeeDeptFilter(null);
   }
 
   loadDepartmentDetails(id: string): void {
@@ -225,6 +258,21 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     });
 
     this.departmentService.loadEmployeesForDept(id);
+  }
+
+  // Tab clicks go through the URL (?tab=) so a refresh reopens the same tab;
+  // the queryParams subscription then calls setActiveTab.
+  onTabChange(tab: 'structure' | 'employees' | 'logs'): void {
+    if (this.departmentId) {
+      this.setActiveTab(tab);
+      return;
+    }
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'structure' ? null : tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   setActiveTab(tab: 'structure' | 'employees' | 'logs'): void {
@@ -250,7 +298,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         // The drawer reads details through this page's OperationAuditsService instance.
         injector: this.injector,
         direction: isRtl ? 'rtl' : 'ltr',
-        position: { top: '0', right: '0' },
+        // Slides in from the inline-end side: left in Arabic, right in English.
+        position: isRtl ? { top: '0', left: '0' } : { top: '0', right: '0' },
         width: '480px',
         maxWidth: '100vw',
         height: '100vh',
@@ -286,8 +335,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       ];
     } else if (this.activeTab === 'logs') {
       const s = this.audits.stats();
-      const fmt = (n: number | undefined) =>
-        n === undefined ? '—' : n.toLocaleString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US');
+      const fmt = (n: number | null | undefined) =>
+        n == null ? '—' : n.toLocaleString(appLocale(this.currentLang));
       this.stats = [
         { label: 'd3.teamManagement.stats.totalOps', value: fmt(s?.total), icon: 'database', color: 'primary', valueColor: '#000' },
         { label: 'd3.teamManagement.stats.successfulOps', value: fmt(s?.succeeded), icon: 'circle-check', color: 'success', valueColor: '#16a34a' },
