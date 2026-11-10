@@ -35,20 +35,14 @@ jobs:
           node-version: 20
 
 
-      - name: Create Production Environment
+      # Inject only the secret into the committed environment.prod.ts, so every other
+      # setting (catalogIconsUrl, flowReport, ...) stays in sync with the code.
+      - name: Inject Production Google Maps API Key
         working-directory: LFEEN.FrontEnd/package/main
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
-          cat > src/environments/environment.prod.ts <<EOF
-          export const environment = {
-            production: true,
-            apiBaseUrl: 'https://operation-admin.lfeen.com',
-            googleMapsApiKey: '${GOOGLE_MAPS_API_KEY}',
-            // Loads the Flow "report an issue" button (internal team only). Keep off for real customers.
-            flowReport: false
-          };
-          EOF
+          sed -i "s|__GOOGLE_MAPS_API_KEY__|${GOOGLE_MAPS_API_KEY}|g" src/environments/environment.prod.ts
 
 
       - name: Install dependencies
