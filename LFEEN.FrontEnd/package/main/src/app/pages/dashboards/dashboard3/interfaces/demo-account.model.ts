@@ -27,6 +27,8 @@ export interface DemoDelivery {
   error: string | null;
   attemptedAt: string;
   adminName: string | null;
+  /** The subject this attempt carried (email); null on WhatsApp/SMS and for older attempts. */
+  renderedSubject?: string | null;
 }
 
 /** An email invitation file (§5). */
@@ -34,13 +36,12 @@ export interface DemoAttachment {
   id: string;
   fileName: string;
   contentType: string;
-  // TODO(backend): confirm the size field name — read through attachmentSize().
-  sizeBytes?: number;
-  size?: number;
+  sizeBytes: number;
+  createdAt?: string;
 }
 
 export function attachmentSize(a: DemoAttachment): number {
-  return a.sizeBytes ?? a.size ?? 0;
+  return a.sizeBytes ?? 0;
 }
 
 export interface DemoAccount {

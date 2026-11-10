@@ -7,6 +7,7 @@ import { SidebarItem } from '../interfaces/login.model';
 import { CoreService } from '../../../../services/core.service';
 import { PAGE_FLAGS } from '../../../../config/page-flags';
 import { SETTINGS_PERMISSIONS, hasSettingsPermission } from '../interfaces/platform-settings.model';
+import { canApproveWalletAdjustments } from '../pages-d3/wallet/interfaces/wallet.model';
 
 export interface NavItem {
   id?: string;
@@ -65,6 +66,22 @@ export class SidebarService {
         translationKey: 'd3.sidebar.additionalConditions',
         icon: 'list-check',
         link: '/d3/additional-conditions'
+      });
+    }
+
+    // The wallet approvals queue isn't in the payload; shown only to admins who can approve.
+    // Placed after Settlements, the other money-movement page.
+    if (
+      PAGE_FLAGS['wallet-approvals']
+      && canApproveWalletAdjustments(this.loginService.permissions())
+      && !items.find(i => i.link === '/d3/wallet-approvals')
+    ) {
+      const settlementsIndex = items.findIndex(i => i.link === '/d3/settlements');
+      items.splice(settlementsIndex >= 0 ? settlementsIndex + 1 : items.length, 0, {
+        key: 'wallet-approvals',
+        translationKey: 'd3.sidebar.walletApprovals',
+        icon: 'shield-check',
+        link: '/d3/wallet-approvals'
       });
     }
 

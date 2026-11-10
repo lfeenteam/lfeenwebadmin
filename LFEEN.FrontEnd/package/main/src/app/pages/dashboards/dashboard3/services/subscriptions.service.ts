@@ -177,6 +177,11 @@ export class SubscriptionsService {
     return this.http.post<SubscriptionDiscountCode>(`${this.apiUrl}/discount-codes/${id}/${active ? 'activate' : 'deactivate'}`, {});
   }
 
+  /** Only allowed while the code has never been redeemed (else 400 SUBSCRIPTION_DISCOUNT_CODE_ALREADY_REDEEMED). */
+  deleteDiscountCode(id: number): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.apiUrl}/discount-codes/${id}`);
+  }
+
   // ── Overview / order history ────────────────────────────────
   getOverview(): Observable<SubscriptionOverview> {
     return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);

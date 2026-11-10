@@ -2,7 +2,6 @@ import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription } from 'rxjs';
@@ -23,18 +22,10 @@ import {
   DemoChannel,
   toLocalPhone
 } from '../../interfaces/demo-account.model';
-import { ToastrService } from 'ngx-toastr';
-import { DEMO_ACTION_BUTTONS, demoActionToast, demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
-import {
-  DemoAction,
-  DemoActionDialogComponent,
-  DemoActionDialogData,
-  DemoActionDialogResult
-} from './components/demo-action-dialog/demo-action-dialog.component';
-import { CredentialsDialogComponent, CredentialsDialogData } from './components/credentials-dialog/credentials-dialog.component';
+import { demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
+import { DEMO_DEFAULT_PAGE_SIZE, DEMO_PAGE_SIZES, demoListState } from './demo-list-state';
 import { DemoTabsComponent } from './components/demo-tabs/demo-tabs.component';
 
-const PAGE_SIZE = 20;
 const EMPTY = '—';
 
 @Component({
@@ -48,11 +39,9 @@ export class DemoAccountsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly service = inject(DemoAccountsService);
   private readonly login = inject(LoginService);
-  private readonly toastr = inject(ToastrService);
 
   readonly canManage = computed(() =>
     this.login.permissions().some(p => p.toLowerCase() === DEMO_PERMISSIONS.manage)
@@ -62,17 +51,17 @@ export class DemoAccountsComponent implements OnInit {
   // mat-select shows nothing for a null value, so "All" gets its own option value.
   readonly allStatuses = 'all';
   readonly channelIcons = DEMO_CHANNEL_ICONS;
-  readonly actions = DEMO_ACTION_BUTTONS;
   readonly searchMax = DEMO_LIMITS.search;
   readonly emptyValue = EMPTY;
 
   currentLang = this.translate.currentLang || 'ar';
 
-  // Mirrors the URL query (?search=&status=&page=) — the URL is the source of truth.
+  // Mirrors the URL query (?search=&status=&page=&size=) — the URL is the source of truth.
   searchText = '';
   status: DemoAccountStatus | null = null;
   page = 1;
-  readonly pageSize = PAGE_SIZE;
+  pageSize: number = DEMO_DEFAULT_PAGE_SIZE;
+  readonly pageSizes = DEMO_PAGE_SIZES;
 
   items: DemoAccount[] = [];
   totalCount = 0;
@@ -82,8 +71,6 @@ export class DemoAccountsComponent implements OnInit {
   loadError: string | null = null;
   /** The feature is off on the backend (DEMO_DISABLED): banner, empty table, create disabled. */
   demoDisabled = false;
-  /** A row action dialog is open — the other row actions are off. */
-  busy = false;
 
   private readonly searchInput$ = new Subject<string>();
   private listRequest?: Subscription;
@@ -98,9 +85,15 @@ export class DemoAccountsComponent implements OnInit {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const status = params.get('status') as DemoAccountStatus | null;
       const page = Number(params.get('page'));
+      const size = Number(params.get('size'));
       this.searchText = (params.get('search') ?? '').slice(0, DEMO_LIMITS.search);
       this.status = status && DEMO_STATUSES.includes(status) ? status : null;
       this.page = Number.isInteger(page) && page > 0 ? page : 1;
+      this.pageSize = (DEMO_PAGE_SIZES as readonly number[]).includes(size) ? size : DEMO_DEFAULT_PAGE_SIZE;
+      // Remembered for the details page's back button.
+      demoListState.query = Object.fromEntries(
+        ['search', 'status', 'page', 'size'].filter(k => params.get(k)).map(k => [k, params.get(k)!])
+      );
       this.load();
     });
 
@@ -174,63 +167,18 @@ export class DemoAccountsComponent implements OnInit {
     this.updateQuery({ page: page === 1 ? null : page });
   }
 
+  /** 20 / 50 / 100 rows; back to page 1. */
+  onPageSizeChange(size: number): void {
+    this.updateQuery({ size: size === DEMO_DEFAULT_PAGE_SIZE ? null : size, page: null });
+  }
+
   clearFilters(): void {
     this.updateQuery({ search: null, status: null, page: null });
   }
 
+  // Row click and the ⋮ menu's only item (§4.1: every other action lives on the details page).
   open(item: DemoAccount): void {
     this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', item.id]);
-  }
-
-  // Row ⋮ menu: the same dialogs as the details header. The list is reloaded afterwards
-  // so status/days left (and the status filter) stay right.
-  openAction(item: DemoAccount, action: DemoAction): void {
-    if (!this.canManage() || this.busy || item.status === 'Disabled') return;
-
-    // Resend holds the invitation editor and its preview — it has its own page.
-    if (action === 'resend') {
-      this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', item.id, 'resend']);
-      return;
-    }
-    this.busy = true;
-
-    const ref = this.dialog.open(DemoActionDialogComponent, {
-      width: action === 'disable' ? '480px' : '520px',
-      maxWidth: '94vw',
-      disableClose: true,
-      direction: this.dir,
-      data: { action, account: item } as DemoActionDialogData,
-    });
-
-    ref.afterClosed().subscribe((result?: DemoActionDialogResult) => {
-      this.busy = false;
-      if (!result) return;
-
-      if (result.type === 'error') {
-        // Not found / already disabled by someone else — say so and show the list as it is now.
-        this.toastr.error(demoErrorMessage(result.error, this.translate));
-        this.load();
-        return;
-      }
-
-      if (result.type === 'credentials') {
-        const account = result.credentials.account;
-        const recipient = account.channel === 'Email' ? account.email : toLocalPhone(account.contactPhone);
-        this.load();
-        this.dialog.open(CredentialsDialogComponent, {
-          width: '520px',
-          maxWidth: '94vw',
-          disableClose: true,
-          direction: this.dir,
-          data: { credentials: result.credentials, mode: 'resetPin', recipient } as CredentialsDialogData,
-        });
-        return;
-      }
-
-      const toast = demoActionToast(action, result.account, this.translate, this.currentLang);
-      if (toast) toast.ok ? this.toastr.success(toast.message) : this.toastr.error(toast.message);
-      this.load();
-    });
   }
 
   // The create form has its own page (/demo-accounts/new): it holds the invitation editor and preview.

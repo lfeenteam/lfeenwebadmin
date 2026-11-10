@@ -369,6 +369,7 @@
         "time": "Time",
         "channel": "Channel",
         "recipient": "Recipient",
+        "subject": "Subject",
         "result": "Result",
         "reason": "Reason",
         "by": "By",
@@ -540,6 +541,7 @@
       "faq": "FAQ",
       "contactUs": "Contact Us",
       "settlements": "Settlements",
+      "walletApprovals": "Wallet Approvals",
       "platformOffers": "Platform Offers",
       "banRefunds": "Ban Refunds",
       "callScripts": "Call Scripts",
@@ -3870,7 +3872,32 @@
         "maxAttachments": "A maximum of 5 attachments is allowed per entry",
         "notEditable": "This entry can't be edited",
         "entryNotFound": "Entry not found — refresh the page",
+        "accountNotFound": "The merchant account doesn't exist or isn't active",
+        "sameAdminNotAllowed": "You can't approve a request you submitted — another admin has to approve it",
+        "tooManyDecimals": "The amount accepts up to 2 decimal places",
         "generic": "Something went wrong, please try again"
+      },
+      "approvals": {
+        "title": "Wallet Adjustment Approvals",
+        "introTitle": "Requests awaiting approval",
+        "introDesc": "Balance adjustments above the allowed limit need approval from an admin other than the requester before they are applied.",
+        "requestedAt": "Requested At",
+        "requestedBy": "Requested By",
+        "merchant": "Merchant",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approveTitle": "Approve Adjustment",
+        "approveSubtitle": "The adjustment is applied to the merchant's balance once approved",
+        "rejectTitle": "Reject Adjustment",
+        "rejectSubtitle": "The merchant's balance won't change",
+        "rejectReasonLabel": "Rejection reason (optional)",
+        "rejectReasonPlaceholder": "Explain why this request is rejected...",
+        "approvedToast": "Approved and applied",
+        "rejectedToast": "Request rejected",
+        "loadTitle": "Couldn't load the requests",
+        "forbidden": "You are not allowed to review wallet adjustment requests",
+        "emptyTitle": "No pending requests",
+        "emptyDesc": "All balance adjustment requests have been reviewed"
       },
       "empty": {
         "title": "No transactions",
@@ -3902,7 +3929,9 @@
         "successTitle": "Adjustment Completed Successfully",
         "successMessage": "The wallet balance has been updated and the transaction recorded",
         "newBalance": "New Balance",
-        "closeWindowBtn": "Close Window"
+        "closeWindowBtn": "Close Window",
+        "pendingTitle": "Sent for Approval",
+        "pendingMessage": "The amount is above the allowed limit, so the balance won't change until another admin approves the request."
       }
     },
     "subscriptionTypes": { "Paid": "Paid", "Free": "Free", "BuiltIn": "Built-in" },
@@ -4633,7 +4662,9 @@
       "usedTimes": "{{count}} uses",
       "openEnded": "Open-ended",
       "copied": "Code copied",
-      "immutableNote": "Codes can't be edited or deleted after creation. To change a code, deactivate it and create a new one.",
+      "immutableNote": "Codes can't be edited after creation, and can only be deleted if they haven't been used yet. To change a code, deactivate or delete it and create a new one.",
+      "deleteBtn": "Delete code",
+      "deleted": "Discount code deleted",
       "table": {
         "code": "Code",
         "service": "Service",
@@ -4663,6 +4694,11 @@
         "title": "Deactivate this code?",
         "message": "Merchants won't be able to use this code until it's activated again.",
         "action": "Deactivate"
+      },
+      "confirmDelete": {
+        "title": "Delete this code?",
+        "message": "The code will be permanently deleted. This can't be undone.",
+        "action": "Delete"
       },
       "create": {
         "title": "Create discount code",
@@ -4732,6 +4768,7 @@
         "SUBSCRIPTION_DISCOUNT_NOT_ALLOWED_FOR_TRANSACTION_STYLE": "Discount codes don't apply to per-operation services.",
         "SUBSCRIPTION_DISCOUNT_CODE_TAKEN": "This discount code already exists.",
         "SUBSCRIPTION_DISCOUNT_CODE_NOT_FOUND": "Discount code not found.",
+        "SUBSCRIPTION_DISCOUNT_CODE_ALREADY_REDEEMED": "This code has already been used and can't be deleted. You can deactivate it instead.",
         "SUBSCRIPTION_FEATURE_NOT_FOUND": "Feature not found.",
         "SUBSCRIPTION_INTEGRATION_FIELD_KEY_REQUIRED": "Enter the field key.",
         "SUBSCRIPTION_INTEGRATION_FIELD_KEY_EXISTS": "This field key is already used on this service.",
@@ -4971,7 +5008,7 @@
       "table": { "offer": "Offer", "code": "Code", "discount": "Discount", "validity": "Validity", "status": "Status", "uses": "uses", "actions": "Actions" },
       "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
       "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
-      "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red." },
+      "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red.", "maxLength": "Maximum {{max}} characters.", "notNegative": "Value cannot be negative.", "maxValue": "Value must not exceed {{max}}.", "codePattern": "Use English letters, numbers, - and _ only, with no spaces.", "days": "Use comma-separated weekdays only: Sat,Sun,Mon,Tue,Wed,Thu,Fri", "time": "Invalid time.", "endBeforeStart": "End date must be after the start date.", "endInPast": "End date cannot be in the past.", "tooFar": "Date cannot be more than {{years}} years from today.", "minGtMax": "Maximum stay must be greater than or equal to the minimum stay.", "dailyGtTotal": "Daily limit cannot exceed the total limit.", "userGtTotal": "Per-customer total cannot exceed the total usage limit.", "unitsRequired": "Select at least one unit.", "exclusionRange": "Exclusion end must be after its start.", "exclusionOutside": "Exclusion period must be inside the offer period." },
       "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
       "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
       "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },

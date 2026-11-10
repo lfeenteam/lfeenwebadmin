@@ -71,8 +71,12 @@ export class PlatformOfferDetailComponent implements OnInit {
   }
   formatDateTime(value?: string | null): string { return this.formatDate(value, true); }
   formatMediumDate(value?: string | null): string { return this.formatDate(value, false); }
-  enumLabel(value: string): string {
-    return this.tr.instant(`d3.platformOffers.enums.${value}`);
+  /** Falls back to "—" when the API sends a value we have no label for (e.g. a bare number). */
+  enumLabel(value: string | number | null | undefined): string {
+    if (value === null || value === undefined || value === '') return '—';
+    const key = `d3.platformOffers.enums.${value}`;
+    const label = this.tr.instant(key);
+    return label === key ? '—' : label;
   }
   private formatDate(value: string | null | undefined, includeTime: boolean): string {
     if (!value) return '—';

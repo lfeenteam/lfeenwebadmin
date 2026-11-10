@@ -1,0 +1,53 @@
+<div class="decision-dialog" [dir]="currentDir">
+
+  <div class="decision-header">
+    <div class="header-icon" [class.is-reject]="isReject">
+      <i-tabler [name]="isReject ? 'x' : 'check'" class="icon-20"></i-tabler>
+    </div>
+    <div class="header-text">
+      <h2>{{ (isReject ? 'd3.wallet.approvals.rejectTitle' : 'd3.wallet.approvals.approveTitle') | translate }}</h2>
+      <p>{{ (isReject ? 'd3.wallet.approvals.rejectSubtitle' : 'd3.wallet.approvals.approveSubtitle') | translate }}</p>
+    </div>
+  </div>
+
+  <div class="decision-card">
+    <div class="decision-row">
+      <span class="row-label">{{ 'd3.wallet.approvals.merchant' | translate }}</span>
+      <span class="row-value">{{ data.merchantLabel }}</span>
+    </div>
+    <div class="decision-row">
+      <span class="row-label">{{ 'd3.wallet.table.amount' | translate }}</span>
+      <span class="row-value amount" [class.amount-credit]="data.isCredit" [class.amount-debit]="!data.isCredit">{{ data.amountText }}</span>
+    </div>
+    @if (data.requestedBy) {
+      <div class="decision-row">
+        <span class="row-label">{{ 'd3.wallet.approvals.requestedBy' | translate }}</span>
+        <span class="row-value">{{ data.requestedBy }}</span>
+      </div>
+    }
+  </div>
+
+  @if (isReject) {
+    <label class="field-label">{{ 'd3.wallet.approvals.rejectReasonLabel' | translate }}</label>
+    <textarea
+      class="reason-textarea"
+      rows="3"
+      [attr.maxlength]="reasonMax"
+      [placeholder]="'d3.wallet.approvals.rejectReasonPlaceholder' | translate"
+      [(ngModel)]="reason">
+    </textarea>
+  } @else {
+    <p class="warning-note">
+      <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
+      {{ 'd3.wallet.adjust.irreversibleWarning' | translate }}
+    </p>
+  }
+
+  <div class="decision-actions">
+    <button type="button" class="btn btn-outline" (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+    <button type="button" class="btn" [class.btn-danger]="isReject" [class.btn-accept]="!isReject" (click)="confirm()">
+      {{ (isReject ? 'd3.wallet.approvals.reject' : 'd3.wallet.approvals.approve') | translate }}
+    </button>
+  </div>
+
+</div>

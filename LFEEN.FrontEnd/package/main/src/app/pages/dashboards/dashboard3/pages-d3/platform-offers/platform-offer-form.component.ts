@@ -25,6 +25,16 @@ import {
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import {
+  OFFER_DAYS,
+  OFFER_LIMITS,
+  daysOfWeekValidator,
+  discountValueMaxValidator,
+  exclusionRowValidator,
+  offerCodeValidator,
+  offerFormValidator,
+  timeValidator,
+} from './platform-offer.validators';
 
 @Component({
   selector: 'app-platform-offer-form',
@@ -63,49 +73,53 @@ export class PlatformOfferFormComponent implements OnInit {
   preview = signal('');
   codeState = signal<'idle' | 'checking' | 'ok' | 'taken'>('idle');
   units = signal<BookingUnitOption[]>([]);
-  days = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  form = this.fb.group({
-    internalNameAr: ['', Validators.required],
-    internalNameEn: ['', Validators.required],
-    externalNameAr: [''],
-    externalNameEn: [''],
-    descriptionAr: [''],
-    descriptionEn: [''],
-    triggerType: ['Automatic', Validators.required],
-    code: [''],
-    discountType: ['Percentage', Validators.required],
-    discountValue: [
-      null as number | null,
-      [Validators.required, Validators.min(0.01)],
-    ],
-    maxDiscountAmount: [null as number | null],
-    appliedTo: ['AllUnits', Validators.required],
-    unitIds: [[] as number[]],
-    offerStartDate: [''],
-    offerEndDate: [''],
-    offerDaysOfWeek: [''],
-    happyHourStart: [''],
-    happyHourEnd: [''],
-    stayStartDate: [''],
-    stayEndDate: [''],
-    stayDaysOfWeek: [''],
-    maxTotalUsage: [null as number | null],
-    maxDailyUsage: [null as number | null],
-    maxDailyUsagePerUser: [null as number | null],
-    maxTotalUsagePerUser: [null as number | null],
-    minDaysBeforeArrival: [null as number | null],
-    minStayDays: [null as number | null],
-    maxStayDays: [null as number | null],
-    allowedPaymentMethods: [''],
-    minBookingAmount: [null as number | null],
-    displayChannel: ['All'],
-    canBeCombined: [false],
-    expirationPolicy: ['WhicheverFirst'],
-    loyaltyPointsMultiplier: [1],
-    exclusionPeriods: this.fb.array([]),
-    customMessages: this.fb.array([]),
-    offerTerms: this.fb.array([]),
-  });
+  readonly limits = OFFER_LIMITS;
+  days = OFFER_DAYS;
+  form = this.fb.group(
+    {
+      internalNameAr: ['', [Validators.required, Validators.maxLength(OFFER_LIMITS.nameMax)]],
+      internalNameEn: ['', [Validators.required, Validators.maxLength(OFFER_LIMITS.nameMax)]],
+      externalNameAr: ['', Validators.maxLength(OFFER_LIMITS.nameMax)],
+      externalNameEn: ['', Validators.maxLength(OFFER_LIMITS.nameMax)],
+      descriptionAr: ['', Validators.maxLength(OFFER_LIMITS.descriptionMax)],
+      descriptionEn: ['', Validators.maxLength(OFFER_LIMITS.descriptionMax)],
+      triggerType: ['Automatic', Validators.required],
+      code: [''],
+      discountType: ['Percentage', Validators.required],
+      discountValue: [
+        null as number | null,
+        [Validators.required, Validators.min(0.01), discountValueMaxValidator],
+      ],
+      maxDiscountAmount: [null as number | null, Validators.min(0)],
+      appliedTo: ['AllUnits', Validators.required],
+      unitIds: [[] as number[]],
+      offerStartDate: [''],
+      offerEndDate: [''],
+      offerDaysOfWeek: ['', daysOfWeekValidator],
+      happyHourStart: ['', timeValidator],
+      happyHourEnd: ['', timeValidator],
+      stayStartDate: [''],
+      stayEndDate: [''],
+      stayDaysOfWeek: ['', daysOfWeekValidator],
+      maxTotalUsage: [null as number | null, Validators.min(0)],
+      maxDailyUsage: [null as number | null, Validators.min(0)],
+      maxDailyUsagePerUser: [null as number | null, Validators.min(0)],
+      maxTotalUsagePerUser: [null as number | null, Validators.min(0)],
+      minDaysBeforeArrival: [null as number | null, Validators.min(0)],
+      minStayDays: [null as number | null, Validators.min(0)],
+      maxStayDays: [null as number | null, Validators.min(0)],
+      allowedPaymentMethods: [''],
+      minBookingAmount: [null as number | null, Validators.min(0)],
+      displayChannel: ['All', Validators.required],
+      canBeCombined: [false],
+      expirationPolicy: ['WhicheverFirst'],
+      loyaltyPointsMultiplier: [1, Validators.min(0)],
+      exclusionPeriods: this.fb.array([]),
+      customMessages: this.fb.array([]),
+      offerTerms: this.fb.array([]),
+    },
+    { validators: offerFormValidator(() => !this.id) },
+  );
   get exclusions() {
     return this.form.controls.exclusionPeriods as FormArray;
   }
@@ -116,11 +130,27 @@ export class PlatformOfferFormComponent implements OnInit {
     return this.form.controls.offerTerms as FormArray;
   }
   enumLabel(value: string | null | undefined): string {
-    return value ? this.tr.instant(`d3.platformOffers.enums.${value}`) : '—';
+    if (value === null || value === undefined || value === '') return '—';
+    const key = `d3.platformOffers.enums.${value}`;
+    const label = this.tr.instant(key);
+    return label === key ? '—' : label;
   }
   ngOnInit() {
     const raw = this.route.snapshot.paramMap.get('id');
     if (raw) this.id = +raw;
+    this.syncCodeValidators();
+    this.form.controls.triggerType.valueChanges.subscribe(() =>
+      this.syncCodeValidators(),
+    );
+    // The max of discountValue depends on the type, so re-check it on change.
+    this.form.controls.discountType.valueChanges.subscribe(() =>
+      this.form.controls.discountValue.updateValueAndValidity(),
+    );
+    // Exclusion rows must stay inside the offer period.
+    const recheckExclusions = () =>
+      this.exclusions.controls.forEach((r) => r.updateValueAndValidity());
+    this.form.controls.offerStartDate.valueChanges.subscribe(recheckExclusions);
+    this.form.controls.offerEndDate.valueChanges.subscribe(recheckExclusions);
     this.code$
       .pipe(
         debounceTime(450),
@@ -173,6 +203,13 @@ export class PlatformOfferFormComponent implements OnInit {
       stayStartDate: date(d.stayStartDate),
       stayEndDate: date(d.stayEndDate),
       unitIds: d.offerUnits.map((u) => u.unitId),
+      // Old rows may hold a value the API returns as a bare number (e.g. 1);
+      // clear it so the admin has to pick a valid channel again.
+      displayChannel: ['All', 'Merchant', 'Client'].includes(
+        d.displayChannel as string,
+      )
+        ? d.displayChannel
+        : '',
     } as any);
     this.preview.set(d.banner || '');
     d.exclusionPeriods.forEach((x) => this.exclusions.push(this.exclusion(x)));
@@ -247,12 +284,15 @@ export class PlatformOfferFormComponent implements OnInit {
     } else this.codeState.set('idle');
   }
   exclusion(v: any = {}) {
-    return this.fb.group({
-      id: [v.id],
-      startDate: [v.startDate?.slice(0, 16) || '', Validators.required],
-      endDate: [v.endDate?.slice(0, 16) || '', Validators.required],
-      reason: [v.reason || ''],
-    });
+    return this.fb.group(
+      {
+        id: [v.id],
+        startDate: [v.startDate?.slice(0, 16) || '', Validators.required],
+        endDate: [v.endDate?.slice(0, 16) || '', Validators.required],
+        reason: [v.reason || '', Validators.maxLength(OFFER_LIMITS.nameMax)],
+      },
+      { validators: exclusionRowValidator },
+    );
   }
   message(v: any = {}) {
     return this.fb.group({
@@ -275,13 +315,71 @@ export class PlatformOfferFormComponent implements OnInit {
     return !!control && control.invalid && control.touched;
   }
 
+  /**
+   * Translated error for a field, or '' when it is valid / untouched.
+   * Checks the control's own errors first, then the cross-field form errors.
+   */
+  fieldError(name: string): string {
+    const c = this.form.get(name);
+    if (!c || !(c.touched || c.dirty || this.submitted)) return '';
+    const key = (k: string, p?: object) =>
+      this.tr.instant(`d3.platformOffers.validation.${k}`, p);
+    const e = c.errors;
+    if (e) {
+      if (e['required']) return key('required');
+      if (e['maxlength'])
+        return key('maxLength', { max: e['maxlength'].requiredLength });
+      if (e['min'])
+        return key(e['min'].min > 0 ? 'positive' : 'notNegative');
+      if (e['maxValue']) return key('maxValue', { max: e['maxValue'].max.toLocaleString() });
+      if (e['codePattern']) return key('codePattern');
+      if (e['days']) return key('days');
+      if (e['time']) return key('time');
+    }
+    const cross = this.form.errors?.['fields']?.[name];
+    return cross
+      ? key(cross, { years: OFFER_LIMITS.maxYearsAhead })
+      : '';
+  }
+
+  /** Translated error for an exclusion row. */
+  rowError(row: AbstractControl): string {
+    if (!(row.touched || row.dirty || this.submitted) || row.valid) return '';
+    const k = row.hasError('exclusionRange')
+      ? 'exclusionRange'
+      : row.hasError('exclusionOutside')
+        ? 'exclusionOutside'
+        : row.get('reason')?.hasError('maxlength')
+          ? 'maxLength'
+          : 'rowIncomplete';
+    return this.tr.instant(`d3.platformOffers.validation.${k}`, {
+      max: OFFER_LIMITS.nameMax,
+    });
+  }
+
+  private submitted = false;
+
+  private syncCodeValidators() {
+    const coupon = this.form.controls.triggerType.value === 'Coupon';
+    this.form.controls.code.setValidators(
+      coupon
+        ? [
+            Validators.required,
+            Validators.maxLength(OFFER_LIMITS.codeMax),
+            offerCodeValidator,
+          ]
+        : [],
+    );
+    this.form.controls.code.updateValueAndValidity({ emitEvent: false });
+  }
+
   submit() {
     // [disabled]="saving()" only lands on the next render, so a fast double click can
     // reach here twice before the button is actually disabled — and create two offers.
     if (this.saving()) return;
-    const coupon = this.form.value.triggerType === 'Coupon';
-    this.form.controls.code.setValidators(coupon ? [Validators.required] : []);
-    this.form.controls.code.updateValueAndValidity();
+    this.submitted = true;
+    this.syncCodeValidators();
+    this.form.updateValueAndValidity();
     if (this.form.invalid || this.codeState() === 'taken') {
       this.form.markAllAsTouched();
       this.toast.error(this.tr.instant('d3.platformOffers.validation.fixErrors'));

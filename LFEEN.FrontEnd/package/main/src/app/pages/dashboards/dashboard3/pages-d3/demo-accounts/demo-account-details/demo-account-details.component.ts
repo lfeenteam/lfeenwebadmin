@@ -15,6 +15,8 @@ import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
+import { PageBackOverrideService } from '../../../services/page-back-override.service';
+import { demoListState } from '../demo-list-state';
 import {
   DEMO_CHANNEL_ICONS,
   DEMO_PERMISSIONS,
@@ -82,6 +84,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   private readonly service = inject(DemoAccountsService);
   private readonly login = inject(LoginService);
   private readonly pageTitle = inject(PageTitleOverrideService);
+  private readonly pageBackOverride = inject(PageBackOverrideService);
 
   readonly canManage = computed(() =>
     this.login.permissions().some(p => p.toLowerCase() === DEMO_PERMISSIONS.manage)
@@ -113,8 +116,15 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
       .subscribe(event => { this.currentLang = event.lang; });
   }
 
+  /** The header's back button: to the list with the filters it had (§4.4). */
+  private readonly backToList = (): boolean => {
+    this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts'], { queryParams: demoListState.query });
+    return true;
+  };
+
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
+    this.pageBackOverride.set(this.backToList);
     this.load();
     // The variables, so the saved texts show chips instead of {{tokens}}. Without them
     // (an error), the texts just show as saved.
@@ -128,6 +138,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     clearTimeout(this.copiedTimer);
+    this.pageBackOverride.clear(this.backToList);
     this.pageTitle.clear();
   }
 
@@ -224,6 +235,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   /** Shown for Email accounts, or when a subject or file is saved. */
   get showInvitationContent(): boolean {
     return !!this.account; // the message and language apply to every channel
+  }
+
+  /** The delivery log gets a subject column once any attempt carries one. */
+  get hasDeliverySubjects(): boolean {
+    return !!this.account?.deliveries.some(d => d.renderedSubject);
   }
 
   /** The files row: Email accounts, or when files are saved. */

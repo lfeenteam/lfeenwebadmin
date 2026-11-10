@@ -201,8 +201,9 @@ export class InvitationEditorStore implements OnDestroy {
   /** A fix suggestion as the admin sees it: a known token shows its label, like the chips. */
   suggestionLabel(suggestion: string | null | undefined): string {
     if (!suggestion) return '';
+    // The server may send "1" or "{{1}}".
     const m = /^\{\{\s*([^{}\s]+)\s*\}\}$/.exec(suggestion.trim());
-    const v = m ? this.variableFor(m[1]) : undefined;
+    const v = this.variableFor(m ? m[1] : suggestion.trim());
     return v ? this.variableLabel(v) : suggestion;
   }
 
@@ -282,8 +283,13 @@ export class InvitationEditorStore implements OnDestroy {
   applySuggestion(issue: InvitationIssue): void {
     if (issue.suggestion == null) return;
     const text = issue.field === 'Subject' ? this.subject : this.message;
+    // The server may suggest a bare "1" for the inside of a token, or a whole "{{1}}". When the
+    // range covers the braces too, the bare suggestion gets its braces back.
+    const replaced = text.slice(issue.start, issue.end);
+    let suggestion = issue.suggestion;
+    if (replaced.trim().startsWith('{{') && !suggestion.trim().startsWith('{{')) suggestion = `{{${suggestion.trim()}}}`;
     // A suggested {{1}} is shown as {{name}}, like the rest of the editor.
-    const next = text.slice(0, issue.start) + this.readableTokens(issue.suggestion) + text.slice(issue.end);
+    const next = text.slice(0, issue.start) + this.readableTokens(suggestion) + text.slice(issue.end);
     if (issue.field === 'Subject') this.setSubject(next);
     else this.setMessage(next);
   }

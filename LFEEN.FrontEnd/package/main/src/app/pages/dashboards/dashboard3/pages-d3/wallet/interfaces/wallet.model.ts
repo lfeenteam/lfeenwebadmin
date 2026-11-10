@@ -59,11 +59,40 @@ export interface WalletAdjustInput {
   category: WalletCategoryValue;
   reason?: string;
   files: File[];
+  /** One per confirm click; resent unchanged on a retry so the server applies it once. */
+  idempotencyKey: string;
 }
 
+/**
+ * Two shapes: applied right away (`ledgerEntryId` + `newBalance`), or — when the amount
+ * is above the approval threshold — held for a second admin (`pendingApprovalId` only).
+ */
 export interface WalletAdjustResult {
-  newBalance: number;
-  ledgerEntryId: string;
+  newBalance?: number | null;
+  ledgerEntryId?: string | null;
+  pendingApprovalId?: string | null;
+}
+
+export function isPendingApproval(res: WalletAdjustResult | null | undefined): boolean {
+  return !!res?.pendingApprovalId && !res.ledgerEntryId;
+}
+
+/** A row of GET /api/wallet/adjustments/pending. Optional fields are shown only when sent. */
+export interface WalletPendingAdjustment {
+  id: string;
+  merchantAccountId: string;
+  merchantName?: string | null;
+  /** Signed: positive = credit, negative = debit. */
+  amount: number;
+  category?: WalletCategoryValue | null;
+  categoryNameAr?: string | null;
+  categoryNameEn?: string | null;
+  reason?: string | null;
+  requestedBy?: string | null;
+  requestedByAdminName?: string | null;
+  requestedAtUtc?: string | null;
+  createdAtUtc?: string | null;
+  attachments?: WalletAttachment[] | null;
 }
 
 export interface WalletUpdateEntryInput {
@@ -75,6 +104,20 @@ export interface WalletUpdateEntryInput {
 }
 
 export const MANUAL_ENTRY_TYPE = 'AdminAdjustment';
+
+/**
+ * Permission for the maker-checker queue. The backend name isn't confirmed yet, so any
+ * of these (lowercased) grants it — trim the list once it is.
+ */
+export const WALLET_APPROVE_PERMISSIONS: readonly string[] = [
+  'wallet.approve',
+  'wallet.approveadjustment',
+  'wallet.approveadjustments',
+];
+
+export function canApproveWalletAdjustments(permissions: readonly string[]): boolean {
+  return permissions.some(p => WALLET_APPROVE_PERMISSIONS.includes(p.toLowerCase()));
+}
 
 export const WALLET_MAX_ATTACHMENTS = 5;
 export const WALLET_MAX_FILE_BYTES = 10 * 1024 * 1024;

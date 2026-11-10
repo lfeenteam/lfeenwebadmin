@@ -115,9 +115,13 @@ export function readDemoError(err: any): DemoApiError {
   };
 }
 
-/** True when no answer reached the browser (network / timeout / gateway) — the only case a create may reuse its key. */
+/**
+ * True when the create may be retried with the same Idempotency-Key (§6.2, §8.1): no answer
+ * reached the browser (network / timeout), or a server error (500 / 502 / 503 / 504 or
+ * INTERNAL_ERROR). Any other answer means the next submit is a new request.
+ */
 export function isNoAnswerError(e: DemoApiError): boolean {
-  return e.status === 0 || e.status === 502 || e.status === 504;
+  return e.status === 0 || e.status >= 500 || e.code === 'INTERNAL_ERROR';
 }
 
 /** The text to show for an error: our own translation per code, else the server message. */

@@ -284,6 +284,7 @@
                   <th>{{ 'd3.demoAccounts.deliveries.time' | translate }}</th>
                   <th>{{ 'd3.demoAccounts.deliveries.channel' | translate }}</th>
                   <th>{{ 'd3.demoAccounts.deliveries.recipient' | translate }}</th>
+                  @if (hasDeliverySubjects) { <th>{{ 'd3.demoAccounts.deliveries.subject' | translate }}</th> }
                   <th>{{ 'd3.demoAccounts.deliveries.result' | translate }}</th>
                   <th>{{ 'd3.demoAccounts.deliveries.reason' | translate }}</th>
                   <th>{{ 'd3.demoAccounts.deliveries.by' | translate }}</th>
@@ -300,6 +301,14 @@
                       </span>
                     </td>
                     <td><span class="da-ltr" dir="ltr">{{ d.recipient || emptyValue }}</span></td>
+                    @if (hasDeliverySubjects) {
+                      <!-- The subject this attempt carried, exactly as the host got it -->
+                      <td>
+                        @if (d.renderedSubject) {
+                          <span class="dd-reason" dir="auto" [matTooltip]="d.renderedSubject">{{ d.renderedSubject }}</span>
+                        } @else { <span class="da-muted">{{ emptyValue }}</span> }
+                      </td>
+                    }
                     <td>
                       @if (d.succeeded) {
                         <span class="dd-result ok"><i-tabler name="circle-check" class="icon-16"></i-tabler>{{ 'd3.demoAccounts.deliveries.sent' | translate }}</span>

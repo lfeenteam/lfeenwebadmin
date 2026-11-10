@@ -534,6 +534,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'wallet-approvals',
+                canActivate: [authGuard, pageFlagGuard('wallet-approvals')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/wallet/wallet-approvals/wallet-approvals.component'
+                  ).then((m) => m.WalletApprovalsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.wallet.approvals.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'wallet/:id',
                 canActivate: [authGuard, pageFlagGuard('wallet')],
                 loadComponent: () =>

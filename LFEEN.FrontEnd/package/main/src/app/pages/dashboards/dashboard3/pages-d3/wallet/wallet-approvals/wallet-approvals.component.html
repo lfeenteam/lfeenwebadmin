@@ -1,0 +1,122 @@
+<div class="approvals-container" [dir]="currentDir">
+
+  <div class="intro-card">
+    <div class="intro-icon"><i-tabler name="shield-check" class="icon-20"></i-tabler></div>
+    <div>
+      <h3>{{ 'd3.wallet.approvals.introTitle' | translate }}</h3>
+      <p>{{ 'd3.wallet.approvals.introDesc' | translate }}</p>
+    </div>
+    <button type="button" class="refresh-btn" [disabled]="loading" (click)="load()"
+            [attr.aria-label]="'d3.wallet.errors.retry' | translate">
+      <i-tabler name="refresh" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  @if (loading) {
+    <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+  } @else {
+
+  <div class="table-box">
+    <div class="table-responsive">
+      <table class="table approvals-table m-0">
+        <colgroup>
+          <col style="width: 16%">
+          <col style="width: 15%">
+          <col style="width: 12%">
+          <col style="width: 11%">
+          <col style="width: 22%">
+          <col style="width: 24%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>{{ 'd3.wallet.approvals.requestedAt' | translate }}</th>
+            <th>{{ 'd3.wallet.approvals.merchant' | translate }}</th>
+            <th>{{ 'd3.wallet.table.amount' | translate }}</th>
+            <th>{{ 'd3.wallet.table.category' | translate }}</th>
+            <th>{{ 'd3.wallet.adjust.reasonLabel' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows; track row.item.id) {
+            <tr class="approval-row">
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.approvals.requestedAt' | translate }}</span>
+                <span class="entry-date">{{ formatDate(row.date) }}</span>
+                @if (row.requestedBy) {
+                  <span class="entry-meta">{{ 'd3.wallet.table.by' | translate }} {{ row.requestedBy }}</span>
+                }
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.approvals.merchant' | translate }}</span>
+                <a class="merchant-link" [routerLink]="['/d3/wallet', row.item.merchantAccountId]">{{ row.merchantLabel }}</a>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.table.amount' | translate }}</span>
+                <span class="amount-value" [class.amount-credit]="row.isCredit" [class.amount-debit]="!row.isCredit">
+                  {{ row.isCredit ? '+' : '−' }}{{ fmtAmount(row.amount) }}
+                  <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="isTextCurrency">
+                </span>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.table.category' | translate }}</span>
+                <span class="entry-category">{{ row.categoryName }}</span>
+              </td>
+              <td class="p-24">
+                <span class="mobile-field-label">{{ 'd3.wallet.adjust.reasonLabel' | translate }}</span>
+                <span class="entry-description" [title]="row.reason">{{ row.reason }}</span>
+              </td>
+              <td class="p-24">
+                <div class="row-actions">
+                  @if (row.attachments.length) {
+                    <button type="button" class="row-action-btn" [matMenuTriggerFor]="attachmentsMenu"
+                            [attr.aria-label]="'d3.wallet.table.attachments' | translate">
+                      <i-tabler name="paperclip" class="icon-16"></i-tabler>
+                      <span class="attach-count">{{ row.attachments.length }}</span>
+                    </button>
+                    <mat-menu #attachmentsMenu="matMenu">
+                      @for (a of row.attachments; track a.id) {
+                        <a mat-menu-item [href]="a.url" target="_blank" rel="noopener">
+                          <i-tabler [name]="a.contentType === 'application/pdf' ? 'file-type-pdf' : 'photo'" class="icon-16"></i-tabler>
+                          <span>{{ a.fileName }}</span>
+                        </a>
+                      }
+                    </mat-menu>
+                  }
+                  <button type="button" class="decision-btn decision-btn--reject" [disabled]="busy.has(row.item.id)" (click)="reject(row)">
+                    {{ 'd3.wallet.approvals.reject' | translate }}
+                  </button>
+                  <button type="button" class="decision-btn decision-btn--approve" [disabled]="busy.has(row.item.id)" (click)="approve(row)">
+                    {{ 'd3.wallet.approvals.approve' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="p-0">
+                @if (loadError) {
+                  @if (forbidden) {
+                    <app-dashboard-empty variant="error" icon="lock" titleKey="d3.wallet.approvals.loadTitle" descKey="d3.wallet.approvals.forbidden"></app-dashboard-empty>
+                  } @else {
+                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.wallet.approvals.loadTitle" descKey="d3.wallet.errors.network">
+                      <button type="button" class="retry-btn" (click)="load()">
+                        <i-tabler name="refresh" class="icon-16"></i-tabler>
+                        {{ 'd3.wallet.errors.retry' | translate }}
+                      </button>
+                    </app-dashboard-empty>
+                  }
+                } @else {
+                  <app-dashboard-empty icon="checks" titleKey="d3.wallet.approvals.emptyTitle" descKey="d3.wallet.approvals.emptyDesc"></app-dashboard-empty>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  }
+
+</div>

@@ -16,6 +16,7 @@ import {
   WalletCategory,
   WalletCategoryValue,
   WalletDirection,
+  isPendingApproval,
 } from '../../interfaces/wallet.model';
 import { resolveWalletError } from '../../interfaces/wallet-error.util';
 import { WalletService } from '../../services/wallet.service';
@@ -32,13 +33,29 @@ export interface WalletAdjustDialogData {
   correction?: { entryId: string; signedAmount: number; createdAtUtc: string };
 }
 
-/** `undefined` = cancelled without an adjustment being recorded. */
-export type WalletAdjustDialogResult = { newBalance: number } | undefined;
+/**
+ * `undefined` = cancelled without an adjustment being recorded.
+ * `pending` = above the threshold: nothing changed yet, it waits for a second admin.
+ */
+export type WalletAdjustDialogResult = { newBalance: number } | { pending: true } | undefined;
 
-type DialogStep = 'form' | 'confirm' | 'success';
+type DialogStep = 'form' | 'confirm' | 'success' | 'pending';
 
 const REASON_MAX = 2000;
 const round2 = (value: number): number => Math.round(value * 100) / 100;
+/** The ledger columns are decimal(18,2) — a third decimal would be rounded differently server side. */
+const hasMoreThan2Decimals = (value: number): boolean => Math.abs(value * 100 - Math.round(value * 100)) > 1e-6;
+
+function newIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  // Fallback for non-secure contexts (plain http), where randomUUID is unavailable.
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
 
 @Component({
   selector: 'app-wallet-adjust-dialog',
@@ -67,6 +84,10 @@ export class WalletAdjustDialogComponent {
   shouldNotExist = false;
 
   newBalance = 0;
+
+  /** Kept while the payload stays the same, so a retry after a failed/cut-off request can't apply twice. */
+  private idempotencyKey: string | null = null;
+  private idempotencyFingerprint = '';
 
   constructor(
     public dialogRef: MatDialogRef<WalletAdjustDialogComponent, WalletAdjustDialogResult>,
@@ -153,6 +174,10 @@ export class WalletAdjustDialogComponent {
     return this.isCorrection && this.hasAmountInput && this.signedAmount === 0;
   }
 
+  get tooManyDecimals(): boolean {
+    return !this.shouldNotExist && this.amount != null && hasMoreThan2Decimals(this.amount);
+  }
+
   get exceedsBalance(): boolean {
     return this.signedAmount < 0 && round2(-this.signedAmount) > round2(this.data.currentBalance);
   }
@@ -163,6 +188,7 @@ export class WalletAdjustDialogComponent {
       && !!this.category
       && this.hasAmountInput
       && this.signedAmount !== 0
+      && !this.tooManyDecimals
       && !this.exceedsBalance
       && reason.length <= REASON_MAX
       && (!this.reasonRequired || !!reason);
@@ -194,20 +220,42 @@ export class WalletAdjustDialogComponent {
     return c ? this.categoryLabel(c) : '';
   }
 
-  // Never auto-retried: if the request is cut off, the admin re-checks the ledger first,
-  // otherwise the same adjustment could be applied twice.
+  /** Same key for the same payload; any change to what's sent gets a fresh key. */
+  private keyFor(reason: string): string {
+    const fingerprint = JSON.stringify([
+      this.data.merchantAccountId,
+      this.signedAmount,
+      this.category,
+      reason,
+      this.files.map(f => `${f.name}:${f.size}:${f.lastModified}`),
+    ]);
+    if (!this.idempotencyKey || fingerprint !== this.idempotencyFingerprint) {
+      this.idempotencyKey = newIdempotencyKey();
+      this.idempotencyFingerprint = fingerprint;
+    }
+    return this.idempotencyKey;
+  }
+
+  // Never auto-retried. A manual retry of the same payload reuses the idempotency key,
+  // so the server applies it at most once even if the first request did go through.
   confirm(): void {
     if (this.submitting || !this.category || this.signedAmount === 0) return;
     this.submitting = true;
+    const reason = this.reason.trim();
     this.service.adjust(this.data.merchantAccountId, {
       amount: this.signedAmount,
       category: this.category,
-      reason: this.reason.trim() || undefined,
+      reason: reason || undefined,
       files: this.files,
+      idempotencyKey: this.keyFor(reason),
     }).subscribe({
       next: res => {
-        this.newBalance = res.newBalance;
         this.submitting = false;
+        if (isPendingApproval(res)) {
+          this.step = 'pending';
+          return;
+        }
+        this.newBalance = res.newBalance ?? this.estimatedNewBalance;
         this.step = 'success';
       },
       error: err => {
@@ -220,11 +268,11 @@ export class WalletAdjustDialogComponent {
 
   close(): void {
     if (this.submitting) return;
-    if (this.step === 'success') return this.finish();
+    if (this.step === 'success' || this.step === 'pending') return this.finish();
     this.dialogRef.close(undefined);
   }
 
   finish(): void {
-    this.dialogRef.close({ newBalance: this.newBalance });
+    this.dialogRef.close(this.step === 'pending' ? { pending: true } : { newBalance: this.newBalance });
   }
 }

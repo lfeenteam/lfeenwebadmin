@@ -193,6 +193,36 @@
   flex-wrap: wrap;
 }
 
+.pagination-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9E9E9A;
+
+  select {
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid #E8E8E4;
+    background: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111110;
+    cursor: pointer;
+  }
+}
+
 .pagination-total {
   font-size: 13px;
   color: #9E9E9A;

@@ -144,31 +144,13 @@
                     <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
                   </button>
                   <mat-menu #rowMenu="matMenu" [xPosition]="dir === 'rtl' ? 'after' : 'before'">
+                    <!-- View details only (§4.1): every other action lives on the details page. -->
                     <button mat-menu-item (click)="open(item)">
                       <span class="menu-item-row">
                         <i-tabler name="eye" class="icon-16"></i-tabler>
                         <span>{{ 'd3.demoAccounts.actions.viewDetails' | translate }}</span>
                       </span>
                     </button>
-                    <!-- Same actions as the details header; none on a disabled account. -->
-                    @if (canManage() && item.status !== 'Disabled') {
-                      <mat-divider></mat-divider>
-                      @for (a of actions; track a.action) {
-                        <button mat-menu-item [disabled]="busy" (click)="openAction(item, a.action)">
-                          <span class="menu-item-row">
-                            <i-tabler [name]="a.icon" class="icon-16"></i-tabler>
-                            <span>{{ a.labelKey | translate }}</span>
-                          </span>
-                        </button>
-                      }
-                      <mat-divider></mat-divider>
-                      <button mat-menu-item [disabled]="busy" (click)="openAction(item, 'disable')">
-                        <span class="menu-item-row danger">
-                          <i-tabler name="ban" class="icon-16"></i-tabler>
-                          <span>{{ 'd3.demoAccounts.actions.disable' | translate }}</span>
-                        </span>
-                      </button>
-                    }
                   </mat-menu>
                 </td>
               </tr>
@@ -211,12 +193,24 @@
     </div>
   }
 
-  <!-- Same pager as the buildings page -->
-  @if (!loading && totalPages > 1) {
+  <!-- Same pager as the buildings page: total always, page size 20/50/100, pages when more than one -->
+  @if (!loading && totalCount > 0) {
     <div class="pagination-wrapper">
-      <span class="pagination-total">
-        {{ fmt(totalCount) }} {{ 'd3.demoAccounts.pagination.total' | translate }}
-      </span>
+      <div class="pagination-meta">
+        <span class="pagination-total">
+          {{ fmt(totalCount) }} {{ 'd3.demoAccounts.pagination.total' | translate }}
+        </span>
+        <label class="page-size">
+          <span>{{ 'd3.demoAccounts.pagination.pageSize' | translate }}</span>
+          <select [value]="pageSize" (change)="onPageSizeChange(+$any($event.target).value)"
+                  [attr.aria-label]="'d3.demoAccounts.pagination.pageSize' | translate">
+            @for (s of pageSizes; track s) {
+              <option [value]="s" [selected]="s === pageSize">{{ fmt(s) }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      @if (totalPages > 1) {
       <div class="pagination-controls">
         <button type="button" class="page-nav-btn" [disabled]="page === 1" (click)="changePage(page - 1)">
           <i-tabler [name]="dir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
@@ -234,6 +228,7 @@
           <i-tabler [name]="dir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
         </button>
       </div>
+      }
     </div>
   }
 

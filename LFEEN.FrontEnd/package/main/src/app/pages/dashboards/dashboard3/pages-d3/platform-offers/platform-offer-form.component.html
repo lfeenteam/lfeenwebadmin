@@ -64,37 +64,46 @@
                           {{
                             "d3.platformOffers.fields.internalAr" | translate
                           }}*
-                          <input formControlName="internalNameAr" />
-                          @if (showError(form.controls.internalNameAr)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                          <input formControlName="internalNameAr" [attr.maxlength]="limits.nameMax" />
+                          @if (fieldError("internalNameAr"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.internalEn" | translate
                           }}*
-                          <input formControlName="internalNameEn" dir="ltr" />
-                          @if (showError(form.controls.internalNameEn)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                          <input formControlName="internalNameEn" dir="ltr" [attr.maxlength]="limits.nameMax" />
+                          @if (fieldError("internalNameEn"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.externalAr" | translate
                           }}
-                          <input formControlName="externalNameAr" />
+                          <input formControlName="externalNameAr" [attr.maxlength]="limits.nameMax" />
+                          @if (fieldError("externalNameAr"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.externalEn" | translate
                           }}
-                          <input formControlName="externalNameEn" dir="ltr" />
+                          <input formControlName="externalNameEn" dir="ltr" [attr.maxlength]="limits.nameMax" />
+                          @if (fieldError("externalNameEn"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.descriptionAr" | translate
                           }}
-                          <textarea formControlName="descriptionAr"></textarea>
+                          <textarea formControlName="descriptionAr" [attr.maxlength]="limits.descriptionMax"></textarea>
+                          @if (fieldError("descriptionAr"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
@@ -103,7 +112,11 @@
                           <textarea
                             formControlName="descriptionEn"
                             dir="ltr"
+                            [attr.maxlength]="limits.descriptionMax"
                           ></textarea>
+                          @if (fieldError("descriptionEn"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                       </div>
                       <label class="upload" [class.has-image]="!!preview()">
@@ -144,10 +157,11 @@
                             <input
                               formControlName="code"
                               dir="ltr"
+                              [attr.maxlength]="limits.codeMax"
                               (input)="codeChanged($any($event.target).value)"
                             />
-                            @if (showError(form.controls.code)) {
-                              <small class="field-error">{{ "d3.platformOffers.validation.required" | translate }}</small>
+                            @if (fieldError("code"); as msg) {
+                              <small class="field-error">{{ msg }}</small>
                             } @else {
                               <small [class.ok]="codeState() === 'ok'">
                                 {{
@@ -182,13 +196,15 @@
                           <input
                             type="number"
                             formControlName="discountValue"
+                            min="0.01"
+                            [attr.max]="
+                              form.value.discountType === 'Percentage'
+                                ? limits.percentMax
+                                : limits.amountMax
+                            "
                           />
-                          @if (showError(form.controls.discountValue)) {
-                            <small class="field-error">{{
-                              (form.controls.discountValue.hasError("min")
-                                ? "d3.platformOffers.validation.positive"
-                                : "d3.platformOffers.validation.required") | translate
-                            }}</small>
+                          @if (fieldError("discountValue"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
                           }
                         </label>
                         @if (form.value.discountType === "Percentage") {
@@ -198,8 +214,12 @@
                             }}
                             <input
                               type="number"
+                              min="0"
                               formControlName="maxDiscountAmount"
                             />
+                            @if (fieldError("maxDiscountAmount"); as msg) {
+                              <small class="field-error">{{ msg }}</small>
+                            }
                           </label>
                         }
                       </div>
@@ -232,6 +252,9 @@
                                 }}</mat-option>
                               }
                             </mat-select>
+                            @if (fieldError("unitIds"); as msg) {
+                              <small class="field-error">{{ msg }}</small>
+                            }
                           </label>
                         }
                       </div>
@@ -290,6 +313,9 @@
                               </div>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("offerStartDate"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.end" | translate }}
@@ -339,6 +365,9 @@
                               </div>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("offerEndDate"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.days" | translate }}
@@ -347,6 +376,9 @@
                             placeholder="Sat,Sun,Mon"
                             dir="ltr"
                           />
+                          @if (fieldError("offerDaysOfWeek"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
@@ -379,6 +411,9 @@
                               ></app-time-select>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("happyHourStart"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.happyEnd" | translate }}
@@ -409,6 +444,9 @@
                               ></app-time-select>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("happyHourEnd"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                       </div>
                     }
@@ -466,6 +504,9 @@
                               </div>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("stayStartDate"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.stayEnd" | translate }}
@@ -515,27 +556,42 @@
                               </div>
                             </ng-template>
                           </mat-menu>
+                          @if (fieldError("stayEndDate"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.stayDays" | translate }}
-                          <input formControlName="stayDaysOfWeek" dir="ltr" />
+                          <input placeholder="Fri,Sat" formControlName="stayDaysOfWeek" dir="ltr" />
+                          @if (fieldError("stayDaysOfWeek"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.minArrival" | translate
                           }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="minDaysBeforeArrival"
                           />
+                          @if (fieldError("minDaysBeforeArrival"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.minStay" | translate }}
-                          <input type="number" formControlName="minStayDays" />
+                          <input min="0" type="number" formControlName="minStayDays" />
+                          @if (fieldError("minStayDays"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.maxStay" | translate }}
-                          <input type="number" formControlName="maxStayDays" />
+                          <input min="0" type="number" formControlName="maxStayDays" />
+                          @if (fieldError("maxStayDays"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                       </div>
                     }
@@ -543,35 +599,47 @@
                       <div class="fields two">
                         <label>
                           {{ "d3.platformOffers.fields.maxTotal" | translate }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="maxTotalUsage"
                           />
+                          @if (fieldError("maxTotalUsage"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.maxDaily" | translate }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="maxDailyUsage"
                           />
+                          @if (fieldError("maxDailyUsage"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.maxDailyUser" | translate
                           }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="maxDailyUsagePerUser"
                           />
+                          @if (fieldError("maxDailyUsagePerUser"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.maxTotalUser" | translate
                           }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="maxTotalUsagePerUser"
                           />
+                          @if (fieldError("maxTotalUsagePerUser"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                       </div>
                     }
@@ -585,10 +653,13 @@
                           {{
                             "d3.platformOffers.fields.minBooking" | translate
                           }}
-                          <input
+                          <input min="0"
                             type="number"
                             formControlName="minBookingAmount"
                           />
+                          @if (fieldError("minBookingAmount"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.channel" | translate }}
@@ -600,6 +671,9 @@
                             <mat-option value="Merchant">{{ enumLabel("Merchant") }}</mat-option>
                             <mat-option value="Client">{{ enumLabel("Client") }}</mat-option>
                           </mat-select>
+                          @if (fieldError("displayChannel"); as msg) {
+                            <small class="field-error">{{ msg }}</small>
+                          }
                         </label>
                         <label>
                           {{
@@ -724,8 +798,8 @@
                               <i-tabler name="trash"></i-tabler>
                             </button>
                           </div>
-                          @if (showError(row)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                          @if (rowError(row); as msg) {
+                            <small class="field-error">{{ msg }}</small>
                           }
                         }
                         <button

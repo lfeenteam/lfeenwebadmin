@@ -75,8 +75,8 @@ export class DemoAccountsService {
 
   // ── Email invitation attachments (§5) ─────────────────────
 
-  // One request with every newly chosen file. Plain array response (no data wrapper).
-  // TODO(backend): confirm the multipart field name ("files", per the Files[0] validation names).
+  // One request with every newly chosen file (multipart field "files", 1–5 files).
+  // 201 with a plain array (no data wrapper).
   uploadAttachments(files: File[]): Observable<DemoAttachment[]> {
     const form = new FormData();
     files.forEach(f => form.append('files', f, f.name));

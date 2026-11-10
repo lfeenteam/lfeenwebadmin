@@ -326,8 +326,9 @@ export class WalletComponent implements OnInit, OnDestroy {
 
       // The response carries the new balance and the new entry's id, not the ledger
       // itself, so the ledger is re-fetched to show the entry immediately.
+      // A pending (above-threshold) request changes nothing until a second admin approves it.
       dialogRef.afterClosed().subscribe((result?: WalletAdjustDialogResult) => {
-        if (!result) return;
+        if (!result || 'pending' in result) return;
         this.balance = result.newBalance;
         this.load();
       });
