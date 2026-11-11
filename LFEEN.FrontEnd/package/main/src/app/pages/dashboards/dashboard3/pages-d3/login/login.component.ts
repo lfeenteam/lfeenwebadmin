@@ -9,7 +9,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoginService } from '../../services/login/login.service';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { safeReturnUrl, withLang } from '../../../../../guards/return-url.util';
 
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
@@ -64,6 +65,7 @@ export class LoginComponent {
     private loginService: LoginService,
     private toastr: ToastrService,
     private router: Router,
+    private route: ActivatedRoute,
     private translate: TranslateService,
     private settings: CoreService
   ) {
@@ -118,8 +120,10 @@ export class LoginComponent {
         
             this.loginService.setToken(response);
           
+            // Back to the page that sent the admin here, in the language chosen on this page.
             const lang = this.translate.currentLang || 'en';
-            this.router.navigate([`/${lang}/d3/ceo`]);
+            const returnUrl = safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+            this.router.navigateByUrl(returnUrl ? withLang(returnUrl, lang) : `/${lang}/d3/ceo`);
           },
           error: (err) => {
             // Several field errors (e.g. password rules) → one toast with a bullet per message.

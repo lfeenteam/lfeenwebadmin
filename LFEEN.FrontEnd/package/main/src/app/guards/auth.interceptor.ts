@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { LoginService } from '../pages/dashboards/dashboard3/services/login/login.service';
+import { safeReturnUrl } from './return-url.util';
 import { CoreService } from '../services/core.service';
 
 @Injectable()
@@ -97,7 +98,11 @@ export class AuthInterceptor implements HttpInterceptor {
     if (this.loginService.isLoggedIn()) {
       this.loginService.logout();
       const lang = this.coreService.getLanguage() === 'en' ? 'en' : 'ar';
-      this.router.navigate(['/', lang, 'd3', 'login']);
+      // Keep the current page so the admin lands back on it after signing in again.
+      const returnUrl = safeReturnUrl(this.router.url);
+      this.router.navigate(['/', lang, 'd3', 'login'], {
+        queryParams: returnUrl ? { returnUrl } : undefined,
+      });
     }
     return throwError(() => error);
   }

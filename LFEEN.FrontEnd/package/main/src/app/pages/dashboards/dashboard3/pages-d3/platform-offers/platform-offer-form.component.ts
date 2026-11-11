@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { CoreService } from 'src/app/services/core.service';
-import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { extractApiErrorMessage, extractApiFieldErrors } from '../../utils/api-error.util';
 import { SingleDateCalendarComponent } from '../all-bookings/components/single-date-calendar/single-date-calendar.component';
 import { BookingUnitOption } from '../all-bookings/interfaces/booking.model';
 import { BookingService } from '../all-bookings/services/booking.service';
@@ -35,6 +35,10 @@ import {
   offerFormValidator,
   timeValidator,
 } from './platform-offer.validators';
+import { maxValueValidator, wholeNumberValidator } from '../../utils/number-validators';
+
+/** A whole number from 0 to `max` (the API binds these fields as int). */
+const wholeCount = (max: number) => [Validators.min(0), maxValueValidator(max), wholeNumberValidator];
 
 @Component({
   selector: 'app-platform-offer-form',
@@ -90,7 +94,7 @@ export class PlatformOfferFormComponent implements OnInit {
         null as number | null,
         [Validators.required, Validators.min(0.01), discountValueMaxValidator],
       ],
-      maxDiscountAmount: [null as number | null, Validators.min(0)],
+      maxDiscountAmount: [null as number | null, [Validators.min(0), maxValueValidator(OFFER_LIMITS.amountMax)]],
       appliedTo: ['AllUnits', Validators.required],
       unitIds: [[] as number[]],
       offerStartDate: [''],
@@ -101,15 +105,15 @@ export class PlatformOfferFormComponent implements OnInit {
       stayStartDate: [''],
       stayEndDate: [''],
       stayDaysOfWeek: ['', daysOfWeekValidator],
-      maxTotalUsage: [null as number | null, Validators.min(0)],
-      maxDailyUsage: [null as number | null, Validators.min(0)],
-      maxDailyUsagePerUser: [null as number | null, Validators.min(0)],
-      maxTotalUsagePerUser: [null as number | null, Validators.min(0)],
-      minDaysBeforeArrival: [null as number | null, Validators.min(0)],
-      minStayDays: [null as number | null, Validators.min(0)],
-      maxStayDays: [null as number | null, Validators.min(0)],
+      maxTotalUsage: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxDailyUsage: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxDailyUsagePerUser: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxTotalUsagePerUser: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      minDaysBeforeArrival: [null as number | null, wholeCount(OFFER_LIMITS.arrivalDaysMax)],
+      minStayDays: [null as number | null, wholeCount(OFFER_LIMITS.stayDaysMax)],
+      maxStayDays: [null as number | null, wholeCount(OFFER_LIMITS.stayDaysMax)],
       allowedPaymentMethods: [''],
-      minBookingAmount: [null as number | null, Validators.min(0)],
+      minBookingAmount: [null as number | null, [Validators.min(0), maxValueValidator(OFFER_LIMITS.amountMax)]],
       displayChannel: ['All', Validators.required],
       canBeCombined: [false],
       expirationPolicy: ['WhicheverFirst'],
@@ -307,7 +311,15 @@ export class PlatformOfferFormComponent implements OnInit {
       id: [v.id],
       termAr: [v.termAr || '', Validators.required],
       termEn: [v.termEn || '', Validators.required],
-      order: [v.order ?? this.terms.length + 1, Validators.required],
+      order: [
+        v.order ?? this.terms.length + 1,
+        [
+          Validators.required,
+          Validators.min(1),
+          maxValueValidator(OFFER_LIMITS.orderMax),
+          wholeNumberValidator,
+        ],
+      ],
     });
   }
   /** True once the user has touched an invalid control — drives the inline error text. */
@@ -326,12 +338,14 @@ export class PlatformOfferFormComponent implements OnInit {
       this.tr.instant(`d3.platformOffers.validation.${k}`, p);
     const e = c.errors;
     if (e) {
+      if (e['server']) return e['server'];
       if (e['required']) return key('required');
       if (e['maxlength'])
         return key('maxLength', { max: e['maxlength'].requiredLength });
       if (e['min'])
         return key(e['min'].min > 0 ? 'positive' : 'notNegative');
       if (e['maxValue']) return key('maxValue', { max: e['maxValue'].max.toLocaleString() });
+      if (e['wholeNumber']) return key('wholeNumber');
       if (e['codePattern']) return key('codePattern');
       if (e['days']) return key('days');
       if (e['time']) return key('time');
@@ -357,7 +371,66 @@ export class PlatformOfferFormComponent implements OnInit {
     });
   }
 
+  /** Error under a term row: the order's own rule when it fails, else "complete the row". */
+  termRowError(row: AbstractControl): string {
+    const order = row.get('order');
+    const key = (k: string, p?: object) =>
+      this.tr.instant(`d3.platformOffers.validation.${k}`, p);
+    if (order?.value !== null && order?.value !== '') {
+      if (order?.hasError('min')) return key('positive');
+      if (order?.hasError('maxValue'))
+        return key('maxValue', { max: OFFER_LIMITS.orderMax.toLocaleString() });
+      if (order?.hasError('wholeNumber')) return key('wholeNumber');
+    }
+    return key('rowIncomplete');
+  }
+
   private submitted = false;
+
+  /** Opens every section and focuses the first invalid field. */
+  private revealErrors() {
+    this.open.set(
+      new Set([
+        'basics',
+        'discount',
+        'scope',
+        'timing',
+        'stay',
+        'usage',
+        'settings',
+        'exclusions',
+        'messages',
+        'terms',
+      ]),
+    );
+    setTimeout(() =>
+      document.querySelector<HTMLElement>('.ng-invalid:not(form)')?.focus(),
+    );
+  }
+
+  /**
+   * Puts the server's field errors on the matching controls. Returns the messages
+   * no control claims; model-binding errors (null message) get a local text.
+   */
+  private applyServerFieldErrors(e: unknown): { claimed: number; unclaimed: string[] } {
+    const controls = new Map(
+      Object.keys(this.form.controls).map((name) => [name.toLowerCase(), name]),
+    );
+    const invalid = this.tr.instant('d3.platformOffers.validation.invalidValue');
+    let claimed = 0;
+    const unclaimed: string[] = [];
+    for (const item of extractApiFieldErrors(e)) {
+      const name = controls.get(item.field);
+      const control = name ? this.form.get(name) : null;
+      if (control) {
+        // Cleared by the control's own validators on the next edit.
+        control.setErrors({ ...(control.errors ?? {}), server: item.message ?? invalid });
+        control.markAsTouched();
+        claimed++;
+      } else if (item.message) unclaimed.push(item.message);
+    }
+    return { claimed, unclaimed };
+  }
 
   private syncCodeValidators() {
     const coupon = this.form.controls.triggerType.value === 'Coupon';
@@ -383,23 +456,7 @@ export class PlatformOfferFormComponent implements OnInit {
     if (this.form.invalid || this.codeState() === 'taken') {
       this.form.markAllAsTouched();
       this.toast.error(this.tr.instant('d3.platformOffers.validation.fixErrors'));
-      this.open.set(
-        new Set([
-          'basics',
-          'discount',
-          'scope',
-          'timing',
-          'stay',
-          'usage',
-          'settings',
-          'exclusions',
-          'messages',
-          'terms',
-        ]),
-      );
-      setTimeout(() =>
-        document.querySelector<HTMLElement>('.ng-invalid:not(form)')?.focus(),
-      );
+      this.revealErrors();
       return;
     }
     this.saving.set(true);
@@ -417,6 +474,16 @@ export class PlatformOfferFormComponent implements OnInit {
     };
     const onErr = (e: unknown) => {
       this.saving.set(false);
+      const { claimed, unclaimed } = this.applyServerFieldErrors(e);
+      if (claimed) {
+        this.revealErrors();
+        this.toast.error(
+          unclaimed.length
+            ? unclaimed.join(' - ')
+            : this.tr.instant('d3.platformOffers.validation.serverFieldErrors'),
+        );
+        return;
+      }
       this.toast.error(
         extractApiErrorMessage(
           e,

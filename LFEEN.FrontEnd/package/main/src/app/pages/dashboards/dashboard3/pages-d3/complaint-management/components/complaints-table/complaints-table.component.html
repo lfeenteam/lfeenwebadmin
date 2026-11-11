@@ -253,13 +253,17 @@
         <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
       </button>
 
-      @for (page of visiblePages; track page) {
-        <button
-          class="page-number-btn"
-          [class.active]="currentPage === page"
-          (click)="changePage(page)">
-          {{ displayPage(page) }}
-        </button>
+      @for (page of visiblePages; track $index) {
+        @if (page === '...') {
+          <span class="page-ellipsis">…</span>
+        } @else {
+          <button
+            class="page-number-btn"
+            [class.active]="currentPage === page"
+            (click)="changePage($any(page))">
+            {{ displayPage($any(page)) }}
+          </button>
+        }
       }
 
       <button

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { extractApiFieldErrors } from '../../../utils/api-error.util';
 
 export type FaqFormField = 'titleAr' | 'titleEn' | 'contentAr' | 'contentEn' | 'order';
 
@@ -22,7 +23,9 @@ const SERVER_FIELD_TO_FORM: Record<string, FaqFormField> = {
 /**
  * POST/PUT /api/client-faq reject with
  * `{ success: false, message, errors: [{ field, message }] }`; each message is localized
- * by the server (Accept-Language). Network/5xx failures fall back to the generic text.
+ * by the server (Accept-Language). A body that fails model binding comes back as
+ * ValidationProblemDetails instead; its fields get a local "invalid value" text.
+ * Network/5xx failures fall back to the generic text.
  */
 export function parseFaqSaveError(err: unknown, translate: TranslateService): FaqSaveError {
   const e = err as HttpErrorResponse;
@@ -31,15 +34,14 @@ export function parseFaqSaveError(err: unknown, translate: TranslateService): Fa
 
   if (!e?.status || e.status >= 500) return { fieldErrors: {}, message: generic };
 
+  // Model-binding errors (e.g. an order beyond int range) carry English framework text.
+  const invalid = translate.instant('d3.faq.dialog.validation.invalidValue');
   const fieldErrors: FaqSaveError['fieldErrors'] = {};
   const unclaimed: string[] = [];
-  if (Array.isArray(body.errors)) {
-    for (const item of body.errors as { field?: string; message?: string }[]) {
-      if (!item?.message) continue;
-      const field = SERVER_FIELD_TO_FORM[(item.field ?? '').toLowerCase()];
-      if (field) fieldErrors[field] ??= item.message;
-      else unclaimed.push(item.message);
-    }
+  for (const item of extractApiFieldErrors(err)) {
+    const field = SERVER_FIELD_TO_FORM[item.field];
+    if (field) fieldErrors[field] ??= item.message ?? invalid;
+    else if (item.message) unclaimed.push(item.message);
   }
 
   const hasFieldErrors = Object.keys(fieldErrors).length > 0;

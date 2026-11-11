@@ -292,7 +292,30 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   direction: rtl;
+}
+
+.page-ellipsis {
+  min-width: 14px;
+  color: #A2A29C;
+  font-size: 11px;
+  text-align: center;
+}
+
+// Counter on its own line above the page buttons, both centered.
+@media (max-width: 480px) {
+  .assign-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+  }
+
+  .pagination-total {
+    flex-basis: 100%;
+    order: -1;
+    text-align: center;
+  }
 }
 
 .pagination-total {

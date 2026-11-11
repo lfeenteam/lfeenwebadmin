@@ -10,6 +10,7 @@ import { ComplaintService } from '../../services/complaint.service';
 import { AssignableEmployee } from '../../interfaces/complaint.model';
 import { PageBreadcrumbTrailService } from '../../../../services/page-breadcrumb-trail.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 interface AssignPageNavState {
   ticketNumber?: string;
@@ -203,8 +204,9 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
-  get visiblePages(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
+  // Compact list (1 2 3 4 … 13 14 15) so the pager fits a phone screen.
+  get visiblePages(): (number | '...')[] {
+    return getVisiblePages(this.currentPage(), this.totalPages());
   }
 
   displayPage(page: number): string {

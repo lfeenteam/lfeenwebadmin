@@ -13,6 +13,7 @@ import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTM
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 @Component({
   selector: 'app-complaints-table',
@@ -126,8 +127,9 @@ export class ComplaintsTableComponent implements OnChanges {
     return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
   }
 
-  get visiblePages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // Compact list (1 2 3 4 … 13 14 15) so the pager fits a phone screen.
+  get visiblePages(): (number | '...')[] {
+    return getVisiblePages(this.currentPage, this.totalPages);
   }
 
   changePage(page: number): void {

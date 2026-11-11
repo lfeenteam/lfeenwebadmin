@@ -9,6 +9,7 @@ import { finalize } from 'rxjs/operators';
 import {
   FAQ_BODY_MAX_LENGTH,
   FAQ_DEPARTMENT_OPTIONS,
+  FAQ_ORDER_MAX,
   FAQ_TITLE_MAX_LENGTH,
   FAQ_TITLE_MIN_LENGTH,
   CreateFaqArticleRequest,
@@ -18,6 +19,7 @@ import {
 } from '../../interfaces/faq.model';
 import { FaqFormField, parseFaqSaveError } from '../../interfaces/faq-error.util';
 import { FaqService } from '../../services/faq.service';
+import { wholeNumberValidator } from '../../../../utils/number-validators';
 
 /** Length rules on the trimmed text, so whitespace-only input counts as empty. */
 function trimmedText(min: number, max: number): ValidatorFn {
@@ -54,6 +56,7 @@ export class AddFaqDialogComponent {
   readonly departmentOptions = FAQ_DEPARTMENT_OPTIONS;
   readonly titleMax = FAQ_TITLE_MAX_LENGTH;
   readonly bodyMax = FAQ_BODY_MAX_LENGTH;
+  readonly orderMax = FAQ_ORDER_MAX;
 
   selectedDept: FaqDepartmentOption | null = null;
   saving = false;
@@ -74,7 +77,12 @@ export class AddFaqDialogComponent {
       titleAr: [this.data.article?.titleAr || '', title],
       contentEn: [this.data.article?.contentEn || '', body],
       contentAr: [this.data.article?.contentAr || '', body],
-      order: [this.data.article?.order ?? this.data.nextOrder, [Validators.required, Validators.min(1)]],
+      order: [this.data.article?.order ?? this.data.nextOrder, [
+        Validators.required,
+        Validators.min(1),
+        Validators.max(FAQ_ORDER_MAX),
+        wholeNumberValidator
+      ]],
     });
 
     if (this.data.article?.department) {
@@ -123,7 +131,12 @@ export class AddFaqDialogComponent {
     const errors = this.faqForm.get('order')?.errors;
     if (!errors) return '';
     if (errors['server']) return errors['server'];
-    return this.translate.instant(errors['min'] ? 'd3.faq.dialog.validation.orderMin' : 'd3.faq.dialog.validation.orderRequired');
+    const key = (k: string, p?: object) => this.translate.instant(`d3.faq.dialog.validation.${k}`, p);
+    if (errors['required']) return key('orderRequired');
+    if (errors['min']) return key('orderMin');
+    if (errors['max']) return key('orderMax', { max: FAQ_ORDER_MAX });
+    if (errors['wholeNumber']) return key('orderWholeNumber');
+    return '';
   }
 
   length(name: Exclude<FaqFormField, 'order'>): number {

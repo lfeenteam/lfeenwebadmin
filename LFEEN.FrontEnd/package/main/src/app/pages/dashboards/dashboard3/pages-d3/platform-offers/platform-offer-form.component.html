@@ -215,6 +215,7 @@
                             <input
                               type="number"
                               min="0"
+                              [attr.max]="limits.amountMax"
                               formControlName="maxDiscountAmount"
                             />
                             @if (fieldError("maxDiscountAmount"); as msg) {
@@ -573,6 +574,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.arrivalDaysMax"
                             formControlName="minDaysBeforeArrival"
                           />
                           @if (fieldError("minDaysBeforeArrival"); as msg) {
@@ -581,14 +584,14 @@
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.minStay" | translate }}
-                          <input min="0" type="number" formControlName="minStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="minStayDays" />
                           @if (fieldError("minStayDays"); as msg) {
                             <small class="field-error">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.maxStay" | translate }}
-                          <input min="0" type="number" formControlName="maxStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="maxStayDays" />
                           @if (fieldError("maxStayDays"); as msg) {
                             <small class="field-error">{{ msg }}</small>
                           }
@@ -601,6 +604,8 @@
                           {{ "d3.platformOffers.fields.maxTotal" | translate }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxTotalUsage"
                           />
                           @if (fieldError("maxTotalUsage"); as msg) {
@@ -611,6 +616,8 @@
                           {{ "d3.platformOffers.fields.maxDaily" | translate }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxDailyUsage"
                           />
                           @if (fieldError("maxDailyUsage"); as msg) {
@@ -623,6 +630,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxDailyUsagePerUser"
                           />
                           @if (fieldError("maxDailyUsagePerUser"); as msg) {
@@ -635,6 +644,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxTotalUsagePerUser"
                           />
                           @if (fieldError("maxTotalUsagePerUser"); as msg) {
@@ -655,6 +666,7 @@
                           }}
                           <input min="0"
                             type="number"
+                            [attr.max]="limits.amountMax"
                             formControlName="minBookingAmount"
                           />
                           @if (fieldError("minBookingAmount"); as msg) {
@@ -858,7 +870,7 @@
                           <div [formGroupName]="$index" class="repeat-row">
                             <input formControlName="termAr" />
                             <input formControlName="termEn" dir="ltr" />
-                            <input type="number" formControlName="order" />
+                            <input type="number" min="1" step="1" [attr.max]="limits.orderMax" formControlName="order" />
                             <button
                               type="button"
                               (click)="terms.removeAt($index)"
@@ -867,7 +879,7 @@
                             </button>
                           </div>
                           @if (showError(row)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                            <small class="field-error">{{ termRowError(row) }}</small>
                           }
                         }
                         <button

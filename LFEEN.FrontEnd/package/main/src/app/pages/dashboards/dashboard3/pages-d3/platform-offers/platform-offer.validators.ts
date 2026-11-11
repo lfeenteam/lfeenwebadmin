@@ -8,6 +8,11 @@ export const OFFER_LIMITS = {
   percentMax: 100,
   amountMax: 1_000_000,
   maxYearsAhead: 2,
+  // Day/usage/order fields are int on the server; values past int range fail model binding.
+  stayDaysMax: 365,
+  arrivalDaysMax: 730,
+  usageMax: 1_000_000,
+  orderMax: 9999,
 } as const;
 
 export const OFFER_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
