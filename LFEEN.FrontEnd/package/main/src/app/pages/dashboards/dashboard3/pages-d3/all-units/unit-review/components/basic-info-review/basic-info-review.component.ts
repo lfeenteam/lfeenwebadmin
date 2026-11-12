@@ -79,8 +79,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   get childrenAllowed(): boolean { return this.childrenCapacity > 0; }
 
-  get maxChildAge(): string {
-    return this.unitData?.maxChildAge != null ? String(this.unitData.maxChildAge) : '-';
+  // Null while children are allowed means legacy pricing rows saved without an age.
+  get maxChildAge(): number | null {
+    return this.unitData?.maxChildAge ?? null;
   }
 
   get unitDescription(): string { return this.unitData?.description?.trim() ?? ''; }
