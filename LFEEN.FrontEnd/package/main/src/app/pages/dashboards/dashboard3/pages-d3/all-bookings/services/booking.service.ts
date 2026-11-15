@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
+import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption, ChangeBookingUnitResult } from '../interfaces/booking.model';
 import { ApproveReviewReportRequest, ReviewReportItem, ReviewTargetField } from '../interfaces/review-report.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
@@ -98,11 +98,20 @@ export class BookingService {
     return propertyName?.trim() ? `${base} - ${propertyName.trim()}` : base;
   }
 
-  changeBookingUnit(bookingId: string, newUnitId: number, reason: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/change-unit`, {
-      newUnitId,
-      reason,
-    });
+  /** Null when the API answers without a body (older backends). */
+  changeBookingUnit(bookingId: string, newUnitId: number, reason: string): Observable<ChangeBookingUnitResult | null> {
+    return this.http
+      .post<{ data?: ChangeBookingUnitResult } | ChangeBookingUnitResult | null>(
+        `${environment.apiBaseUrl}/api/bookings/${bookingId}/change-unit`,
+        { newUnitId, reason },
+      )
+      .pipe(
+        // Accept both the { success, data } envelope and a bare payload.
+        map(res => {
+          if (!res) return null;
+          return 'data' in res && res.data ? res.data : (res as ChangeBookingUnitResult);
+        }),
+      );
   }
 
   cancelBooking(bookingId: string, cancellationReason: string): Observable<void> {

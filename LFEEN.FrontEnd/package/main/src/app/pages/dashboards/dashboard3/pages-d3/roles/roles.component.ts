@@ -14,6 +14,7 @@ import { AddRoleDialogComponent } from '../permissions/components/add-role-dialo
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
 interface RoleRow {
   id: string;
@@ -28,7 +29,7 @@ interface RoleRow {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss'
 })
@@ -36,6 +37,7 @@ export class RolesComponent implements OnInit, OnDestroy {
   private langSub!: Subscription;
 
   isLoading = true;
+  loadError = false;
   deletingId: string | null = null;
 
   departments: Department[] = [];
@@ -86,8 +88,9 @@ export class RolesComponent implements OnInit, OnDestroy {
     this.langSub?.unsubscribe();
   }
 
-  private loadData(): void {
+  loadData(): void {
     this.isLoading = true;
+    this.loadError = false;
     forkJoin({
       roles: this.departmentService.getAllRolesForDropdown(),
       departments: this.departmentService.getAllDepartmentsForDropdown()
@@ -98,8 +101,12 @@ export class RolesComponent implements OnInit, OnDestroy {
         this.applyFilter();
         this.isLoading = false;
       },
-      error: (err) => {
+      error: () => {
+        // Clear the table so a failed load never reads as "no roles yet".
+        this.allRoles = [];
+        this.roles = [];
         this.isLoading = false;
+        this.loadError = true;
       }
     });
   }

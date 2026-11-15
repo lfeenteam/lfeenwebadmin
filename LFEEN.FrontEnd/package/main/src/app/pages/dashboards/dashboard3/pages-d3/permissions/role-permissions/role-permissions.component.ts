@@ -12,6 +12,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
 import { resolveBilingualText } from '../../../utils/bilingual.util';
 import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  OfferConfirmDialogComponent,
+  OfferConfirmDialogData,
+} from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
 
 interface PermissionRow extends RolePermission {
   selected: boolean;
@@ -39,6 +44,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   managers: DepartmentManager[] = [];
   employeeCount = 0;
   roleName = '';
+  roleDescription = '';
   hasDepartmentContext = false;
 
   isLoading = true;
@@ -59,7 +65,8 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     private departmentService: DepartmentService,
     private translate: TranslateService,
     private toastr: ToastrService,
-    private pageTitleOverride: PageTitleOverrideService
+    private pageTitleOverride: PageTitleOverrideService,
+    private dialog: MatDialog
   ) {
     this.deptId = this.route.snapshot.paramMap.get('id');
     this.roleId = this.route.snapshot.paramMap.get('roleId');
@@ -122,6 +129,10 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
           );
         }
         this.roleName = resolveBilingualText(this.currentLang, role.nameAr, role.nameEn, role.name);
+        // The role's own description; empty → nothing is shown (no placeholder text).
+        this.roleDescription = (
+          resolveBilingualText(this.currentLang, role.descriptionAr, role.descriptionEn, role.description) || ''
+        ).trim();
         this.pageTitleOverride.set(this.roleName);
         this.isLoading = false;
       },
@@ -311,6 +322,29 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
 
   save(): void {
     if (!this.roleId || !this.isDirty || this.isSaving) return;
+
+    // Clearing every permission can be intentional (suspend the role without deleting it),
+    // but it strips access from everyone assigned to it — so ask first.
+    if (this.selectedCount === 0) {
+      this.dialog.open<OfferConfirmDialogComponent, OfferConfirmDialogData, boolean>(OfferConfirmDialogComponent, {
+        width: '440px',
+        maxWidth: '95vw',
+        data: {
+          title: 'd3.permissions.rolePermsEdit.removeAllTitle',
+          message: 'd3.permissions.rolePermsEdit.removeAllMessage',
+          confirmLabel: 'd3.permissions.rolePermsEdit.removeAllConfirm',
+          icon: 'shield-off',
+          tone: 'danger',
+        },
+      }).afterClosed().subscribe(ok => { if (ok) this.persist(); });
+      return;
+    }
+
+    this.persist();
+  }
+
+  private persist(): void {
+    if (!this.roleId || this.isSaving) return;
 
     const currentIds = new Set(this.permissions.filter(p => p.selected).map(p => p.id));
     const toAdd = [...currentIds].filter(id => !this.originalSelectedIds.has(id));

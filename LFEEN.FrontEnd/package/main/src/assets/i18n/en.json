@@ -464,6 +464,7 @@
     },
     "state": {
       "loadError": "Could not load data",
+      "loadErrorDesc": "We couldn't reach the server. Check your connection and try again.",
       "retry": "Retry"
     },
     "filters": {
@@ -704,6 +705,8 @@
       },
       "nextAttempt": "Next attempt: {{date}}",
       "resolvedBy": "Handled by {{name}}",
+      "technicalDetails": "Technical details",
+      "technicalDetailsHide": "Hide technical details",
       "tabs": {
         "all": "All"
       },
@@ -711,6 +714,7 @@
         "pending": "Refund in progress",
         "retrying": "Retrying…",
         "succeeded": "Refunded",
+        "nothingToRefund": "Nothing to refund",
         "manualReview": "Needs manual review",
         "resolved": "Handled manually"
       },
@@ -718,6 +722,8 @@
         "booking": "Booking no.",
         "property": "Building #{{id}}",
         "unit": "Unit #{{id}}",
+        "unitNumber": "Unit {{number}}",
+        "listing": "Building",
         "guest": "Guest",
         "amount": "Amount",
         "attempts": "Attempts",
@@ -1723,7 +1729,8 @@
       "cancelBtn": "Cancel",
       "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}",
       "validation": {
-        "nameRequired": "Role name is required"
+        "nameRequired": "Role name is required",
+        "permissionsRequired": "Select at least one permission for this role"
       }
     },
     "addRoleDialog": {
@@ -1884,7 +1891,10 @@
       "noPermissions": "No permissions defined for this department",
       "rolePermsEdit": {
         "saveBtn": "Save changes",
-        "saveSuccess": "Role permissions updated"
+        "saveSuccess": "Role permissions updated",
+        "removeAllTitle": "Remove all permissions?",
+        "removeAllMessage": "All permissions will be removed from this role, and employees assigned to it will lose all their access. Do you want to continue?",
+        "removeAllConfirm": "Remove all permissions"
       },
       "table": {
         "department": "Department / Job Title",
@@ -3179,7 +3189,21 @@
         "errors": {
           "sameUnit": "The selected unit is the same as the current unit",
           "unitNotFound": "Unit not found",
-          "differentProperty": "The unit must be in the same property"
+          "differentProperty": "The unit must be in the same property",
+          "unitNotAvailable": "This unit isn't available for the booking dates: it's blocked (maintenance or cleaning) or not ready. Pick another unit."
+        },
+        "result": {
+          "toast": "Unit changed",
+          "title": "Unit changed",
+          "desc": "Booking {{booking}} moved to {{unit}} and was repriced at the new unit's rate.",
+          "oldPrice": "Previous price",
+          "newPrice": "New price",
+          "difference": "Difference",
+          "noChange": "Price unchanged",
+          "hintUp": "The new price is higher; the difference is owed by the guest.",
+          "hintDown": "The new price is lower; the difference is in the guest's favor.",
+          "noPricing": "The unit was changed. Check the booking details to confirm the price.",
+          "doneBtn": "Done"
         }
       },
       "cancelBookingDialog": {

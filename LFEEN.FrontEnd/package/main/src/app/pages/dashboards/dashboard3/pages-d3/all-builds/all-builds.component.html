@@ -16,12 +16,17 @@
 
 @if (isLoading) {
   <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+} @else if (loadError) {
+  <app-dashboard-empty variant="error"
+    titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+    actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoad()">
+  </app-dashboard-empty>
 } @else {
   <app-cards-builds [buildings]="filteredBuildings" [viewMode]="viewMode" [activeTab]="activeTab"
     [hasFilters]="hasFilters" (clearFilters)="clearFilters()"></app-cards-builds>
 }
 
-@if (!isLoading && totalPages > 1) {
+@if (!isLoading && !loadError && totalPages > 1) {
   <div class="pagination-wrapper">
     <span class="pagination-total">
       {{ totalCount }} {{ 'd3.allBuilds.pagination.total' | translate }}

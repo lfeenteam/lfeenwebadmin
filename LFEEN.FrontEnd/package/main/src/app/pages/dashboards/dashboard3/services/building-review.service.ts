@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
@@ -160,6 +160,8 @@ export class BuildingReviewService {
   readonly totalPages    = computed(() => this._propertiesResource.value()?.totalPages ?? 1);
   readonly totalCount    = computed(() => this._propertiesResource.value()?.totalCount ?? 0);
   readonly isLoading     = this._propertiesResource.isLoading;
+  /** The list request failed — pages show an error + retry instead of "no buildings". */
+  readonly loadFailed    = computed(() => this._propertiesResource.status() === ResourceStatus.Error);
   // The backend returns global stats on every list response, regardless of status/filters.
   readonly propertyStats = computed<PropertyApiStats | null>(() => this._propertiesResource.value()?.stats ?? null);
 

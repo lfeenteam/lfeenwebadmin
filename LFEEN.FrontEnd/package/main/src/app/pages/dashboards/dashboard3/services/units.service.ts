@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, Observable, forkJoin } from 'rxjs';
@@ -148,6 +148,10 @@ export class UnitsService {
   });
   readonly totalCount = computed(() => this._unitsResource.value()?.totalCount ?? 0);
   readonly isLoading  = this._unitsResource.isLoading;
+  /** The list request failed — pages show an error + retry instead of "no units". */
+  readonly loadFailed = computed(() => this._unitsResource.status() === ResourceStatus.Error);
+  /** The stats request failed — metric cards show "—" instead of figures. */
+  readonly statsFailed = computed(() => this._statsResource.status() === ResourceStatus.Error);
   readonly unitStats  = computed<UnitApiStats | null>(() => this._statsResource.value()?.stats ?? null);
 
   readonly buildingsWithUnitsSignal = computed<BuildingWithUnits[]>(() => {

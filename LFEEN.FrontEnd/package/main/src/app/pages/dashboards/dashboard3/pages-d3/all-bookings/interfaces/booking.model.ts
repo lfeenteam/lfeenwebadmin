@@ -56,6 +56,20 @@ export interface BookingUnitOption {
   propertyId: number;
 }
 
+/** POST change-unit result — the booking is repriced at the new unit's rate. */
+export interface ChangeBookingUnitResult {
+  bookingId: string;
+  bookingNumber: string;
+  oldUnitId: number;
+  newUnitId: number;
+  changedAtUtc: string;
+  oldTotalPrice: number | null;
+  newTotalPrice: number | null;
+  // newTotalPrice − oldTotalPrice; negative when the new unit is cheaper.
+  priceDifference: number | null;
+  currencyCode: string | null;
+}
+
 export interface BookingApiItem {
   bookingId: string;
   bookingNumber: string;

@@ -14,6 +14,7 @@ import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filte
 import { ComplaintService } from './services/complaint.service';
 import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
 // Read by client-chat-fab.component.scss — keep the two in sync.
 const COMPOSER_OPEN_BODY_CLASS = 'complaint-composer-open';
@@ -31,6 +32,7 @@ const COMPOSER_OPEN_BODY_CLASS = 'complaint-composer-open';
     ComplaintChatComponent,
     ClientRatingsComponent,
     TabsFilterComponent,
+    DashboardEmptyComponent,
   ],
   templateUrl: './complaint-management.component.html',
   styleUrl: './complaint-management.component.scss'
@@ -114,6 +116,8 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostDepartment  = signal<string | null>(null);
   hostPriority    = signal<string | null>(null);
   hostError       = signal(false);
+  customerError   = signal(false);
+  resolvedError   = signal(false);
 
   readonly hostStatusOptions   = HOST_TICKET_STATUS_OPTIONS;
   readonly hostPriorityOptions = HOST_TICKET_PRIORITY_OPTIONS;
@@ -470,6 +474,15 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadHostTickets();
   }
 
+  /** The customers/resolved list failed to load — shown as error + retry, not "no complaints". */
+  readonly listLoadError = computed(() =>
+    (this.activeTab() === 'customers' && this.customerError()) ||
+    (this.activeTab() === 'resolved' && this.resolvedError()));
+
+  retryLoadActiveTab(): void {
+    this.loadTabData(this.activeTab());
+  }
+
   resetHostFilters(): void {
     this.hostSearch.set('');
     this.hostPropertyId.set(null);
@@ -483,6 +496,7 @@ export class ComplaintManagementComponent implements OnDestroy {
 
   private loadResolvedTickets(): void {
     this.loading.set(true);
+    this.resolvedError.set(false);
     this.service.getResolvedTicketsOverview({
       type: this.resolvedType() ?? undefined,
       search: this.resolvedSearch() || undefined,
@@ -496,7 +510,8 @@ export class ComplaintManagementComponent implements OnDestroy {
           totalPages: res.totalPages,
         })),
         catchError(() => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          // Inline error + retry instead of a toast over an empty "no complaints" table.
+          this.resolvedError.set(true);
           return of({ complaints: [], totalCount: 0, totalPages: 1 });
         }),
         finalize(() => this.loading.set(false))
@@ -527,6 +542,7 @@ export class ComplaintManagementComponent implements OnDestroy {
 
   private loadClientTickets(): void {
     this.loading.set(true);
+    this.customerError.set(false);
     this.service.getClientTickets({
       status: this.customerStatus() ?? undefined,
       department: this.customerDepartment() ?? undefined,
@@ -545,7 +561,8 @@ export class ComplaintManagementComponent implements OnDestroy {
           totalPages: res.totalPages,
         })),
         catchError(() => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+          // Inline error + retry instead of a toast over an empty "no complaints" table.
+          this.customerError.set(true);
           return of({ complaints: [], totalCount: 0, totalPages: 1 });
         }),
         finalize(() => this.loading.set(false))

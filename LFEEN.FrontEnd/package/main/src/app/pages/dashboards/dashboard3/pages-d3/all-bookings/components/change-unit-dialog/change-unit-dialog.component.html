@@ -1,53 +1,110 @@
 <div class="change-unit-dialog" [dir]="currentDir">
-  <button mat-icon-button type="button" class="close-btn" (click)="dialogRef.close()">
+  <button mat-icon-button type="button" class="close-btn" (click)="close()">
     <i-tabler name="x" class="icon-18"></i-tabler>
   </button>
 
-  <div class="dialog-header">
-    <h2 class="dialog-title">{{ 'd3.bookings.changeUnitDialog.title' | translate }}</h2>
-  </div>
-
-  <div class="dialog-body">
-
-    <!-- New unit -->
-    <label class="field-label">{{ 'd3.bookings.changeUnitDialog.unitLabel' | translate }}</label>
-    <div class="select-wrapper">
-      <i-tabler name="building-community" class="field-icon"></i-tabler>
-      <mat-select
-        class="unit-select"
-        [(value)]="selectedUnitId"
-        [disabled]="loadingUnits || missingProperty"
-        disableOptionCentering
-        panelClass="permission-group-select-panel"
-        [placeholder]="(loadingUnits ? 'd3.bookings.changeUnitDialog.unitLoading' : 'd3.bookings.changeUnitDialog.unitPlaceholder') | translate">
-        @for (unit of units; track unit.id) {
-          <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
-        }
-        @if (!loadingUnits && units.length === 0) {
-          <mat-option [disabled]="true">{{ 'd3.bookings.changeUnitDialog.unitEmpty' | translate }}</mat-option>
-        }
-      </mat-select>
-    </div>
-    <p class="field-hint">{{ (missingProperty ? 'd3.bookings.changeUnitDialog.missingProperty' : 'd3.bookings.changeUnitDialog.unitHint') | translate }}</p>
-
-    <!-- Reason -->
-    <label class="field-label m-t-20">{{ 'd3.bookings.changeUnitDialog.reasonLabel' | translate }}</label>
-    <div class="textarea-wrapper">
-      <textarea
-        class="reason-textarea"
-        rows="3"
-        [(ngModel)]="reason"
-        [placeholder]="'d3.bookings.changeUnitDialog.reasonPlaceholder' | translate"></textarea>
+  @if (result; as res) {
+    <!-- Success: the booking was repriced at the new unit's rate -->
+    <div class="dialog-header">
+      <span class="result-icon"><i-tabler name="check"></i-tabler></span>
+      <h2 class="dialog-title">{{ 'd3.bookings.changeUnitDialog.result.title' | translate }}</h2>
+      <p class="result-sub">
+        {{ 'd3.bookings.changeUnitDialog.result.desc' | translate: { booking: res.bookingNumber || data.bookingNumber, unit: selectedUnitName } }}
+      </p>
     </div>
 
-  </div>
+    <div class="dialog-body">
+      @if (hasPricing) {
+        <div class="price-summary">
+          <div class="price-row">
+            <span class="price-label">{{ 'd3.bookings.changeUnitDialog.result.oldPrice' | translate }}</span>
+            <span class="price-value is-old">{{ fmtMoney(res.oldTotalPrice) }}</span>
+          </div>
+          <div class="price-row">
+            <span class="price-label">{{ 'd3.bookings.changeUnitDialog.result.newPrice' | translate }}</span>
+            <span class="price-value">{{ fmtMoney(res.newTotalPrice) }}</span>
+          </div>
+          <div class="price-row price-diff" [ngClass]="'is-' + diffClass">
+            <span class="price-label">{{ 'd3.bookings.changeUnitDialog.result.difference' | translate }}</span>
+            <span class="price-value">
+              @if (diffClass === 'same') {
+                {{ 'd3.bookings.changeUnitDialog.result.noChange' | translate }}
+              } @else {
+                <span dir="ltr">{{ diffClass === 'up' ? '+' : '−' }}</span>{{ fmtMoney(res.priceDifference) }}
+              }
+            </span>
+          </div>
+        </div>
+        @if (diffClass !== 'same') {
+          <p class="field-hint">
+            {{ (diffClass === 'up' ? 'd3.bookings.changeUnitDialog.result.hintUp' : 'd3.bookings.changeUnitDialog.result.hintDown') | translate }}
+          </p>
+        }
+      } @else {
+        <p class="field-hint">{{ 'd3.bookings.changeUnitDialog.result.noPricing' | translate }}</p>
+      }
+    </div>
 
-  <div class="dialog-actions">
-    <button type="button" class="confirm-btn" [disabled]="selectedUnitId == null || submitting || missingProperty" (click)="confirm()">
-      {{ 'd3.bookings.changeUnitDialog.confirmBtn' | translate }}
-    </button>
-    <button type="button" class="cancel-btn" (click)="dialogRef.close()">
-      {{ 'd3.bookings.changeUnitDialog.cancelBtn' | translate }}
-    </button>
-  </div>
+    <div class="dialog-actions dialog-actions--single">
+      <button type="button" class="confirm-btn" (click)="close()">
+        {{ 'd3.bookings.changeUnitDialog.result.doneBtn' | translate }}
+      </button>
+    </div>
+  } @else {
+    <div class="dialog-header">
+      <h2 class="dialog-title">{{ 'd3.bookings.changeUnitDialog.title' | translate }}</h2>
+    </div>
+
+    <div class="dialog-body">
+
+      <!-- New unit -->
+      <label class="field-label">{{ 'd3.bookings.changeUnitDialog.unitLabel' | translate }}</label>
+      <div class="select-wrapper" [class.has-error]="errorKey">
+        <i-tabler name="building-community" class="field-icon"></i-tabler>
+        <mat-select
+          class="unit-select"
+          [(value)]="selectedUnitId"
+          (selectionChange)="onUnitChange()"
+          [disabled]="loadingUnits || missingProperty"
+          disableOptionCentering
+          panelClass="permission-group-select-panel"
+          [placeholder]="(loadingUnits ? 'd3.bookings.changeUnitDialog.unitLoading' : 'd3.bookings.changeUnitDialog.unitPlaceholder') | translate">
+          @for (unit of units; track unit.id) {
+            <mat-option [value]="unit.id">{{ unit.name }}</mat-option>
+          }
+          @if (!loadingUnits && units.length === 0) {
+            <mat-option [disabled]="true">{{ 'd3.bookings.changeUnitDialog.unitEmpty' | translate }}</mat-option>
+          }
+        </mat-select>
+      </div>
+      @if (errorKey) {
+        <p class="field-error" role="alert">
+          <i-tabler name="alert-circle" class="field-error-icon"></i-tabler>
+          {{ errorKey | translate }}
+        </p>
+      } @else {
+        <p class="field-hint">{{ (missingProperty ? 'd3.bookings.changeUnitDialog.missingProperty' : 'd3.bookings.changeUnitDialog.unitHint') | translate }}</p>
+      }
+
+      <!-- Reason -->
+      <label class="field-label m-t-20">{{ 'd3.bookings.changeUnitDialog.reasonLabel' | translate }}</label>
+      <div class="textarea-wrapper">
+        <textarea
+          class="reason-textarea"
+          rows="3"
+          [(ngModel)]="reason"
+          [placeholder]="'d3.bookings.changeUnitDialog.reasonPlaceholder' | translate"></textarea>
+      </div>
+
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" class="confirm-btn" [disabled]="selectedUnitId == null || submitting || missingProperty" (click)="confirm()">
+        {{ 'd3.bookings.changeUnitDialog.confirmBtn' | translate }}
+      </button>
+      <button type="button" class="cancel-btn" (click)="close()">
+        {{ 'd3.bookings.changeUnitDialog.cancelBtn' | translate }}
+      </button>
+    </div>
+  }
 </div>

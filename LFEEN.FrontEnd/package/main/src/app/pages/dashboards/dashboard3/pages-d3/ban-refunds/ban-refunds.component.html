@@ -27,6 +27,7 @@
         <thead>
           <tr>
             <th>{{ 'd3.banRefunds.table.booking' | translate }}</th>
+            <th>{{ 'd3.banRefunds.table.listing' | translate }}</th>
             <th>{{ 'd3.banRefunds.table.guest' | translate }}</th>
             <th>{{ 'd3.banRefunds.table.amount' | translate }}</th>
             <th>{{ 'd3.banRefunds.table.attempts' | translate }}</th>
@@ -41,11 +42,16 @@
               <td>
                 <span class="br-label">{{ 'd3.banRefunds.table.booking' | translate }}</span>
                 <span class="br-booking">{{ row.bookingNumber || '—' }}</span>
-                @if (row.unitId || row.propertyId) {
-                  <span class="br-sub">
-                    @if (row.propertyId) { {{ 'd3.banRefunds.table.property' | translate: { id: row.propertyId } }} }
-                    @if (row.unitId) { · {{ 'd3.banRefunds.table.unit' | translate: { id: row.unitId } }} }
-                  </span>
+              </td>
+              <td>
+                <span class="br-label">{{ 'd3.banRefunds.table.listing' | translate }}</span>
+                @if (propertyLabel(row); as property) {
+                  <span class="br-property" [title]="property">{{ property }}</span>
+                } @else {
+                  <span class="br-text">—</span>
+                }
+                @if (unitLabel(row); as unit) {
+                  <span class="br-unit">{{ unit }}</span>
                 }
               </td>
               <td>
@@ -78,11 +84,23 @@
                     {{ (retryingIds.has(row.id) && row.status === 'Pending' ? 'd3.banRefunds.status.retrying' : statusMeta(row).key) | translate }}
                   </span>
                   @if (row.status !== 'Succeeded' && failureLabel(row); as reason) {
-                    <!-- The raw gateway message is for support only — keep it in the tooltip. -->
-                    <span class="br-failure" [matTooltip]="row.lastError || ''">
+                    <span class="br-failure">
                       <i-tabler name="alert-circle" class="br-error-icon"></i-tabler>
                       {{ reason }}
                     </span>
+                  }
+                  @if (row.status !== 'Succeeded' && row.status !== 'Resolved' && row.lastError?.trim()) {
+                    <!-- The raw gateway message tells the admin whether a retry can work or it must be handled manually. -->
+                    <button type="button" class="br-tech-toggle"
+                      [attr.aria-expanded]="expandedErrorIds.has(row.id)"
+                      [attr.aria-controls]="'br-tech-' + row.id"
+                      (click)="toggleError(row.id)">
+                      <i-tabler [name]="expandedErrorIds.has(row.id) ? 'chevron-up' : 'chevron-down'" class="br-tech-icon"></i-tabler>
+                      {{ (expandedErrorIds.has(row.id) ? 'd3.banRefunds.technicalDetailsHide' : 'd3.banRefunds.technicalDetails') | translate }}
+                    </button>
+                    @if (expandedErrorIds.has(row.id)) {
+                      <code class="br-tech-details" dir="ltr" [id]="'br-tech-' + row.id">{{ row.lastError }}</code>
+                    }
                   }
                   @if (row.status === 'Pending' && row.nextAttemptAt) {
                     <span class="br-sub">{{ 'd3.banRefunds.nextAttempt' | translate: { date: fmtDate(row.nextAttemptAt) } }}</span>
@@ -118,7 +136,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="br-empty-cell">
+              <td colspan="8" class="br-empty-cell">
                 @if (loadError) {
                   <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.banRefunds.errors.loadTitle" descKey="d3.banRefunds.errors.loadDesc">
                     <button type="button" class="br-btn br-btn--retry br-empty-retry" (click)="load()">

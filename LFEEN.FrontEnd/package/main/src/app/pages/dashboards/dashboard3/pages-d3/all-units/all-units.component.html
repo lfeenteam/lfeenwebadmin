@@ -27,6 +27,11 @@
 
   @if (isLoading) {
     <app-dashboard-loading [rows]="6"></app-dashboard-loading>
+  } @else if (loadError) {
+    <app-dashboard-empty variant="error"
+      titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+      actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoad()">
+    </app-dashboard-empty>
   } @else {
     <app-cards-units
       [buildings]="buildingsWithUnits"
@@ -38,7 +43,7 @@
     </app-cards-units>
   }
 
-  @if (!isLoading && totalCount > 0) {
+  @if (!isLoading && !loadError && totalCount > 0) {
     <div class="pagination-wrapper">
       <span class="pagination-total">
         {{ totalCount }} {{ 'd3.allUnits.pagination.total' | translate }}

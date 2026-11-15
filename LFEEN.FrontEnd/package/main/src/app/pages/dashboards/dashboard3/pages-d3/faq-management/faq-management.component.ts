@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { AddFaqDialogComponent } from './components/add-faq-dialog/add-faq-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { FAQ_DEPARTMENT_OPTIONS, FaqArticle, FaqArticleDto, FaqDepartment, FaqDepartmentOption } from './interfaces/faq.model';
 import { FaqService } from './services/faq.service';
 import { CoreService } from 'src/app/services/core.service';
@@ -16,7 +17,7 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 @Component({
   selector: 'app-faq-management',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent],
   templateUrl: './faq-management.component.html',
   styleUrl: './faq-management.component.scss'
 })
@@ -24,6 +25,8 @@ export class FaqManagementComponent implements OnInit {
   readonly departmentOptions = FAQ_DEPARTMENT_OPTIONS;
   departmentFilter = signal<FaqDepartment | 'all'>('all');
   loading = signal(false);
+  /** The article list failed to load — the page shows an error + retry, not "no articles". */
+  loadError = signal(false);
 
   private articles = signal<FaqArticle[]>([]);
 
@@ -76,13 +79,16 @@ export class FaqManagementComponent implements OnInit {
 
   loadArticles(): void {
     this.loading.set(true);
+    this.loadError.set(false);
     this.faqService.getArticles({ activeOnly: false }).subscribe({
       next: (response) => {
         this.articles.set(response.data.map(dto => this.mapDtoToArticle(dto)));
         this.loading.set(false);
       },
       error: () => {
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        // Inline error state + retry instead of a toast over an empty table.
+        this.articles.set([]);
+        this.loadError.set(true);
         this.loading.set(false);
       }
     });

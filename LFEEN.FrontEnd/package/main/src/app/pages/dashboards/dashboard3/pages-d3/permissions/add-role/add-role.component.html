@@ -20,28 +20,30 @@
         <div class="field-group m-b-20">
           <label class="field-label d-block m-b-8">{{ 'd3.addRolePage.roleNameLabel' | translate }}</label>
           <div class="bilingual-input-wrapper"
-            [class.is-invalid]="roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched">
+            [class.is-invalid]="nameInvalid(primaryNameField)">
             <input class="bilingual-input"
-              [formControlName]="currentLang === 'ar' ? 'nameAr' : 'nameEn'"
+              [formControlName]="primaryNameField"
               [placeholder]="'d3.addRolePage.roleNamePlaceholder' | translate">
             <button type="button" class="lang-chip" [class.active]="showNameSecondary"
               (click)="showNameSecondary = !showNameSecondary">
               {{ currentLang === 'ar' ? 'English' : 'عربي' }}
             </button>
           </div>
-          @if (roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.invalid && roleForm.get(currentLang === 'ar' ? 'nameAr' : 'nameEn')?.touched) {
-            <p class="field-error m-t-4">
-              {{ 'd3.addRolePage.validation.nameRequired' | translate }}
-            </p>
+          @if (nameInvalid(primaryNameField)) {
+            <p class="field-error m-t-4">{{ nameError(primaryNameField) }}</p>
           }
           @if (showNameSecondary) {
             <div class="bilingual-input-wrapper secondary m-t-8"
+              [class.is-invalid]="nameInvalid(secondaryNameField)"
               [dir]="currentLang === 'ar' ? 'ltr' : 'rtl'">
               <input class="bilingual-input"
-                [formControlName]="currentLang === 'ar' ? 'nameEn' : 'nameAr'"
+                [formControlName]="secondaryNameField"
                 [placeholder]="currentLang === 'ar' ? 'e.g. Quality Supervisor' : 'مثال: مشرف الجودة'">
               <span class="lang-chip static">{{ currentLang === 'ar' ? 'English' : 'عربي' }}</span>
             </div>
+            @if (nameInvalid(secondaryNameField)) {
+              <p class="field-error m-t-4">{{ nameError(secondaryNameField) }}</p>
+            }
           }
         </div>
 
@@ -127,6 +129,13 @@
         </div>
 
         <div class="perms-divider"></div>
+
+        @if (noPermsError && selectedCount === 0) {
+          <p class="field-error perms-required-error d-flex align-items-center gap-6 m-0 p-x-24 p-y-12">
+            <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+            {{ 'd3.addRolePage.validation.permissionsRequired' | translate }}
+          </p>
+        }
 
         @if (isLoadingPerms) {
           <div class="d-flex justify-content-center p-40">

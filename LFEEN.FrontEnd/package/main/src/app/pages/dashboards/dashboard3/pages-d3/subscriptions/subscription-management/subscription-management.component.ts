@@ -48,6 +48,10 @@ export class SubscriptionManagementComponent implements OnInit {
 
   isLoading = true;
   listLoading = true;
+  /** Overview (stat cards) failed — an inline error + retry replaces the cards. */
+  statsError = false;
+  /** Subscriber list failed — shown as error + retry, not "no subscribers". */
+  listError = false;
   searchQuery = '';
   expandedId: string | null = null;
 
@@ -104,6 +108,13 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadOverview();
+    this.loadPage();
+  }
+
+  loadOverview(): void {
+    this.isLoading = true;
+    this.statsError = false;
     this.subscriptionsService.getOverview().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (overview) => {
         // No distinct "total subscribers" figure (nor a growth %) exists in the API — the closest
@@ -121,16 +132,19 @@ export class SubscriptionManagementComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
+        // Cards stay hidden (values are null); an inline error with retry takes their place.
+        this.stats.forEach(s => s.value = null);
+        this.statsError = true;
         this.isLoading = false;
       }
     });
-    this.loadPage();
   }
 
   // Paginated by merchant row — a merchant's services array is never itself paginated.
-  private loadPage(): void {
+  loadPage(): void {
     this.pageRequest?.unsubscribe();
     this.listLoading = true;
+    this.listError = false;
     this.pageRequest = this.subscriptionsService.getMerchantSubscriptions({ pageNumber: this.currentPage, pageSize: PAGE_SIZE })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -146,7 +160,9 @@ export class SubscriptionManagementComponent implements OnInit {
           this.totalCount = 0;
           this.totalPages = 1;
           this.listLoading = false;
-          this.toastr.error(resolveSubscriptionError(err, this.translate));
+          this.listError = true;
+          // 403 is the only case a retry can't fix — say why; otherwise the inline error is enough.
+          if (err?.status === 403) this.toastr.error(resolveSubscriptionError(err, this.translate));
         },
       });
   }

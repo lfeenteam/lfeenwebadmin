@@ -63,6 +63,11 @@
             {{ 'd3.complaints.hostFilters.retry' | translate }}
           </button>
         </div>
+      } @else if (listLoadError() && !loading()) {
+        <app-dashboard-empty variant="error"
+          titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+          actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoadActiveTab()">
+        </app-dashboard-empty>
       } @else {
         <app-complaints-table
           [activeTab]="activeTab()"

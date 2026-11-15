@@ -234,6 +234,11 @@
 
   @if (loading) {
     <app-dashboard-loading variant="table" [rows]="pageSize"></app-dashboard-loading>
+  } @else if (loadError) {
+    <app-dashboard-empty variant="error"
+      titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+      actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoad()">
+    </app-dashboard-empty>
   } @else {
 
   <!-- Table -->

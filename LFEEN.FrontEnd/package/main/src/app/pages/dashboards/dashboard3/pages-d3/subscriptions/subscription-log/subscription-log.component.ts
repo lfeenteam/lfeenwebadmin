@@ -92,6 +92,8 @@ export class SubscriptionLogComponent implements OnInit {
   private subscriptionsService = inject(SubscriptionsService);
 
   isLoading = true;
+  /** The log failed to load — shown as error + retry, not "no activity". */
+  loadError = false;
   /** 'all' rather than null: mat-select renders a null value as an empty field. */
   serviceFilter: number | 'all' = 'all';
   currentPage = 1;
@@ -135,9 +137,10 @@ export class SubscriptionLogComponent implements OnInit {
       .subscribe(() => this.loadPage());
   }
 
-  private loadPage(): void {
+  loadPage(): void {
     this.pageRequest?.unsubscribe();
     this.isLoading = true;
+    this.loadError = false;
     this.pageRequest = this.subscriptionsService.getActivityLog({
       subscriptionServiceId: this.serviceFilter === 'all' ? undefined : this.serviceFilter,
       pageNumber: this.currentPage,
@@ -154,7 +157,9 @@ export class SubscriptionLogComponent implements OnInit {
         this.totalCount = 0;
         this.totalPages = 1;
         this.isLoading = false;
-        this.toastr.error(resolveSubscriptionError(err, this.translate));
+        this.loadError = true;
+        // 403 is the only case a retry can't fix — say why; otherwise the inline error is enough.
+        if (err?.status === 403) this.toastr.error(resolveSubscriptionError(err, this.translate));
       }
     });
   }

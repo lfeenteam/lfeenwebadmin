@@ -15,7 +15,9 @@
           </div>
           <div>
             <h2 class="f-s-20 f-w-900 m-b-4">{{ deptName || roleName }}</h2>
-            <p class="dept-desc m-0">{{ 'd3.permissions.description' | translate }}</p>
+            @if (roleDescription) {
+              <p class="dept-desc m-0">{{ roleDescription }}</p>
+            }
           </div>
         </div>
         @if (hasDepartmentContext) {

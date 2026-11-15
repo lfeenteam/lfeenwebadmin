@@ -8,6 +8,14 @@
   @if (misconfiguredServicesCount > 0) {
     <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | translate: { count: fmt(misconfiguredServicesCount) } }}</div>
   }
+  @if (statsError) {
+    <div class="m-b-24">
+      <app-dashboard-empty variant="error"
+        titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+        actionKey="d3.state.retry" actionIcon="refresh" (action)="loadOverview()">
+      </app-dashboard-empty>
+    </div>
+  }
   <div class="row m-b-24">
     @for (stat of visibleStats; track stat.subtitleKey) {
       <div class="col-6 col-lg-4">
@@ -221,6 +229,11 @@
                 <td colspan="5" class="p-0">
                   @if (listLoading) {
                     <div class="p-24"><app-dashboard-loading variant="table" [rows]="3"></app-dashboard-loading></div>
+                  } @else if (listError) {
+                    <app-dashboard-empty variant="error"
+                      titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+                      actionKey="d3.state.retry" actionIcon="refresh" (action)="loadPage()">
+                    </app-dashboard-empty>
                   } @else {
                     <app-dashboard-empty icon="users" titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
                   }

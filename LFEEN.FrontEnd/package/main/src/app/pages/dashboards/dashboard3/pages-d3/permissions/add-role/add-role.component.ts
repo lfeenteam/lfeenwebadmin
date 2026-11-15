@@ -14,6 +14,7 @@ import { extractApiErrorMessage } from '../../../utils/api-error.util';
 import { resolveBilingualText } from '../../../utils/bilingual.util';
 import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
+import { applyRoleNameServerError, RoleNameField } from '../../../utils/role-error.util';
 
 interface PermissionRow extends RolePermission {
   selected: boolean;
@@ -52,6 +53,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   isLoadingPerms = true;
   permsLoadError = false;
   isSubmitting = false;
+  /** Set once save is attempted with no permission selected; the hint hides again as soon as one is picked. */
+  noPermsError = false;
 
   departments: Department[] = [];
 
@@ -155,6 +158,29 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
   get selectedCount(): number {
     return this.permissions.filter(p => p.selected).length;
+  }
+
+  get primaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameAr' : 'nameEn';
+  }
+
+  get secondaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameEn' : 'nameAr';
+  }
+
+  nameInvalid(field: RoleNameField): boolean {
+    const c = this.roleForm.get(field);
+    return !!(c?.invalid && c?.touched);
+  }
+
+  /** Server message (e.g. duplicate name) wins over the local "required" text. */
+  nameError(field: RoleNameField): string {
+    const c = this.roleForm.get(field);
+    const server = c?.getError('serverError');
+    if (server) return server;
+    return c?.hasError('required') || c?.hasError('minlength')
+      ? this.translate.instant('d3.addRolePage.validation.nameRequired')
+      : '';
   }
 
   get allPermissionsSelected(): boolean {
@@ -334,6 +360,14 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // A role is created first and its permissions are assigned in a second request,
+    // so the backend can't enforce this — a new role with no permissions is useless.
+    if (this.selectedCount === 0) {
+      this.noPermsError = true;
+      this.toastr.warning(this.translate.instant('d3.addRolePage.validation.permissionsRequired'));
+      return;
+    }
+
     this.isSubmitting = true;
     const v = this.roleForm.value;
 
@@ -370,6 +404,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isSubmitting = false;
+        const field = applyRoleNameServerError(err, this.roleForm);
+        if (field && field !== this.primaryNameField) this.showNameSecondary = true;
         this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.saveError')));
       }
     });

@@ -16,19 +16,19 @@
         <div class="stats-row">
         <span class="stat-item">
            <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
-        <span class="stat-circle stat-circle-total">{{ totalCount() }}</span>
+        <span class="stat-circle stat-circle-total">{{ loadError() ? '—' : totalCount() }}</span>
           </span>
         <span class="stat-divider"></span>
         <span class="stat-item">
 
           <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
-                  <span class="stat-circle stat-circle-active">{{ activeCount() }}</span>
+                  <span class="stat-circle stat-circle-active">{{ loadError() ? '—' : activeCount() }}</span>
         </span>
         <span class="stat-divider"></span>
         <span class="stat-item">
-          
+
           <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
-          <span class="stat-circle stat-circle-inactive">{{ inactiveCount() }}</span>
+          <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
         </span>
       </div>
       <button class="add-article-btn" type="button" (click)="openAddDialog()">
@@ -72,6 +72,11 @@
 
       @if (loading()) {
         <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+      } @else if (loadError()) {
+        <app-dashboard-empty variant="error"
+          titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+          actionKey="d3.state.retry" actionIcon="refresh" (action)="loadArticles()">
+        </app-dashboard-empty>
       } @else {
 
       @for (article of filteredArticles(); track article.externalId) {

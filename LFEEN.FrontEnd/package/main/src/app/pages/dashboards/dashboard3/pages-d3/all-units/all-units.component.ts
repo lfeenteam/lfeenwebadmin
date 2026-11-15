@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { UnitsService, UnitSortOrder } from '../../services/units.service';
 import { BuildingWithUnits, UnitTab } from '../../interfaces/unit-card.model';
@@ -24,6 +25,7 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     MaterialModule,
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
+    DashboardEmptyComponent,
     CardsUnitsComponent
   ],
   templateUrl: './all-units.component.html',
@@ -42,6 +44,8 @@ export class AllUnitsComponent {
   viewMode: ViewMode = 'list';
   buildingsWithUnits: BuildingWithUnits[] = [];
   isLoading    = false;
+  /** The units request failed — shown as error + retry instead of "no units". */
+  loadError    = false;
   totalCount   = 0;
   totalPages   = 1;
   currentPage  = 1;
@@ -87,17 +91,25 @@ export class AllUnitsComponent {
 
   searchPlaceholder = 'd3.allUnits.filters.searchPlaceholder';
 
+  retryLoad(): void {
+    this.unitsService.reload();
+  }
+
   constructor() {
     // sync main data
     effect(() => {
       this.buildingsWithUnits = this.unitsService.paginatedBuildings();
       this.isLoading   = this.unitsService.isLoading();
+      this.loadError   = this.unitsService.loadFailed();
       this.totalCount  = this.unitsService.totalCount();
       this.totalPages  = this.unitsService.totalBuildingPages();
       this.currentPage = this.unitsService.buildingsPage();
 
       const s = this.unitsService.unitStats();
-      if (s) {
+      if (this.unitsService.statsFailed()) {
+        // "—" rather than stale or zero figures when the stats request failed.
+        this.metrics = this.metrics.map(m => ({ ...m, value: '—' }));
+      } else if (s) {
         this.metrics = [
           { ...this.metrics[0], value: formatNumber(s.total)             },
           { ...this.metrics[1], value: formatNumber(s.activeOrPublished) },

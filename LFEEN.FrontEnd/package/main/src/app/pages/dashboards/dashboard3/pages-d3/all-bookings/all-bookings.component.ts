@@ -16,6 +16,7 @@ import { BookingDetailDrawerComponent } from './components/booking-detail-drawer
 import { ChangeUnitDialogComponent } from './components/change-unit-dialog/change-unit-dialog.component';
 import { CancelBookingDialogComponent } from './components/cancel-booking-dialog/cancel-booking-dialog.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { LoginService } from '../../services/login/login.service';
 import { ReviewReportsComponent, ReviewReportsCount } from './components/review-reports/review-reports.component';
@@ -36,7 +37,7 @@ interface MetricCard {
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent, ReviewReportsComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent, DashboardEmptyComponent, ReviewReportsComponent],
   // Dialog components are opened imperatively via MatDialog, so they are not
   // listed in `imports`.
   templateUrl: './all-bookings.component.html',
@@ -83,6 +84,8 @@ export class AllBookingsComponent implements OnInit {
   pageSize      = BOOKINGS_PAGE_SIZE;
 
   loading  = false;
+  /** The last list request failed — the table shows error + retry and the cards show "—", not zeros. */
+  loadError = false;
   bookings: Booking[] = [];
   totalCount = 0;
   totalPages = 1;
@@ -197,14 +200,13 @@ export class AllBookingsComponent implements OnInit {
           checkInDate: this.checkInDate || undefined,
           checkOutDate: this.checkOutDate || undefined,
         }).pipe(
-          catchError(() => {
-            this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-            return of(null);
-          })
+          // A failed load shows an inline error + retry (handled below), not a toast.
+          catchError(() => of(null))
         )),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((res: BookingListResponse | null) => {
+        this.loadError = !res;
         if (res) {
           this.bookings = res.data.map(item => this.bookingService.mapApiItemToBooking(item, this.currentLang));
           this.totalCount = res.totalCount;
@@ -321,12 +323,18 @@ export class AllBookingsComponent implements OnInit {
   }
 
   get metrics(): MetricCard[] {
+    // On a failed load, "—" instead of 0 so the cards never read as real figures.
+    const fmt = (v: number | undefined) => this.loadError ? '—' : this.formatMetricNumber(v ?? 0);
     return [
-      { titleKey: 'd3.bookings.cards.totalBookings',  value: this.formatMetricNumber(this.stats?.totalCount ?? 0),   icon: 'calendar',     tone: 'black' },
-      { titleKey: 'd3.bookings.cards.confirmed',       value: this.formatMetricNumber(this.stats?.confirmedCount ?? 0), icon: 'circle-check', tone: 'green' },
-      { titleKey: 'd3.bookings.cards.awaitingArrival', value: this.formatMetricNumber(this.stats?.awaitingArrivalCount ?? 0), icon: 'clock-hour-3', tone: 'orange' },
-      { titleKey: 'd3.bookings.cards.todayRevenue',    value: this.formatMetricNumber(this.stats?.todayRevenue ?? 0), icon: 'coin', tone: 'black', isCurrency: true },
+      { titleKey: 'd3.bookings.cards.totalBookings',  value: fmt(this.stats?.totalCount),   icon: 'calendar',     tone: 'black' },
+      { titleKey: 'd3.bookings.cards.confirmed',       value: fmt(this.stats?.confirmedCount), icon: 'circle-check', tone: 'green' },
+      { titleKey: 'd3.bookings.cards.awaitingArrival', value: fmt(this.stats?.awaitingArrivalCount), icon: 'clock-hour-3', tone: 'orange' },
+      { titleKey: 'd3.bookings.cards.todayRevenue',    value: fmt(this.stats?.todayRevenue), icon: 'coin', tone: 'black', isCurrency: !this.loadError },
     ];
+  }
+
+  retryLoad(): void {
+    this.reload();
   }
 
   private formatMetricNumber(value: number): string {

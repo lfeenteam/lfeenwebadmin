@@ -44,7 +44,12 @@
       }
       @empty {
         <div class="col-12">
-          @if (searchQuery.trim()) {
+          @if (loadError) {
+            <app-dashboard-empty variant="error"
+              titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+              actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoad()">
+            </app-dashboard-empty>
+          } @else if (searchQuery.trim()) {
             <app-dashboard-empty variant="search"
               titleKey="d3.emptyState.noResults.title"
               descKey="d3.emptyState.noResults.desc"
