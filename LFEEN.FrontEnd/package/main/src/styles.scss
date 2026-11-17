@@ -2,6 +2,16 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Agreements dialogs (publish / expiry / new draft / confirm).
+.agreement-dialog-panel {
+  .mat-mdc-dialog-container,
+  .mdc-dialog__surface {
+    border-radius: 24px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+}
 .role-dialog-panel {
   .mat-mdc-dialog-container {
     border-radius: 40px !important;

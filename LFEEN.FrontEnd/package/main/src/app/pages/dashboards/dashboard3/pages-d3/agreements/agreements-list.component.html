@@ -1,0 +1,217 @@
+<div class="ag" [dir]="dir">
+
+  <header class="ag-head">
+    <div>
+      <h1 class="ag-title">{{ 'd3.agreements.title' | translate }}</h1>
+      <p class="ag-subtitle">{{ 'd3.agreements.subtitle' | translate }}</p>
+    </div>
+    @if (canEdit()) {
+      <button type="button" class="ag-btn ag-btn--primary" [disabled]="loading() && !versions().length" (click)="newDraft()">
+        <i-tabler name="plus" class="ag-btn-icon"></i-tabler>
+        {{ 'd3.agreements.actions.newDraft' | translate }}
+      </button>
+    }
+  </header>
+
+  <div class="ag-tabs" role="tablist">
+    @for (t of types; track t) {
+      <button type="button" role="tab" class="ag-tab" [class.is-active]="type() === t"
+        [attr.aria-selected]="type() === t" (click)="selectType(t)">
+        {{ labels.typeLabel(t) }}
+      </button>
+    }
+  </div>
+
+  @if (loading() && !versions().length) {
+    <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+  } @else if (loadError()) {
+    <div class="ag-card ag-empty-card">
+      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.agreements.errors.loadTitle" [descKey]="loadErrorDescKey()">
+        @if (loadError()?.kind !== 'forbidden') {
+          <button type="button" class="ag-btn" (click)="load()">
+            <i-tabler name="refresh" class="ag-btn-icon"></i-tabler>
+            {{ 'd3.agreements.actions.retry' | translate }}
+          </button>
+        }
+      </app-dashboard-empty>
+    </div>
+  } @else if (!versions().length) {
+    <div class="ag-card ag-empty-card">
+      <span class="ag-pill">{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(0) } }}</span>
+      <h2 class="ag-empty-title">{{ 'd3.agreements.empty.title' | translate: { type: labels.typeLabel(type()) } }}</h2>
+      <p class="ag-empty-desc">{{ 'd3.agreements.empty.desc' | translate }}</p>
+      @if (canEdit()) {
+        <p class="ag-empty-hint">{{ 'd3.agreements.empty.hint' | translate }}</p>
+      }
+    </div>
+  } @else {
+    <div [class.is-refreshing]="loading()">
+
+      @if (current(); as cur) {
+        <section class="ag-card ag-current" [attr.aria-label]="'d3.agreements.currentVersion' | translate">
+          <div class="ag-current-main">
+            <span class="ag-badge is-current">{{ 'd3.agreements.current' | translate }}</span>
+            <h2 class="ag-current-title">
+              <a class="ag-link" (click)="open(cur)" (keydown.enter)="open(cur)" tabindex="0">
+                {{ labels.typeLabel(cur.type) }} · {{ labels.versionLabel(cur) }}
+              </a>
+            </h2>
+          </div>
+          <dl class="ag-stats">
+            <div>
+              <dt>{{ 'd3.agreements.fields.publishedAt' | translate }}</dt>
+              <dd>{{ labels.date(cur.publishedAtUtc) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.agreements.fields.signers' | translate }}</dt>
+              <dd>{{ labels.signers(cur.signedCount) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.agreements.fields.expiresAt' | translate }}</dt>
+              <dd>{{ cur.expiresAtUtc ? labels.date(cur.expiresAtUtc) : ('d3.agreements.noExpiry' | translate) }}</dd>
+            </div>
+          </dl>
+        </section>
+      }
+
+      <div class="ag-section-head">
+        <h2>{{ 'd3.agreements.allVersions' | translate }}</h2>
+        <span>{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(versions().length) } }}</span>
+      </div>
+
+      <div class="ag-table-box">
+        <table class="ag-table">
+          <thead>
+            <tr>
+              <th>{{ 'd3.agreements.table.version' | translate }}</th>
+              <th>{{ 'd3.agreements.table.title' | translate }}</th>
+              <th>{{ 'd3.agreements.table.status' | translate }}</th>
+              <th>{{ 'd3.agreements.table.current' | translate }}</th>
+              <th>{{ 'd3.agreements.table.clauses' | translate }}</th>
+              <th>{{ 'd3.agreements.table.signers' | translate }}</th>
+              <th>{{ 'd3.agreements.table.published' | translate }}</th>
+              <th>{{ 'd3.agreements.table.expires' | translate }}</th>
+              <th>{{ 'd3.agreements.table.ended' | translate }}</th>
+              <th class="ag-th-actions">{{ 'd3.agreements.table.actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of pageRows(); track v.id) {
+              <tr class="ag-row" [class.is-busy]="busyId() === v.id" (click)="open(v)">
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.version' | translate }}</span>
+                  <span class="ag-version">{{ v.status === 'Draft' ? '—' : labels.num(v.version) }}</span>
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.title' | translate }}</span>
+                  <span class="ag-row-title">{{ labels.title(v) }}</span>
+                  @if (labels.subtitle(v)) {
+                    <span class="ag-sub" [attr.dir]="labels.lang === 'en' ? 'rtl' : 'ltr'">{{ labels.subtitle(v) }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.status' | translate }}</span>
+                  <span class="ag-badge" [ngClass]="labels.statusClass(v)">{{ labels.statusLabel(v) }}</span>
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.current' | translate }}</span>
+                  @if (v.isCurrent) {
+                    <span class="ag-badge is-current">{{ 'd3.agreements.current' | translate }}</span>
+                  } @else {
+                    <span class="ag-dash">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.clauses' | translate }}</span>
+                  {{ labels.num(v.clauseCount) }}
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.signers' | translate }}</span>
+                  {{ labels.num(v.signedCount) }}
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.published' | translate }}</span>
+                  @if (v.publishedAtUtc) {
+                    <span class="ag-date">{{ labels.date(v.publishedAtUtc) }}</span>
+                    @if (v.publishedBy) { <span class="ag-sub ag-sub--clip" [title]="v.publishedBy">{{ v.publishedBy }}</span> }
+                  } @else {
+                    <span class="ag-dash">—</span>
+                    @if (v.status === 'Draft') { <span class="ag-sub">{{ 'd3.agreements.notPublished' | translate }}</span> }
+                  }
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.expires' | translate }}</span>
+                  @if (v.expiresAtUtc) {
+                    <span class="ag-date">{{ labels.date(v.expiresAtUtc) }}</span>
+                  } @else {
+                    <span class="ag-dash">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="ag-cell-label">{{ 'd3.agreements.table.ended' | translate }}</span>
+                  @if (v.endedAtUtc) {
+                    <span class="ag-date">{{ labels.date(v.endedAtUtc) }}</span>
+                    @if (v.endedBy) { <span class="ag-sub ag-sub--clip" [title]="v.endedBy">{{ v.endedBy }}</span> }
+                  } @else {
+                    <span class="ag-dash">—</span>
+                  }
+                </td>
+                <td class="ag-actions-cell" (click)="$event.stopPropagation()">
+                  <button type="button" class="ag-kebab" [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ v: v }"
+                    [disabled]="busyId() === v.id" [attr.aria-label]="'d3.agreements.table.actions' | translate">
+                    <i-tabler name="dots-vertical"></i-tabler>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ag-pagination">
+        <span class="ag-range">{{ rangeText() }}</span>
+        @if (totalPages() > 1) {
+          <div class="ag-pages">
+            <button type="button" class="ag-page-btn" [disabled]="page() === 1" (click)="changePage(page() - 1)">
+              {{ 'd3.agreements.pagination.prev' | translate }}
+            </button>
+            <span class="ag-page-num">{{ labels.num(page()) }} / {{ labels.num(totalPages()) }}</span>
+            <button type="button" class="ag-page-btn" [disabled]="page() === totalPages()" (click)="changePage(page() + 1)">
+              {{ 'd3.agreements.pagination.next' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<mat-menu #rowMenu="matMenu" class="ag-menu" [xPosition]="dir === 'rtl' ? 'after' : 'before'">
+  <ng-template matMenuContent let-v="v">
+    <div [dir]="dir">
+      <button mat-menu-item (click)="open(v)">
+        {{ (v.status === 'Draft' && canEdit() ? 'd3.agreements.actions.edit' : 'd3.agreements.actions.view') | translate }}
+      </button>
+      @if (canEdit()) {
+        <button mat-menu-item (click)="copy(v)">{{ 'd3.agreements.actions.copyAsDraft' | translate }}</button>
+      }
+      <button mat-menu-item [matMenuTriggerFor]="previewMenu" [matMenuTriggerData]="{ v: v }">
+        {{ 'd3.agreements.actions.previewPdf' | translate }}
+      </button>
+      @if (v.status === 'Published' && canPublish()) {
+        <button mat-menu-item (click)="editExpiry(v)">{{ 'd3.agreements.actions.editExpiry' | translate }}</button>
+        <button mat-menu-item class="ag-menu-danger" (click)="end(v)">{{ 'd3.agreements.actions.end' | translate }}</button>
+      }
+      @if (v.status === 'Draft' && canEdit()) {
+        <button mat-menu-item class="ag-menu-danger" (click)="remove(v)">{{ 'd3.agreements.actions.delete' | translate }}</button>
+      }
+    </div>
+  </ng-template>
+</mat-menu>
+
+<mat-menu #previewMenu="matMenu" class="ag-menu">
+  <ng-template matMenuContent let-v="v">
+    <button mat-menu-item (click)="preview(v, 'ar')">عربي</button>
+    <button mat-menu-item (click)="preview(v, 'en')">English</button>
+  </ng-template>
+</mat-menu>

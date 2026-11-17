@@ -1,0 +1,47 @@
+<section class="agd" [dir]="dir" role="dialog" aria-labelledby="agd-publish-title">
+  <div class="agd-body">
+    <div class="agd-header">
+      <h2 class="agd-title" id="agd-publish-title">{{ 'd3.agreements.publish.title' | translate }}</h2>
+      <button type="button" class="agd-close" [disabled]="saving()" (click)="ref.close()" [attr.aria-label]="'common.cancel' | translate">
+        <i-tabler name="x"></i-tabler>
+      </button>
+    </div>
+    <p class="agd-sub">{{ subtitle }}</p>
+
+    @if (error()) {
+      <div class="agd-error-banner" role="alert">{{ error() }}</div>
+    }
+
+    <div class="agd-section">
+      <label class="agd-label" for="agd-publish-expiry">{{ 'd3.agreements.publish.expiryLabel' | translate }}</label>
+      <app-agreement-date-field inputId="agd-publish-expiry" [value]="expiry" [invalid]="!!expiryError()"
+        (valueChange)="onExpiry($event)"></app-agreement-date-field>
+      @if (expiryError()) {
+        <p class="agd-field-error" role="alert">{{ expiryError() }}</p>
+      } @else {
+        <p class="agd-hint">{{ 'd3.agreements.publish.expiryHint' | translate }}</p>
+      }
+    </div>
+
+    <div class="agd-section">
+      <label class="agd-check">
+        <input type="checkbox" [(ngModel)]="endPreviousVersions" [disabled]="saving()" />
+        {{ 'd3.agreements.publish.endPrevious' | translate }}
+      </label>
+      @if (endPreviousVersions) {
+        <div class="agd-warning" role="alert">
+          {{ 'd3.agreements.publish.endPreviousWarning' | translate: { n: labels.num(data.previousSignedCount) } }}
+        </div>
+      }
+    </div>
+
+    <p class="agd-hint" style="margin-top: 20px">{{ 'd3.agreements.publish.note' | translate }}</p>
+  </div>
+
+  <div class="agd-footer">
+    <button type="button" class="agd-btn agd-btn--primary" [disabled]="saving()" (click)="submit()">
+      {{ (saving() ? 'd3.agreements.publishing' : 'd3.agreements.publish.submit') | translate }}
+    </button>
+    <button type="button" class="agd-btn" [disabled]="saving()" (click)="ref.close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+</section>

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { PAYOUT_BLOCK_CODES, PayoutBlockKind } from './settlement.model';
 
 /**
  * Settlement errors come in several shapes: a localized validation payload, an
@@ -11,6 +12,10 @@ export function resolveSettlementError(err: unknown, translate: TranslateService
   const e = err as HttpErrorResponse;
   const t = (key: string) => translate.instant(`d3.settlements.errors.${key}`);
   const message: string = typeof e?.error?.message === 'string' ? e.error.message : '';
+
+  // BUG-1482 blocks arrive already localized (ar/en) — shown exactly as the server sent them.
+  const block = payoutBlockOf(err);
+  if (block) return block.message || t(`block.${block.kind}`);
 
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
@@ -52,5 +57,20 @@ export function isIbanMismatchError(err: unknown): boolean {
 
 /** 409 = the payout already moved on (someone else acted, or a retried request landed). */
 export function isStaleStateError(err: unknown): boolean {
-  return (err as HttpErrorResponse)?.status === 409 && !isIbanMismatchError(err);
+  return (err as HttpErrorResponse)?.status === 409 && !isIbanMismatchError(err) && !payoutBlockOf(err);
+}
+
+export interface PayoutBlock {
+  kind: PayoutBlockKind;
+  /** Server text, already in the admin's language. */
+  message: string;
+}
+
+/** Execute/retry refused by a BUG-1482 rule (needs recalculation, refund in progress, merchant debt). */
+export function payoutBlockOf(err: unknown): PayoutBlock | null {
+  const body = (err as HttpErrorResponse)?.error;
+  const code: string = String(body?.errorCode ?? body?.code ?? '').toUpperCase();
+  const kind = (Object.keys(PAYOUT_BLOCK_CODES) as PayoutBlockKind[]).find(k => PAYOUT_BLOCK_CODES[k] === code);
+  if (!kind) return null;
+  return { kind, message: typeof body?.message === 'string' ? body.message.trim() : '' };
 }

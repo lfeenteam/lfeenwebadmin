@@ -16,6 +16,16 @@
 
     <div class="drawer-body">
 
+      @if (sim.needsSupportAttention) {
+        <section class="attention-banner" role="status">
+          <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+          <div class="stack">
+            <strong>{{ 'd3.esim.attention.badge' | translate }}</strong>
+            <small>{{ 'd3.esim.attention.hint' | translate }}</small>
+          </div>
+        </section>
+      }
+
       <!-- SIM card -->
       <section class="sim-card">
         <div class="sim-card-top">
@@ -129,11 +139,34 @@
         <div class="fact">
           <span class="field-label">{{ 'd3.esim.detail.planPrice' | translate }}</span>
           <strong class="fact-inline">
-            {{ fmtAmount(sim.priceSar) }}
+            {{ fmtAmount(sim.paymentStatus ? sim.totalSar : sim.priceSar) }}
             <img [src]="currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
           </strong>
         </div>
       </section>
+
+      <!-- The ORDER behind this SIM; an orphan SIM (no order) has no payment status. -->
+      @if (sim.paymentStatus) {
+        <section class="refund-panel">
+          <div class="stack">
+            <strong class="fact-inline">
+              {{ 'd3.esim.refund.panelTitle' | translate }}
+              <span class="pay-pill" [class]="'pay-pill pay-' + paymentStatusKey">{{ paymentStatusLabel }}</span>
+            </strong>
+            <small>
+              {{ 'd3.esim.refund.refunded' | translate }}: {{ fmtAmount(sim.refundedSar) }}
+              · {{ 'd3.esim.refund.remaining' | translate }}: {{ fmtAmount(sim.refundableRemainingSar) }}
+              {{ 'd3.esim.refund.sar' | translate }}
+            </small>
+          </div>
+          @if (canRefund && sim.isRefundable) {
+            <button type="button" class="refund-btn" [disabled]="busy" (click)="refund.emit()">
+              <i-tabler name="receipt-refund" class="icon-16"></i-tabler>
+              {{ 'd3.esim.refund.action' | translate }}
+            </button>
+          }
+        </section>
+      }
 
     </div>
   </aside>

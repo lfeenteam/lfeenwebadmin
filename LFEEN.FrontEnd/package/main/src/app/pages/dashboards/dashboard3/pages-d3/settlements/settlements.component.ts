@@ -7,7 +7,8 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subscription, catchError, forkJoin, of } from 'rxjs';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
@@ -16,7 +17,8 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { SettlementDetailDialogComponent, SettlementDetailDialogData, SettlementDialogResult } from './components/settlement-detail-dialog/settlement-detail-dialog.component';
-import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
+import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from './components/recalculation-dialog/recalculation-dialog.component';
+import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, RecalculationPreviewItem, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -26,6 +28,9 @@ type StatusClass = 'status-pending' | 'status-approved' | 'status-rejected' | ''
 
 interface SettlementRow {
   id: string;
+  payoutReference: string;
+  /** Listed by GET recalculation-preview — execute is refused until it's recalculated. */
+  needsRecalculation: boolean;
   /** '-' when the backend didn't return a merchant name. */
   accountInitials: string;
   partyName: string;
@@ -67,8 +72,14 @@ export class SettlementsComponent implements OnInit {
   private toastr = inject(ToastrService);
   private service = inject(SettlementsService);
   private login = inject(LoginService);
+  private router = inject(Router);
 
-  private readonly canExecute = computed(() => this.hasPermission('settlements.execute'));
+  readonly canExecute = computed(() => this.hasPermission('settlements.execute'));
+
+  /** Payouts awaiting recalculation (by id and by reference — the preview may carry either). */
+  private recalcIds = new Set<string>();
+  private recalcRefs = new Set<string>();
+  recalculatingId: string | null = null;
 
   currentLang = this.translate.currentLang || 'ar';
   activeTab: SettlementTab = 'current';
@@ -144,8 +155,16 @@ export class SettlementsComponent implements OnInit {
     this.loadError = false;
 
     const statuses = this.activeTab === 'current' ? CURRENT_TAB_STATUSES : PREVIOUS_TAB_STATUSES;
-    this.listRequest = this.service.listAllByStatuses(statuses).subscribe({
-      next: ({ items, summary }) => {
+    // Only payouts that can still be executed can need recalculation. The badge is a hint —
+    // execute itself still refuses — so a failing preview must never hide the list.
+    const preview$ = this.activeTab === 'current'
+      ? this.service.recalculationPreview().pipe(catchError(() => of([] as RecalculationPreviewItem[])))
+      : of([] as RecalculationPreviewItem[]);
+
+    this.listRequest = forkJoin([this.service.listAllByStatuses(statuses), preview$]).subscribe({
+      next: ([{ items, summary }, preview]) => {
+        this.recalcIds = new Set(preview.map(p => p.payoutId ?? p.id ?? '').filter(Boolean));
+        this.recalcRefs = new Set(preview.map(p => p.payoutReference ?? '').filter(Boolean));
         this.summary = summary;
         this.allSettlements = items.map(s => this.toRow(s));
         this.loading = false;
@@ -247,7 +266,9 @@ export class SettlementsComponent implements OnInit {
       panelClass: 'settlement-detail-panel',
       data: {
         id: detail.id,
+        accountId: detail.accountId,
         netAmount: detail.netAmount,
+        needsRecalculation: this.isAwaitingRecalculation(detail.id, detail.payoutReference),
         canExecute: this.canExecute() && ACTIONABLE_STATUSES.includes(detail.status),
         accountName: detail.merchantName?.trim() || EMPTY,
         hostName: detail.hostName?.trim() || EMPTY,
@@ -273,6 +294,7 @@ export class SettlementsComponent implements OnInit {
           gross: this.fmtAmount(e.grossAmount),
           fee: this.fmtAmount(e.feeAmount),
           net: this.fmtAmount(e.netAmount),
+          isRefundAfterSettlement: e.isRefundAfterSettlement === true,
         })),
       } as SettlementDetailDialogData
     });
@@ -280,8 +302,56 @@ export class SettlementsComponent implements OnInit {
     // Any result means the payout changed on the server (or turned out stale) —
     // reload so statuses and the leftover Pending payout of a partial transfer show up.
     dialogRef.afterClosed().subscribe((result?: SettlementDialogResult) => {
-      if (result) this.load();
+      if (!result) return;
+      this.load();
+      // Recalculated from inside the dialog: reopen it on the new totals so execute can go ahead.
+      if (result.decision === 'recalculated') this.reopen(detail.id);
     });
+  }
+
+  private reopen(id: string): void {
+    this.viewingId = id;
+    this.service.get(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: detail => {
+        this.viewingId = null;
+        this.recalcIds.delete(detail.id);
+        this.recalcRefs.delete(detail.payoutReference);
+        this.openDetailDialog(detail);
+      },
+      error: err => {
+        this.viewingId = null;
+        this.toastr.error(resolveSettlementError(err, this.translate));
+      },
+    });
+  }
+
+  onRecalculate(row: SettlementRow): void {
+    if (this.recalculatingId || !this.canExecute()) return;
+    this.recalculatingId = row.id;
+    this.dialog.open<RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult>(RecalculationDialogComponent, {
+      width: '560px',
+      maxWidth: '92vw',
+      maxHeight: '92vh',
+      data: {
+        id: row.id,
+        payoutReference: row.payoutReference || EMPTY,
+        accountName: row.partyName,
+        currencyIconSrc: this.currencyIconSrc,
+        isTextCurrency: this.currentLang === 'en',
+      },
+    }).afterClosed().subscribe(result => {
+      this.recalculatingId = null;
+      if (result?.applied) this.load();
+    });
+  }
+
+  openDebts(): void {
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.router.navigate(['/', lang, 'd3', 'settlement-debts']);
+  }
+
+  private isAwaitingRecalculation(id: string, reference: string | null | undefined): boolean {
+    return this.recalcIds.has(id) || (!!reference && this.recalcRefs.has(reference));
   }
 
   private fmtDetailDate(value: string | null, withTime = false): string {
@@ -298,6 +368,8 @@ export class SettlementsComponent implements OnInit {
     const cached = this.rejectionReasons.get(s.id);
     return {
       id: s.id,
+      payoutReference: s.payoutReference?.trim() || '',
+      needsRecalculation: ACTIONABLE_STATUSES.includes(s.status) && this.isAwaitingRecalculation(s.id, s.payoutReference),
       accountInitials: name ? this.initialsOf(name) : EMPTY,
       partyName: name || EMPTY,
       amount: typeof s.netAmount === 'number' ? s.netAmount : null,

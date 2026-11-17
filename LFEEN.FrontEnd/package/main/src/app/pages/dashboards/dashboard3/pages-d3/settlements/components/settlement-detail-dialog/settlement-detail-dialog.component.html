@@ -157,8 +157,13 @@
             <span>{{ 'd3.settlements.detail.entryNet' | translate }}</span>
           </div>
           @for (entry of data.entries; track $index) {
-            <div class="entries-row">
-              <span class="entry-booking">{{ entry.bookingNumber }}</span>
+            <div class="entries-row" [class.entries-row--refund]="entry.isRefundAfterSettlement">
+              <span class="entry-booking">
+                {{ entry.bookingNumber }}
+                @if (entry.isRefundAfterSettlement) {
+                  <span class="refund-tag" [attr.dir]="currentDir">{{ 'd3.settlements.recalc.kind.refundAfterSettlement' | translate }}</span>
+                }
+              </span>
               <span>{{ entry.gross }}</span>
               <span>{{ entry.fee }}</span>
               <span class="entry-net">{{ entry.net }}</span>
@@ -214,11 +219,15 @@
       @if (!data.hasIban) {
         <span class="action-blocked-hint">* {{ 'd3.settlements.errors.noBankAccount' | translate }}</span>
       }
+      <!-- Known up front from recalculation-preview: stop before the admin fills the transfer form -->
+      @if (mustRecalculate) {
+        <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
+      }
       <div class="detail-actions">
         <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
           {{ 'd3.settlements.detail.rejectBtn' | translate }}
         </button>
-        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban" (click)="goToConfirmTransfer()">
+        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban || mustRecalculate" (click)="goToConfirmTransfer()">
           {{ 'd3.settlements.detail.acceptBtn' | translate }}
         </button>
       </div>
@@ -422,6 +431,10 @@
       </div>
     }
 
+    @if (block) {
+      <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
+    }
+
     <!-- Actions -->
     <div class="detail-actions">
       <button type="button" class="btn btn-outline" (click)="close()">
@@ -437,3 +450,26 @@
   }
 
 </div>
+
+<!-- BUG-1482 block: the server's own (localized) reason + the action that unblocks it -->
+<ng-template #blockAlert>
+  <div class="action-blocked-alert payout-block-alert"
+       [class.is-warning]="block?.kind === 'refundInProgress'"
+       role="alert">
+    <i-tabler [name]="block?.kind === 'refundInProgress' ? 'clock' : 'alert-triangle'" class="icon-18"></i-tabler>
+    <div class="payout-block-body">
+      <span>{{ blockMessage }}</span>
+      @if (mustRecalculate) {
+        <button type="button" class="block-action-btn" [disabled]="recalcOpen || submitting" (click)="openRecalculation()">
+          <i-tabler name="calculator" class="icon-16"></i-tabler>
+          {{ 'd3.settlements.recalc.openBtn' | translate }}
+        </button>
+      } @else if (block?.kind === 'debtOutstanding') {
+        <button type="button" class="block-action-btn" (click)="openDebts()">
+          <i-tabler name="external-link" class="icon-16"></i-tabler>
+          {{ 'd3.settlements.debts.viewMerchantDebts' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+</ng-template>

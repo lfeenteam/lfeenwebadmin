@@ -6,6 +6,11 @@ import { authGuard, guestGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
 import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 import { settingsViewGuard } from './guards/settings-view.guard';
+import { cancellationRefundsViewGuard } from './guards/cancellation-refunds-view.guard';
+import {
+  agreementsViewGuard,
+  unsavedAgreementGuard,
+} from './pages/dashboards/dashboard3/pages-d3/agreements/guards/agreement-guards';
 
 export const routes: Routes = [
   {
@@ -353,6 +358,20 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'settlement-debts',
+                canActivate: [authGuard, pageFlagGuard('settlement-debts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/settlements/merchant-debts/merchant-debts.component'
+                  ).then((m) => m.MerchantDebtsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.settlements.debts.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
                 path: 'demo-accounts',
                 canActivate: [authGuard, pageFlagGuard('demo-accounts')],
                 loadComponent: () =>
@@ -470,6 +489,53 @@ export const routes: Routes = [
                   header: 'page',
                   titleKey: 'd3.banRefunds.title',
                   breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'cancellation-refunds',
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, cancellationRefundsViewGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/cancellation-refunds/cancellation-refunds.component'
+                  ).then((m) => m.CancellationRefundsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.cancellationRefunds.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'agreements',
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, agreementsViewGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/agreements/agreements-list.component'
+                  ).then((m) => m.AgreementsListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.agreements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'agreements/:id',
+                canActivate: [authGuard, agreementsViewGuard],
+                canDeactivate: [unsavedAgreementGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/agreements/agreement-page.component'
+                  ).then((m) => m.AgreementPageComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.agreements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
                   showDate: true
                 },
               },

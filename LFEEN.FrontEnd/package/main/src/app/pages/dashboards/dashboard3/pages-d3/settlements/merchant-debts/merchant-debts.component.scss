@@ -1,0 +1,264 @@
+.debts-container {
+  font-family: 'Cairo', sans-serif !important;
+
+  h2, span, p, button, input, table, th, td, strong, small {
+    font-family: 'Cairo', sans-serif !important;
+  }
+}
+
+.ltr { direction: ltr; unicode-bidi: isolate; text-align: start; }
+
+// ── Toolbar ─────────────────────────────────────────────────
+.debts-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+  color: #111110;
+  font-size: 13px;
+  font-weight: 700;
+  &:hover { background: #F8FAFC; }
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1 1 260px;
+}
+
+.search-icon {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9E9E9A;
+}
+
+.search-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  padding-inline: 42px 14px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 13px;
+  outline: none;
+  &:focus { border-color: #4338ca; }
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chip-clear {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  &:hover { background: #e0e7ff; }
+}
+
+// ── Table ───────────────────────────────────────────────────
+.table-box {
+  background: #fff;
+  border: 1px solid #F1F5F9;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.debts-table {
+  width: 100%;
+
+  th {
+    padding: 14px 16px;
+    background: #F8FAFC;
+    color: #62748E;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 16px;
+    vertical-align: middle;
+    border-top: 1px solid #F1F5F9;
+  }
+}
+
+.col-toggle { width: 48px; }
+
+.toggle-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B6B67;
+  &:hover:not(:disabled) { background: #F1F5F9; }
+  &:disabled { opacity: 0.3; cursor: default; }
+}
+
+.debt-row.is-open td { background: #FAFBFF; }
+
+.merchant-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.merchant-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+}
+
+.claim-badge {
+  display: inline-flex;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  direction: ltr;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111110;
+
+  &--strong { font-weight: 800; }
+  &--danger { color: #dc2626; }
+}
+
+.riyal-icon-sm {
+  width: 12px;
+  height: 12px;
+  &.is-text-currency { width: 26px; }
+}
+
+.date { font-size: 12px; font-weight: 600; color: #6B6B67; }
+
+.mobile-field-label { display: none; }
+
+// ── Expanded lines ──────────────────────────────────────────
+.lines-row td {
+  padding: 0 16px 16px;
+  background: #FAFBFF;
+  border-top: 0;
+}
+
+.lines-table {
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1.2fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #111110;
+  border-top: 1px solid #F1F5F9;
+
+  &--head {
+    border-top: 0;
+    background: #F8FAFC;
+    font-size: 11px;
+    font-weight: 500;
+    color: #62748E;
+  }
+}
+
+.line-desc {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+}
+
+.retry-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: 20px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid #E8E8E4;
+  background: #fff;
+  color: #111110;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  &:hover { background: #f5f5f5; }
+}
+
+// ── Phones: rows become cards ───────────────────────────────
+@media (max-width: 767px) {
+  .debts-table {
+    thead { display: none; }
+    tr, td { display: block; width: 100%; box-sizing: border-box; }
+    tr.debt-row { border-top: 1px solid #F1F5F9; padding: 8px 0; }
+    td { border-top: 0; padding: 6px 16px; }
+    .col-toggle { width: auto; }
+  }
+
+  .mobile-field-label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #9E9E9A;
+  }
+
+  .line { grid-template-columns: 1fr 1fr; }
+  .line--head { display: none; }
+}

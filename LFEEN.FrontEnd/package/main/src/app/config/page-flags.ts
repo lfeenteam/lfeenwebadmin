@@ -10,7 +10,8 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // platform-settings: all fields are static literals
-  settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
+  settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt, recalculation)
+  'settlement-debts': true,         // wired to /api/settlements/debts — merchant debts after refunds on settled payouts (BUG-1482)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
   'wallet-approvals': true,         // wired to /api/wallet/adjustments (pending, approve, reject) — maker-checker queue

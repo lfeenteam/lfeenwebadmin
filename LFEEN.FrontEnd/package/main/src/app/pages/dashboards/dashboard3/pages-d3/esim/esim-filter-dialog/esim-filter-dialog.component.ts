@@ -83,6 +83,11 @@ export class EsimFilterDialogComponent implements OnChanges {
     this.onDraftChange();
   }
 
+  setNeedsAttention(value: boolean): void {
+    this.draft.needsAttention = value;
+    this.onDraftChange();
+  }
+
   onDraftChange(): void {
     this.previewCount = null;
     this.draftChange$.next({ ...this.draft });

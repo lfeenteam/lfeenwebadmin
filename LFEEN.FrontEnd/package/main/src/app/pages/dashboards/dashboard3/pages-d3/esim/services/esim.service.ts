@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
-  EsimDetail, EsimListQuery, EsimListResponse, EsimStateAction, EsimStateChangeResult, EsimSummary,
+  EsimDetail, EsimListQuery, EsimListResponse, EsimOrder, EsimRefundRequest, EsimStateAction, EsimStateChangeResult, EsimSummary,
 } from '../interfaces/esim.model';
 
 /** Admin eSIM API — a thin proxy to EQAMATIK. Auth + Accept-Language come from AuthInterceptor. */
@@ -25,6 +25,7 @@ export class EsimService {
     if (query.destinationCode) params = params.set('destinationCode', query.destinationCode);
     if (query.networkType) params = params.set('networkType', query.networkType);
     if (query.search) params = params.set('search', query.search);
+    if (query.needsSupportAttention !== undefined) params = params.set('needsSupportAttention', query.needsSupportAttention);
     return this.http.get<EsimListResponse>(`${this.apiUrl}/esims`, { params });
   }
 
@@ -35,5 +36,13 @@ export class EsimService {
   /** Synchronous call to the live provider — slower than the reads. `revoke` is final. */
   changeState(esimId: string, action: EsimStateAction): Observable<EsimStateChangeResult> {
     return this.http.post<EsimStateChangeResult>(`${this.apiUrl}/esims/${encodeURIComponent(esimId)}/state`, { action });
+  }
+
+  /**
+   * Needs Esim.ManageState. Takes the ORDER id (EsimDetail.orderId), not the esimId.
+   * Never retried automatically: after a timeout, check the order before sending again.
+   */
+  refundOrder(orderId: string, body: EsimRefundRequest): Observable<EsimOrder> {
+    return this.http.post<EsimOrder>(`${this.apiUrl}/orders/${encodeURIComponent(orderId)}/refund`, body);
   }
 }

@@ -1,0 +1,68 @@
+<form class="rf" [dir]="currentDir" (ngSubmit)="submit()" novalidate>
+  <div class="rf-header">
+    <div class="rf-heading">
+      <span class="rf-icon"><i-tabler name="receipt-refund"></i-tabler></span>
+      <h2 class="rf-title">{{ 'd3.esim.refund.title' | translate }}</h2>
+    </div>
+    <button type="button" class="rf-close" [disabled]="submitting" (click)="close()"
+      [attr.aria-label]="'d3.esim.detail.close' | translate">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="rf-desc">{{ 'd3.esim.refund.desc' | translate: { package: data.packageName } }}</p>
+
+  <dl class="rf-figures">
+    <div>
+      <dt>{{ 'd3.esim.refund.total' | translate }}</dt>
+      <dd>{{ fmt(data.totalSar) }} {{ 'd3.esim.refund.sar' | translate }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'd3.esim.refund.refunded' | translate }}</dt>
+      <dd>{{ fmt(data.refundedSar) }} {{ 'd3.esim.refund.sar' | translate }}</dd>
+    </div>
+    <div class="is-main">
+      <dt>{{ 'd3.esim.refund.remaining' | translate }}</dt>
+      <dd>{{ fmt(data.remainingSar) }} {{ 'd3.esim.refund.sar' | translate }}</dd>
+    </div>
+  </dl>
+
+  <label class="rf-label" for="esim-refund-amount">{{ 'd3.esim.refund.amountLabel' | translate }}</label>
+  <input id="esim-refund-amount" name="amount" class="rf-input" type="number" inputmode="decimal" min="0" step="0.01"
+    dir="ltr" [(ngModel)]="amount" [disabled]="submitting"
+    [class.has-error]="submitted && amountError"
+    [placeholder]="'d3.esim.refund.amountPlaceholder' | translate" />
+  @if (submitted && amountError) {
+    <span class="rf-error">{{ amountError | translate: { remaining: fmt(data.remainingSar) } }}</span>
+  } @else {
+    <span class="rf-hint">{{ 'd3.esim.refund.amountHint' | translate }}</span>
+  }
+
+  <label class="rf-label rf-label--gap" for="esim-refund-reason">{{ 'd3.esim.refund.reasonLabel' | translate }}</label>
+  <textarea id="esim-refund-reason" name="reason" class="rf-textarea" rows="3"
+    [maxlength]="maxLength" [(ngModel)]="reason" [disabled]="submitting"
+    [class.has-error]="submitted && reasonError"
+    [placeholder]="'d3.esim.refund.reasonPlaceholder' | translate"></textarea>
+  <div class="rf-row">
+    @if (submitted && reasonError) {
+      <span class="rf-error">{{ reasonError | translate }}</span>
+    } @else {
+      <span></span>
+    }
+    <span class="rf-count">{{ reason.length }}/{{ maxLength }}</span>
+  </div>
+
+  @if (serverError) {
+    <div class="rf-server-error" role="alert">
+      <i-tabler name="alert-circle"></i-tabler>
+      <span>{{ serverError }}</span>
+    </div>
+  }
+
+  <div class="rf-actions">
+    <button type="button" class="rf-cancel" [disabled]="submitting" (click)="close()">{{ 'd3.listingBan.dialog.cancelBtn' | translate }}</button>
+    <button type="submit" class="rf-confirm" [disabled]="submitting">
+      {{ (submitting ? 'd3.esim.refund.submitting' : 'd3.esim.refund.confirmBtn') | translate }}
+    </button>
+  </div>
+</form>

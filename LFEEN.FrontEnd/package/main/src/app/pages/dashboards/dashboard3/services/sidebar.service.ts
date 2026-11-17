@@ -69,6 +69,20 @@ export class SidebarService {
       });
     }
 
+    // Merchant debts (BUG-1482) has no sidebar key in the payload; it's part of Settlements,
+    // so it's shown to whoever the payload gives Settlements to, right below it.
+    if (PAGE_FLAGS['settlement-debts'] && !items.find(i => i.link === '/d3/settlement-debts')) {
+      const settlementsIndex = items.findIndex(i => i.link === '/d3/settlements');
+      if (settlementsIndex >= 0) {
+        items.splice(settlementsIndex + 1, 0, {
+          key: 'settlement-debts',
+          translationKey: 'd3.sidebar.settlementDebts',
+          icon: 'report-money',
+          link: '/d3/settlement-debts'
+        });
+      }
+    }
+
     // The wallet approvals queue isn't in the payload; shown only to admins who can approve.
     // Placed after Settlements, the other money-movement page.
     if (
@@ -133,6 +147,8 @@ export class SidebarService {
       'control-center':   'layout-grid',
       'settlements':      'receipt-2',
       'ban-refunds':      'receipt-refund',
+      'cancellation-refunds': 'receipt-refund',
+      'agreements':       'file-certificate',
       'platform-offers':  'discount',
       'call-scripts':     'phone-call',
       'additional-conditions': 'list-check',
@@ -160,6 +176,10 @@ export class SidebarService {
       'control-center':  '/d3/control-center',
       'settlements':     '/d3/settlements',
       'ban-refunds':     '/d3/ban-refunds',
+      // Sent only to admins holding CancellationRefunds.View (the payload's own route is /admin/cancellation-refunds).
+      'cancellation-refunds': '/d3/cancellation-refunds',
+      // Sent only to admins holding Agreements.View (the payload's own route is /admin/agreements).
+      'agreements':      '/d3/agreements',
       'platform-offers': '/d3/platform-offers',
       'call-scripts':    '/d3/call-scripts',
       'esim':            '/d3/esim',
@@ -181,7 +201,9 @@ export class SidebarService {
       'control-center':  'd3.sidebar.controlCenter',
       'settlements':     'd3.sidebar.settlements',
       'ban-refunds':     'd3.sidebar.banRefunds',
-      'contact-us':      'd3.sidebar.contactUs',
+      'cancellation-refunds': 'd3.sidebar.cancellationRefunds',
+      'agreements':      'd3.sidebar.agreements',
+      'contact-us':     'd3.sidebar.contactUs',
       'platform-offers': 'd3.sidebar.platformOffers',
       'call-scripts':    'd3.sidebar.callScripts',
       'additional-conditions': 'd3.sidebar.additionalConditions',

@@ -1,0 +1,129 @@
+<div class="recalc-dialog" [dir]="currentDir">
+
+  <!-- Header -->
+  <div class="recalc-header">
+    <div class="header-icon-badge">
+      <i-tabler name="calculator" class="icon-20"></i-tabler>
+    </div>
+    <div class="header-text">
+      <h2>{{ 'd3.settlements.recalc.title' | translate }}</h2>
+      <p>
+        <span class="ltr">{{ data.payoutReference }}</span>
+        @if (data.accountName && data.accountName !== emptyValue) { · {{ data.accountName }} }
+      </p>
+    </div>
+    <button type="button" class="close-btn" [attr.aria-label]="'common.cancel' | translate" [disabled]="applying" (click)="close()">
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="recalc-state">
+      <span class="spinner" aria-hidden="true"></span>
+      {{ 'd3.settlements.recalc.loading' | translate }}
+    </div>
+  } @else if (loadError) {
+    <div class="recalc-alert recalc-alert--danger" role="alert">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <span>{{ loadError }}</span>
+    </div>
+    <div class="recalc-actions">
+      <button type="button" class="btn btn-outline" (click)="close()">{{ 'common.cancel' | translate }}</button>
+      <button type="button" class="btn btn-primary" (click)="load()">{{ 'd3.settlements.errors.retry' | translate }}</button>
+    </div>
+  } @else if (preview) {
+
+    <p class="dry-run-hint">
+      <i-tabler name="info-circle" class="icon-14"></i-tabler>
+      {{ 'd3.settlements.recalc.dryRunHint' | translate }}
+    </p>
+
+    <!-- Old ↔ new totals -->
+    <div class="figures-table">
+      <div class="figures-row figures-row--head">
+        <span></span>
+        <span>{{ 'd3.settlements.recalc.old' | translate }}</span>
+        <span>{{ 'd3.settlements.recalc.new' | translate }}</span>
+      </div>
+      @for (row of figures; track row.labelKey) {
+        <div class="figures-row" [class.is-changed]="changed(row.oldValue, row.newValue)">
+          <span class="figure-label">{{ row.labelKey | translate }}</span>
+          <span class="figure-old">{{ fmt(row.oldValue) }}</span>
+          <span class="figure-new">
+            {{ fmt(row.newValue) }}
+            <span class="riyal-icon"
+                  [class.is-text-currency]="data.isTextCurrency"
+                  [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                  [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+          </span>
+        </div>
+      }
+    </div>
+
+    @if (!preview.hasChanges) {
+      <div class="recalc-alert recalc-alert--info">
+        <i-tabler name="circle-check" class="icon-18"></i-tabler>
+        <span>{{ 'd3.settlements.recalc.noChanges' | translate }}</span>
+      </div>
+    }
+
+    <!-- Adjustments -->
+    @if (adjustments.length) {
+      <div class="section-title">
+        {{ 'd3.settlements.recalc.adjustments' | translate }} ({{ adjustments.length }})
+      </div>
+      <div class="adjustments-list">
+        @for (adj of adjustments; track $index) {
+          <div class="adjustment-item">
+            <div class="adjustment-head">
+              <span class="kind-tag">
+                {{ adjustmentKindKey(adj.kind) ? (adjustmentKindKey(adj.kind)! | translate) : adj.kind }}
+              </span>
+              @if (adj.bookingNumber) {
+                <span class="adjustment-booking ltr">{{ adj.bookingNumber }}</span>
+              }
+            </div>
+            <div class="adjustment-figures">
+              <span>
+                {{ 'd3.settlements.recalc.gross' | translate }}:
+                <span class="ltr">{{ fmt(adj.oldGross) }} → {{ fmt(adj.newGross) }}</span>
+              </span>
+              <span>
+                {{ 'd3.settlements.recalc.fee' | translate }}:
+                <span class="ltr">{{ fmt(adj.oldFee) }} → {{ fmt(adj.newFee) }}</span>
+              </span>
+              <span>
+                {{ 'd3.settlements.recalc.net' | translate }}:
+                <span class="ltr">{{ fmt(adj.oldNet) }} → {{ fmt(adj.newNet) }}</span>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Blockers: shown as the server sent them; Apply stays locked while any exist -->
+    @if (blockers.length) {
+      <div class="recalc-alert recalc-alert--danger" role="alert">
+        <i-tabler name="lock" class="icon-18"></i-tabler>
+        <div>
+          <strong>{{ 'd3.settlements.recalc.blockedTitle' | translate }}</strong>
+          <ul class="blockers-list">
+            @for (b of blockers; track $index) { <li>{{ b }}</li> }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <div class="recalc-actions">
+      <button type="button" class="btn btn-outline" [disabled]="applying" (click)="close()">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button type="button" class="btn btn-primary" [disabled]="!canApply" (click)="apply()">
+        @if (applying) { <span class="spinner spinner--light" aria-hidden="true"></span> }
+        {{ 'd3.settlements.recalc.applyBtn' | translate }}
+      </button>
+    </div>
+  }
+
+</div>

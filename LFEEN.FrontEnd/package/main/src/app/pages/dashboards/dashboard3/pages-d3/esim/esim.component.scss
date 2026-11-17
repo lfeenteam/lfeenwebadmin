@@ -428,6 +428,23 @@
   small { white-space: nowrap; }
 }
 
+// "Needs follow-up" flag under the status badge.
+.es-attention {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-block: 2px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #FFF7ED;
+  color: #C2410C;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i-tabler { display: flex; width: 14px; height: 14px; }
+}
+
 .es-status {
   display: inline-flex;
   align-items: center;

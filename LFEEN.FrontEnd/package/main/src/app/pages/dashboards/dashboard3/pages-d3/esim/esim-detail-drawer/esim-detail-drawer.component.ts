@@ -28,6 +28,11 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
 
   @Input() sim: EsimDetail | null = null;
+  /** Esim.ManageState — shows the order refund button. */
+  @Input() canRefund = false;
+  /** Another action on a SIM is in flight. */
+  @Input() busy = false;
+  @Output() refund = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -77,6 +82,25 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
 
   get statusKey(): string {
     return this.sim ? esimStatusKey(this.sim.statusBucket) : 'expired';
+  }
+
+  /** Translation segment under d3.esim.payment.* — also the pill's `pay-*` class. */
+  get paymentStatusKey(): string {
+    switch (this.sim?.paymentStatus) {
+      case 'Paid':              return 'paid';
+      case 'Authorized':        return 'authorized';
+      case 'PartiallyRefunded': return 'partiallyRefunded';
+      case 'Refunded':          return 'refunded';
+      case 'Failed':            return 'failed';
+      case 'Cancelled':         return 'cancelled';
+      case 'CheckoutCreated':   return 'checkoutCreated';
+      default:                  return 'other';
+    }
+  }
+
+  get paymentStatusLabel(): string {
+    const key = this.paymentStatusKey;
+    return key === 'other' ? (this.sim?.paymentStatus ?? '') : this.translate.instant(`d3.esim.payment.${key}`);
   }
 
   get isUnlimited(): boolean {

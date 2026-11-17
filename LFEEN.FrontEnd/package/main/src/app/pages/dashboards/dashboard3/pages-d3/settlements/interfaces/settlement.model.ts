@@ -75,6 +75,8 @@ export interface SettlementEntry {
   feeAmount: number;
   netAmount: number;
   currencyCode: string;
+  /** The booking was refunded after its payout was settled — the line claws that amount back (BUG-1482). */
+  isRefundAfterSettlement?: boolean;
 }
 
 export interface SettlementDetail extends Settlement {
@@ -112,6 +114,86 @@ export interface ExecuteSettlementRequest {
   partialReason?: string;
   note?: string;
 }
+
+// ── Recalculation (BUG-1482) ──────────────────────────────────
+// A refund that lands after a payout was settled is deducted from the next payout;
+// the affected payout has to be recalculated before it can be executed.
+
+export type RecalculationAdjustmentKind = 'RefundAfterPayout' | 'RefundAfterSettlement' | (string & {});
+
+export interface RecalculationAdjustment {
+  kind: RecalculationAdjustmentKind;
+  bookingNumber?: string | null;
+  bookingPaymentId?: string | null;
+  oldGross?: number | null;
+  oldFee?: number | null;
+  oldNet?: number | null;
+  newGross?: number | null;
+  newFee?: number | null;
+  newNet?: number | null;
+}
+
+/** GET {id}/recalculation (dry run, saves nothing) and POST {id}/recalculate share this shape. */
+export interface PayoutRecalculation {
+  payoutReference: string;
+  status: SettlementStatus;
+  oldGross: number;
+  oldFee: number;
+  oldNet: number;
+  newGross: number;
+  newFee: number;
+  newNet: number;
+  adjustments: RecalculationAdjustment[];
+  /** Non-empty = the recalculation can't be applied yet; each entry is a server-localized reason. */
+  blockers: (string | { message?: string | null; code?: string | null })[];
+  applied: boolean;
+  hasChanges: boolean;
+}
+
+/** One payout returned by GET recalculation-preview. */
+export interface RecalculationPreviewItem {
+  payoutId?: string | null;
+  id?: string | null;
+  payoutReference?: string | null;
+}
+
+// ── Merchant debts ───────────────────────────────────────────
+
+export interface MerchantDebtLine {
+  kind?: string | null;
+  bookingNumber?: string | null;
+  payoutReference?: string | null;
+  amount?: number | null;
+  netAmount?: number | null;
+  description?: string | null;
+  createdAtUtc?: string | null;
+  occurredAtUtc?: string | null;
+  [key: string]: unknown;
+}
+
+export interface MerchantDebt {
+  accountId: string;
+  merchantName?: string | null;
+  /** Owed BY the merchant (refunds clawed back after they were paid). */
+  outstandingClawbackNet: number;
+  /** Owed TO the merchant (not settled yet). */
+  unsettledDuesNet: number;
+  balance: number;
+  sinceUtc: string | null;
+  /** The clawback exceeds what's still due to the merchant — it has to be claimed from them. */
+  isClaim: boolean;
+  currencyCode?: string | null;
+  lines: MerchantDebtLine[];
+}
+
+/** errorCodes execute (and retry) answer with when a payout is blocked by BUG-1482 rules. */
+export const PAYOUT_BLOCK_CODES = {
+  needsRecalculation: 'PAYOUT_NEEDS_RECALCULATION',
+  refundInProgress: 'PAYOUT_REFUND_IN_PROGRESS',
+  debtOutstanding: 'MERCHANT_SETTLEMENT_DEBT_OUTSTANDING',
+} as const;
+
+export type PayoutBlockKind = 'needsRecalculation' | 'refundInProgress' | 'debtOutstanding';
 
 /** Statuses on which execute / fail are accepted by the backend. */
 export const ACTIONABLE_STATUSES: readonly string[] = ['Pending', 'Processing'];

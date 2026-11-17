@@ -1,0 +1,82 @@
+<section class="agd" [dir]="dir" role="dialog" aria-labelledby="agd-new-title">
+  <div class="agd-body">
+    <div class="agd-header">
+      <h2 class="agd-title" id="agd-new-title">{{ 'd3.agreements.newDraft.title' | translate }}</h2>
+      <button type="button" class="agd-close" (click)="ref.close()" [attr.aria-label]="'common.cancel' | translate">
+        <i-tabler name="x"></i-tabler>
+      </button>
+    </div>
+    <p class="agd-sub">{{ 'd3.agreements.newDraft.subtitle' | translate: { type: labels.typeLabel(data.type) } }}</p>
+
+    @if (error()) {
+      <div class="agd-error-banner" role="alert">{{ error() }}</div>
+    }
+
+    <div class="agd-options" role="radiogroup">
+      <label class="agd-option" [class.is-selected]="mode === 'blank'">
+        <input type="radio" name="draft-mode" value="blank" [(ngModel)]="mode" [disabled]="saving()" />
+        <div>
+          <strong>{{ 'd3.agreements.newDraft.blank' | translate }}</strong>
+          <span>{{ 'd3.agreements.newDraft.blankDesc' | translate }}</span>
+        </div>
+      </label>
+      <label class="agd-option" [class.is-selected]="mode === 'copy'" [class.is-disabled]="!sources.length">
+        <input type="radio" name="draft-mode" value="copy" [(ngModel)]="mode" [disabled]="saving() || !sources.length" />
+        <div>
+          <strong>{{ 'd3.agreements.newDraft.copy' | translate }}</strong>
+          <span>{{ (sources.length ? 'd3.agreements.newDraft.copyDesc' : 'd3.agreements.newDraft.noSources') | translate }}</span>
+        </div>
+      </label>
+    </div>
+
+    @if (mode === 'copy' && sources.length) {
+      <div class="agd-source-head">
+        <span class="agd-label" id="agd-source-label">{{ 'd3.agreements.newDraft.source' | translate }} *</span>
+        <span class="agd-source-count">{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(sources.length) } }}</span>
+      </div>
+      <mat-select class="agd-mselect" [class.is-invalid]="!!sourceError()" [ngModel]="sourceId"
+        (ngModelChange)="selectSource($event)" [disabled]="saving()" panelClass="agd-select-panel"
+        [disableOptionCentering]="true" aria-labelledby="agd-source-label">
+        <mat-select-trigger>
+          @if (selectedSource(); as s) {
+            <span class="agd-opt" [dir]="dir">
+              <span class="agd-opt-main">
+                <span class="agd-opt-title">
+                  {{ labels.versionLabel(s) }}
+                  @if (s.isCurrent) { <span class="agd-badge is-current">{{ 'd3.agreements.current' | translate }}</span> }
+                </span>
+                <span class="agd-opt-meta">{{ sourceMeta(s) }}</span>
+              </span>
+              <span class="agd-badge" [ngClass]="labels.statusClass(s)">{{ labels.statusLabel(s) }}</span>
+            </span>
+          }
+        </mat-select-trigger>
+        @for (v of sources; track v.id) {
+          <mat-option [value]="v.id">
+            <span class="agd-opt" [dir]="dir">
+              <span class="agd-opt-main">
+                <span class="agd-opt-title">
+                  {{ labels.versionLabel(v) }}
+                  @if (v.isCurrent) { <span class="agd-badge is-current">{{ 'd3.agreements.current' | translate }}</span> }
+                </span>
+                <span class="agd-opt-meta">{{ sourceMeta(v) }}</span>
+              </span>
+              <span class="agd-badge" [ngClass]="labels.statusClass(v)">{{ labels.statusLabel(v) }}</span>
+            </span>
+          </mat-option>
+        }
+      </mat-select>
+      @if (sourceError()) {
+        <p class="agd-field-error" role="alert">{{ sourceError() }}</p>
+      }
+    }
+    <p class="agd-hint">{{ 'd3.agreements.newDraft.hint' | translate }}</p>
+  </div>
+
+  <div class="agd-footer">
+    <button type="button" class="agd-btn agd-btn--primary" [disabled]="saving()" (click)="submit()">
+      {{ (saving() ? 'd3.agreements.creating' : 'd3.agreements.newDraft.submit') | translate }}
+    </button>
+    <button type="button" class="agd-btn" [disabled]="saving()" (click)="ref.close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+</section>

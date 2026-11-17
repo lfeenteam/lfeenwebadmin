@@ -25,12 +25,14 @@ import { resolveEsimError } from './interfaces/esim-error.util';
 import { EsimService } from './services/esim.service';
 import { EsimDetailDrawerComponent } from './esim-detail-drawer/esim-detail-drawer.component';
 import { EsimFilterDialogComponent } from './esim-filter-dialog/esim-filter-dialog.component';
+import { EsimRefundDialogComponent, EsimRefundDialogData, EsimRefundResult } from './esim-refund-dialog/esim-refund-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 type ScopeTab = EsimScope | 'all';
 
 interface EsimRow {
   id: string;
+  needsAttention: boolean;
   initials: string;
   userName: string;
   email: string;
@@ -224,6 +226,8 @@ export class EsimComponent implements OnInit {
       destinationCode: f.destination === 'all' ? undefined : f.destination,
       networkType: f.network === 'all' ? undefined : f.network,
       search: this.searchQuery.trim() || undefined,
+      // Only sent when on: "false" would hide the flagged SIMs instead of showing everything.
+      needsSupportAttention: f.needsAttention ? true : undefined,
     };
   }
 
@@ -241,7 +245,7 @@ export class EsimComponent implements OnInit {
 
   get hasActiveFilters(): boolean {
     const f = this.filters;
-    return f.status !== 'all' || f.destination !== 'all' || f.network !== 'all';
+    return f.status !== 'all' || f.destination !== 'all' || f.network !== 'all' || f.needsAttention;
   }
 
   /** Total a filter selection would show under the current tab and search — previewed by the filter dialog. */
@@ -351,6 +355,66 @@ export class EsimComponent implements OnInit {
     });
   }
 
+  // ── Order refund ──────────────────────────────────────────────
+
+  /**
+   * The list has no refundable / remaining figures, so the row action loads the SIM's detail
+   * first — never offering a refund on an order that has nothing left to refund.
+   */
+  onRefundRow(row: EsimRow): void {
+    if (this.actingId) return;
+    this.actingId = row.id;
+    this.service.getDetail(row.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: detail => {
+        this.actingId = null;
+        this.openRefund(detail);
+      },
+      error: err => {
+        this.actingId = null;
+        this.toastr.error(resolveEsimError(err, this.translate));
+      },
+    });
+  }
+
+  onRefundSelected(): void {
+    if (this.selectedSim) this.openRefund(this.selectedSim);
+  }
+
+  /** Refunds the whole ORDER behind this SIM — one order can cover several SIMs. */
+  private openRefund(sim: EsimDetail): void {
+    if (this.actingId) return;
+    if (!sim.orderId || !sim.isRefundable) {
+      this.toastr.info(this.translate.instant('d3.esim.refund.notRefundable'));
+      return;
+    }
+    const esimId = sim.esimId;
+    this.dialog
+      .open<EsimRefundDialogComponent, EsimRefundDialogData, EsimRefundResult | undefined>(EsimRefundDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        // The dialog owns the request; a stray backdrop click mustn't hide an in-flight refund.
+        disableClose: true,
+        data: {
+          orderId: sim.orderId,
+          packageName: sim.packageName,
+          totalSar: sim.totalSar,
+          refundedSar: sim.refundedSar,
+          remainingSar: sim.refundableRemainingSar,
+        },
+      })
+      .afterClosed()
+      .pipe(filter((r): r is EsimRefundResult => !!r), takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result.kind === 'refunded') {
+          this.toastr.success(this.translate.instant(
+            result.order.paymentStatus === 'PartiallyRefunded' ? 'd3.esim.refund.partialSuccess' : 'd3.esim.refund.success'));
+        }
+        // The response is the order, not the SIM — re-fetch so the flag, figures and status update.
+        this.load();
+        if (this.selectedSim?.esimId === esimId) this.openDetail(esimId);
+      });
+  }
+
   private rememberDestinations(items: EsimListItem[]): void {
     let added = false;
     for (const i of items) {
@@ -370,6 +434,7 @@ export class EsimComponent implements OnInit {
     const userName = s.userName?.trim() || '-';
     return {
       id: s.esimId,
+      needsAttention: !!s.needsSupportAttention,
       initials: this.initialsOf(s.userName ?? ''),
       userName,
       email: s.userEmail ?? '-',

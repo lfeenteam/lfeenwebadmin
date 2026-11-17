@@ -543,8 +543,11 @@
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "walletApprovals": "Wallet Approvals",
+      "settlementDebts": "Merchant Debts",
       "platformOffers": "Platform Offers",
       "banRefunds": "Ban Refunds",
+      "cancellationRefunds": "Cancellation Refunds",
+      "agreements": "Agreements",
       "callScripts": "Call Scripts",
       "additionalConditions": "Additional Conditions",
       "esim": "eSIM",
@@ -755,6 +758,270 @@
       "errors": {
         "notInManualReview": "This refund was already handled — the list has been refreshed",
         "notFound": "Refund not found",
+        "loadTitle": "Couldn't load refunds",
+        "loadDesc": "Check your connection and try again."
+      }
+    },
+    "agreements": {
+      "title": "Agreements",
+      "subtitle": "Manage agreement versions and their clauses, from draft to publishing and ending.",
+      "breadcrumb": "Breadcrumb",
+      "types": {
+        "Host": "Host agreement",
+        "ServiceLevel": "Service level agreement"
+      },
+      "status": {
+        "Draft": "Draft",
+        "Published": "Published",
+        "Ended": "Ended",
+        "Expired": "Expired"
+      },
+      "versionN": "Version {{n}}",
+      "signersN": "{{n}} signers",
+      "clausesN": "{{n}} clauses",
+      "versionsCount": "{{n}} versions",
+      "current": "Current",
+      "currentVersion": "Current version",
+      "signaturesValid": "Signatures valid",
+      "noExpiry": "No expiry date",
+      "notPublished": "Not published yet",
+      "allVersions": "All versions",
+      "unsavedChanges": "Unsaved changes",
+      "lastSaved": "Saved {{date}}",
+      "saving": "Saving…",
+      "creating": "Creating…",
+      "publishing": "Publishing…",
+      "editDraftTitle": "Edit {{type}} draft",
+      "actions": {
+        "newDraft": "New draft",
+        "retry": "Try again",
+        "edit": "Edit",
+        "view": "View",
+        "copyAsDraft": "Copy as new draft",
+        "previewPdf": "Preview PDF",
+        "editExpiry": "Edit expiry date",
+        "end": "End version",
+        "delete": "Delete",
+        "deleteDraft": "Delete draft",
+        "save": "Save",
+        "publish": "Publish",
+        "back": "Back",
+        "more": "More actions"
+      },
+      "fields": {
+        "publishedAt": "Published on",
+        "signers": "Signers",
+        "expiresAt": "Expiry date",
+        "version": "Version",
+        "publishedBy": "Published by",
+        "signersCount": "Signers",
+        "endedAt": "Ended",
+        "state": "State"
+      },
+      "table": {
+        "version": "Version",
+        "title": "Title",
+        "status": "Status",
+        "current": "Current",
+        "clauses": "Clauses",
+        "signers": "Signers",
+        "published": "Published",
+        "expires": "Expires",
+        "ended": "Ended",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "range": "Showing {{from}}–{{to}} of {{total}} versions",
+        "prev": "Previous",
+        "next": "Next"
+      },
+      "empty": {
+        "title": "No versions of the {{type}} yet",
+        "desc": "Start a new draft and add the agreement details and clauses in Arabic and English.",
+        "hint": "Use the «New draft» button at the top of the page to begin."
+      },
+      "errors": {
+        "loadTitle": "Couldn't load the agreements",
+        "loadVersionTitle": "Couldn't load this version",
+        "loadDesc": "Check your connection and try again.",
+        "forbidden": "You don't have permission to do this",
+        "notFound": "Agreement not found",
+        "network": "Couldn't reach the service, please try again",
+        "action": "Something went wrong, please try again",
+        "preview": "Couldn't open the PDF preview",
+        "unknownResult": "The connection dropped, so we couldn't confirm whether the action went through. The data has been refreshed — check the version's state before trying again."
+      },
+      "preview": {
+        "loading": "Loading the PDF…",
+        "blocked": "The browser blocked the new tab. Allow pop-ups for this site and try again."
+      },
+      "toast": {
+        "draftCreated": "Draft created",
+        "draftDeleted": "Draft deleted",
+        "saved": "Draft saved",
+        "published": "Version {{n}} published",
+        "expiryUpdated": "Expiry date updated",
+        "ended": "Version {{n}} ended"
+      },
+      "newDraft": {
+        "title": "New draft",
+        "subtitle": "Create a draft of the {{type}}, or start from an existing version.",
+        "publishedOn": "Published {{date}}",
+        "editedOn": "Last edited {{date}}",
+        "blank": "Blank draft",
+        "blankDesc": "Start with a new title, description and list of clauses.",
+        "copy": "Copy an existing version",
+        "copyDesc": "Copies the details and clauses; the original version doesn't change.",
+        "noSources": "There are no versions of this agreement to copy yet.",
+        "source": "Source version",
+        "sourceRequired": "Choose the version to copy",
+        "hint": "A new draft will be created.",
+        "submit": "Create draft"
+      },
+      "publish": {
+        "title": "Publish agreement",
+        "expiryLabel": "Expiry date (optional)",
+        "expiryHint": "Pick a future date, or leave it empty for no expiry date.",
+        "endPrevious": "End previous versions",
+        "endPreviousWarning": "Every previously published version of this agreement will end immediately, and everyone who signed them ({{n}}) will need to sign again.",
+        "note": "This draft becomes the current version as soon as it's published.",
+        "submit": "Publish agreement"
+      },
+      "expiry": {
+        "title": "Edit expiry date",
+        "label": "Expiry date",
+        "remove": "Remove the date",
+        "hint": "Past days aren't available. Removing the date cancels the automatic expiry.",
+        "removeHint": "The version stays published until it is ended manually.",
+        "submit": "Save changes"
+      },
+      "date": {
+        "placeholder": "Pick a date",
+        "noExpiry": "No expiry date",
+        "clear": "Clear date",
+        "mustBeFuture": "The expiry date must be in the future",
+        "required": "Pick a date, or tick «Remove the date»"
+      },
+      "delete": {
+        "title": "Delete the draft?",
+        "alertTitle": "The draft and all its clauses will be deleted permanently.",
+        "alertText": "This draft can't be restored after it's deleted.",
+        "text": "Published versions and their signers won't be affected.",
+        "confirm": "Delete draft"
+      },
+      "end": {
+        "title": "End version {{n}}?",
+        "alertTitle": "This action can't be undone",
+        "alertText": "Version {{n}} will end immediately, and no new user will be able to sign it.",
+        "heading": "{{count}} signers will be affected",
+        "text": "Signers will need to sign the current available version. If there's no published version, publish a new one so signing is possible.",
+        "confirm": "End version"
+      },
+      "unsaved": {
+        "title": "Leave without saving?",
+        "alertTitle": "You have changes that aren't saved",
+        "alertText": "If you leave this page, your changes to the draft will be lost.",
+        "confirm": "Leave without saving"
+      },
+      "validation": {
+        "required": "{{field}} is required",
+        "bannerFields": "{{n}} error(s) — review the highlighted fields.",
+        "bannerClause": "{{n}} error(s) — review clause {{clause}}.",
+        "noClauses": "Add at least one clause before publishing"
+      },
+      "form": {
+        "dataTitle": "Agreement details",
+        "titleAr": "Title in Arabic",
+        "titleEn": "Title in English",
+        "descriptionAr": "Description in Arabic",
+        "descriptionEn": "Description in English",
+        "clause_titleAr": "Clause title in Arabic",
+        "clause_titleEn": "Clause title in English",
+        "clause_contentAr": "Clause content in Arabic",
+        "clause_contentEn": "Clause content in English",
+        "clausesTitle": "Clauses",
+        "clausesHint": "{{n}} clauses · drag to reorder",
+        "clausesOrdered": "{{n}} ordered clauses",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "drag": "Drag to reorder",
+        "addClause": "Add clause",
+        "noClauses": "No clauses yet. Add the first clause.",
+        "noClausesView": "This version has no clauses.",
+        "untitledClause": "Untitled clause"
+      }
+    },
+    "cancellationRefunds": {
+      "title": "Stalled Cancellation Refunds",
+      "currencySar": "SAR",
+      "intro": "Guest refunds for cancelled bookings that failed automatically 6 times and stopped for review. “Retry” puts the refund back in the queue; the system picks it up within about 30 seconds.",
+      "refresh": "Refresh",
+      "cancelledAt": "Opened {{date}}",
+      "technicalDetails": "Technical details",
+      "technicalDetailsHide": "Hide technical details",
+      "queuedHint": "Leaves this list once it's picked up, and comes back here if it fails again",
+      "notRetryableHint": "A retry can't fix this — refund the guest outside the system, then mark it resolved",
+      "failureReasons": {
+        "manualRefundRequired": "Cash or bank-transfer payment with no gateway to refund it — refund it manually, then close the case",
+        "gatewayError": "The payment gateway rejected the refund",
+        "maxAttemptsReached": "Failed after every retry attempt",
+        "requiresManualReview": "Needs a manual review",
+        "unknown": "The refund failed for an unknown reason"
+      },
+      "status": {
+        "manualReview": "Needs review",
+        "queued": "Queued for retry…"
+      },
+      "table": {
+        "booking": "Booking no.",
+        "property": "Building #{{id}}",
+        "unit": "Unit #{{id}}",
+        "unitNumber": "Unit {{number}}",
+        "listing": "Building",
+        "guest": "Guest",
+        "amount": "Amount",
+        "attempts": "Attempts",
+        "status": "Status",
+        "date": "Last attempt"
+      },
+      "actions": {
+        "retry": "Retry",
+        "resolve": "Mark resolved"
+      },
+      "resolveDialog": {
+        "title": "Close as refunded manually",
+        "desc": "Use this after the guest was refunded outside the system (e.g. by bank transfer) for booking {{booking}}. Amount due: {{amount}} {{currency}}. The system won't try to refund it again.",
+        "amountLabel": "Amount refunded",
+        "referenceLabel": "Reference number (optional)",
+        "referencePlaceholder": "e.g. TRANSFER-123",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "e.g. Refunded by bank transfer on …",
+        "confirmBtn": "Close case",
+        "submitting": "Saving…",
+        "errors": {
+          "amountRequired": "Enter the amount that was refunded",
+          "amountPositive": "Amount must be greater than zero",
+          "amountAbove": "Amount can't be more than what's due ({{amount}} {{currency}})",
+          "uncertain": "No response from the server. The case may already be closed — refresh the list before trying again."
+        }
+      },
+      "toast": {
+        "retryQueued": "Refund queued for retry — the list will refresh in about 40 seconds",
+        "resolved": "Case closed as refunded manually"
+      },
+      "empty": {
+        "title": "No stalled refunds",
+        "desc": "Every cancellation refund is going through normally."
+      },
+      "pagination": {
+        "total": "refunds"
+      },
+      "errors": {
+        "notInManualReview": "This refund was already retried or completed — the list has been refreshed",
+        "notFound": "Refund not found",
+        "forbidden": "You don't have permission to retry refunds",
+        "forbiddenResolve": "You don't have permission to close refunds",
+        "network": "Couldn't reach the service, please try again",
         "loadTitle": "Couldn't load refunds",
         "loadDesc": "Check your connection and try again."
       }
@@ -3571,6 +3838,7 @@
         "network": "Network Type",
         "allNetworks": "All networks",
         "networkOption": "{{value}} networks",
+        "attention": "Support follow-up",
         "clear": "Clear",
         "showResults": "Show results ({{count}})"
       },
@@ -3657,6 +3925,37 @@
         "unsuspendSuccess": "SIM resumed",
         "revokeSuccess": "SIM revoked"
       },
+      "attention": {
+        "badge": "Needs follow-up",
+        "hint": "Flagged for support — e.g. the provider cancelled it while the order is still paid. Refunding the order clears the flag."
+      },
+      "refund": {
+        "action": "Refund",
+        "title": "Refund eSIM order",
+        "desc": "Refunds the order for {{package}}. If the order covers more than one SIM, the refund applies to the whole order.",
+        "total": "Order total",
+        "refunded": "Refunded",
+        "remaining": "Left to refund",
+        "sar": "SAR",
+        "notRefundable": "This order has nothing left to refund",
+        "amountLabel": "Amount (SAR, optional)",
+        "amountPlaceholder": "Leave empty to refund everything left",
+        "amountHint": "Leave empty for a full refund of what hasn't been refunded yet.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "e.g. Guest never received the eSIM — provider confirmed install failure",
+        "confirmBtn": "Refund",
+        "submitting": "Refunding…",
+        "success": "Order refunded",
+        "partialSuccess": "Order partially refunded",
+        "panelTitle": "Order refund",
+        "panelHint": "Refund the order behind this SIM, in full or in part.",
+        "errors": {
+          "amountPositive": "Amount must be greater than zero",
+          "amountAboveRemaining": "Amount can't be more than what's left to refund ({{remaining}} SAR)",
+          "reasonRequired": "Reason is required",
+          "uncertain": "No response from the server. The refund may have gone through — refresh and check the order before trying again."
+        }
+      },
       "dates": {
         "activation": "Activated",
         "expiry": "Expires",
@@ -3670,7 +3969,20 @@
         "forbidden": "You don't have permission to do this",
         "notFound": "SIM not found",
         "generic": "Something went wrong, please try again",
+        "refundNotRefundable": "This order can't be refunded in its current payment state",
+        "refundTooLarge": "The amount is more than what's left to refund on this order",
+        "refundInProgress": "A refund for this order is already in progress — try again shortly",
+        "orderNotFound": "Order not found",
         "retry": "Try again"
+      },
+      "payment": {
+        "paid": "Paid",
+        "authorized": "Authorized",
+        "partiallyRefunded": "Partially refunded",
+        "refunded": "Refunded",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "checkoutCreated": "Awaiting payment"
       },
       "empty": {
         "title": "No SIMs",
@@ -3737,7 +4049,53 @@
         "generic": "Something went wrong, please try again",
         "receiptType": "Unsupported file type (JPG, PNG, PDF only)",
         "receiptSize": "File exceeds the maximum size (5 MB)",
-        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded."
+        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded.",
+        "block": {
+          "needsRecalculation": "This payout must be recalculated before it can be executed.",
+          "refundInProgress": "A refund on this payout is still in progress — please try again later.",
+          "debtOutstanding": "This merchant has an outstanding settlement debt."
+        }
+      },
+      "recalc": {
+        "badge": "Needs recalculation",
+        "openBtn": "Recalculate",
+        "title": "Recalculate Payout",
+        "loading": "Calculating...",
+        "dryRunHint": "This is a preview — nothing is saved until you apply it.",
+        "old": "Current",
+        "new": "After recalculation",
+        "gross": "Gross",
+        "fee": "Fee",
+        "net": "Net",
+        "noChanges": "No changes",
+        "adjustments": "Adjustments",
+        "kind": {
+          "refundAfterPayout": "Refund after payout",
+          "refundAfterSettlement": "Refund after settlement"
+        },
+        "blockedTitle": "The recalculation can't be applied yet:",
+        "applyBtn": "Apply",
+        "applied": "The payout was recalculated"
+      },
+      "debts": {
+        "title": "Merchant debts",
+        "searchPlaceholder": "Search by merchant...",
+        "merchant": "Merchant",
+        "owedByMerchant": "Owed by merchant",
+        "owedToMerchant": "Owed to merchant",
+        "balance": "Balance",
+        "since": "Since",
+        "claim": "Claim",
+        "lines": "Details",
+        "lineKind": "Type",
+        "lineAmount": "Amount",
+        "lineDate": "Date",
+        "filteredBy": "Showing",
+        "showAll": "Show all",
+        "viewMerchantDebts": "View merchant debts",
+        "loadTitle": "Couldn't load merchant debts",
+        "emptyTitle": "No merchant debts",
+        "emptyDesc": "No merchant currently has an outstanding settlement debt"
       },
       "rejectionReasonPrefix": "Rejection reason",
       "rejectionReasons": {

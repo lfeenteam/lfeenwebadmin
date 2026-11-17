@@ -1,7 +1,8 @@
 import { Component, Inject, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
@@ -11,13 +12,18 @@ import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { RECEIPT_ALLOWED_TYPES, RECEIPT_MAX_BYTES, SettlementActionResult } from '../../interfaces/settlement.model';
-import { isIbanMismatchError, isStaleStateError, resolveSettlementError } from '../../interfaces/settlement-error.util';
+import { isIbanMismatchError, isStaleStateError, PayoutBlock, payoutBlockOf, resolveSettlementError } from '../../interfaces/settlement-error.util';
 import { SettlementsService } from '../../services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from '../recalculation-dialog/recalculation-dialog.component';
 
 export interface SettlementDetailDialogData {
   id: string;
+  /** Merchant account — used to open the debts list filtered on this merchant. */
+  accountId: string;
   netAmount: number;
+  /** Listed by GET recalculation-preview: execute is refused until it's recalculated (BUG-1482). */
+  needsRecalculation: boolean;
   /** Execute permission AND a status the backend accepts execute/fail on. */
   canExecute: boolean;
   accountName: string;
@@ -50,13 +56,19 @@ export interface SettlementDetailDialogEntry {
   gross: string;
   fee: string;
   net: string;
+  /** Refunded after its payout was settled — highlighted and tagged. */
+  isRefundAfterSettlement: boolean;
 }
 
-/** `refresh` = the payout is no longer in the state we opened it in — reload the list. */
+/**
+ * `refresh` = the payout is no longer in the state we opened it in — reload the list.
+ * `recalculated` = its totals changed — reload the list and reopen the payout with the new figures.
+ */
 export type SettlementDialogResult =
   | { decision: 'approved' }
   | { decision: 'rejected'; reason: string }
   | { decision: 'refresh' }
+  | { decision: 'recalculated' }
   | undefined;
 
 type DialogStep = 'details' | 'confirmTransfer' | 'success' | 'confirmReject' | 'rejectSuccess';
@@ -79,8 +91,14 @@ export class SettlementDetailDialogComponent {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private service = inject(SettlementsService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   readonly emptyValue = EMPTY;
+
+  /** Execute was refused by a BUG-1482 rule — shown with its server text and the matching action. */
+  block: PayoutBlock | null = null;
+  recalcOpen = false;
   readonly trxReferenceMax = TRX_REFERENCE_MAX;
   readonly rejectReasonMax = REJECT_REASON_MAX;
 
@@ -212,6 +230,8 @@ export class SettlementDetailDialogComponent {
     if (this.step === 'rejectSuccess') return this.finishReject();
     // The bank details on the list are stale now — reload so a reopen shows the new IBAN.
     if (this.ibanMismatch) return this.dialogRef.close({ decision: 'refresh' });
+    // A refused execute may mean the list's "needs recalculation" badges are out of date.
+    if (this.block) return this.dialogRef.close({ decision: 'refresh' });
     this.dialogRef.close(undefined);
   }
 
@@ -286,6 +306,8 @@ export class SettlementDetailDialogComponent {
     const trx = this.trxId.trim();
     return !this.submitting
       && this.data.hasIban && !this.ibanMismatch
+      // A refund in progress clears by itself, so trying again later is allowed; the other blocks need action first.
+      && !this.mustRecalculate && (!this.block || this.block.kind === 'refundInProgress')
       && amount !== null && amount > 0 && !this.amountExceedsNet
       && !!trx && trx.length <= TRX_REFERENCE_MAX
       && (!this.isPartialTransfer || !!this.partialReason.trim())
@@ -295,6 +317,7 @@ export class SettlementDetailDialogComponent {
   confirmTransfer(): void {
     if (!this.canConfirmTransfer || this.actualAmount === null) return;
     this.submitting = true;
+    this.block = null;
 
     this.service.execute(this.data.id, {
       bankTransferReference: this.trxId.trim(),
@@ -347,6 +370,13 @@ export class SettlementDetailDialogComponent {
 
   private handleActionError(err: unknown): void {
     this.submitting = false;
+    // A BUG-1482 block: nothing was executed. Keep the dialog open with the server's reason
+    // and the way forward (recalculate / debts list) instead of a toast that disappears.
+    const block = payoutBlockOf(err);
+    if (block) {
+      this.block = block;
+      return;
+    }
     this.toastr.error(resolveSettlementError(err, this.translate));
     // IBAN mismatch: keep the dialog (and what the admin typed) open, with confirm locked —
     // resending the same IBAN can only 409 again.
@@ -376,5 +406,44 @@ export class SettlementDetailDialogComponent {
 
   finish(): void {
     this.dialogRef.close({ decision: 'approved' });
+  }
+
+  // ── Recalculation / debts (BUG-1482) ───────────────────────
+
+  /** Execute can't succeed until the payout is recalculated — known up front or learned from a refused execute. */
+  get mustRecalculate(): boolean {
+    return this.data.needsRecalculation || this.block?.kind === 'needsRecalculation';
+  }
+
+  get blockMessage(): string {
+    if (this.block) return this.block.message || this.translate.instant(`d3.settlements.errors.block.${this.block.kind}`);
+    return this.translate.instant('d3.settlements.errors.block.needsRecalculation');
+  }
+
+  openRecalculation(): void {
+    if (this.recalcOpen || this.submitting) return;
+    this.recalcOpen = true;
+    this.dialog.open<RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult>(RecalculationDialogComponent, {
+      width: '560px',
+      maxWidth: '92vw',
+      maxHeight: '92vh',
+      data: {
+        id: this.data.id,
+        payoutReference: this.data.payoutReference,
+        accountName: this.data.accountName,
+        currencyIconSrc: this.data.currencyIconSrc,
+        isTextCurrency: this.data.isTextCurrency,
+      },
+    }).afterClosed().subscribe(result => {
+      this.recalcOpen = false;
+      // The amount, entries and the confirmed figures here are all stale now — reopen fresh.
+      if (result?.applied) this.dialogRef.close({ decision: 'recalculated' });
+    });
+  }
+
+  openDebts(): void {
+    const lang = this.router.url.split('/')[1] || 'ar';
+    this.dialogRef.close(this.block ? { decision: 'refresh' } : undefined);
+    this.router.navigate(['/', lang, 'd3', 'settlement-debts'], { queryParams: { accountId: this.data.accountId } });
   }
 }
