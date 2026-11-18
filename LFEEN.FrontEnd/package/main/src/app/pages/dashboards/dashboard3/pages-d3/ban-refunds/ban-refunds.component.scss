@@ -92,7 +92,7 @@ $line:   #E2E8F0;
     border-bottom: 1px solid $line;
 
     th {
-      padding: 16px 20px;
+      padding: 14px 12px;
       font-size: 10px;
       font-weight: 700;
       text-align: start;
@@ -102,8 +102,9 @@ $line:   #E2E8F0;
     }
   }
 
+  // Eight columns must fit the 1150px box at 1440 — keep horizontal padding tight.
   td {
-    padding: 18px 20px;
+    padding: 16px 12px;
     text-align: start;
     vertical-align: middle;
   }
@@ -126,7 +127,7 @@ $line:   #E2E8F0;
 // Building name on top, unit underneath — the unit never splits from its number.
 .br-property {
   display: block;
-  max-width: 200px;
+  max-width: 160px;
   font-size: 13px;
   font-weight: 600;
   color: $text;
@@ -183,11 +184,13 @@ $line:   #E2E8F0;
   }
 }
 
+// Allowed to wrap (date over time) so the column doesn't push the actions out of the box.
 .br-date {
+  display: inline-block;
+  min-width: 100px;
   font-size: 12px;
   font-weight: 600;
   color: #6B6B67;
-  white-space: nowrap;
 }
 
 // ── Status ───────────────────────────────────────────────
@@ -221,7 +224,7 @@ $line:   #E2E8F0;
   display: inline-flex;
   align-items: flex-start;
   gap: 4px;
-  max-width: 260px;
+  max-width: 200px;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.5;
@@ -251,7 +254,7 @@ $line:   #E2E8F0;
 
 .br-tech-details {
   display: block;
-  max-width: 300px;
+  max-width: 220px;
   padding: 6px 8px;
   border: 1px solid $line;
   border-radius: 6px;
@@ -276,11 +279,17 @@ $line:   #E2E8F0;
 }
 
 // ── Actions ──────────────────────────────────────────────
+// Shrink-to-fit last column; buttons stack so the row stays inside the box at 1440
+// (side by side they pushed "Mark handled" past the table edge).
+.br-actions-cell { width: 1%; }
+
 .br-actions {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+
+  .br-btn { justify-content: center; }
 }
 
 .br-btn {
@@ -393,7 +402,8 @@ $line:   #E2E8F0;
     color: #9E9E9A;
   }
 
-  .br-actions { justify-content: stretch; .br-btn { flex: 1; justify-content: center; } }
+  .br-actions-cell { width: auto; }
+  .br-actions { flex-direction: row; gap: 8px; .br-btn { flex: 1; } }
 
   .br-pagination { justify-content: center; }
 }

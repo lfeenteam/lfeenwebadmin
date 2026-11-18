@@ -303,6 +303,12 @@
 .close-modal .close-modal-heading h2 { margin: 0; min-width: 0; }
 .close-modal > p { margin-top: 0; }
 .close-modal textarea { resize: none; }
+.close-modal textarea.invalid { border-color: #e53935; }
+// Sits between the textarea and the action row, so it must not pick up `.close-modal > div` (flex-end, margin-top 18px).
+.close-modal > .note-meta { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.note-error { font-size: 12px; color: #e53935; }
+.char-count { flex-shrink: 0; margin-inline-start: auto; font-size: 11px; color: #9E9E9A; direction: ltr; unicode-bidi: isolate; }
+.char-count.is-full { color: #e53935; font-weight: 700; }
 
 .sender-card .phone-number {
   direction: ltr;

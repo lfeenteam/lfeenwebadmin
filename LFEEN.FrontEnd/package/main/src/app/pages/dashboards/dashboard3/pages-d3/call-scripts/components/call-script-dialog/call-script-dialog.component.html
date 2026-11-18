@@ -53,16 +53,18 @@
       <div class="field-section">
         <p class="section-label">{{ 'd3.callScripts.dialog.audioSection' | translate }}</p>
         <input class="cs-input" type="text" dir="ltr" formControlName="audioFileUrl"
+          [class.cs-input-invalid]="form.get('audioFileUrl')?.invalid && form.get('audioFileUrl')?.touched"
           [placeholder]="'d3.callScripts.dialog.audioUrlPlaceholder' | translate">
-        @if (form.get('audioFileUrl')?.invalid && form.get('audioFileUrl')?.touched) {
-          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.audioUrlRequired' | translate }}</p>
+        @if (controlError(form.get('audioFileUrl'), [['required', 'audioUrlRequired'], ['audioUrl', 'audioUrlInvalid']]); as key) {
+          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.' + key | translate }}</p>
         }
       </div>
 
       <div class="field-section">
         <div class="section-head-row">
           <p class="section-label">{{ 'd3.callScripts.dialog.optionsSection' | translate }}</p>
-          <button class="add-option-btn" type="button" (click)="addOption()">
+          <button class="add-option-btn" type="button" [disabled]="!canAddOption" (click)="addOption()"
+            [attr.title]="canAddOption ? null : ('d3.callScripts.dialog.validation.optionsMax' | translate: { max: optionsMax })">
             <i-tabler name="plus" class="icon-14"></i-tabler>
             {{ 'd3.callScripts.dialog.addOption' | translate }}
           </button>
@@ -74,28 +76,47 @@
               <div class="option-row-fields">
                 <div class="option-field digit-field">
                   <label class="lang-label">{{ 'd3.callScripts.dialog.digit' | translate }}</label>
-                  <input class="cs-input" type="text" dir="ltr" formControlName="digit" maxlength="4"
+                  <input class="cs-input" type="text" dir="ltr" formControlName="digit" maxlength="1"
+                    [class.cs-input-invalid]="option.get('digit')?.invalid && option.get('digit')?.touched"
                     [placeholder]="'d3.callScripts.dialog.digitPlaceholder' | translate">
                 </div>
                 <div class="option-field desc-field">
-                  <label class="lang-label">{{ 'd3.callScripts.dialog.description' | translate }}</label>
-                  <input class="cs-input" type="text" formControlName="description"
+                  <div class="label-row">
+                    <label class="lang-label">{{ 'd3.callScripts.dialog.description' | translate }}</label>
+                    <span class="char-count" [class.is-full]="descriptionLength($index) >= descriptionMax">{{ descriptionLength($index) }} / {{ descriptionMax }}</span>
+                  </div>
+                  <input class="cs-input" type="text" formControlName="description" [attr.maxlength]="descriptionMax"
+                    [class.cs-input-invalid]="option.get('description')?.invalid && option.get('description')?.touched"
                     [placeholder]="'d3.callScripts.dialog.descriptionPlaceholder' | translate">
                 </div>
                 <button class="remove-option-btn" type="button" [disabled]="options.length <= 1" (click)="removeOption($index)">
                   <i-tabler name="trash" class="icon-16"></i-tabler>
                 </button>
               </div>
+              <!-- Errors live outside the grid: inside a cell they'd make it taller and push the other cells down (align-items: end). -->
+              @if (controlError(option.get('digit'), [['required', 'digitRequired'], ['digit', 'digitInvalid']]); as key) {
+                <p class="field-error-msg row-error">{{ 'd3.callScripts.dialog.validation.' + key | translate }}</p>
+              }
+              @if (controlError(option.get('description'), [['required', 'descriptionRequired'], ['maxlength', 'descriptionTooLong']]); as key) {
+                <p class="field-error-msg row-error">{{ 'd3.callScripts.dialog.validation.' + key | translate: { max: descriptionMax } }}</p>
+              }
               <div class="option-field response-field">
                 <label class="lang-label">{{ 'd3.callScripts.dialog.responseUrl' | translate }}</label>
                 <input class="cs-input" type="text" dir="ltr" formControlName="responseMessageFileUrl"
+                  [class.cs-input-invalid]="option.get('responseMessageFileUrl')?.invalid && option.get('responseMessageFileUrl')?.touched"
                   [placeholder]="'d3.callScripts.dialog.responseUrlPlaceholder' | translate">
+                @if (controlError(option.get('responseMessageFileUrl'), [['audioUrl', 'responseUrlInvalid']]); as key) {
+                  <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.' + key | translate }}</p>
+                }
               </div>
             </div>
           }
         </div>
-        @if (form.get('options')?.invalid && form.get('options')?.touched) {
-          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.optionsRequired' | translate }}</p>
+        @if (options.hasError('duplicateDigit')) {
+          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.digitDuplicate' | translate }}</p>
+        }
+        @if (options.hasError('maxOptions')) {
+          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.optionsMax' | translate: { max: optionsMax } }}</p>
         }
       </div>
 

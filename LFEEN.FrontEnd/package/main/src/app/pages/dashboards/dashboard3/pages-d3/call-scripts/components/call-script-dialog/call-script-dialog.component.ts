@@ -13,6 +13,53 @@ function requiredTrimmed(control: AbstractControl): ValidationErrors | null {
   return typeof control.value === 'string' && control.value.trim() ? null : { required: true };
 }
 
+// Mirrors the API rules for IVR scripts so bad data is caught before it reaches Voxa.
+// Same list as IvrCallScriptValidation / IvrCallScriptContentRules on the API: absolute https URL,
+// any host, audio extension compared case-insensitively.
+export const CALL_SCRIPT_DESCRIPTION_MAX = 200;
+export const CALL_SCRIPT_OPTIONS_MAX = 12;
+const AUDIO_EXTENSIONS = /\.(mp3|wav|ogg|m4a|aac|wma)$/i;
+const DIGIT_PATTERN = /^[0-9*#]$/;
+
+/** https URL whose path ends with an audio extension. Empty values pass — pair with requiredTrimmed when mandatory. */
+function httpsAudioUrl(control: AbstractControl): ValidationErrors | null {
+  const value = typeof control.value === 'string' ? control.value.trim() : '';
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !!url.hostname && AUDIO_EXTENSIONS.test(url.pathname) ? null : { audioUrl: true };
+  } catch {
+    return { audioUrl: true };
+  }
+}
+
+function digitFormat(control: AbstractControl): ValidationErrors | null {
+  const value = typeof control.value === 'string' ? control.value.trim() : '';
+  return !value || DIGIT_PATTERN.test(value) ? null : { digit: true };
+}
+
+function trimmedMaxLength(max: number) {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = typeof control.value === 'string' ? control.value.trim() : '';
+    return value.length > max ? { maxlength: { requiredLength: max, actualLength: value.length } } : null;
+  };
+}
+
+/** Array-level rules: no digit used twice, and at most CALL_SCRIPT_OPTIONS_MAX rows. */
+function optionsRules(control: AbstractControl): ValidationErrors | null {
+  const rows = (control as FormArray).controls;
+  const errors: ValidationErrors = {};
+  if (rows.length > CALL_SCRIPT_OPTIONS_MAX) errors['maxOptions'] = true;
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const digit = (row.get('digit')?.value ?? '').trim();
+    if (!digit) continue;
+    if (seen.has(digit)) { errors['duplicateDigit'] = true; break; }
+    seen.add(digit);
+  }
+  return Object.keys(errors).length ? errors : null;
+}
+
 export interface CallScriptDialogData {
   /** The fixed scenario values the API accepts — used only to populate the picker. */
   scenarios: CallScriptScenarioType[];
@@ -40,6 +87,9 @@ export class CallScriptDialogComponent {
 
   readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
 
+  readonly descriptionMax = CALL_SCRIPT_DESCRIPTION_MAX;
+  readonly optionsMax = CALL_SCRIPT_OPTIONS_MAX;
+
   form: FormGroup;
 
   constructor(
@@ -54,9 +104,9 @@ export class CallScriptDialogComponent {
     this.form = this.fb.group({
       // Fixed at creation and not part of the update payload — locked once a script exists.
       scenarioType: [{ value: this.data.script?.scenarioType || '', disabled: this.isEditMode }, [Validators.required]],
-      audioFileUrl: [this.data.script?.audioFileUrl || '', [requiredTrimmed]],
+      audioFileUrl: [this.data.script?.audioFileUrl || '', [requiredTrimmed, httpsAudioUrl]],
       isActive: [this.data.script?.isActive ?? false],
-      options: this.fb.array(seedOptions.map(o => this.buildOptionGroup(o))),
+      options: this.fb.array(seedOptions.map(o => this.buildOptionGroup(o)), { validators: optionsRules }),
     });
   }
 
@@ -70,10 +120,25 @@ export class CallScriptDialogComponent {
 
   private buildOptionGroup(o?: { digit: string; description: string; responseMessageFileUrl?: string | null }): FormGroup {
     return this.fb.group({
-      digit: [o?.digit || '', requiredTrimmed],
-      description: [o?.description || '', requiredTrimmed],
-      responseMessageFileUrl: [o?.responseMessageFileUrl || ''],
+      digit: [o?.digit || '', [requiredTrimmed, digitFormat]],
+      description: [o?.description || '', [requiredTrimmed, trimmedMaxLength(CALL_SCRIPT_DESCRIPTION_MAX)]],
+      responseMessageFileUrl: [o?.responseMessageFileUrl || '', [httpsAudioUrl]],
     });
+  }
+
+  /** Error to show under a control once touched, as a translation key suffix — first failing rule wins. */
+  controlError(control: AbstractControl | null, rules: string[][]): string | null {
+    if (!control || !control.invalid || !control.touched) return null;
+    const hit = rules.find(([error]) => control.hasError(error));
+    return hit ? hit[1] : null;
+  }
+
+  descriptionLength(index: number): number {
+    return (this.options.at(index).get('description')?.value ?? '').trim().length;
+  }
+
+  get canAddOption(): boolean {
+    return this.options.length < CALL_SCRIPT_OPTIONS_MAX;
   }
 
   scenarioName(scenarioType: CallScriptScenarioType, apiLabel?: string | null): string {
@@ -85,6 +150,7 @@ export class CallScriptDialogComponent {
   }
 
   addOption(): void {
+    if (!this.canAddOption) return;
     this.options.push(this.buildOptionGroup());
   }
 

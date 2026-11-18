@@ -100,6 +100,10 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   fmtDateTime(value: string | null | undefined): string {
     return value ? `${this.fmtDate(value)} — ${this.fmtTime(value)}` : '';
   }
+  /** The API stores the closing note in a 2000-char column and rejects anything longer. */
+  readonly closeNoteMax = 2000;
+  get closeNoteLength(): number { return this.closeNote.trim().length; }
+  get closeNoteTooLong(): boolean { return this.closeNoteLength > this.closeNoteMax; }
   showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
   isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }
@@ -108,7 +112,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.escape')
   onEscape(): void { if (this.previewAttachment()) this.closePreview(); else if (this.closeDialogOpen()) this.dismissCloseDialog(); else if (this.detailLoading() || this.selected() || this.detailError()) this.closePanel(); }
   confirmClose(): void {
-    const detail = this.selected(); if (!detail || this.closing()) return;
+    const detail = this.selected(); if (!detail || this.closing() || this.closeNoteTooLong) return;
     this.closing.set(true);
     this.service.closeRequest(detail.externalId, this.closeNote.trim() || undefined).subscribe({
       next: () => {
