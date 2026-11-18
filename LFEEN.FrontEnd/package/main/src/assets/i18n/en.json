@@ -3302,7 +3302,10 @@
         "supportReplyTime": "09:40 PM",
         "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
         "supportReplySentNotice": "This reply was sent by email and app notifications",
-        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
+        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply.",
+        "notFoundTitle": "Ticket not found",
+        "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
+        "backToList": "Back to complaints"
       },
       "assignDialog": {
         "title": "Assign Complaint to Employee",
@@ -4257,6 +4260,7 @@
         "notEditable": "This entry can't be edited",
         "entryNotFound": "Entry not found — refresh the page",
         "accountNotFound": "The merchant account doesn't exist or isn't active",
+        "notFoundTitle": "Account not found",
         "sameAdminNotAllowed": "You can't approve a request you submitted — another admin has to approve it",
         "tooManyDecimals": "The amount accepts up to 2 decimal places",
         "generic": "Something went wrong, please try again"

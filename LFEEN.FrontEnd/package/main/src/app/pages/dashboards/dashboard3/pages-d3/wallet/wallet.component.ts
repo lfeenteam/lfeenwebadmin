@@ -8,7 +8,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, catchError, distinctUntilChanged, forkJoin, map, of, switchMap, throwError } from 'rxjs';
 import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
@@ -17,6 +17,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { AccountService } from '../../services/account.service';
+import { AccountDetail } from '../../interfaces/account.model';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import {
   WalletAdjustDialogComponent,
@@ -65,6 +66,7 @@ interface WalletLedgerRow {
 
 const PAGE_SIZE = 8;
 const EMPTY = '-';
+const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Backend ledger type → icon/pill color + translation key. The API doesn't localize
 // `type`, and unrecognized values must never break the screen — they render as-is.
@@ -104,6 +106,7 @@ export class WalletComponent implements OnInit, OnDestroy {
   loading = false;
   loadError = false;
   forbidden = false;
+  notFound = false;
 
   balance = 0;
   currencyCode = 'SAR';
@@ -145,11 +148,39 @@ export class WalletComponent implements OnInit, OnDestroy {
       });
   }
 
+  // The component is reused when only the :id changes (typed URL, back/forward), so the
+  // merchant must follow the route, not a one-time snapshot — otherwise the page and every
+  // adjustment would keep targeting the previous merchant's wallet.
   ngOnInit(): void {
-    this.merchantAccountId = this.route.snapshot.paramMap.get('id') || '';
-    this.loadAccountName();
     this.loadCategories();
+    this.route.paramMap
+      .pipe(
+        map(params => params.get('id') || ''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(id => this.switchMerchant(id));
+  }
+
+  private switchMerchant(id: string): void {
+    this.loadRequest?.unsubscribe();
+    this.merchantAccountId = id;
+    this.merchantName = EMPTY;
+    this.pageTitleOverride.clear();
+    this.balance = 0;
+    this.currencyCode = 'SAR';
+    this.allEntries = [];
+    this.searchQuery = '';
+    this.typeFilter = 'all';
+    this.newestFirst = true;
+    this.currentPage = 1;
+    this.applyFilters();
     this.load();
+  }
+
+  /** Adjust/correct/edit are offered only once this merchant's wallet has actually loaded. */
+  get walletReady(): boolean {
+    return !!this.merchantAccountId && !this.loading && !this.loadError && !this.notFound;
   }
 
   ngOnDestroy(): void {
@@ -193,20 +224,12 @@ export class WalletComponent implements OnInit, OnDestroy {
     return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   }
 
-  // Best-effort: the wallet screen still works fine if this fails, it just falls
-  // back to showing no trade name.
-  private loadAccountName(): void {
-    if (!this.merchantAccountId) return;
-    this.accountService.getAccountById(this.merchantAccountId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: detail => {
-        const business = detail.business;
-        const name = (this.currentLang === 'ar' ? business?.tradeNameAr : business?.tradeNameEn)
-          || business?.tradeName || business?.tradeNameAr || business?.tradeNameEn || '';
-        this.merchantName = name.trim() || EMPTY;
-        this.pageTitleOverride.set(this.merchantName !== EMPTY ? this.merchantName : null);
-      },
-      error: () => {},
-    });
+  private applyAccountName(detail: AccountDetail | null): void {
+    const business = detail?.business;
+    const name = (this.currentLang === 'ar' ? business?.tradeNameAr : business?.tradeNameEn)
+      || business?.tradeName || business?.tradeNameAr || business?.tradeNameEn || '';
+    this.merchantName = name.trim() || EMPTY;
+    this.pageTitleOverride.set(this.merchantName !== EMPTY ? this.merchantName : null);
   }
 
   // Needed only by the adjust/edit forms; if it fails the buttons stay available and
@@ -218,18 +241,33 @@ export class WalletComponent implements OnInit, OnDestroy {
     });
   }
 
+  // The account is checked first: the wallet endpoints answer 200 with a zero balance even
+  // for an id that doesn't exist, so only accounts/{id} → 404 tells us there's no merchant.
+  // Any other failure there only costs the trade name — the wallet still loads.
   load(): void {
-    if (!this.merchantAccountId) return;
     this.loadRequest?.unsubscribe();
-    this.loading = true;
+    const id = this.merchantAccountId;
     this.loadError = false;
     this.forbidden = false;
+    this.notFound = false;
 
-    this.loadRequest = forkJoin({
-      balance: this.service.getBalance(this.merchantAccountId),
-      ledger: this.service.getLedger(this.merchantAccountId),
-    }).subscribe({
-      next: ({ balance, ledger }) => {
+    if (!GUID_PATTERN.test(id)) {
+      this.loading = false;
+      this.notFound = true;
+      return;
+    }
+
+    this.loading = true;
+    this.loadRequest = this.accountService.getAccountById(id).pipe(
+      map(detail => detail as AccountDetail | null),
+      catchError(err => (this.status(err) === 404 ? throwError(() => err) : of(null))),
+      switchMap(detail => forkJoin({
+        balance: this.service.getBalance(id),
+        ledger: this.service.getLedger(id),
+      }).pipe(map(wallet => ({ detail, ...wallet })))),
+    ).subscribe({
+      next: ({ detail, balance, ledger }) => {
+        this.applyAccountName(detail);
         this.applyBalance(balance);
         this.allEntries = ledger.map(e => this.toRow(e));
         this.loading = false;
@@ -237,15 +275,26 @@ export class WalletComponent implements OnInit, OnDestroy {
       },
       error: err => {
         this.allEntries = [];
+        this.balance = 0;
         this.loading = false;
-        this.loadError = true;
-        this.forbidden = (err as { status?: number })?.status === 403;
         this.applyFilters();
+        if (this.status(err) === 404) {
+          this.notFound = true;
+          this.merchantName = EMPTY;
+          this.pageTitleOverride.clear();
+          return;
+        }
+        this.loadError = true;
+        this.forbidden = this.status(err) === 403;
         if (this.forbidden) {
           this.toastr.error(resolveWalletError(err, this.translate));
         }
       },
     });
+  }
+
+  private status(err: unknown): number | undefined {
+    return (err as { status?: number })?.status;
   }
 
   private applyBalance(balance: WalletBalance): void {
@@ -308,14 +357,18 @@ export class WalletComponent implements OnInit, OnDestroy {
   }
 
   private openAdjust(correction?: WalletAdjustDialogData['correction']): void {
-    if (!this.canAdjust()) return;
+    if (!this.canAdjust() || !this.walletReady) return;
+    // Pinned at click time: if the route moves to another merchant while categories load
+    // or the dialog is open, nothing from this dialog may land on the new merchant's page.
+    const accountId = this.merchantAccountId;
     this.withCategories(categories => {
+      if (accountId !== this.merchantAccountId) return;
       const dialogRef = this.dialog.open(WalletAdjustDialogComponent, {
         width: '640px',
         maxWidth: '94vw',
         panelClass: 'wallet-adjust-panel',
         data: {
-          merchantAccountId: this.merchantAccountId,
+          merchantAccountId: accountId,
           currentBalance: this.balance,
           currencyIconSrc: this.currencyIconSrc,
           isTextCurrency: this.isTextCurrency,
@@ -328,7 +381,7 @@ export class WalletComponent implements OnInit, OnDestroy {
       // itself, so the ledger is re-fetched to show the entry immediately.
       // A pending (above-threshold) request changes nothing until a second admin approves it.
       dialogRef.afterClosed().subscribe((result?: WalletAdjustDialogResult) => {
-        if (!result || 'pending' in result) return;
+        if (!result || 'pending' in result || accountId !== this.merchantAccountId) return;
         this.balance = result.newBalance;
         this.load();
       });
@@ -336,14 +389,16 @@ export class WalletComponent implements OnInit, OnDestroy {
   }
 
   openEditDialog(row: WalletLedgerRow): void {
-    if (!this.canEditEntry() || !row.isManual) return;
+    if (!this.canEditEntry() || !row.isManual || !this.walletReady) return;
+    const accountId = this.merchantAccountId;
     this.withCategories(categories => {
+      if (accountId !== this.merchantAccountId) return;
       const dialogRef = this.dialog.open(WalletEditEntryDialogComponent, {
         width: '640px',
         maxWidth: '94vw',
         panelClass: 'wallet-adjust-panel',
         data: {
-          merchantAccountId: this.merchantAccountId,
+          merchantAccountId: accountId,
           entry: row.entry,
           categories,
         } as WalletEditEntryDialogData
@@ -351,7 +406,7 @@ export class WalletComponent implements OnInit, OnDestroy {
 
       // The PUT returns the whole updated entry — swap the row in place, no refetch.
       dialogRef.afterClosed().subscribe((updated?: WalletEditEntryDialogResult) => {
-        if (!updated) return;
+        if (!updated || accountId !== this.merchantAccountId) return;
         this.allEntries = this.allEntries.map(r => (r.id === updated.id ? this.toRow(updated) : r));
         this.applyFilters();
       });

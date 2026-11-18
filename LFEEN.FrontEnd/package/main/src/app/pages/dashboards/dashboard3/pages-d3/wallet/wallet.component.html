@@ -1,5 +1,9 @@
 <div class="wallet-container" [dir]="currentDir">
 
+  @if (notFound) {
+  <app-dashboard-empty variant="error" icon="user-off" titleKey="d3.wallet.errors.notFoundTitle" descKey="d3.wallet.errors.accountNotFound"></app-dashboard-empty>
+  } @else {
+
   <!-- Balance hero -->
   <div class="balance-card">
     <div class="balance-info">
@@ -12,7 +16,7 @@
         <span class="merchant-name">{{ merchantName }}</span>
       }
     </div>
-    @if (canAdjust()) {
+    @if (canAdjust() && walletReady) {
       <button type="button" class="adjust-btn" (click)="openAdjustDialog()">
         <i-tabler name="adjustments-dollar" class="icon-18"></i-tabler>
         {{ 'd3.wallet.adjustBtn' | translate }}
@@ -155,13 +159,13 @@
                       }
                     </mat-menu>
                   }
-                  @if (row.isManual && canEditEntry()) {
+                  @if (row.isManual && canEditEntry() && walletReady) {
                     <button type="button" class="row-action-btn" [title]="'d3.wallet.table.edit' | translate"
                             [attr.aria-label]="'d3.wallet.table.edit' | translate" (click)="openEditDialog(row)">
                       <i-tabler name="pencil" class="icon-16"></i-tabler>
                     </button>
                   }
-                  @if (row.isManual && canAdjust()) {
+                  @if (row.isManual && canAdjust() && walletReady) {
                     <button type="button" class="row-action-btn" [title]="'d3.wallet.table.correct' | translate"
                             [attr.aria-label]="'d3.wallet.table.correct' | translate" (click)="openCorrectionDialog(row)">
                       <i-tabler name="arrow-back-up" class="icon-16"></i-tabler>
@@ -226,6 +230,8 @@
         </button>
       </div>
     </div>
+  }
+
   }
 
 </div>
