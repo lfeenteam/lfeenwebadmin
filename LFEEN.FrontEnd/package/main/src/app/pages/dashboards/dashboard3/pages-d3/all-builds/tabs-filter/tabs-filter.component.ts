@@ -12,6 +12,9 @@ import {
   ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
@@ -96,9 +99,25 @@ export class TabsFilterComponent implements AfterViewInit, OnChanges, OnDestroy 
     }
   }
 
+  /** Filter ids whose dropdown is searched on the server: the search box is always shown,
+   * the typed term is emitted (debounced) through `filterSearchChange` instead of narrowing
+   * the loaded items locally, and the parent replaces `items` with the results. */
+  @Input() serverSearchFilterIds: string[] = [];
+
   @Output() activeTabChange = new EventEmitter<string>();
   @Output() searchQueryChange = new EventEmitter<string>();
   @Output() filtersChange = new EventEmitter<Record<string, string>>();
+  @Output() filterSearchChange = new EventEmitter<{ filterId: string; term: string }>();
+
+  private readonly filterSearchInput$ = new Subject<{ filterId: string; term: string }>();
+
+  constructor() {
+    this.filterSearchInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged((a, b) => a.filterId === b.filterId && a.term === b.term),
+      takeUntilDestroyed(),
+    ).subscribe(change => this.filterSearchChange.emit(change));
+  }
 
   selectedFilters: Record<string, string> = {
     status: 'all',
@@ -170,7 +189,24 @@ export class TabsFilterComponent implements AfterViewInit, OnChanges, OnDestroy 
     el.scrollBy({ left: amount, behavior: 'smooth' });
   }
 
+  isServerSearch(filter: BuildFilterOption): boolean {
+    return this.serverSearchFilterIds.includes(filter.id);
+  }
+
+  showFilterSearch(filter: BuildFilterOption): boolean {
+    return this.isServerSearch(filter) || filter.items.length > 6;
+  }
+
+  onFilterSearchInput(filter: BuildFilterOption, value: string): void {
+    this.filterSearchTerms[filter.id] = value;
+    if (this.isServerSearch(filter)) {
+      this.filterSearchInput$.next({ filterId: filter.id, term: (value ?? '').trim() });
+    }
+  }
+
   getFilteredItems(filter: BuildFilterOption): BuildFilterOption['items'] {
+    // Server-searched filters already hold the matching items.
+    if (this.isServerSearch(filter)) return filter.items;
     const term = (this.filterSearchTerms[filter.id] ?? '').toLowerCase().trim();
     if (!term) return filter.items;
     return filter.items.filter(item =>

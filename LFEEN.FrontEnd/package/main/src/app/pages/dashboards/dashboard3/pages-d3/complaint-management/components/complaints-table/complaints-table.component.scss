@@ -687,6 +687,13 @@
   background: #F0FDF4;
   border: 1px solid #BBF7D0;
   white-space: nowrap;
+
+  // Closed without an agent resolving it (by the requester or an admin).
+  &.resolved-badge-closed {
+    color: #475569;
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
 }
 
 // ── End Resolved table ────────────────────────────────────────────────────────

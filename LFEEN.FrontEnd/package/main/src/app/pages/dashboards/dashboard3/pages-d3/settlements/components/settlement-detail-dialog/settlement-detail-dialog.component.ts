@@ -13,7 +13,7 @@ import { ar, enUS } from 'date-fns/locale';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { RECEIPT_ALLOWED_TYPES, RECEIPT_MAX_BYTES, RecalculationState, SettlementActionResult, recalculationStateOf } from '../../interfaces/settlement.model';
 import { isIbanMismatchError, isReceiptRequiredError, isStaleStateError, PayoutBlock, payoutBlockOf, resolveSettlementError } from '../../interfaces/settlement-error.util';
-import { blockerTexts } from '../../interfaces/settlement-labels.util';
+import { rawBlockerTexts } from '../../interfaces/settlement-labels.util';
 import { SettlementsService } from '../../services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from '../recalculation-dialog/recalculation-dialog.component';
@@ -30,6 +30,8 @@ export interface SettlementDetailDialogData {
   needsRecalculation: boolean;
   /** Execute permission AND a status the backend accepts execute/fail on. */
   canExecute: boolean;
+  /** Execute permission AND a not-yet-transferred status (Pending / Failed / OnHold) — may be recalculated. */
+  canRecalculate: boolean;
   accountName: string;
   hostName: string;
   phone: string;
@@ -106,7 +108,7 @@ export class SettlementDetailDialogComponent {
 
   /** Dry-run verdict for a payout listed by recalculation-preview; null = not listed / not checked yet. */
   recalcState: RecalculationState | null = null;
-  /** Why the payout is on hold, already worded for the admin. */
+  /** The core's raw (technical, English) blocker texts — shown only under a collapsed "Details". */
   holdReasons: string[] = [];
   checkingRecalc = false;
   readonly trxReferenceMax = TRX_REFERENCE_MAX;
@@ -151,7 +153,7 @@ export class SettlementDetailDialogComponent {
     dialogRef.backdropClick().subscribe(() => this.close());
     dialogRef.keydownEvents().pipe(filter(e => e.key === 'Escape')).subscribe(() => this.close());
 
-    if (data.needsRecalculation && data.canExecute) this.checkRecalculation();
+    if (data.needsRecalculation && (data.canExecute || data.canRecalculate)) this.checkRecalculation();
   }
 
   /**
@@ -165,7 +167,7 @@ export class SettlementDetailDialogComponent {
       next: res => {
         this.checkingRecalc = false;
         this.recalcState = recalculationStateOf(res);
-        this.holdReasons = blockerTexts(res.blockers, this.translate);
+        this.holdReasons = rawBlockerTexts(res.blockers);
       },
       // Can't tell — keep the safe default; a refused execute still explains itself.
       error: () => {

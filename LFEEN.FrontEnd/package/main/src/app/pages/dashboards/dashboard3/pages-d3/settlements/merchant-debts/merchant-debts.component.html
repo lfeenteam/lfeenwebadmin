@@ -108,7 +108,7 @@
                             <span class="line-main">
                               <span class="mobile-field-label">{{ 'd3.settlements.detail.bookingNumber' | translate }}</span>
                               <span class="ltr">{{ line.bookingNumber }}</span>
-                              @if (line.kindKey) { <span class="line-kind">{{ line.kindKey | translate }}</span> }
+                              <span class="line-kind">{{ line.kindKey | translate }}</span>
                               @if (line.description) { <small class="line-desc">{{ line.description }}</small> }
                             </span>
                           }
@@ -118,9 +118,11 @@
                               <span class="ltr">{{ line.payoutReference }}</span>
                             </span>
                           }
-                          <span>
+                          <!-- No booking column yet: the kind tag sits with the payment method instead -->
+                          <span [class.line-main]="!row.showBooking">
                             <span class="mobile-field-label">{{ 'd3.settlements.debts.lineMethod' | translate }}</span>
-                            {{ line.methodKey ? (line.methodKey | translate) : line.method }}
+                            <span>{{ line.methodKey ? (line.methodKey | translate) : line.method }}</span>
+                            @if (!row.showBooking) { <span class="line-kind">{{ line.kindKey | translate }}</span> }
                           </span>
                           <span>
                             <span class="mobile-field-label">{{ 'd3.settlements.recalc.gross' | translate }}</span>

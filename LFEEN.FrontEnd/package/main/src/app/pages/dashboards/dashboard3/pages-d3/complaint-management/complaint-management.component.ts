@@ -56,7 +56,8 @@ export class ComplaintManagementComponent implements OnDestroy {
   // One load stream per list: switchMap cancels the in-flight request whenever a newer
   // search/page/filter load starts, so a slow stale response can never overwrite the
   // results of the latest one.
-  private clientLoad$   = new Subject<void>();
+  /** Emits `silent`: true = background refresh (no loader, keep the list on failure). */
+  private clientLoad$   = new Subject<boolean>();
   private hostLoad$     = new Subject<void>();
   private resolvedLoad$ = new Subject<void>();
   private listLoadSubs  = new Subscription();
@@ -77,12 +78,10 @@ export class ComplaintManagementComponent implements OnDestroy {
   private resolvedTickets = signal<Complaint[]>([]);
 
   readonly clientStatusOptions = CLIENT_TICKET_STATUS_OPTIONS;
-  // customerAllTickets: the paginated main list from GET /api/client-tickets.
-  // customerQueueTickets: PendingAgent tickets from GET /api/client-tickets/queue, kept
-  // separate so a live queue refresh never clobbers the main list or its pagination.
-  // customerDisplayTickets (below) derives the merged, deduped, priority-first view.
+  // customerAllTickets: one server page of OPEN tickets from GET /api/client-tickets?isOpen=true.
+  // Filtering is server-side only — never drop rows here, or the page stops matching
+  // totalCount/totalPages. customerDisplayTickets (below) only reorders within the page.
   customerAllTickets  = signal<Complaint[]>([]);
-  customerQueueTickets = signal<Complaint[]>([]);
   customerTotalCount  = signal<number | null>(null);
   customerTotalPages  = signal(1);
   customerPage        = signal(1);
@@ -95,22 +94,14 @@ export class ComplaintManagementComponent implements OnDestroy {
   readonly clientDepartmentOptions = CLIENT_TICKET_DEPARTMENT_OPTIONS;
   readonly clientPriorityOptions   = CLIENT_TICKET_PRIORITY_OPTIONS;
 
-  // Queue-priority ordering only applies to the default, unfiltered first page — the same
-  // guard already used for live NewClientTicket inserts — so it never fights search/filter/
-  // pagination results with tickets that don't belong in them.
-  private customerQueueApplicable = computed(() =>
-    this.customerPage() === 1 && !this.customerSearch() &&
-    this.customerStatus() === null && this.customerDepartment() === null &&
-    this.customerPriority() === null && this.customerAssignedAgentUserId() === null
-  );
-
+  // Tickets waiting for an agent float to the top of the current page. Reordering only —
+  // never adds rows from elsewhere, so the row count always equals the server page.
   customerDisplayTickets = computed<Complaint[]>(() => {
     const all = this.customerAllTickets();
-    if (!this.customerQueueApplicable()) return all;
-    const queue = this.customerQueueTickets();
-    if (!queue.length) return all;
-    const queueIds = new Set(queue.map(c => c.id));
-    return [...queue, ...all.filter(c => !queueIds.has(c.id))];
+    return [
+      ...all.filter(c => c.status === 'pending'),
+      ...all.filter(c => c.status !== 'pending'),
+    ];
   });
 
   hostTickets     = signal<Complaint[]>([]);
@@ -248,7 +239,6 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
     this.watchListLoads();
     this.loadTabData(this.activeTab());
-    this.loadQueueTickets();
     this.watchLiveUpdates();
     this.loadHostFilterSources();
 
@@ -329,33 +319,29 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private watchLiveUpdates(): void {
-    // NewClientTicket/SessionEscalated only tell us *that* something changed, not the full
-    // row data needed to render it — so they're used purely as a trigger to refetch the
-    // queue and re-merge, never to synthesize a partial ticket into the list.
+    // NewClientTicket/SessionEscalated/Claimed/Released/Resolved only tell us *that* something
+    // changed, not the full row data — so they just trigger a silent refetch of the current
+    // open-tickets page (new/requeued tickets appear, resolved ones drop out, counts stay true).
     this.hubSubs.add(
-      this.hub.newClientTicket$.subscribe(() => this.loadQueueTickets())
+      this.hub.newClientTicket$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
     this.hubSubs.add(
-      this.hub.sessionEscalated$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionEscalated$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
-    // Another agent claimed a session that was in our queue — refresh so it drops out
-    // of the priority section immediately.
     this.hubSubs.add(
-      this.hub.sessionClaimed$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionClaimed$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
-    // A session only needs a queue refresh if it was actually put back into PendingAgent.
     this.hubSubs.add(
       this.hub.agentReleased$.subscribe(event => {
-        if (event.requeued) this.loadQueueTickets();
+        if (event.requeued) this.refreshClientTicketsSilently();
       })
     );
 
-    // Status moved to Resolved/Closed* — it no longer belongs in the priority queue.
     this.hubSubs.add(
-      this.hub.sessionResolved$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionResolved$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
     this.hubSubs.add(
@@ -374,16 +360,11 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   // Silent background refresh — never toggles the page-level `loading` signal, so it
-  // doesn't blank the table or show a full-page loader while the main list stays put.
-  private loadQueueTickets(): void {
-    this.service.getClientTicketsQueue()
-      .pipe(
-        map(res => [...res.data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
-        catchError(() => of([])),
-      )
-      .subscribe(sorted => {
-        this.customerQueueTickets.set(sorted.map(t => this.service.mapClientTicketToComplaint(t)));
-      });
+  // doesn't blank the table or show a full-page loader. Only while the customers tab is
+  // on screen; switching to it reloads anyway.
+  private refreshClientTicketsSilently(): void {
+    if (this.activeTab() !== 'customers' || this.loading()) return;
+    this.clientLoad$.next(true);
   }
 
   visibleComplaints = computed(() => {
@@ -414,8 +395,9 @@ export class ComplaintManagementComponent implements OnDestroy {
       next: properties => this.hostProperties.set(Array.isArray(properties) ? properties : []),
       error: () => { /* property filter simply stays empty if this call fails */ },
     });
-    this.service.getAssignableEmployees(undefined, 1, 50).subscribe({
-      next: page => this.hostEmployees.set(Array.isArray(page?.data) ? page.data : []),
+    // All pages, not just the first — a single page of 50 silently dropped everyone after it.
+    this.service.getAllAssignableEmployees().subscribe({
+      next: employees => this.hostEmployees.set(employees),
       error: () => { /* assigned-employee filter simply stays empty if this call fails */ },
     });
   }
@@ -427,8 +409,15 @@ export class ComplaintManagementComponent implements OnDestroy {
   private watchListLoads(): void {
     this.listLoadSubs.add(
       this.clientLoad$.pipe(
-        tap(() => { this.loading.set(true); this.customerError.set(false); }),
-        switchMap(() => this.service.getClientTickets({
+        tap(silent => {
+          if (silent) return;
+          this.loading.set(true);
+          this.customerError.set(false);
+        }),
+        switchMap(silent => this.service.getClientTickets({
+          // Work queue: open tickets only, filtered by the server so every page is full
+          // and totalCount/totalPages count exactly what this tab can show.
+          isOpen: true,
           status: this.customerStatus() ?? undefined,
           department: this.customerDepartment() ?? undefined,
           priority: this.customerPriority() ?? undefined,
@@ -438,19 +427,26 @@ export class ComplaintManagementComponent implements OnDestroy {
           pageSize: CLIENT_TICKETS_PAGE_SIZE,
         }).pipe(
           map(res => ({
-            complaints: res.data
-              .filter(t => this.service.mapClientTicketStatus(t.status) !== 'closed')
-              .map(t => this.service.mapClientTicketToComplaint(t)),
+            complaints: res.data.map(t => this.service.mapClientTicketToComplaint(t)),
             totalCount: res.totalCount,
             totalPages: res.totalPages,
           })),
           catchError(() => {
+            // A failed background refresh keeps the current list as-is.
+            if (silent) return of(null);
             // Inline error + retry instead of a toast over an empty "no complaints" table.
             this.customerError.set(true);
             return of({ complaints: [] as Complaint[], totalCount: 0, totalPages: 1 });
           }),
         )),
       ).subscribe(res => {
+        if (!res) return;
+        // The last item on the last page was resolved by a refresh — step back a page.
+        if (res.complaints.length === 0 && res.totalCount > 0 && res.totalPages < this.customerPage()) {
+          this.customerPage.set(Math.max(1, res.totalPages));
+          this.clientLoad$.next(false);
+          return;
+        }
         this.customerAllTickets.set(res.complaints);
         this.customerTotalCount.set(res.totalCount);
         this.customerTotalPages.set(res.totalPages);
@@ -596,7 +592,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadClientTickets(): void {
-    this.clientLoad$.next();
+    this.clientLoad$.next(false);
   }
 
   onCustomerSearchChange(term: string): void {
@@ -703,7 +699,6 @@ export class ComplaintManagementComponent implements OnDestroy {
     const assignment = { assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName, assignedAtUtc: new Date().toISOString() };
     const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
     this.customerAllTickets.update(patch);
-    this.customerQueueTickets.update(patch);
     this.hostTickets.update(patch);
 
     if (this.selectedComplaint()?.id === complaintId) {
@@ -711,20 +706,24 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
   }
 
-  // The chat already made the claim call — this reflects the new assignee in the in-memory
-  // lists and drops the ticket out of the priority Queue immediately, without waiting on the
-  // background refresh below (kept for cases another ticket became claimable/requeued too).
+  // The assignee changed since the list loaded — refetch so the row shows who really has it.
+  onAssignConflict(): void {
+    this.loadTabData(this.activeTab());
+  }
+
+  // The chat already made the claim call — this reflects the new assignee (and status) in
+  // the in-memory list right away; the silent refresh then syncs the page with the server.
   onTicketClaimed({ complaintId, agentUserId, agentName }: { complaintId: string; agentUserId: string; agentName: string }): void {
     const assignment = { assignedAdminUserId: agentUserId, assignedAdminName: agentName, assignedAtUtc: new Date().toISOString() };
-    const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
+    const patch = (list: Complaint[]) => list.map(c =>
+      c.id === complaintId ? { ...c, ...assignment, status: c.status === 'pending' ? 'in_progress' as const : c.status } : c);
     this.customerAllTickets.update(patch);
-    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaintId));
 
     if (this.selectedComplaint()?.id === complaintId) {
       this.selectedComplaint.update(c => c && { ...c, ...assignment });
     }
 
-    this.loadQueueTickets();
+    this.refreshClientTicketsSilently();
   }
 
   openHostComplaint(complaint: Complaint): void {
@@ -744,8 +743,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     // The status update already happened server-side (chat component calls the API
     // before emitting resolve) — just drop it from the active customers list here.
     this.customerAllTickets.update(list => list.filter(c => c.id !== complaint.id));
-    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaint.id));
     this.customerTotalCount.update(count => (count !== null ? Math.max(0, count - 1) : count));
+    // Pull the next open ticket up so the page stays full and the page count stays true.
+    this.refreshClientTicketsSilently();
   }
 
   // Opens the rated session's chat read-only next to the ratings list. The rating's

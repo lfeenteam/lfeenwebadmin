@@ -8,7 +8,11 @@
     <div class="header-text">
       <h2>{{ 'd3.settlements.recalc.title' | translate }}</h2>
       <p>
-        <span class="ltr">{{ data.payoutReference }}</span>
+        <span class="ltr">{{ preview?.payoutReference || data.payoutReference }}</span>
+        @if (preview?.status) {
+          @let statusKey_ = statusKey(preview!.status);
+          <span class="status-chip">{{ statusKey_ ? (statusKey_ | translate) : preview!.status }}</span>
+        }
         @if (data.accountName && data.accountName !== emptyValue) { · {{ data.accountName }} }
       </p>
     </div>
@@ -33,10 +37,18 @@
     </div>
   } @else if (preview) {
 
-    <p class="dry-run-hint">
-      <i-tabler name="info-circle" class="icon-14"></i-tabler>
-      {{ 'd3.settlements.recalc.dryRunHint' | translate }}
-    </p>
+    @if (applied) {
+      <!-- Saved: the figures below are the POST response, not the preview -->
+      <div class="recalc-alert recalc-alert--info" role="status">
+        <i-tabler name="circle-check" class="icon-18"></i-tabler>
+        <span>{{ 'd3.settlements.recalc.appliedHint' | translate }}</span>
+      </div>
+    } @else {
+      <p class="dry-run-hint">
+        <i-tabler name="info-circle" class="icon-14"></i-tabler>
+        {{ 'd3.settlements.recalc.dryRunHint' | translate }}
+      </p>
+    }
 
     <!-- Old ↔ new totals -->
     <div class="figures-table">
@@ -62,7 +74,7 @@
       }
     </div>
 
-    @if (!preview.hasChanges && !blockers.length) {
+    @if (hasNothingToApply) {
       <div class="recalc-alert recalc-alert--info">
         <i-tabler name="circle-check" class="icon-18"></i-tabler>
         <span>{{ 'd3.settlements.recalc.noChanges' | translate }}</span>
@@ -110,28 +122,39 @@
       </div>
     }
 
-    <!-- Blockers: Apply stays locked while any exist. With nothing to recalculate the payout
-         is simply on hold (e.g. a refund under manual review) — say so instead of "no changes". -->
-    @if (blockers.length) {
+    <!-- Blockers: Apply stays locked while any exist (the backend doesn't refuse it). The admin
+         reads one fixed summary; the core's raw technical texts sit under a collapsed "Details". -->
+    @if (!applied && blockers.length) {
       <div class="recalc-alert" [class.recalc-alert--danger]="!isOnHold" [class.recalc-alert--warning]="isOnHold" role="alert">
         <i-tabler [name]="isOnHold ? 'clock-pause' : 'lock'" class="icon-18"></i-tabler>
-        <div>
+        <div class="blocker-body">
           <strong>{{ (isOnHold ? 'd3.settlements.recalc.onHoldTitle' : 'd3.settlements.recalc.blockedTitle') | translate }}</strong>
-          <ul class="blockers-list">
-            @for (b of blockers; track $index) { <li>{{ b }}</li> }
-          </ul>
+          <span>{{ 'd3.settlements.recalc.blockerSummary' | translate }}</span>
+          <details class="blocker-details">
+            <summary>{{ 'd3.settlements.recalc.blockerDetails' | translate }}</summary>
+            <ul class="blockers-list" dir="ltr">
+              @for (b of blockers; track $index) { <li>{{ b }}</li> }
+            </ul>
+          </details>
         </div>
       </div>
     }
 
     <div class="recalc-actions">
-      <button type="button" class="btn btn-outline" [disabled]="applying" (click)="close()">
-        {{ 'common.cancel' | translate }}
-      </button>
-      <button type="button" class="btn btn-primary" [disabled]="!canApply" (click)="apply()">
-        @if (applying) { <span class="spinner spinner--light" aria-hidden="true"></span> }
-        {{ 'd3.settlements.recalc.applyBtn' | translate }}
-      </button>
+      @if (applied || hasNothingToApply) {
+        <!-- Saved, or nothing to apply: only a way out -->
+        <button type="button" class="btn btn-primary" (click)="close()">
+          {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
+        </button>
+      } @else {
+        <button type="button" class="btn btn-outline" [disabled]="applying" (click)="close()">
+          {{ 'common.cancel' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" [disabled]="!canApply" (click)="apply()">
+          @if (applying) { <span class="spinner spinner--light" aria-hidden="true"></span> }
+          {{ 'd3.settlements.recalc.applyBtn' | translate }}
+        </button>
+      }
     </div>
   }
 

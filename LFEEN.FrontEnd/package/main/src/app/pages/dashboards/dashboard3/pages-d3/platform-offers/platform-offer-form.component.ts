@@ -22,6 +22,7 @@ import { TimeSelectComponent } from './components/time-select/time-select.compon
 import {
   OfferFormValue,
   PlatformOfferDetail,
+  normalizeDisplayChannel,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -31,9 +32,11 @@ import {
   daysOfWeekValidator,
   discountValueMaxValidator,
   exclusionRowValidator,
+  happyHourWindow,
   offerCodeValidator,
   offerFormValidator,
   timeValidator,
+  toHhmm,
 } from './platform-offer.validators';
 import { maxValueValidator, wholeNumberValidator } from '../../utils/number-validators';
 
@@ -206,14 +209,13 @@ export class PlatformOfferFormComponent implements OnInit {
       offerEndDate: date(d.offerEndDate),
       stayStartDate: date(d.stayStartDate),
       stayEndDate: date(d.stayEndDate),
+      // The API sends "22:00:00"; the picker and labels work in "22:00".
+      happyHourStart: toHhmm(d.happyHourStart),
+      happyHourEnd: toHhmm(d.happyHourEnd),
       unitIds: d.offerUnits.map((u) => u.unitId),
-      // Old rows may hold a value the API returns as a bare number (e.g. 1);
-      // clear it so the admin has to pick a valid channel again.
-      displayChannel: ['All', 'Merchant', 'Client'].includes(
-        d.displayChannel as string,
-      )
-        ? d.displayChannel
-        : '',
+      // Older API builds send the channel as its number ("1") — map it back to the
+      // name so editing an offer keeps its channel; only a truly unknown value is cleared.
+      displayChannel: normalizeDisplayChannel(d.displayChannel) ?? '',
     } as any);
     this.preview.set(d.banner || '');
     d.exclusionPeriods.forEach((x) => this.exclusions.push(this.exclusion(x)));
@@ -267,6 +269,36 @@ export class PlatformOfferFormComponent implements OnInit {
   }
   timeLabel(hhmm: string | null | undefined) {
     return hhmm ? this.formatTime12(hhmm) : '';
+  }
+
+  /**
+   * Sets one end of the happy hour. Both ends are re-validated (clearing a server
+   * error left on either) and touched, so "set both" shows under the start field.
+   */
+  setHappyHour(name: 'happyHourStart' | 'happyHourEnd', time: string) {
+    const { happyHourStart, happyHourEnd } = this.form.controls;
+    this.form.controls[name].setValue(time);
+    [happyHourStart, happyHourEnd].forEach((c) => {
+      c.markAsTouched();
+      c.updateValueAndValidity({ emitEvent: false });
+    });
+    this.form.updateValueAndValidity();
+  }
+
+  /**
+   * "From 22:00 to 02:00 (next day)" — or with the "available" prefix for the summary,
+   * matching the offer conditions text from the API. '' until the window is valid.
+   */
+  happyHourText(prefix: 'hint' | 'summary' = 'hint'): string {
+    const w = happyHourWindow(
+      this.form.controls.happyHourStart.value,
+      this.form.controls.happyHourEnd.value,
+    );
+    if (!w) return '';
+    return this.tr.instant(
+      `d3.platformOffers.happyHour.${prefix}${w.overnight ? 'NextDay' : ''}`,
+      { start: w.start, end: w.end },
+    );
   }
   private formatTime12(hhmm: string) {
     const [hStr, m] = hhmm.split(':');

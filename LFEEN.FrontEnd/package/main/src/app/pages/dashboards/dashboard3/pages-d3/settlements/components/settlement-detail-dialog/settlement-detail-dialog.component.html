@@ -213,21 +213,7 @@
         <span class="action-blocked-hint">* {{ 'd3.settlements.errors.noBankAccount' | translate }}</span>
       }
       <!-- Known up front from the dry run: stop before the admin fills the transfer form -->
-      @if (checkingRecalc) {
-        <span class="action-blocked-hint">{{ 'd3.settlements.recalc.checking' | translate }}</span>
-      } @else if (isOnHold) {
-        <div class="action-blocked-alert payout-block-alert is-warning" role="alert">
-          <i-tabler name="clock-pause" class="icon-18"></i-tabler>
-          <div class="payout-block-body">
-            <strong>{{ 'd3.settlements.recalc.onHoldTitle' | translate }}</strong>
-            <ul class="hold-reasons">
-              @for (reason of holdReasons; track $index) { <li>{{ reason }}</li> }
-            </ul>
-          </div>
-        </div>
-      } @else if (mustRecalculate) {
-        <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
-      }
+      <ng-container *ngTemplateOutlet="recalcStatus"></ng-container>
       <div class="detail-actions">
         <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
           {{ 'd3.settlements.detail.rejectBtn' | translate }}
@@ -236,6 +222,9 @@
           {{ 'd3.settlements.detail.acceptBtn' | translate }}
         </button>
       </div>
+    } @else if (data.canRecalculate) {
+      <!-- Failed / OnHold: no execute here, but the payout may still need recalculating (guide §6.1) -->
+      <ng-container *ngTemplateOutlet="recalcStatus"></ng-container>
     }
 
   } @else if (step === 'confirmReject') {
@@ -467,6 +456,31 @@
       <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
       <span>{{ actionError }}</span>
     </div>
+  }
+</ng-template>
+
+<!-- What the dry run said about a payout listed by recalculation-preview -->
+<ng-template #recalcStatus>
+  @if (checkingRecalc) {
+    <span class="action-blocked-hint">{{ 'd3.settlements.recalc.checking' | translate }}</span>
+  } @else if (isOnHold) {
+    <div class="action-blocked-alert payout-block-alert is-warning" role="alert">
+      <i-tabler name="clock-pause" class="icon-18"></i-tabler>
+      <div class="payout-block-body">
+        <strong>{{ 'd3.settlements.recalc.onHoldTitle' | translate }}</strong>
+        <span>{{ 'd3.settlements.recalc.blockerSummary' | translate }}</span>
+        @if (holdReasons.length) {
+          <details class="blocker-details">
+            <summary>{{ 'd3.settlements.recalc.blockerDetails' | translate }}</summary>
+            <ul class="hold-reasons" dir="ltr">
+              @for (reason of holdReasons; track $index) { <li>{{ reason }}</li> }
+            </ul>
+          </details>
+        }
+      </div>
+    </div>
+  } @else if (mustRecalculate) {
+    <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
   }
 </ng-template>
 

@@ -188,7 +188,7 @@ export class AgreementActionsService {
       heading: [
         this.labels.title(draft),
         this.translate.instant('d3.agreements.status.Draft'),
-        this.translate.instant('d3.agreements.clausesN', { n: this.labels.num(draft.clauseCount) }),
+        this.labels.clauses(draft.clauseCount),
       ].join(' · '),
       text: this.translate.instant('d3.agreements.delete.text'),
       confirmLabel: this.translate.instant('d3.agreements.delete.confirm'),

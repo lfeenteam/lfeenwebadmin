@@ -20,7 +20,8 @@ import { LoginService } from '../../services/login/login.service';
 import { SettlementDetailDialogComponent, SettlementDetailDialogData, SettlementDialogResult } from './components/settlement-detail-dialog/settlement-detail-dialog.component';
 import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from './components/recalculation-dialog/recalculation-dialog.component';
 import {
-  ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, RecalculationPreviewItem, RecalculationState,
+  ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, OPTIONAL_LIST_STATUSES, PREVIOUS_TAB_STATUSES, RECALCULABLE_STATUSES,
+  RecalculationPreviewItem, RecalculationState,
   Settlement, SettlementDetail, SettlementSummary, recalculationStateOf,
 } from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
@@ -65,6 +66,7 @@ const STATUS_META: Record<string, { key: string; cls: StatusClass }> = {
   Completed: { key: 'approved', cls: 'status-approved' },
   PartiallyCompleted: { key: 'partiallyCompleted', cls: 'status-approved' },
   Failed: { key: 'rejected', cls: 'status-rejected' },
+  OnHold: { key: 'onHold', cls: 'status-pending' },
 };
 
 @Component({
@@ -178,13 +180,12 @@ export class SettlementsComponent implements OnInit {
     this.loadError = false;
 
     const statuses = this.activeTab === 'current' ? CURRENT_TAB_STATUSES : PREVIOUS_TAB_STATUSES;
-    // Only payouts that can still be executed can need recalculation. The badge is a hint —
-    // execute itself still refuses — so a failing preview must never hide the list.
-    const preview$ = this.activeTab === 'current'
-      ? this.service.recalculationPreview().pipe(catchError(() => of([] as RecalculationPreviewItem[])))
-      : of([] as RecalculationPreviewItem[]);
+    // Pending / OnHold (current tab) and Failed (previous tab) can all need recalculation, so the
+    // preview is fetched once with either list. The badge is a hint — execute itself still
+    // refuses — so a failing preview must never hide the list.
+    const preview$ = this.service.recalculationPreview().pipe(catchError(() => of([] as RecalculationPreviewItem[])));
 
-    this.listRequest = forkJoin([this.service.listAllByStatuses(statuses), preview$]).subscribe({
+    this.listRequest = forkJoin([this.service.listAllByStatuses(statuses, OPTIONAL_LIST_STATUSES), preview$]).subscribe({
       next: ([{ items, summary }, preview]) => {
         const unchecked = this.readPreview(preview);
         this.summary = summary;
@@ -289,7 +290,7 @@ export class SettlementsComponent implements OnInit {
   }
 
   private recalcStateOfRow(id: string, reference: string | null | undefined, status: string): RecalculationState | null {
-    return ACTIONABLE_STATUSES.includes(status) ? this.recalcStateOf(id, reference) : null;
+    return RECALCULABLE_STATUSES.includes(status) ? this.recalcStateOf(id, reference) : null;
   }
 
   /** Executing or recalculating a payout can settle or create a debt. */
@@ -381,6 +382,8 @@ export class SettlementsComponent implements OnInit {
         netAmount: detail.netAmount,
         needsRecalculation: this.recalcStateOf(detail.id, detail.payoutReference) !== null,
         canExecute: this.canExecute() && ACTIONABLE_STATUSES.includes(detail.status),
+        // A Failed / OnHold payout can't be executed here, but can (and may need to) be recalculated.
+        canRecalculate: this.canExecute() && RECALCULABLE_STATUSES.includes(detail.status),
         accountName: detail.merchantName?.trim() || EMPTY,
         hostName: detail.hostName?.trim() || EMPTY,
         phone: detail.contactPhoneNumber?.trim() || EMPTY,

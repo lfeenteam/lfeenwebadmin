@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, effect, signal, ChangeDetectorRef } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +9,7 @@ import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashb
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
-import { UnitsService, UnitSortOrder } from '../../services/units.service';
+import { FilterItem, UnitsService, UnitSortOrder } from '../../services/units.service';
 import { BuildingWithUnits, UnitTab } from '../../interfaces/unit-card.model';
 import { CardsUnitsComponent } from './cards-units/cards-units.component';
 import { AutoApprovalSettingsDialogComponent } from './auto-approval-settings-dialog/auto-approval-settings-dialog.component';
@@ -91,6 +92,42 @@ export class AllUnitsComponent {
 
   searchPlaceholder = 'd3.allUnits.filters.searchPlaceholder';
 
+  /** The building and account dropdowns load one page and search on the server. */
+  readonly serverSearchFilterIds = ['account', 'property'];
+
+  private readonly propertyFilterSearch = signal('');
+  private readonly accountFilterSearch  = signal('');
+  /** Kept so the chosen entry stays in its dropdown (and on the pill) when a search doesn't return it. */
+  private readonly selectedPropertyItem = signal<FilterItem | null>(null);
+  private readonly selectedAccountItem  = signal<FilterItem | null>(null);
+
+  // Owned by this component (not the root UnitsService) so leaving the page cancels any
+  // filter request still in flight; a new search term cancels the previous one.
+  private readonly propertiesFilterResource = rxResource({
+    request: () => this.propertyFilterSearch(),
+    loader: ({ request }) => this.unitsService.searchPropertiesForFilter(request),
+  });
+  private readonly accountsFilterResource = rxResource({
+    request: () => this.accountFilterSearch(),
+    loader: ({ request }) => this.unitsService.searchAccountsForFilter(request),
+  });
+
+  onFilterSearch(change: { filterId: string; term: string }): void {
+    if (change.filterId === 'property') this.propertyFilterSearch.set(change.term);
+    if (change.filterId === 'account')  this.accountFilterSearch.set(change.term);
+  }
+
+  private withSelected(items: FilterItem[], selected: FilterItem | null): FilterItem[] {
+    if (!selected || items.some(i => i.value === selected.value)) return items;
+    return [selected, ...items];
+  }
+
+  private findFilterItem(filterId: string, value: string): FilterItem | null {
+    if (!value) return null;
+    const item = this.filterOptions.find(f => f.id === filterId)?.items.find(i => i.value === value);
+    return item ? { value: item.value, labelKey: item.labelKey } : null;
+  }
+
   retryLoad(): void {
     this.unitsService.reload();
   }
@@ -123,10 +160,13 @@ export class AllUnitsComponent {
       this.cdr.markForCheck();
     });
 
-    // sync filter dropdowns from loaded units (reactive — updates on data changes)
+    // sync filter dropdowns from the server-searched results
     effect(() => {
-      const accounts   = this.unitsService.accountsForFilter();
-      const properties = this.unitsService.propertiesForFilter();
+      const accounts   = this.withSelected(
+        this.unitsService.toAccountFilterItems(this.accountsFilterResource.value() ?? []),
+        this.selectedAccountItem(),
+      );
+      const properties = this.withSelected(this.propertiesFilterResource.value() ?? [], this.selectedPropertyItem());
       this.filterOptions = this.filterOptions.map(f => {
         if (f.id === 'account') {
           return {
@@ -197,6 +237,8 @@ export class AllUnitsComponent {
     this.onSearch('');
     // A new object each time so the dropdown pills pick up the reset.
     this.activeFilters = { account: 'all', property: 'all' };
+    this.selectedAccountItem.set(null);
+    this.selectedPropertyItem.set(null);
     this.unitsService.setAccountFilter('');
     this.unitsService.setPropertyFilter('');
   }
@@ -205,6 +247,8 @@ export class AllUnitsComponent {
     const accountId  = filters['account']  === 'all' ? '' : (filters['account']  ?? '');
     const propertyId = filters['property'] === 'all' ? '' : (filters['property'] ?? '');
     const sort       = (filters['sort'] ?? 'newest') as UnitSortOrder;
+    this.selectedAccountItem.set(this.findFilterItem('account', accountId));
+    this.selectedPropertyItem.set(this.findFilterItem('property', propertyId));
     this.unitsService.setAccountFilter(accountId);
     this.unitsService.setPropertyFilter(propertyId);
     this.unitsService.setSortOrder(sort);

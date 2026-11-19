@@ -12,12 +12,12 @@ import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { MerchantDebt, MerchantDebtLine } from '../interfaces/settlement.model';
 import { resolveSettlementError } from '../interfaces/settlement-error.util';
-import { adjustmentKindKey, paymentMethodKey } from '../interfaces/settlement-labels.util';
+import { DEBT_LINE_KIND_KEY, adjustmentKindKey, paymentMethodKey } from '../interfaces/settlement-labels.util';
 import { SettlementsService } from '../services/settlements.service';
 
 interface DebtLineRow {
-  /** Label key of the line's kind; null when the line carries no kind. */
-  kindKey: string | null;
+  /** Label key of the line's kind — "refund after settlement" when the API sends none. */
+  kindKey: string;
   description: string;
   bookingNumber: string;
   payoutReference: string;
@@ -48,6 +48,8 @@ interface DebtRow {
 }
 
 const EMPTY = '-';
+/** Shown for a merchant the API sends no name for (per the frontend guide). */
+const NO_NAME = '—';
 
 const num = (value: unknown): number | null => (typeof value === 'number' ? value : null);
 const text = (value: unknown): string => (value == null ? '' : String(value).trim());
@@ -118,7 +120,8 @@ export class MerchantDebtsComponent implements OnInit {
   }
 
   get filteredMerchantName(): string {
-    return this.rows.find(r => r.accountId === this.accountFilter)?.merchant ?? this.accountFilter ?? '';
+    const name = this.rows.find(r => r.accountId === this.accountFilter)?.merchant;
+    return name && name !== NO_NAME ? name : this.accountFilter ?? '';
   }
 
   load(): void {
@@ -171,11 +174,11 @@ export class MerchantDebtsComponent implements OnInit {
   }
 
   private toRow(d: MerchantDebt): DebtRow {
-    // The core doesn't send the merchant's name yet — the account id stands in until it does.
-    const merchant = text(d.merchantName) || text(d.tradeName) || d.accountId;
+    // No name → "—", never the account id (it's still searchable by it).
+    const merchant = text(d.merchantName) || text(d.tradeName) || NO_NAME;
     const lines = (d.lines ?? []).map(l => this.toLine(l));
-    // The booking cell also carries the line's kind and description, so it stays when either is present.
-    const showBooking = lines.some(l => l.bookingNumber !== EMPTY || !!l.kindKey || !!l.description);
+    // The booking cell also carries the line's description, so it stays when either is present.
+    const showBooking = lines.some(l => l.bookingNumber !== EMPTY || !!l.description);
     const showPayoutRef = lines.some(l => l.payoutReference !== EMPTY);
     const lineColumns = [showBooking && '1.4fr', showPayoutRef && '1.3fr', '1fr', '0.9fr', '0.9fr', '0.9fr', '1fr']
       .filter(Boolean)
@@ -201,7 +204,8 @@ export class MerchantDebtsComponent implements OnInit {
     const kind = text(l.kind);
     const method = text(l.method);
     return {
-      kindKey: kind ? adjustmentKindKey(kind) : null,
+      // The core sends no kind: every debt line is a refund after settlement.
+      kindKey: kind ? adjustmentKindKey(kind) : DEBT_LINE_KIND_KEY,
       description: text(l.description),
       bookingNumber: text(l.bookingNumber) || EMPTY,
       payoutReference: text(l.payoutReference) || EMPTY,

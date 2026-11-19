@@ -286,9 +286,40 @@ $danger: #d70a0a;
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
-.agv-head-main { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.agv-head-main { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.agv-title-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.agv-back {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  i-tabler { width: 18px; height: 18px; }
+}
 .agv-title { margin: 0; font-size: 28px; font-weight: 800; line-height: 1.4; }
-.agv-head-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+// Lined up under the title text, past the back arrow (40px + 12px gap).
+.agv-head-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding-inline-start: 52px; }
+
+// Editor: the header (title, unsaved state, Save / Publish) stays pinned while the
+// clauses scroll under it, so saving never needs a trip back to the top. The page
+// scrolls inside .page-content, so top: 0 is its top edge. Phones keep it in the flow:
+// there the action row wraps and would take too much of the screen.
+.agv-stick-sentinel { height: 1px; margin-bottom: -1px; }
+@media (min-width: 769px) {
+  .agv-head.is-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    // Bleed the background over .page-content's side padding so nothing peeks past it.
+    margin-inline: -16px;
+    padding: 12px 16px;
+    border-bottom: 1px solid transparent;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .agv-head.is-stuck {
+    border-bottom-color: $border;
+    box-shadow: 0 8px 16px -12px rgba(0, 0, 0, .2);
+  }
+}
 .agv-dirty {
   display: inline-flex;
   align-items: center;
@@ -312,6 +343,26 @@ $danger: #d70a0a;
 }
 
 .agv-facts { margin-bottom: 24px; padding: 28px 32px; }
+// Who published / ended, under the date: quieter than the value, one clipped line.
+.agv-fact-sub {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  color: $muted;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The floating chat button (client-chat-fab: 56px wide, 28px from the screen's end
+// edge, the same corner as the English column in Arabic) sits over the version page's
+// end side. .page-content already pads 16px, so 80px more keeps a 12px gap beside the
+// button and it never covers a field (e.g. the first clause's English title on load).
+// Phones stack the columns full width; there the button can be scrolled past.
+@media (min-width: 769px) {
+  .agv--fab-gutter { padding-inline-end: 80px; }
+}
 .agv-section { margin-bottom: 36px; padding: 28px 24px; }
 .agv-section-title { margin: 0 0 24px; font-size: 20px; font-weight: 800; }
 
@@ -338,7 +389,16 @@ $danger: #d70a0a;
   &:focus { outline: none; border-color: #000; box-shadow: 0 0 0 3px rgba(0, 0, 0, .06); }
   &.is-invalid { border-color: $danger; }
 }
-.agv-textarea { min-height: 96px; resize: none; }
+// Grows with the text (cdkTextareaAutosize: min/max rows in the template); only a very
+// long clause scrolls inside, with a slim, quiet scrollbar.
+.agv-textarea {
+  resize: none;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { border-radius: 3px; background: #d1d5db; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}
 .agv-error { margin: 8px 0 0; color: $danger; font-size: 12px; font-weight: 600; }
 
 .agv-clauses { display: flex; flex-direction: column; gap: 16px; }
@@ -436,6 +496,7 @@ $danger: #d70a0a;
 @media (max-width: 768px) {
   .ag-head { flex-direction: column; align-items: stretch; }
   .ag-title, .agv-title { font-size: 22px; }
+  .agv-head-meta { padding-inline-start: 0; }
   .ag-stats, .ag-stats--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .agv-grid { grid-template-columns: 1fr; }
   .agv-actions { width: 100%; .ag-btn { flex: 1; } .ag-btn--icon { flex: 0 0 44px; } }

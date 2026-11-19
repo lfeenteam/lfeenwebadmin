@@ -171,6 +171,9 @@ export interface ChatMessage {
   timestampEn?: string;
   createdAtUtc: string;
   attachment?: ChatMessageAttachment | null;
+  /** Buttons a bot message offered — used to show the client's reply (sent as the option
+   * key, e.g. "payment") by its label instead. */
+  options?: ClientChatMessageOption[];
 }
 
 export interface ClientTicket {
@@ -246,6 +249,8 @@ export interface ClientTicketDetail {
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
+  /** Optional until every API build sends it. */
+  assignedAgentUserId?: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
   createdAt: string;
@@ -312,6 +317,9 @@ export interface ClientTicketQueryParams {
   priority?: string;
   assignedAgentUserId?: string;
   search?: string;
+  /** true = every status except Resolved/ClosedByClient/ClosedByAdmin, false = only those,
+   * omitted = all statuses. Filtered server-side so page size and totalCount stay accurate. */
+  isOpen?: boolean;
   page?: number;
   pageSize?: number;
 }
@@ -324,13 +332,13 @@ export interface ClientTicketQueueQueryParams {
 
 export const CLIENT_TICKETS_PAGE_SIZE = 8;
 
-// `value` is the status name GET /api/client-tickets filters on. The 3 buckets keep the
-// UI's original Open/Pending/Resolved options; adjust the names if the backend's accepted
-// set changes (screenshot showed BotHandling | PendingAgent | Assigned | …).
+// `value` is the status name GET /api/client-tickets filters on. The customers tab always
+// sends isOpen=true, so only open statuses belong here — Resolved/Closed* live in the
+// "resolved" tab. Labels reuse the row badge keys so the filter matches what rows show.
 export const CLIENT_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
-  { value: 'BotHandling',  labelKey: 'd3.complaints.clientStatus.open' },
-  { value: 'PendingAgent', labelKey: 'd3.complaints.clientStatus.pending' },
-  { value: 'Resolved',     labelKey: 'd3.complaints.clientStatus.resolved' },
+  { value: 'BotHandling',  labelKey: 'd3.complaints.status.bot' },
+  { value: 'PendingAgent', labelKey: 'd3.complaints.status.pending' },
+  { value: 'Assigned',     labelKey: 'd3.complaints.status.inProgress' },
 ];
 
 // department / priority filter values — the same string names the API expects.
@@ -368,7 +376,14 @@ export interface TicketsOverviewItem {
   subject: string;
   repliedAtUtc: string | null;
   createdAt: string;
+  /** Real final status (e.g. Resolved, ClosedByClient, ClosedByAdmin). */
+  status?: string | null;
+  /** True when the requester (client/host) closed it themselves. */
+  closedBySelf?: boolean | null;
 }
+
+/** How a ticket in the "resolved" tab actually ended — drives its status badge. */
+export type ResolvedOutcome = 'closedBySelf' | 'closedByAdmin' | 'resolvedByAgent';
 
 export interface TicketsOverviewResponse {
   data: TicketsOverviewItem[];
@@ -415,6 +430,8 @@ export interface Complaint {
   subjectEn?: string;
   replyDate?: string;
   replyDateEn?: string;
+  /** "resolved" tab only — how the ticket ended. */
+  resolvedOutcome?: ResolvedOutcome;
   assignedAdminUserId?: string | null;
   assignedAdminName?: string | null;
   propertyName?: string | null;

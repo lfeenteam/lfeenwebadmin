@@ -133,7 +133,7 @@
                   <span class="ag-cell-label">{{ 'd3.agreements.table.published' | translate }}</span>
                   @if (v.publishedAtUtc) {
                     <span class="ag-date">{{ labels.date(v.publishedAtUtc) }}</span>
-                    @if (v.publishedBy) { <span class="ag-sub ag-sub--clip" [title]="v.publishedBy">{{ v.publishedBy }}</span> }
+                    @if (labels.actor(v.publishedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.publishedBy">{{ by }}</span> }
                   } @else {
                     <span class="ag-dash">—</span>
                     @if (v.status === 'Draft') { <span class="ag-sub">{{ 'd3.agreements.notPublished' | translate }}</span> }
@@ -151,7 +151,7 @@
                   <span class="ag-cell-label">{{ 'd3.agreements.table.ended' | translate }}</span>
                   @if (v.endedAtUtc) {
                     <span class="ag-date">{{ labels.date(v.endedAtUtc) }}</span>
-                    @if (v.endedBy) { <span class="ag-sub ag-sub--clip" [title]="v.endedBy">{{ v.endedBy }}</span> }
+                    @if (labels.actor(v.endedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.endedBy">{{ by }}</span> }
                   } @else {
                     <span class="ag-dash">—</span>
                   }

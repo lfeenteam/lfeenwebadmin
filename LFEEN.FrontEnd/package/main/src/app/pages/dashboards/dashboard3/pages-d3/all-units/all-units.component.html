@@ -19,10 +19,12 @@
     [searchQuery]="searchQuery"
     [activeFilters]="activeFilters"
     [viewMode]="viewMode"
+    [serverSearchFilterIds]="serverSearchFilterIds"
     (activeTabChange)="onTabChange($event)"
     (searchQueryChange)="onSearch($event)"
     (viewModeChange)="setViewMode($event)"
-    (filtersChange)="onFiltersChange($event)">
+    (filtersChange)="onFiltersChange($event)"
+    (filterSearchChange)="onFilterSearch($event)">
   </app-dashboard-sub-header>
 
   @if (isLoading) {

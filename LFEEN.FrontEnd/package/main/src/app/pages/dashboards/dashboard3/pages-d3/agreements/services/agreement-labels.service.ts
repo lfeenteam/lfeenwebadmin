@@ -67,4 +67,37 @@ export class AgreementLabelsService {
   signers(count: number | null | undefined): string {
     return this.translate.instant('d3.agreements.signersN', { n: this.num(count) });
   }
+
+  /**
+   * «بند واحد» / «بندان» / «٣ بنود» / «١١ بندًا» / «١٠٠ بند»: Arabic picks the noun
+   * form by the number (3–10 plural, 11–99 singular accusative, the rest singular).
+   * English only splits one / many.
+   */
+  clauses(count: number | null | undefined): string {
+    const n = Math.max(0, count ?? 0);
+    const r = n % 100;
+    const form = n === 0 ? 'zero'
+      : n === 1 ? 'one'
+      : n === 2 ? 'two'
+      : r >= 3 && r <= 10 ? 'few'
+      : r >= 11 ? 'many'
+      : 'other';
+    return this.translate.instant(`d3.agreements.clauseCount.${form}`, { n: this.num(n) });
+  }
+
+  /**
+   * Who published / ended a version, as shown under its date: «بواسطة أحمد», or
+   * «تلقائيًا من النظام» for system notes the server stores in the same field
+   * (e.g. "migration: seeded text, replaced by …" on the seeded Host v1–v5).
+   * Empty when nobody is recorded, so the caller shows the date alone.
+   */
+  actor(name: string | null | undefined): string {
+    const value = name?.trim();
+    if (!value) return '';
+    if (SYSTEM_ACTOR.test(value)) return this.translate.instant('d3.agreements.bySystem');
+    return this.translate.instant('d3.agreements.byName', { name: value });
+  }
 }
+
+/** Server-written notes in publishedBy / endedBy, not an admin's name. */
+const SYSTEM_ACTOR = /^(migration|system|seed)\b/i;

@@ -9,7 +9,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'control-center': true,           // wired to /api/app-runtime (summary, themes, releases, maintenance)
   dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
-  settings: true,                   // platform-settings: all fields are static literals
+  settings: true,                   // wired to /api/settings (general, notifications, review-reward)
   settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt, recalculation)
   'settlement-debts': true,         // "Merchant debts" tab in Settlements, wired to /api/settlements/debts (BUG-1482)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader

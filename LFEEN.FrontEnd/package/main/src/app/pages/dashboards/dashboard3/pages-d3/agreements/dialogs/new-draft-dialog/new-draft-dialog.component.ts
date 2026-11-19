@@ -51,9 +51,9 @@ export class NewDraftDialogComponent {
     this.sourceError.set('');
   }
 
-  /** "11 بند · نُشرت 11 نوفمبر 2026", or the last edit for a draft. */
+  /** "11 بندًا · نُشرت 11 نوفمبر 2026", or the last edit for a draft. */
   sourceMeta(v: AgreementVersion): string {
-    const clauses = this.translate.instant('d3.agreements.clausesN', { n: this.labels.num(v.clauseCount) });
+    const clauses = this.labels.clauses(v.clauseCount);
     const when = v.publishedAtUtc
       ? this.translate.instant('d3.agreements.newDraft.publishedOn', { date: this.labels.date(v.publishedAtUtc) })
       : v.updatedAt

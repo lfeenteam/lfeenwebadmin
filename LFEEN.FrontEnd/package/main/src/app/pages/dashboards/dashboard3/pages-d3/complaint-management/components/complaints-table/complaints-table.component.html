@@ -108,9 +108,9 @@
 
           <!-- Status -->
           <div class="col-r-status">
-            <span class="resolved-badge">
-              <i-tabler name="circle-check" class="icon-14"></i-tabler>
-              تم الرد والحل
+            <span class="resolved-badge" [class.resolved-badge-closed]="c.resolvedOutcome === 'closedBySelf' || c.resolvedOutcome === 'closedByAdmin'">
+              <i-tabler [name]="c.resolvedOutcome === 'resolvedByAgent' || !c.resolvedOutcome ? 'circle-check' : 'circle-x'" class="icon-14"></i-tabler>
+              {{ resolvedOutcomeLabelKey(c) | translate }}
             </span>
           </div>
 

@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { filter } from 'rxjs';
 import { PayoutRecalculation, RecalculationAdjustment } from '../../interfaces/settlement.model';
 import { resolveSettlementError } from '../../interfaces/settlement-error.util';
-import { adjustmentKindKey, blockerTexts } from '../../interfaces/settlement-labels.util';
+import { adjustmentKindKey, rawBlockerTexts, settlementStatusKey } from '../../interfaces/settlement-labels.util';
 import { SettlementsService } from '../../services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
@@ -52,7 +52,13 @@ export class RecalculationDialogComponent {
   loading = true;
   loadError: string | null = null;
   applying = false;
+  /**
+   * The dry run — or, once applied, the POST response itself: what was actually saved is
+   * shown, never the preview it came from.
+   */
   preview: PayoutRecalculation | null = null;
+  /** Applied — the dialog stays open on the saved figures until the admin closes it. */
+  applied = false;
 
   constructor(
     public dialogRef: MatDialogRef<RecalculationDialogComponent, RecalculationDialogResult>,
@@ -103,9 +109,13 @@ export class RecalculationDialogComponent {
     return `${value > 0 ? '+' : '−'}${this.fmt(Math.abs(value))}`;
   }
 
-  /** Server reasons, with known/unknown codes worded for the admin. */
+  /**
+   * The core's raw blocker texts (technical English). The admin reads one fixed summary;
+   * these only go under a collapsed "Details". Non-empty = Apply stays locked — the backend
+   * doesn't refuse the POST itself, so the lock is ours.
+   */
   get blockers(): string[] {
-    return blockerTexts(this.preview?.blockers, this.translate);
+    return rawBlockerTexts(this.preview?.blockers);
   }
 
   /** Nothing to recalculate, yet something holds the payout (e.g. a refund under manual review). */
@@ -113,12 +123,21 @@ export class RecalculationDialogComponent {
     return !!this.preview && !this.preview.hasChanges && this.blockers.length > 0;
   }
 
+  /** Nothing to change and nothing blocking — "No changes", and no Apply button at all (guide §6.2). */
+  get hasNothingToApply(): boolean {
+    return !!this.preview && !this.applied && !this.preview.hasChanges && !this.blockers.length;
+  }
+
+  statusKey(status: string | null | undefined): string | null {
+    return settlementStatusKey(status);
+  }
+
   get adjustments(): RecalculationAdjustment[] {
     return this.preview?.adjustments ?? [];
   }
 
   get canApply(): boolean {
-    return !!this.preview && this.preview.hasChanges && !this.blockers.length && !this.applying;
+    return !!this.preview && !this.applied && this.preview.hasChanges && !this.blockers.length && !this.applying;
   }
 
   adjustmentKindKey(kind: string): string {
@@ -155,8 +174,10 @@ export class RecalculationDialogComponent {
     this.service.recalculate(this.data.id).subscribe({
       next: res => {
         this.applying = false;
-        this.toastr.success(this.translate.instant('d3.settlements.recalc.applied'));
-        this.dialogRef.close({ applied: true, result: res });
+        // Show what was saved (the POST response), not the preview; the opener refreshes on close.
+        // applied:false = nothing needed changing by the time it ran — that reads "No changes".
+        this.preview = res;
+        this.applied = res.applied === true;
       },
       error: err => {
         this.applying = false;
@@ -167,8 +188,13 @@ export class RecalculationDialogComponent {
     });
   }
 
+  /** Backdrop / Esc / X / "Close" all land here — once applied, the opener must still learn it. */
   close(): void {
     if (this.applying) return;
+    if (this.applied && this.preview) {
+      this.dialogRef.close({ applied: true, result: this.preview });
+      return;
+    }
     this.dialogRef.close(undefined);
   }
 }

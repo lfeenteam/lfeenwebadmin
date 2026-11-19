@@ -8,8 +8,10 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 import {
   PlatformOfferDetail,
   PlatformOfferStatistics,
+  normalizeDisplayChannel,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
+import { happyHourWindow } from './platform-offer.validators';
 import { appLocale } from 'src/app/utils/locale-format.util';
 @Component({
   selector: 'app-platform-offer-detail',
@@ -77,6 +79,19 @@ export class PlatformOfferDetailComponent implements OnInit {
     const key = `d3.platformOffers.enums.${value}`;
     const label = this.tr.instant(key);
     return label === key ? '—' : label;
+  }
+  /** Accepts both the enum name and the bare number older API builds send ("1" → All). */
+  channelLabel(value: unknown): string {
+    return this.enumLabel(normalizeDisplayChannel(value));
+  }
+  /** "Available from 22:00 to 02:00 (next day)", or "—" with no happy hour. */
+  happyHourLabel(o: PlatformOfferDetail): string {
+    const w = happyHourWindow(o.happyHourStart, o.happyHourEnd);
+    if (!w) return '—';
+    return this.tr.instant(
+      `d3.platformOffers.happyHour.summary${w.overnight ? 'NextDay' : ''}`,
+      { start: w.start, end: w.end },
+    );
   }
   private formatDate(value: string | null | undefined, includeTime: boolean): string {
     if (!value) return '—';

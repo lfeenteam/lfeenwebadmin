@@ -518,9 +518,22 @@
 }
 
 .hold-reasons {
-  margin: 0;
+  margin: 6px 0 0;
   padding-inline-start: 18px;
   overflow-wrap: anywhere;
+  font-size: 12px;
+  text-align: left;
+}
+
+// Raw core texts, for whoever needs to chase the refund — collapsed by default.
+.blocker-details {
+  font-size: 12px;
+
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: underline;
+  }
 }
 
 .block-action-btn {

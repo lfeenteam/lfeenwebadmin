@@ -86,6 +86,7 @@
           (rowSelect)="onRowSelect($event)"
           (detailSelect)="openHostComplaint($event)"
           (assignConfirm)="onAssignConfirm($event)"
+          (assignConflict)="onAssignConflict()"
           (searchChange)="activeTab() === 'customers' ? onCustomerSearchChange($event) : onResolvedSearchChange($event)"
           (statusFilterChange)="activeTab() === 'resolved' ? onResolvedTypeChange($event) : onCustomerStatusChange($event)"
           (pageChange)="activeTab() === 'customers' ? onCustomerPageChange($event) : (activeTab() === 'hosts' ? onHostPageChange($event) : onResolvedPageChange($event))"

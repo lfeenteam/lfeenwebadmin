@@ -3,16 +3,20 @@ import {
   DestroyRef,
   ElementRef,
   HostListener,
+  NgZone,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -51,6 +55,7 @@ const OPEN_ALL_UP_TO = 5;
     CommonModule,
     FormsModule,
     DragDropModule,
+    TextFieldModule,
     MatMenuModule,
     TranslateModule,
     TablerIconsModule,
@@ -108,8 +113,32 @@ export class AgreementPageComponent implements OnInit, HasUnsavedChanges {
       : this.translate.instant('d3.agreements.validation.bannerClause', { n, clause: this.labels.num(firstClause + 1) });
   });
 
+  /** The editor header is pinned to the top of the scroll area (adds its shadow). */
+  readonly headStuck = signal(false);
+  private readonly stickSentinel = viewChild<ElementRef<HTMLElement>>('stickSentinel');
+
   private id = 0;
   private loadSub?: Subscription;
+
+  constructor() {
+    const zone = inject(NgZone);
+    // The sentinel sits right above the sticky header: once it scrolls out of view the
+    // header is stuck. Re-observed whenever the sentinel is re-rendered (reload / new id).
+    effect((onCleanup) => {
+      const el = this.stickSentinel()?.nativeElement;
+      if (!el || typeof IntersectionObserver === 'undefined') {
+        this.headStuck.set(false);
+        return;
+      }
+      // The sentinel is near the top of the page (under the breadcrumbs), so "not
+      // visible" only ever means scrolled away above (clipped by .page-content).
+      const observer = new IntersectionObserver(([entry]) => {
+        zone.run(() => this.headStuck.set(!entry.isIntersecting));
+      });
+      observer.observe(el);
+      onCleanup(() => observer.disconnect());
+    });
+  }
 
   get dir(): 'rtl' | 'ltr' {
     return this.labels.dir;
@@ -496,16 +525,6 @@ export class AgreementPageComponent implements OnInit, HasUnsavedChanges {
     return this.editable()
       ? this.translate.instant('d3.agreements.editDraftTitle', { type: this.labels.typeLabel(v.type) })
       : `${this.labels.typeLabel(v.type)} · ${this.labels.versionLabel(v)}`;
-  }
-
-  publishedText(v: AgreementVersion): string {
-    if (!v.publishedAtUtc) return '—';
-    return [v.publishedBy, this.labels.date(v.publishedAtUtc)].filter(Boolean).join(' · ');
-  }
-
-  endedText(v: AgreementVersion): string {
-    if (!v.endedAtUtc) return '—';
-    return [this.labels.date(v.endedAtUtc), v.endedBy].filter(Boolean).join(' · ');
   }
 
   viewerClauses(v: AgreementVersion) {

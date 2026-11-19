@@ -407,7 +407,7 @@
                                 (click)="$event.stopPropagation()"
                                 [value]="form.controls.happyHourStart.value"
                                 (timeSelected)="
-                                  form.controls.happyHourStart.setValue($event)
+                                  setHappyHour('happyHourStart', $event)
                                 "
                               ></app-time-select>
                             </ng-template>
@@ -440,7 +440,7 @@
                                 (click)="$event.stopPropagation()"
                                 [value]="form.controls.happyHourEnd.value"
                                 (timeSelected)="
-                                  form.controls.happyHourEnd.setValue($event)
+                                  setHappyHour('happyHourEnd', $event)
                                 "
                               ></app-time-select>
                             </ng-template>
@@ -450,6 +450,9 @@
                           }
                         </label>
                       </div>
+                      @if (happyHourText(); as hint) {
+                        <small class="field-hint">{{ hint }}</small>
+                      }
                     }
                     @case ("stay") {
                       <div class="fields three">
@@ -929,6 +932,12 @@
             </small>
             <strong>{{ enumLabel(form.value.appliedTo) }}</strong>
           </div>
+          @if (happyHourText("summary"); as hh) {
+            <div>
+              <small>{{ "d3.platformOffers.fields.happyHour" | translate }}</small>
+              <strong>{{ hh }}</strong>
+            </div>
+          }
         </aside>
       </main>
       <footer class="sticky-actions">

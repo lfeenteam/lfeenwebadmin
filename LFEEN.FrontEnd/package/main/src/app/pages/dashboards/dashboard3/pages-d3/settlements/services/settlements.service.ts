@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   MerchantDebt,
@@ -33,8 +33,13 @@ export class SettlementsService {
    * statuses. Each status is fetched in full (every page) and the caller merges,
    * sorts and pages locally — that keeps ordering and paging correct.
    */
-  listAllByStatuses(statuses: readonly string[]): Observable<SettlementListResult> {
-    return forkJoin(statuses.map(s => this.listAllByStatus(s))).pipe(
+  listAllByStatuses(statuses: readonly string[], optional: readonly string[] = []): Observable<SettlementListResult> {
+    const empty: SettlementListResult = { items: [], summary: null };
+    return forkJoin(statuses.map(s => {
+      const all$ = this.listAllByStatus(s);
+      // An optional status the endpoint refuses must not take the whole tab down with it.
+      return optional.includes(s) ? all$.pipe(catchError(() => of(empty))) : all$;
+    })).pipe(
       map(groups => ({
         items: groups.flatMap(g => g.items),
         summary: groups.find(g => g.summary)?.summary ?? null,

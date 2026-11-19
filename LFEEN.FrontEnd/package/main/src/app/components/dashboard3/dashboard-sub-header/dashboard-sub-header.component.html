@@ -21,9 +21,11 @@
     [filterOptions]="filterOptions"
     [searchPlaceholder]="searchPlaceholder"
     [activeFilters]="activeFilters"
+    [serverSearchFilterIds]="serverSearchFilterIds"
     (activeTabChange)="selectTab($event)"
     (searchQueryChange)="onSearch($event)"
-    (filtersChange)="onFiltersChange($event)">
+    (filtersChange)="onFiltersChange($event)"
+    (filterSearchChange)="filterSearchChange.emit($event)">
   </app-tabs-filter>
 
   <div class="view-toggle-row">

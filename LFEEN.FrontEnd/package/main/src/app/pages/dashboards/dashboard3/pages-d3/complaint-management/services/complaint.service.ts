@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, delay, map, of } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChat, ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { EMPTY, Observable, delay, expand, map, of, reduce } from 'rxjs';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChatMessageOption, ClientChatMessageOptions, ClientChat,ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, ResolvedOutcome, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { ClientRatingByAgentItem, ClientRatingByAgentQueryParams, ClientRatingListResponse, ClientRatingQueryParams } from '../interfaces/ratings.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
@@ -175,6 +175,9 @@ export class ComplaintService {
     if (params.search) {
       httpParams = httpParams.set('search', params.search);
     }
+    if (params.isOpen !== undefined) {
+      httpParams = httpParams.set('isOpen', String(params.isOpen));
+    }
 
     return this.http.get<ClientTicketListResponse>(
       `${environment.apiBaseUrl}/api/client-tickets`,
@@ -274,6 +277,32 @@ export class ComplaintService {
       );
   }
 
+  /** Every assignable employee, walking all pages — for filter dropdowns that list the whole
+   * set at once (a single page used to cut the list off at the first 50). */
+  getAllAssignableEmployees(pageSize = 100): Observable<AssignableEmployee[]> {
+    return this.getAssignableEmployees(undefined, 1, pageSize).pipe(
+      expand(res => res.page < res.totalPages
+        ? this.getAssignableEmployees(undefined, res.page + 1, pageSize)
+        : EMPTY),
+      reduce((all, res) => all.concat(Array.isArray(res?.data) ? res.data : []), [] as AssignableEmployee[]),
+    );
+  }
+
+  /** The API's own message for a failed assign (e.g. TICKET_ASSIGN_CONFLICT names the current
+   * assignee) — null when the response carries none, so the caller can fall back. */
+  assignErrorMessage(err: unknown): string | null {
+    const body = err instanceof HttpErrorResponse ? err.error : null;
+    const message = body && typeof body === 'object' ? (body as { message?: unknown }).message : null;
+    return typeof message === 'string' && message.trim() ? message : null;
+  }
+
+  isAssignConflict(err: unknown): boolean {
+    const body = err instanceof HttpErrorResponse ? err.error : null;
+    if (!body || typeof body !== 'object') return false;
+    const b = body as { errorCode?: unknown; code?: unknown };
+    return b.errorCode === 'TICKET_ASSIGN_CONFLICT' || b.code === 'TICKET_ASSIGN_CONFLICT';
+  }
+
   mapClientTicketToComplaint(t: ClientTicket): Complaint {
     const clientName = t.clientName ?? '-';
     return {
@@ -355,7 +384,52 @@ export class ComplaintService {
   }
 
   mapClientChatMessages(messages: ClientChatMessage[]): ChatMessage[] {
-    return messages.map(m => this.mapClientChatMessage(m));
+    return this.labelOptionReplies(messages.map(m => this.mapClientChatMessage(m)));
+  }
+
+  /** A client's tap on a bot button is stored as the option key ("payment"); show it by the
+   * label of the button it came from (labelAr / labelEn of the latest bot options before it).
+   * Run on the whole thread after any merge — the bot prompt may sit in an older page.
+   * Free text that matches no offered key is left as typed. */
+  labelOptionReplies(messages: ChatMessage[]): ChatMessage[] {
+    let offered: ClientChatMessageOption[] | undefined;
+    return messages.map(m => {
+      if (m.senderRole !== 'client') {
+        if (m.options?.length) offered = m.options;
+        return m;
+      }
+      const reply = m.content?.trim().toLowerCase();
+      const option = reply ? offered?.find(o => o.key?.trim().toLowerCase() === reply) : undefined;
+      if (!option) return m;
+      const ar = option.labelAr?.trim() || option.labelEn?.trim() || m.content;
+      const en = option.labelEn?.trim() || ar;
+      return { ...m, content: ar, contentEn: en };
+    });
+  }
+
+  /** The hub sends a bot message's options as a JSON string; tolerate either key casing
+   * and any malformed payload (a bad string just means no labels, not a broken chat). */
+  parseHubOptions(optionsJson: string | null | undefined): ClientChatMessageOptions | null {
+    if (!optionsJson) return null;
+    try {
+      const raw = JSON.parse(optionsJson);
+      const list: unknown = raw?.options ?? raw?.Options ?? (Array.isArray(raw) ? raw : null);
+      if (!Array.isArray(list)) return null;
+      const options = list
+        .map((o: any) => ({
+          key: String(o?.key ?? o?.Key ?? ''),
+          labelAr: String(o?.labelAr ?? o?.LabelAr ?? ''),
+          labelEn: String(o?.labelEn ?? o?.LabelEn ?? ''),
+        }))
+        .filter(o => o.key);
+      return {
+        interactionId: String(raw?.interactionId ?? raw?.InteractionId ?? ''),
+        inputType: String(raw?.inputType ?? raw?.InputType ?? ''),
+        options,
+      };
+    } catch {
+      return null;
+    }
   }
 
   mapClientChatToComplaint(chat: ClientChat, fallback?: Complaint): Complaint {
@@ -395,7 +469,7 @@ export class ComplaintService {
       dateEn: new Date(session.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       type: 'customer',
       resolved: session.status === 'Resolved' || session.status === 'Closed' || !!session.closedAtUtc,
-      messages: session.messages.map(m => this.mapClientChatMessage(m)),
+      messages: this.mapClientChatMessages(session.messages),
       hasMoreMessages: session.hasMoreMessages,
       subject: fallback?.subject,
       assignedAdminName: session.assignedAgentName,
@@ -406,10 +480,13 @@ export class ComplaintService {
    * Only the attachment fields the bubble shows are required (the hub event omits the rest). */
   mapClientChatMessage(
     m: Omit<ClientChatMessage, 'options' | 'attachment'> & {
+      options?: ClientChatMessageOptions | null;
       attachment: Pick<ClientTicketMessageAttachment, 'fileName' | 'url' | 'contentType'> | null;
     }
   ): ChatMessage {
+    const options = m.options?.options?.filter(o => !!o?.key);
     return {
+      ...(options?.length ? { options } : {}),
       id: m.externalId,
       senderRole: m.senderType === 'Client' ? 'client' : 'support',
       senderName: m.senderName,
@@ -470,7 +547,8 @@ export class ComplaintService {
     // new Date(null) is the 1970 epoch — show '-' instead when the backend has no reply date
     const repliedAt = item.repliedAtUtc ? new Date(item.repliedAtUtc) : null;
     const replyDateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    const clientName = item.userName ?? item.accountName ?? '-';
+    // `||` not `??` — the API can send userName as "" which `??` would keep as a blank cell.
+    const clientName = item.userName?.trim() || item.accountName?.trim() || '-';
     return {
       id: item.externalId,
       ticketId: item.ticketNumber,
@@ -486,7 +564,14 @@ export class ComplaintService {
       subject: item.subject,
       replyDate: repliedAt ? repliedAt.toLocaleDateString(AR_DATE_LOCALE, replyDateOptions) : '-',
       replyDateEn: repliedAt ? repliedAt.toLocaleDateString('en-US', replyDateOptions) : '-',
+      resolvedOutcome: this.mapResolvedOutcome(item),
     };
+  }
+
+  private mapResolvedOutcome(item: TicketsOverviewItem): ResolvedOutcome {
+    if (item.closedBySelf === true || item.status === 'ClosedByClient') return 'closedBySelf';
+    if (item.status === 'ClosedByAdmin') return 'closedByAdmin';
+    return 'resolvedByAgent';
   }
 
   private mapTicketStatus(status: string | number): ComplaintStatus {

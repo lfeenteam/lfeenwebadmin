@@ -99,7 +99,7 @@
                 <small>
                   {{ "d3.platformOffers.fields.channel" | translate }}
                 </small>
-                <strong>{{ enumLabel(o.displayChannel) }}</strong>
+                <strong>{{ channelLabel(o.displayChannel) }}</strong>
               </div>
             </div>
           }
@@ -140,6 +140,12 @@
                   {{ "d3.platformOffers.fields.expiration" | translate }}
                 </small>
                 <strong>{{ enumLabel(o.expirationPolicy) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.happyHour" | translate }}
+                </small>
+                <strong>{{ happyHourLabel(o) }}</strong>
               </div>
             </div>
           }

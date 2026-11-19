@@ -49,13 +49,14 @@
             </button>
 
             <mat-menu #filterMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
-              @if (filter.items.length > 6) {
+              @if (showFilterSearch(filter)) {
                 <div class="filter-search-wrapper" (click)="stopPropagation($event)">
                   <input
                     type="text"
                     class="filter-search-input"
                     placeholder="بحث..."
-                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                    [ngModel]="filterSearchTerms[filter.id]"
+                    (ngModelChange)="onFilterSearchInput(filter, $event)" />
                 </div>
               }
               @for (item of getFilteredItems(filter); track item.value) {
@@ -117,13 +118,14 @@
               <i-tabler name="chevron-down" class="pill-chevron"></i-tabler>
             </button>
             <mat-menu #mobileMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
-              @if (filter.items.length > 6) {
+              @if (showFilterSearch(filter)) {
                 <div class="filter-search-wrapper" (click)="stopPropagation($event)">
                   <input
                     type="text"
                     class="filter-search-input"
                     placeholder="بحث..."
-                    [(ngModel)]="filterSearchTerms[filter.id]" />
+                    [ngModel]="filterSearchTerms[filter.id]"
+                    (ngModelChange)="onFilterSearchInput(filter, $event)" />
                 </div>
               }
               @for (item of getFilteredItems(filter); track item.value) {

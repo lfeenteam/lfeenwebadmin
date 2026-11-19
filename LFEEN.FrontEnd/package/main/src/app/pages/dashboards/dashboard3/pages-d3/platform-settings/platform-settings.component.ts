@@ -34,6 +34,16 @@ const GENERAL_FIELD_MAP: Record<string, GeneralField> = {
   'request.timezone': 'timeZone',
 };
 
+// Same limits as the API validator and DB columns; every field is required.
+const GENERAL_MAX_LENGTH: Record<GeneralField, number> = {
+  platformName: 200,
+  platformUrl: 500,
+  supportEmail: 256,
+  timeZone: 100,
+};
+const GENERAL_FIELD_ORDER: GeneralField[] = ['platformName', 'platformUrl', 'supportEmail', 'timeZone'];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 interface ActiveSession {
   id: string;
   name: string;
@@ -274,6 +284,13 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
       supportEmail: this.form.supportEmail.trim(),
       timeZone: this.form.timeZone,
     };
+    const errors = this.validateGeneral(body);
+    const firstInvalid = GENERAL_FIELD_ORDER.find(f => errors[f]);
+    if (firstInvalid) {
+      this.fieldErrors = errors;
+      document.getElementById(firstInvalid)?.focus();
+      return;
+    }
     this.fieldErrors = {};
     this.saving.set(true);
 
@@ -434,6 +451,30 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
     if (amount > REVIEW_REWARD_LIMITS.max) return 'd3.settings.reviewReward.errors.range';
     if (Math.abs(amount * 100 - Math.round(amount * 100)) > 1e-6) return 'd3.settings.reviewReward.errors.decimals';
     return null;
+  }
+
+  /** Mirrors the API rules so bad values never reach PUT /api/settings/general. */
+  private validateGeneral(body: UpdatePlatformGeneralSettings): Partial<Record<GeneralField, string>> {
+    const t = (key: string, params?: object) => this.translate.instant(`d3.settings.sysInfo.errors.${key}`, params);
+    const errors: Partial<Record<GeneralField, string>> = {};
+
+    for (const field of GENERAL_FIELD_ORDER) {
+      const value = body[field] ?? '';
+      if (!value) errors[field] = t(`required.${field}`);
+      else if (value.length > GENERAL_MAX_LENGTH[field]) errors[field] = t('maxLength', { max: GENERAL_MAX_LENGTH[field] });
+    }
+    if (!errors.platformUrl && !this.isHttpUrl(body.platformUrl)) errors.platformUrl = t('urlInvalid');
+    if (!errors.supportEmail && !EMAIL_PATTERN.test(body.supportEmail)) errors.supportEmail = t('emailInvalid');
+    return errors;
+  }
+
+  private isHttpUrl(value: string): boolean {
+    try {
+      const url = new URL(value);
+      return (url.protocol === 'http:' || url.protocol === 'https:') && !!url.hostname;
+    } catch {
+      return false;
+    }
   }
 
   private fillReward(res: ReviewRewardSettings): void {

@@ -78,7 +78,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
       });
     } else if (this.ticketExternalId) {
       this.service.getClientTicketById(this.ticketExternalId).subscribe({
-        next: detail => this.applyTicketInfo(detail.sessionNumber ?? detail.ticketNumber ?? this.ticketExternalId ?? '', null, detail.assignedAgentName),
+        next: detail => this.applyTicketInfo(detail.sessionNumber ?? detail.ticketNumber ?? this.ticketExternalId ?? '', detail.assignedAgentUserId ?? null, detail.assignedAgentName),
         error: () => this.applyTicketInfo(this.ticketExternalId, null, null),
       });
     }
@@ -177,7 +177,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
           this.toastr.success(this.translate.instant('d3.complaints.assignDialog.success'));
           this.returnToTicket();
         },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp'))
+        error: err => this.toastr.error(this.service.assignErrorMessage(err) ?? this.translate.instant('d3.toast.errorOp'))
       });
   }
 

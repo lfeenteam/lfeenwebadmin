@@ -129,6 +129,11 @@ export interface BookingFinancialSummary {
   currencyCode: string;
   pricePerNight: number;
   nights: number;
+  /** Rent for the nights only (nights × price per night). */
+  baseRentAmount?: number;
+  /** Fees added to the booking after it was made (e.g. early check-in). */
+  additionalFeesAmount?: number;
+  /** Total amount due: baseRentAmount + additionalFeesAmount. */
   totalRentAmount: number;
   paidRentAmount: number;
   remainingRentAmount: number;

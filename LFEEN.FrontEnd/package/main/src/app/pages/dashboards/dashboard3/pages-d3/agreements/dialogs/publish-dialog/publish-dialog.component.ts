@@ -43,7 +43,7 @@ export class PublishDialogComponent {
     return [
       this.translate.instant('d3.agreements.status.Draft'),
       this.labels.title(this.data.draft),
-      this.translate.instant('d3.agreements.clausesN', { n: this.labels.num(this.data.draft.clauseCount) }),
+      this.labels.clauses(this.data.draft.clauseCount),
     ].join(' · ');
   }
 

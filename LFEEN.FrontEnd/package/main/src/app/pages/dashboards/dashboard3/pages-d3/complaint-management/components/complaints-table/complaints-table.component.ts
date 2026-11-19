@@ -45,6 +45,9 @@ export class ComplaintsTableComponent implements OnChanges {
   @Output() detailSelect = new EventEmitter<Complaint>();
   /** Fired once an employee is picked from the inline assign popover and the assignment call succeeds. */
   @Output() assignConfirm = new EventEmitter<{ complaintId: string; employee: AssignableEmployee }>();
+  /** Fired when the API rejects an assign because the ticket's assignee changed under us —
+   * the row is stale, so the parent refetches the list. */
+  @Output() assignConflict = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusFilterChange = new EventEmitter<number | string | null>();
   @Output() pageChange = new EventEmitter<number>();
@@ -197,6 +200,20 @@ export class ComplaintsTableComponent implements OnChanges {
       resolved:    'd3.complaints.status.resolved',
     };
     return map[status] ?? '';
+  }
+
+  /** "resolved" tab badge — the ticket's real ending, not a blanket "replied & resolved". */
+  resolvedOutcomeLabelKey(complaint: Complaint): string {
+    switch (complaint.resolvedOutcome) {
+      case 'closedBySelf':
+        return complaint.type === 'host'
+          ? 'd3.complaints.resolvedOutcome.closedByHost'
+          : 'd3.complaints.resolvedOutcome.closedByClient';
+      case 'closedByAdmin':
+        return 'd3.complaints.resolvedOutcome.closedByAdmin';
+      default:
+        return 'd3.complaints.resolvedOutcome.resolvedByAgent';
+    }
   }
 
   displayClientName(complaint: Complaint): string {
@@ -420,7 +437,10 @@ export class ComplaintsTableComponent implements OnChanges {
           this.toastr.success(this.translate.instant('d3.complaints.assignDialog.success'));
           this.assignConfirm.emit({ complaintId: complaint.id, employee });
         },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
+        error: err => {
+          this.toastr.error(this.complaintService.assignErrorMessage(err) ?? this.translate.instant('d3.toast.errorOp'));
+          if (this.complaintService.isAssignConflict(err)) this.assignConflict.emit();
+        },
       });
   }
 

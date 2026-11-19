@@ -27,11 +27,14 @@ export class DashboardSubHeaderComponent {
   @Input() searchPlaceholder: string = 'd3.allBuilds.filters.searchPlaceholder';
   /** Optional: lets the parent reset the filter dropdowns (see app-tabs-filter). */
   @Input() activeFilters: Record<string, string> | undefined;
+  /** Optional: filter dropdowns searched on the server (see app-tabs-filter). */
+  @Input() serverSearchFilterIds: string[] = [];
 
   @Output() activeTabChange = new EventEmitter<string>();
   @Output() searchQueryChange = new EventEmitter<string>();
   @Output() viewModeChange = new EventEmitter<ViewMode>();
   @Output() filtersChange = new EventEmitter<Record<string, string>>();
+  @Output() filterSearchChange = new EventEmitter<{ filterId: string; term: string }>();
 
   selectTab(tabId: string): void {
     this.activeTabChange.emit(tabId);

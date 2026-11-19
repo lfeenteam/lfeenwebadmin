@@ -7,6 +7,7 @@ import { pageFlagGuard } from './guards/page-flag.guard';
 import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 import { settingsViewGuard } from './guards/settings-view.guard';
 import { cancellationRefundsViewGuard } from './guards/cancellation-refunds-view.guard';
+import { settlementDebtsRedirectGuard } from './guards/settlement-debts-redirect.guard';
 import {
   agreementsViewGuard,
   unsavedAgreementGuard,
@@ -362,12 +363,8 @@ export const routes: Routes = [
                 // (and its ?accountId= filter) still opens that tab.
                 path: 'settlement-debts',
                 pathMatch: 'full',
-                redirectTo: ({ queryParams }) => {
-                  const accountId = queryParams['accountId'];
-                  return accountId
-                    ? `settlements?tab=debts&accountId=${encodeURIComponent(accountId)}`
-                    : 'settlements?tab=debts';
-                },
+                canActivate: [settlementDebtsRedirectGuard],
+                children: [],
               },
               {
                 path: 'demo-accounts',

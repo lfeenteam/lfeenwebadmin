@@ -167,15 +167,19 @@ export interface RecalculationPreviewItem {
 }
 
 /**
- * What a payout listed by recalculation-preview actually needs, from its dry run:
- * - `needed`  — totals change and nothing blocks: recalculate before executing.
- * - `onHold`  — something blocks it (e.g. a refund under manual review): wait, recalculating won't help.
+ * What a payout listed by recalculation-preview actually needs, from its dry run (guide §4.1):
+ * - `needed`  — totals change: recalculate before executing ("Needs recalculation"). Blockers,
+ *               if any, are shown in the dialog and lock Apply.
+ * - `onHold`  — blockers and nothing to change: a refund on one of its bookings is still
+ *               running ("Refund in progress") — wait, recalculating won't help.
  * - `none`    — nothing changes and nothing blocks: execute as normal.
  */
 export type RecalculationState = 'needed' | 'onHold' | 'none';
 
 export function recalculationStateOf(result: { hasChanges?: boolean | null; blockers?: RecalculationBlocker[] | null }): RecalculationState {
-  if ((result.blockers ?? []).some(b => !!(typeof b === 'string' ? b.trim() : (b?.message || b?.code)))) return 'onHold';
+  const blocked = (result.blockers ?? []).some(b => !!(typeof b === 'string' ? b.trim() : (b?.message || b?.code)));
+  if (result.hasChanges === true) return 'needed';
+  if (blocked) return 'onHold';
   return result.hasChanges === false ? 'none' : 'needed';
 }
 
@@ -231,7 +235,19 @@ export type PayoutBlockKind = 'needsRecalculation' | 'refundInProgress' | 'debtO
 /** Statuses on which execute / fail are accepted by the backend. */
 export const ACTIONABLE_STATUSES: readonly string[] = ['Pending', 'Processing'];
 
-export const CURRENT_TAB_STATUSES: readonly string[] = ['Pending', 'Processing'];
+/**
+ * Payouts not transferred yet — the only ones recalculation-preview covers and that can be
+ * recalculated (guide §4.1 / §6.1). Processing payouts have left the bank and never need it.
+ */
+export const RECALCULABLE_STATUSES: readonly string[] = ['Pending', 'Failed', 'OnHold'];
+
+/**
+ * OnHold payouts are still owed to the merchant (and may need recalculating), so they belong
+ * with the current ones. The list endpoint may not accept OnHold yet — that status is fetched
+ * as optional and simply left out if refused.
+ */
+export const CURRENT_TAB_STATUSES: readonly string[] = ['Pending', 'Processing', 'OnHold'];
+export const OPTIONAL_LIST_STATUSES: readonly string[] = ['OnHold'];
 export const PREVIOUS_TAB_STATUSES: readonly string[] = ['Completed', 'PartiallyCompleted', 'Failed'];
 
 // Receipt upload rules — the server doesn't enforce them, so the UI must.
