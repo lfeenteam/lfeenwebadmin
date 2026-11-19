@@ -358,17 +358,15 @@ export const routes: Routes = [
                 },
               },
               {
+                // Merchant debts now live in a tab of Settlements; the old address
+                // (and its ?accountId= filter) still opens that tab.
                 path: 'settlement-debts',
-                canActivate: [authGuard, pageFlagGuard('settlement-debts')],
-                loadComponent: () =>
-                  import(
-                    './pages/dashboards/dashboard3/pages-d3/settlements/merchant-debts/merchant-debts.component'
-                  ).then((m) => m.MerchantDebtsComponent),
-                data: {
-                  header: 'page',
-                  titleKey: 'd3.settlements.debts.title',
-                  breadcrumbKey: 'd3.header.platform',
-                  showDate: true
+                pathMatch: 'full',
+                redirectTo: ({ queryParams }) => {
+                  const accountId = queryParams['accountId'];
+                  return accountId
+                    ? `settlements?tab=debts&accountId=${encodeURIComponent(accountId)}`
+                    : 'settlements?tab=debts';
                 },
               },
               {

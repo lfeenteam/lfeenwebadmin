@@ -14,6 +14,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { MatDialog } from '@angular/material/dialog';
 import { LoginService } from '../../services/login/login.service';
+import { transportErrorMessage } from '../../utils/transport-error.util';
 import {
   CANCELLATION_REFUND_PERMISSIONS, CancellationRefund, hasCancellationRefundPermission, isRetryable,
 } from './cancellation-refund.model';
@@ -196,6 +197,11 @@ export class CancellationRefundsComponent implements OnInit {
     const message: string | undefined = err?.error?.errors?.[0]?.message ?? err?.error?.message;
     if (err?.status === 400 && message?.trim()) {
       this.toastr.error(message);
+      return;
+    }
+    const transport = transportErrorMessage(err, this.translate);
+    if (transport) {
+      this.toastr.error(transport);
       return;
     }
     const fallback = err?.status === 403

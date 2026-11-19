@@ -10,6 +10,7 @@ import {
   CancellationRefund, RESOLVE_NOTE_MAX_LENGTH, RESOLVE_REFERENCE_MAX_LENGTH,
 } from '../cancellation-refund.model';
 import { CancellationRefundsService } from '../cancellation-refunds.service';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 export interface CancellationResolveDialogData {
   row: CancellationRefund;
@@ -113,6 +114,8 @@ export class CancellationResolveDialogComponent {
     // A timeout or dropped connection may still have closed the case — check before resending.
     if (!err?.status) return this.translate.instant('d3.cancellationRefunds.resolveDialog.errors.uncertain');
     if (err.status === 403) return this.translate.instant('d3.cancellationRefunds.errors.forbiddenResolve');
+    const transport = transportErrorMessage(err, this.translate);
+    if (transport) return transport;
     // REFUND_RECORD_FAILED and validation errors carry their own explanation.
     if (message && err.status < 500) return message;
     return this.translate.instant(err.status >= 500 ? 'd3.cancellationRefunds.errors.network' : 'd3.toast.errorOp');

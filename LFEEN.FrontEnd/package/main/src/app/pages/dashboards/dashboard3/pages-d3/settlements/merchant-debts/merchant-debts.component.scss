@@ -17,24 +17,6 @@
   margin-bottom: 16px;
 }
 
-.back-btn {
-  all: unset;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 10px;
-  border: 1px solid #E2E8F0;
-  background: #fff;
-  color: #111110;
-  font-size: 13px;
-  font-weight: 700;
-  &:hover { background: #F8FAFC; }
-}
-
 .search-wrapper {
   position: relative;
   flex: 1 1 260px;
@@ -146,6 +128,9 @@
   font-size: 13px;
   font-weight: 700;
   color: #111110;
+  // Long names (and the accountId fallback) wrap instead of widening the table.
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .claim-badge {
@@ -157,6 +142,10 @@
   color: #dc2626;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
+
+  // isClaim=false: the debt nets off future settlements — a heads-up, not a claim.
+  &--alert { border-color: #fde68a; background: #fffbeb; color: #b45309; }
 }
 
 .amount {
@@ -198,8 +187,12 @@
 
 .line {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1.2fr 1fr 1fr;
+  // Set per merchant: columns the API sent no value for are left out.
+  grid-template-columns: var(--line-cols, 1.4fr 1.3fr 1fr 0.9fr 0.9fr 0.9fr 1fr);
   gap: 8px;
+  min-width: 0;
+
+  > span { min-width: 0; overflow-wrap: anywhere; }
   padding: 10px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -220,7 +213,25 @@
   font-size: 11px;
   font-weight: 500;
   color: #9E9E9A;
+  // A long description wraps — it must never push the other columns out of view.
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
+
+.line-kind {
+  display: inline-flex;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.line-main { display: flex; flex-direction: column; align-items: flex-start; }
+.line-net { font-weight: 800; }
 
 .retry-btn {
   all: unset;
@@ -259,6 +270,7 @@
     color: #9E9E9A;
   }
 
-  .line { grid-template-columns: 1fr 1fr; }
+  .line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .line--head { display: none; }
+  .line-main { grid-column: 1 / -1; }
 }

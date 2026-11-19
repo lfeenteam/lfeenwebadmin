@@ -21,9 +21,21 @@ export function parseApiUtc(iso: string | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Saudi time is UTC+3 all year (no DST), so a fixed offset is exact.
+const RIYADH_OFFSET_MS = 3 * 60 * 60 * 1000;
+const pad2 = (n: number) => n.toString().padStart(2, '0');
+
+/**
+ * Shifts a UTC instant so its getUTC* fields read as Riyadh wall-clock time,
+ * independent of the viewer's browser time zone.
+ */
+function toRiyadhFields(d: Date): Date {
+  return new Date(d.getTime() + RIYADH_OFFSET_MS);
+}
+
 /**
  * Formats a UTC API timestamp in the viewer's local time zone (unlike formatLocalizedDateTime,
- * which keeps UTC). Returns null if invalid.
+ * which always uses Riyadh time). Returns null if invalid.
  */
 export function formatApiDateLocal(iso: string | null | undefined, lang: string, withTime = false): string | null {
   const d = parseApiUtc(iso);
@@ -36,37 +48,34 @@ export function formatApiDateLocal(iso: string | null | undefined, lang: string,
   });
 }
 
-/** Formats a UTC ISO string into localized "D Month YYYY" / "HH:mm" parts, or null if invalid. */
+/**
+ * Formats a UTC ISO string in Riyadh time into localized "D Month YYYY" / "hh:mm AM" parts
+ * (e.g. "15 نوفمبر 2026" / "03:00 م"), matching what the host app shows. Null if invalid.
+ */
 export function formatLocalizedDateTime(
   iso: string | null | undefined,
   lang: string
 ): { date: string; time: string } | null {
-  const d = parseApiUtc(iso);
-  if (!d) return null;
+  const parsed = parseApiUtc(iso);
+  if (!parsed) return null;
+  const d = toRiyadhFields(parsed);
 
   const months = monthsFor(lang);
+  const hours = d.getUTCHours();
+  const hours12 = hours % 12 || 12;
+  const isPm = hours >= 12;
+  const period = lang === 'en' ? (isPm ? 'PM' : 'AM') : (isPm ? 'م' : 'ص');
   return {
     date: `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`,
-    time: `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`,
+    time: `${pad2(hours12)}:${pad2(d.getUTCMinutes())} ${period}`,
   };
 }
 
-/** Formats a UTC ISO string into a localized "D Month" label, or '-' if invalid. */
+/** Formats a UTC ISO string into a localized "D Month" label in Riyadh time, or '-' if invalid. */
 export function formatLocalizedDayMonth(iso: string | null | undefined, lang: string): string {
-  const d = parseApiUtc(iso);
-  if (!d) return '-';
+  const parsed = parseApiUtc(iso);
+  if (!parsed) return '-';
+  const d = toRiyadhFields(parsed);
 
   return `${d.getUTCDate()} ${monthsFor(lang)[d.getUTCMonth()]}`;
-}
-
-/**
- * Formats a naive "wall clock" ISO string (no timezone, e.g. a property-local
- * check-in time) into a localized "D Month" label without any offset shifting.
- */
-export function formatNaiveDayMonth(iso: string | Date | null | undefined, lang: string): string {
-  if (!iso) return '-';
-  const d = iso instanceof Date ? iso : new Date(iso);
-  if (isNaN(d.getTime())) return '-';
-
-  return `${d.getDate()} ${monthsFor(lang)[d.getMonth()]}`;
 }

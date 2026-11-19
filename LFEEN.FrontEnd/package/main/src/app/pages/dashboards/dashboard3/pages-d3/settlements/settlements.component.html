@@ -9,12 +9,20 @@
       <button type="button" class="tab-btn" [class.active]="activeTab === 'current'" (click)="setActiveTab('current')">
         {{ 'd3.settlements.tabs.current' | translate }}
       </button>
+      @if (debtsEnabled) {
+        <button type="button" class="tab-btn" [class.active]="activeTab === 'debts'" (click)="setActiveTab('debts')">
+          {{ 'd3.settlements.tabs.debts' | translate }}
+          @if (debtsCount) {
+            <span class="tab-count">{{ fmt(debtsCount) }}</span>
+          }
+        </button>
+      }
     </div>
-    <button type="button" class="debts-link-btn" (click)="openDebts()">
-      <i-tabler name="report-money" class="icon-16"></i-tabler>
-      {{ 'd3.settlements.debts.title' | translate }}
-    </button>
   </div>
+
+  @if (activeTab === 'debts') {
+    <app-merchant-debts (loaded)="onDebtsLoaded($event)"></app-merchant-debts>
+  } @else {
 
   <!-- Stats -->
   <div class="stats-row">
@@ -155,10 +163,15 @@
                     <span class="dot"></span>
                     {{ row.statusKey ? (row.statusKey | translate) : row.status }}
                   </span>
-                  @if (row.needsRecalculation) {
+                  @if (row.recalcState === 'needed') {
                     <span class="recalc-badge">
                       <i-tabler name="calculator" class="icon-12"></i-tabler>
                       {{ 'd3.settlements.recalc.badge' | translate }}
+                    </span>
+                  } @else if (row.recalcState === 'onHold') {
+                    <span class="recalc-badge recalc-badge--hold">
+                      <i-tabler name="clock-pause" class="icon-12"></i-tabler>
+                      {{ 'd3.settlements.recalc.onHoldBadge' | translate }}
                     </span>
                   }
                   @if (row.status === 'Failed' && row.rejectionReason !== undefined) {
@@ -170,7 +183,7 @@
               </td>
               <td class="p-24 text-center">
                 <div class="row-actions">
-                  @if (row.needsRecalculation && canExecute()) {
+                  @if (row.recalcState === 'needed' && canExecute()) {
                     <button type="button" class="recalc-btn"
                             [disabled]="recalculatingId !== null"
                             [attr.aria-label]="'d3.settlements.recalc.openBtn' | translate"
@@ -237,6 +250,8 @@
         </button>
       </div>
     </div>
+  }
+
   }
 
 </div>

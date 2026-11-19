@@ -102,6 +102,17 @@ export class ReviewBasicInfoComponent implements OnInit {
       .filter(view => !!view.name);
   }
 
+  // null → individual-account property (or an older backend): the section is hidden.
+  // Kept in the backend's order, which follows the spoken-languages catalog.
+  get spokenLanguages(): { code: string; name: string }[] | null {
+    const languages = this.basicData?.spokenLanguages;
+    if (!languages) return null;
+    return languages.map(language => ({
+      code: language.code,
+      name: language.displayName?.trim() || language.code
+    }));
+  }
+
   // iconUrl comes from the backend; the name-matched tabler icon stays as the
   // fallback until every environment sends it.
   get amenities(): { icon: string; iconKey: string | null; iconUrl: string | null; label: string; highlighted: boolean }[] {

@@ -7,7 +7,7 @@ import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiIte
 import { ApproveReviewReportRequest, ReviewReportItem, ReviewTargetField } from '../interfaces/review-report.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
-import { formatNaiveDayMonth } from 'src/app/utils/date-format.util';
+import { formatLocalizedDayMonth } from 'src/app/utils/date-format.util';
 
 const BOOKING_STATUS_LABEL_KEY: Record<BookingStatus, string> = {
   blocked:           'd3.bookings.status.blocked',
@@ -170,8 +170,8 @@ export class BookingService {
       amount,
       status,
       isClientPortalBooking,
-      checkInLabel: formatNaiveDayMonth(checkIn, lang),
-      checkOutLabel: formatNaiveDayMonth(checkOut, lang),
+      checkInLabel: formatLocalizedDayMonth(item.checkIn, lang),
+      checkOutLabel: formatLocalizedDayMonth(item.checkOut, lang),
       amountLabel: formatLocalizedNumber(amount, lang),
       statusLabel: status ? this.translate.instant(BOOKING_STATUS_LABEL_KEY[status]) : '-',
       canModify: isClientPortalBooking && MODIFIABLE_STATUSES.has(status),

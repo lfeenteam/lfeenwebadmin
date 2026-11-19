@@ -511,6 +511,18 @@
   gap: 8px;
 }
 
+.block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hold-reasons {
+  margin: 0;
+  padding-inline-start: 18px;
+  overflow-wrap: anywhere;
+}
+
 .block-action-btn {
   all: unset;
   box-sizing: border-box;

@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 /**
  * The admin API forwards EQAMATIK errors as `{ success: false, message, errorCode }`.
@@ -19,6 +20,8 @@ export function resolveSubscriptionError(err: unknown, translate: TranslateServi
     if (translated !== key) return translated;
   }
 
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return transport;
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
   if (e.status === 404) return message || t('notFound');

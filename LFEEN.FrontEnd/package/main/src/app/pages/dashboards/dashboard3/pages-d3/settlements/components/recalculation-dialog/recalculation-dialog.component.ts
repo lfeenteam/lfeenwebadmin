@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { filter } from 'rxjs';
 import { PayoutRecalculation, RecalculationAdjustment } from '../../interfaces/settlement.model';
 import { resolveSettlementError } from '../../interfaces/settlement-error.util';
+import { adjustmentKindKey, blockerTexts } from '../../interfaces/settlement-labels.util';
 import { SettlementsService } from '../../services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
@@ -25,7 +26,12 @@ interface FigureRow {
   labelKey: string;
   oldValue: number;
   newValue: number;
+  /** new − old, rounded to halalas. */
+  diff: number;
 }
+
+/** How an adjustment changes the payout's lines. */
+type AdjustmentChange = 'new' | 'removed' | null;
 
 const EMPTY = '-';
 
@@ -82,18 +88,29 @@ export class RecalculationDialogComponent {
   get figures(): FigureRow[] {
     const p = this.preview;
     if (!p) return [];
+    const row = (labelKey: string, oldValue: number, newValue: number): FigureRow =>
+      ({ labelKey, oldValue, newValue, diff: round2((newValue ?? 0) - (oldValue ?? 0)) });
     return [
-      { labelKey: 'd3.settlements.recalc.gross', oldValue: p.oldGross, newValue: p.newGross },
-      { labelKey: 'd3.settlements.recalc.fee', oldValue: p.oldFee, newValue: p.newFee },
-      { labelKey: 'd3.settlements.recalc.net', oldValue: p.oldNet, newValue: p.newNet },
+      row('d3.settlements.recalc.gross', p.oldGross, p.newGross),
+      row('d3.settlements.recalc.fee', p.oldFee, p.newFee),
+      row('d3.settlements.recalc.net', p.oldNet, p.newNet),
     ];
   }
 
+  /** Signed difference, e.g. "+12.50" / "−12.50"; "0.00" when unchanged. */
+  fmtDiff(value: number): string {
+    if (!value) return this.fmt(0);
+    return `${value > 0 ? '+' : '−'}${this.fmt(Math.abs(value))}`;
+  }
+
+  /** Server reasons, with known/unknown codes worded for the admin. */
   get blockers(): string[] {
-    return (this.preview?.blockers ?? [])
-      .map(b => (typeof b === 'string' ? b : b?.message ?? b?.code ?? ''))
-      .map(b => String(b).trim())
-      .filter(Boolean);
+    return blockerTexts(this.preview?.blockers, this.translate);
+  }
+
+  /** Nothing to recalculate, yet something holds the payout (e.g. a refund under manual review). */
+  get isOnHold(): boolean {
+    return !!this.preview && !this.preview.hasChanges && this.blockers.length > 0;
   }
 
   get adjustments(): RecalculationAdjustment[] {
@@ -104,9 +121,19 @@ export class RecalculationDialogComponent {
     return !!this.preview && this.preview.hasChanges && !this.blockers.length && !this.applying;
   }
 
-  adjustmentKindKey(kind: string): string | null {
-    if (kind === 'RefundAfterPayout') return 'd3.settlements.recalc.kind.refundAfterPayout';
-    if (kind === 'RefundAfterSettlement') return 'd3.settlements.recalc.kind.refundAfterSettlement';
+  adjustmentKindKey(kind: string): string {
+    return adjustmentKindKey(kind);
+  }
+
+  /**
+   * `new`: the adjustment has no payout line yet (entryId explicitly null).
+   * `removed`: every new figure is 0 while the line had a value — it drops out of the payout.
+   */
+  adjustmentChange(adj: RecalculationAdjustment): AdjustmentChange {
+    if ('entryId' in adj && adj.entryId === null) return 'new';
+    const isZero = (v: number | null | undefined) => typeof v === 'number' && round2(v) === 0;
+    const hadValue = [adj.oldGross, adj.oldFee, adj.oldNet].some(v => typeof v === 'number' && round2(v) !== 0);
+    if (hadValue && isZero(adj.newGross) && isZero(adj.newFee) && isZero(adj.newNet)) return 'removed';
     return null;
   }
 

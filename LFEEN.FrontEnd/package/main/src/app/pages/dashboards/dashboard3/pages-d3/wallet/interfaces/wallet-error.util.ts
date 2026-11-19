@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 // The wallet API fails in several shapes: our own validation payload (`errors[]`,
 // localized by Accept-Language), an untranslated English message forwarded from the
@@ -45,6 +46,8 @@ export function resolveWalletError(err: unknown, translate: TranslateService): s
   // Approving your own request: the code isn't fixed yet, so any SAME_ADMIN variant maps here.
   if (code?.includes('SAME_ADMIN')) return t('sameAdminNotAllowed');
 
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return transport;
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
   if (e.status === 404) return t('entryNotFound');

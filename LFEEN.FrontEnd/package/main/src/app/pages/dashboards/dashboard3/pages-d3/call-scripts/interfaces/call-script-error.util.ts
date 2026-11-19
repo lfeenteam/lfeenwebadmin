@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 /**
  * Create/update return a plain 400 for every validation case, including a
@@ -15,6 +16,8 @@ export function resolveCallScriptError(err: unknown, translate: TranslateService
     .filter((v): v is string => typeof v === 'string')
     .join(' ');
 
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return transport;
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
 

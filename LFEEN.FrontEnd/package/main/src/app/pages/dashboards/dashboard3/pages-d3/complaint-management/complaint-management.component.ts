@@ -3,7 +3,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, map, of } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
@@ -52,6 +52,14 @@ export class ComplaintManagementComponent implements OnDestroy {
   private langSub?: Subscription;
   private openTicketSub?: Subscription;
   private document = inject(DOCUMENT);
+
+  // One load stream per list: switchMap cancels the in-flight request whenever a newer
+  // search/page/filter load starts, so a slow stale response can never overwrite the
+  // results of the latest one.
+  private clientLoad$   = new Subject<void>();
+  private hostLoad$     = new Subject<void>();
+  private resolvedLoad$ = new Subject<void>();
+  private listLoadSubs  = new Subscription();
 
   // The floating chat button lives in the dashboard layout; this body class lets it lift
   // above the chat composer instead of covering the reply field and send button.
@@ -238,6 +246,7 @@ export class ComplaintManagementComponent implements OnDestroy {
     if (tab === 'customers' || tab === 'hosts' || tab === 'resolved' || tab === 'ratings') {
       this.activeTab.set(tab);
     }
+    this.watchListLoads();
     this.loadTabData(this.activeTab());
     this.loadQueueTickets();
     this.watchLiveUpdates();
@@ -312,6 +321,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.document.body.classList.remove(COMPOSER_OPEN_BODY_CLASS);
     this.hubSubs.unsubscribe();
+    this.listLoadSubs.unsubscribe();
     this.hostSearchSub?.unsubscribe();
     this.customerSearchSub?.unsubscribe();
     this.langSub?.unsubscribe();
@@ -410,37 +420,107 @@ export class ComplaintManagementComponent implements OnDestroy {
     });
   }
 
-  private loadHostTickets(): void {
-    this.loading.set(true);
-    this.hostError.set(false);
-    this.service.getTickets({
-      propertyId: this.hostPropertyId() ?? undefined,
-      assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
-      status: this.hostStatus() ?? undefined,
-      department: this.hostDepartment() ?? undefined,
-      priority: this.hostPriority() ?? undefined,
-      search: this.hostSearch() || undefined,
-      page: this.hostPage(),
-      pageSize: HOST_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data.map(t => this.service.mapTicketToComplaint(t)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          this.hostError.set(true);
-          return of(null);
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
+  /** Wires the three list load streams. Params are read from the signals inside switchMap so
+   * each request uses the latest search/page/filters; catchError sits on the inner request so a
+   * failure never kills the stream. `loading` is cleared only when the latest request settles —
+   * a cancelled stale request no longer flips it off while the newer one is still in flight. */
+  private watchListLoads(): void {
+    this.listLoadSubs.add(
+      this.clientLoad$.pipe(
+        tap(() => { this.loading.set(true); this.customerError.set(false); }),
+        switchMap(() => this.service.getClientTickets({
+          status: this.customerStatus() ?? undefined,
+          department: this.customerDepartment() ?? undefined,
+          priority: this.customerPriority() ?? undefined,
+          assignedAgentUserId: this.customerAssignedAgentUserId() ?? undefined,
+          search: this.customerSearch() || undefined,
+          page: this.customerPage(),
+          pageSize: CLIENT_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data
+              .filter(t => this.service.mapClientTicketStatus(t.status) !== 'closed')
+              .map(t => this.service.mapClientTicketToComplaint(t)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            // Inline error + retry instead of a toast over an empty "no complaints" table.
+            this.customerError.set(true);
+            return of({ complaints: [] as Complaint[], totalCount: 0, totalPages: 1 });
+          }),
+        )),
+      ).subscribe(res => {
+        this.customerAllTickets.set(res.complaints);
+        this.customerTotalCount.set(res.totalCount);
+        this.customerTotalPages.set(res.totalPages);
+        this.loading.set(false);
+      })
+    );
+
+    this.listLoadSubs.add(
+      this.hostLoad$.pipe(
+        tap(() => { this.loading.set(true); this.hostError.set(false); }),
+        switchMap(() => this.service.getTickets({
+          propertyId: this.hostPropertyId() ?? undefined,
+          assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
+          status: this.hostStatus() ?? undefined,
+          department: this.hostDepartment() ?? undefined,
+          priority: this.hostPriority() ?? undefined,
+          search: this.hostSearch() || undefined,
+          page: this.hostPage(),
+          pageSize: HOST_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data.map(t => this.service.mapTicketToComplaint(t)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            this.hostError.set(true);
+            return of(null);
+          }),
+        )),
+      ).subscribe(res => {
+        this.loading.set(false);
         if (!res) return; // keep the previous list/filters on screen when the request fails
         this.hostTickets.set(res.complaints);
         this.hostTotalCount.set(res.totalCount);
         this.hostTotalPages.set(res.totalPages);
-      });
+      })
+    );
+
+    this.listLoadSubs.add(
+      this.resolvedLoad$.pipe(
+        tap(() => { this.loading.set(true); this.resolvedError.set(false); }),
+        switchMap(() => this.service.getResolvedTicketsOverview({
+          type: this.resolvedType() ?? undefined,
+          search: this.resolvedSearch() || undefined,
+          page: this.resolvedPage(),
+          pageSize: RESOLVED_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data.map(item => this.service.mapTicketsOverviewItemToComplaint(item)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            // Inline error + retry instead of a toast over an empty "no complaints" table.
+            this.resolvedError.set(true);
+            return of({ complaints: [] as Complaint[], totalCount: 0, totalPages: 1 });
+          }),
+        )),
+      ).subscribe(res => {
+        this.resolvedTickets.set(res.complaints);
+        this.resolvedTotalCount.set(res.totalCount);
+        this.resolvedTotalPages.set(res.totalPages);
+        this.loading.set(false);
+      })
+    );
+  }
+
+  private loadHostTickets(): void {
+    this.hostLoad$.next();
   }
 
   onHostSearchInput(term: string): void {
@@ -495,32 +575,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadResolvedTickets(): void {
-    this.loading.set(true);
-    this.resolvedError.set(false);
-    this.service.getResolvedTicketsOverview({
-      type: this.resolvedType() ?? undefined,
-      search: this.resolvedSearch() || undefined,
-      page: this.resolvedPage(),
-      pageSize: RESOLVED_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data.map(item => this.service.mapTicketsOverviewItemToComplaint(item)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          // Inline error + retry instead of a toast over an empty "no complaints" table.
-          this.resolvedError.set(true);
-          return of({ complaints: [], totalCount: 0, totalPages: 1 });
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
-        this.resolvedTickets.set(res.complaints);
-        this.resolvedTotalCount.set(res.totalCount);
-        this.resolvedTotalPages.set(res.totalPages);
-      });
+    this.resolvedLoad$.next();
   }
 
   onResolvedSearchChange(term: string): void {
@@ -541,37 +596,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadClientTickets(): void {
-    this.loading.set(true);
-    this.customerError.set(false);
-    this.service.getClientTickets({
-      status: this.customerStatus() ?? undefined,
-      department: this.customerDepartment() ?? undefined,
-      priority: this.customerPriority() ?? undefined,
-      assignedAgentUserId: this.customerAssignedAgentUserId() ?? undefined,
-      search: this.customerSearch() || undefined,
-      page: this.customerPage(),
-      pageSize: CLIENT_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data
-            .filter(t => this.service.mapClientTicketStatus(t.status) !== 'closed')
-            .map(t => this.service.mapClientTicketToComplaint(t)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          // Inline error + retry instead of a toast over an empty "no complaints" table.
-          this.customerError.set(true);
-          return of({ complaints: [], totalCount: 0, totalPages: 1 });
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
-        this.customerAllTickets.set(res.complaints);
-        this.customerTotalCount.set(res.totalCount);
-        this.customerTotalPages.set(res.totalPages);
-      });
+    this.clientLoad$.next();
   }
 
   onCustomerSearchChange(term: string): void {

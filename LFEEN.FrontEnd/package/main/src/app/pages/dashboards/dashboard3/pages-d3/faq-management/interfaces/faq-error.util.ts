@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { extractApiFieldErrors } from '../../../utils/api-error.util';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 export type FaqFormField = 'titleAr' | 'titleEn' | 'contentAr' | 'contentEn' | 'order';
 
@@ -32,6 +33,8 @@ export function parseFaqSaveError(err: unknown, translate: TranslateService): Fa
   const body = (e?.error ?? {}) as { message?: unknown; errors?: unknown };
   const generic = translate.instant('d3.toast.errorOp');
 
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return { fieldErrors: {}, message: transport };
   if (!e?.status || e.status >= 500) return { fieldErrors: {}, message: generic };
 
   // Model-binding errors (e.g. an order beyond int range) carry English framework text.

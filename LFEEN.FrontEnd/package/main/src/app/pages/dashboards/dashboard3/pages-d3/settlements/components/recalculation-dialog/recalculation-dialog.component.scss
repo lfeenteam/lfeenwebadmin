@@ -95,7 +95,7 @@
 
 .figures-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr;
+  grid-template-columns: 0.9fr 1fr 1.2fr 0.9fr;
   gap: 8px;
   padding: 12px 14px;
   font-size: 13px;
@@ -119,6 +119,16 @@
 
 .figure-label { color: #6B6B67; }
 .figure-old, .figure-new { direction: ltr; text-align: start; display: inline-flex; align-items: center; gap: 4px; }
+
+// new − old: red when the payout shrinks, green when it grows.
+.figure-diff {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+  color: #9E9E9A;
+  &.is-down { color: #B91C1C; font-weight: 800; }
+  &.is-up { color: #15803d; font-weight: 800; }
+}
 
 .riyal-icon {
   display: inline-block;
@@ -181,6 +191,31 @@
 
 .adjustment-booking { font-size: 12px; font-weight: 700; color: #111110; }
 
+.adjustment-tags {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.change-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+
+  &--new { border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; }
+  &--removed { border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; }
+}
+
+.adjustment-item.is-new { border-color: #bbf7d0; }
+.adjustment-item.is-removed {
+  border-color: #fecaca;
+  .adjustment-figures { text-decoration: line-through; text-decoration-color: #fca5a5; }
+}
+
 .adjustment-figures {
   display: flex;
   flex-wrap: wrap;
@@ -205,6 +240,7 @@
 
   &--danger { border: 1px solid #FECACA; background: #FEF2F2; color: #B91C1C; }
   &--info { border: 1px solid #dcfce7; background: #f0fdf4; color: #15803d; }
+  &--warning { border: 1px solid #fde68a; background: #fffbeb; color: #b45309; }
 }
 
 .blockers-list {
@@ -266,5 +302,5 @@
   .recalc-dialog { padding: 16px; }
   .recalc-actions { flex-direction: column-reverse; }
   .btn-outline { flex: 1 1 auto; }
-  .figures-row { grid-template-columns: 1fr 1fr 1fr; font-size: 12px; }
+  .figures-row { grid-template-columns: 0.8fr 1fr 1fr 0.9fr; gap: 6px; padding: 10px; font-size: 11px; }
 }

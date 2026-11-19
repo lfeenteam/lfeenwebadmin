@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,15 +12,21 @@ import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { MerchantDebt, MerchantDebtLine } from '../interfaces/settlement.model';
 import { resolveSettlementError } from '../interfaces/settlement-error.util';
+import { adjustmentKindKey, paymentMethodKey } from '../interfaces/settlement-labels.util';
 import { SettlementsService } from '../services/settlements.service';
 
 interface DebtLineRow {
+  /** Label key of the line's kind; null when the line carries no kind. */
   kindKey: string | null;
-  kind: string;
   description: string;
   bookingNumber: string;
   payoutReference: string;
-  amount: number | null;
+  /** Label key for a known method; otherwise `method` holds the server value. */
+  methodKey: string | null;
+  method: string;
+  gross: number | null;
+  fee: number | null;
+  net: number | null;
   date: string;
 }
 
@@ -33,17 +39,23 @@ interface DebtRow {
   since: string;
   isClaim: boolean;
   lines: DebtLineRow[];
+  /** The core doesn't send booking number / payout reference yet — a column with no value on any line is hidden. */
+  showBooking: boolean;
+  showPayoutRef: boolean;
+  /** grid-template-columns for this merchant's lines, matching the visible columns. */
+  lineColumns: string;
   searchText: string;
 }
 
 const EMPTY = '-';
 
-const LINE_KIND_KEYS: Record<string, string> = {
-  RefundAfterPayout: 'd3.settlements.recalc.kind.refundAfterPayout',
-  RefundAfterSettlement: 'd3.settlements.recalc.kind.refundAfterSettlement',
-};
+const num = (value: unknown): number | null => (typeof value === 'number' ? value : null);
+const text = (value: unknown): string => (value == null ? '' : String(value).trim());
 
-/** Merchant settlement debts (BUG-1482) — read-only mirror of GET /api/settlements/debts. */
+/**
+ * Merchant settlement debts (BUG-1482) — read-only mirror of GET /api/settlements/debts.
+ * Shown as the "Merchant debts" tab of Settlements; `?accountId=` narrows it to one merchant.
+ */
 @Component({
   selector: 'app-merchant-debts',
   standalone: true,
@@ -57,6 +69,9 @@ export class MerchantDebtsComponent implements OnInit {
   private service = inject(SettlementsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+
+  /** Number of merchants listed, for the tab's count; emitted after each successful load. */
+  @Output() readonly loaded = new EventEmitter<number>();
 
   readonly emptyValue = EMPTY;
 
@@ -115,6 +130,7 @@ export class MerchantDebtsComponent implements OnInit {
         this.rows = debts.map(d => this.toRow(d));
         this.loading = false;
         this.applyFilters();
+        this.loaded.emit(debts.length);
       },
       error: err => {
         this.raw = [];
@@ -140,11 +156,6 @@ export class MerchantDebtsComponent implements OnInit {
     else this.expanded.add(row.accountId);
   }
 
-  backToSettlements(): void {
-    const lang = this.router.url.split('/')[1] || 'ar';
-    this.router.navigate(['/', lang, 'd3', 'settlements']);
-  }
-
   fmtAmount(value: number | null | undefined): string {
     if (typeof value !== 'number') return EMPTY;
     return value.toLocaleString(appLocale(this.currentLang), {
@@ -160,7 +171,15 @@ export class MerchantDebtsComponent implements OnInit {
   }
 
   private toRow(d: MerchantDebt): DebtRow {
-    const merchant = d.merchantName?.trim() || d.accountId;
+    // The core doesn't send the merchant's name yet — the account id stands in until it does.
+    const merchant = text(d.merchantName) || text(d.tradeName) || d.accountId;
+    const lines = (d.lines ?? []).map(l => this.toLine(l));
+    // The booking cell also carries the line's kind and description, so it stays when either is present.
+    const showBooking = lines.some(l => l.bookingNumber !== EMPTY || !!l.kindKey || !!l.description);
+    const showPayoutRef = lines.some(l => l.payoutReference !== EMPTY);
+    const lineColumns = [showBooking && '1.4fr', showPayoutRef && '1.3fr', '1fr', '0.9fr', '0.9fr', '0.9fr', '1fr']
+      .filter(Boolean)
+      .join(' ');
     return {
       accountId: d.accountId,
       merchant,
@@ -169,22 +188,29 @@ export class MerchantDebtsComponent implements OnInit {
       balance: d.balance ?? 0,
       since: this.fmtDate(d.sinceUtc),
       isClaim: d.isClaim === true,
-      lines: (d.lines ?? []).map(l => this.toLine(l)),
+      lines,
+      showBooking,
+      showPayoutRef,
+      lineColumns,
       searchText: `${merchant} ${d.accountId}`.toLowerCase(),
     };
   }
 
+  /** Core shape: method / grossAmount / feeAmount / netAmount / refundedAtUtc; older fields are read as fallbacks. */
   private toLine(l: MerchantDebtLine): DebtLineRow {
-    const kind = (l.kind ?? '').toString();
-    const amount = typeof l.netAmount === 'number' ? l.netAmount : typeof l.amount === 'number' ? l.amount : null;
+    const kind = text(l.kind);
+    const method = text(l.method);
     return {
-      kindKey: LINE_KIND_KEYS[kind] ?? null,
-      kind: kind || EMPTY,
-      description: l.description?.toString().trim() || '',
-      bookingNumber: l.bookingNumber?.toString().trim() || EMPTY,
-      payoutReference: l.payoutReference?.toString().trim() || EMPTY,
-      amount,
-      date: this.fmtDate((l.occurredAtUtc ?? l.createdAtUtc ?? null) as string | null),
+      kindKey: kind ? adjustmentKindKey(kind) : null,
+      description: text(l.description),
+      bookingNumber: text(l.bookingNumber) || EMPTY,
+      payoutReference: text(l.payoutReference) || EMPTY,
+      methodKey: paymentMethodKey(method),
+      method: method || EMPTY,
+      gross: num(l.grossAmount),
+      fee: num(l.feeAmount),
+      net: num(l.netAmount) ?? num(l.amount),
+      date: this.fmtDate(text(l.refundedAtUtc) || text(l.occurredAtUtc) || text(l.createdAtUtc) || null),
     };
   }
 

@@ -35,13 +35,6 @@
         </div>
       </div>
 
-      @if (receiptUploadFailed) {
-        <p class="success-message">{{ 'd3.settlements.errors.receiptUploadFailed' | translate }}</p>
-        <button type="button" class="btn btn-outline" [disabled]="receiptRetrying" (click)="retryReceiptUpload()">
-          {{ 'd3.settlements.detail.retryReceiptBtn' | translate }}
-        </button>
-      }
-
       <button type="button" class="btn btn-close-window" (click)="finish()">
         {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
       </button>
@@ -219,15 +212,27 @@
       @if (!data.hasIban) {
         <span class="action-blocked-hint">* {{ 'd3.settlements.errors.noBankAccount' | translate }}</span>
       }
-      <!-- Known up front from recalculation-preview: stop before the admin fills the transfer form -->
-      @if (mustRecalculate) {
+      <!-- Known up front from the dry run: stop before the admin fills the transfer form -->
+      @if (checkingRecalc) {
+        <span class="action-blocked-hint">{{ 'd3.settlements.recalc.checking' | translate }}</span>
+      } @else if (isOnHold) {
+        <div class="action-blocked-alert payout-block-alert is-warning" role="alert">
+          <i-tabler name="clock-pause" class="icon-18"></i-tabler>
+          <div class="payout-block-body">
+            <strong>{{ 'd3.settlements.recalc.onHoldTitle' | translate }}</strong>
+            <ul class="hold-reasons">
+              @for (reason of holdReasons; track $index) { <li>{{ reason }}</li> }
+            </ul>
+          </div>
+        </div>
+      } @else if (mustRecalculate) {
         <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
       }
       <div class="detail-actions">
         <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
           {{ 'd3.settlements.detail.rejectBtn' | translate }}
         </button>
-        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban || mustRecalculate" (click)="goToConfirmTransfer()">
+        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban || mustRecalculate || isOnHold || checkingRecalc" (click)="goToConfirmTransfer()">
           {{ 'd3.settlements.detail.acceptBtn' | translate }}
         </button>
       </div>
@@ -266,6 +271,8 @@
       </textarea>
       <span class="reject-reason-hint">* {{ 'd3.settlements.detail.rejectReasonHint' | translate }}</span>
     </div>
+
+    <ng-container *ngTemplateOutlet="actionErrorAlert"></ng-container>
 
     <!-- Actions -->
     <div class="detail-actions">
@@ -435,6 +442,8 @@
       <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
     }
 
+    <ng-container *ngTemplateOutlet="actionErrorAlert"></ng-container>
+
     <!-- Actions -->
     <div class="detail-actions">
       <button type="button" class="btn btn-outline" (click)="close()">
@@ -451,6 +460,16 @@
 
 </div>
 
+<!-- Why the last execute/reject attempt failed — stays in the dialog until the next attempt -->
+<ng-template #actionErrorAlert>
+  @if (actionError) {
+    <div class="action-blocked-alert" role="alert">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <span>{{ actionError }}</span>
+    </div>
+  }
+</ng-template>
+
 <!-- BUG-1482 block: the server's own (localized) reason + the action that unblocks it -->
 <ng-template #blockAlert>
   <div class="action-blocked-alert payout-block-alert"
@@ -459,16 +478,21 @@
     <i-tabler [name]="block?.kind === 'refundInProgress' ? 'clock' : 'alert-triangle'" class="icon-18"></i-tabler>
     <div class="payout-block-body">
       <span>{{ blockMessage }}</span>
-      @if (mustRecalculate) {
-        <button type="button" class="block-action-btn" [disabled]="recalcOpen || submitting" (click)="openRecalculation()">
-          <i-tabler name="calculator" class="icon-16"></i-tabler>
-          {{ 'd3.settlements.recalc.openBtn' | translate }}
-        </button>
-      } @else if (block?.kind === 'debtOutstanding') {
-        <button type="button" class="block-action-btn" (click)="openDebts()">
-          <i-tabler name="external-link" class="icon-16"></i-tabler>
-          {{ 'd3.settlements.debts.viewMerchantDebts' | translate }}
-        </button>
+      @if (canOfferRecalculation || block?.kind === 'debtOutstanding') {
+        <div class="block-actions">
+          @if (canOfferRecalculation) {
+            <button type="button" class="block-action-btn" [disabled]="recalcOpen || submitting" (click)="openRecalculation()">
+              <i-tabler name="calculator" class="icon-16"></i-tabler>
+              {{ 'd3.settlements.recalc.openBtn' | translate }}
+            </button>
+          }
+          @if (block?.kind === 'debtOutstanding') {
+            <button type="button" class="block-action-btn" (click)="openDebts()">
+              <i-tabler name="external-link" class="icon-16"></i-tabler>
+              {{ 'd3.settlements.debts.viewMerchantDebts' | translate }}
+            </button>
+          }
+        </div>
       }
     </div>
   </div>

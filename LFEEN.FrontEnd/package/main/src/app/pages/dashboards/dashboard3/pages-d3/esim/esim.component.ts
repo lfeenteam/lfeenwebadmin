@@ -297,7 +297,8 @@ export class EsimComponent implements OnInit {
       error: err => {
         const e = err as { status?: number };
         // A network failure gets the drawer-specific copy; API errors carry their own message.
-        this.toastr.error(!e?.status || e.status >= 500
+        // A busy server (503) / unstable connection (408) keeps its own message (resolveEsimError).
+        this.toastr.error((!e?.status || e.status >= 500) && e.status !== 503
           ? this.translate.instant('d3.esim.errors.detail')
           : resolveEsimError(err, this.translate));
       },

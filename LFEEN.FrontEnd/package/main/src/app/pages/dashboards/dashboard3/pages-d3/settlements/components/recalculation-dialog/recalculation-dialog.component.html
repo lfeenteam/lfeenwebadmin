@@ -44,6 +44,7 @@
         <span></span>
         <span>{{ 'd3.settlements.recalc.old' | translate }}</span>
         <span>{{ 'd3.settlements.recalc.new' | translate }}</span>
+        <span>{{ 'd3.settlements.recalc.diff' | translate }}</span>
       </div>
       @for (row of figures; track row.labelKey) {
         <div class="figures-row" [class.is-changed]="changed(row.oldValue, row.newValue)">
@@ -56,11 +57,12 @@
                   [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
                   [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
           </span>
+          <span class="figure-diff" [class.is-up]="row.diff > 0" [class.is-down]="row.diff < 0">{{ fmtDiff(row.diff) }}</span>
         </div>
       }
     </div>
 
-    @if (!preview.hasChanges) {
+    @if (!preview.hasChanges && !blockers.length) {
       <div class="recalc-alert recalc-alert--info">
         <i-tabler name="circle-check" class="icon-18"></i-tabler>
         <span>{{ 'd3.settlements.recalc.noChanges' | translate }}</span>
@@ -74,10 +76,16 @@
       </div>
       <div class="adjustments-list">
         @for (adj of adjustments; track $index) {
-          <div class="adjustment-item">
+          @let change = adjustmentChange(adj);
+          <div class="adjustment-item" [class.is-new]="change === 'new'" [class.is-removed]="change === 'removed'">
             <div class="adjustment-head">
-              <span class="kind-tag">
-                {{ adjustmentKindKey(adj.kind) ? (adjustmentKindKey(adj.kind)! | translate) : adj.kind }}
+              <span class="adjustment-tags">
+                <span class="kind-tag">{{ adjustmentKindKey(adj.kind) | translate }}</span>
+                @if (change === 'new') {
+                  <span class="change-tag change-tag--new">{{ 'd3.settlements.recalc.newLine' | translate }}</span>
+                } @else if (change === 'removed') {
+                  <span class="change-tag change-tag--removed">{{ 'd3.settlements.recalc.removedLine' | translate }}</span>
+                }
               </span>
               @if (adj.bookingNumber) {
                 <span class="adjustment-booking ltr">{{ adj.bookingNumber }}</span>
@@ -102,12 +110,13 @@
       </div>
     }
 
-    <!-- Blockers: shown as the server sent them; Apply stays locked while any exist -->
+    <!-- Blockers: Apply stays locked while any exist. With nothing to recalculate the payout
+         is simply on hold (e.g. a refund under manual review) — say so instead of "no changes". -->
     @if (blockers.length) {
-      <div class="recalc-alert recalc-alert--danger" role="alert">
-        <i-tabler name="lock" class="icon-18"></i-tabler>
+      <div class="recalc-alert" [class.recalc-alert--danger]="!isOnHold" [class.recalc-alert--warning]="isOnHold" role="alert">
+        <i-tabler [name]="isOnHold ? 'clock-pause' : 'lock'" class="icon-18"></i-tabler>
         <div>
-          <strong>{{ 'd3.settlements.recalc.blockedTitle' | translate }}</strong>
+          <strong>{{ (isOnHold ? 'd3.settlements.recalc.onHoldTitle' : 'd3.settlements.recalc.blockedTitle') | translate }}</strong>
           <ul class="blockers-list">
             @for (b of blockers; track $index) { <li>{{ b }}</li> }
           </ul>

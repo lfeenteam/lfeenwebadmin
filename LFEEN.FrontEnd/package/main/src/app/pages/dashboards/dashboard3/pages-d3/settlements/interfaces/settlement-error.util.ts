@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 import { PAYOUT_BLOCK_CODES, PayoutBlockKind } from './settlement.model';
 
 /**
@@ -17,6 +18,10 @@ export function resolveSettlementError(err: unknown, translate: TranslateService
   const block = payoutBlockOf(err);
   if (block) return block.message || t(`block.${block.kind}`);
 
+  if (isReceiptRequiredError(err)) return t('receiptRequired');
+
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return transport;
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
   if (e.status === 404) return t('notFound');
@@ -53,6 +58,12 @@ export function isIbanMismatchError(err: unknown): boolean {
   const e = err as HttpErrorResponse;
   const message: string = typeof e?.error?.message === 'string' ? e.error.message : '';
   return e?.status === 409 && message.toLowerCase().includes('confirmediban');
+}
+
+/** 400 on execute: the backend has no receipt on file for this payout, so nothing was executed. */
+export function isReceiptRequiredError(err: unknown): boolean {
+  const body = (err as HttpErrorResponse)?.error;
+  return String(body?.errorCode ?? body?.code ?? '').toUpperCase() === 'RECEIPT_REQUIRED';
 }
 
 /** 409 = the payout already moved on (someone else acted, or a retried request landed). */

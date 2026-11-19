@@ -13,6 +13,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { formatApiDateLocal } from 'src/app/utils/date-format.util';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { ListingBanService } from '../../services/listing-ban.service';
+import { transportErrorMessage } from '../../utils/transport-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ListingBanRefund, RefundStatus } from '../../interfaces/listing-ban.model';
 import { RefundResolveDialogComponent, RefundResolveDialogData } from './refund-resolve-dialog/refund-resolve-dialog.component';
@@ -202,6 +203,11 @@ export class BanRefundsComponent implements OnInit {
     const validationMessage: string | undefined = err?.error?.errors?.[0]?.message;
     if (err?.status === 400 && validationMessage) {
       this.toastr.error(validationMessage);
+      return;
+    }
+    const transport = transportErrorMessage(err, this.translate);
+    if (transport) {
+      this.toastr.error(transport);
       return;
     }
     const fallback = err?.status === 403

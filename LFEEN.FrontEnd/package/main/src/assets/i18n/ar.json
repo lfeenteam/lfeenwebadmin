@@ -101,6 +101,11 @@
   "APPS": "تطبيقات",
   "Profile": "الملف الشخصي",
   "common": {
+    "httpErrors": {
+      "serviceBusy": "الخدمة مشغولة حالياً، حاول مرة أخرى بعد قليل.",
+      "networkUnstable": "يبدو أن اتصالك بالإنترنت غير مستقر، تحقق من الاتصال وحاول مرة أخرى.",
+      "tooManyRequests": "طلبات كثيرة في وقت قصير، انتظر قليلاً ثم حاول مرة أخرى."
+    },
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
@@ -3190,7 +3195,8 @@
       "subtitle": "متابعة طلبات تسوية المدفوعات مع الحسابات",
       "tabs": {
         "current": "التسويات الحالية",
-        "previous": "التسويات السابقة"
+        "previous": "التسويات السابقة",
+        "debts": "مديونيات التجار"
       },
       "stats": {
         "maxPaymentTime": "أقصى وقت سداد",
@@ -3212,7 +3218,13 @@
       },
       "paymentMethods": {
         "bankTransfer": "تحويل بنكي",
-        "mada": "شبكة مدى"
+        "mada": "شبكة مدى",
+        "card": "بطاقة",
+        "applePay": "Apple Pay",
+        "stcPay": "STC Pay",
+        "wallet": "المحفظة",
+        "tabby": "تابي",
+        "tamara": "تمارا"
       },
       "status": {
         "pending": "بانتظار المراجعة",
@@ -3235,7 +3247,8 @@
         "generic": "حدث خطأ غير متوقع، حاول مرة أخرى",
         "receiptType": "صيغة الملف غير مدعومة (JPG, PNG, PDF فقط)",
         "receiptSize": "حجم الملف يتجاوز الحد الأقصى (5 ميجابايت)",
-        "receiptUploadFailed": "تم تنفيذ التسوية، لكن تعذّر رفع الإيصال.",
+        "receiptUploadFailed": "تعذّر رفع الإيصال، ولم يتم تنفيذ التسوية.",
+        "receiptRequired": "يجب رفع إيصال التسوية قبل تنفيذها. لم يتم تنفيذ التسوية، حاول مرة أخرى.",
         "block": {
           "needsRecalculation": "يجب إعادة حساب هذه الدفعة قبل تنفيذها.",
           "refundInProgress": "يوجد استرداد قيد التنفيذ على هذه الدفعة — يرجى المحاولة لاحقًا.",
@@ -3253,12 +3266,20 @@
         "gross": "الإجمالي",
         "fee": "الرسوم",
         "net": "الصافي",
+        "diff": "الفرق",
         "noChanges": "لا توجد تغييرات",
         "adjustments": "التعديلات",
         "kind": {
           "refundAfterPayout": "استرداد بعد الصرف",
-          "refundAfterSettlement": "استرداد بعد التسوية"
+          "refundAfterSettlement": "استرداد بعد التسوية",
+          "adjustment": "تعديل"
         },
+        "newLine": "سطر جديد",
+        "removedLine": "سيُحذف",
+        "checking": "جارٍ التحقق من حالة الدفعة...",
+        "onHoldBadge": "متوقفة مؤقتًا",
+        "onHoldTitle": "الدفعة متوقفة مؤقتًا ولا تحتاج إعادة حساب الآن — لا يمكن تنفيذها حتى يُحل التالي:",
+        "blockerUnknown": "سبب إيقاف من النظام ({{code}})",
         "blockedTitle": "لا يمكن اعتماد إعادة الحساب حاليًا:",
         "applyBtn": "اعتماد إعادة الحساب",
         "applied": "تمت إعادة حساب الدفعة"
@@ -3272,10 +3293,10 @@
         "balance": "الرصيد",
         "since": "من تاريخ",
         "claim": "مطالبة",
+        "alert": "تنبيه",
         "lines": "التفاصيل",
-        "lineKind": "النوع",
-        "lineAmount": "المبلغ",
-        "lineDate": "التاريخ",
+        "lineMethod": "طريقة الدفع",
+        "lineRefundDate": "تاريخ الاسترداد",
         "filteredBy": "عرض",
         "showAll": "عرض الكل",
         "viewMerchantDebts": "عرض مديونيات التاجر",
@@ -3336,7 +3357,6 @@
         "actualAmount": "المبلغ المحول فعليًا",
         "partialReasonLabel": "سبب التحويل الجزئي",
         "partialReasonPlaceholder": "اكتب سبب تحويل مبلغ أقل من المبلغ المطلوب...",
-        "retryReceiptBtn": "إعادة رفع الإيصال",
         "trxId": "رقم مرجع العملية (TRX ID)",
         "trxIdPlaceholder": "أدخل رقم المرجع البنكي المكون من 12 خانة...",
         "receiptLabel": "إيصال التحويل (صورة أو PDF)",
@@ -4635,6 +4655,7 @@
           "IndividualHousing": "سكن فردي"
         },
         "viewTypesLabel": "الإطلالات المتاحة",
+        "spokenLanguagesLabel": "اللغات التي يتحدث بها فريق الاستقبال",
         "businessTypeLabel": "نوع النشاط",
         "districtLabel": "اتجاه الواجهة",
         "organizationLabel": "المؤسسة المشغّلة",

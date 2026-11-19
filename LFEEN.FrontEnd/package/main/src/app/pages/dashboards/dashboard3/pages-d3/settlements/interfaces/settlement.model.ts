@@ -123,6 +123,8 @@ export type RecalculationAdjustmentKind = 'RefundAfterPayout' | 'RefundAfterSett
 
 export interface RecalculationAdjustment {
   kind: RecalculationAdjustmentKind;
+  /** The payout line this adjusts; null = the recalculation adds a new line. */
+  entryId?: string | null;
   bookingNumber?: string | null;
   bookingPaymentId?: string | null;
   oldGross?: number | null;
@@ -144,27 +146,56 @@ export interface PayoutRecalculation {
   newFee: number;
   newNet: number;
   adjustments: RecalculationAdjustment[];
-  /** Non-empty = the recalculation can't be applied yet; each entry is a server-localized reason. */
-  blockers: (string | { message?: string | null; code?: string | null })[];
+  /** Non-empty = the recalculation can't be applied yet (a plain reason, a code, or both). */
+  blockers: RecalculationBlocker[];
   applied: boolean;
   hasChanges: boolean;
 }
 
-/** One payout returned by GET recalculation-preview. */
+export type RecalculationBlocker = string | { message?: string | null; code?: string | null };
+
+/**
+ * One payout returned by GET recalculation-preview. When the item carries its dry-run
+ * result (hasChanges / blockers) the list can tell "needs recalculation" from "on hold".
+ */
 export interface RecalculationPreviewItem {
   payoutId?: string | null;
   id?: string | null;
   payoutReference?: string | null;
+  hasChanges?: boolean | null;
+  blockers?: RecalculationBlocker[] | null;
+}
+
+/**
+ * What a payout listed by recalculation-preview actually needs, from its dry run:
+ * - `needed`  — totals change and nothing blocks: recalculate before executing.
+ * - `onHold`  — something blocks it (e.g. a refund under manual review): wait, recalculating won't help.
+ * - `none`    — nothing changes and nothing blocks: execute as normal.
+ */
+export type RecalculationState = 'needed' | 'onHold' | 'none';
+
+export function recalculationStateOf(result: { hasChanges?: boolean | null; blockers?: RecalculationBlocker[] | null }): RecalculationState {
+  if ((result.blockers ?? []).some(b => !!(typeof b === 'string' ? b.trim() : (b?.message || b?.code)))) return 'onHold';
+  return result.hasChanges === false ? 'none' : 'needed';
 }
 
 // ── Merchant debts ───────────────────────────────────────────
 
+/**
+ * One refund behind a merchant's debt. The core answers with method / gross / fee / net /
+ * refundedAtUtc; the other fields are read when present.
+ */
 export interface MerchantDebtLine {
+  /** Payment method of the refunded booking payment. */
+  method?: string | null;
+  grossAmount?: number | null;
+  feeAmount?: number | null;
+  netAmount?: number | null;
+  refundedAtUtc?: string | null;
   kind?: string | null;
   bookingNumber?: string | null;
   payoutReference?: string | null;
   amount?: number | null;
-  netAmount?: number | null;
   description?: string | null;
   createdAtUtc?: string | null;
   occurredAtUtc?: string | null;
@@ -173,14 +204,16 @@ export interface MerchantDebtLine {
 
 export interface MerchantDebt {
   accountId: string;
+  /** Not sent by the core yet — the accountId is shown until it is. */
   merchantName?: string | null;
+  tradeName?: string | null;
   /** Owed BY the merchant (refunds clawed back after they were paid). */
   outstandingClawbackNet: number;
   /** Owed TO the merchant (not settled yet). */
   unsettledDuesNet: number;
   balance: number;
   sinceUtc: string | null;
-  /** The clawback exceeds what's still due to the merchant — it has to be claimed from them. */
+  /** true = the clawback exceeds what's still due — claim it ("Claim"); false = it will net off ("Alert"). */
   isClaim: boolean;
   currencyCode?: string | null;
   lines: MerchantDebtLine[];

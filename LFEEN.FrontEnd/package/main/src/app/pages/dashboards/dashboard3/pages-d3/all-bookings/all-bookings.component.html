@@ -37,6 +37,7 @@
   @if (activeView === 'bookings') {
 
   <!-- Metric Cards -->
+  <div class="metrics-container">
   <section class="sub-header-metrics">
     @for (card of metrics; track card.titleKey) {
       <article class="metric-card">
@@ -55,6 +56,7 @@
       </article>
     }
   </section>
+  </div>
 
   <!-- Origin Tabs -->
   <div class="origin-tabs" role="tablist">
@@ -242,6 +244,7 @@
   } @else {
 
   <!-- Table -->
+  <div class="bookings-table-container">
   <div class="bookings-table-wrapper">
     <table mat-table [dataSource]="pagedBookings" [trackBy]="trackByBookingId" class="w-100">
 
@@ -340,6 +343,7 @@
       </tr>
 
     </table>
+  </div>
   </div>
 
   <!-- Single shared row-action menu (one instance for the whole table) -->

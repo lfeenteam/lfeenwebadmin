@@ -11,8 +11,9 @@ import { filter } from 'rxjs';
 import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
-import { RECEIPT_ALLOWED_TYPES, RECEIPT_MAX_BYTES, SettlementActionResult } from '../../interfaces/settlement.model';
-import { isIbanMismatchError, isStaleStateError, PayoutBlock, payoutBlockOf, resolveSettlementError } from '../../interfaces/settlement-error.util';
+import { RECEIPT_ALLOWED_TYPES, RECEIPT_MAX_BYTES, RecalculationState, SettlementActionResult, recalculationStateOf } from '../../interfaces/settlement.model';
+import { isIbanMismatchError, isReceiptRequiredError, isStaleStateError, PayoutBlock, payoutBlockOf, resolveSettlementError } from '../../interfaces/settlement-error.util';
+import { blockerTexts } from '../../interfaces/settlement-labels.util';
 import { SettlementsService } from '../../services/settlements.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from '../recalculation-dialog/recalculation-dialog.component';
@@ -22,7 +23,10 @@ export interface SettlementDetailDialogData {
   /** Merchant account — used to open the debts list filtered on this merchant. */
   accountId: string;
   netAmount: number;
-  /** Listed by GET recalculation-preview: execute is refused until it's recalculated (BUG-1482). */
+  /**
+   * Listed by GET recalculation-preview (BUG-1482). The dialog runs the dry run itself to
+   * tell "recalculate first" from "on hold" from "nothing to do".
+   */
   needsRecalculation: boolean;
   /** Execute permission AND a status the backend accepts execute/fail on. */
   canExecute: boolean;
@@ -99,17 +103,27 @@ export class SettlementDetailDialogComponent {
   /** Execute was refused by a BUG-1482 rule — shown with its server text and the matching action. */
   block: PayoutBlock | null = null;
   recalcOpen = false;
+
+  /** Dry-run verdict for a payout listed by recalculation-preview; null = not listed / not checked yet. */
+  recalcState: RecalculationState | null = null;
+  /** Why the payout is on hold, already worded for the admin. */
+  holdReasons: string[] = [];
+  checkingRecalc = false;
   readonly trxReferenceMax = TRX_REFERENCE_MAX;
   readonly rejectReasonMax = REJECT_REASON_MAX;
 
   step: DialogStep = 'details';
   submitting = false;
+  /** Why the last execute/reject attempt failed — shown inside the dialog, not just as a passing toast. */
+  actionError: string | null = null;
 
   // ── Transfer confirmation step ─────────────────────────────
   actualAmount: number | null = null;
   trxId = '';
   partialReason = '';
   receiptFile: File | null = null;
+  /** The file the backend already holds for this payout — a retried execute doesn't upload it again. */
+  private uploadedReceipt: File | null = null;
   isDragging = false;
   // The host changed their IBAN after this dialog was opened. The money was most likely
   // already sent to the old one, so this needs a person to check — never a silent retry
@@ -120,8 +134,6 @@ export class SettlementDetailDialogComponent {
   trxNumber = '';
   transferredAmount = 0;
   executionTime: Date | null = null;
-  receiptUploadFailed = false;
-  receiptRetrying = false;
 
   // ── Reject confirmation step ───────────────────────────────
   rejectReason = '';
@@ -138,6 +150,29 @@ export class SettlementDetailDialogComponent {
     dialogRef.disableClose = true;
     dialogRef.backdropClick().subscribe(() => this.close());
     dialogRef.keydownEvents().pipe(filter(e => e.key === 'Escape')).subscribe(() => this.close());
+
+    if (data.needsRecalculation && data.canExecute) this.checkRecalculation();
+  }
+
+  /**
+   * Being listed by recalculation-preview isn't enough to say "recalculate first": a payout
+   * with no changes and a blocker (a refund under manual review) can't be recalculated at all.
+   * The dry run saves nothing, so it's safe to run on every open.
+   */
+  private checkRecalculation(): void {
+    this.checkingRecalc = true;
+    this.service.getRecalculation(this.data.id).subscribe({
+      next: res => {
+        this.checkingRecalc = false;
+        this.recalcState = recalculationStateOf(res);
+        this.holdReasons = blockerTexts(res.blockers, this.translate);
+      },
+      // Can't tell — keep the safe default; a refused execute still explains itself.
+      error: () => {
+        this.checkingRecalc = false;
+        this.recalcState = 'needed';
+      },
+    });
   }
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -180,11 +215,13 @@ export class SettlementDetailDialogComponent {
 
   // Only the details step uses the wide two-column layout — the rest are narrow forms.
   goToConfirmTransfer(): void {
+    this.actionError = null;
     this.step = 'confirmTransfer';
     this.dialogRef.updateSize(NARROW_WIDTH);
   }
 
   goToConfirmReject(): void {
+    this.actionError = null;
     this.step = 'confirmReject';
     this.dialogRef.updateSize(NARROW_WIDTH);
   }
@@ -199,6 +236,7 @@ export class SettlementDetailDialogComponent {
   confirmReject(): void {
     if (!this.canConfirmReject) return;
     this.submitting = true;
+    this.actionError = null;
     this.service.fail(this.data.id, this.rejectReason.trim()).subscribe({
       next: res => {
         // The reason itself is shown from what the admin typed: the fail response returns `notes: null`.
@@ -273,6 +311,7 @@ export class SettlementDetailDialogComponent {
   removeFile(event: Event): void {
     event.stopPropagation();
     this.receiptFile = null;
+    this.uploadedReceipt = null;
   }
 
   // The backend doesn't validate the receipt's type or size, so this is the only gate.
@@ -286,6 +325,8 @@ export class SettlementDetailDialogComponent {
       return;
     }
     this.receiptFile = file;
+    // A new file must reach the backend before the next execute.
+    this.uploadedReceipt = null;
   }
 
   // ── Execute ─────────────────────────────────────────────────
@@ -307,18 +348,47 @@ export class SettlementDetailDialogComponent {
     return !this.submitting
       && this.data.hasIban && !this.ibanMismatch
       // A refund in progress clears by itself, so trying again later is allowed; the other blocks need action first.
-      && !this.mustRecalculate && (!this.block || this.block.kind === 'refundInProgress')
+      && !this.mustRecalculate && !this.isOnHold && !this.checkingRecalc
+      && (!this.block || this.block.kind === 'refundInProgress')
       && amount !== null && amount > 0 && !this.amountExceedsNet
       && !!trx && trx.length <= TRX_REFERENCE_MAX
       && (!this.isPartialTransfer || !!this.partialReason.trim())
       && !!this.receiptFile;
   }
 
+  /**
+   * The backend refuses execute (400 RECEIPT_REQUIRED) until a receipt is on file, so the
+   * receipt goes first and execute only runs once it's stored. A failed upload stops here:
+   * nothing was executed and the admin can simply try again.
+   */
   confirmTransfer(): void {
-    if (!this.canConfirmTransfer || this.actualAmount === null) return;
+    if (!this.canConfirmTransfer || !this.receiptFile) return;
     this.submitting = true;
     this.block = null;
+    this.actionError = null;
 
+    const file = this.receiptFile;
+    if (this.uploadedReceipt === file) {
+      this.executeTransfer();
+      return;
+    }
+
+    this.service.uploadReceipt(this.data.id, file).subscribe({
+      next: () => {
+        this.uploadedReceipt = file;
+        this.executeTransfer();
+      },
+      error: err => {
+        this.submitting = false;
+        this.actionError = `${this.translate.instant('d3.settlements.errors.receiptUploadFailed')} ${resolveSettlementError(err, this.translate)}`;
+        // The payout may have moved on meanwhile — same handling as a stale execute.
+        if (isStaleStateError(err)) this.dialogRef.close({ decision: 'refresh' });
+      },
+    });
+  }
+
+  private executeTransfer(): void {
+    if (this.actualAmount === null) return;
     this.service.execute(this.data.id, {
       bankTransferReference: this.trxId.trim(),
       confirmedIban: this.data.confirmedIban,
@@ -327,21 +397,15 @@ export class SettlementDetailDialogComponent {
     }).subscribe({
       next: res => {
         this.applyExecutionResult(res);
-        // The execution is already recorded at this point — a receipt failure must
-        // never re-run execute, it only offers a receipt re-upload on the success step.
-        this.uploadReceipt(() => {
-          this.submitting = false;
-          this.step = 'success';
-        });
+        this.submitting = false;
+        this.step = 'success';
       },
-      error: err => this.handleActionError(err),
+      error: err => {
+        // The backend doesn't hold the receipt after all — the next attempt uploads it again.
+        if (isReceiptRequiredError(err)) this.uploadedReceipt = null;
+        this.handleActionError(err);
+      },
     });
-  }
-
-  retryReceiptUpload(): void {
-    if (this.receiptRetrying) return;
-    this.receiptRetrying = true;
-    this.uploadReceipt(() => { this.receiptRetrying = false; });
   }
 
   private applyExecutionResult(res: SettlementActionResult): void {
@@ -349,23 +413,6 @@ export class SettlementDetailDialogComponent {
     // A full transfer comes back with transferredAmount = null.
     this.transferredAmount = res.transferredAmount ?? this.data.netAmount;
     this.executionTime = parseApiUtc(res.completedAtUtc) ?? parseApiUtc(res.lastActionAtUtc);
-  }
-
-  private uploadReceipt(done: () => void): void {
-    if (!this.receiptFile) { done(); return; }
-    this.service.uploadReceipt(this.data.id, this.receiptFile).subscribe({
-      next: () => {
-        this.receiptUploadFailed = false;
-        done();
-      },
-      error: err => {
-        this.receiptUploadFailed = true;
-        this.toastr.error(
-          `${this.translate.instant('d3.settlements.errors.receiptUploadFailed')} ${resolveSettlementError(err, this.translate)}`
-        );
-        done();
-      },
-    });
   }
 
   private handleActionError(err: unknown): void {
@@ -377,17 +424,22 @@ export class SettlementDetailDialogComponent {
       this.block = block;
       return;
     }
-    this.toastr.error(resolveSettlementError(err, this.translate));
     // IBAN mismatch: keep the dialog (and what the admin typed) open, with confirm locked —
-    // resending the same IBAN can only 409 again.
+    // resending the same IBAN can only 409 again. It has its own alert in the dialog.
     if (isIbanMismatchError(err)) {
+      this.toastr.error(resolveSettlementError(err, this.translate));
       this.ibanMismatch = true;
       return;
     }
     // Any other 409 means the payout already left Pending/Processing — nothing here can succeed anymore.
     if (isStaleStateError(err)) {
+      this.toastr.error(resolveSettlementError(err, this.translate));
       this.dialogRef.close({ decision: 'refresh' });
+      return;
     }
+    // Anything else (RECEIPT_REQUIRED, validation, network…): the dialog stays open with what
+    // the admin typed, so the reason has to stay visible inside it.
+    this.actionError = resolveSettlementError(err, this.translate);
   }
 
   get formattedTransferredAmount(): string {
@@ -410,9 +462,19 @@ export class SettlementDetailDialogComponent {
 
   // ── Recalculation / debts (BUG-1482) ───────────────────────
 
-  /** Execute can't succeed until the payout is recalculated — known up front or learned from a refused execute. */
+  /** Execute can't succeed until the payout is recalculated — known from the dry run or learned from a refused execute. */
   get mustRecalculate(): boolean {
-    return this.data.needsRecalculation || this.block?.kind === 'needsRecalculation';
+    return this.recalcState === 'needed' || this.block?.kind === 'needsRecalculation';
+  }
+
+  /** Nothing to recalculate but something holds the payout — wait, recalculating won't help. */
+  get isOnHold(): boolean {
+    return this.recalcState === 'onHold' && !this.block;
+  }
+
+  /** Offered alongside a debt block too: recalculating may net the debt off this payout. */
+  get canOfferRecalculation(): boolean {
+    return this.mustRecalculate || this.block?.kind === 'debtOutstanding';
   }
 
   get blockMessage(): string {
@@ -441,9 +503,10 @@ export class SettlementDetailDialogComponent {
     });
   }
 
+  /** Opens the Settlements "Merchant debts" tab, filtered on this merchant. */
   openDebts(): void {
     const lang = this.router.url.split('/')[1] || 'ar';
     this.dialogRef.close(this.block ? { decision: 'refresh' } : undefined);
-    this.router.navigate(['/', lang, 'd3', 'settlement-debts'], { queryParams: { accountId: this.data.accountId } });
+    this.router.navigate(['/', lang, 'd3', 'settlements'], { queryParams: { tab: 'debts', accountId: this.data.accountId } });
   }
 }

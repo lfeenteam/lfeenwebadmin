@@ -69,20 +69,6 @@ export class SidebarService {
       });
     }
 
-    // Merchant debts (BUG-1482) has no sidebar key in the payload; it's part of Settlements,
-    // so it's shown to whoever the payload gives Settlements to, right below it.
-    if (PAGE_FLAGS['settlement-debts'] && !items.find(i => i.link === '/d3/settlement-debts')) {
-      const settlementsIndex = items.findIndex(i => i.link === '/d3/settlements');
-      if (settlementsIndex >= 0) {
-        items.splice(settlementsIndex + 1, 0, {
-          key: 'settlement-debts',
-          translationKey: 'd3.sidebar.settlementDebts',
-          icon: 'report-money',
-          link: '/d3/settlement-debts'
-        });
-      }
-    }
-
     // The wallet approvals queue isn't in the payload; shown only to admins who can approve.
     // Placed after Settlements, the other money-movement page.
     if (

@@ -8,6 +8,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { UnitsService } from '../../../services/units.service';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 import { UnitAutoApprovalSettings } from '../../../interfaces/unit-card.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
@@ -81,7 +82,7 @@ export class AutoApprovalSettingsDialogComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
         this.loadFailed = true;
-        this.toastr.error(this.translate.instant(this.errorKey(err)));
+        this.toastr.error(transportErrorMessage(err, this.translate) ?? this.translate.instant(this.errorKey(err)));
       },
     });
   }
@@ -132,7 +133,7 @@ export class AutoApprovalSettingsDialogComponent implements OnInit {
       error: (err: HttpErrorResponse) => {
         this.submitting = false;
         this.dialogRef.disableClose = false;
-        this.toastr.error(this.translate.instant(this.errorKey(err)));
+        this.toastr.error(transportErrorMessage(err, this.translate) ?? this.translate.instant(this.errorKey(err)));
       },
     });
   }

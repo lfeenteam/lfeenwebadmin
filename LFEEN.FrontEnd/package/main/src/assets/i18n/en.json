@@ -99,6 +99,11 @@
   "Menu 2": "Menu 2",
   "Disabled": "Disabled",
   "common": {
+    "httpErrors": {
+      "serviceBusy": "The service is busy right now. Please try again in a moment.",
+      "networkUnstable": "Your internet connection seems unstable. Check it and try again.",
+      "tooManyRequests": "Too many requests in a short time. Please wait a moment and try again."
+    },
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
@@ -2473,6 +2478,7 @@
           "IndividualHousing": "Individual Housing"
         },
         "viewTypesLabel": "Available Views",
+        "spokenLanguagesLabel": "Languages spoken by the host team",
         "businessTypeLabel": "Business Type",
         "districtLabel": "Facade Direction",
         "organizationLabel": "Operating Organization",
@@ -4007,7 +4013,8 @@
       "subtitle": "Track payment settlement requests with accounts",
       "tabs": {
         "current": "Current Settlements",
-        "previous": "Previous Settlements"
+        "previous": "Previous Settlements",
+        "debts": "Merchant Debts"
       },
       "stats": {
         "maxPaymentTime": "Max Payment Time",
@@ -4029,7 +4036,13 @@
       },
       "paymentMethods": {
         "bankTransfer": "Bank Transfer",
-        "mada": "Mada Network"
+        "mada": "Mada Network",
+        "card": "Card",
+        "applePay": "Apple Pay",
+        "stcPay": "STC Pay",
+        "wallet": "Wallet",
+        "tabby": "Tabby",
+        "tamara": "Tamara"
       },
       "status": {
         "pending": "Pending Review",
@@ -4052,7 +4065,8 @@
         "generic": "Something went wrong, please try again",
         "receiptType": "Unsupported file type (JPG, PNG, PDF only)",
         "receiptSize": "File exceeds the maximum size (5 MB)",
-        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded.",
+        "receiptUploadFailed": "The receipt couldn't be uploaded, so the settlement was not executed.",
+        "receiptRequired": "A settlement receipt must be uploaded before executing it. The settlement was not executed, please try again.",
         "block": {
           "needsRecalculation": "This payout must be recalculated before it can be executed.",
           "refundInProgress": "A refund on this payout is still in progress — please try again later.",
@@ -4070,12 +4084,20 @@
         "gross": "Gross",
         "fee": "Fee",
         "net": "Net",
+        "diff": "Difference",
         "noChanges": "No changes",
         "adjustments": "Adjustments",
         "kind": {
           "refundAfterPayout": "Refund after payout",
-          "refundAfterSettlement": "Refund after settlement"
+          "refundAfterSettlement": "Refund after settlement",
+          "adjustment": "Adjustment"
         },
+        "newLine": "New line",
+        "removedLine": "Will be removed",
+        "checking": "Checking the payout's status...",
+        "onHoldBadge": "On hold",
+        "onHoldTitle": "This payout is on hold and doesn't need recalculating — it can't be executed until this is resolved:",
+        "blockerUnknown": "Blocked by the system ({{code}})",
         "blockedTitle": "The recalculation can't be applied yet:",
         "applyBtn": "Apply",
         "applied": "The payout was recalculated"
@@ -4089,10 +4111,10 @@
         "balance": "Balance",
         "since": "Since",
         "claim": "Claim",
+        "alert": "Alert",
         "lines": "Details",
-        "lineKind": "Type",
-        "lineAmount": "Amount",
-        "lineDate": "Date",
+        "lineMethod": "Payment method",
+        "lineRefundDate": "Refund date",
         "filteredBy": "Showing",
         "showAll": "Show all",
         "viewMerchantDebts": "View merchant debts",
@@ -4153,7 +4175,6 @@
         "actualAmount": "Actual Transferred Amount",
         "partialReasonLabel": "Partial transfer reason",
         "partialReasonPlaceholder": "Explain why less than the requested amount was transferred...",
-        "retryReceiptBtn": "Re-upload receipt",
         "trxId": "Transaction Reference Number (TRX ID)",
         "trxIdPlaceholder": "Enter the 12-digit bank reference number...",
         "receiptLabel": "Transfer Receipt (Image or PDF)",

@@ -1,11 +1,6 @@
 <div class="debts-container" [dir]="currentDir">
 
   <div class="debts-toolbar">
-    <button type="button" class="back-btn" (click)="backToSettlements()">
-      <i-tabler [name]="currentDir === 'rtl' ? 'arrow-right' : 'arrow-left'" class="icon-16"></i-tabler>
-      {{ 'd3.settlements.title' | translate }}
-    </button>
-
     <div class="search-wrapper">
       <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
       <input
@@ -62,6 +57,8 @@
                     <span class="merchant-name">{{ row.merchant }}</span>
                     @if (row.isClaim) {
                       <span class="claim-badge">{{ 'd3.settlements.debts.claim' | translate }}</span>
+                    } @else {
+                      <span class="claim-badge claim-badge--alert">{{ 'd3.settlements.debts.alert' | translate }}</span>
                     }
                   </div>
                 </td>
@@ -95,24 +92,52 @@
               @if (expanded.has(row.accountId) && row.lines.length) {
                 <tr class="lines-row">
                   <td colspan="6">
-                    <div class="lines-table">
+                    <div class="lines-table" [style.--line-cols]="row.lineColumns">
                       <div class="line line--head">
-                        <span>{{ 'd3.settlements.debts.lineKind' | translate }}</span>
-                        <span>{{ 'd3.settlements.detail.bookingNumber' | translate }}</span>
-                        <span>{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
-                        <span>{{ 'd3.settlements.debts.lineAmount' | translate }}</span>
-                        <span>{{ 'd3.settlements.debts.lineDate' | translate }}</span>
+                        @if (row.showBooking) { <span>{{ 'd3.settlements.detail.bookingNumber' | translate }}</span> }
+                        @if (row.showPayoutRef) { <span>{{ 'd3.settlements.detail.payoutReference' | translate }}</span> }
+                        <span>{{ 'd3.settlements.debts.lineMethod' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.gross' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.fee' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.net' | translate }}</span>
+                        <span>{{ 'd3.settlements.debts.lineRefundDate' | translate }}</span>
                       </div>
                       @for (line of row.lines; track $index) {
                         <div class="line">
+                          @if (row.showBooking) {
+                            <span class="line-main">
+                              <span class="mobile-field-label">{{ 'd3.settlements.detail.bookingNumber' | translate }}</span>
+                              <span class="ltr">{{ line.bookingNumber }}</span>
+                              @if (line.kindKey) { <span class="line-kind">{{ line.kindKey | translate }}</span> }
+                              @if (line.description) { <small class="line-desc">{{ line.description }}</small> }
+                            </span>
+                          }
+                          @if (row.showPayoutRef) {
+                            <span>
+                              <span class="mobile-field-label">{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
+                              <span class="ltr">{{ line.payoutReference }}</span>
+                            </span>
+                          }
                           <span>
-                            {{ line.kindKey ? (line.kindKey | translate) : line.kind }}
-                            @if (line.description) { <small class="line-desc">{{ line.description }}</small> }
+                            <span class="mobile-field-label">{{ 'd3.settlements.debts.lineMethod' | translate }}</span>
+                            {{ line.methodKey ? (line.methodKey | translate) : line.method }}
                           </span>
-                          <span class="ltr">{{ line.bookingNumber }}</span>
-                          <span class="ltr">{{ line.payoutReference }}</span>
-                          <span class="ltr">{{ fmtAmount(line.amount) }}</span>
-                          <span>{{ line.date }}</span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.gross' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.gross) }}</span>
+                          </span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.fee' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.fee) }}</span>
+                          </span>
+                          <span class="line-net">
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.net' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.net) }}</span>
+                          </span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.debts.lineRefundDate' | translate }}</span>
+                            {{ line.date }}
+                          </span>
                         </div>
                       }
                     </div>
