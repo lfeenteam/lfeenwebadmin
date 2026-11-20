@@ -228,6 +228,81 @@
   .mat-mdc-option:hover:not(.mdc-list-item--selected) {
   background: #f3f3ef !important;
 }
+/* Unit picker: search box pinned to the top of the panel, status row at the end. */
+::ng-deep .mat-mdc-select-panel.d3-offer-unit-panel {
+  padding-top: 0 !important;
+  max-height: 360px;
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-search {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -6px 6px;
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid #ededea;
+  color: #8a8a84;
+
+  i-tabler {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 500 13px "Cairo", sans-serif;
+    color: #111110;
+  }
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-clear {
+  all: unset;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  i-tabler {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: #f3f3ef;
+  }
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px 6px;
+  font: 500 12px "Cairo", sans-serif;
+  color: #5b6475;
+
+  button {
+    all: unset;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e3e3de;
+    color: #111110;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f3ef;
+    }
+  }
+}
 ::ng-deep .d3-offer-select-panel .mat-mdc-option.mdc-list-item--selected {
   background: #111110 !important;
 }

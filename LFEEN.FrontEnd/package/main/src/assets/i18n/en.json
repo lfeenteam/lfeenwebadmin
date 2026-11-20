@@ -3323,6 +3323,8 @@
         "supportReplyTime": "09:40 PM",
         "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
         "supportReplySentNotice": "This reply was sent by email and app notifications",
+        "internalNoteBadge": "Internal note",
+        "internalNoteHint": "Internal note for the support team only — not sent to the merchant",
         "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply.",
         "notFoundTitle": "Ticket not found",
         "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
@@ -5460,6 +5462,7 @@
       "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
       "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "happyHour": "Offer Time", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
       "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
+      "unitPicker": { "search": "Search units…", "clear": "Clear search", "loading": "Loading units…", "error": "Unable to load units.", "retry": "Retry", "empty": "No matching units", "loadMore": "Show more ({{shown}} of {{total}})", "count": "{{count}} units", "selected": "{{count}} units selected" },
       "form": { "createTitle": "Create Platform Offer", "editTitle": "Edit Platform Offer", "subtitle": "Configure an offer that applies across the platform, regardless of merchant.", "preview": "Preview", "unnamed": "Unnamed offer", "save": "Save Offer", "saving": "Saving…", "addExclusion": "Add Exclusion Period", "addMessage": "Add Message", "addTerm": "Add Term" }
     },
     "contactUs": {

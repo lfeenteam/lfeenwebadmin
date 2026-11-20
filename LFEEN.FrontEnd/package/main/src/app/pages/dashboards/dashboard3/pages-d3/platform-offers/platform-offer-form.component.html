@@ -243,16 +243,72 @@
                           <label>
                             {{ "d3.platformOffers.fields.unitIds" | translate }}
                             <mat-select
+                              #unitSelect
                               formControlName="unitIds"
                               multiple
-                              panelClass="d3-offer-select-panel"
+                              panelClass="d3-offer-select-panel d3-offer-unit-panel"
+                              (openedChange)="unitPickerToggled($event, unitSelect, unitSearchInput)"
                             >
-                              @for (u of units(); track u.id) {
+                              <div class="unit-picker-search">
+                                <i-tabler name="search" class="icon-16"></i-tabler>
+                                <input
+                                  #unitSearchInput
+                                  type="text"
+                                  autocomplete="off"
+                                  [value]="unitSearchText()"
+                                  [placeholder]="'d3.platformOffers.unitPicker.search' | translate"
+                                  [attr.aria-label]="'d3.platformOffers.unitPicker.search' | translate"
+                                  (input)="unitSearchChanged(unitSearchInput.value)"
+                                  (keydown)="unitSearchKeydown($event)"
+                                />
+                                @if (unitSearchText()) {
+                                  <button
+                                    type="button"
+                                    class="unit-picker-clear"
+                                    [attr.aria-label]="'d3.platformOffers.unitPicker.clear' | translate"
+                                    (click)="$event.stopPropagation(); unitSearchChanged(''); unitSearchInput.focus()"
+                                  >
+                                    <i-tabler name="x" class="icon-14"></i-tabler>
+                                  </button>
+                                }
+                              </div>
+                              @for (u of unitOptions(); track u.id) {
                                 <mat-option [value]="u.id">{{
                                   u.name
                                 }}</mat-option>
                               }
+                              <div class="unit-picker-status">
+                                @if (unitsLoading()) {
+                                  <span>{{ "d3.platformOffers.unitPicker.loading" | translate }}</span>
+                                } @else if (unitsFailed()) {
+                                  <span>{{ "d3.platformOffers.unitPicker.error" | translate }}</span>
+                                  <button type="button" (click)="retryUnits($event)">
+                                    {{ "d3.platformOffers.unitPicker.retry" | translate }}
+                                  </button>
+                                } @else if (!unitResults().length) {
+                                  <span>{{ "d3.platformOffers.unitPicker.empty" | translate }}</span>
+                                } @else if (unitHasMore()) {
+                                  <button type="button" (click)="loadMoreUnits($event)">
+                                    {{
+                                      "d3.platformOffers.unitPicker.loadMore"
+                                        | translate
+                                          : { shown: unitResults().length, total: unitTotal() }
+                                    }}
+                                  </button>
+                                } @else {
+                                  <span>{{
+                                    "d3.platformOffers.unitPicker.count"
+                                      | translate: { count: unitResults().length }
+                                  }}</span>
+                                }
+                              </div>
                             </mat-select>
+                            @if (selectedUnitCount()) {
+                              <small class="field-hint">{{
+                                "d3.platformOffers.unitPicker.selected"
+                                  | translate: { count: selectedUnitCount() }
+                              }}</small>
+                            }
                             @if (fieldError("unitIds"); as msg) {
                               <small class="field-error">{{ msg }}</small>
                             }

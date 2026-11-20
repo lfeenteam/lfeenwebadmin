@@ -274,9 +274,12 @@
   overflow: hidden;
   padding: 10px;
 
+  // Scroll sideways when the table is wider than the card (tablet / 1024-1366 with the sidebar open),
+  // so the status and action columns stay reachable. The radius still clips the corners.
   .table-responsive {
     border-radius: 10px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 }
 

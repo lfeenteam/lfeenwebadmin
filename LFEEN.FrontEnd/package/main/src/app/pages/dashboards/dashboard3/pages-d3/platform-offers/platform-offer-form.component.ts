@@ -11,12 +11,23 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from 'rxjs';
+import { MatSelect } from '@angular/material/select';
 import { MaterialModule } from 'src/app/material.module';
 import { CoreService } from 'src/app/services/core.service';
 import { extractApiErrorMessage, extractApiFieldErrors } from '../../utils/api-error.util';
 import { SingleDateCalendarComponent } from '../all-bookings/components/single-date-calendar/single-date-calendar.component';
-import { BookingUnitOption } from '../all-bookings/interfaces/booking.model';
+import { BookingUnitOption, PublishedUnitsPage } from '../all-bookings/interfaces/booking.model';
 import { BookingService } from '../all-bookings/services/booking.service';
 import { TimeSelectComponent } from './components/time-select/time-select.component';
 import {
@@ -79,7 +90,23 @@ export class PlatformOfferFormComponent implements OnInit {
   banner?: File;
   preview = signal('');
   codeState = signal<'idle' | 'checking' | 'ok' | 'taken'>('idle');
-  units = signal<BookingUnitOption[]>([]);
+  /** Units found by the current server search (all loaded pages of it). */
+  unitResults = signal<BookingUnitOption[]>([]);
+  unitTotal = signal(0);
+  unitHasMore = signal(false);
+  unitsLoading = signal(false);
+  unitsFailed = signal(false);
+  /** The text in the picker's search box. */
+  unitSearchText = signal('');
+  /** The search the shown results belong to (load-more continues it). */
+  private unitQuery = { search: '', page: 1 };
+  private unitSearch$ = new Subject<string>();
+  private unitLoad$ = new Subject<{ search: string; page: number }>();
+  /**
+   * Names of every unit seen so far — search results and the offer's saved units —
+   * so a selected unit keeps its name after the search moves on.
+   */
+  private unitLabels = new Map<number, string>();
   readonly limits = OFFER_LIMITS;
   days = OFFER_DAYS;
   form = this.fb.group(
@@ -136,6 +163,28 @@ export class PlatformOfferFormComponent implements OnInit {
   get terms() {
     return this.form.controls.offerTerms as FormArray;
   }
+  private selectedUnitIds = toSignal(
+    this.form.controls.unitIds.valueChanges.pipe(
+      startWith(this.form.controls.unitIds.value),
+      map((ids) => ids ?? []),
+    ),
+    { initialValue: [] as number[] },
+  );
+  /**
+   * Options of the unit picker: the selected units the current results don't hold
+   * first, then the results. Every selected id must keep an option — mat-select only
+   * reports the values of its options, so a selected id without one would be dropped
+   * from the offer on the next click.
+   */
+  unitOptions = computed<BookingUnitOption[]>(() => {
+    const results = this.unitResults();
+    const shown = new Set(results.map((u) => u.id));
+    const kept = this.selectedUnitIds()
+      .filter((id) => !shown.has(id))
+      .map((id) => ({ id, name: this.unitLabel(id), propertyId: 0 }));
+    return [...kept, ...results];
+  });
+  selectedUnitCount = computed(() => this.selectedUnitIds().length);
   enumLabel(value: string | null | undefined): string {
     if (value === null || value === undefined || value === '') return '—';
     const key = `d3.platformOffers.enums.${value}`;
@@ -168,10 +217,107 @@ export class PlatformOfferFormComponent implements OnInit {
         next: (r) => this.codeState.set(r.isAvailable ? 'ok' : 'taken'),
         error: () => this.codeState.set('idle'),
       });
-    this.bookingService
-      .getPublishedUnits()
-      .subscribe({ next: (u) => this.units.set(u) });
+    this.initUnitPicker();
     if (this.id) this.load();
+  }
+
+  /**
+   * The unit picker searches published units on the server a page at a time:
+   * the platform has far more units than one page holds (the API caps a page at 100).
+   */
+  private initUnitPicker() {
+    this.unitSearch$
+      .pipe(
+        debounceTime(350),
+        map((s) => s.trim()),
+        distinctUntilChanged(),
+      )
+      .subscribe((search) => this.unitLoad$.next({ search, page: 1 }));
+    this.unitLoad$
+      .pipe(
+        // A newer search or page cancels the one in flight, so stale results never land.
+        switchMap((q) => {
+          this.unitQuery = q;
+          this.unitsLoading.set(true);
+          this.unitsFailed.set(false);
+          return this.bookingService
+            .searchPublishedUnits({ search: q.search, page: q.page })
+            .pipe(
+              map((r): PublishedUnitsPage | null => r),
+              catchError(() => of(null)),
+              map((r) => ({ q, r })),
+            );
+        }),
+      )
+      .subscribe(({ q, r }) => {
+        this.unitsLoading.set(false);
+        if (!r) {
+          this.unitsFailed.set(true);
+          if (q.page === 1) {
+            this.unitResults.set([]);
+            this.unitHasMore.set(false);
+          }
+          return;
+        }
+        r.items.forEach((u) => this.unitLabels.set(u.id, u.name));
+        if (q.page === 1) this.unitResults.set(r.items);
+        else
+          this.unitResults.update((prev) => {
+            const seen = new Set(prev.map((u) => u.id));
+            return [...prev, ...r.items.filter((u) => !seen.has(u.id))];
+          });
+        this.unitTotal.set(r.totalCount);
+        this.unitHasMore.set(r.hasMore);
+      });
+    this.unitLoad$.next({ search: '', page: 1 });
+  }
+
+  unitSearchChanged(value: string) {
+    this.unitSearchText.set(value);
+    this.unitSearch$.next(value);
+  }
+
+  loadMoreUnits(e?: Event) {
+    e?.stopPropagation();
+    if (this.unitsLoading() || !this.unitHasMore()) return;
+    this.unitLoad$.next({ ...this.unitQuery, page: this.unitQuery.page + 1 });
+  }
+
+  retryUnits(e?: Event) {
+    e?.stopPropagation();
+    this.unitLoad$.next({ ...this.unitQuery });
+  }
+
+  private unitPanelScroll?: { el: HTMLElement; fn: () => void };
+
+  /**
+   * On open: focus the search box and load the next page when the list is scrolled
+   * near its end. The panel lives in an overlay, so the listener is added by hand.
+   */
+  unitPickerToggled(open: boolean, select: MatSelect, input: HTMLInputElement) {
+    this.unitPanelScroll?.el.removeEventListener('scroll', this.unitPanelScroll.fn);
+    this.unitPanelScroll = undefined;
+    if (!open) return;
+    setTimeout(() => input.focus());
+    const el = select.panel?.nativeElement as HTMLElement | undefined;
+    if (!el) return;
+    const fn = () => {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 48) this.loadMoreUnits();
+    };
+    el.addEventListener('scroll', fn, { passive: true });
+    this.unitPanelScroll = { el, fn };
+  }
+
+  /**
+   * Keys typed in the search box must not reach mat-select, which would treat
+   * space as "toggle option" and letters as type-ahead. Escape and Tab still close it.
+   */
+  unitSearchKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Escape' && e.key !== 'Tab') e.stopPropagation();
+  }
+
+  private unitLabel(id: number) {
+    return this.unitLabels.get(id) ?? `#${id}`;
   }
   toggle(k: string) {
     this.open.update((s) => {
@@ -203,6 +349,14 @@ export class PlatformOfferFormComponent implements OnInit {
   }
   patch(d: PlatformOfferDetail) {
     const date = (v?: string | null) => (v ? v.slice(0, 16) : '');
+    // The saved units may be outside the loaded search results — name them from the
+    // offer itself so they show (and stay selected) in the picker.
+    const rtl = this.dir() === 'rtl';
+    d.offerUnits.forEach((u) => {
+      const title = (rtl ? u.unitTitleAr || u.unitTitleEn : u.unitTitleEn || u.unitTitleAr)?.trim();
+      if (!this.unitLabels.has(u.unitId))
+        this.unitLabels.set(u.unitId, title || u.unitExternalId || `#${u.unitId}`);
+    });
     this.form.patchValue({
       ...d,
       offerStartDate: date(d.offerStartDate),

@@ -185,7 +185,8 @@
   } @else {
     @for (msg of threadMessages; track trackById($index, msg)) {
       @let isAdmin = isAdminMessage(msg);
-      <section class="support-reply-card" [class.user-reply-card]="!isAdmin">
+      @let isNote = isAdmin && isInternalNote(msg);
+      <section class="support-reply-card" [class.user-reply-card]="!isAdmin" [class.internal-note-card]="isNote">
         <div class="support-reply-header">
           <div class="support-reply-agent">
             @if (isAdmin) {
@@ -196,7 +197,15 @@
               <span class="support-avatar user-avatar">{{ getInitials(msg.senderName) }}</span>
             }
             <div>
-              <h3>{{ msg.senderName }}</h3>
+              <h3>
+                {{ msg.senderName }}
+                @if (isNote) {
+                  <span class="internal-note-badge">
+                    <i-tabler name="lock" class="icon-12"></i-tabler>
+                    {{ 'd3.complaints.hostDetail.internalNoteBadge' | translate }}
+                  </span>
+                }
+              </h3>
               @if (isAdmin) {
                 <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
               } @else {
@@ -213,7 +222,12 @@
           <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: msg.attachment }"></ng-container>
         }
 
-        @if (isAdmin) {
+        @if (isNote) {
+          <div class="support-reply-footer internal-note-footer">
+            <i-tabler name="eye-off" class="icon-14"></i-tabler>
+            {{ 'd3.complaints.hostDetail.internalNoteHint' | translate }}
+          </div>
+        } @else if (isAdmin) {
           <div class="support-reply-footer">
             <i-tabler name="circle-check" class="icon-14"></i-tabler>
             {{ 'd3.complaints.hostDetail.supportReplySentNotice' | translate }}

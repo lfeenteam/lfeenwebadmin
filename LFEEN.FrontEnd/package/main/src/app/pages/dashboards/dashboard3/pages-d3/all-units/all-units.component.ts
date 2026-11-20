@@ -4,6 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
@@ -38,6 +39,8 @@ export class AllUnitsComponent {
   private translate    = inject(TranslateService);
   private dialog       = inject(MatDialog);
   private login        = inject(LoginService);
+  private route        = inject(ActivatedRoute);
+  private router       = inject(Router);
 
   activeTab: string = this.unitsService.activeTab();
   searchQuery       = '';
@@ -133,6 +136,8 @@ export class AllUnitsComponent {
   }
 
   constructor() {
+    this.applyTabFromUrl();
+
     // sync main data
     effect(() => {
       this.buildingsWithUnits = this.unitsService.paginatedBuildings();
@@ -189,6 +194,21 @@ export class AllUnitsComponent {
         return f;
       });
       this.cdr.markForCheck();
+    });
+  }
+
+  // A link may ask for a tab (e.g. a unit notification whose unit couldn't be opened lands
+  // on "pending changes"). The param is dropped once applied so it doesn't stick around
+  // after the admin switches tabs.
+  private applyTabFromUrl(): void {
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (!tab || !this.tabs.some(t => t.id === tab)) return;
+    this.onTabChange(tab);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
     });
   }
 

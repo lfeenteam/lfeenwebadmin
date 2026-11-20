@@ -245,6 +245,45 @@
   }
 }
 
+// Internal notes — staff only, never delivered to the merchant
+.support-reply-card.internal-note-card {
+  border: 1px dashed #D9A21B;
+  background: #FFF9E8;
+  box-shadow: none;
+
+  .support-avatar {
+    background: #F5E3B3;
+    color: #8A6100;
+  }
+
+  p {
+    border-bottom-color: #F0DFB0;
+  }
+}
+
+.support-reply-agent span.internal-note-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #FCEBC0;
+  color: #8A6100;
+  font-size: 10px;
+  font-weight: 800;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.support-reply-footer.internal-note-footer {
+  color: #8A6100;
+
+  i-tabler {
+    color: #B7860B;
+  }
+}
+
 .support-avatar.user-avatar {
   background: #F9E1EE;
   color: #D6338A;

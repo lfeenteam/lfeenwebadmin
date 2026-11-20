@@ -3,6 +3,7 @@ import { Component, HostListener, OnDestroy, OnInit, computed, inject, signal } 
 import { A11yModule } from '@angular/cdk/a11y';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
@@ -28,6 +29,8 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   private readonly toastr = inject(ToastrService);
   private readonly core = inject(CoreService);
   private readonly login = inject(LoginService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly searchChanges = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
   private detailRequest?: Subscription;
@@ -48,6 +51,15 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchChanges.pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$)).subscribe(() => { this.page.set(1); this.load(); });
     this.load();
+    // ?id=<externalId> (from a "new contact request" notification) opens that request's
+    // details. The param is dropped once read, so a reload or closing the drawer doesn't
+    // reopen it; the list keeps loading underneath as usual.
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const id = params.get('id')?.trim();
+      if (!id) return;
+      this.openById(id);
+      this.router.navigate([], { relativeTo: this.route, queryParams: { id: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    });
   }
   ngOnDestroy(): void { this.detailRequest?.unsubscribe(); this.listRequest?.unsubscribe(); this.destroy$.next(); this.destroy$.complete(); }
   onSearch(value: string): void { this.search = value; this.searchChanges.next(value.trim()); }
@@ -74,12 +86,14 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
     });
   }
   changePage(value: number): void { if (value < 1 || value > this.totalPages() || value === this.page()) return; this.page.set(value); this.load(); }
-  open(item: ContactUsListItem, trigger?: Event): void {
+  open(item: ContactUsListItem, trigger?: Event): void { this.openById(item.externalId, trigger, item.status); }
+  /** listedStatus: the row's status as shown, when opened from the list (a change reloads a filtered list). */
+  private openById(externalId: string, trigger?: Event, listedStatus?: ContactUsStatus): void {
     this.detailRequest?.unsubscribe();
     this.drawerTrigger = trigger?.currentTarget as HTMLElement | undefined;
     this.detailLoading.set(true); this.detailError.set(''); this.selected.set(null);
-    this.detailRequest = this.service.getRequest(item.externalId).subscribe({
-      next: detail => { this.selected.set(detail); this.detailLoading.set(false); this.items.update(rows => rows.map(r => r.externalId === item.externalId ? { ...r, status: detail.status } : r)); if (item.status !== detail.status && this.status() !== 'all') this.load(); },
+    this.detailRequest = this.service.getRequest(externalId).subscribe({
+      next: detail => { this.selected.set(detail); this.detailLoading.set(false); this.items.update(rows => rows.map(r => r.externalId === externalId ? { ...r, status: detail.status } : r)); if (listedStatus !== undefined && listedStatus !== detail.status && this.status() !== 'all') this.load(); },
       error: e => { this.detailError.set(extractApiErrorMessage(e, this.translate.instant('d3.contactUs.errors.detail'))); this.detailLoading.set(false); }
     });
   }

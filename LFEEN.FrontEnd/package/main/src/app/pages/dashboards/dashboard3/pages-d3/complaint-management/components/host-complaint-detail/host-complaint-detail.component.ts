@@ -209,6 +209,12 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return m.senderTypeName === 'Admin' || m.senderType === 'Admin' || +m.senderType === 2;
   }
 
+  /** Internal notes are visible to support staff only — they are never sent to the merchant. */
+  isInternalNote(m: TicketMessage): boolean {
+    const v: unknown = m.isInternalNote;
+    return v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
+  }
+
   get hostSubtitle(): string {
     const t = this.ticket();
     if (!t) return '';

@@ -56,6 +56,14 @@ export interface BookingUnitOption {
   propertyId: number;
 }
 
+/** One page of a server-side published-unit search. */
+export interface PublishedUnitsPage {
+  items: BookingUnitOption[];
+  totalCount: number;
+  page: number;
+  hasMore: boolean;
+}
+
 /** POST change-unit result — the booking is repriced at the new unit's rate. */
 export interface ChangeBookingUnitResult {
   bookingId: string;
