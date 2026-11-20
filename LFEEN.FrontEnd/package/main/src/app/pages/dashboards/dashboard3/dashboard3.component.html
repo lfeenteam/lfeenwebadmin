@@ -47,8 +47,8 @@
     </div>
   </div>
 
-  <!-- Floating customer-chat button -->
-  @if (!isLoginRoute) {
+  <!-- Floating customer-chat button (not on the complaints pages, which show the chats themselves) -->
+  @if (!isLoginRoute && !isComplaintsRoute) {
     <app-client-chat-fab></app-client-chat-fab>
   }
 </div>
