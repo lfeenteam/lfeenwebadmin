@@ -18,7 +18,8 @@
           <div class="custom-dropdown-container position-relative">
             <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
                  (click)="isDeptDropdownOpen = !isDeptDropdownOpen"
-                 [class.has-value]="selectedDept">
+                 [class.has-value]="selectedDept"
+                 [class.is-invalid]="!!serverErrors['department']">
               <span class="flex-grow-1 text-center font-medium">
                 {{ getSelectedDeptName() || ('d3.teamManagement.addEmployeeDialog.departmentPlaceholder' | translate) }}
               </span>
@@ -35,6 +36,9 @@
               </div>
             }
           </div>
+          @if (serverErrors['department']) {
+            <p class="field-error-msg">{{ serverErrors['department'] }}</p>
+          }
         </div>
       }
 
@@ -112,7 +116,7 @@
           <div class="custom-dropdown-trigger d-flex align-items-center justify-content-between p-x-16"
                (click)="data.fromAllEmployees && !selectedDept ? null : toggleDropdown()"
                [class.has-value]="employeeForm.get('roleId')?.value"
-               [class.is-invalid]="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched"
+               [class.is-invalid]="(employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched) || !!serverErrors['roleId']"
                [style.opacity]="data.fromAllEmployees && !selectedDept ? '0.5' : '1'"
                [style.cursor]="data.fromAllEmployees && !selectedDept ? 'not-allowed' : 'pointer'">
             <span class="flex-grow-1 text-center font-medium">
@@ -138,6 +142,9 @@
           <p class="field-error-msg">
             {{ 'd3.teamManagement.addEmployeeDialog.validation.roleRequired' | translate }}
           </p>
+        }
+        @if (serverErrors['roleId']) {
+          <p class="field-error-msg">{{ serverErrors['roleId'] }}</p>
         }
       </div>
 

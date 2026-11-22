@@ -1718,7 +1718,7 @@
         "jobRole": "Job Role",
         "jobRolePlaceholder": "Choose Job Role",
         "tempPassword": "Temporary Password",
-        "passwordHint": "This password will be sent to the employee's email automatically.",
+        "passwordHint": "A temporary password will be generated and sent to the employee's email automatically.",
         "submit": "Save and Send",
         "validation": {
           "nameRequired": "Name is required",
@@ -3344,7 +3344,12 @@
         "confirmTextPrefix": "You selected",
         "confirmTextSuffix": "to follow up this complaint. An instant notification will be sent to the assigned employee.",
         "confirmBtn": "Confirm Assignment",
-        "success": "Employee assigned successfully"
+        "success": "Employee assigned successfully",
+        "notFoundTitle": "Ticket not found",
+        "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
+        "closedTitle": "This ticket is closed",
+        "closedDesc": "This ticket has been resolved or closed, so it can't be assigned to an employee.",
+        "backToList": "Back to complaints"
       }
     },
     "chatFab": {

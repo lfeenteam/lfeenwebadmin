@@ -4,11 +4,26 @@
   font-family: 'Cairo', sans-serif;
 }
 
+// Column count follows the width the cards actually get, not the viewport: with the
+// sidebar open a 1024–1180 screen leaves too little for four cards, and the titles
+// ended up broken mid-word. Containment lives on its own wrapper (not :host) because it
+// would become the containing block for the tabs-filter's fixed mobile filter sheet.
+.metrics-container {
+  container-type: inline-size;
+  container-name: sub-header-metrics;
+}
+
 .sub-header-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
   align-items: stretch;
+}
+
+@container sub-header-metrics (max-width: 899.98px) {
+  .sub-header-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .metric-card {
@@ -40,7 +55,8 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
-  overflow-wrap: anywhere;
+  // Wrap between words; only an over-long single word may be split as a last resort.
+  overflow-wrap: break-word;
 }
 
 .metric-value {
@@ -156,6 +172,17 @@
         justify-content: flex-start;
       }
     }
+  }
+}
+
+// Desktop: the view toggle floats over the inline-end of the tab strip, so the strip
+// (and its end fade / scroll arrow) stops short of it — otherwise the last tabs hide
+// underneath the toggle once the strip starts scrolling.
+@media (min-width: 993px) {
+  app-tabs-filter ::ng-deep {
+    .tabs-row { margin-inline-end: 80px; }
+    .tabs-scroll::after { inset-inline-end: 80px; }
+    .tabs-scroll-arrow--end { inset-inline-end: 82px; }
   }
 }
 

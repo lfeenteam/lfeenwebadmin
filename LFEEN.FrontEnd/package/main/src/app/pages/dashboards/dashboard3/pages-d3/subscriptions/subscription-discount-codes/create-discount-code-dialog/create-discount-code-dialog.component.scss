@@ -225,16 +225,24 @@
   color: #dc2626;
 }
 
+// Sits between .form-scroll and .dialog-actions (not inside the scroll), so it no
+// longer gets the scroll container's gap — space it here instead.
 .server-error {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-top: 14px;
+  max-height: 96px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   padding: 10px 12px;
   border-radius: 12px;
   background: #fef2f2;
   color: #b91c1c;
   font-size: 12px;
   font-weight: 700;
+
+  i-tabler { flex-shrink: 0; }
 }
 
 .dialog-actions {

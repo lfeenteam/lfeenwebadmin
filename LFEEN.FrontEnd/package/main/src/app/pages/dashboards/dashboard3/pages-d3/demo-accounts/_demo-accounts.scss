@@ -453,7 +453,15 @@ textarea.da-input {
     position: sticky;
     bottom: 0;
     padding: 12px 0;
+    // The buttons sit at the inline end — the chat FAB's corner (28px + 56px). Keep them
+    // clear of it, since this bar never scrolls out from under the button.
+    padding-inline-end: 96px;
     background: linear-gradient(to top, #fff 75%, rgba(255, 255, 255, 0));
+  }
+
+  // Phones: the FAB is 16px + 56px from the corner and the buttons stack full width.
+  @media (max-width: 576px) {
+    padding-inline-end: 80px;
   }
 }
 

@@ -367,6 +367,15 @@ export const CLIENT_TICKET_STATUS = {
   ClosedByAdmin: 'ClosedByAdmin',
 } as const;
 
+const CLOSED_TICKET_STATUSES = new Set(['resolved', 'closed', 'closedbyclient', 'closedbyadmin', '5']);
+
+/** Whether a host or client ticket is already finished (Resolved / Closed*), so it
+ * can no longer be assigned. Host tickets may send the numeric code 5 for Closed. */
+export function isClosedTicketStatus(status: string | number | null | undefined, closedAtUtc?: string | null): boolean {
+  if (closedAtUtc) return true;
+  return status != null && CLOSED_TICKET_STATUSES.has(String(status).toLowerCase());
+}
+
 export interface TicketsOverviewItem {
   externalId: string;
   ticketNumber: string;

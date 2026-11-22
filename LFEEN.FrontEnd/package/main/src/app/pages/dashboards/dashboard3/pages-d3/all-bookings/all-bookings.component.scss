@@ -1149,3 +1149,32 @@ table {
     order: 0;
   }
 }
+
+// Phones: the counter and the page buttons don't fit on one row (~460px at 390),
+// and the extra width made .page-content scroll sideways — opening a row's "⋮"
+// menu then shifted every card. Counter on its own line above the buttons, both
+// centered (same as the complaints table). overflow-x: clip on the host is a
+// guard so nothing else here can widen the page; unlike hidden it doesn't make
+// a scroll container, so the table wrapper and tabs keep their own scrolling.
+@media (max-width: 768px) {
+  :host { overflow-x: clip; }
+
+  .table-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .pagination-total {
+    flex-basis: 100%;
+    order: -1;
+    text-align: center;
+  }
+
+  .pagination-controls {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

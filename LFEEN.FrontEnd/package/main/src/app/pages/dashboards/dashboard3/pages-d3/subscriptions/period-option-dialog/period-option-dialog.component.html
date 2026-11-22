@@ -66,13 +66,15 @@
       {{ (isEdit ? 'd3.periodOption.editNote' : 'd3.periodOption.priceNote') | translate }}
     </span>
 
-    @if (serverError) {
-      <div class="server-error">
-        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
-        <span>{{ serverError }}</span>
-      </div>
-    }
   </div>
+
+  <!-- Outside .form-scroll so it stays in view next to the buttons on a short screen. -->
+  @if (serverError) {
+    <div class="server-error" role="alert">
+      <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+      <span>{{ serverError }}</span>
+    </div>
+  }
 
   <div class="dialog-actions">
     <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">

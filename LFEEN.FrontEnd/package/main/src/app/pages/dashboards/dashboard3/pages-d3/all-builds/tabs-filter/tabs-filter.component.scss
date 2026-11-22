@@ -21,17 +21,31 @@
   min-width: 0;
 }
 
+// The tab strip scrolls horizontally at every width: with the sidebar open a 1024 screen
+// leaves ~730px, and the page root clips (`overflow-x: clip`) anything wider — so the
+// trailing tabs (rejected / banned) used to disappear with no way to reach them.
+// The 1px bottom padding + matching negative margin keep the active tab's underline
+// (`margin-bottom: -1px` on `.tab-btn`) painted over the toolbar border instead of clipped.
 .tabs-row {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 28px;
   flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 1px;
+  margin-bottom: -1px;
+
+  &::-webkit-scrollbar { display: none; }
 }
 
 // Overflow affordance for the scrolling tab strip — a soft fade on whichever edge still
-// has hidden tabs, plus a floating chevron button. Only rendered inside the mobile
-// breakpoint below (the only place `.tabs-row` actually scrolls); inert everywhere else.
+// has hidden tabs, plus a floating chevron button. Shown only while that edge actually
+// has hidden tabs (`can-scroll-start` / `can-scroll-end`, toggled from the component).
 %tabs-scroll-fade {
   content: '';
   position: absolute;
@@ -101,6 +115,16 @@
   inset-inline-end: 2px;
 }
 
+.tabs-scroll.can-scroll-start::before,
+.tabs-scroll.can-scroll-end::after {
+  opacity: 1;
+}
+
+.tabs-scroll.can-scroll-start .tabs-scroll-arrow--start,
+.tabs-scroll.can-scroll-end .tabs-scroll-arrow--end {
+  display: flex;
+}
+
 :host-context([dir='ltr']) {
   .tabs-scroll::before {
     background: linear-gradient(to right, #ffffff 42%, rgba(255, 255, 255, 0) 100%);
@@ -129,6 +153,7 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: color 0.2s ease, border-color 0.2s ease;
 
   &.active {
@@ -312,6 +337,7 @@
   .tabs-row {
     border-bottom: none;
     padding-bottom: 4px;
+    margin-bottom: 0;
   }
 
   .filters-row {
@@ -350,32 +376,15 @@
   }
 
   .tabs-row {
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     gap: 6px;
     padding-bottom: 2px;
-
-    &::-webkit-scrollbar { display: none; }
+    margin-bottom: 0;
   }
 
   .tab-btn {
     height: 52px;
     font-size: 14px;
     padding: 10px 4px;
-    flex-shrink: 0;
-  }
-
-  .tabs-scroll.can-scroll-start::before,
-  .tabs-scroll.can-scroll-end::after {
-    opacity: 1;
-  }
-
-  .tabs-scroll.can-scroll-start .tabs-scroll-arrow--start,
-  .tabs-scroll.can-scroll-end .tabs-scroll-arrow--end {
-    display: flex;
   }
 
   .filter-dropdowns { display: none; }

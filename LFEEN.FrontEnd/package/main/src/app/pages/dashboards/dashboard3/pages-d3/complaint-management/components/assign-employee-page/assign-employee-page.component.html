@@ -1,6 +1,25 @@
 <div class="assign-page" [dir]="currentDir">
 
   <div class="assign-content">
+    @if (loadState() === 'loading') {
+      <div class="assign-loading">
+        <span class="assign-spinner"></span>
+      </div>
+    } @else if (loadState() === 'notFound') {
+      <app-dashboard-empty variant="empty" icon="file-off"
+        titleKey="d3.complaints.assignDialog.notFoundTitle"
+        descKey="d3.complaints.assignDialog.notFoundDesc"
+        actionKey="d3.complaints.assignDialog.backToList" actionIcon="arrow-back-up"
+        (action)="backToList()">
+      </app-dashboard-empty>
+    } @else if (loadState() === 'error') {
+      <app-dashboard-empty variant="error"
+        titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+        actionKey="d3.state.retry" actionIcon="refresh"
+        (action)="retryLoad()">
+      </app-dashboard-empty>
+    } @else {
+
     @if (ticketNumber()) {
       <div class="assign-ticket-badge">
         <i-tabler name="ticket" class="icon-16"></i-tabler>
@@ -8,6 +27,19 @@
         <strong>{{ ticketNumber() }}</strong>
       </div>
     }
+
+    @if (ticketClosed()) {
+      <div class="assign-closed-notice">
+        <i-tabler name="lock" class="icon-18"></i-tabler>
+        <div class="assign-closed-text">
+          <strong>{{ 'd3.complaints.assignDialog.closedTitle' | translate }}</strong>
+          <span>{{ 'd3.complaints.assignDialog.closedDesc' | translate }}</span>
+        </div>
+        <button type="button" class="assign-closed-back" (click)="backToList()">
+          {{ 'd3.complaints.assignDialog.backToList' | translate }}
+        </button>
+      </div>
+    } @else {
 
     <div class="assign-search">
       <div class="search-input-wrap">
@@ -43,7 +75,7 @@
                     } @else {
                       <div class="initials-avatar">{{ getInitials(employee.fullName) }}</div>
                     }
-                 
+
                   </div>
                   <div class="employee-meta">
                     <span class="employee-name">{{ employee.fullName }}</span>
@@ -115,10 +147,13 @@
       } @else {
         <p class="assign-confirm-text muted">{{ 'd3.complaints.assignDialog.selectHint' | translate }}</p>
       }
-      <button class="confirm-btn" type="button" [disabled]="!selected() || submitting()" (click)="confirm()">
+      <button class="confirm-btn" type="button" [disabled]="!selected() || submitting() || !canAssign" (click)="confirm()">
         {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
       </button>
     </div>
+
+    }
+    }
   </div>
 
 </div>

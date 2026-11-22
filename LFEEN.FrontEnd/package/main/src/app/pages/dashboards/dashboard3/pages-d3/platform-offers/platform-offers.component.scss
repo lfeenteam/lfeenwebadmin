@@ -76,6 +76,12 @@
   border-radius: 16px;
   overflow: hidden;
 }
+// The list panel is sized by the content area, not the viewport: with the sidebar open a
+// 1024 screen leaves ~730px, so the filters are laid out from the panel's own width.
+.panel {
+  container-type: inline-size;
+  container-name: offers-panel;
+}
 .filters {
   display: grid;
   grid-template-columns:
@@ -84,6 +90,13 @@
   gap: 10px;
   padding: 16px;
   border-bottom: 1px solid #e8e8e4;
+}
+// One row of filters needs ~784px; below that they wrap into rows of three (the same
+// layout the ≤1000px media query uses) instead of spilling out of the card.
+@container offers-panel (max-width: 860px) {
+  .filters {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 .filters input,
 .filters select,
@@ -426,10 +439,19 @@
   height: 16px;
   stroke-width: 2;
 }
+// The desktop table needs ~974px (fixed columns + gaps + padding). The panel clips
+// (`overflow: hidden` for its radius), so the table scrolls inside its own box instead
+// of losing the status / uses / actions columns on narrow content widths.
+.offer-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .table-head,
 .offer-row {
   display: grid;
   grid-template-columns: minmax(220px, 1.5fr) 110px 95px 145px 105px 70px 125px;
+  min-width: 974px;
+  box-sizing: border-box;
   gap: 12px;
   align-items: center;
   padding: 0 16px;
@@ -999,6 +1021,7 @@
     display: none;
   }
   .offer-row {
+    min-width: 0;
     grid-template-columns: 1fr auto;
     grid-template-areas: "name status" "code discount" "dates uses" "actions actions";
     padding: 14px;
