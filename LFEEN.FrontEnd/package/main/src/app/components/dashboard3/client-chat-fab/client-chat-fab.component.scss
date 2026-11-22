@@ -17,17 +17,6 @@
   }
 }
 
-// Where the Flow "report an issue" button is enabled (test builds only — off in
-// production), it sits fixed at the bottom-right. In English that is this button's
-// corner too, so stack above it instead of overlapping.
-:host-context(.dashboard-wrapper.with-flow-report[dir='ltr']) .chat-fab {
-  bottom: 88px;
-
-  @media (max-width: 576px) {
-    bottom: 76px;
-  }
-}
-
 .chat-fab-btn {
   position: relative;
   width: 56px;

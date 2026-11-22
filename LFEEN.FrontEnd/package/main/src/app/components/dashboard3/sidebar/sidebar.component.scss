@@ -265,6 +265,12 @@
     flex-direction: column;
     gap: 4px;
 
+    // Test builds: the Flow "report an issue" button is fixed at the bottom of the sidebar
+    // side (bottom 20px, ~40px tall). Keep the profile / logout clear of it.
+    :host-context(.dashboard-wrapper.with-flow-report) & {
+      padding-bottom: 72px;
+    }
+
     .footer-items {
       display: flex;
       flex-direction: column;
@@ -462,6 +468,11 @@
     padding: 16px 0 !important;
     align-items: center !important;
     gap: 12px !important;
+
+    // Same room for the Flow report button as the expanded sidebar (test builds only).
+    :host-context(.dashboard-wrapper.with-flow-report) & {
+      padding-bottom: 72px !important;
+    }
 
     .footer-items {
       width: 100% !important;

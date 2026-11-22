@@ -157,15 +157,13 @@ export interface BookingServiceRequestApiItem {
   bookingNumber: string;
   requestType: string;
   requestTypeKey: string;
+  /** Localized by Accept-Language (e.g. «غسيل ملابس»). */
   title: string | null;
-  titleAr: string | null;
-  titleEn: string | null;
   status: string;
   statusKey: string;
   statusLabel: string;
   pricingStatus: string;
   paymentStatus: string;
-  unitTaskType: string | null;
   unitTaskExternalId: string | null;
   description: string | null;
   guestNote: string | null;

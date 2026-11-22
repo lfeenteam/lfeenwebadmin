@@ -2745,9 +2745,10 @@
           "depositTotal": "إجمالي التأمين"
         },
         "servicesTab": {
-          "currentRequestsTitle": "الطلبات الحالية",
+          "title": "طلبات الخدمة",
           "totalLabel": "الإجمالي",
-          "empty": "لا توجد طلبات حالية"
+          "free": "مجاني",
+          "empty": "لا توجد طلبات خدمة"
         },
         "logTab": {
           "recentActivityTitle": "آخر {{count}} عملية",
@@ -2870,9 +2871,11 @@
         "endsAtHint": "حتى الإيقاف اليدوي",
         "clearDate": "مسح الموعد",
         "riyadhTimeHint": "المواعيد بتوقيت السعودية.",
-        "message": "رسالة الصيانة",
+        "message": "رسالة الصيانة (عربي)",
         "messagePlaceholder": "تطبيق لفين يخضع حاليًا لبعض التحسينات. سنعود إليك قريبًا، شكرًا لتفهمك.",
-        "messageHint": "تبقى الرسالة محفوظة بعد إيقاف الصيانة.",
+        "messageEn": "رسالة الصيانة (إنجليزي)",
+        "messageEnPlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
+        "messageHint": "تبقى الرسائل محفوظة بعد إيقاف الصيانة. إذا تُركت الرسالة الإنجليزية فارغة تظهر العربية لمستخدمي الإنجليزية.",
         "save": "حفظ إعدادات الصيانة",
         "cancel": "إلغاء التعديلات",
         "saveSuccess": "تم حفظ إعدادات الصيانة بنجاح",
@@ -2922,8 +2925,11 @@
           "optionalDesc": "تنبيه قابل للإغلاق للإصدارات الأقدم من أحدث إصدار"
         },
         "storeUrl": "رابط التطبيق على المتجر",
-        "message": "رسالة التحديث بالعربية",
+        "message": "رسالة التحديث (عربي)",
         "messagePlaceholder": "يتوفر إصدار جديد من تطبيق لفين. يرجى التحديث للاستمرار والاستفادة من أحدث المميزات.",
+        "messageEn": "رسالة التحديث (إنجليزي)",
+        "messageEnPlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
+        "messageEnHint": "اختيارية: إذا تُركت فارغة تظهر الرسالة العربية لمستخدمي الإنجليزية.",
         "save": "حفظ إعدادات الإصدار",
         "saveSuccess": "تم حفظ إعدادات الإصدار بنجاح",
         "previewTitle": "معاينة رسالة التحديث",
@@ -3408,7 +3414,15 @@
         "rejectDoneTitle": "تمت عملية الرفض بنجاح",
         "rejectDoneMessage": "تم إرسال إشعار الرفض للمضيف وتحديث حالة المعاملة في النظام",
         "recordedReason": "سبب الرفض المسجل",
-        "rejectionDate": "تاريخ الرفض"
+        "rejectionDate": "تاريخ الرفض",
+        "status": "الحالة",
+        "executionSection": "بيانات التنفيذ",
+        "remainingAmount": "المبلغ المتبقي",
+        "processedBy": "تم التنفيذ بواسطة",
+        "receipt": "إيصال التحويل",
+        "viewReceipt": "عرض الإيصال",
+        "remainderOf": "هذه التسوية هي المبلغ المتبقي من تحويل جزئي للتسوية {{ref}}",
+        "remainderOfUnknown": "هذه التسوية هي المبلغ المتبقي من تحويل جزئي لتسوية سابقة"
       }
     },
     "wallet": {

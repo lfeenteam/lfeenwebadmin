@@ -347,7 +347,7 @@
   </div>
 
   <!-- Single shared row-action menu (one instance for the whole table) -->
-  <mat-menu #rowMenu="matMenu" class="cardWithShadow" yPosition="below">
+  <mat-menu #rowMenu="matMenu" class="cardWithShadow booking-row-menu" yPosition="below">
     <ng-template matMenuContent let-booking="booking">
       <button mat-menu-item type="button" (click)="openBookingDetail(booking.id)">
         <i-tabler name="eye" class="icon-16"></i-tabler>

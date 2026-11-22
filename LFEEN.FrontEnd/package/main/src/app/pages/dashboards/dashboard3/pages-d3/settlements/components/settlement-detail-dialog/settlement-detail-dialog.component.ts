@@ -54,6 +54,30 @@ export interface SettlementDetailDialogData {
   grossFormatted: string;
   feeFormatted: string;
   entries: SettlementDetailDialogEntry[];
+
+  // ── Status / execution (read from GET /api/settlements/{id}) ──
+  /** Translation key of the status chip; null = unknown status, `statusLabel` (raw) is shown. */
+  statusKey: string | null;
+  statusLabel: string;
+  statusClass: string;
+  /** Completed / PartiallyCompleted — the transfer happened, show what was actually sent. */
+  isExecuted: boolean;
+  isPartial: boolean;
+  /** transferredAmount, or netAmount for a full transfer (the backend sends null then). */
+  transferredFormatted: string;
+  /** netAmount − transferred; only meaningful on a partial transfer. */
+  remainingFormatted: string;
+  partialReason: string;
+  bankTransferReference: string;
+  processedAtLabel: string;
+  processedBy: string;
+  receiptUrl: string | null;
+  /** Failed payouts: the reason the admin recorded. */
+  rejectionReason: string | null;
+  /** The leftover payout created by a partial transfer (originatingPayoutId set). */
+  isRemainder: boolean;
+  /** payoutReference of the original payout, when it's in the loaded list; '' otherwise. */
+  originatingReference: string;
 }
 
 /** One booking payment covered by the payout — amounts are pre-formatted by the opener. */

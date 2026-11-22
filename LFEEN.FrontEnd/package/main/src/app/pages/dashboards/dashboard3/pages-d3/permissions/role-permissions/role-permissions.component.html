@@ -170,7 +170,7 @@
       <button mat-stroked-button class="cancel-btn" (click)="cancel()">
         {{ 'd3.permissions.cancelBtn' | translate }}
       </button>
-      <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="!isDirty || isSaving">
+      <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="!isDirty || isSaving || loadError">
         @if (isSaving) {
           <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
         } @else {

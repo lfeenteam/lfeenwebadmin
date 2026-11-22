@@ -768,6 +768,23 @@ table {
   color: #dc2626 !important;
 }
 
+// ── Row-action menu: center the tabler icon with its label ───────────────────
+// i-tabler isn't a mat-icon, so Material puts it inside the text span where it
+// sits on the text baseline. The global .icon-16 helper also forces
+// line-height: 24px into a 16px box, which pushes the inline svg further down.
+::ng-deep .booking-row-menu .mat-mdc-menu-item-text {
+  display: inline-flex;
+  align-items: center;
+}
+::ng-deep .booking-row-menu .mat-mdc-menu-item i-tabler {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  line-height: 0 !important;
+
+  svg { display: block; }
+}
+
 // ── Status filter menu ───────────────────────────────────────────────────────
 ::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu {
   min-width: 200px;

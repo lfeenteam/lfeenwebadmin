@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -11,16 +11,19 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
+  EMPTY,
   Subject,
   catchError,
   debounceTime,
   distinctUntilChanged,
   map,
+  merge,
   of,
   startWith,
   switchMap,
+  tap,
 } from 'rxjs';
 import { MatSelect } from '@angular/material/select';
 import { MaterialModule } from 'src/app/material.module';
@@ -81,7 +84,9 @@ export class PlatformOfferFormComponent implements OnInit {
   private tr = inject(TranslateService);
   private toast = inject(ToastrService);
   private code$ = new Subject<string>();
-  dir = computed(() => this.core.getOptionsSignal()().dir);
+  private destroyRef = inject(DestroyRef);
+  private reload$ = new Subject<void>();
+  dir =computed(() => this.core.getOptionsSignal()().dir);
   id?: number;
   loading = signal(false);
   saving = signal(false);
@@ -154,6 +159,8 @@ export class PlatformOfferFormComponent implements OnInit {
     },
     { validators: offerFormValidator(() => !this.id) },
   );
+  /** The empty form's values, to start over when the URL moves to another offer. */
+  private readonly emptyValue = this.form.getRawValue();
   get exclusions() {
     return this.form.controls.exclusionPeriods as FormArray;
   }
@@ -192,8 +199,6 @@ export class PlatformOfferFormComponent implements OnInit {
     return label === key ? '—' : label;
   }
   ngOnInit() {
-    const raw = this.route.snapshot.paramMap.get('id');
-    if (raw) this.id = +raw;
     this.syncCodeValidators();
     this.form.controls.triggerType.valueChanges.subscribe(() =>
       this.syncCodeValidators(),
@@ -218,7 +223,69 @@ export class PlatformOfferFormComponent implements OnInit {
         error: () => this.codeState.set('idle'),
       });
     this.initUnitPicker();
-    if (this.id) this.load();
+    this.watchOfferId();
+  }
+
+  /**
+   * Follows the id in the URL: going from /2/edit to /3/edit reuses this component,
+   * so the form starts over and is filled with the offer the URL now names.
+   */
+  private watchOfferId() {
+    const id$ = this.route.paramMap.pipe(
+      map((p) => {
+        const raw = p.get('id');
+        return raw ? +raw : undefined;
+      }),
+      distinctUntilChanged(),
+      tap((id) => this.resetFor(id)),
+    );
+    merge(id$, this.reload$.pipe(map(() => this.id)))
+      .pipe(
+        // A newer id cancels the request of the previous one, so a late answer
+        // for the old offer never fills the form of the new one.
+        switchMap((id) => {
+          if (!id) return EMPTY;
+          this.loading.set(true);
+          this.error.set('');
+          return this.service.get(id).pipe(
+            tap({
+              next: (d) => {
+                this.patch(d);
+                this.loading.set(false);
+              },
+              error: (e) => {
+                this.error.set(
+                  extractApiErrorMessage(
+                    e,
+                    this.tr.instant('d3.platformOffers.errors.detail'),
+                  ),
+                );
+                this.loading.set(false);
+              },
+            }),
+            catchError(() => EMPTY),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  /** Clears everything that belonged to the offer shown before. */
+  private resetFor(id: number | undefined) {
+    this.id = id;
+    this.loading.set(false);
+    this.error.set('');
+    this.submitted = false;
+    this.banner = undefined;
+    this.preview.set('');
+    this.codeState.set('idle');
+    this.open.set(new Set(['basics']));
+    this.exclusions.clear();
+    this.messages.clear();
+    this.terms.clear();
+    this.form.reset(structuredClone(this.emptyValue));
+    this.syncCodeValidators();
   }
 
   /**
@@ -330,22 +397,7 @@ export class PlatformOfferFormComponent implements OnInit {
     return this.open().has(k);
   }
   load() {
-    this.loading.set(true);
-    this.service.get(this.id!).subscribe({
-      next: (d) => {
-        this.patch(d);
-        this.loading.set(false);
-      },
-      error: (e) => {
-        this.error.set(
-          extractApiErrorMessage(
-            e,
-            this.tr.instant('d3.platformOffers.errors.detail'),
-          ),
-        );
-        this.loading.set(false);
-      },
-    });
+    this.reload$.next();
   }
   patch(d: PlatformOfferDetail) {
     const date = (v?: string | null) => (v ? v.slice(0, 16) : '');
@@ -372,6 +424,10 @@ export class PlatformOfferFormComponent implements OnInit {
       displayChannel: normalizeDisplayChannel(d.displayChannel) ?? '',
     } as any);
     this.preview.set(d.banner || '');
+    // Replace, never append: a retry or another offer must not duplicate the rows.
+    this.exclusions.clear();
+    this.messages.clear();
+    this.terms.clear();
     d.exclusionPeriods.forEach((x) => this.exclusions.push(this.exclusion(x)));
     d.customMessages.forEach((x) => this.messages.push(this.message(x)));
     d.offerTerms.forEach((x) => this.terms.push(this.term(x)));
@@ -646,6 +702,8 @@ export class PlatformOfferFormComponent implements OnInit {
       return;
     }
     this.saving.set(true);
+    // The offer the admin is saving, kept even if the URL moves on while the request runs.
+    const id = this.id;
     const value = this.form.getRawValue() as unknown as OfferFormValue;
     const onDone = (newId?: number) => {
       this.saving.set(false);
@@ -655,11 +713,18 @@ export class PlatformOfferFormComponent implements OnInit {
         this.lang(),
         'd3',
         'platform-offers',
-        this.id || newId,
+        id || newId,
       ]);
     };
     const onErr = (e: unknown) => {
       this.saving.set(false);
+      // The form now shows another offer: its fields must not get this save's errors.
+      if (this.id !== id) {
+        this.toast.error(
+          extractApiErrorMessage(e, this.tr.instant('d3.platformOffers.errors.save')),
+        );
+        return;
+      }
       const { claimed, unclaimed } = this.applyServerFieldErrors(e);
       if (claimed) {
         this.revealErrors();
@@ -677,9 +742,9 @@ export class PlatformOfferFormComponent implements OnInit {
         ),
       );
     };
-    if (this.id)
+    if (id)
       this.service
-        .update(this.id, value, this.banner)
+        .update(id, value, this.banner)
         .subscribe({ next: () => onDone(), error: onErr });
     else
       this.service

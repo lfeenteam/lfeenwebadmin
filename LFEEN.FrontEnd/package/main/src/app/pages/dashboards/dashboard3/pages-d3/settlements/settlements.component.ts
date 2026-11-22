@@ -371,6 +371,15 @@ export class SettlementsComponent implements OnInit {
 
   private openDetailDialog(detail: SettlementDetail): void {
     const iban = detail.bank?.iban?.trim() || '';
+    const meta = STATUS_META[detail.status];
+    const isExecuted = detail.status === 'Completed' || detail.status === 'PartiallyCompleted';
+    const isPartial = detail.status === 'PartiallyCompleted';
+    // A full transfer is recorded with transferredAmount = null — the whole net amount went out.
+    const transferred = detail.transferredAmount ?? detail.netAmount;
+    const remaining = Math.max(0, Math.round((detail.netAmount - transferred) * 100) / 100);
+    const originRef = detail.originatingPayoutId
+      ? this.allSettlements.find(r => r.id === detail.originatingPayoutId)?.payoutReference || ''
+      : '';
     const dialogRef = this.dialog.open(SettlementDetailDialogComponent, {
       width: '900px',
       maxWidth: '92vw',
@@ -410,6 +419,21 @@ export class SettlementsComponent implements OnInit {
           net: this.fmtAmount(e.netAmount),
           isRefundAfterSettlement: e.isRefundAfterSettlement === true,
         })),
+        statusKey: meta ? `d3.settlements.status.${meta.key}` : null,
+        statusLabel: detail.status || EMPTY,
+        statusClass: meta?.cls ?? '',
+        isExecuted,
+        isPartial,
+        transferredFormatted: this.fmtAmount(transferred),
+        remainingFormatted: this.fmtAmount(remaining),
+        partialReason: detail.partialSettlementReason?.trim() || EMPTY,
+        bankTransferReference: detail.bankTransferReference?.trim() || EMPTY,
+        processedAtLabel: this.fmtDetailDate(detail.completedAtUtc ?? detail.processedAtUtc ?? detail.lastActionAtUtc, true),
+        processedBy: detail.lastActionByAdminName?.trim() || EMPTY,
+        receiptUrl: detail.receiptUrl?.trim() || null,
+        rejectionReason: detail.status === 'Failed' ? (detail.notes?.trim() || null) : null,
+        isRemainder: !!detail.originatingPayoutId,
+        originatingReference: originRef,
       } as SettlementDetailDialogData
     });
 

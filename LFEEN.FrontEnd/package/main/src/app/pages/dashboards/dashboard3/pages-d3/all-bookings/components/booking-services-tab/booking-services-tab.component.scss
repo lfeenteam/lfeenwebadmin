@@ -71,10 +71,56 @@
   color: #111110;
 }
 
+.service-item-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .service-item-sub {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
   font-size: 11px;
   color: #9e9e9a;
   font-weight: 500;
+}
+
+.service-item-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #6b6b67;
+
+  i-tabler { color: #f5a623; display: inline-flex; }
+  ::ng-deep svg { width: 12px; height: 12px; }
+}
+
+.service-item-rating-value {
+  font-weight: 700;
+  direction: ltr;
+}
+
+.request-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+
+  &--done   { background: #e7f6ec; color: #1e7b3c; }
+  &--closed { background: #fdecec; color: #c0392b; }
+  &--open   { background: #fff4e0; color: #a15c00; }
+}
+
+.service-amount-free {
+  color: #1e7b3c;
+  font-size: 13px;
 }
 
 .service-item-price,

@@ -133,6 +133,61 @@
   .iban-box { padding: 9px 14px; }
   .detail-card--host { order: -2; }
   .detail-card--bank { order: -1; }
+  // Execution result / remainder notice: full width, above everything else.
+  .detail-card--execution,
+  .detail-notice { grid-column: 1 / -1; order: -3; }
+  .detail-notice { order: -4; }
+}
+
+.execution-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 32px;
+}
+
+@media (max-width: 768px) {
+  .execution-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.detail-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+
+  &.status-approved { background: #f0fdf4; color: #16a34a; border-color: #dcfce7; }
+  &.status-pending  { background: #fffbeb; color: #b45309; border-color: #fef3c7; }
+  &.status-rejected { background: #fef2f2; color: #dc2626; border-color: #fee2e2; }
+}
+
+.receipt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
 }
 
 @media (max-width: 768px) {

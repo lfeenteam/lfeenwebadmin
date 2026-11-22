@@ -3,6 +3,16 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+// Test builds only: the Flow "report an issue" button and its confirmation box are appended
+// straight to <body> (marked data-html2canvas-ignore) with an inline right: 20px set once
+// at load. In English (body.d3-flow-start, set by dashboard3) move them to the left — the
+// sidebar side, as they already are in Arabic — so the chat FAB keeps the content corner
+// at its normal height. !important is the only way past the script's inline style.
+body.d3-flow-start > [data-html2canvas-ignore] {
+  right: auto !important;
+  left: 20px !important;
+}
+
 // Agreements dialogs (publish / expiry / new draft / confirm).
 .agreement-dialog-panel {
   .mat-mdc-dialog-container,

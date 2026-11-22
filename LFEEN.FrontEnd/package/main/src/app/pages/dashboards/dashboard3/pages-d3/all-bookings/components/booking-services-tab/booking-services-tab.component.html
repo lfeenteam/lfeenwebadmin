@@ -12,22 +12,38 @@
 
 <section class="detail-section">
   <h4 class="detail-section-title">
-    {{ 'd3.bookings.detail.servicesTab.currentRequestsTitle' | translate }} ({{ formatAmount(requests.length) }})
+    {{ 'd3.bookings.detail.servicesTab.title' | translate }} ({{ formatAmount(requests.length) }})
   </h4>
 
   @if (requests.length) {
     <div class="service-items">
-      @for (request of requests; track request.name) {
+      @for (request of requests; track request.id) {
         <div class="service-item">
           <div class="service-item-info">
             <span class="service-item-icon"><i-tabler [name]="request.icon" class="icon-16"></i-tabler></span>
             <div class="service-item-text">
-              <span class="service-item-name">{{ request.name }}</span>
-              <span class="service-item-sub">{{ request.category }} · {{ request.date }}</span>
+              <div class="service-item-head">
+                <span class="service-item-name">{{ request.name }}</span>
+                @if (request.statusLabel) {
+                  <span class="request-status" [class]="'request-status request-status--' + request.statusTone">{{ request.statusLabel }}</span>
+                }
+              </div>
+              <span class="service-item-sub">
+                {{ request.date }}
+                @if (request.rating !== null) {
+                  <span class="service-item-rating">
+                    · <i-tabler name="star-filled" class="icon-12"></i-tabler>
+                    <span class="service-item-rating-value">{{ formatAmount(request.rating) }}</span>
+                    @if (request.ratingLabel) { <span>{{ request.ratingLabel }}</span> }
+                  </span>
+                }
+              </span>
             </div>
           </div>
           <span class="service-item-price">
-            @if (request.price !== null) {
+            @if (request.isFree) {
+              <span class="service-amount-value service-amount-free">{{ 'd3.bookings.detail.servicesTab.free' | translate }}</span>
+            } @else if (request.price !== null) {
               <span class="service-amount-value">{{ formatAmount(request.price) }}</span>
               <span class="service-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
             } @else {

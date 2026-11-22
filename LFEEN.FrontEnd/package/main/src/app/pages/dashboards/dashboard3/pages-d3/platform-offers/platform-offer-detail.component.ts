@@ -1,6 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  distinctUntilChanged,
+  map,
+  merge,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { CoreService } from 'src/app/services/core.service';
@@ -33,30 +44,58 @@ export class PlatformOfferDetailComponent implements OnInit {
   loading = signal(true);
   error = signal('');
   tab = signal('overview');
+  private destroyRef = inject(DestroyRef);
+  private reload$ = new Subject<void>();
+  /**
+   * Follows the id in the URL: going from /platform-offers/2 to /50 (address bar,
+   * back/forward) reuses this component, so the offer is reloaded on every id change.
+   */
   ngOnInit() {
-    this.id = +this.route.snapshot.paramMap.get('id')!;
-    this.load();
+    const id$ = this.route.paramMap.pipe(
+      map((p) => Number(p.get('id'))),
+      distinctUntilChanged(),
+      tap((id) => {
+        this.id = id;
+        this.offer.set(null);
+        this.stats.set(null);
+        this.tab.set('overview');
+      }),
+    );
+    merge(id$, this.reload$.pipe(map(() => this.id)))
+      .pipe(
+        // A newer id cancels the requests of the previous one, so a late answer
+        // for the old offer never lands on the new one.
+        switchMap((id) => {
+          this.loading.set(true);
+          this.error.set('');
+          return this.service.get(id).pipe(
+            tap({
+              next: (o) => {
+                this.offer.set(o);
+                this.loading.set(false);
+              },
+              error: (e) => {
+                this.error.set(
+                  extractApiErrorMessage(
+                    e,
+                    this.tr.instant('d3.platformOffers.errors.detail'),
+                  ),
+                );
+                this.loading.set(false);
+              },
+            }),
+            switchMap(() =>
+              this.service.stats(id).pipe(catchError(() => EMPTY)),
+            ),
+            catchError(() => EMPTY),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((s) => this.stats.set(s));
   }
   load() {
-    this.loading.set(true);
-    this.service.get(this.id).subscribe({
-      next: (o) => {
-        this.offer.set(o);
-        this.loading.set(false);
-        this.service
-          .stats(this.id)
-          .subscribe({ next: (s) => this.stats.set(s) });
-      },
-      error: (e) => {
-        this.error.set(
-          extractApiErrorMessage(
-            e,
-            this.tr.instant('d3.platformOffers.errors.detail'),
-          ),
-        );
-        this.loading.set(false);
-      },
-    });
+    this.reload$.next();
   }
   status(o: PlatformOfferDetail) {
     if (o.isExpired) return 'expired';

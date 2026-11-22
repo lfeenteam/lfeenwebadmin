@@ -129,10 +129,20 @@
 
       <label class="cc-field">
         <span class="cc-label">{{ 'd3.controlCenter.maintenance.message' | translate }}</span>
-        <textarea class="cc-input cc-textarea" rows="3" formControlName="message" [maxlength]="messageMax"
+        <textarea class="cc-input cc-textarea" rows="3" dir="rtl" formControlName="messageAr" [maxlength]="messageMax"
           [class.is-invalid]="fieldServerError('messageAr')"
           [placeholder]="'d3.controlCenter.maintenance.messagePlaceholder' | translate"></textarea>
         @if (fieldServerError('messageAr'); as err) {
+          <small class="cc-error">{{ err }}</small>
+        }
+      </label>
+
+      <label class="cc-field">
+        <span class="cc-label">{{ 'd3.controlCenter.maintenance.messageEn' | translate }}</span>
+        <textarea class="cc-input cc-textarea" rows="3" dir="ltr" formControlName="messageEn" [maxlength]="messageMax"
+          [class.is-invalid]="fieldServerError('messageEn')"
+          [placeholder]="'d3.controlCenter.maintenance.messageEnPlaceholder' | translate"></textarea>
+        @if (fieldServerError('messageEn'); as err) {
           <small class="cc-error">{{ err }}</small>
         } @else {
           <small class="cc-hint">{{ 'd3.controlCenter.maintenance.messageHint' | translate }}</small>
@@ -140,10 +150,10 @@
       </label>
     }
 
-    @if (serverError && !serverError.fieldErrors['startsAt'] && !serverError.fieldErrors['endsAt'] && !serverError.fieldErrors['messageAr']) {
+    @if (generalServerError; as err) {
       <div class="cc-form-error" role="alert">
         <i-tabler name="alert-circle" class="icon-16"></i-tabler>
-        <span>{{ serverError.message }}</span>
+        <span>{{ err }}</span>
       </div>
     }
 
@@ -177,7 +187,7 @@
           <span class="mp-icon"><i-tabler name="tool" class="icon-24"></i-tabler></span>
           <!-- The apps never receive a title — this one is fixed in the app itself. -->
           <h4 class="mp-title">{{ 'd3.controlCenter.preview.maintenanceTitle' | translate }}</h4>
-          <p class="mp-message">{{ form.controls.message.value.trim() || ('d3.controlCenter.preview.maintenanceFallback' | translate) }}</p>
+          <p class="mp-message">{{ previewMessage || ('d3.controlCenter.preview.maintenanceFallback' | translate) }}</p>
           <span class="mp-retry">
             <i-tabler name="refresh" class="icon-14"></i-tabler>
             {{ 'd3.controlCenter.preview.retry' | translate }}

@@ -3563,9 +3563,10 @@
           "depositTotal": "Total Deposit"
         },
         "servicesTab": {
-          "currentRequestsTitle": "Current Requests",
+          "title": "Service Requests",
           "totalLabel": "Total",
-          "empty": "No current requests"
+          "free": "Free",
+          "empty": "No service requests"
         },
         "logTab": {
           "recentActivityTitle": "Last {{count}} Activities",
@@ -3688,9 +3689,11 @@
         "endsAtHint": "Until switched off",
         "clearDate": "Clear time",
         "riyadhTimeHint": "Times are in Saudi time.",
-        "message": "Maintenance message",
-        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
-        "messageHint": "The message is kept after maintenance is switched off.",
+        "message": "Maintenance message (Arabic)",
+        "messagePlaceholder": "تطبيق لفين يخضع حاليًا لبعض التحسينات. سنعود إليك قريبًا، شكرًا لتفهمك.",
+        "messageEn": "Maintenance message (English)",
+        "messageEnPlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
+        "messageHint": "Messages are kept after maintenance is switched off. If the English one is empty, English users see the Arabic message.",
         "save": "Save maintenance settings",
         "cancel": "Discard changes",
         "saveSuccess": "Maintenance settings saved",
@@ -3741,7 +3744,10 @@
         },
         "storeUrl": "Store link",
         "message": "Update message (Arabic)",
-        "messagePlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
+        "messagePlaceholder": "يتوفر إصدار جديد من تطبيق لفين. يرجى التحديث للاستمرار والاستفادة من أحدث المميزات.",
+        "messageEn": "Update message (English)",
+        "messageEnPlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
+        "messageEnHint": "Optional: if left empty, English users see the Arabic message.",
         "save": "Save version settings",
         "saveSuccess": "Version settings saved",
         "previewTitle": "Update message preview",
@@ -4226,7 +4232,15 @@
         "rejectDoneTitle": "Rejection Completed Successfully",
         "rejectDoneMessage": "A rejection notice was sent to the host and the transaction status updated in the system",
         "recordedReason": "Recorded Rejection Reason",
-        "rejectionDate": "Rejection Date"
+        "rejectionDate": "Rejection Date",
+        "status": "Status",
+        "executionSection": "Execution Details",
+        "remainingAmount": "Remaining Amount",
+        "processedBy": "Processed By",
+        "receipt": "Transfer Receipt",
+        "viewReceipt": "View receipt",
+        "remainderOf": "This settlement is the remainder of a partial transfer of settlement {{ref}}",
+        "remainderOfUnknown": "This settlement is the remainder of a partial transfer of an earlier settlement"
       }
     },
     "wallet": {

@@ -8,13 +8,24 @@ import { BookingServiceRequestApiItem } from '../../interfaces/booking.model';
 import { formatLocalizedDayMonth } from 'src/app/utils/date-format.util';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 
+type ServiceRequestStatusTone = 'done' | 'closed' | 'open';
+
 interface ServiceRequestView {
+  id: string;
   name: string;
-  category: string;
   date: string;
   price: number | null;
+  isFree: boolean;
+  statusLabel: string;
+  statusTone: ServiceRequestStatusTone;
+  /** Cancelled / rejected requests don't count toward the total. */
+  countsTowardTotal: boolean;
+  rating: number | null;
+  ratingLabel: string | null;
   icon: string;
 }
+
+const CLOSED_STATUS_KEYS = ['cancelled', 'canceled', 'rejected'];
 
 @Component({
   selector: 'app-booking-services-tab',
@@ -41,7 +52,7 @@ export class BookingServicesTabComponent implements OnChanges {
   }
 
   get total(): number {
-    return this.requests.reduce((sum, r) => sum + (r.price ?? 0), 0);
+    return this.requests.reduce((sum, r) => sum + (r.countsTowardTotal ? (r.price ?? 0) : 0), 0);
   }
 
   formatAmount(amount: number): string {
@@ -73,15 +84,24 @@ export class BookingServicesTabComponent implements OnChanges {
   }
 
   private mapRequest(item: BookingServiceRequestApiItem): ServiceRequestView {
-    const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    const localizedTitle = lang === 'en' ? (item.titleEn || item.title) : (item.titleAr || item.title);
+    // The API localizes title / statusLabel / overallRatingLabel by Accept-Language,
+    // so they are shown as-is; the raw enums (requestType, status) are never displayed.
+    const statusKey = (item.statusKey || item.status || '').toLowerCase().replace(/[^a-z]/g, '');
+    const isClosed = CLOSED_STATUS_KEYS.includes(statusKey);
+    const hasRating = item.isRated && item.overallRating !== null && item.overallRating !== undefined;
 
     return {
-      name: localizedTitle?.trim() || '-',
-      category: item.unitTaskType?.trim() || item.requestType?.trim() || '-',
+      id: item.externalId,
+      name: item.title?.trim() || '-',
       date: this.formatDate(item.createdAtUtc),
       price: item.price,
-      icon: this.iconFor(item.unitTaskType, item.requestTypeKey),
+      isFree: (item.pricingStatus || '').toLowerCase() === 'free',
+      statusLabel: item.statusLabel?.trim() || item.status || '',
+      statusTone: statusKey === 'completed' ? 'done' : isClosed ? 'closed' : 'open',
+      countsTowardTotal: !isClosed,
+      rating: hasRating ? item.overallRating : null,
+      ratingLabel: hasRating ? (item.overallRatingLabel?.trim() || null) : null,
+      icon: this.iconFor(item.requestTypeKey),
     };
   }
 
@@ -90,9 +110,12 @@ export class BookingServicesTabComponent implements OnChanges {
     return formatLocalizedDayMonth(iso, lang);
   }
 
-  private iconFor(unitTaskType: string | null, requestTypeKey: string | null): string {
-    const key = (unitTaskType || requestTypeKey || '').toLowerCase();
+  private iconFor(requestTypeKey: string | null): string {
+    const key = (requestTypeKey || '').toLowerCase();
+    if (key.includes('laundry')) return 'wash-machine';
+    if (key.includes('towel')) return 'bath';
     if (key.includes('clean')) return 'wash';
+    if (key.includes('problem')) return 'alert-triangle';
     if (key.includes('maint')) return 'tool';
     if (key.includes('food') || key.includes('meal') || key.includes('kitchen')) return 'tools-kitchen-2';
     if (key.includes('drink') || key.includes('beverage')) return 'cup';

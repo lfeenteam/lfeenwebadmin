@@ -64,6 +64,97 @@
 
     <div class="details-grid">
 
+    <!-- Leftover of a partial transfer: it carries no bookings of its own -->
+    @if (data.isRemainder) {
+      <div class="detail-notice">
+        <i-tabler name="info-circle" class="icon-18"></i-tabler>
+        <span>
+          @if (data.originatingReference) {
+            {{ 'd3.settlements.detail.remainderOf' | translate: { ref: data.originatingReference } }}
+          } @else {
+            {{ 'd3.settlements.detail.remainderOfUnknown' | translate }}
+          }
+        </span>
+      </div>
+    }
+
+    <!-- What was actually transferred — Completed / PartiallyCompleted -->
+    @if (data.isExecuted) {
+      <div class="detail-card detail-card--execution">
+        <div class="detail-card-head">
+          <div class="head-title">
+            <span>{{ 'd3.settlements.detail.executionSection' | translate }}</span>
+            <i-tabler name="circle-check" class="icon-16"></i-tabler>
+          </div>
+        </div>
+
+        <div class="execution-grid">
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.transferredAmount' | translate }}</span>
+            <span class="amount-value amount-value--accent">
+              {{ data.transferredFormatted }}
+              <span class="riyal-icon riyal-icon--accent"
+                    [class.is-text-currency]="data.isTextCurrency"
+                    [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                    [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+            </span>
+          </div>
+          @if (data.isPartial) {
+            <div class="detail-row">
+              <span class="row-label">{{ 'd3.settlements.detail.remainingAmount' | translate }}</span>
+              <span class="amount-value amount-value--danger">
+                {{ data.remainingFormatted }}
+                <span class="riyal-icon riyal-icon--danger"
+                      [class.is-text-currency]="data.isTextCurrency"
+                      [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+              </span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.trxNumber' | translate }}</span>
+            <span class="row-value row-value--ltr" dir="ltr">{{ data.bankTransferReference }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.executionTime' | translate }}</span>
+            <span class="row-value">{{ data.processedAtLabel }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.processedBy' | translate }}</span>
+            <span class="row-value">{{ data.processedBy }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.receipt' | translate }}</span>
+            @if (data.receiptUrl) {
+              <a class="receipt-link" [href]="data.receiptUrl" target="_blank" rel="noopener noreferrer">
+                <i-tabler name="file-text" class="icon-16"></i-tabler>
+                {{ 'd3.settlements.detail.viewReceipt' | translate }}
+              </a>
+            } @else {
+              <span class="row-value">{{ emptyValue }}</span>
+            }
+          </div>
+        </div>
+
+        @if (data.isPartial) {
+          <div class="form-field">
+            <span class="row-label">{{ 'd3.settlements.detail.partialReasonLabel' | translate }}</span>
+            <div class="recorded-reason-box">{{ data.partialReason }}</div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Failed: the reason the admin recorded -->
+    @if (data.rejectionReason) {
+      <div class="detail-card detail-card--execution">
+        <div class="form-field">
+          <span class="row-label">{{ 'd3.settlements.detail.recordedReason' | translate }}</span>
+          <div class="recorded-reason-box">{{ data.rejectionReason }}</div>
+        </div>
+      </div>
+    }
+
     <!-- Host details -->
     <div class="detail-card detail-card--host">
       <div class="detail-card-head">
@@ -83,11 +174,12 @@
       </div>
       <div class="detail-row">
         <span class="row-label">{{ 'd3.settlements.detail.phone' | translate }}</span>
-        <span class="row-value">{{ data.phone }}</span>
+        <span class="row-value row-value--ltr" dir="ltr">{{ data.phone }}</span>
       </div>
 
       <div class="amount-row">
-        <span class="row-label">{{ 'd3.settlements.detail.requestedAmount' | translate }}</span>
+        <!-- Once executed this is what was owed, not what was sent — the execution card shows the transferred amount -->
+        <span class="row-label">{{ (data.isExecuted ? 'd3.settlements.detail.settlementAmount' : 'd3.settlements.detail.requestedAmount') | translate }}</span>
         <span class="amount-value">
           {{ data.amountFormatted }}
           <img [src]="data.currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="data.isTextCurrency">
@@ -104,6 +196,12 @@
         </div>
       </div>
 
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.status' | translate }}</span>
+        <span class="status-chip" [ngClass]="data.statusClass">
+          {{ data.statusKey ? (data.statusKey | translate) : data.statusLabel }}
+        </span>
+      </div>
       <div class="detail-row">
         <span class="row-label">{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
         <span class="row-value row-value--ltr">{{ data.payoutReference }}</span>

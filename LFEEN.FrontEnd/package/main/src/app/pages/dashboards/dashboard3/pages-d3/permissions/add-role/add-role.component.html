@@ -239,7 +239,7 @@
   </form>
 
   <!-- Alert Box -->
-  @if (deptId) {
+  @if (deptId && !isLoadingPerms && !permsLoadError) {
     <div class="alert-box rounded p-24 m-b-24 d-flex gap-16 align-items-start">
       <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
       <div>
@@ -254,7 +254,7 @@
     <button mat-stroked-button class="cancel-btn" (click)="cancel()">
       {{ 'd3.addRolePage.cancelBtn' | translate }}
     </button>
-    <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="isSubmitting">
+    <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="isSubmitting || isLoadingPerms || permsLoadError">
       @if (isSubmitting) {
         <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
       } @else {
