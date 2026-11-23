@@ -5,7 +5,14 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { DemoAccount, DemoAccountCredentials, toLocalPhone } from '../../../../interfaces/demo-account.model';
+import {
+  DEMO_KIND_ICONS,
+  DemoAccount,
+  DemoAccountCredentials,
+  DemoAccountKind,
+  demoKindOf,
+  toLocalPhone
+} from '../../../../interfaces/demo-account.model';
 import { formatRiyadhDate } from '../../demo-accounts.util';
 
 export interface CredentialsDialogData {
@@ -18,7 +25,7 @@ export interface CredentialsDialogData {
 // No "resend" way out: a resend would replace the PIN shown in this dialog.
 export type CredentialsDialogResult = 'closed';
 
-type CopyKey = 'sid' | 'phone' | 'pin' | 'all';
+type CopyKey = 'sid' | 'phone' | 'birth' | 'pin' | 'all';
 
 // The only place the PIN is ever shown (§4.3 / §6.1). It lives in this component's
 // state only: it is taken out of the dialog data on open and wiped on close/destroy,
@@ -43,6 +50,10 @@ export class CredentialsDialogComponent implements OnDestroy {
   readonly invitationSent = this.data.credentials.invitationSent;
   readonly reopened = this.data.credentials.reopened;
   readonly recipient = this.data.recipient;
+  readonly kind: DemoAccountKind = demoKindOf(this.account);
+  readonly kindIcon = DEMO_KIND_ICONS[this.kind];
+  /** Guest accounts only — the guest app asks for it next to the ID number. Shown as sent (dd-MM-yyyy). */
+  readonly birthDate: string | null = this.kind === 'Client' ? (this.account.birthDate || null) : null;
 
   pin = this.data.credentials.pin;
   showPin = true;
@@ -74,6 +85,7 @@ export class CredentialsDialogComponent implements OnDestroy {
   copy(key: CopyKey): void {
     const value = key === 'sid' ? this.account.loginSid
       : key === 'phone' ? this.loginPhone
+      : key === 'birth' ? this.birthDate
       : key === 'pin' ? this.pin
       : this.copyAllText();
 
@@ -101,9 +113,10 @@ export class CredentialsDialogComponent implements OnDestroy {
   private copyAllText(): string {
     const t = (key: string) => this.translate.instant(`d3.demoAccounts.credentials.copyAll.${key}`);
     return [
-      t('heading'),
-      `${t('sid')}: ${this.account.loginSid}`,
+      t(this.kind === 'Client' ? 'headingClient' : 'heading'),
       `${t('phone')}: ${this.loginPhone}`,
+      `${t('sid')}: ${this.account.loginSid}`,
+      ...(this.birthDate ? [`${t('birthDate')}: ${this.birthDate}`] : []),
       `${t('pin')}: ${this.pin}`,
       `${t('expires')}: ${formatRiyadhDate(this.account.expiresAt, this.lang) ?? ''}`,
     ].join('\n');

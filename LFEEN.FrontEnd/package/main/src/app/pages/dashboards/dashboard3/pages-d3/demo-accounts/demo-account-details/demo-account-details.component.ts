@@ -19,12 +19,15 @@ import { PageBackOverrideService } from '../../../services/page-back-override.se
 import { demoListState } from '../demo-list-state';
 import {
   DEMO_CHANNEL_ICONS,
+  DEMO_KIND_ICONS,
   DEMO_PERMISSIONS,
   DemoAccount,
   DemoAccountCredentials,
+  DemoAccountKind,
   DemoAttachment,
   DemoChannel,
   attachmentSize,
+  demoKindOf,
   toLocalPhone
 } from '../../../interfaces/demo-account.model';
 import {
@@ -92,6 +95,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
 
   readonly actions = DEMO_ACTION_BUTTONS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
+  readonly kindIcons = DEMO_KIND_ICONS;
   readonly emptyValue = EMPTY;
   readonly fileIcon = demoFileIcon;
   /** The attachment being downloaded, if any. */
@@ -105,9 +109,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   demoDisabled = false;
   /** An action dialog is open or its result is being applied — every action button is off. */
   busy = false;
-  copied: 'sid' | 'phone' | null = null;
+  copied: 'sid' | 'phone' | 'birth' | null = null;
 
   private loadRequest?: Subscription;
+  /** The kind the loaded variables belong to — asked again only when the account's kind differs. */
+  private templatesKind: DemoAccountKind | null = null;
   private copiedTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
@@ -126,15 +132,32 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
     this.pageBackOverride.set(this.backToList);
     this.load();
-    // The variables, so the saved texts show chips instead of {{tokens}}. Without them
-    // (an error), the texts just show as saved.
-    this.service.getInvitationTemplates()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: t => (this.variables = t.variables ?? []), error: () => {} });
   }
 
-  /** From GET /invitation-templates — turns saved {{tokens}} into readable chips. */
+  /** From GET /invitation-templates?kind= — turns saved {{tokens}} into readable chips. */
   variables: InvitationVariable[] = [];
+
+  /**
+   * The variables for this account's kind, so the saved texts show chips instead of {{tokens}}
+   * ({{9}} birth date exists for guest accounts only). Asked once the kind is known. Without
+   * them (an error), the texts just show as saved.
+   */
+  private loadVariables(kind: DemoAccountKind): void {
+    if (this.templatesKind === kind) return;
+    this.templatesKind = kind;
+    this.service.getInvitationTemplates(kind)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ next: t => (this.variables = t.variables ?? []), error: () => (this.templatesKind = null) });
+  }
+
+  get kind(): DemoAccountKind {
+    return demoKindOf(this.account);
+  }
+
+  /** Guest accounts only, shown as sent (dd-MM-yyyy). */
+  get birthDate(): string | null {
+    return this.kind === 'Client' ? (this.account?.birthDate || null) : null;
+  }
 
   ngOnDestroy(): void {
     clearTimeout(this.copiedTimer);
@@ -211,9 +234,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  copy(key: 'sid' | 'phone'): void {
+  copy(key: 'sid' | 'phone' | 'birth'): void {
     if (!this.account) return;
-    const value = key === 'sid' ? this.account.loginSid : toLocalPhone(this.account.loginPhone) ?? '';
+    const value = key === 'sid' ? this.account.loginSid
+      : key === 'birth' ? this.birthDate
+      : toLocalPhone(this.account.loginPhone) ?? '';
     if (!value || !this.clipboard.copy(value)) {
       this.toastr.error(this.translate.instant('d3.demoAccounts.copyFailed'));
       return;
@@ -311,6 +336,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   private setAccount(account: DemoAccount): void {
     this.account = { ...account, deliveries: account.deliveries ?? [], attachments: account.attachments ?? [] };
     this.pageTitle.set(account.fullName);
+    this.loadVariables(demoKindOf(account));
   }
 
   // After a new PIN: show it once, then re-read the account (the response has no deliveries or attachments).

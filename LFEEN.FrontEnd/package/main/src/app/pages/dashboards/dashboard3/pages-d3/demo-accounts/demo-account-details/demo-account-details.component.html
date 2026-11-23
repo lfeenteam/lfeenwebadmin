@@ -23,6 +23,10 @@
     <div class="dd-head">
       <div class="dd-head__title">
         <h2>{{ account.fullName }}</h2>
+        <span class="da-kind" [ngClass]="'kind-' + kind.toLowerCase()">
+          <i-tabler [name]="kindIcons[kind]" class="icon-14"></i-tabler>
+          {{ ('d3.demoAccounts.kindAccounts.' + kind) | translate }}
+        </span>
         <span class="da-status" [ngClass]="statusClass(account.status)">
           <span class="dot"></span>
           {{ statusLabel(account.status) }}
@@ -83,6 +87,10 @@
         <dl class="dd-list">
           <div><dt>{{ 'd3.demoAccounts.fields.fullName' | translate }}</dt><dd>{{ account.fullName }}</dd></div>
           <div>
+            <dt>{{ 'd3.demoAccounts.fields.kind' | translate }}</dt>
+            <dd>{{ ('d3.demoAccounts.kindOptions.' + kind) | translate }}</dd>
+          </div>
+          <div>
             <dt>{{ 'd3.demoAccounts.fields.email' | translate }}</dt>
             <dd>@if (account.email) { <span class="da-ltr" dir="ltr">{{ account.email }}</span> } @else { <span class="da-muted">{{ emptyValue }}</span> }</dd>
           </div>
@@ -120,6 +128,19 @@
               </button>
             </dd>
           </div>
+          <!-- Guest accounts: the guest app asks for it with the ID number -->
+          @if (birthDate) {
+            <div>
+              <dt>{{ 'd3.demoAccounts.fields.birthDate' | translate }}</dt>
+              <dd class="dd-copy">
+                <span class="da-mono da-ltr" dir="ltr">{{ birthDate }}</span>
+                <button type="button" class="da-icon-btn" [class.copied]="copied === 'birth'"
+                        [attr.aria-label]="'d3.demoAccounts.actions.copy' | translate" (click)="copy('birth')">
+                  <i-tabler [name]="copied === 'birth' ? 'check' : 'copy'" class="icon-16"></i-tabler>
+                </button>
+              </dd>
+            </div>
+          }
           <div>
             <dt>{{ 'd3.demoAccounts.fields.loginPhone' | translate }}</dt>
             <dd class="dd-copy">

@@ -87,6 +87,22 @@
   &.ch-whatsapp i-tabler { color: #16a34a; }
 }
 
+// Account kind: host (Merchant) or guest (Client) — a small pill so the two read apart at a glance.
+.da-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+
+  &.kind-merchant { background: #EEF2FF; color: #3730A3; }
+  &.kind-client { background: #ECFDF5; color: #047857; }
+}
+
 // ── Buttons ─────────────────────────────────────────────────
 .da-btn {
   all: unset;

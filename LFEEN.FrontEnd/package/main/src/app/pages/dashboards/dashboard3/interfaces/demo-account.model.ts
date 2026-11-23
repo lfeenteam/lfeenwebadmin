@@ -3,9 +3,24 @@
 
 export type DemoAccountStatus = 'Ready' | 'Sent' | 'SendFailed' | 'Expired' | 'Disabled';
 export type DemoChannel = 'Email' | 'WhatsApp' | 'Sms';
+/** Merchant = host app (web + mobile), Client = guest app. Each account opens one app only. */
+export type DemoAccountKind = 'Merchant' | 'Client';
 
 export const DEMO_STATUSES: DemoAccountStatus[] = ['Ready', 'Sent', 'SendFailed', 'Expired', 'Disabled'];
 export const DEMO_CHANNELS: DemoChannel[] = ['Email', 'WhatsApp', 'Sms'];
+export const DEMO_KINDS: DemoAccountKind[] = ['Merchant', 'Client'];
+export const DEFAULT_DEMO_KIND: DemoAccountKind = 'Merchant';
+
+// Translation keys live under d3.demoAccounts.kinds.*.
+export const DEMO_KIND_ICONS: Record<DemoAccountKind, string> = {
+  Merchant: 'building-store',
+  Client: 'user',
+};
+
+/** Accounts made before kinds existed (or an older server) carry no kind: they are host accounts. */
+export function demoKindOf(account: { kind?: DemoAccountKind | null } | null | undefined): DemoAccountKind {
+  return account?.kind === 'Client' ? 'Client' : DEFAULT_DEMO_KIND;
+}
 
 export const DEMO_PERMISSIONS = {
   view: 'demoaccounts.view',
@@ -46,17 +61,25 @@ export function attachmentSize(a: DemoAttachment): number {
 
 export interface DemoAccount {
   id: string;
+  /** Missing on older accounts/servers — read it through demoKindOf(). */
+  kind?: DemoAccountKind | null;
   fullName: string;
   email: string | null;
   contactPhone: string | null;
   channel: DemoChannel;
   loginPhone: string;
   loginSid: string;
+  /**
+   * Guest accounts only: sign-in data the guest app asks for at the identity step.
+   * dd-MM-yyyy exactly as the app takes it — shown and copied as is, never parsed as a Date.
+   */
+  birthDate?: string | null;
   status: DemoAccountStatus;
   expiresAt: string;
   daysLeft: number;
   note: string | null;
   userId: string;
+  /** Host account = its demo facility. Guest account = a hidden facility holding its sample bookings (not for display). */
   accountId: string;
   createdAt: string;
   createdByAdminName: string | null;
@@ -99,12 +122,16 @@ export interface DemoAccountsPage {
 
 export interface DemoAccountsQuery {
   status?: DemoAccountStatus | null;
+  /** Left out = both kinds. */
+  kind?: DemoAccountKind | null;
   search?: string | null;
   pageNumber: number;
   pageSize: number;
 }
 
 export interface CreateDemoAccountRequest {
+  /** Left out = Merchant. Same person + same kind reopens the old account; another kind makes a new one. */
+  kind: DemoAccountKind;
   fullName: string;
   email: string | null;
   phoneNumber: string | null;
@@ -231,6 +258,8 @@ export interface InvitationPreset {
 }
 
 export interface InvitationTemplates {
+  /** The kind these variables/presets belong to (Client adds {{9}} birth date and guest-* presets). */
+  kind?: DemoAccountKind;
   variables: InvitationVariable[];
   presets: InvitationPreset[];
   languages: InvitationLanguage[];
@@ -252,6 +281,8 @@ export interface InvitationPreviewRequest {
   invitationLanguage?: InvitationLanguage;
   /** Fill with this account's real values (details/resend); without it, example values. */
   demoAccountId?: string;
+  /** Picks the variables/examples when there is no demoAccountId; ignored when there is one. */
+  kind?: DemoAccountKind;
 }
 
 export interface InvitationIssue {

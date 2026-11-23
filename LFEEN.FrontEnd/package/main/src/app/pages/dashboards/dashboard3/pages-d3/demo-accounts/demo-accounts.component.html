@@ -53,6 +53,25 @@
         <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
       }
     </mat-select>
+
+    <!-- Account kind: host / guest; "All" sends no kind -->
+    <mat-select
+      class="filter-select-native"
+      [value]="kind ?? allKinds"
+      disableOptionCentering
+      [attr.aria-label]="'d3.demoAccounts.table.kind' | translate"
+      (selectionChange)="onKindChange($event.value)">
+      <mat-select-trigger>
+        <span class="d-flex align-items-center gap-6">
+          <i-tabler [name]="kind ? kindIcons[kind] : 'users'" class="icon-16"></i-tabler>
+          {{ kind ? kindLabel(kind) : ('d3.demoAccounts.filters.allKinds' | translate) }}
+        </span>
+      </mat-select-trigger>
+      <mat-option [value]="allKinds">{{ 'd3.demoAccounts.filters.allKinds' | translate }}</mat-option>
+      @for (k of kinds; track k) {
+        <mat-option [value]="k">{{ kindLabel(k) }}</mat-option>
+      }
+    </mat-select>
   </div>
 
   @if (loading) {
@@ -65,6 +84,7 @@
           <thead>
             <tr>
               <th>{{ 'd3.demoAccounts.table.name' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.table.kind' | translate }}</th>
               <th>{{ 'd3.demoAccounts.table.email' | translate }}</th>
               <th>{{ 'd3.demoAccounts.table.contactPhone' | translate }}</th>
               <th>{{ 'd3.demoAccounts.table.channel' | translate }}</th>
@@ -88,6 +108,14 @@
                       {{ 'd3.demoAccounts.activation.badge' | translate }}
                     </span>
                   }
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.table.kind' | translate }}</span>
+                  @let k = kindOf(item);
+                  <span class="da-kind" [ngClass]="'kind-' + k.toLowerCase()">
+                    <i-tabler [name]="kindIcons[k]" class="icon-14"></i-tabler>
+                    {{ kindLabel(k) }}
+                  </span>
                 </td>
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.table.email' | translate }}</span>
@@ -156,7 +184,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="9" class="p-0">
+                <td colspan="10" class="p-0">
                   @if (demoDisabled) {
                     <app-dashboard-empty icon="flask-off" titleKey="d3.demoAccounts.empty.disabledTitle"
                                          descKey="d3.demoAccounts.errors.DEMO_DISABLED"></app-dashboard-empty>

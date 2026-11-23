@@ -235,7 +235,20 @@
       },
       "neverDelivered": "No invitation delivered yet",
       "filters": {
-        "all": "All"
+        "all": "All",
+        "allKinds": "All types"
+      },
+      "kinds": {
+        "Merchant": "Host",
+        "Client": "Guest"
+      },
+      "kindAccounts": {
+        "Merchant": "Host account",
+        "Client": "Guest account"
+      },
+      "kindOptions": {
+        "Merchant": "Host account (host app)",
+        "Client": "Guest account (guest app)"
       },
       "status": {
         "Ready": "Ready",
@@ -251,6 +264,7 @@
       },
       "table": {
         "name": "Name",
+        "kind": "Type",
         "email": "Email",
         "contactPhone": "Contact phone",
         "channel": "Channel",
@@ -294,9 +308,18 @@
       },
       "create": {
         "title": "Create demo account",
-        "pageHelp": "Enter the host's details, then write the invitation and check it before sending.",
+        "pageHelp": "Pick the account type and enter the person's details, then write the invitation and check it before sending.",
         "accountSection": "Account details",
         "noName": "No name",
+        "kind": "Account type",
+        "kindOptions": {
+          "Merchant": "Host account (host app)",
+          "Client": "Guest account (guest app)"
+        },
+        "kindHelp": {
+          "Merchant": "Signs in to the host app (web and mobile) only, with a demo facility.",
+          "Client": "Signs in to the guest app only, with 3 sample bookings: upcoming, current stay and past. It can't book or pay."
+        },
         "fullName": "Full name",
         "channel": "Invitation channel",
         "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
@@ -332,7 +355,9 @@
         "confirmClose": "I've saved the details, close",
         "copyAll": {
           "heading": "Lfeen sign-in details (demo account)",
+          "headingClient": "Lfeen guest app sign-in details (demo account)",
           "sid": "ID number",
+          "birthDate": "Date of birth",
           "phone": "Phone number",
           "pin": "PIN",
           "expires": "Trial ends"
@@ -344,7 +369,9 @@
         "contactPhone": "Contact phone",
         "channel": "Channel",
         "note": "Internal note",
+        "kind": "Account type",
         "loginSid": "ID number (sign-in)",
+        "birthDate": "Date of birth (sign-in)",
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
         "invitationSubject": "Invitation subject",
@@ -463,6 +490,7 @@
         "DEMO_INVITATION_TEMPLATE_INVALID": "There is a problem in the invitation text. Check the marks in the text.",
         "DEMO_TEST_SEND_FAILED": "The test copy could not be sent. Try again shortly.",
         "DEMO_ACTIVATION_REQUEST_NOT_FOUND": "The request was not found.",
+        "DEMO_KIND_INVALID": "Invalid account type. Choose a host account or a guest account.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }

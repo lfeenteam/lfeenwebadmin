@@ -14,7 +14,8 @@ import {
   DEMO_PERMISSIONS,
   DemoAccount,
   DemoChannel,
-  ResendDemoRequest
+  ResendDemoRequest,
+  demoKindOf
 } from '../../../interfaces/demo-account.model';
 import { DEMO_FIELD_ALIASES, DemoApiError, demoActionToast, demoErrorMessage, readDemoError } from '../demo-accounts.util';
 import { scrollToFirstError } from '../scroll-to-error';
@@ -105,8 +106,10 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
         this.channel = account.channel;
         this.pageTitle.set(account.fullName);
         // The preview uses this account's real values.
+        // Variables and presets follow the account's own kind ({{9}} / guest-* for guest accounts).
         this.invitation.init({
           channel: account.channel,
+          kind: demoKindOf(account),
           demoAccountId: account.id,
           subject: account.invitationSubject,
           message: account.invitationMessage,
