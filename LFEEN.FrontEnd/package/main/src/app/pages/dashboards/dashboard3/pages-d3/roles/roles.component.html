@@ -61,7 +61,7 @@
               <tr>
                 <td colspan="4">
                   <app-dashboard-empty variant="error"
-                    titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+                    [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
                     actionKey="d3.state.retry" actionIcon="refresh" (action)="loadData()">
                   </app-dashboard-empty>
                 </td>

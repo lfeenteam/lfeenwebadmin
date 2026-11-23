@@ -8,6 +8,7 @@ import { CoreService } from '../../../../services/core.service';
 import { PAGE_FLAGS } from '../../../../config/page-flags';
 import { SETTINGS_PERMISSIONS, hasSettingsPermission } from '../interfaces/platform-settings.model';
 import { canApproveWalletAdjustments } from '../pages-d3/wallet/interfaces/wallet.model';
+import { PAGE_ACCESS, canAccessPage } from '../../../../guards/page-access';
 
 export interface NavItem {
   id?: string;
@@ -51,6 +52,36 @@ export class SidebarService {
   }
 
   private buildNavItems(dynamicSidebar: any[]): void {
+    this.sidebarItems.set(this.computeNavItems(dynamicSidebar));
+  }
+
+  /**
+   * The page an admin lands on after signing in (BUG-2496): the dashboard when they may
+   * open it (unchanged default), else the first page of their menu, else the
+   * "no permission" page. Computed from the stored session, not from sidebarItems, so it
+   * is right straight after login, before the rebuild effect has run.
+   */
+  landingUrl(lang: string): string {
+    const prefix = `/${lang === 'en' ? 'en' : 'ar'}`;
+    const sidebar = this.loginService.sidebar();
+    if (PAGE_FLAGS['dashboard'] && canAccessPage(PAGE_ACCESS.dashboard, this.loginService.permissions(), sidebar)) {
+      return `${prefix}/d3/ceo`;
+    }
+    const first = this.firstLink(this.computeNavItems(sidebar));
+    return prefix + (first ?? '/d3/no-access');
+  }
+
+  private firstLink(items: NavItem[]): string | null {
+    for (const item of items) {
+      if (item.divider) continue;
+      if (item.link && item.link !== '/d3/ceo') return item.link;
+      const child = item.children?.length ? this.firstLink(item.children) : null;
+      if (child) return child;
+    }
+    return null;
+  }
+
+  private computeNavItems(dynamicSidebar: any[]): NavItem[] {
     let items: NavItem[] = [];
 
     if (dynamicSidebar?.length) {
@@ -59,7 +90,12 @@ export class SidebarService {
 
     // The additional-conditions review queue has no sidebar key in the payload yet;
     // add it after Units until the backend sends one (mapped in exactRouteMap).
-    if (PAGE_FLAGS['additional-conditions'] && !items.find(i => i.link === '/d3/additional-conditions')) {
+    // Only for admins who may open it — same rule as its route guard (BUG-2496).
+    if (
+      PAGE_FLAGS['additional-conditions']
+      && canAccessPage(PAGE_ACCESS.additionalConditions, this.loginService.permissions(), dynamicSidebar)
+      && !items.find(i => i.link === '/d3/additional-conditions')
+    ) {
       const unitsIndex = items.findIndex(i => i.link === '/d3/units');
       items.splice(unitsIndex >= 0 ? unitsIndex + 1 : items.length, 0, {
         key: 'additional-conditions',
@@ -102,7 +138,7 @@ export class SidebarService {
       items.push({ translationKey: 'd3.sidebar.settings', icon: 'settings', link: '/d3/settings' });
     }
 
-    this.sidebarItems.set(items);
+    return items;
   }
 
   getSidebarItems(): Observable<NavItem[]> {
@@ -127,6 +163,7 @@ export class SidebarService {
       'bookings':         'calendar-time',
       'complaints':       'message-exclamation',
       'client-faq':       'help-circle',
+      'service-faq':      'tool',
       'contact-us':       'mail',
       'contactus':        'mail',
       'contact_us':       'mail',
@@ -154,6 +191,8 @@ export class SidebarService {
       'bookings':        '/d3/bookings',
       'complaints':      '/d3/complaints',
       'client-faq':      '/d3/client-faq',
+      // The worker app FAQ is a tab of the FAQ page; only used if the payload ever sends this key.
+      'service-faq':     '/d3/client-faq?tab=service',
       'contact-us':      '/d3/contact-us',
       'contactus':       '/d3/contact-us',
       'contact_us':      '/d3/contact-us',
@@ -179,6 +218,7 @@ export class SidebarService {
     const fallbackTranslationMap: { [key: string]: string } = {
       'dashboard':       'd3.sidebar.dashboard',
       'client-faq':      'd3.sidebar.faq',
+      'service-faq':     'd3.sidebar.serviceFaq',
       'complaints':      'd3.sidebar.complaints',
       'bookings':        'd3.sidebar.bookings',
       'accounts':        'd3.sidebar.accountManagement',

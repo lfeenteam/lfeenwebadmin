@@ -470,7 +470,17 @@
     "state": {
       "loadError": "Could not load data",
       "loadErrorDesc": "We couldn't reach the server. Check your connection and try again.",
+      "forbidden": "No permission",
+      "forbiddenDesc": "You don't have permission to view this data. Contact your system administrator if you need it.",
       "retry": "Retry"
+    },
+    "noAccess": {
+      "pageTitle": "No access",
+      "title": "You don't have permission to access this page",
+      "subtitle": "Your account lacks the permission needed to open this page. Contact your system administrator if you need it.",
+      "emptySubtitle": "Your account hasn't been given any admin panel permissions yet. Contact your system administrator.",
+      "homeButton": "Go to my home page",
+      "logoutButton": "Log out"
     },
     "filters": {
       "ariaLabel": "Select the dashboard period",
@@ -545,6 +555,7 @@
       "complaints": "Complaints",
       "customers": "Customers",
       "faq": "FAQ",
+      "serviceFaq": "Service App FAQ",
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "walletApprovals": "Wallet Approvals",
@@ -3255,7 +3266,12 @@
         "errorMsg": "Something went wrong while loading tickets.",
         "emptyFiltered": "No tickets match the current filters",
         "clearFilters": "Clear filters",
-        "dateRangeError": "\"Date from\" must not be after \"Date to\""
+        "dateRangeError": "\"Date from\" must not be after \"Date to\"",
+        "source": {
+          "all": "All sources",
+          "host": "Host",
+          "worker": "Worker"
+        }
       },
       "clientStatus": {
         "open": "Open",
@@ -3341,6 +3357,7 @@
         },
         "empty": "No matching employees",
         "selectHint": "Choose an employee from the list to follow up this complaint.",
+        "inactive": "Inactive",
         "confirmTextPrefix": "You selected",
         "confirmTextSuffix": "to follow up this complaint. An instant notification will be sent to the assigned employee.",
         "confirmBtn": "Confirm Assignment",
@@ -3540,11 +3557,10 @@
           "checkOut": "Check-out",
           "checkIn": "Check-in",
           "duration": "Stay Duration",
-          "nights": "nights",
-          "nightsOne": "1 night",
-          "nightsTwo": "2 nights",
-          "nightsFew": "{{count}} nights",
-          "nightsMany": "{{count}} nights",
+          "nights": {
+            "one": "{{count}} night",
+            "other": "{{count}} nights"
+          },
           "actualCheckIn": "Actual check-in",
           "actualCheckOut": "Actual check-out",
           "notCheckedInYet": "Guest hasn't checked in yet",
@@ -3555,7 +3571,10 @@
           "rentSummaryTitle": "Rent Summary",
           "nightlyRate": "Nightly Rate",
           "totalRent": "Total Rent",
-          "nightsBreakdown": "{{nights}} nights × {{rate}} SAR",
+          "nightsBreakdown": {
+            "one": "{{count}} night × {{rate}} SAR",
+            "other": "{{count}} nights × {{rate}} SAR"
+          },
           "baseRent": "Base Rent",
           "additionalFees": "Additional Fees",
           "totalAmount": "Total Amount",
@@ -3574,7 +3593,11 @@
           "empty": "No service requests"
         },
         "logTab": {
-          "recentActivityTitle": "Last {{count}} Activities",
+          "recentActivityTitle": {
+            "zero": "Recent Activity",
+            "one": "Last Activity",
+            "other": "Last {{count}} Activities"
+          },
           "byLabel": "By",
           "empty": "No activity log",
           "source": {
@@ -3965,6 +3988,41 @@
         "suspendSuccess": "SIM suspended",
         "unsuspendSuccess": "SIM resumed",
         "revokeSuccess": "SIM revoked"
+      },
+      "stateReason": {
+        "reasonLabel": "Reason",
+        "reasonHint": "The reason is saved with your name in the support actions log.",
+        "submitting": "Working…",
+        "suspend": {
+          "title": "Suspend SIM",
+          "desc": "Temporarily suspend this SIM: {{sim}}. It can be resumed later.",
+          "placeholder": "e.g. Customer asked to pause the SIM after losing their phone",
+          "confirmBtn": "Suspend"
+        },
+        "revoke": {
+          "title": "Revoke SIM permanently",
+          "desc": "Revoke this SIM: {{sim}}.",
+          "placeholder": "e.g. Confirmed account fraud after support review",
+          "confirmBtn": "Revoke permanently"
+        },
+        "errors": {
+          "reasonRequired": "Reason is required",
+          "uncertain": "No response from the server. The action may have gone through — refresh and check the SIM's status before trying again."
+        }
+      },
+      "adminLog": {
+        "title": "Support actions log",
+        "subtitle": "Who did what, why, and when",
+        "empty": "No support actions on this SIM yet",
+        "unknownAdmin": "Unknown",
+        "amount": "Amount",
+        "types": {
+          "refund": "Refund",
+          "suspend": "Suspended",
+          "unsuspend": "Resumed",
+          "revoke": "Revoked",
+          "sms": "SMS sent"
+        }
       },
       "attention": {
         "badge": "Needs follow-up",
@@ -5406,7 +5464,8 @@
         "amount": "Amount (SAR)",
         "pointsHint": "= {{points}} points",
         "note": "Given only when the client reviews the unit, the host and the platform together, once per booking.",
-        "defaultsNote": "This is the platform default (5 SAR); it hasn't been changed yet",
+        "defaultsNote": "This is the platform default ({{amount}} SAR); it hasn't been changed yet",
+        "locked": "This setting is locked and can't be changed",
         "save": "Save",
         "unsaved": "You have unsaved changes",
         "confirmOffTitle": "Turn off the stay review reward?",
@@ -5507,6 +5566,86 @@
       "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
       "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully", "noteTooLong": "The note must not exceed {{max}} characters" }
     },
+    "serviceFaq": {
+      "title": "Service App FAQ",
+      "pageTitle": "Service App FAQ",
+      "pageSubtitle": "Questions workers see in the service app. Changes show in the app right away.",
+      "add": "Add question",
+      "listTitle": "Questions",
+      "category": {
+        "Tasks": "Tasks",
+        "Locks": "Locks",
+        "Photos": "Photos",
+        "Account": "Account"
+      },
+      "filter": {
+        "byCategory": "Category",
+        "allCategories": "All categories",
+        "searchPlaceholder": "Search questions and answers...",
+        "showInactive": "Show inactive",
+        "clear": "Clear filters"
+      },
+      "table": {
+        "order": "Order",
+        "category": "Category",
+        "question": "Question",
+        "status": "Status",
+        "updatedAt": "Last updated",
+        "actions": "Actions",
+        "empty": "No questions yet",
+        "emptyFiltered": "No questions match the current filters"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Delete this question?",
+        "message": "It will be removed from the service app right away. This can't be undone."
+      },
+      "dialog": {
+        "addTitle": "Add question",
+        "editTitle": "Edit question",
+        "question": "Question",
+        "answer": "Answer",
+        "category": "Category",
+        "categoryPlaceholder": "Choose a category",
+        "order": "Display order",
+        "orderHint": "0 or more — lower numbers show first",
+        "key": "Key (optional)",
+        "keyHint": "English letters, numbers, - and _ only. Leave empty and the server generates one.",
+        "keyHintEdit": "English letters, numbers, - and _ only. Leave empty to keep the current key.",
+        "validation": {
+          "required": {
+            "questionAr": "Enter the question in Arabic",
+            "questionEn": "Enter the question in English",
+            "answerAr": "Enter the answer in Arabic",
+            "answerEn": "Enter the answer in English",
+            "category": "Choose a category"
+          },
+          "maxLength": "Must not exceed {{max}} characters",
+          "keyPattern": "Use English letters, numbers, - and _ only",
+          "keyExists": "This key is already used by another question",
+          "orderRequired": "Enter the display order",
+          "orderMin": "The order must be 0 or more",
+          "orderMax": "The order must not exceed {{max}}",
+          "orderWholeNumber": "The order must be a whole number",
+          "invalidValue": "Invalid value"
+        }
+      },
+      "toast": {
+        "addSuccess": "Question added",
+        "updateSuccess": "Question updated",
+        "statusUpdateSuccess": "Question status updated",
+        "deleteSuccess": "Question deleted",
+        "notFound": "This question no longer exists — the list was refreshed"
+      }
+    },
     "faq": {
       "title": "FAQ Management",
       "pageTitle": "FAQ Management",
@@ -5514,6 +5653,7 @@
       "help": "Help",
       "addArticle": "Add New Article",
       "listTitle": "Articles List",
+      "tabs": { "client": "Clients", "service": "Service app" },
       "stats": {
         "total": "Total",
         "active": "Active",

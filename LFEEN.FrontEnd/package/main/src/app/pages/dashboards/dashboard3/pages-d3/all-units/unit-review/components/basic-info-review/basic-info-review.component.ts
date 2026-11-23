@@ -66,7 +66,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   get unitFloor(): string  { return String(this.unitData?.floorNumber ?? ''); }
 
   get unitArea(): string {
-    return this.unitData?.sizeM != null ? `${this.unitData.sizeM} م²` : '';
+    if (this.unitData?.sizeM == null) return '';
+    const unit = this.translate.currentLang === 'en' ? 'm²' : 'م²';
+    return `${this.unitData.sizeM} ${unit}`;
   }
 
   // Admin maxGuests is still the adult capacity (legacy), so it's only a fallback here.

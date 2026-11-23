@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
+import { isForbiddenError } from '../utils/transport-error.util';
 import { HttpClient } from '@angular/common/http';
 import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, Observable, forkJoin } from 'rxjs';
@@ -130,6 +131,8 @@ export class UnitsService {
   readonly isLoading  = this._unitsResource.isLoading;
   /** The list request failed — pages show an error + retry instead of "no units". */
   readonly loadFailed = computed(() => this._unitsResource.status() === ResourceStatus.Error);
+  /** The failed load was a 403 — show "no permission", not a connection error (BUG-2496). */
+  readonly loadForbidden = computed(() => this.loadFailed() && isForbiddenError(this._unitsResource.error()));
   /** The stats request failed — metric cards show "—" instead of figures. */
   readonly statsFailed = computed(() => this._statsResource.status() === ResourceStatus.Error);
   readonly unitStats  = computed<UnitApiStats | null>(() => this._statsResource.value()?.stats ?? null);

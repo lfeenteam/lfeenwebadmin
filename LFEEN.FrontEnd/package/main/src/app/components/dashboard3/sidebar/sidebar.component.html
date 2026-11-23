@@ -86,8 +86,8 @@
           </span>
         </span>
       </a>
-      <!-- On the CEO page Settings is already in the nav list above. -->
-      @if (!isCeoPage()) {
+      <!-- On the CEO page Settings is already in the nav list above. Hidden without Settings.View. -->
+      @if (!isCeoPage() && canViewSettings()) {
         <a mat-list-item (click)="navigateTo({link: '/d3/settings'}, $event)"
           [class.active-link]="isOnSettingsPage"
           [matTooltip]="tooltipFor('d3.sidebar.settings' | translate)" matTooltipPosition="after"

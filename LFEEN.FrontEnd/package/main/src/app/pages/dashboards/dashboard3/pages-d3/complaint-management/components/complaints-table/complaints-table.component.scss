@@ -460,6 +460,30 @@
   }
 }
 
+.client-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+// Ticket opened from the service (worker) app — violet, distinct from status/department/type badges.
+.worker-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid #DDD6FE;
+  background: #F5F3FF;
+  color: #6D28D9;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -870,6 +894,33 @@
   &.selected {
     background: #F7F7F5;
   }
+
+  // Deactivated employees stay listed but can't be picked (BUG-2501).
+  &.inactive {
+    cursor: not-allowed;
+
+    .assign-popover-avatar,
+    .assign-popover-email {
+      opacity: 0.5;
+    }
+
+    .assign-popover-name {
+      color: #8E95A3;
+    }
+  }
+}
+
+.assign-popover-inactive {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #F4F4F5;
+  color: #71717A;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: middle;
 }
 
 // mat-menu-item wraps projected content in its own inline <span>, so the

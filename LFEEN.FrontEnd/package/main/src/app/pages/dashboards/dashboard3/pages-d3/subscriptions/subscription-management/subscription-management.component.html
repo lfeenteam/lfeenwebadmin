@@ -11,7 +11,7 @@
   @if (statsError) {
     <div class="m-b-24">
       <app-dashboard-empty variant="error"
-        titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+        [titleKey]="statsForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="statsForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
         actionKey="d3.state.retry" actionIcon="refresh" (action)="loadOverview()">
       </app-dashboard-empty>
     </div>
@@ -231,7 +231,7 @@
                     <div class="p-24"><app-dashboard-loading variant="table" [rows]="3"></app-dashboard-loading></div>
                   } @else if (listError) {
                     <app-dashboard-empty variant="error"
-                      titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+                      [titleKey]="listForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="listForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
                       actionKey="d3.state.retry" actionIcon="refresh" (action)="loadPage()">
                     </app-dashboard-empty>
                   } @else {

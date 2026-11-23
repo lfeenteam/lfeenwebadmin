@@ -115,6 +115,9 @@ export class ComplaintService {
     if (params.dateTo) {
       httpParams = httpParams.set('dateTo', params.dateTo);
     }
+    if (params.source) {
+      httpParams = httpParams.set('source', params.source);
+    }
 
     return this.http.get<TicketListResponse>(`${environment.apiBaseUrl}/api/tickets`, { params: httpParams });
   }
@@ -152,6 +155,9 @@ export class ComplaintService {
       lastMessageAtUtc: t.lastMessageAtUtc ?? null,
       assignedAtUtc: t.assignedAtUtc ?? null,
       lastAgentReplyAtUtc: t.lastAgentReplyAtUtc ?? null,
+      // Worker tickets stay type 'host' — reply/status/assign work exactly the same.
+      isFromWorker: t.isFromWorker === true,
+      sourceName: t.sourceName ?? null,
     };
   }
 

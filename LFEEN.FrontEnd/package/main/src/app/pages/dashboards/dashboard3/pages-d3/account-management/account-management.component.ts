@@ -63,6 +63,8 @@ export class AccountManagementComponent implements OnInit {
   isLoading   = false;
   /** The accounts request failed — the grid shows error + retry instead of "no accounts". */
   loadError   = false;
+  /** The failed load was a 403 (BUG-2496). */
+  loadForbidden = false;
   newestFirst = true;
 
   stats: StatItem[] = [
@@ -80,6 +82,7 @@ export class AccountManagementComponent implements OnInit {
       this.totalCount  = this.accountService.totalCount();
       this.isLoading   = this.accountService.isLoading();
       this.loadError   = this.accountService.loadFailed();
+      this.loadForbidden = this.accountService.loadForbidden();
       this.newestFirst = this.accountService.newestFirst();
       this.pageNumbers = Array.from({ length: this.totalPages }, (_, i) => i + 1);
 

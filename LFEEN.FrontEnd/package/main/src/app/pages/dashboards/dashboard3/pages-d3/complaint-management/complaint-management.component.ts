@@ -12,7 +12,7 @@ import { ComplaintChatComponent } from './components/complaint-chat/complaint-ch
 import { ClientRatingsComponent } from './components/client-ratings/client-ratings.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
@@ -103,12 +103,15 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostStatus      = signal<string | null>(null);
   hostDepartment  = signal<string | null>(null);
   hostPriority    = signal<string | null>(null);
+  /** Host app vs service (worker) app — sent to GET /api/tickets as `source`. */
+  hostSource      = signal<TicketSource | null>(null);
   hostError       = signal(false);
   customerError   = signal(false);
   resolvedError   = signal(false);
 
   readonly hostStatusOptions   = HOST_TICKET_STATUS_OPTIONS;
   readonly hostPriorityOptions = HOST_TICKET_PRIORITY_OPTIONS;
+  readonly hostSourceOptions   = HOST_TICKET_SOURCE_OPTIONS;
 
   hostProperties  = signal<TicketPropertyFilterItem[]>([]);
   hostEmployees   = signal<AssignableEmployee[]>([]);
@@ -119,7 +122,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostAssignedAdminUserId() !== null ||
     this.hostStatus() !== null ||
     this.hostDepartment() !== null ||
-    this.hostPriority() !== null
+    this.hostPriority() !== null ||
+    this.hostSource() !== null
   );
 
   /** Unified search + dropdown bar for the hosts tab, styled like the Units/Builds pages.
@@ -139,6 +143,11 @@ export class ComplaintManagementComponent implements OnDestroy {
         id: 'department',
         labelKey: 'd3.complaints.hostFilters.allDepartments',
         items: [allItem('d3.complaints.hostFilters.allDepartments'), ...CLIENT_TICKET_DEPARTMENT_OPTIONS],
+      },
+      {
+        id: 'source',
+        labelKey: 'd3.complaints.hostFilters.source.all',
+        items: [allItem('d3.complaints.hostFilters.source.all'), ...this.hostSourceOptions],
       },
       {
         id: 'priority',
@@ -170,6 +179,7 @@ export class ComplaintManagementComponent implements OnDestroy {
     status: this.hostStatus() ?? 'all',
     department: this.hostDepartment() ?? 'all',
     priority: this.hostPriority() ?? 'all',
+    source: this.hostSource() ?? 'all',
     property: this.hostPropertyId() !== null ? String(this.hostPropertyId()) : 'all',
     employee: this.hostAssignedAdminUserId() ?? 'all',
   }));
@@ -451,6 +461,7 @@ export class ComplaintManagementComponent implements OnDestroy {
           status: this.hostStatus() ?? undefined,
           department: this.hostDepartment() ?? undefined,
           priority: this.hostPriority() ?? undefined,
+          source: this.hostSource() ?? undefined,
           search: this.hostSearch() || undefined,
           page: this.hostPage(),
           pageSize: HOST_TICKETS_PAGE_SIZE,
@@ -523,6 +534,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostStatus.set(norm(filters['status']));
     this.hostDepartment.set(norm(filters['department']));
     this.hostPriority.set(norm(filters['priority']));
+    const source = filters['source'];
+    this.hostSource.set(source === 'HostApp' || source === 'ServiceApp' ? source : null);
     this.hostPropertyId.set(filters['property'] && filters['property'] !== 'all' ? Number(filters['property']) : null);
     this.hostAssignedAdminUserId.set(filters['employee'] && filters['employee'] !== 'all' ? filters['employee'] : null);
     this.hostPage.set(1);
@@ -554,6 +567,7 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostStatus.set(null);
     this.hostDepartment.set(null);
     this.hostPriority.set(null);
+    this.hostSource.set(null);
     this.hostPage.set(1);
     this.loadHostTickets();
   }

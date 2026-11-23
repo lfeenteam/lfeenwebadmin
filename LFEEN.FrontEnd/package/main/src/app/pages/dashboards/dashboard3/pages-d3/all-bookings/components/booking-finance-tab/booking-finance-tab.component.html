@@ -22,7 +22,7 @@
           <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
         </span>
         <span class="finance-card-sub">
-          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | translate: { nights: finance.nights, rate: formatAmount(finance.nightlyRate) } }}
+          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | appPlural: finance.nights : { rate: formatAmount(finance.nightlyRate) } }}
         </span>
       </div>
 
@@ -52,7 +52,7 @@
           <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
         </span>
         <span class="finance-card-sub">
-          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | translate: { nights: finance.nights, rate: formatAmount(finance.nightlyRate) } }}
+          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | appPlural: finance.nights : { rate: formatAmount(finance.nightlyRate) } }}
         </span>
       </div>
     }

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { isForbiddenError } from '../../utils/transport-error.util';
 import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
@@ -38,6 +39,8 @@ export class RolesComponent implements OnInit, OnDestroy {
 
   isLoading = true;
   loadError = false;
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = false;
   deletingId: string | null = null;
 
   departments: Department[] = [];
@@ -91,6 +94,7 @@ export class RolesComponent implements OnInit, OnDestroy {
   loadData(): void {
     this.isLoading = true;
     this.loadError = false;
+    this.loadForbidden = false;
     forkJoin({
       roles: this.departmentService.getAllRolesForDropdown(),
       departments: this.departmentService.getAllDepartmentsForDropdown()
@@ -101,7 +105,8 @@ export class RolesComponent implements OnInit, OnDestroy {
         this.applyFilter();
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        this.loadForbidden = isForbiddenError(err);
         // Clear the table so a failed load never reads as "no roles yet".
         this.allRoles = [];
         this.roles = [];

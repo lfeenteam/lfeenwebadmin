@@ -6,6 +6,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { BookingService } from '../../services/booking.service';
 import { BookingFinancialSummary } from '../../interfaces/booking.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface FinanceSummaryView {
   nightlyRate: number;
@@ -25,7 +26,7 @@ interface FinanceSummaryView {
 @Component({
   selector: 'app-booking-finance-tab',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, AppPluralPipe],
   templateUrl: './booking-finance-tab.component.html',
   styleUrl: './booking-finance-tab.component.scss'
 })

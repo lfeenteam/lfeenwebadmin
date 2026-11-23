@@ -168,6 +168,49 @@
         </section>
       }
 
+      <!-- Support actions log (who did what, why, when) — separate from the journey on purpose. -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h3>{{ 'd3.esim.adminLog.title' | translate }}</h3>
+            <p>{{ 'd3.esim.adminLog.subtitle' | translate }}</p>
+          </div>
+        </div>
+
+        @if (adminLog.length) {
+          <ul class="admin-log">
+            @for (entry of adminLog; track $index) {
+              <li class="admin-log-item" [class]="'admin-log-item log-' + (entry.key ?? 'other')">
+                <span class="log-icon"><i-tabler [name]="entry.icon" class="icon-16"></i-tabler></span>
+                <div class="log-body">
+                  <div class="log-top">
+                    <strong>{{ entry.label }}</strong>
+                    @if (entry.date) {
+                      <span class="step-date">{{ entry.date }}</span>
+                    }
+                  </div>
+                  <small class="log-admin">
+                    <i-tabler name="user" class="icon-12"></i-tabler>
+                    {{ entry.adminName }}
+                  </small>
+                  @if (entry.amount !== null) {
+                    <span class="log-amount fact-inline">
+                      {{ 'd3.esim.adminLog.amount' | translate }}: {{ fmtAmount(entry.amount) }}
+                      <img [src]="currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="currentLang === 'en'">
+                    </span>
+                  }
+                  @if (entry.reason) {
+                    <p class="log-reason">{{ entry.reason }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="admin-log-empty">{{ 'd3.esim.adminLog.empty' | translate }}</p>
+        }
+      </section>
+
     </div>
   </aside>
 }

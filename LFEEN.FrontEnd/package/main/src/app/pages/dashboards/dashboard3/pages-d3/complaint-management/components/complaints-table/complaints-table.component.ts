@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isUnengagedStatus } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -422,9 +422,14 @@ export class ComplaintsTableComponent implements OnChanges {
     return name.split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase();
   }
 
+  isAssignInactive(employee: AssignableEmployee): boolean {
+    return isInactiveEmployee(employee);
+  }
+
   selectAssignEmployee(employee: AssignableEmployee): void {
     const complaint = this.assigningComplaint;
-    if (!complaint || this.assignSubmitting) return;
+    // A deactivated employee can't sign in to handle the ticket (BUG-2501).
+    if (!complaint || this.assignSubmitting || isInactiveEmployee(employee)) return;
 
     this.assignSubmitting = true;
     const request$ = complaint.type === 'customer'

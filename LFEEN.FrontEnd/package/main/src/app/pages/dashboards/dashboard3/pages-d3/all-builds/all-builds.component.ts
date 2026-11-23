@@ -48,6 +48,8 @@ export class AllBuildsComponent implements OnInit {
   isLoading                  = false;
   /** The list request failed — shown as error + retry instead of "no buildings". */
   loadError                  = false;
+  /** The failed load was a 403 (BUG-2496). */
+  loadForbidden = false;
   totalPages                 = 1;
   currentPage                = 1;
   totalCount                 = 0;
@@ -118,6 +120,7 @@ export class AllBuildsComponent implements OnInit {
       this.allBuildings = this.buildingService.buildings();
       this.isLoading    = this.buildingService.isLoading();
       this.loadError    = this.buildingService.loadFailed();
+      this.loadForbidden = this.buildingService.loadForbidden();
       this.totalPages   = this.buildingService.totalPages();
       this.currentPage  = this.buildingService.currentPage();
       this.totalCount   = this.buildingService.totalCount();

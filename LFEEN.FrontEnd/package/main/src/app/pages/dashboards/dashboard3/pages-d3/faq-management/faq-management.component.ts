@@ -1,4 +1,9 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { isForbiddenError } from '../../utils/transport-error.util';
+import { PAGE_FLAGS } from 'src/app/config/page-flags';
+import { ServiceFaqManagementComponent } from '../service-faq-management/service-faq-management.component';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -14,19 +19,33 @@ import { FaqService } from './services/faq.service';
 import { CoreService } from 'src/app/services/core.service';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 
+type FaqTab = 'client' | 'service';
+
 @Component({
   selector: 'app-faq-management',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent, ServiceFaqManagementComponent],
   templateUrl: './faq-management.component.html',
   styleUrl: './faq-management.component.scss'
 })
 export class FaqManagementComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+
+  /** Client app FAQ / service (worker) app FAQ — kept in the URL as ?tab=service (TAS-2317). */
+  readonly showServiceTab = PAGE_FLAGS['service-faq'] !== false;
+  readonly activeTab = signal<FaqTab>('client');
+  /** The client list loads the first time its tab is shown, not on every page open. */
+  private clientLoaded = false;
+
   readonly departmentOptions = FAQ_DEPARTMENT_OPTIONS;
   departmentFilter = signal<FaqDepartment | 'all'>('all');
   loading = signal(false);
   /** The article list failed to load — the page shows an error + retry, not "no articles". */
   loadError = signal(false);
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = signal(false);
 
   private articles = signal<FaqArticle[]>([]);
 
@@ -61,7 +80,25 @@ export class FaqManagementComponent implements OnInit {
   readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
 
   ngOnInit(): void {
-    this.loadArticles();
+    // Follows the URL, so refresh, back/forward and a direct ?tab=service link all open the right tab.
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const tab: FaqTab = this.showServiceTab && params.get('tab') === 'service' ? 'service' : 'client';
+      this.activeTab.set(tab);
+      if (tab === 'client' && !this.clientLoaded) {
+        this.clientLoaded = true;
+        this.loadArticles();
+      }
+    });
+  }
+
+  setTab(tab: FaqTab): void {
+    if (tab === this.activeTab()) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'service' ? 'service' : null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   private mapDtoToArticle(dto: FaqArticleDto): FaqArticle {
@@ -80,14 +117,16 @@ export class FaqManagementComponent implements OnInit {
   loadArticles(): void {
     this.loading.set(true);
     this.loadError.set(false);
+    this.loadForbidden.set(false);
     this.faqService.getArticles({ activeOnly: false }).subscribe({
       next: (response) => {
         this.articles.set(response.data.map(dto => this.mapDtoToArticle(dto)));
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
         // Inline error state + retry instead of a toast over an empty table.
         this.articles.set([]);
+        this.loadForbidden.set(isForbiddenError(err));
         this.loadError.set(true);
         this.loading.set(false);
       }

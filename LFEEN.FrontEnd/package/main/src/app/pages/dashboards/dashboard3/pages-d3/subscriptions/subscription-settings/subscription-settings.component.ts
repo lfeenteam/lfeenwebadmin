@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { isForbiddenError } from '../../../utils/transport-error.util';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
@@ -46,6 +47,8 @@ export class SubscriptionSettingsComponent implements OnInit {
   isLoading = true;
   /** The catalog failed to load — shown as error + retry, not "no services". */
   loadError = false;
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = false;
   searchQuery = '';
   statusFilter: StatusFilter = 'all';
 
@@ -109,6 +112,7 @@ export class SubscriptionSettingsComponent implements OnInit {
   loadCatalog(): void {
     this.isLoading = true;
     this.loadError = false;
+    this.loadForbidden = false;
     forkJoin({
       catalog: this.subscriptionsService.getCatalog(),
       pricing: this.subscriptionsService.getPricing().pipe(catchError(() => of([] as SubscriptionPricingItem[]))),
@@ -127,6 +131,7 @@ export class SubscriptionSettingsComponent implements OnInit {
         this.offers = [];
         this.isLoading = false;
         this.loadError = true;
+        this.loadForbidden = isForbiddenError(err);
         // 403 is the only case a retry can't fix — say why; otherwise the inline error is enough.
         if (err?.status === 403) this.toastr.error(resolveSubscriptionError(err, this.translate));
       }

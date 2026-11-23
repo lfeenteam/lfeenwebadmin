@@ -14,7 +14,7 @@
       </app-dashboard-empty>
     } @else if (loadState() === 'error') {
       <app-dashboard-empty variant="error"
-        titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+        [titleKey]="loadForbidden() ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden() ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
         actionKey="d3.state.retry" actionIcon="refresh"
         (action)="retryLoad()">
       </app-dashboard-empty>
@@ -63,9 +63,10 @@
         </thead>
         <tbody>
           @for (employee of employees(); track employee.userId) {
-            <tr [class.selected]="isSelected(employee)" (click)="select(employee)">
+            <tr [class.selected]="isSelected(employee)" [class.inactive]="isInactive(employee)"
+              [attr.aria-disabled]="isInactive(employee) || null" (click)="select(employee)">
               <td class="col-select">
-                <span class="radio" [class.checked]="isSelected(employee)"></span>
+                <span class="radio" [class.checked]="isSelected(employee)" [class.disabled]="isInactive(employee)"></span>
               </td>
               <td class="col-employee">
                 <div class="employee-cell">
@@ -78,7 +79,12 @@
 
                   </div>
                   <div class="employee-meta">
-                    <span class="employee-name">{{ employee.fullName }}</span>
+                    <span class="employee-name-row">
+                      <span class="employee-name">{{ employee.fullName }}</span>
+                      @if (isInactive(employee)) {
+                        <span class="inactive-badge">{{ 'd3.complaints.assignDialog.inactive' | translate }}</span>
+                      }
+                    </span>
                     <span class="employee-email">{{ employee.email }}</span>
                   </div>
                 </div>

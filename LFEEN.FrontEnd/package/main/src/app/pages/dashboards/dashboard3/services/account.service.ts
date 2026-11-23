@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
+import { isForbiddenError } from '../utils/transport-error.util';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -66,6 +67,8 @@ export class AccountService {
   readonly isLoading    = this._accountsResource.isLoading;
   /** The list request failed — pages show an error + retry instead of "no accounts". */
   readonly loadFailed   = computed(() => this._accountsResource.status() === ResourceStatus.Error);
+  /** The failed load was a 403 — show "no permission", not a connection error (BUG-2496). */
+  readonly loadForbidden = computed(() => this.loadFailed() && isForbiddenError(this._accountsResource.error()));
   readonly accountStats = computed<AccountStats | null>(() => this._accountsResource.value()?.stats ?? null);
 
   readonly accounts = computed<Account[]>(() =>

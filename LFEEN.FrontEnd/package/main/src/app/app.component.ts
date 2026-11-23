@@ -2,8 +2,11 @@ import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { BidiModule } from '@angular/cdk/bidi';
+import { MatDialog } from '@angular/material/dialog';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CoreService } from './services/core.service';
 import { TranslateService } from '@ngx-translate/core';
+import { LoginService } from './pages/dashboards/dashboard3/services/login/login.service';
 
 function langFromUrl(): 'ar' | 'en' | undefined {
   return /^#\/(ar|en)(\/|\?|$)/.exec(window.location.hash)?.[1] as 'ar' | 'en' | undefined;
@@ -45,6 +48,17 @@ export class AppComponent implements OnInit {
       this.settings.setOptions({ language: urlLang, dir: urlLang === 'ar' ? 'rtl' : 'ltr' });
     }
     this.translate.use(this.settings.getOptions().language);
+
+    // Close every open dialog when the session ends, whatever ended it (a 401 in
+    // AuthInterceptor, a failed refresh in authGuard, the logout button). Dialogs live
+    // in the CDK overlay under <body>, and router.navigate() doesn't fire the
+    // popstate/hashchange that closeOnNavigation listens to, so without this an open
+    // dialog stays on top of the login page and its backdrop blocks the form (BUG-2509).
+    // Runs at the start of logout(), before the redirect to login.
+    const dialog = inject(MatDialog);
+    inject(LoginService)
+      .loggingOut$.pipe(takeUntilDestroyed())
+      .subscribe(() => dialog.closeAll());
   }
 
   ngOnInit() {

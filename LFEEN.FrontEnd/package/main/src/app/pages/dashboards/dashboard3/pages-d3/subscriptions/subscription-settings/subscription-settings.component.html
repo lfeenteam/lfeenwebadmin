@@ -209,7 +209,7 @@
       <div class="col-12">
         @if (loadError) {
           <app-dashboard-empty variant="error"
-            titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+            [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
             actionKey="d3.state.retry" actionIcon="refresh" (action)="loadCatalog()">
           </app-dashboard-empty>
         } @else {

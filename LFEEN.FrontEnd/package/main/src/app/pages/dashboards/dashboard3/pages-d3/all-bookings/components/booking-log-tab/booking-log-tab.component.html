@@ -12,7 +12,7 @@
 
 <section class="detail-section">
   <h4 class="detail-section-title">
-    {{ 'd3.bookings.detail.logTab.recentActivityTitle' | translate: { count: activities.length } }}
+    {{ 'd3.bookings.detail.logTab.recentActivityTitle' | appPlural: activities.length }}
   </h4>
 
   @if (activities.length) {

@@ -120,11 +120,51 @@ export interface EsimDetail {
   refundableRemainingSar: number;
   /** Always purchased, installed, activated, expires — in that order. */
   timeline: EsimTimelineStep[];
+  /**
+   * Support actions taken on this SIM / its order (refund, suspend, revoke, SMS…), newest first.
+   * Optional so an API that doesn't send it yet still renders.
+   */
+  adminActions?: EsimAdminAction[];
   createdAtUtc: string;
   installedAtUtc: string | null;
   activatedAtUtc: string | null;
   expiresAtUtc: string | null;
 }
+
+/** One row of EsimDetail.adminActions — an append-only audit entry written by the backend. */
+export interface EsimAdminAction {
+  actionType: string;
+  reason: string | null;
+  /** SAR, refunds only. */
+  amount: number | null;
+  adminUserId: string | null;
+  adminName: string | null;
+  createdAtUtc: string;
+}
+
+/** Known actionType values, normalised (see esimAdminActionKey). */
+export type EsimAdminActionKey = 'refund' | 'suspend' | 'unsuspend' | 'revoke' | 'sms';
+
+/**
+ * Translation segment under d3.esim.adminLog.types.* for an actionType, or null when unknown.
+ * Tolerant of casing and an "Admin" prefix ("Refund", "AdminRefund", "admin_refund").
+ */
+export function esimAdminActionKey(actionType: string | null | undefined): EsimAdminActionKey | null {
+  const k = (actionType ?? '').toLowerCase().replace(/[^a-z]/g, '').replace(/^admin/, '');
+  switch (k) {
+    case 'refund': return 'refund';
+    case 'suspend': return 'suspend';
+    case 'unsuspend':
+    case 'resume': return 'unsuspend';
+    case 'revoke': return 'revoke';
+    case 'sms':
+    case 'sendsms': return 'sms';
+    default: return null;
+  }
+}
+
+/** Suspend and revoke need a reason (the backend answers 400 without one); unsuspend doesn't. */
+export const ESIM_STATE_REASON_MAX_LENGTH = 200;
 
 /**
  * POST /api/esim/esims/{esimId}/state — the thin live-provider shape. `id` is the esimId.

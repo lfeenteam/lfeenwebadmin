@@ -1,0 +1,143 @@
+// Base page/table styles come from the client FAQ page (faq-management.component.scss);
+// this file only adds the columns and controls this screen has on top.
+
+.sfq-toolbar {
+  flex-wrap: wrap;
+  row-gap: 12px;
+}
+
+.sfq-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sfq-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #E8E8E4;
+  border-radius: 10px;
+  background: #fff;
+  min-width: 220px;
+  color: #9E9E9A;
+
+  input {
+    all: unset;
+    flex: 1;
+    min-width: 0;
+    font-family: inherit;
+    font-size: 13px;
+    color: #111110;
+  }
+
+  &:focus-within {
+    border-color: #111110;
+  }
+}
+
+// Same black switch as the other admin forms (control center, account review).
+.sfq-inactive-toggle {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  --mdc-switch-selected-track-color: #111110;
+  --mdc-switch-selected-hover-track-color: #333330;
+  --mdc-switch-selected-focus-track-color: #111110;
+  --mdc-switch-selected-pressed-track-color: #111110;
+  --mdc-switch-selected-handle-color: #ffffff;
+  --mdc-switch-selected-hover-handle-color: #ffffff;
+  --mdc-switch-selected-focus-handle-color: #ffffff;
+  --mdc-switch-selected-pressed-handle-color: #ffffff;
+  --mdc-switch-selected-icon-color: #111110;
+  --mdc-switch-unselected-track-color: #E2E8F0;
+  --mdc-switch-unselected-hover-track-color: #E2E8F0;
+  --mdc-switch-unselected-focus-track-color: #E2E8F0;
+  --mdc-switch-unselected-pressed-track-color: #E2E8F0;
+  --mdc-switch-unselected-handle-color: #ffffff;
+  --mdc-switch-unselected-hover-handle-color: #ffffff;
+  --mdc-switch-unselected-focus-handle-color: #ffffff;
+  --mdc-switch-unselected-pressed-handle-color: #ffffff;
+  --mdc-switch-unselected-icon-color: #E2E8F0;
+}
+
+// order | category | question | status | updated | actions
+.sfq-table .table-head,
+.sfq-table .table-row {
+  grid-template-columns: 70px minmax(100px, 0.8fr) minmax(240px, 2fr) minmax(90px, 0.7fr) minmax(130px, 0.9fr) 130px;
+}
+
+.sfq-table .table-row.row-busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.col-updated {
+  font-size: 12px;
+  color: #6B6B67;
+  white-space: nowrap;
+}
+
+.sfq-question {
+  // The base style forces LTR for English titles; questions here can be either language.
+  direction: inherit;
+  text-align: start;
+  white-space: normal;
+}
+
+.sfq-actions {
+  gap: 4px;
+
+  .row-menu-btn:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  .sfq-btn-warn:hover { color: #D97706; background: #FFFBEB; }
+  .sfq-btn-success:hover { color: #16A34A; background: #F0FDF4; }
+  .sfq-btn-danger:hover { color: #DC2626; background: #FEF2F2; }
+}
+
+.dept-badge.sfq-category {
+  &.sfq-cat-Tasks   { color: #2563EB; background: #EFF6FF; border-color: #CFE0FF; }
+  &.sfq-cat-Locks   { color: #D97706; background: #FFFBEB; border-color: #FDE68A; }
+  &.sfq-cat-Photos  { color: #16A34A; background: #F0FDF4; border-color: #BBF7D0; }
+  &.sfq-cat-Account { color: #DB2777; background: #FDF2F8; border-color: #FBCFE8; }
+}
+
+.sfq-clear-btn {
+  all: unset;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111110;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .sfq-table .table-head,
+  .sfq-table .table-row {
+    grid-template-columns: 50px minmax(80px, 0.8fr) minmax(180px, 2fr) minmax(80px, 0.7fr) minmax(110px, 0.9fr) 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sfq-filters,
+  .sfq-search {
+    width: 100%;
+  }
+
+  .sfq-table .table-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "title   actions"
+      "dept    status"
+      "order   updated";
+  }
+
+  .col-updated { grid-area: updated; justify-self: end; }
+}

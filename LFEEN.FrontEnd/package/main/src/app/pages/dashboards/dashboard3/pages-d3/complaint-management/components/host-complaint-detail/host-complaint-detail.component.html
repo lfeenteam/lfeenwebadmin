@@ -87,7 +87,12 @@
       <div class="host-profile-item">
         <div class="host-avatar">{{ getInitials(accountDisplayName) }}</div>
         <div>
-          <h2>{{ accountDisplayName }}</h2>
+          <h2 class="host-name-row">
+            <span>{{ accountDisplayName }}</span>
+            @if (isFromWorker) {
+              <span class="worker-badge">{{ workerLabel }}</span>
+            }
+          </h2>
           <p>{{ hostSubtitle }}</p>
         </div>
       </div>
@@ -95,7 +100,7 @@
         <div class="host-avatar host-avatar-alt">{{ getInitials(ticket()!.initialMessage.senderName) }}</div>
         <div>
           <h2>{{ ticket()!.initialMessage.senderName }}</h2>
-          <p>{{ ticket()!.initialMessage.senderTypeName }}</p>
+          <p>{{ senderRoleLabel(ticket()!.initialMessage) }}</p>
         </div>
       </div>
     }
@@ -209,7 +214,7 @@
               @if (isAdmin) {
                 <span>{{ msg.adminSenderRole ?? ('d3.complaints.hostDetail.supportReplyStatus' | translate) }}</span>
               } @else {
-                <span>{{ msg.senderTypeName }}</span>
+                <span>{{ senderRoleLabel(msg) }}</span>
               }
             </div>
           </div>

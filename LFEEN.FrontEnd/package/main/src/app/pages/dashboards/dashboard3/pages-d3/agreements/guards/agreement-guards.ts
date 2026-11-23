@@ -1,15 +1,18 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, CanDeactivateFn, Router } from '@angular/router';
+import { CanActivateFn, CanDeactivateFn } from '@angular/router';
 import { LoginService } from '../../../services/login/login.service';
+import { forbiddenRedirect } from '../../../../../../guards/page-access.guard';
 
 // Kept free of component/dialog imports: app.routes.ts loads this file eagerly.
 
-/** Blocks the agreements pages without Agreements.View (the server adds View to Edit/Publish holders). */
+/**
+ * Blocks the agreements pages without Agreements.View (the server adds View to Edit/Publish
+ * holders) — to the "no permission" page (BUG-2496).
+ */
 export const agreementsViewGuard: CanActivateFn = (_route, state) => {
   const allowed = inject(LoginService).permissions().some((p) => p.toLowerCase() === 'agreements.view');
   if (allowed) return true;
-  const lang = state.url.split('/')[1] || 'en';
-  return inject(Router).parseUrl(`/${lang}/authentication/error`);
+  return forbiddenRedirect(state);
 };
 
 export interface HasUnsavedChanges {

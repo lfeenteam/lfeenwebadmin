@@ -312,6 +312,24 @@
   }
 }
 
+// Laptop widths with the sidebar open (e.g. 1280 /en): 24px side padding on six columns pushed the
+// table ~65px past the card, so the actions column needed a sideways scroll (BUG-2457).
+// Tighter padding fits it; the last column only takes what its buttons need.
+@media (min-width: 768px) and (max-width: 1399px) {
+  .settlements-table {
+    th,
+    td.p-24 {
+      padding-inline: 16px !important;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+  }
+}
+
 .account-avatar {
   width: 32px;
   height: 32px;

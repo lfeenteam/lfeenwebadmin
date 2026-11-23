@@ -33,7 +33,17 @@ export interface Ticket {
   /** Requested from the backend — optional until the API sends them. */
   assignedAtUtc?: string | null;
   lastAgentReplyAtUtc?: string | null;
+  /** BUG-2453: which app opened the ticket. Missing on older backends → treat as HostApp. */
+  source?: TicketSource;
+  /** Ready-to-show source label ("مضيف" / "عامل"). */
+  sourceName?: string | null;
+  /** True for tickets opened from the service (worker) app. Use this, not senderType —
+   * worker messages come back as senderType "Merchant" on purpose. */
+  isFromWorker?: boolean;
 }
+
+/** GET /api/tickets `source`: the app the ticket was opened from. */
+export type TicketSource = 'HostApp' | 'ServiceApp';
 
 export interface TicketListResponse {
   data: Ticket[];
@@ -55,11 +65,18 @@ export interface TicketQueryParams {
   search?: string;
   dateFrom?: string;
   dateTo?: string;
+  /** ServiceApp = worker tickets only, HostApp = host tickets only, omitted = all. */
+  source?: TicketSource;
   page?: number;
   pageSize?: number;
 }
 
 export const HOST_TICKETS_PAGE_SIZE = 20;
+
+export const HOST_TICKET_SOURCE_OPTIONS: { value: TicketSource; labelKey: string }[] = [
+  { value: 'HostApp', labelKey: 'd3.complaints.hostFilters.source.host' },
+  { value: 'ServiceApp', labelKey: 'd3.complaints.hostFilters.source.worker' },
+];
 
 // GET /api/tickets status codes: 1=New, 2=PendingAdminReply.
 export const HOST_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
@@ -148,6 +165,9 @@ export interface TicketDetail {
   createdByType: string;
   createdByUserId: string;
   closedAtUtc: string | null;
+  source?: TicketSource;
+  sourceName?: string | null;
+  isFromWorker?: boolean;
   initialMessage: TicketMessage;
   messages: TicketMessage[];
   attachments?: TicketAttachment[];
@@ -452,6 +472,9 @@ export interface Complaint {
   lastMessageAtUtc?: string | null;
   assignedAtUtc?: string | null;
   lastAgentReplyAtUtc?: string | null;
+  /** Host tickets only — opened from the service (worker) app. Still type 'host'. */
+  isFromWorker?: boolean;
+  sourceName?: string | null;
 }
 
 /** Hours an assigned ticket may sit without the agent acting before anyone can reassign it. */
@@ -464,6 +487,12 @@ export interface AssignableEmployee {
   phoneNumber: string | null;
   isActive: boolean;
   avatar?: string | null;
+}
+
+/** A deactivated employee can't sign in, so a complaint must never be assigned to them (BUG-2501).
+ * Only an explicit `false` counts — a missing flag is treated as active. */
+export function isInactiveEmployee(employee: Pick<AssignableEmployee, 'isActive'> | null | undefined): boolean {
+  return employee?.isActive === false;
 }
 
 export interface AssignableEmployeePage {

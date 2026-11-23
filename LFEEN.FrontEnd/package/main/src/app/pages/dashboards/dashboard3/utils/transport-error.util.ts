@@ -39,6 +39,15 @@ export function isTooManyRequestsError(err: unknown): boolean {
 }
 
 /**
+ * 403: the admin lacks the permission. The API sends it with an empty body, so pages
+ * must check the status — an inline load error then reads "no permission"
+ * (d3.state.forbidden / forbiddenDesc), not "couldn't reach the server" (BUG-2496).
+ */
+export function isForbiddenError(err: unknown): boolean {
+  return statusOf(err) === 403;
+}
+
+/**
  * Delay before the one automatic retry of a read, from Retry-After (seconds or an HTTP date).
  * The header is only readable when the API exposes it over CORS; otherwise the default applies.
  */

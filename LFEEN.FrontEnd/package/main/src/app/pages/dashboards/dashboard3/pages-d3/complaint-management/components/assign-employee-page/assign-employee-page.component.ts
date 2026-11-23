@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { isForbiddenError } from '../../../../utils/transport-error.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +12,7 @@ import {
   distinctUntilChanged, finalize, map, of, startWith, switchMap, tap,
 } from 'rxjs';
 import { ComplaintService } from '../../services/complaint.service';
-import { AssignableEmployee, isClosedTicketStatus } from '../../interfaces/complaint.model';
+import { AssignableEmployee, isClosedTicketStatus, isInactiveEmployee } from '../../interfaces/complaint.model';
 import { PageBreadcrumbTrailService } from '../../../../services/page-breadcrumb-trail.service';
 import { DashboardEmptyComponent } from '../../../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -61,6 +62,8 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
   private triedNamePreselect = false;
 
   loadState = signal<LoadState>('loading');
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = signal(false);
   ticketClosed = signal(false);
   ticketNumber = signal('');
   currentAssignedUserId = signal<string | null>(null);
@@ -102,6 +105,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
         this.loadState.set(result.kind);
         return;
       }
+      this.loadForbidden.set(false);
       this.applyTicketInfo(result.info);
       this.loadState.set('ready');
       if (!result.info.closed) this.loadEmployees(this.searchTerm());
@@ -179,11 +183,14 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
 
     return info$.pipe(
       map((info): LoadResult => ({ kind: 'ok', id, type, info })),
-      catchError(err => of<LoadResult>({
-        kind: err?.status === 404 || err?.status === 400 ? 'notFound' : 'error',
-        id,
-        type,
-      })),
+      catchError(err => {
+        this.loadForbidden.set(isForbiddenError(err));
+        return of<LoadResult>({
+          kind: err?.status === 404 || err?.status === 400 ? 'notFound' : 'error',
+          id,
+          type,
+        });
+      }),
     );
   }
 
@@ -231,8 +238,20 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
         this.employees.set(result.data);
         this.totalPages.set(result.totalPages);
         this.totalCount.set(result.totalCount);
+        this.reconcileSelection(result.data);
         this.tryPreselectByName(result.data);
       });
+  }
+
+  // The current assignee is pre-selected from the ticket alone, before we know whether
+  // they are still active. Once their row shows up, take the real record — and drop the
+  // selection if they've been deactivated, so confirm can't re-assign to them (BUG-2501).
+  private reconcileSelection(list: AssignableEmployee[]): void {
+    const current = this.selected();
+    if (!current) return;
+    const match = list.find(e => e.userId === current.userId);
+    if (!match) return;
+    this.selected.set(isInactiveEmployee(match) ? null : match);
   }
 
   // Client tickets only expose the current assignee's name (no user id), so
@@ -245,10 +264,15 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
 
     this.triedNamePreselect = true;
     const match = list.find(e => e.fullName === name);
-    if (match) this.selected.set(match);
+    if (match && !isInactiveEmployee(match)) this.selected.set(match);
+  }
+
+  isInactive(employee: AssignableEmployee): boolean {
+    return isInactiveEmployee(employee);
   }
 
   select(employee: AssignableEmployee): void {
+    if (isInactiveEmployee(employee)) return;
     this.selected.set(employee);
   }
 
@@ -267,7 +291,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
 
   confirm(): void {
     const employee = this.selected();
-    if (!employee || this.submitting() || !this.canAssign) return;
+    if (!employee || isInactiveEmployee(employee) || this.submitting() || !this.canAssign) return;
 
     // Pin the target once: the assignment and the redirect go to the ticket
     // that was on screen when the admin pressed confirm.

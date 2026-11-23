@@ -104,7 +104,7 @@
               </span>
               <mat-slide-toggle color="primary"
                                 [checked]="rewardEnabled"
-                                [disabled]="!canManage() || rewardSaving()"
+                                [disabled]="!rewardEditable() || rewardSaving()"
                                 (change)="onToggleReward($event)"></mat-slide-toggle>
             </div>
           }
@@ -122,11 +122,11 @@
             <div class="info-field reward-field">
               <label for="rewardAmount">{{ 'd3.settings.reviewReward.amount' | translate }}</label>
               <input id="rewardAmount" class="info-val info-input" type="number" dir="ltr" inputmode="decimal"
-                     step="0.01" [min]="rewardLimits.min" [max]="rewardLimits.max"
+                     step="0.01" [min]="rewardLimits.min" [max]="rewardMax()"
                      [class.has-error]="rewardFieldError"
                      [(ngModel)]="rewardAmount" (ngModelChange)="onRewardAmountChange()"
                      (keydown.enter)="onSaveReward()"
-                     [disabled]="!canManage() || !rewardEnabled || rewardSaving()" />
+                     [disabled]="!rewardEditable() || !rewardEnabled || rewardSaving()" />
               @if (rewardFieldError) {
                 <span class="field-error">{{ rewardFieldError }}</span>
               } @else if (rewardEnabled && rewardPoints !== null) {
@@ -140,10 +140,16 @@
             {{ 'd3.settings.reviewReward.note' | translate }}
           </p>
           @if (!reward()?.updatedAt) {
-            <p class="defaults-note">{{ 'd3.settings.reviewReward.defaultsNote' | translate }}</p>
+            <p class="defaults-note">{{ 'd3.settings.reviewReward.defaultsNote' | translate: { amount: rewardDefault() } }}</p>
+          }
+          @if (reward()?.isReadOnly) {
+            <p class="defaults-note">
+              <i-tabler name="lock" class="icon-16"></i-tabler>
+              {{ 'd3.settings.reviewReward.locked' | translate }}
+            </p>
           }
 
-          @if (canManage() && rewardEnabled) {
+          @if (rewardEditable() && rewardEnabled) {
             <div class="reward-actions">
               @if (rewardDirty) {
                 <span class="reward-unsaved">{{ 'd3.settings.reviewReward.unsaved' | translate }}</span>

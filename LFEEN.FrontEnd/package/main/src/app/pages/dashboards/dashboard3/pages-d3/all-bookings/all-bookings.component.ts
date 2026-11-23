@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, computed, inject, OnInit } from '@angular/core';
+import { isForbiddenError } from '../../utils/transport-error.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -86,6 +87,8 @@ export class AllBookingsComponent implements OnInit {
   loading  = false;
   /** The last list request failed — the table shows error + retry and the cards show "—", not zeros. */
   loadError = false;
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = false;
   bookings: Booking[] = [];
   totalCount = 0;
   totalPages = 1;
@@ -201,12 +204,16 @@ export class AllBookingsComponent implements OnInit {
           checkOutDate: this.checkOutDate || undefined,
         }).pipe(
           // A failed load shows an inline error + retry (handled below), not a toast.
-          catchError(() => of(null))
+          catchError((err) => {
+            this.loadForbidden = isForbiddenError(err);
+            return of(null);
+          })
         )),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((res: BookingListResponse | null) => {
         this.loadError = !res;
+        if (res) this.loadForbidden = false;
         if (res) {
           this.bookings = res.data.map(item => this.bookingService.mapApiItemToBooking(item, this.currentLang));
           this.totalCount = res.totalCount;

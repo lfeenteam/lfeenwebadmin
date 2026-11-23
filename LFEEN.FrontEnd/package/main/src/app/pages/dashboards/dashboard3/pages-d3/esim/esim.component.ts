@@ -15,7 +15,6 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
-import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import {
   EMPTY_ESIM_FILTERS, ESIM_NETWORK_OPTIONS, EsimDestinationOption, EsimDetail, EsimFilters, EsimListItem,
   EsimListQuery, EsimScope, EsimStateAction, EsimStatusBucket, EsimSummary,
@@ -26,6 +25,9 @@ import { EsimService } from './services/esim.service';
 import { EsimDetailDrawerComponent } from './esim-detail-drawer/esim-detail-drawer.component';
 import { EsimFilterDialogComponent } from './esim-filter-dialog/esim-filter-dialog.component';
 import { EsimRefundDialogComponent, EsimRefundDialogData, EsimRefundResult } from './esim-refund-dialog/esim-refund-dialog.component';
+import {
+  EsimReasonAction, EsimStateReasonDialogComponent, EsimStateReasonDialogData, EsimStateReasonResult,
+} from './esim-state-reason-dialog/esim-state-reason-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 type ScopeTab = EsimScope | 'all';
@@ -326,17 +328,35 @@ export class EsimComponent implements OnInit {
 
   onChangeState(row: EsimRow, action: EsimStateAction): void {
     if (this.actingId) return;
-    if (action !== 'revoke') {
+    if (action === 'unsuspend') {
       this.runStateChange(row.id, action);
       return;
     }
-    // revoke is final and never refunded by the provider — confirm first.
-    this.dialog.open(DeleteConfirmDialogComponent, {
-      width: '420px',
-      data: { title: 'd3.esim.actions.revokeConfirmTitle', message: 'd3.esim.actions.revokeConfirmMessage' },
-    }).afterClosed()
-      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.runStateChange(row.id, 'revoke'));
+    // Suspend / revoke need a support reason (logged with the admin's identity); the dialog
+    // sends the request itself. Revoke is final — the dialog carries that warning too.
+    this.openStateReason(row, action);
+  }
+
+  private openStateReason(row: EsimRow, action: EsimReasonAction): void {
+    const esimId = row.id;
+    this.dialog
+      .open<EsimStateReasonDialogComponent, EsimStateReasonDialogData, EsimStateReasonResult | undefined>(EsimStateReasonDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        // A stray backdrop click mustn't hide an in-flight provider call.
+        disableClose: true,
+        data: { esimId, action, simLabel: row.userName !== '-' ? `${row.userName} · ${row.coverageName}` : row.coverageName },
+      })
+      .afterClosed()
+      .pipe(filter((r): r is EsimStateReasonResult => !!r), takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result.kind === 'changed') {
+          this.toastr.success(this.translate.instant(`d3.esim.actions.${action}Success`));
+        }
+        // The response is intentionally thin — re-fetch instead of patching the UI from it.
+        this.load();
+        if (this.selectedSim?.esimId === esimId) this.openDetail(esimId);
+      });
   }
 
   private runStateChange(esimId: string, action: EsimStateAction): void {

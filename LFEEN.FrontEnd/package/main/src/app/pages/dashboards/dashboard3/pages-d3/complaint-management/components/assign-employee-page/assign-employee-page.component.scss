@@ -137,6 +137,26 @@
     &.selected {
       background: #fff;
     }
+
+    // Deactivated employees stay listed (so the paging and count match the API)
+    // but can't be picked (BUG-2501).
+    &.inactive {
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
+
+      .avatar-wrap,
+      .employee-email,
+      .phone-cell {
+        opacity: 0.5;
+      }
+
+      .employee-name {
+        color: #8E95A3;
+      }
+    }
   }
 
   td {
@@ -183,6 +203,30 @@
       background: #111110;
     }
   }
+
+  &.disabled {
+    border-color: #D4D4D8;
+    background: #F4F4F5;
+  }
+}
+
+.employee-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.inactive-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #F4F4F5;
+  color: #71717A;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .employee-cell {

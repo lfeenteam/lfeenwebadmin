@@ -13,6 +13,7 @@ import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcr
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../../interfaces/additional-condition.model';
+import { formatTimeOfDay } from 'src/app/utils/date-format.util';
 
 interface UnitRule {
   icon: string;
@@ -60,11 +61,7 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   }
 
   formatTime(time: string | null | undefined): string {
-    if (!time) return '';
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const h = hours % 12 || 12;
-    return `${String(h).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+    return formatTimeOfDay(time, this.translate.currentLang) ?? '';
   }
 
   ngOnInit(): void {

@@ -49,7 +49,7 @@
             [listingName]="building.title"
             (changed)="onBanChanged()" />
         }
-        <button type="button" class="action-btn back-btn" aria-label="View build review" (click)="goToBuildReview()">
+        <button type="button" class="action-btn back-btn" [attr.aria-label]="'d3.buildReview.title' | translate" (click)="goToBuildReview()">
           <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
         </button>
       </div>
@@ -113,7 +113,7 @@
           [listingName]="building.title"
           (changed)="onBanChanged()" />
       }
-      <button type="button" class="action-btn view-btn" aria-label="View build review" (click)="goToBuildReview()">
+      <button type="button" class="action-btn view-btn" [attr.aria-label]="'d3.buildReview.title' | translate" (click)="goToBuildReview()">
         <i-tabler name="eye"></i-tabler>
       </button>
     </div>

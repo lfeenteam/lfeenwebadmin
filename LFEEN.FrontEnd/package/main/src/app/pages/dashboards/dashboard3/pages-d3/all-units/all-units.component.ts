@@ -50,6 +50,8 @@ export class AllUnitsComponent {
   isLoading    = false;
   /** The units request failed — shown as error + retry instead of "no units". */
   loadError    = false;
+  /** The failed load was a 403 (BUG-2496). */
+  loadForbidden = false;
   totalCount   = 0;
   totalPages   = 1;
   currentPage  = 1;
@@ -143,6 +145,7 @@ export class AllUnitsComponent {
       this.buildingsWithUnits = this.unitsService.paginatedBuildings();
       this.isLoading   = this.unitsService.isLoading();
       this.loadError   = this.unitsService.loadFailed();
+      this.loadForbidden = this.unitsService.loadForbidden();
       this.totalCount  = this.unitsService.totalCount();
       this.totalPages  = this.unitsService.totalBuildingPages();
       this.currentPage = this.unitsService.buildingsPage();

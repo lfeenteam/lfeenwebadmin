@@ -33,9 +33,13 @@ export class EsimService {
     return this.http.get<EsimDetail>(`${this.apiUrl}/esims/${encodeURIComponent(esimId)}`);
   }
 
-  /** Synchronous call to the live provider — slower than the reads. `revoke` is final. */
-  changeState(esimId: string, action: EsimStateAction): Observable<EsimStateChangeResult> {
-    return this.http.post<EsimStateChangeResult>(`${this.apiUrl}/esims/${encodeURIComponent(esimId)}/state`, { action });
+  /**
+   * Synchronous call to the live provider — slower than the reads. `revoke` is final.
+   * `reason` is required for suspend / revoke (400 without it) and optional for unsuspend.
+   */
+  changeState(esimId: string, action: EsimStateAction, reason?: string): Observable<EsimStateChangeResult> {
+    const body = reason?.trim() ? { action, reason: reason.trim() } : { action };
+    return this.http.post<EsimStateChangeResult>(`${this.apiUrl}/esims/${encodeURIComponent(esimId)}/state`, body);
   }
 
   /**

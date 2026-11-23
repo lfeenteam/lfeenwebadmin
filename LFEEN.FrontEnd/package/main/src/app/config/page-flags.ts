@@ -19,6 +19,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'profile-changes': true,          // account-management tab; wired to /api/accounts/profile-changes (branding / commercial register review)
   'demo-accounts': true,            // wired to /api/admin/demo-accounts (list, details, create, resend, new PIN, extend, unlock, disable)
   'add-department': false,          // departments come seeded from the backend; the admin has no "add department" flow
+  'service-faq': true,              // "Service app" tab on the FAQ page, wired to /api/service/faqs (BUG-2453) — needs its migration on the server
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

@@ -11,6 +11,10 @@ import { AdminNotificationsStore } from '../../../pages/dashboards/dashboard3/se
 import { userInitials } from '../../../pages/dashboards/dashboard3/utils/user-initials.util';
 import { CoreService } from 'src/app/services/core.service';
 import { filter } from 'rxjs/operators';
+import { PAGE_FLAGS } from 'src/app/config/page-flags';
+import {
+  SETTINGS_PERMISSIONS, hasSettingsPermission,
+} from '../../../pages/dashboards/dashboard3/interfaces/platform-settings.model';
 
 @Component({
   selector: 'app-dashboard3-sidebar',
@@ -44,6 +48,10 @@ export class SidebarComponent {
   isCeoPage = computed(() => this.currentUrl().includes('/ceo'));
   user = this.loginService.currentUser;
   initials = computed(() => userInitials(this.user()?.fullName));
+  /** Footer Settings link: same rule as its route guard, so it isn't a dead link (BUG-2496). */
+  canViewSettings = computed(() =>
+    !!PAGE_FLAGS['settings'] && hasSettingsPermission(this.loginService, SETTINGS_PERMISSIONS.view)
+  );
 
   // computed: يتحدث تلقائيًا لما sidebarItems أو isCeoPage يتغيروا
   filteredNavItems = computed(() => {

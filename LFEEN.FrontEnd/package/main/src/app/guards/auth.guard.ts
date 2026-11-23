@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { LoginService } from '../pages/dashboards/dashboard3/services/login/login.service';
 import { safeReturnUrl, withLang } from './return-url.util';
+import { SidebarService } from '../pages/dashboards/dashboard3/services/sidebar.service';
 
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
@@ -54,7 +55,8 @@ export const guestGuard: CanActivateFn = (
   if (loginService.isAuthenticated() || loginService.hasValidRefreshToken()) {
     const lang = state.url.split('/')[1] || 'ar';
     const returnUrl = safeReturnUrl(route.queryParamMap.get('returnUrl'));
-    return router.parseUrl(returnUrl ? withLang(returnUrl, lang) : `/${lang}/d3/ceo`);
+    // No return address: the first page they may open (BUG-2496 — not always the dashboard).
+    return router.parseUrl(returnUrl ? withLang(returnUrl, lang) : inject(SidebarService).landingUrl(lang));
   }
 
   return true;

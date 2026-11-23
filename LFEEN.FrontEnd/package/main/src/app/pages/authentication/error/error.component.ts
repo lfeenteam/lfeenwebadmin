@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { Subscription } from 'rxjs';
 import { LoginService } from '../../dashboards/dashboard3/services/login/login.service';
+import { SidebarService } from '../../dashboards/dashboard3/services/sidebar.service';
 
 @Component({
   selector: 'app-error',
@@ -20,7 +21,8 @@ export class AppErrorComponent implements OnInit, OnDestroy {
   constructor(
     private translate: TranslateService,
     private loginService: LoginService,
-    private titleService: Title
+    private titleService: Title,
+    private sidebarService: SidebarService
   ) {}
 
   ngOnInit(): void {
@@ -43,11 +45,11 @@ export class AppErrorComponent implements OnInit, OnDestroy {
   }
 
   // Root ('/') always redirects to the login screen regardless of auth state,
-  // so send authenticated users straight to the dashboard instead.
+  // so send authenticated users straight to their landing page instead (BUG-2496).
   get homeLink(): string {
     const lang = this.translate.currentLang || 'ar';
     const authed = this.loginService.isAuthenticated() || this.loginService.hasValidRefreshToken();
-    return authed ? `/${lang}/d3/ceo` : `/${lang}/d3/login`;
+    return authed ? this.sidebarService.landingUrl(lang) : `/${lang}/d3/login`;
   }
 
   refreshPage(): void {

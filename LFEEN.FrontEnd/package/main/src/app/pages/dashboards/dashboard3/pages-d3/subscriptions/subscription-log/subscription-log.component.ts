@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { isForbiddenError } from '../../../utils/transport-error.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Subscription, catchError, of } from 'rxjs';
@@ -94,6 +95,8 @@ export class SubscriptionLogComponent implements OnInit {
   isLoading = true;
   /** The log failed to load — shown as error + retry, not "no activity". */
   loadError = false;
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = false;
   /** 'all' rather than null: mat-select renders a null value as an empty field. */
   serviceFilter: number | 'all' = 'all';
   currentPage = 1;
@@ -141,6 +144,7 @@ export class SubscriptionLogComponent implements OnInit {
     this.pageRequest?.unsubscribe();
     this.isLoading = true;
     this.loadError = false;
+    this.loadForbidden = false;
     this.pageRequest = this.subscriptionsService.getActivityLog({
       subscriptionServiceId: this.serviceFilter === 'all' ? undefined : this.serviceFilter,
       pageNumber: this.currentPage,
@@ -158,6 +162,7 @@ export class SubscriptionLogComponent implements OnInit {
         this.totalPages = 1;
         this.isLoading = false;
         this.loadError = true;
+        this.loadForbidden = isForbiddenError(err);
         // 403 is the only case a retry can't fix — say why; otherwise the inline error is enough.
         if (err?.status === 403) this.toastr.error(resolveSubscriptionError(err, this.translate));
       }

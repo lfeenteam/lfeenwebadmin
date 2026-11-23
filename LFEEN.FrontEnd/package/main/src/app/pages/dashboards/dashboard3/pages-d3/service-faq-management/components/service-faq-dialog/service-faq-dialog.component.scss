@@ -1,0 +1,40 @@
+// Base dialog styles come from the client FAQ dialog (add-faq-dialog.component.scss);
+// only what this form adds lives here.
+
+.dept-select.is-invalid {
+  border-color: #DC2626;
+}
+
+.key-col .faq-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+.active-col {
+  justify-content: flex-start;
+
+  // Black switch, same as the list page's "show inactive".
+  mat-slide-toggle {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-hover-track-color: #333330;
+    --mdc-switch-selected-focus-track-color: #111110;
+    --mdc-switch-selected-pressed-track-color: #111110;
+    --mdc-switch-selected-handle-color: #ffffff;
+    --mdc-switch-selected-hover-handle-color: #ffffff;
+    --mdc-switch-selected-focus-handle-color: #ffffff;
+    --mdc-switch-selected-pressed-handle-color: #ffffff;
+    --mdc-switch-selected-icon-color: #111110;
+    --mdc-switch-unselected-track-color: #E2E8F0;
+    --mdc-switch-unselected-hover-track-color: #E2E8F0;
+    --mdc-switch-unselected-focus-track-color: #E2E8F0;
+    --mdc-switch-unselected-pressed-track-color: #E2E8F0;
+    --mdc-switch-unselected-handle-color: #ffffff;
+    --mdc-switch-unselected-hover-handle-color: #ffffff;
+    --mdc-switch-unselected-focus-handle-color: #ffffff;
+    --mdc-switch-unselected-pressed-handle-color: #ffffff;
+    --mdc-switch-unselected-icon-color: #E2E8F0;
+  }
+}

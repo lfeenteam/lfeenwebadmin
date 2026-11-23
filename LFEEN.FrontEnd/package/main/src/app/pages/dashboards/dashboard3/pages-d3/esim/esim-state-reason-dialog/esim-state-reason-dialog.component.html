@@ -1,0 +1,49 @@
+<form class="rf" [class.rf--danger]="isRevoke" [dir]="currentDir" (ngSubmit)="submit()" novalidate>
+  <div class="rf-header">
+    <div class="rf-heading">
+      <span class="rf-icon"><i-tabler [name]="isRevoke ? 'trash' : 'player-pause'"></i-tabler></span>
+      <h2 class="rf-title">{{ ('d3.esim.stateReason.' + data.action + '.title') | translate }}</h2>
+    </div>
+    <button type="button" class="rf-close" [disabled]="submitting" (click)="close()"
+      [attr.aria-label]="'d3.esim.detail.close' | translate">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="rf-desc">{{ ('d3.esim.stateReason.' + data.action + '.desc') | translate: { sim: data.simLabel } }}</p>
+
+  @if (isRevoke) {
+    <div class="rf-warning" role="note">
+      <i-tabler name="alert-triangle"></i-tabler>
+      <span>{{ 'd3.esim.actions.revokeConfirmMessage' | translate }}</span>
+    </div>
+  }
+
+  <label class="rf-label" for="esim-state-reason">{{ 'd3.esim.stateReason.reasonLabel' | translate }}</label>
+  <textarea id="esim-state-reason" name="reason" class="rf-textarea" rows="3"
+    [maxlength]="maxLength" [(ngModel)]="reason" [disabled]="submitting"
+    [class.has-error]="submitted && reasonError"
+    [placeholder]="('d3.esim.stateReason.' + data.action + '.placeholder') | translate"></textarea>
+  <div class="rf-row">
+    @if (submitted && reasonError) {
+      <span class="rf-error">{{ reasonError | translate }}</span>
+    } @else {
+      <span class="rf-hint">{{ 'd3.esim.stateReason.reasonHint' | translate }}</span>
+    }
+    <span class="rf-count">{{ reason.length }}/{{ maxLength }}</span>
+  </div>
+
+  @if (serverError) {
+    <div class="rf-server-error" role="alert">
+      <i-tabler name="alert-circle"></i-tabler>
+      <span>{{ serverError }}</span>
+    </div>
+  }
+
+  <div class="rf-actions">
+    <button type="button" class="rf-cancel" [disabled]="submitting" (click)="close()">{{ 'd3.listingBan.dialog.cancelBtn' | translate }}</button>
+    <button type="submit" class="rf-confirm" [disabled]="submitting">
+      {{ (submitting ? 'd3.esim.stateReason.submitting' : 'd3.esim.stateReason.' + data.action + '.confirmBtn') | translate }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,154 @@
+<div class="faq-page" [dir]="dirSignal()">
+
+  <!-- Hero header -->
+  <div class="faq-hero">
+    <div class="hero-title-block">
+      <div class="hero-title-row">
+        <span class="help-icon" aria-hidden="true">
+          <i-tabler name="tool" class="icon-16"></i-tabler>
+        </span>
+        <h1 class="hero-title">{{ 'd3.serviceFaq.pageTitle' | translate }}</h1>
+      </div>
+      <p class="hero-subtitle">{{ 'd3.serviceFaq.pageSubtitle' | translate }}</p>
+    </div>
+
+    <div class="hero-actions">
+      <div class="stats-row">
+        <span class="stat-item">
+          <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
+          <span class="stat-circle stat-circle-total">{{ loadError() ? '—' : totalCount() }}</span>
+        </span>
+        <span class="stat-divider"></span>
+        <span class="stat-item">
+          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
+          <span class="stat-circle stat-circle-active">{{ loadError() ? '—' : activeCount() }}</span>
+        </span>
+        @if (includeInactive()) {
+          <span class="stat-divider"></span>
+          <span class="stat-item">
+            <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
+            <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
+          </span>
+        }
+      </div>
+      <button class="add-article-btn" type="button" (click)="openAddDialog()">
+        <i-tabler name="plus" class="icon-18"></i-tabler>
+        {{ 'd3.serviceFaq.add' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="faq-card">
+
+    <!-- Filters: category, search, show inactive — all applied on the server -->
+    <div class="faq-card-toolbar sfq-toolbar">
+      <h2 class="list-title">{{ 'd3.serviceFaq.listTitle' | translate }}</h2>
+
+      <div class="sfq-filters">
+        <div class="sfq-search">
+          <i-tabler name="search" class="icon-16"></i-tabler>
+          <input type="search" dir="auto" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)"
+            [placeholder]="'d3.serviceFaq.filter.searchPlaceholder' | translate"
+            [attr.aria-label]="'d3.serviceFaq.filter.searchPlaceholder' | translate">
+        </div>
+
+        <div class="dept-filter-wrap">
+          <span class="filter-label">{{ 'd3.serviceFaq.filter.byCategory' | translate }}:</span>
+          <button class="dept-filter-btn" type="button" [matMenuTriggerFor]="categoryMenu">
+            <span class="filter-value">{{ selectedCategoryLabel() }}</span>
+            <i-tabler name="chevron-down" class="icon-14"></i-tabler>
+          </button>
+        </div>
+        <mat-menu #categoryMenu="matMenu">
+          <button mat-menu-item type="button" (click)="setCategory(null)">{{ 'd3.serviceFaq.filter.allCategories' | translate }}</button>
+          @for (c of categoryOptions; track c.value) {
+            <button mat-menu-item type="button" (click)="setCategory(c.value)">{{ c.labelKey | translate }}</button>
+          }
+        </mat-menu>
+
+        <mat-slide-toggle class="sfq-inactive-toggle" color="primary"
+          [checked]="includeInactive()" (change)="onIncludeInactiveChange($event.checked)">
+          {{ 'd3.serviceFaq.filter.showInactive' | translate }}
+        </mat-slide-toggle>
+      </div>
+    </div>
+
+    <div class="faq-table sfq-table">
+      <div class="table-head">
+        <div class="col-order">{{ 'd3.serviceFaq.table.order' | translate }}</div>
+        <div class="col-dept">{{ 'd3.serviceFaq.table.category' | translate }}</div>
+        <div class="col-title">{{ 'd3.serviceFaq.table.question' | translate }}</div>
+        <div class="col-status">{{ 'd3.serviceFaq.table.status' | translate }}</div>
+        <div class="col-updated">{{ 'd3.serviceFaq.table.updatedAt' | translate }}</div>
+        <div class="col-actions">{{ 'd3.serviceFaq.table.actions' | translate }}</div>
+      </div>
+
+      @if (loading()) {
+        <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+      } @else if (loadError()) {
+        <app-dashboard-empty variant="error"
+          titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+          actionKey="d3.state.retry" actionIcon="refresh" (action)="reload()">
+        </app-dashboard-empty>
+      } @else {
+
+        @for (f of faqs(); track f.id) {
+          <div class="table-row" [class.row-busy]="isBusy(f.id)">
+
+            <div class="col-order">
+              <span class="order-badge" [class.order-badge-inactive]="!f.isActive">{{ f.displayOrder }}</span>
+            </div>
+
+            <div class="col-dept">
+              <span class="dept-badge sfq-category" [class]="'sfq-cat-' + f.category">{{ categoryLabel(f) }}</span>
+            </div>
+
+            <div class="col-title">
+              <span class="row-title sfq-question" dir="auto">{{ question(f) }}</span>
+              @if (secondaryQuestion(f)) {
+                <span class="row-subtitle" dir="auto">{{ secondaryQuestion(f) }}</span>
+              }
+            </div>
+
+            <div class="col-status">
+              <span class="status-pill" [class.status-active]="f.isActive" [class.status-inactive]="!f.isActive">
+                {{ (f.isActive ? 'd3.serviceFaq.status.active' : 'd3.serviceFaq.status.inactive') | translate }}
+              </span>
+            </div>
+
+            <div class="col-updated">{{ lastUpdated(f) }}</div>
+
+            <div class="col-actions sfq-actions">
+              <button class="row-menu-btn" type="button" [disabled]="isBusy(f.id)" (click)="openEditDialog(f)"
+                [matTooltip]="'common.edit' | translate" [attr.aria-label]="'common.edit' | translate">
+                <i-tabler name="pencil" class="icon-18"></i-tabler>
+              </button>
+              <button class="row-menu-btn" type="button" [disabled]="isBusy(f.id)" (click)="toggleActive(f)"
+                [class.sfq-btn-success]="!f.isActive" [class.sfq-btn-warn]="f.isActive"
+                [matTooltip]="(f.isActive ? 'd3.serviceFaq.menu.deactivate' : 'd3.serviceFaq.menu.activate') | translate"
+                [attr.aria-label]="(f.isActive ? 'd3.serviceFaq.menu.deactivate' : 'd3.serviceFaq.menu.activate') | translate">
+                <i-tabler [name]="f.isActive ? 'player-pause' : 'player-play'" class="icon-18"></i-tabler>
+              </button>
+              <button class="row-menu-btn sfq-btn-danger" type="button" [disabled]="isBusy(f.id)" (click)="deleteFaq(f)"
+                [matTooltip]="'d3.serviceFaq.menu.delete' | translate" [attr.aria-label]="'d3.serviceFaq.menu.delete' | translate">
+                <i-tabler name="trash" class="icon-18"></i-tabler>
+              </button>
+            </div>
+
+          </div>
+        } @empty {
+          <div class="empty-state">
+            <i-tabler name="file-off" class="icon-32"></i-tabler>
+            <span>{{ (hasFilters() ? 'd3.serviceFaq.table.emptyFiltered' : 'd3.serviceFaq.table.empty') | translate }}</span>
+            @if (hasFilters()) {
+              <button class="sfq-clear-btn" type="button" (click)="clearFilters()">{{ 'd3.serviceFaq.filter.clear' | translate }}</button>
+            }
+          </div>
+        }
+
+      }
+    </div>
+
+  </div>
+
+</div>

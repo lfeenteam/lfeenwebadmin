@@ -71,6 +71,23 @@ export function formatLocalizedDateTime(
   };
 }
 
+/**
+ * Formats a backend TimeSpan wall-clock time ("15:00:00" / "15:00") as a localized
+ * 12-hour label ("3:00 م" / "3:00 PM"), matching the host app. Returns null when the
+ * value is missing or not a valid time, so callers can pick their own placeholder.
+ */
+export function formatTimeOfDay(time: string | null | undefined, lang: string): string | null {
+  const match = /^(\d{1,2}):(\d{2})/.exec(time?.trim() ?? '');
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+
+  const isPm = hours >= 12;
+  const period = lang === 'en' ? (isPm ? 'PM' : 'AM') : (isPm ? 'م' : 'ص');
+  return `${hours % 12 || 12}:${pad2(minutes)} ${period}`;
+}
+
 /** Formats a UTC ISO string into a localized "D Month" label in Riyadh time, or '-' if invalid. */
 export function formatLocalizedDayMonth(iso: string | null | undefined, lang: string): string {
   const parsed = parseApiUtc(iso);

@@ -215,10 +215,26 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
   }
 
+  /** Opened from the service (worker) app. Only isFromWorker decides this — worker
+   * messages still come back as senderType "Merchant" on purpose. */
+  get isFromWorker(): boolean {
+    return this.ticket()?.isFromWorker === true;
+  }
+
+  /** The server's ready label ("عامل" / "Worker"), with a local fallback. */
+  get workerLabel(): string {
+    return this.ticket()?.sourceName || this.translate.instant('d3.complaints.hostFilters.source.worker');
+  }
+
+  /** Role shown under a non-admin sender: the worker label on worker tickets instead of "Merchant". */
+  senderRoleLabel(m: TicketMessage): string {
+    return this.isFromWorker ? this.workerLabel : m.senderTypeName;
+  }
+
   get hostSubtitle(): string {
     const t = this.ticket();
     if (!t) return '';
-    const role = this.currentDir === 'rtl' ? 'مضيف' : 'Host';
+    const role = this.isFromWorker ? this.workerLabel : this.currentDir === 'rtl' ? 'مضيف' : 'Host';
     return t.propertyName ? `${role} · ${t.propertyName}` : role;
   }
 

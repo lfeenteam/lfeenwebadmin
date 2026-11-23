@@ -6,6 +6,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { BookingService } from '../../services/booking.service';
 import { BookingActivityLogApiItem, BookingActivityLogSource } from '../../interfaces/booking.model';
 import { formatLocalizedDateTime } from 'src/app/utils/date-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type LogActivityType = 'check' | 'payment';
 
@@ -28,7 +29,7 @@ const SOURCE_LABEL_KEY: Record<BookingActivityLogSource, string> = {
 @Component({
   selector: 'app-booking-log-tab',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, AppPluralPipe],
   templateUrl: './booking-log-tab.component.html',
   styleUrl: './booking-log-tab.component.scss'
 })

@@ -137,7 +137,12 @@
               {{ c.clientInitials }}
             </div>
             <div class="client-info">
-              <span class="client-name">{{ displayClientName(c) }}</span>
+              <span class="client-name-row">
+                <span class="client-name">{{ displayClientName(c) }}</span>
+                @if (c.isFromWorker) {
+                  <span class="worker-badge">{{ c.sourceName || ('d3.complaints.hostFilters.source.worker' | translate) }}</span>
+                }
+              </span>
               <span class="client-code">{{ c.ticketId }}</span>
             </div>
           </div>
@@ -291,11 +296,18 @@
 
       <div class="assign-popover-list" (scroll)="onAssignListScroll($event)">
         @for (employee of assignEmployees; track employee.userId) {
-          <button mat-menu-item type="button" class="assign-popover-item" [class.selected]="isAssignSelected(employee)" (click)="selectAssignEmployee(employee)">
+          <button mat-menu-item type="button" class="assign-popover-item" [class.selected]="isAssignSelected(employee)"
+            [class.inactive]="isAssignInactive(employee)" [disabled]="isAssignInactive(employee)"
+            (click)="selectAssignEmployee(employee)">
             <span class="assign-popover-row">
               <span class="assign-popover-avatar">{{ getAssignInitials(employee.fullName) }}</span>
               <span class="assign-popover-meta">
-                <span class="assign-popover-name">{{ employee.fullName }}</span>
+                <span class="assign-popover-name">
+                  {{ employee.fullName }}
+                  @if (isAssignInactive(employee)) {
+                    <span class="assign-popover-inactive">{{ 'd3.complaints.assignDialog.inactive' | translate }}</span>
+                  }
+                </span>
                 <span class="assign-popover-email">{{ employee.email }}</span>
               </span>
             </span>
