@@ -3,6 +3,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 /**
+ * Codes the server uses for several different validation failures, each with its own specific
+ * message (e.g. the fixed-amount cap quotes the limit) — show that message when there is one,
+ * and fall back to our generic translation only when it's missing.
+ */
+const SERVER_MESSAGE_FIRST_CODES = new Set(['SUBSCRIPTION_DISCOUNT_VALIDATION']);
+
+/**
  * The admin API forwards EQAMATIK errors as `{ success: false, message, errorCode }`.
  * errorCode is the stable contract (the message wording can change), so a known code is
  * shown from our own translations; otherwise the localized server message is used.
@@ -14,6 +21,7 @@ export function resolveSubscriptionError(err: unknown, translate: TranslateServi
   const message: string = typeof e?.error?.message === 'string' ? e.error.message.trim() : '';
   const code: string = typeof e?.error?.errorCode === 'string' ? e.error.errorCode : '';
 
+  if (code && message && SERVER_MESSAGE_FIRST_CODES.has(code)) return message;
   if (code) {
     const key = `d3.subscriptionErrors.codes.${code}`;
     const translated = translate.instant(key);

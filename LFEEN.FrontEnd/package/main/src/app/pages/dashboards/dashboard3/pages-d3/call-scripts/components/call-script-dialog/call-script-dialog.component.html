@@ -11,7 +11,7 @@
         </span>
       }
     </div>
-    <button class="cancel-link" type="button" (click)="dialogRef.close()">
+    <button class="cancel-link" type="button" [disabled]="submitting()" (click)="close()">
       {{ 'd3.callScripts.dialog.cancel' | translate }}
       <i-tabler name="x" class="icon-16"></i-tabler>
     </button>
@@ -133,11 +133,22 @@
     </form>
   </mat-dialog-content>
 
+  @if (serverError()) {
+    <div class="server-error" role="alert">
+      <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+      <span>{{ serverError() }}</span>
+    </div>
+  }
+
   <div class="cs-dialog-footer">
-    <button class="submit-btn" type="button" (click)="save()">
-      {{ (isEditMode ? 'common.save' : 'd3.callScripts.dialog.create') | translate }}
+    <button class="submit-btn" type="button" [disabled]="submitting()" (click)="save()">
+      @if (submitting()) {
+        {{ 'd3.callScripts.dialog.saving' | translate }}
+      } @else {
+        {{ (isEditMode ? 'common.save' : 'd3.callScripts.dialog.create') | translate }}
+      }
     </button>
-    <button class="clear-btn" type="button" (click)="dialogRef.close()">
+    <button class="clear-btn" type="button" [disabled]="submitting()" (click)="close()">
       {{ 'd3.callScripts.dialog.cancel' | translate }}
     </button>
   </div>

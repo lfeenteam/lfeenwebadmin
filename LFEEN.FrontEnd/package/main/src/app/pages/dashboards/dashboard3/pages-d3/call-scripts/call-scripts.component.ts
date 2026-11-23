@@ -101,21 +101,11 @@ export class CallScriptsComponent implements OnInit {
       data: { scenarios: CALL_SCRIPT_SCENARIOS },
     });
 
-    dialogRef.afterClosed().subscribe((result?: CallScriptDialogResult) => {
-      if (!result) return;
-
-      this.service.create({
-        scenarioType: result.scenarioType,
-        audioFileUrl: result.audioFileUrl,
-        options: result.options,
-        isActive: result.isActive,
-      }).subscribe({
-        next: () => {
-          this.toastr.success(this.translate.instant('d3.callScripts.toast.createSuccess'));
-          this.load();
-        },
-        error: err => this.toastr.error(resolveCallScriptError(err, this.translate)),
-      });
+    // The dialog saves itself and closes only on success; failures stay inside it with the form intact.
+    dialogRef.afterClosed().subscribe((saved?: CallScriptDialogResult) => {
+      if (!saved) return;
+      this.toastr.success(this.translate.instant('d3.callScripts.toast.createSuccess'));
+      this.load();
     });
   }
 
@@ -128,20 +118,10 @@ export class CallScriptsComponent implements OnInit {
       data: { scenarios: CALL_SCRIPT_SCENARIOS, script },
     });
 
-    dialogRef.afterClosed().subscribe((result?: CallScriptDialogResult) => {
-      if (!result) return;
-
-      this.service.update(script.id, {
-        audioFileUrl: result.audioFileUrl,
-        options: result.options,
-        isActive: result.isActive,
-      }).subscribe({
-        next: () => {
-          this.toastr.success(this.translate.instant('d3.callScripts.toast.updateSuccess'));
-          this.load();
-        },
-        error: err => this.toastr.error(resolveCallScriptError(err, this.translate)),
-      });
+    dialogRef.afterClosed().subscribe((saved?: CallScriptDialogResult) => {
+      if (!saved) return;
+      this.toastr.success(this.translate.instant('d3.callScripts.toast.updateSuccess'));
+      this.load();
     });
   }
 
@@ -164,6 +144,29 @@ export class CallScriptsComponent implements OnInit {
       }).subscribe({
         next: () => {
           this.toastr.success(this.translate.instant('d3.callScripts.toast.activateSuccess'));
+          this.load();
+        },
+        error: err => this.toastr.error(resolveCallScriptError(err, this.translate)),
+      });
+    });
+  }
+
+  // Only inactive versions can be deleted — the API refuses the active one, so the option isn't offered for it.
+  deleteScript(script: CallScript): void {
+    if (!this.canManage() || script.isActive) return;
+
+    const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
+      width: '440px',
+      data: { title: 'd3.callScripts.deleteConfirm.title', message: 'd3.callScripts.deleteConfirm.message' },
+      panelClass: 'custom-confirm-dialog',
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+
+      this.service.delete(script.id).subscribe({
+        next: () => {
+          this.toastr.success(this.translate.instant('d3.callScripts.toast.deleteSuccess'));
           this.load();
         },
         error: err => this.toastr.error(resolveCallScriptError(err, this.translate)),

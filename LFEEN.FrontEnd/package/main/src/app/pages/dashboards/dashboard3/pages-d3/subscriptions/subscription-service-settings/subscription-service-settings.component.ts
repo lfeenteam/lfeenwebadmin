@@ -547,6 +547,19 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       }));
   }
 
+  /**
+   * The live option with the highest discount — the merchant catalog badges it "best value"
+   * (isBestValue there); worked out the same way here so the admin sees it too.
+   */
+  get bestValueOptionId(): number | null {
+    let best: SubscriptionPeriodOption | null = null;
+    for (const o of this.periodOptions) {
+      if (!(o.discountPercent != null && o.discountPercent > 0)) continue;
+      if (!best || o.discountPercent > (best.discountPercent ?? 0)) best = o;
+    }
+    return best?.id ?? null;
+  }
+
   optionName(o: SubscriptionPeriodOption): string {
     return (this.currentLang === 'en' ? o.nameEn : o.nameAr) || o.nameAr || o.nameEn;
   }

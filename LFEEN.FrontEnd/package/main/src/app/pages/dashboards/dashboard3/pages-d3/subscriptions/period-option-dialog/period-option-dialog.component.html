@@ -48,7 +48,7 @@
 
     <div class="form-grid">
       <div class="form-field">
-        <label class="field-label" for="po-price">{{ 'd3.periodOption.price' | translate }} *</label>
+        <label class="field-label" for="po-price">{{ (hasDiscount ? 'd3.periodOption.priceAfterDiscount' : 'd3.periodOption.price') | translate }} *</label>
         <div class="field-input-wrap">
           <input id="po-price" type="number" min="0.01" step="0.01" class="field-input" placeholder="0" [(ngModel)]="price" />
           <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
@@ -62,8 +62,48 @@
       </div>
     </div>
 
+    <!-- Discount: display only — the price above stays the amount charged -->
+    <div class="form-field">
+      <span class="field-label">{{ 'd3.periodOption.discount' | translate }}</span>
+      <div class="segmented">
+        <button type="button" class="segment" [class.active]="discountType === 'none'" (click)="setDiscountType('none')">{{ 'd3.periodOption.noDiscount' | translate }}</button>
+        <button type="button" class="segment" [class.active]="discountType === 'Percentage'" (click)="setDiscountType('Percentage')">{{ 'd3.periodOption.percentage' | translate }}</button>
+        <button type="button" class="segment" [class.active]="discountType === 'FixedAmount'" (click)="setDiscountType('FixedAmount')">{{ 'd3.periodOption.fixedAmount' | translate }}</button>
+      </div>
+    </div>
+
+    @if (hasDiscount) {
+      <div class="form-field">
+        <label class="field-label" for="po-discount">{{ 'd3.periodOption.discountValue' | translate }} *</label>
+        <div class="field-input-wrap">
+          <input id="po-discount" type="number" min="0.01" step="0.01" class="field-input" placeholder="0"
+            [attr.max]="isPercentDiscount ? 99.99 : null" [(ngModel)]="discountValue" />
+          @if (isPercentDiscount) {
+            <span class="field-suffix">%</span>
+          } @else {
+            <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
+          }
+        </div>
+        @if (discountError) { <span class="field-error">{{ discountError | translate }}</span> }
+      </div>
+
+      @if (originalPricePreview !== null && price !== null) {
+        <div class="discount-preview">
+          <span class="preview-label">{{ 'd3.periodOption.merchantSees' | translate }}</span>
+          <span class="preview-original">{{ fmt(originalPricePreview) }}</span>
+          <span class="preview-price">
+            {{ fmt(price) }}
+            <img [src]="currencyIconSrc" alt="" class="preview-currency" />
+          </span>
+          @if (discountPercentPreview !== null) {
+            <span class="preview-badge">{{ 'd3.periodOption.discountBadge' | translate: { percent: fmt(discountPercentPreview) } }}</span>
+          }
+        </div>
+      }
+    }
+
     <span class="field-error is-note">
-      {{ (isEdit ? 'd3.periodOption.editNote' : 'd3.periodOption.priceNote') | translate }}
+      {{ (isEdit ? 'd3.periodOption.editNote' : (hasDiscount ? 'd3.periodOption.discountNote' : 'd3.periodOption.priceNote')) | translate }}
     </span>
 
   </div>

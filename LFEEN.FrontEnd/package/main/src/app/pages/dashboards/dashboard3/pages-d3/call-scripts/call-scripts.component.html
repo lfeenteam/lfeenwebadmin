@@ -102,6 +102,10 @@
                       <i-tabler name="circle-check" class="icon-16"></i-tabler>
                       {{ 'd3.callScripts.menu.activate' | translate }}
                     </button>
+                    <button mat-menu-item type="button" class="menu-item-danger" (click)="deleteScript(script)">
+                      <i-tabler name="trash" class="icon-16"></i-tabler>
+                      {{ 'd3.callScripts.menu.delete' | translate }}
+                    </button>
                   }
                 </mat-menu>
               }

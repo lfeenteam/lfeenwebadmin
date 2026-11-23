@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -17,6 +17,7 @@ import {
   ResendDemoRequest
 } from '../../../interfaces/demo-account.model';
 import { DEMO_FIELD_ALIASES, DemoApiError, demoActionToast, demoErrorMessage, readDemoError } from '../demo-accounts.util';
+import { scrollToFirstError } from '../scroll-to-error';
 import { DEMO_PAGE_LEVEL_CODES } from '../components/demo-action-dialog/demo-action-dialog.component';
 import { DemoAttachmentsComponent } from '../components/demo-attachments/demo-attachments.component';
 import { InvitationEditorStore } from '../components/invitation-editor/invitation-editor.store';
@@ -44,6 +45,8 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
   private readonly toastr = inject(ToastrService);
   private readonly login = inject(LoginService);
   private readonly pageTitle = inject(PageTitleOverrideService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   readonly invitation = inject(InvitationEditorStore);
 
   @ViewChild(DemoAttachmentsComponent) private attachments?: DemoAttachmentsComponent;
@@ -166,6 +169,8 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
         this.submitting = false;
         const e = readDemoError(err);
         if (this.handlePageError(e)) return;
+        // Wherever the message lands below, bring it into view (runs after it renders).
+        this.scrollToFirstError();
         // DEMO_SUBJECT_INVALID / DEMO_MESSAGE_INVALID → fresh preview marks the text.
         if (this.invitation.handleError(e)) return;
         // DEMO_ATTACHMENTS_EMAIL_ONLY / TOO_LARGE / INVALID → under the file picker.
@@ -186,6 +191,15 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
         this.error = demoErrorMessage(e, this.translate);
       },
     });
+  }
+
+  /**
+   * On narrow screens Send sits in the footer at the bottom while the page error is at the
+   * top (and field errors are mid-page) — bring the first message into view so the click
+   * doesn't look like it did nothing.
+   */
+  private scrollToFirstError(): void {
+    scrollToFirstError(this.host.nativeElement, this.injector);
   }
 
   /**

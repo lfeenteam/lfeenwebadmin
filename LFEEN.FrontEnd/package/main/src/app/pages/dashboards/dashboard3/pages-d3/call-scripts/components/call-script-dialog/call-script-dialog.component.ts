@@ -1,4 +1,6 @@
-import { Component, Inject, computed, inject } from '@angular/core';
+import { Component, DestroyRef, Inject, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -7,6 +9,8 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CoreService } from 'src/app/services/core.service';
 import { CallScript, CallScriptScenarioType, scenarioDisplayName, scenarioHint } from '../../interfaces/call-script.model';
+import { CallScriptsService } from '../../services/call-scripts.service';
+import { resolveCallScriptError } from '../../interfaces/call-script-error.util';
 
 // Validators.required lets "   " through; the API would then reject the trimmed empty value.
 function requiredTrimmed(control: AbstractControl): ValidationErrors | null {
@@ -67,12 +71,8 @@ export interface CallScriptDialogData {
   script?: CallScript;
 }
 
-export interface CallScriptDialogResult {
-  scenarioType: CallScriptScenarioType;
-  audioFileUrl: string;
-  options: { digit: string; description: string; responseMessageFileUrl: string | null }[];
-  isActive: boolean;
-}
+/** Returned via afterClosed() only after the API accepted the create/update. */
+export type CallScriptDialogResult = CallScript;
 
 @Component({
   selector: 'app-call-script-dialog',
@@ -84,6 +84,13 @@ export interface CallScriptDialogResult {
 export class CallScriptDialogComponent {
   private translate = inject(TranslateService);
   private coreService = inject(CoreService);
+  private service = inject(CallScriptsService);
+  private destroyRef = inject(DestroyRef);
+
+  /** True while the create/update request is in flight — blocks double submits and closing. */
+  readonly submitting = signal(false);
+  /** Server/transport error shown inside the dialog so the admin can fix the form and retry. */
+  readonly serverError = signal('');
 
   readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
 
@@ -108,6 +115,11 @@ export class CallScriptDialogComponent {
       isActive: [this.data.script?.isActive ?? false],
       options: this.fb.array(seedOptions.map(o => this.buildOptionGroup(o)), { validators: optionsRules }),
     });
+
+    // A stale server message would point at a field the admin may already have fixed.
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => { if (this.serverError()) this.serverError.set(''); });
   }
 
   get isEditMode(): boolean {
@@ -160,7 +172,12 @@ export class CallScriptDialogComponent {
     this.options.removeAt(index);
   }
 
+  /**
+   * Saves from inside the dialog and closes only on success. On any failure (400, 5xx, network)
+   * the dialog stays open with everything the admin typed, and the error is shown in place.
+   */
   save(): void {
+    if (this.submitting()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -168,17 +185,41 @@ export class CallScriptDialogComponent {
 
     // getRawValue() (not .value) so the disabled scenarioType control is still included in edit mode.
     const value = this.form.getRawValue();
-    const result: CallScriptDialogResult = {
-      scenarioType: value.scenarioType,
-      audioFileUrl: value.audioFileUrl.trim(),
-      options: value.options.map((o: { digit: string; description: string; responseMessageFileUrl: string }) => ({
-        digit: o.digit.trim(),
-        description: o.description.trim(),
-        responseMessageFileUrl: o.responseMessageFileUrl?.trim() || null,
-      })),
-      isActive: value.isActive,
-    };
+    const audioFileUrl: string = value.audioFileUrl.trim();
+    const options = value.options.map((o: { digit: string; description: string; responseMessageFileUrl: string }) => ({
+      digit: o.digit.trim(),
+      description: o.description.trim(),
+      responseMessageFileUrl: o.responseMessageFileUrl?.trim() || null,
+    }));
+    const isActive: boolean = value.isActive;
 
-    this.dialogRef.close(result);
+    const request$: Observable<CallScript> = this.data.script
+      ? this.service.update(this.data.script.id, { audioFileUrl, options, isActive })
+      : this.service.create({ scenarioType: value.scenarioType, audioFileUrl, options, isActive });
+
+    this.setSubmitting(true);
+    this.serverError.set('');
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: saved => {
+        this.setSubmitting(false);
+        this.dialogRef.close(saved);
+      },
+      error: err => {
+        this.setSubmitting(false);
+        this.serverError.set(resolveCallScriptError(err, this.translate));
+      },
+    });
+  }
+
+  close(): void {
+    if (this.submitting()) return;
+    this.dialogRef.close();
+  }
+
+  // Backdrop click / Esc must not discard an in-flight save either.
+  private setSubmitting(value: boolean): void {
+    this.submitting.set(value);
+    this.dialogRef.disableClose = value;
   }
 }

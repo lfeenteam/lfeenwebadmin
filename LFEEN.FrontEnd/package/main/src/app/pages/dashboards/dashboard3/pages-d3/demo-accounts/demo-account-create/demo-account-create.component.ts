@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, ViewChild, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,6 +21,7 @@ import {
   toLocalPhone
 } from '../../../interfaces/demo-account.model';
 import { DEMO_FIELD_ALIASES, demoErrorMessage, isNoAnswerError, newIdempotencyKey, readDemoError } from '../demo-accounts.util';
+import { scrollToFirstError } from '../scroll-to-error';
 import { DemoAttachmentsComponent } from '../components/demo-attachments/demo-attachments.component';
 import { InvitationEditorStore } from '../components/invitation-editor/invitation-editor.store';
 import { InvitationEditorComponent } from '../components/invitation-editor/invitation-editor.component';
@@ -51,6 +52,8 @@ export class DemoAccountCreateComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly toastr = inject(ToastrService);
   private readonly login = inject(LoginService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   readonly invitation = inject(InvitationEditorStore);
 
   @ViewChild(DemoAttachmentsComponent) private attachments?: DemoAttachmentsComponent;
@@ -286,8 +289,7 @@ export class DemoAccountCreateComponent implements OnInit {
   private scrollToFirstError(): void {
     if (this.accountHasErrors) this.open.account = true;
     if (this.invitation.preview?.isValid === false || this.attachments?.error) this.open.message = true;
-    setTimeout(() => document.querySelector('.da-create .da-error, .da-create .da-alert.danger')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    scrollToFirstError(this.host.nativeElement, this.injector);
   }
 
   private revalidate(fields: CreateField[]): void {

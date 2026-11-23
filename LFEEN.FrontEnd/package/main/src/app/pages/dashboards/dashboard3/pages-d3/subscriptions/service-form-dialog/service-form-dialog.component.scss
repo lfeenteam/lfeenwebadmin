@@ -26,9 +26,20 @@
 }
 
 // Fields sit side by side so the whole form fits on screen; the scroll is only a
-// fallback for very short screens.
+// fallback for very short screens. The dialog is capped at the viewport and the
+// scroll takes whatever is left after the header, the server error (when shown)
+// and the buttons — so the buttons never get pushed off screen.
+.create-code-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+  box-sizing: border-box;
+}
+
 .form-scroll {
-  max-height: calc(100vh - 170px);
+  max-height: none;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 

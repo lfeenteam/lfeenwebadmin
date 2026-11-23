@@ -4516,12 +4516,24 @@
       "empty": "No periods yet. Merchants can't subscribe until you add at least one.",
       "historyNote": "Editing a period creates a new version of it. Merchants already on it keep the price they bought.",
       "editNote": "Saving closes the current period and opens a new one in its place; its subscribers keep their old price.",
-      "priceNote": "The price is used as entered — longer periods aren't discounted automatically.",
+      "priceNote": "The price is what the merchant pays. Add a discount to show them the original price struck through.",
+      "priceAfterDiscount": "Price after discount (amount charged)",
+      "discount": "Period discount",
+      "noDiscount": "No discount",
+      "percentage": "Percentage",
+      "fixedAmount": "Fixed amount",
+      "discountValue": "Discount value",
+      "merchantSees": "Merchant sees:",
+      "discountBadge": "{{percent}}% off",
+      "bestValue": "Best value",
+      "discountNote": "The discount is for display only: the merchant pays the price after discount as entered, and the original price is worked out from it.",
       "save": "Save",
       "saved": "Period saved",
       "errors": {
         "duration": "The duration must be a whole number above zero",
-        "price": "The price must be greater than zero"
+        "price": "The price must be greater than zero",
+        "discountValue": "The discount must be greater than zero",
+        "discountPercentMax": "The discount percentage must be below 100%"
       }
     },
     "transactionRate": {
@@ -5177,6 +5189,7 @@
           "codeFormat": "Use only uppercase letters, digits, - or _",
           "valuePositive": "Value must be greater than zero",
           "percentMax": "Percentage can't exceed 100%",
+          "fixedMax": "A fixed discount can't exceed the highest fee the code applies to:",
           "redemptionsMin": "Max uses must be a whole number, 1 or more",
           "appliesTo": "Select at least one fee type",
           "dates": "Dates can't be in the past, and the end date must be after the start date"
@@ -5219,6 +5232,7 @@
         "SUBSCRIPTION_PERIOD_OPTION_NAME_REQUIRED": "Enter the period's Arabic and English names.",
         "SUBSCRIPTION_PERIOD_OPTION_NOT_PACKAGE_STYLE": "Period options only apply to package-billed services.",
         "SUBSCRIPTION_PERIOD_OPTION_NOT_FOUND": "Period option not found.",
+        "SUBSCRIPTION_PERIOD_OPTION_INVALID_DISCOUNT": "Invalid discount: pick a type and enter a value above zero, with a percentage below 100%.",
         "SUBSCRIPTION_DISCOUNT_VALIDATION": "The discount code details are invalid.",
         "SUBSCRIPTION_DISCOUNT_NOT_ALLOWED_FOR_TRANSACTION_STYLE": "Discount codes don't apply to per-operation services.",
         "SUBSCRIPTION_DISCOUNT_CODE_TAKEN": "This discount code already exists.",
@@ -5610,17 +5624,23 @@
         "inactive": "Inactive"
       },
       "menu": {
-        "activate": "Activate"
+        "activate": "Activate",
+        "delete": "Delete"
       },
       "activateConfirm": {
         "title": "Confirm Activation",
         "message": "Activating this version will deactivate the currently active script for this scenario. Continue?"
+      },
+      "deleteConfirm": {
+        "title": "Delete Script Version",
+        "message": "This version will be permanently deleted and this can't be undone. Continue?"
       },
       "dialog": {
         "addTitle": "New Script Version",
         "editTitle": "Edit Script",
         "cancel": "Cancel",
         "create": "Create Version",
+        "saving": "Saving…",
         "scenarioSection": "Scenario",
         "scenarioPlaceholder": "Select scenario",
         "audioSection": "Audio File",
@@ -5656,13 +5676,23 @@
         "forbidden": "You are not allowed to view call scripts",
         "audioUrlRequired": "Audio file URL is required",
         "optionsRequired": "At least one menu option is required",
+        "audioUrlInvalid": "The audio file must be an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+        "responseUrlInvalid": "The response audio must be an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+        "digitInvalid": "Digit must be a single key: 0–9, * or #",
+        "digitDuplicate": "The same digit can't be used for more than one option",
+        "descriptionInvalid": "Description is required and must not exceed 200 characters",
+        "tooManyOptions": "You can add up to 12 options",
+        "scenarioConflict": "Another version of this scenario was activated at the same moment. Please refresh and try again.",
+        "deleteActiveNotAllowed": "The active version can't be deleted. Activate another version first.",
+        "deleteUnavailable": "Deleting isn't available right now, please try again later",
         "notFound": "This script no longer exists",
         "generic": "Something went wrong, please try again"
       },
       "toast": {
         "createSuccess": "Script version created successfully",
         "updateSuccess": "Script updated successfully",
-        "activateSuccess": "Script activated successfully"
+        "activateSuccess": "Script activated successfully",
+        "deleteSuccess": "Script version deleted successfully"
       }
     }
   },
