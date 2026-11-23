@@ -55,25 +55,49 @@ export function isKnownType(type: string): boolean {
   return type in TYPE_PRESENTATION;
 }
 
-// Route segments relative to /:lang/d3. Reference types without a matching admin
-// screen (SupportTicket, ClientInquiry, Payment) stay on the notifications page.
-const REFERENCE_ROUTES: Record<string, (id: string) => string[]> = {
-  Complaint:         id => ['complaints', id],
-  Property:          id => ['build-review', id],
-  Unit:              () => ['units'],
-  Account:           id => ['account-management', 'review', id],
-  ContactUsRequest:  () => ['contact-us'],
-  SubscriptionOrder: () => ['subscriptions', 'requests'],
-  Settlement:        () => ['settlements'],
-  Booking:           () => ['bookings'],
+/** Where a notification leads: route segments relative to /:lang/d3, plus optional query params. */
+export interface NotificationDestination {
+  commands: string[];
+  queryParams?: Record<string, string>;
+}
+
+// Reference types without a matching admin screen (SupportTicket, ClientInquiry, Payment)
+// stay on the notifications page.
+const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> = {
+  Complaint:         id => ({ commands: ['complaints', id] }),
+  // Property and Unit notifications carry the GUID (externalId), but the review pages and
+  // their section/decision endpoints work with the numeric id, so NotificationsComponent
+  // resolves the GUID first (see REFERENCE_RESOLVED_TYPES). These lists are only the
+  // fallback for when that lookup fails (e.g. the listing was deleted).
+  Property:          () => ({ commands: ['buildings'] }),
+  Unit:              () => ({ commands: ['units'], queryParams: { tab: 'pendingChanges' } }),
+  Account:           id => ({ commands: ['account-management', 'review', id] }),
+  // Opens the list with this request's details drawer open.
+  ContactUsRequest:  id => ({ commands: ['contact-us'], queryParams: { id } }),
+  SubscriptionOrder: () => ({ commands: ['subscriptions', 'requests'] }),
+  Settlement:        () => ({ commands: ['settlements'] }),
+  Booking:           () => ({ commands: ['bookings'] }),
   // Opens the activation-requests tab with this request open (no single-request endpoint).
-  DemoActivationRequest: id => ['demo-accounts', 'activation-requests', id],
+  DemoActivationRequest: id => ({ commands: ['demo-accounts', 'activation-requests', id] }),
 };
 
-export function routeFor(item: AdminNotification): string[] | null {
+/** Reference types whose GUID must be looked up to reach the item itself. */
+export const REFERENCE_RESOLVED_TYPES = new Set(['Property', 'Unit']);
+
+export function routeFor(item: AdminNotification): NotificationDestination | null {
   if (!item.referenceId || !item.referenceType) return null;
   const build = REFERENCE_ROUTES[item.referenceType];
   return build ? build(item.referenceId) : null;
+}
+
+/**
+ * Unit review page for a unit loaded by its GUID. A unit with nothing but its first
+ * submission pending ('Pending') is a new unit; anything else under review is a change
+ * request. The review page reads ?tab= for its header badge, like the unit lists pass it.
+ */
+export function unitReviewDestination(unit: { propertyId: number; unitId: number; overallStatus?: string | null }): NotificationDestination {
+  const tab = unit.overallStatus?.trim() === 'Pending' ? 'new' : 'pendingChanges';
+  return { commands: ['unit-review', String(unit.propertyId), String(unit.unitId)], queryParams: { tab } };
 }
 
 const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [

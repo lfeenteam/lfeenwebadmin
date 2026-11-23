@@ -12,7 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, catchError, debounceTime, distinctUntilChanged, map, of, switchMap, takeUntil, tap } from 'rxjs';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { MaterialModule } from 'src/app/material.module';
@@ -52,6 +52,9 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private search$ = new Subject<string>();
+  // Every search/filter/page/refresh load goes through here; switchMap cancels the in-flight
+  // request so a slow stale response can never overwrite the latest results.
+  private load$ = new Subject<void>();
   private destroy$ = new Subject<void>();
   dir = computed(() => this.core.getOptionsSignal()().dir);
   items = signal<PlatformOfferListItem[]>([]);
@@ -72,6 +75,48 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   total = signal(0);
   pages = signal(1);
   ngOnInit() {
+    this.load$
+      .pipe(
+        tap(() => {
+          this.loading.set(true);
+          this.error.set('');
+          this.hasFilters.set(this.filtersActive);
+        }),
+        // Filters are read inside switchMap so each request uses the latest values.
+        switchMap(() =>
+          this.service
+            .list({
+              search: this.search.trim() || undefined,
+              triggerType: (this.triggerType as OfferTriggerType) || undefined,
+              offerStatus: this.offerStatus || undefined,
+              minDiscount: this.minDiscount,
+              maxDiscount: this.maxDiscount,
+              startDateFrom: this.startDateFrom || undefined,
+              startDateTo: this.startDateTo || undefined,
+              pageNumber: this.page(),
+              pageSize: this.pageSize,
+            })
+            .pipe(
+              map((r) => ({ ok: true as const, r })),
+              // Caught on the inner request so a failure doesn't end the load stream.
+              catchError(() => of({ ok: false as const })),
+            ),
+        ),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (res.ok) {
+          this.items.set(res.r.data || []);
+          this.total.set(res.r.totalCount || 0);
+          this.pages.set(Math.max(1, res.r.totalPages || 1));
+        } else {
+          // The list's own error state only ever shows the localized fallback text — the
+          // raw backend/network message (e.g. an infra-level "API request failed.") is a
+          // debugging detail, not something to surface on this page.
+          this.error.set(this.translate.instant('d3.platformOffers.errors.load'));
+        }
+        this.loading.set(false);
+      });
     this.search$
       .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
@@ -115,36 +160,7 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
     );
   }
   load() {
-    this.loading.set(true);
-    this.error.set('');
-    this.hasFilters.set(this.filtersActive);
-    this.service
-      .list({
-        search: this.search.trim() || undefined,
-        triggerType: (this.triggerType as OfferTriggerType) || undefined,
-        offerStatus: this.offerStatus || undefined,
-        minDiscount: this.minDiscount,
-        maxDiscount: this.maxDiscount,
-        startDateFrom: this.startDateFrom || undefined,
-        startDateTo: this.startDateTo || undefined,
-        pageNumber: this.page(),
-        pageSize: this.pageSize,
-      })
-      .subscribe({
-        next: (r) => {
-          this.items.set(r.data || []);
-          this.total.set(r.totalCount || 0);
-          this.pages.set(Math.max(1, r.totalPages || 1));
-          this.loading.set(false);
-        },
-        // The list's own error state only ever shows the localized fallback text — the
-        // raw backend/network message (e.g. an infra-level "API request failed.") is a
-        // debugging detail, not something to surface on this page.
-        error: () => {
-          this.error.set(this.translate.instant('d3.platformOffers.errors.load'));
-          this.loading.set(false);
-        },
-      });
+    this.load$.next();
   }
   goto(p: number) {
     if (p > 0 && p <= this.pages() && p !== this.page()) {

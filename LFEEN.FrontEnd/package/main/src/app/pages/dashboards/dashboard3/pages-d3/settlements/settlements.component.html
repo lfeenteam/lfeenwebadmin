@@ -1,14 +1,28 @@
 <div class="settlements-container" [dir]="currentDir">
 
   <!-- Tabs -->
-  <div class="settlement-tabs">
-    <button type="button" class="tab-btn" [class.active]="activeTab === 'previous'" (click)="setActiveTab('previous')">
-      {{ 'd3.settlements.tabs.previous' | translate }}
-    </button>
-    <button type="button" class="tab-btn" [class.active]="activeTab === 'current'" (click)="setActiveTab('current')">
-      {{ 'd3.settlements.tabs.current' | translate }}
-    </button>
+  <div class="settlement-toolbar">
+    <div class="settlement-tabs">
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'previous'" (click)="setActiveTab('previous')">
+        {{ 'd3.settlements.tabs.previous' | translate }}
+      </button>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'current'" (click)="setActiveTab('current')">
+        {{ 'd3.settlements.tabs.current' | translate }}
+      </button>
+      @if (debtsEnabled) {
+        <button type="button" class="tab-btn" [class.active]="activeTab === 'debts'" (click)="setActiveTab('debts')">
+          {{ 'd3.settlements.tabs.debts' | translate }}
+          @if (debtsCount) {
+            <span class="tab-count">{{ fmt(debtsCount) }}</span>
+          }
+        </button>
+      }
+    </div>
   </div>
+
+  @if (activeTab === 'debts') {
+    <app-merchant-debts (loaded)="onDebtsLoaded($event)"></app-merchant-debts>
+  } @else {
 
   <!-- Stats -->
   <div class="stats-row">
@@ -149,6 +163,17 @@
                     <span class="dot"></span>
                     {{ row.statusKey ? (row.statusKey | translate) : row.status }}
                   </span>
+                  @if (row.recalcState === 'needed') {
+                    <span class="recalc-badge">
+                      <i-tabler name="calculator" class="icon-12"></i-tabler>
+                      {{ 'd3.settlements.recalc.badge' | translate }}
+                    </span>
+                  } @else if (row.recalcState === 'onHold') {
+                    <span class="recalc-badge recalc-badge--hold">
+                      <i-tabler name="clock-pause" class="icon-12"></i-tabler>
+                      {{ 'd3.settlements.recalc.onHoldBadge' | translate }}
+                    </span>
+                  }
                   @if (row.status === 'Failed' && row.rejectionReason !== undefined) {
                     <span class="rejection-reason">
                       * {{ 'd3.settlements.rejectionReasonPrefix' | translate }}: {{ row.rejectionReason || emptyValue }}
@@ -157,9 +182,20 @@
                 </div>
               </td>
               <td class="p-24 text-center">
-                <button type="button" class="view-btn" [disabled]="viewingId !== null" (click)="onView(row)">
-                  <i-tabler name="eye" class="icon-18"></i-tabler>
-                </button>
+                <div class="row-actions">
+                  @if (row.recalcState === 'needed' && canExecute()) {
+                    <button type="button" class="recalc-btn"
+                            [disabled]="recalculatingId !== null"
+                            [attr.aria-label]="'d3.settlements.recalc.openBtn' | translate"
+                            (click)="onRecalculate(row)">
+                      <i-tabler name="calculator" class="icon-16"></i-tabler>
+                      <span>{{ 'd3.settlements.recalc.openBtn' | translate }}</span>
+                    </button>
+                  }
+                  <button type="button" class="view-btn" [disabled]="viewingId !== null" (click)="onView(row)">
+                    <i-tabler name="eye" class="icon-18"></i-tabler>
+                  </button>
+                </div>
               </td>
             </tr>
           } @empty {
@@ -214,6 +250,8 @@
         </button>
       </div>
     </div>
+  }
+
   }
 
 </div>

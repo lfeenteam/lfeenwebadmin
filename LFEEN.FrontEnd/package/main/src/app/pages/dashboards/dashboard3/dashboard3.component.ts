@@ -50,10 +50,14 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly syncBodyDir = effect(() => {
     this.document.body.classList.toggle('d3-rtl', this.currentDir() === 'rtl');
+    // Test builds: the Flow report button is also appended to <body>. Its script fixes it
+    // to the right once at load, so this class lets styles.scss move it to the left (the
+    // sidebar side) in English, mirroring Arabic — leaving the content corner to the chat FAB.
+    this.document.body.classList.toggle('d3-flow-start', this.flowReportOn && this.currentDir() !== 'rtl');
   });
 
   sidebarCollapsed = false;
-  // Test builds show the Flow "report an issue" button; the chat FAB stacks above it in English.
+  // Test builds show the Flow "report an issue" button, kept on the sidebar side (see syncBodyDir).
   readonly flowReportOn = !!environment.flowReport;
   sidebarMobileOpen = false;
 
@@ -69,6 +73,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   pageActionButton: { text: string; icon?: string; color?: string; action: string } | null = null;
 
   isLoginRoute = false;
+  isComplaintsRoute = false;
 
   private routeSub?: Subscription;
   private languageSub?: Subscription;
@@ -122,7 +127,7 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.languageSub?.unsubscribe();
     this.clientSupportHub.disconnect();
     this.notificationsStore.disconnect();
-    this.document.body.classList.remove('d3-rtl');
+    this.document.body.classList.remove('d3-rtl', 'd3-flow-start');
   }
 
   private updateBrowserTitle(): void {
@@ -136,6 +141,9 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     // Signed-out pages: no sidebar/header and no realtime hubs.
     const path = this.router.url.split('?')[0];
     this.isLoginRoute = ['/login', '/forgot-password', '/reset-password'].some(p => path.includes(p));
+    // The complaints pages already list and open the client chats themselves, so the floating
+    // chat button there is a duplicate that only ends up covering the chat panel.
+    this.isComplaintsRoute = /\/d3\/complaints(\/|$)/.test(path);
   }
 
   private applyRouteHeaderData(): void {

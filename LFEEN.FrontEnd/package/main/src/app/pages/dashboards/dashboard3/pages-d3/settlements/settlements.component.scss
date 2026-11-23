@@ -8,12 +8,84 @@
 }
 
 // ── Tabs ────────────────────────────────────────────────────
+.settlement-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #E2E8F0;
+  margin-bottom: 20px;
+}
+
 .settlement-tabs {
   display: flex;
   align-items: center;
   gap: 24px;
-  border-bottom: 1px solid #E2E8F0;
-  margin-bottom: 20px;
+}
+
+// Merchants with a debt, next to the "Merchant debts" tab label.
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-inline-start: 6px;
+  border-radius: 10px;
+  background: #FEE2E2;
+  color: #B91C1C;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+// ── Needs recalculation (BUG-1482) ──────────────────────────
+.recalc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  // Blocked, not waiting on a recalculation (e.g. a refund under manual review).
+  &--hold { border-color: #fde68a; background: #fffbeb; color: #b45309; }
+}
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.recalc-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid #c7d2fe;
+  background: #fff;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+
+  &:hover:not(:disabled) { background: #eef2ff; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .tab-btn {
@@ -202,9 +274,12 @@
   overflow: hidden;
   padding: 10px;
 
+  // Scroll sideways when the table is wider than the card (tablet / 1024-1366 with the sidebar open),
+  // so the status and action columns stay reachable. The radius still clips the corners.
   .table-responsive {
     border-radius: 10px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 }
 
@@ -234,6 +309,24 @@
   .settlement-row {
     border-bottom: 1px solid #f1f5f9;
     transition: background 0.2s ease;
+  }
+}
+
+// Laptop widths with the sidebar open (e.g. 1280 /en): 24px side padding on six columns pushed the
+// table ~65px past the card, so the actions column needed a sideways scroll (BUG-2457).
+// Tighter padding fits it; the last column only takes what its buttons need.
+@media (min-width: 768px) and (max-width: 1399px) {
+  .settlements-table {
+    th,
+    td.p-24 {
+      padding-inline: 16px !important;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
+    }
   }
 }
 

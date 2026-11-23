@@ -1,4 +1,5 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
+import { isForbiddenError } from '../utils/transport-error.util';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -44,6 +45,11 @@ export class AccountService {
     }
   });
 
+  /** Re-runs the list request with the current filters (retry after a failed load). */
+  retry(): void {
+    this._accountsResource.reload();
+  }
+
   // PendingReview=1 | Approved=2 | Rejected=3. Draft accounts haven't been submitted yet,
   // so they appear under "all" only, not in the review queue.
   private tabToStatusParam(tab: AccountTab): string | null {
@@ -59,6 +65,10 @@ export class AccountService {
   readonly totalPages   = computed(() => this._accountsResource.value()?.totalPages ?? 1);
   readonly totalCount   = computed(() => this._accountsResource.value()?.totalCount ?? 0);
   readonly isLoading    = this._accountsResource.isLoading;
+  /** The list request failed — pages show an error + retry instead of "no accounts". */
+  readonly loadFailed   = computed(() => this._accountsResource.status() === ResourceStatus.Error);
+  /** The failed load was a 403 — show "no permission", not a connection error (BUG-2496). */
+  readonly loadForbidden = computed(() => this.loadFailed() && isForbiddenError(this._accountsResource.error()));
   readonly accountStats = computed<AccountStats | null>(() => this._accountsResource.value()?.stats ?? null);
 
   readonly accounts = computed<Account[]>(() =>

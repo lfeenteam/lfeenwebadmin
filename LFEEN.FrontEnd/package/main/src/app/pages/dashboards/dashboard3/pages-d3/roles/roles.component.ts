@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { isForbiddenError } from '../../utils/transport-error.util';
 import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
@@ -14,6 +15,7 @@ import { AddRoleDialogComponent } from '../permissions/components/add-role-dialo
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
 interface RoleRow {
   id: string;
@@ -28,7 +30,7 @@ interface RoleRow {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss'
 })
@@ -36,6 +38,9 @@ export class RolesComponent implements OnInit, OnDestroy {
   private langSub!: Subscription;
 
   isLoading = true;
+  loadError = false;
+  /** The failed load was a 403 — the inline error says "no permission" (BUG-2496). */
+  loadForbidden = false;
   deletingId: string | null = null;
 
   departments: Department[] = [];
@@ -86,8 +91,10 @@ export class RolesComponent implements OnInit, OnDestroy {
     this.langSub?.unsubscribe();
   }
 
-  private loadData(): void {
+  loadData(): void {
     this.isLoading = true;
+    this.loadError = false;
+    this.loadForbidden = false;
     forkJoin({
       roles: this.departmentService.getAllRolesForDropdown(),
       departments: this.departmentService.getAllDepartmentsForDropdown()
@@ -99,7 +106,12 @@ export class RolesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err) => {
+        this.loadForbidden = isForbiddenError(err);
+        // Clear the table so a failed load never reads as "no roles yet".
+        this.allRoles = [];
+        this.roles = [];
         this.isLoading = false;
+        this.loadError = true;
       }
     });
   }

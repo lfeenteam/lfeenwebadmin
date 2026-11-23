@@ -1,5 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
+
+/**
+ * Codes the server uses for several different validation failures, each with its own specific
+ * message (e.g. the fixed-amount cap quotes the limit) — show that message when there is one,
+ * and fall back to our generic translation only when it's missing.
+ */
+const SERVER_MESSAGE_FIRST_CODES = new Set(['SUBSCRIPTION_DISCOUNT_VALIDATION']);
 
 /**
  * The admin API forwards EQAMATIK errors as `{ success: false, message, errorCode }`.
@@ -13,12 +21,15 @@ export function resolveSubscriptionError(err: unknown, translate: TranslateServi
   const message: string = typeof e?.error?.message === 'string' ? e.error.message.trim() : '';
   const code: string = typeof e?.error?.errorCode === 'string' ? e.error.errorCode : '';
 
+  if (code && message && SERVER_MESSAGE_FIRST_CODES.has(code)) return message;
   if (code) {
     const key = `d3.subscriptionErrors.codes.${code}`;
     const translated = translate.instant(key);
     if (translated !== key) return translated;
   }
 
+  const transport = transportErrorMessage(err, translate);
+  if (transport) return transport;
   if (!e?.status || e.status >= 500) return t('network');
   if (e.status === 403) return t('forbidden');
   if (e.status === 404) return message || t('notFound');

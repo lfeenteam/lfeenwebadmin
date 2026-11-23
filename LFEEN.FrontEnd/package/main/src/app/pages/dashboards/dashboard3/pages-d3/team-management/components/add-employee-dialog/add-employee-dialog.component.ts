@@ -60,7 +60,18 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
     'request.fullname': 'fullName',
     'request.phonenumber': 'phoneNumber',
     'request.roleid': 'roleId',
+    'request.roleids': 'roleId',
+    'roleids': 'roleId',
+    'departmentid': 'department',
+    'request.departmentid': 'department',
   };
+
+  /** Fields the template can show a server error under; anything else goes to a toast. */
+  private get displayableFields(): string[] {
+    const fields = ['fullName', 'email', 'phoneNumber', 'roleId'];
+    if (this.data.fromAllEmployees) fields.push('department');
+    return fields;
+  }
 
   private readonly errorMessageMap: Record<string, string> = {
     'email already exists.': 'البريد الإلكتروني مستخدم بالفعل.',
@@ -177,6 +188,8 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
   selectDepartment(dept: Department): void {
     this.selectedDept = dept;
     this.isDeptDropdownOpen = false;
+    delete this.serverErrors['department'];
+    delete this.serverErrors['roleId'];
     this.roles = [];
     this.selectedRole = null;
     this.employeeForm.get('roleId')?.setValue('');
@@ -199,6 +212,7 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
     this.selectedRole = role;
     this.employeeForm.get('roleId')?.setValue(role.id);
     this.isDropdownOpen = false;
+    delete this.serverErrors['roleId'];
     this.cdr.detectChanges();
   }
 
@@ -258,18 +272,31 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
         },
         error: (err) => {
           this.isSubmitting = false;
-          const apiErrors: { field: string; message: string }[] = err?.error?.errors || [];
-          if (apiErrors.length) {
-            apiErrors.forEach(e => {
-              const formField = this.fieldMap[e.field.toLowerCase()] || e.field;
-              this.serverErrors[formField] = this.translateError(e.message);
-            });
-            this.cdr.detectChanges();
-          } else {
+          const apiErrors: { field?: string; message?: string }[] = err?.error?.errors || [];
+          const displayable = this.displayableFields;
+          const unmapped: string[] = [];
+
+          apiErrors.forEach(e => {
+            if (!e?.message) return;
+            const message = this.translateError(e.message);
+            const formField = this.fieldMap[(e.field || '').toLowerCase()] || e.field || '';
+            if (displayable.includes(formField)) {
+              this.serverErrors[formField] = message;
+            } else if (!unmapped.includes(message)) {
+              unmapped.push(message);
+            }
+          });
+
+          const shownInline = Object.keys(this.serverErrors).length > 0;
+          if (unmapped.length) {
+            this.toastr.error(unmapped.join(' '));
+          } else if (!shownInline) {
+            const serverMessage: string | undefined = err?.error?.message;
             this.toastr.error(
-              this.translate.instant('d3.toast.errorOp')
+              serverMessage ? this.translateError(serverMessage) : this.translate.instant('d3.toast.errorOp')
             );
           }
+          this.cdr.detectChanges();
         }
       });
     } else {

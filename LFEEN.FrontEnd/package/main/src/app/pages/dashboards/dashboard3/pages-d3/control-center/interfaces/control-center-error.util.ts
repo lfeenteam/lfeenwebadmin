@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
+import { transportErrorMessage } from '../../../utils/transport-error.util';
 
 export interface ControlCenterError {
   status: number;
@@ -36,8 +37,10 @@ export function parseControlCenterError(err: unknown, translate: TranslateServic
 
   const errorCode = typeof body.errorCode === 'string' ? body.errorCode : null;
 
+  const transport = transportErrorMessage(err, translate);
   let message: string;
-  if (!status || status >= 500) message = t('network');
+  if (transport) message = transport;
+  else if (!status || status >= 500) message = t('network');
   else if (status === 403) message = t('forbidden');
   // A bare 404 (no errorCode, e.g. APP_THEME_NOT_FOUND) means the endpoint itself is missing:
   // the environment's backend doesn't ship /api/app-runtime yet.

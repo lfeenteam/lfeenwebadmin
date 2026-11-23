@@ -33,7 +33,17 @@ export interface Ticket {
   /** Requested from the backend — optional until the API sends them. */
   assignedAtUtc?: string | null;
   lastAgentReplyAtUtc?: string | null;
+  /** BUG-2453: which app opened the ticket. Missing on older backends → treat as HostApp. */
+  source?: TicketSource;
+  /** Ready-to-show source label ("مضيف" / "عامل"). */
+  sourceName?: string | null;
+  /** True for tickets opened from the service (worker) app. Use this, not senderType —
+   * worker messages come back as senderType "Merchant" on purpose. */
+  isFromWorker?: boolean;
 }
+
+/** GET /api/tickets `source`: the app the ticket was opened from. */
+export type TicketSource = 'HostApp' | 'ServiceApp';
 
 export interface TicketListResponse {
   data: Ticket[];
@@ -55,11 +65,18 @@ export interface TicketQueryParams {
   search?: string;
   dateFrom?: string;
   dateTo?: string;
+  /** ServiceApp = worker tickets only, HostApp = host tickets only, omitted = all. */
+  source?: TicketSource;
   page?: number;
   pageSize?: number;
 }
 
 export const HOST_TICKETS_PAGE_SIZE = 20;
+
+export const HOST_TICKET_SOURCE_OPTIONS: { value: TicketSource; labelKey: string }[] = [
+  { value: 'HostApp', labelKey: 'd3.complaints.hostFilters.source.host' },
+  { value: 'ServiceApp', labelKey: 'd3.complaints.hostFilters.source.worker' },
+];
 
 // GET /api/tickets status codes: 1=New, 2=PendingAdminReply.
 export const HOST_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
@@ -148,6 +165,9 @@ export interface TicketDetail {
   createdByType: string;
   createdByUserId: string;
   closedAtUtc: string | null;
+  source?: TicketSource;
+  sourceName?: string | null;
+  isFromWorker?: boolean;
   initialMessage: TicketMessage;
   messages: TicketMessage[];
   attachments?: TicketAttachment[];
@@ -171,6 +191,9 @@ export interface ChatMessage {
   timestampEn?: string;
   createdAtUtc: string;
   attachment?: ChatMessageAttachment | null;
+  /** Buttons a bot message offered — used to show the client's reply (sent as the option
+   * key, e.g. "payment") by its label instead. */
+  options?: ClientChatMessageOption[];
 }
 
 export interface ClientTicket {
@@ -246,6 +269,8 @@ export interface ClientTicketDetail {
   priority: string;
   clientName: string | null;
   assignedAgentName: string | null;
+  /** Optional until every API build sends it. */
+  assignedAgentUserId?: string | null;
   lastMessagePreview: string | null;
   lastMessageAtUtc: string | null;
   createdAt: string;
@@ -312,6 +337,9 @@ export interface ClientTicketQueryParams {
   priority?: string;
   assignedAgentUserId?: string;
   search?: string;
+  /** true = every status except Resolved/ClosedByClient/ClosedByAdmin, false = only those,
+   * omitted = all statuses. Filtered server-side so page size and totalCount stay accurate. */
+  isOpen?: boolean;
   page?: number;
   pageSize?: number;
 }
@@ -324,13 +352,13 @@ export interface ClientTicketQueueQueryParams {
 
 export const CLIENT_TICKETS_PAGE_SIZE = 8;
 
-// `value` is the status name GET /api/client-tickets filters on. The 3 buckets keep the
-// UI's original Open/Pending/Resolved options; adjust the names if the backend's accepted
-// set changes (screenshot showed BotHandling | PendingAgent | Assigned | …).
+// `value` is the status name GET /api/client-tickets filters on. The customers tab always
+// sends isOpen=true, so only open statuses belong here — Resolved/Closed* live in the
+// "resolved" tab. Labels reuse the row badge keys so the filter matches what rows show.
 export const CLIENT_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
-  { value: 'BotHandling',  labelKey: 'd3.complaints.clientStatus.open' },
-  { value: 'PendingAgent', labelKey: 'd3.complaints.clientStatus.pending' },
-  { value: 'Resolved',     labelKey: 'd3.complaints.clientStatus.resolved' },
+  { value: 'BotHandling',  labelKey: 'd3.complaints.status.bot' },
+  { value: 'PendingAgent', labelKey: 'd3.complaints.status.pending' },
+  { value: 'Assigned',     labelKey: 'd3.complaints.status.inProgress' },
 ];
 
 // department / priority filter values — the same string names the API expects.
@@ -359,6 +387,15 @@ export const CLIENT_TICKET_STATUS = {
   ClosedByAdmin: 'ClosedByAdmin',
 } as const;
 
+const CLOSED_TICKET_STATUSES = new Set(['resolved', 'closed', 'closedbyclient', 'closedbyadmin', '5']);
+
+/** Whether a host or client ticket is already finished (Resolved / Closed*), so it
+ * can no longer be assigned. Host tickets may send the numeric code 5 for Closed. */
+export function isClosedTicketStatus(status: string | number | null | undefined, closedAtUtc?: string | null): boolean {
+  if (closedAtUtc) return true;
+  return status != null && CLOSED_TICKET_STATUSES.has(String(status).toLowerCase());
+}
+
 export interface TicketsOverviewItem {
   externalId: string;
   ticketNumber: string;
@@ -368,7 +405,14 @@ export interface TicketsOverviewItem {
   subject: string;
   repliedAtUtc: string | null;
   createdAt: string;
+  /** Real final status (e.g. Resolved, ClosedByClient, ClosedByAdmin). */
+  status?: string | null;
+  /** True when the requester (client/host) closed it themselves. */
+  closedBySelf?: boolean | null;
 }
+
+/** How a ticket in the "resolved" tab actually ended — drives its status badge. */
+export type ResolvedOutcome = 'closedBySelf' | 'closedByAdmin' | 'resolvedByAgent';
 
 export interface TicketsOverviewResponse {
   data: TicketsOverviewItem[];
@@ -415,6 +459,8 @@ export interface Complaint {
   subjectEn?: string;
   replyDate?: string;
   replyDateEn?: string;
+  /** "resolved" tab only — how the ticket ended. */
+  resolvedOutcome?: ResolvedOutcome;
   assignedAdminUserId?: string | null;
   assignedAdminName?: string | null;
   propertyName?: string | null;
@@ -426,6 +472,9 @@ export interface Complaint {
   lastMessageAtUtc?: string | null;
   assignedAtUtc?: string | null;
   lastAgentReplyAtUtc?: string | null;
+  /** Host tickets only — opened from the service (worker) app. Still type 'host'. */
+  isFromWorker?: boolean;
+  sourceName?: string | null;
 }
 
 /** Hours an assigned ticket may sit without the agent acting before anyone can reassign it. */
@@ -438,6 +487,12 @@ export interface AssignableEmployee {
   phoneNumber: string | null;
   isActive: boolean;
   avatar?: string | null;
+}
+
+/** A deactivated employee can't sign in, so a complaint must never be assigned to them (BUG-2501).
+ * Only an explicit `false` counts — a missing flag is treated as active. */
+export function isInactiveEmployee(employee: Pick<AssignableEmployee, 'isActive'> | null | undefined): boolean {
+  return employee?.isActive === false;
 }
 
 export interface AssignableEmployeePage {

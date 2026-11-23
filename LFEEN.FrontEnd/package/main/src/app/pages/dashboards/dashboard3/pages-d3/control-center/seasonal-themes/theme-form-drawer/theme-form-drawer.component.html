@@ -108,14 +108,15 @@
           </div>
           <mat-slide-toggle formControlName="isActive" [attr.aria-label]="'d3.controlCenter.themes.form.enabled' | translate"></mat-slide-toggle>
         </div>
-
-        @if (generalError) {
-          <div class="cc-form-error td-full" role="alert">
-            <i-tabler name="alert-circle" class="icon-16"></i-tabler>
-            <span>{{ generalError }}</span>
-          </div>
-        }
       </form>
+    }
+
+    <!-- Outside .drawer-body so it stays in view next to the buttons when the form scrolls. -->
+    @if (generalError) {
+      <div class="cc-form-error td-form-error" role="alert">
+        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+        <span>{{ generalError }}</span>
+      </div>
     }
 
     <footer class="drawer-footer">

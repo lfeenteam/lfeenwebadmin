@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
+  MerchantDebt,
+  PayoutRecalculation,
+  RecalculationPreviewItem,
   ExecuteSettlementRequest,
   SettlementActionResult,
   SettlementDetail,
@@ -30,8 +33,13 @@ export class SettlementsService {
    * statuses. Each status is fetched in full (every page) and the caller merges,
    * sorts and pages locally — that keeps ordering and paging correct.
    */
-  listAllByStatuses(statuses: readonly string[]): Observable<SettlementListResult> {
-    return forkJoin(statuses.map(s => this.listAllByStatus(s))).pipe(
+  listAllByStatuses(statuses: readonly string[], optional: readonly string[] = []): Observable<SettlementListResult> {
+    const empty: SettlementListResult = { items: [], summary: null };
+    return forkJoin(statuses.map(s => {
+      const all$ = this.listAllByStatus(s);
+      // An optional status the endpoint refuses must not take the whole tab down with it.
+      return optional.includes(s) ? all$.pipe(catchError(() => of(empty))) : all$;
+    })).pipe(
       map(groups => ({
         items: groups.flatMap(g => g.items),
         summary: groups.find(g => g.summary)?.summary ?? null,
@@ -67,4 +75,35 @@ export class SettlementsService {
     form.append('file', file);
     return this.http.post<SettlementActionResult>(`${this.url}/${id}/receipt`, form);
   }
+
+  // ── Recalculation & debts (BUG-1482) ───────────────────────
+
+  /** Payouts that must be recalculated before they can be executed. */
+  recalculationPreview(): Observable<RecalculationPreviewItem[]> {
+    return this.http.get<unknown>(`${this.url}/recalculation-preview`).pipe(map(r => unwrapList<RecalculationPreviewItem>(r)));
+  }
+
+  /** Dry run — returns the old ↔ new figures and saves nothing. */
+  getRecalculation(id: string): Observable<PayoutRecalculation> {
+    return this.http.get<PayoutRecalculation>(`${this.url}/${id}/recalculation`);
+  }
+
+  recalculate(id: string): Observable<PayoutRecalculation> {
+    return this.http.post<PayoutRecalculation>(`${this.url}/${id}/recalculate`, {});
+  }
+
+  debts(): Observable<MerchantDebt[]> {
+    return this.http.get<unknown>(`${this.url}/debts`).pipe(map(r => unwrapList<MerchantDebt>(r)));
+  }
+}
+
+/** The list endpoints may answer with a bare array or a `{ items }` / `{ data }` envelope. */
+function unwrapList<T>(res: unknown): T[] {
+  if (Array.isArray(res)) return res as T[];
+  const body = res as { items?: unknown; data?: unknown } | null;
+  if (Array.isArray(body?.items)) return body!.items as T[];
+  if (Array.isArray(body?.data)) return body!.data as T[];
+  const nested = body?.data as { items?: unknown } | undefined;
+  if (Array.isArray(nested?.items)) return nested!.items as T[];
+  return [];
 }

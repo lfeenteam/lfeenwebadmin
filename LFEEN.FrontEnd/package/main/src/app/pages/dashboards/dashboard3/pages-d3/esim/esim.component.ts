@@ -15,7 +15,6 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
-import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import {
   EMPTY_ESIM_FILTERS, ESIM_NETWORK_OPTIONS, EsimDestinationOption, EsimDetail, EsimFilters, EsimListItem,
   EsimListQuery, EsimScope, EsimStateAction, EsimStatusBucket, EsimSummary,
@@ -25,12 +24,17 @@ import { resolveEsimError } from './interfaces/esim-error.util';
 import { EsimService } from './services/esim.service';
 import { EsimDetailDrawerComponent } from './esim-detail-drawer/esim-detail-drawer.component';
 import { EsimFilterDialogComponent } from './esim-filter-dialog/esim-filter-dialog.component';
+import { EsimRefundDialogComponent, EsimRefundDialogData, EsimRefundResult } from './esim-refund-dialog/esim-refund-dialog.component';
+import {
+  EsimReasonAction, EsimStateReasonDialogComponent, EsimStateReasonDialogData, EsimStateReasonResult,
+} from './esim-state-reason-dialog/esim-state-reason-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 type ScopeTab = EsimScope | 'all';
 
 interface EsimRow {
   id: string;
+  needsAttention: boolean;
   initials: string;
   userName: string;
   email: string;
@@ -224,6 +228,8 @@ export class EsimComponent implements OnInit {
       destinationCode: f.destination === 'all' ? undefined : f.destination,
       networkType: f.network === 'all' ? undefined : f.network,
       search: this.searchQuery.trim() || undefined,
+      // Only sent when on: "false" would hide the flagged SIMs instead of showing everything.
+      needsSupportAttention: f.needsAttention ? true : undefined,
     };
   }
 
@@ -241,7 +247,7 @@ export class EsimComponent implements OnInit {
 
   get hasActiveFilters(): boolean {
     const f = this.filters;
-    return f.status !== 'all' || f.destination !== 'all' || f.network !== 'all';
+    return f.status !== 'all' || f.destination !== 'all' || f.network !== 'all' || f.needsAttention;
   }
 
   /** Total a filter selection would show under the current tab and search — previewed by the filter dialog. */
@@ -293,7 +299,8 @@ export class EsimComponent implements OnInit {
       error: err => {
         const e = err as { status?: number };
         // A network failure gets the drawer-specific copy; API errors carry their own message.
-        this.toastr.error(!e?.status || e.status >= 500
+        // A busy server (503) / unstable connection (408) keeps its own message (resolveEsimError).
+        this.toastr.error((!e?.status || e.status >= 500) && e.status !== 503
           ? this.translate.instant('d3.esim.errors.detail')
           : resolveEsimError(err, this.translate));
       },
@@ -321,17 +328,35 @@ export class EsimComponent implements OnInit {
 
   onChangeState(row: EsimRow, action: EsimStateAction): void {
     if (this.actingId) return;
-    if (action !== 'revoke') {
+    if (action === 'unsuspend') {
       this.runStateChange(row.id, action);
       return;
     }
-    // revoke is final and never refunded by the provider — confirm first.
-    this.dialog.open(DeleteConfirmDialogComponent, {
-      width: '420px',
-      data: { title: 'd3.esim.actions.revokeConfirmTitle', message: 'd3.esim.actions.revokeConfirmMessage' },
-    }).afterClosed()
-      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.runStateChange(row.id, 'revoke'));
+    // Suspend / revoke need a support reason (logged with the admin's identity); the dialog
+    // sends the request itself. Revoke is final — the dialog carries that warning too.
+    this.openStateReason(row, action);
+  }
+
+  private openStateReason(row: EsimRow, action: EsimReasonAction): void {
+    const esimId = row.id;
+    this.dialog
+      .open<EsimStateReasonDialogComponent, EsimStateReasonDialogData, EsimStateReasonResult | undefined>(EsimStateReasonDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        // A stray backdrop click mustn't hide an in-flight provider call.
+        disableClose: true,
+        data: { esimId, action, simLabel: row.userName !== '-' ? `${row.userName} · ${row.coverageName}` : row.coverageName },
+      })
+      .afterClosed()
+      .pipe(filter((r): r is EsimStateReasonResult => !!r), takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result.kind === 'changed') {
+          this.toastr.success(this.translate.instant(`d3.esim.actions.${action}Success`));
+        }
+        // The response is intentionally thin — re-fetch instead of patching the UI from it.
+        this.load();
+        if (this.selectedSim?.esimId === esimId) this.openDetail(esimId);
+      });
   }
 
   private runStateChange(esimId: string, action: EsimStateAction): void {
@@ -349,6 +374,66 @@ export class EsimComponent implements OnInit {
         this.toastr.error(resolveEsimError(err, this.translate));
       },
     });
+  }
+
+  // ── Order refund ──────────────────────────────────────────────
+
+  /**
+   * The list has no refundable / remaining figures, so the row action loads the SIM's detail
+   * first — never offering a refund on an order that has nothing left to refund.
+   */
+  onRefundRow(row: EsimRow): void {
+    if (this.actingId) return;
+    this.actingId = row.id;
+    this.service.getDetail(row.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: detail => {
+        this.actingId = null;
+        this.openRefund(detail);
+      },
+      error: err => {
+        this.actingId = null;
+        this.toastr.error(resolveEsimError(err, this.translate));
+      },
+    });
+  }
+
+  onRefundSelected(): void {
+    if (this.selectedSim) this.openRefund(this.selectedSim);
+  }
+
+  /** Refunds the whole ORDER behind this SIM — one order can cover several SIMs. */
+  private openRefund(sim: EsimDetail): void {
+    if (this.actingId) return;
+    if (!sim.orderId || !sim.isRefundable) {
+      this.toastr.info(this.translate.instant('d3.esim.refund.notRefundable'));
+      return;
+    }
+    const esimId = sim.esimId;
+    this.dialog
+      .open<EsimRefundDialogComponent, EsimRefundDialogData, EsimRefundResult | undefined>(EsimRefundDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        // The dialog owns the request; a stray backdrop click mustn't hide an in-flight refund.
+        disableClose: true,
+        data: {
+          orderId: sim.orderId,
+          packageName: sim.packageName,
+          totalSar: sim.totalSar,
+          refundedSar: sim.refundedSar,
+          remainingSar: sim.refundableRemainingSar,
+        },
+      })
+      .afterClosed()
+      .pipe(filter((r): r is EsimRefundResult => !!r), takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result.kind === 'refunded') {
+          this.toastr.success(this.translate.instant(
+            result.order.paymentStatus === 'PartiallyRefunded' ? 'd3.esim.refund.partialSuccess' : 'd3.esim.refund.success'));
+        }
+        // The response is the order, not the SIM — re-fetch so the flag, figures and status update.
+        this.load();
+        if (this.selectedSim?.esimId === esimId) this.openDetail(esimId);
+      });
   }
 
   private rememberDestinations(items: EsimListItem[]): void {
@@ -370,6 +455,7 @@ export class EsimComponent implements OnInit {
     const userName = s.userName?.trim() || '-';
     return {
       id: s.esimId,
+      needsAttention: !!s.needsSupportAttention,
       initials: this.initialsOf(s.userName ?? ''),
       userName,
       email: s.userEmail ?? '-',

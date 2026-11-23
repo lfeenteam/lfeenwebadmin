@@ -47,25 +47,33 @@ export type UpdatePlatformGeneralSettings = Omit<PlatformGeneralSettings, 'updat
 
 /** GET/PUT /api/settings/review-reward — stay-review cashback, paid as wallet points. */
 export interface ReviewRewardSettings {
-  /** 0 = reward off. */
+  /** Saved amount, kept while the reward is off. 0 only in older data that was turned off with 0. */
   amountSar: number;
   /** round(amountSar / pointsToSarRate), display only. */
   points: number;
-  /** SAR value of one point (wallet setting, read-only here). */
+  /** SAR value of one point (wallet setting, read-only here). Always above 0. */
   pointsToSarRate: number;
+  /** Never true while amountSar is 0. */
   isEnabled: boolean;
-  /** null = still the platform default of 5 SAR. */
+  /** Locked in the main backend: show the card read-only, a PUT answers 409. */
+  isReadOnly: boolean;
+  /** Put in the field when the reward is turned on and amountSar is 0. */
+  defaultAmountSar: number;
+  maxAmountSar: number;
+  /** null = still the platform defaults. */
   updatedAt: string | null;
 }
 
+/** Send the switch, the amount, or both ({} answers 400). */
 export interface UpdateReviewReward {
-  amountSar: number;
+  isEnabled?: boolean;
+  amountSar?: number;
 }
 
+/** Fallbacks for when the GET response leaves defaultAmountSar / maxAmountSar out. */
 export const REVIEW_REWARD_LIMITS = {
   min: 0,
   max: 1000,
-  /** Shown when the admin turns the reward back on (the off state stores 0). */
   defaultAmount: 5,
 } as const;
 

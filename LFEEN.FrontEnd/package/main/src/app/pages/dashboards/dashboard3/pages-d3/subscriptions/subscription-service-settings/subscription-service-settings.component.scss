@@ -576,6 +576,35 @@
   color: #0F172B;
 }
 
+// Package price cell: original (struck through) → charged price → discount / best-value badges.
+.period-price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+
+  .original-price {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9E9E9A;
+    text-decoration: line-through;
+  }
+
+  .discount-badge,
+  .best-value-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .discount-badge { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+  .best-value-badge { background: #111110; color: #fff; }
+}
+
 .free-label {
   font-size: 13px;
   font-weight: 800;

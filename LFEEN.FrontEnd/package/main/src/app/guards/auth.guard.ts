@@ -9,6 +9,8 @@ import {
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { LoginService } from '../pages/dashboards/dashboard3/services/login/login.service';
+import { safeReturnUrl, withLang } from './return-url.util';
+import { SidebarService } from '../pages/dashboards/dashboard3/services/sidebar.service';
 
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
@@ -19,7 +21,10 @@ export const authGuard: CanActivateFn = (
 
   const urlSegments = state.url.split('/');
   const lang = urlSegments[1] || 'en';
-  const loginUrl = router.parseUrl(`/${lang}/d3/login`);
+  const returnUrl = safeReturnUrl(state.url);
+  const loginUrl = router.createUrlTree(['/', lang, 'd3', 'login'], {
+    queryParams: returnUrl ? { returnUrl } : undefined,
+  });
 
   if (loginService.isAuthenticated()) {
     return true;
@@ -41,7 +46,7 @@ export const authGuard: CanActivateFn = (
 // For signed-out pages (login, forgot/reset password): a signed-in admin is sent
 // to the dashboard instead of seeing a login form that would replace their session.
 export const guestGuard: CanActivateFn = (
-  _route: ActivatedRouteSnapshot,
+  route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
   const loginService = inject(LoginService);
@@ -49,7 +54,9 @@ export const guestGuard: CanActivateFn = (
 
   if (loginService.isAuthenticated() || loginService.hasValidRefreshToken()) {
     const lang = state.url.split('/')[1] || 'ar';
-    return router.parseUrl(`/${lang}/d3/ceo`);
+    const returnUrl = safeReturnUrl(route.queryParamMap.get('returnUrl'));
+    // No return address: the first page they may open (BUG-2496 — not always the dashboard).
+    return router.parseUrl(returnUrl ? withLang(returnUrl, lang) : inject(SidebarService).landingUrl(lang));
   }
 
   return true;

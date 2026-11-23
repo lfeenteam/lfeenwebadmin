@@ -14,12 +14,16 @@ import { LoginService } from '../../services/login/login.service';
 import { DemoAccountsService } from '../../services/demo-accounts.service';
 import {
   DEMO_CHANNEL_ICONS,
+  DEMO_KINDS,
+  DEMO_KIND_ICONS,
   DEMO_LIMITS,
   DEMO_PERMISSIONS,
   DEMO_STATUSES,
   DemoAccount,
+  DemoAccountKind,
   DemoAccountStatus,
   DemoChannel,
+  demoKindOf,
   toLocalPhone
 } from '../../interfaces/demo-account.model';
 import { demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
@@ -50,15 +54,20 @@ export class DemoAccountsComponent implements OnInit {
   readonly statuses = DEMO_STATUSES;
   // mat-select shows nothing for a null value, so "All" gets its own option value.
   readonly allStatuses = 'all';
+  readonly kinds = DEMO_KINDS;
+  readonly kindIcons = DEMO_KIND_ICONS;
+  readonly allKinds = 'all';
+  readonly kindOf = demoKindOf;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
   readonly searchMax = DEMO_LIMITS.search;
   readonly emptyValue = EMPTY;
 
   currentLang = this.translate.currentLang || 'ar';
 
-  // Mirrors the URL query (?search=&status=&page=&size=) — the URL is the source of truth.
+  // Mirrors the URL query (?search=&status=&kind=&page=&size=) — the URL is the source of truth.
   searchText = '';
   status: DemoAccountStatus | null = null;
+  kind: DemoAccountKind | null = null;
   page = 1;
   pageSize: number = DEMO_DEFAULT_PAGE_SIZE;
   readonly pageSizes = DEMO_PAGE_SIZES;
@@ -84,15 +93,17 @@ export class DemoAccountsComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const status = params.get('status') as DemoAccountStatus | null;
+      const kind = params.get('kind') as DemoAccountKind | null;
       const page = Number(params.get('page'));
       const size = Number(params.get('size'));
       this.searchText = (params.get('search') ?? '').slice(0, DEMO_LIMITS.search);
       this.status = status && DEMO_STATUSES.includes(status) ? status : null;
+      this.kind = kind && DEMO_KINDS.includes(kind) ? kind : null;
       this.page = Number.isInteger(page) && page > 0 ? page : 1;
       this.pageSize = (DEMO_PAGE_SIZES as readonly number[]).includes(size) ? size : DEMO_DEFAULT_PAGE_SIZE;
       // Remembered for the details page's back button.
       demoListState.query = Object.fromEntries(
-        ['search', 'status', 'page', 'size'].filter(k => params.get(k)).map(k => [k, params.get(k)!])
+        ['search', 'status', 'kind', 'page', 'size'].filter(k => params.get(k)).map(k => [k, params.get(k)!])
       );
       this.load();
     });
@@ -113,7 +124,7 @@ export class DemoAccountsComponent implements OnInit {
   }
 
   get hasFilters(): boolean {
-    return !!this.searchText || !!this.status;
+    return !!this.searchText || !!this.status || !!this.kind;
   }
 
   get visiblePages(): (number | '...')[] {
@@ -128,6 +139,7 @@ export class DemoAccountsComponent implements OnInit {
     this.listRequest = this.service.list({
       search: this.searchText || null,
       status: this.status,
+      kind: this.kind,
       pageNumber: this.page,
       pageSize: this.pageSize,
     }).subscribe({
@@ -162,6 +174,11 @@ export class DemoAccountsComponent implements OnInit {
     this.updateQuery({ status: value === this.allStatuses ? null : value, page: null });
   }
 
+  /** "All" sends no kind (both host and guest accounts). */
+  onKindChange(value: string): void {
+    this.updateQuery({ kind: value === this.allKinds ? null : value, page: null });
+  }
+
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages || page === this.page) return;
     this.updateQuery({ page: page === 1 ? null : page });
@@ -173,7 +190,7 @@ export class DemoAccountsComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.updateQuery({ search: null, status: null, page: null });
+    this.updateQuery({ search: null, status: null, kind: null, page: null });
   }
 
   // Row click and the ⋮ menu's only item (§4.1: every other action lives on the details page).
@@ -197,6 +214,12 @@ export class DemoAccountsComponent implements OnInit {
     const key = `d3.demoAccounts.status.${status}`;
     const label = this.translate.instant(key);
     return label === key ? status : label;
+  }
+
+  kindLabel(kind: DemoAccountKind): string {
+    const key = `d3.demoAccounts.kinds.${kind}`;
+    const label = this.translate.instant(key);
+    return label === key ? kind : label;
   }
 
   channelLabel(channel: DemoChannel): string {

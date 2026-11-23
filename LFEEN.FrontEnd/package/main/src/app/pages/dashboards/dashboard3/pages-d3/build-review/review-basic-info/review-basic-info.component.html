@@ -38,6 +38,20 @@
             <span class="data-value">-</span>
           }
         </div>
+        @if (spokenLanguages; as languages) {
+          <div class="data-item">
+            <span class="data-label">{{ 'd3.buildReview.basicInfo.spokenLanguagesLabel' | translate }}</span>
+            @if (languages.length > 0) {
+              <span class="data-value view-types">
+                @for (language of languages; track language.code) {
+                  <span class="view-chip">{{ language.name }}</span>
+                }
+              </span>
+            } @else {
+              <span class="data-value">-</span>
+            }
+          </div>
+        }
       </div>
     </div>
 

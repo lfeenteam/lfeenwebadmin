@@ -1,7 +1,9 @@
-import { Component, inject, signal, OnInit, OnDestroy, effect } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subject, catchError, combineLatest, map, of, startWith, switchMap, tap } from 'rxjs';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -9,11 +11,18 @@ import { ComplaintService } from '../../services/complaint.service';
 import { AR_DATE_LOCALE, TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 import { LoginService } from '../../../../services/login/login.service';
+import { DashboardEmptyComponent } from '../../../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
+
+type LoadState = 'loading' | 'ready' | 'notFound' | 'error';
+
+type LoadResult =
+  | { kind: 'ok'; detail: TicketDetail }
+  | { kind: 'notFound' | 'error' };
 
 @Component({
   selector: 'app-host-complaint-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent],
   templateUrl: './host-complaint-detail.component.html',
   styleUrl: './host-complaint-detail.component.scss'
 })
@@ -25,6 +34,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   private pageTitleOverride = inject(PageTitleOverrideService);
   private loginService = inject(LoginService);
   private toastr = inject(ToastrService);
+  private destroyRef = inject(DestroyRef);
 
   replyText       = '';
   closeNote       = '';
@@ -35,10 +45,13 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   closeError      = signal<string | null>(null);
   ticket          = signal<TicketDetail | null>(null);
   selectedFile    = signal<File | null>(null);
+  loadState       = signal<LoadState>('loading');
+  viewOnly        = signal(false);
 
+  /** Id of the ticket currently in the URL — every write targets this, and
+   * async results are dropped if it changed while they were in flight. */
   private ticketId = '';
-
-  readonly viewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+  private reload$ = new Subject<void>();
 
   private lastTrigger = this.service.closeDialogTrigger();
 
@@ -53,23 +66,63 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.ticketId = id;
-      this.service.getTicketById(id).subscribe({
-        next: detail => {
-          this.ticket.set(detail);
-          this.loading.set(false);
-          this.pageTitleOverride.set(detail.subject);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-        },
-      });
-    } else {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(q => this.viewOnly.set(q.get('mode') === 'view'));
+
+    // The component is reused when only :id changes (address bar, back/forward,
+    // notifications), so follow the param instead of reading the snapshot once.
+    combineLatest([this.route.paramMap, this.reload$.pipe(startWith(undefined))]).pipe(
+      map(([params]) => params.get('id') ?? ''),
+      tap(id => this.resetFor(id)),
+      switchMap((id): Observable<LoadResult> => !id
+        ? of({ kind: 'notFound' })
+        : this.service.getTicketById(id).pipe(
+            map((detail): LoadResult => ({ kind: 'ok', detail })),
+            catchError(err => of<LoadResult>({
+              kind: err?.status === 404 || err?.status === 400 ? 'notFound' : 'error',
+            })),
+          )),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(result => {
+      if (result.kind === 'ok') {
+        this.ticket.set(result.detail);
+        this.pageTitleOverride.set(result.detail.subject);
+        this.loadState.set('ready');
+      } else {
+        this.loadState.set(result.kind);
+      }
       this.loading.set(false);
-    }
+    });
+  }
+
+  retryLoad(): void {
+    this.reload$.next();
+  }
+
+  backToList(): void {
+    this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  /** Clears everything tied to the previous ticket so a draft reply, an open close
+   * dialog or stale details can never be applied to the ticket now in the URL. */
+  private resetFor(id: string): void {
+    this.ticketId = id;
+    this.ticket.set(null);
+    this.replyText = '';
+    this.closeNote = '';
+    this.selectedFile.set(null);
+    this.showCloseDialog.set(false);
+    this.closeError.set(null);
+    this.sendingReply.set(false);
+    this.closingTicket.set(false);
+    this.pageTitleOverride.clear();
+    this.loading.set(true);
+    this.loadState.set('loading');
+  }
+
+  private get canWrite(): boolean {
+    return this.loadState() === 'ready' && !!this.ticket() && !!this.ticketId && !this.viewOnly();
   }
 
   ngOnDestroy(): void {
@@ -156,10 +209,32 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
     return m.senderTypeName === 'Admin' || m.senderType === 'Admin' || +m.senderType === 2;
   }
 
+  /** Internal notes are visible to support staff only — they are never sent to the merchant. */
+  isInternalNote(m: TicketMessage): boolean {
+    const v: unknown = m.isInternalNote;
+    return v === true || (typeof v === 'string' && v.toLowerCase() === 'true');
+  }
+
+  /** Opened from the service (worker) app. Only isFromWorker decides this — worker
+   * messages still come back as senderType "Merchant" on purpose. */
+  get isFromWorker(): boolean {
+    return this.ticket()?.isFromWorker === true;
+  }
+
+  /** The server's ready label ("عامل" / "Worker"), with a local fallback. */
+  get workerLabel(): string {
+    return this.ticket()?.sourceName || this.translate.instant('d3.complaints.hostFilters.source.worker');
+  }
+
+  /** Role shown under a non-admin sender: the worker label on worker tickets instead of "Merchant". */
+  senderRoleLabel(m: TicketMessage): string {
+    return this.isFromWorker ? this.workerLabel : m.senderTypeName;
+  }
+
   get hostSubtitle(): string {
     const t = this.ticket();
     if (!t) return '';
-    const role = this.currentDir === 'rtl' ? 'مضيف' : 'Host';
+    const role = this.isFromWorker ? this.workerLabel : this.currentDir === 'rtl' ? 'مضيف' : 'Host';
     return t.propertyName ? `${role} · ${t.propertyName}` : role;
   }
 
@@ -193,12 +268,17 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   sendReply(): void {
     const body = this.replyText.trim();
     const attachment = this.selectedFile();
-    if ((!body && !attachment) || this.sendingReply()) return;
+    if ((!body && !attachment) || this.sendingReply() || !this.canWrite) return;
 
+    // Pin the target once: the whole assign → reply → refresh chain goes to the
+    // ticket that was on screen when the admin pressed send.
+    const id = this.ticketId;
     this.sendingReply.set(true);
-    this.assignToCurrentUserIfUnassigned().then(() => {
-      this.service.sendTicketReply(this.ticketId, body, attachment).subscribe({
+    this.assignToCurrentUserIfUnassigned(id).then(() => {
+      if (id !== this.ticketId) return;
+      this.service.sendTicketReply(id, body, attachment).subscribe({
         next: result => {
+          if (id !== this.ticketId) return;
           this.replyText = '';
           this.selectedFile.set(null);
           const newMsg = result?.reply ?? null;
@@ -208,16 +288,20 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
             );
             this.sendingReply.set(false);
           } else {
-            this.service.getTicketById(this.ticketId).subscribe({
+            this.service.getTicketById(id).subscribe({
               next: detail => {
+                if (id !== this.ticketId) return;
                 this.ticket.set(detail);
                 this.sendingReply.set(false);
               },
-              error: () => this.sendingReply.set(false),
+              error: () => {
+                if (id === this.ticketId) this.sendingReply.set(false);
+              },
             });
           }
         },
         error: () => {
+          if (id !== this.ticketId) return;
           this.sendingReply.set(false);
           this.toastr.error(this.translate.instant('d3.toast.errorOp'));
         },
@@ -227,18 +311,20 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
 
   /** Assigns the ticket to the current user only when they actually reply — merely
    * viewing the ticket must not claim it and lock out reassignment. */
-  private assignToCurrentUserIfUnassigned(): Promise<void> {
+  private assignToCurrentUserIfUnassigned(id: string): Promise<void> {
     const t = this.ticket();
     if (!t || t.assignedAdminUserId) return Promise.resolve();
     const user = this.loginService.getUser();
     if (!user?.userId) return Promise.resolve();
 
     return new Promise(resolve => {
-      this.service.assignTicket(this.ticketId, user.userId).subscribe({
+      this.service.assignTicket(id, user.userId).subscribe({
         next: () => {
-          this.ticket.update(curr =>
-            curr ? { ...curr, assignedAdminUserId: user.userId, assignedAdminName: user.fullName } : curr
-          );
+          if (id === this.ticketId) {
+            this.ticket.update(curr =>
+              curr ? { ...curr, assignedAdminUserId: user.userId, assignedAdminName: user.fullName } : curr
+            );
+          }
           resolve();
         },
         error: () => resolve(),
@@ -247,6 +333,9 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   openCloseDialog(): void {
+    // The header "resolve" button doesn't know the page state — never offer to
+    // close a ticket that failed to load, doesn't exist, or is still loading.
+    if (!this.canWrite) return;
     this.closeError.set(null);
     this.showCloseDialog.set(true);
   }
@@ -258,11 +347,13 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   confirmClose(): void {
-    if (this.closingTicket()) return;
+    if (this.closingTicket() || !this.canWrite) return;
+    const id = this.ticketId;
     this.closingTicket.set(true);
     this.closeError.set(null);
-    this.service.updateTicketStatus(this.ticketId, '5', this.closeNote.trim() || undefined).subscribe({
+    this.service.updateTicketStatus(id, '5', this.closeNote.trim() || undefined).subscribe({
       next: () => {
+        if (id !== this.ticketId) return;
         this.closingTicket.set(false);
         this.showCloseDialog.set(false);
         this.router.navigate(['../'], {
@@ -271,6 +362,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
         });
       },
       error: () => {
+        if (id !== this.ticketId) return;
         this.closingTicket.set(false);
         this.closeError.set('حدث خطأ أثناء إغلاق الشكوى، يرجى المحاولة مرة أخرى.');
       },

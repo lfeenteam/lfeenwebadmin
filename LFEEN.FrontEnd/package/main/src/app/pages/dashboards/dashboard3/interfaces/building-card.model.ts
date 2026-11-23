@@ -256,6 +256,14 @@ export interface PropertyBasicDataFacility extends PropertyCatalogIconFields {
   isHighlightedInDescription?: boolean;
 }
 
+export interface PropertyBasicDataSpokenLanguage {
+  code: string;
+  nameAr: string;
+  nameEn: string;
+  // Localized by the backend from Accept-Language.
+  displayName: string;
+}
+
 export interface PropertyBasicDataResponse {
   propertyId: number;
   decision: SectionDecisionStatus;
@@ -275,6 +283,10 @@ export interface PropertyBasicDataResponse {
   floors: PropertyBasicDataFloor[];
   services: PropertyBasicDataService[];
   facilities: PropertyBasicDataFacility[];
+  // Languages the host team speaks — company (RegisteredEntity) properties only.
+  // null for individual-account properties (section hidden); shows the draft's
+  // languages while a basic-data change is under review. Optional — older backends omit it.
+  spokenLanguages?: PropertyBasicDataSpokenLanguage[] | null;
 }
 
 export interface BasicDataReviewPayload {

@@ -12,14 +12,19 @@ import {
   SubscriptionCatalogItem,
   SubscriptionDiscountCode,
   SubscriptionDiscountType,
+  SubscriptionPeriodOption,
 } from '../../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../../interfaces/subscription-error.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 export interface CreateDiscountCodeDialogData {
   services: SubscriptionCatalogItem[];
+  /** null when the price list couldn't be loaded: the fixed-amount cap is then left to the server. */
+  periodOptions: SubscriptionPeriodOption[] | null;
 }
 
+/** Same fallback the server uses when no prices are set up yet. */
+const FIXED_AMOUNT_FALLBACK_MAX = 1_000_000;
 const CODE_PATTERN = /^[A-Z0-9_-]+$/;
 const CODE_MAX = 50;
 const GENERATED_LENGTH = 8;
@@ -99,7 +104,39 @@ export class CreateDiscountCodeDialogComponent {
     if (v === null) return null;
     if (!(v > 0)) return 'd3.discountCodes.create.errors.valuePositive';
     if (this.isPercentage && v > 100) return 'd3.discountCodes.create.errors.percentMax';
+    const max = this.maxFixedAmount;
+    if (!this.isPercentage && max !== null && v > max) return 'd3.discountCodes.create.errors.fixedMax';
     return null;
+  }
+
+  /**
+   * Mirrors the server rule: a fixed discount can't exceed the largest fee the code can apply to —
+   * the highest active period price (for the chosen service, or any service when the code is
+   * global) when it applies to the subscription fee, plus the highest setup fee when it applies to
+   * that too; 1,000,000 when no prices exist. null = prices unknown, so no client-side cap.
+   */
+  get maxFixedAmount(): number | null {
+    const options = this.data.periodOptions;
+    if (!options) return null;
+    const selected = this.serviceSelection;
+    const inScope = (serviceId: number) => selected === 'all' || serviceId === selected;
+
+    let max = 0;
+    if (this.appliesToSubscriptionFee) {
+      max += Math.max(0, ...options.filter(o => o.isActive && inScope(o.subscriptionServiceId)).map(o => o.price));
+    }
+    if (this.appliesToSetupFee) {
+      max += Math.max(0, ...this.data.services
+        .filter(s => s.hasSetupFee && inScope(s.id))
+        .map(s => s.setupFeePrice ?? 0));
+    }
+    return max > 0 ? max : FIXED_AMOUNT_FALLBACK_MAX;
+  }
+
+  /** The cap shown after the fixedMax message, next to the riyal icon. */
+  get maxFixedAmountLabel(): string {
+    const max = this.maxFixedAmount ?? 0;
+    return max.toLocaleString(appLocale(this.translate.currentLang), { maximumFractionDigits: 2 });
   }
 
   get maxDiscountError(): string | null {

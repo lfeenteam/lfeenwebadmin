@@ -56,6 +56,28 @@ export interface BookingUnitOption {
   propertyId: number;
 }
 
+/** One page of a server-side published-unit search. */
+export interface PublishedUnitsPage {
+  items: BookingUnitOption[];
+  totalCount: number;
+  page: number;
+  hasMore: boolean;
+}
+
+/** POST change-unit result — the booking is repriced at the new unit's rate. */
+export interface ChangeBookingUnitResult {
+  bookingId: string;
+  bookingNumber: string;
+  oldUnitId: number;
+  newUnitId: number;
+  changedAtUtc: string;
+  oldTotalPrice: number | null;
+  newTotalPrice: number | null;
+  // newTotalPrice − oldTotalPrice; negative when the new unit is cheaper.
+  priceDifference: number | null;
+  currencyCode: string | null;
+}
+
 export interface BookingApiItem {
   bookingId: string;
   bookingNumber: string;
@@ -115,6 +137,11 @@ export interface BookingFinancialSummary {
   currencyCode: string;
   pricePerNight: number;
   nights: number;
+  /** Rent for the nights only (nights × price per night). */
+  baseRentAmount?: number;
+  /** Fees added to the booking after it was made (e.g. early check-in). */
+  additionalFeesAmount?: number;
+  /** Total amount due: baseRentAmount + additionalFeesAmount. */
   totalRentAmount: number;
   paidRentAmount: number;
   remainingRentAmount: number;
@@ -130,15 +157,13 @@ export interface BookingServiceRequestApiItem {
   bookingNumber: string;
   requestType: string;
   requestTypeKey: string;
+  /** Localized by Accept-Language (e.g. «غسيل ملابس»). */
   title: string | null;
-  titleAr: string | null;
-  titleEn: string | null;
   status: string;
   statusKey: string;
   statusLabel: string;
   pricingStatus: string;
   paymentStatus: string;
-  unitTaskType: string | null;
   unitTaskExternalId: string | null;
   description: string | null;
   guestNote: string | null;

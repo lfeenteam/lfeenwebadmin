@@ -137,6 +137,31 @@
     color: #C8C8C3;
     font-weight: 400;
   }
+
+  &.cs-input-invalid {
+    border-color: #e53935;
+  }
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.char-count {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  font-size: 11px;
+  color: #9E9E9A;
+  direction: ltr;
+  // Without isolation the RTL page reorders "0 / 200" into "200 / 0".
+  unicode-bidi: isolate;
+
+  &.is-full {
+    color: #e53935;
+    font-weight: 700;
+  }
 }
 
 // ── Scenario select ───────────────────────────────────────────────────────
@@ -277,9 +302,14 @@
   font-weight: 700;
   transition: background 0.15s, border-color 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #F7F7F5;
     border-color: #D8D8D2;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
 }
 
@@ -342,6 +372,11 @@
   margin: 8px 0 0;
   font-size: 12px;
   color: #e53935;
+
+  // .option-row already spaces its children with a 10px gap.
+  &.row-error {
+    margin: -4px 0 0;
+  }
 }
 
 // ── Active toggle ─────────────────────────────────────────────────────────
@@ -368,6 +403,26 @@
 
 // ── Footer ────────────────────────────────────────────────────────────────
 
+.server-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 24px 0;
+  padding: 10px 14px;
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  i-tabler {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
 .cs-dialog-footer {
   display: flex;
   align-items: center;
@@ -391,8 +446,13 @@
   justify-content: center;
   transition: background 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #2b2b29;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: progress;
   }
 }
 
@@ -414,10 +474,20 @@
   justify-content: center;
   transition: background 0.15s, border-color 0.15s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #F7F7F5;
     border-color: #D8D8D2;
   }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.cancel-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 @media (max-width: 560px) {

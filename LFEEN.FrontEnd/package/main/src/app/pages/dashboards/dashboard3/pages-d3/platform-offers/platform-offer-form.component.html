@@ -215,6 +215,7 @@
                             <input
                               type="number"
                               min="0"
+                              [attr.max]="limits.amountMax"
                               formControlName="maxDiscountAmount"
                             />
                             @if (fieldError("maxDiscountAmount"); as msg) {
@@ -242,16 +243,72 @@
                           <label>
                             {{ "d3.platformOffers.fields.unitIds" | translate }}
                             <mat-select
+                              #unitSelect
                               formControlName="unitIds"
                               multiple
-                              panelClass="d3-offer-select-panel"
+                              panelClass="d3-offer-select-panel d3-offer-unit-panel"
+                              (openedChange)="unitPickerToggled($event, unitSelect, unitSearchInput)"
                             >
-                              @for (u of units(); track u.id) {
+                              <div class="unit-picker-search">
+                                <i-tabler name="search" class="icon-16"></i-tabler>
+                                <input
+                                  #unitSearchInput
+                                  type="text"
+                                  autocomplete="off"
+                                  [value]="unitSearchText()"
+                                  [placeholder]="'d3.platformOffers.unitPicker.search' | translate"
+                                  [attr.aria-label]="'d3.platformOffers.unitPicker.search' | translate"
+                                  (input)="unitSearchChanged(unitSearchInput.value)"
+                                  (keydown)="unitSearchKeydown($event)"
+                                />
+                                @if (unitSearchText()) {
+                                  <button
+                                    type="button"
+                                    class="unit-picker-clear"
+                                    [attr.aria-label]="'d3.platformOffers.unitPicker.clear' | translate"
+                                    (click)="$event.stopPropagation(); unitSearchChanged(''); unitSearchInput.focus()"
+                                  >
+                                    <i-tabler name="x" class="icon-14"></i-tabler>
+                                  </button>
+                                }
+                              </div>
+                              @for (u of unitOptions(); track u.id) {
                                 <mat-option [value]="u.id">{{
                                   u.name
                                 }}</mat-option>
                               }
+                              <div class="unit-picker-status">
+                                @if (unitsLoading()) {
+                                  <span>{{ "d3.platformOffers.unitPicker.loading" | translate }}</span>
+                                } @else if (unitsFailed()) {
+                                  <span>{{ "d3.platformOffers.unitPicker.error" | translate }}</span>
+                                  <button type="button" (click)="retryUnits($event)">
+                                    {{ "d3.platformOffers.unitPicker.retry" | translate }}
+                                  </button>
+                                } @else if (!unitResults().length) {
+                                  <span>{{ "d3.platformOffers.unitPicker.empty" | translate }}</span>
+                                } @else if (unitHasMore()) {
+                                  <button type="button" (click)="loadMoreUnits($event)">
+                                    {{
+                                      "d3.platformOffers.unitPicker.loadMore"
+                                        | translate
+                                          : { shown: unitResults().length, total: unitTotal() }
+                                    }}
+                                  </button>
+                                } @else {
+                                  <span>{{
+                                    "d3.platformOffers.unitPicker.count"
+                                      | translate: { count: unitResults().length }
+                                  }}</span>
+                                }
+                              </div>
                             </mat-select>
+                            @if (selectedUnitCount()) {
+                              <small class="field-hint">{{
+                                "d3.platformOffers.unitPicker.selected"
+                                  | translate: { count: selectedUnitCount() }
+                              }}</small>
+                            }
                             @if (fieldError("unitIds"); as msg) {
                               <small class="field-error">{{ msg }}</small>
                             }
@@ -406,7 +463,7 @@
                                 (click)="$event.stopPropagation()"
                                 [value]="form.controls.happyHourStart.value"
                                 (timeSelected)="
-                                  form.controls.happyHourStart.setValue($event)
+                                  setHappyHour('happyHourStart', $event)
                                 "
                               ></app-time-select>
                             </ng-template>
@@ -439,7 +496,7 @@
                                 (click)="$event.stopPropagation()"
                                 [value]="form.controls.happyHourEnd.value"
                                 (timeSelected)="
-                                  form.controls.happyHourEnd.setValue($event)
+                                  setHappyHour('happyHourEnd', $event)
                                 "
                               ></app-time-select>
                             </ng-template>
@@ -449,6 +506,9 @@
                           }
                         </label>
                       </div>
+                      @if (happyHourText(); as hint) {
+                        <small class="field-hint">{{ hint }}</small>
+                      }
                     }
                     @case ("stay") {
                       <div class="fields three">
@@ -573,6 +633,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.arrivalDaysMax"
                             formControlName="minDaysBeforeArrival"
                           />
                           @if (fieldError("minDaysBeforeArrival"); as msg) {
@@ -581,14 +643,14 @@
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.minStay" | translate }}
-                          <input min="0" type="number" formControlName="minStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="minStayDays" />
                           @if (fieldError("minStayDays"); as msg) {
                             <small class="field-error">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.maxStay" | translate }}
-                          <input min="0" type="number" formControlName="maxStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="maxStayDays" />
                           @if (fieldError("maxStayDays"); as msg) {
                             <small class="field-error">{{ msg }}</small>
                           }
@@ -601,6 +663,8 @@
                           {{ "d3.platformOffers.fields.maxTotal" | translate }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxTotalUsage"
                           />
                           @if (fieldError("maxTotalUsage"); as msg) {
@@ -611,6 +675,8 @@
                           {{ "d3.platformOffers.fields.maxDaily" | translate }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxDailyUsage"
                           />
                           @if (fieldError("maxDailyUsage"); as msg) {
@@ -623,6 +689,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxDailyUsagePerUser"
                           />
                           @if (fieldError("maxDailyUsagePerUser"); as msg) {
@@ -635,6 +703,8 @@
                           }}
                           <input min="0"
                             type="number"
+                            step="1"
+                            [attr.max]="limits.usageMax"
                             formControlName="maxTotalUsagePerUser"
                           />
                           @if (fieldError("maxTotalUsagePerUser"); as msg) {
@@ -655,6 +725,7 @@
                           }}
                           <input min="0"
                             type="number"
+                            [attr.max]="limits.amountMax"
                             formControlName="minBookingAmount"
                           />
                           @if (fieldError("minBookingAmount"); as msg) {
@@ -858,7 +929,7 @@
                           <div [formGroupName]="$index" class="repeat-row">
                             <input formControlName="termAr" />
                             <input formControlName="termEn" dir="ltr" />
-                            <input type="number" formControlName="order" />
+                            <input type="number" min="1" step="1" [attr.max]="limits.orderMax" formControlName="order" />
                             <button
                               type="button"
                               (click)="terms.removeAt($index)"
@@ -867,7 +938,7 @@
                             </button>
                           </div>
                           @if (showError(row)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                            <small class="field-error">{{ termRowError(row) }}</small>
                           }
                         }
                         <button
@@ -917,6 +988,12 @@
             </small>
             <strong>{{ enumLabel(form.value.appliedTo) }}</strong>
           </div>
+          @if (happyHourText("summary"); as hh) {
+            <div>
+              <small>{{ "d3.platformOffers.fields.happyHour" | translate }}</small>
+              <strong>{{ hh }}</strong>
+            </div>
+          }
         </aside>
       </main>
       <footer class="sticky-actions">

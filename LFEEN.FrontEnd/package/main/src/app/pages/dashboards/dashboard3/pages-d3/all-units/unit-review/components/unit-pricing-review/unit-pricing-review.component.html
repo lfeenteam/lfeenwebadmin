@@ -68,6 +68,8 @@
                 <span class="occupancy-count">
                   @if (row.childrenCount > 0 && row.maxChildAge != null) {
                     {{ 'd3.unitReview.pricingView.occupancy.ageYears' | translate: { age: row.maxChildAge } }}
+                  } @else if (row.childrenCount > 0) {
+                    {{ 'd3.unitReview.pricingView.occupancy.ageNotSet' | translate }}
                   } @else {
                     -
                   }

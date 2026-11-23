@@ -1,0 +1,140 @@
+<div class="faq-dialog" [dir]="dir()">
+
+  <div class="faq-dialog-header">
+    <span class="title-accent"></span>
+    <h2 class="dialog-title">{{ (isEditMode ? 'd3.serviceFaq.dialog.editTitle' : 'd3.serviceFaq.dialog.addTitle') | translate }}</h2>
+    <button class="cancel-link" type="button" [disabled]="saving" (click)="close()">
+      {{ 'd3.faq.dialog.cancel' | translate }}
+      <i-tabler name="x" class="icon-16"></i-tabler>
+    </button>
+  </div>
+
+  <mat-dialog-content class="faq-dialog-body">
+    <form [formGroup]="form">
+
+      <!-- Question -->
+      <div class="field-section">
+        <p class="section-label">{{ 'd3.serviceFaq.dialog.question' | translate }}</p>
+        <div class="bilingual-row">
+          <div class="bilingual-col">
+            <label class="lang-label" for="sfq-questionAr">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
+            <input id="sfq-questionAr" class="faq-input" type="text" dir="auto" formControlName="questionAr" [maxlength]="questionMax"
+              [class.is-invalid]="showError('questionAr')">
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('questionAr') ? fieldError('questionAr') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('questionAr') >= questionMax">{{ length('questionAr') }} / {{ questionMax }}</span>
+            </div>
+          </div>
+          <div class="bilingual-col">
+            <label class="lang-label" for="sfq-questionEn">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
+            <input id="sfq-questionEn" class="faq-input" type="text" dir="auto" formControlName="questionEn" [maxlength]="questionMax"
+              [class.is-invalid]="showError('questionEn')">
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('questionEn') ? fieldError('questionEn') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('questionEn') >= questionMax">{{ length('questionEn') }} / {{ questionMax }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Answer (multi-line) -->
+      <div class="field-section">
+        <p class="section-label">{{ 'd3.serviceFaq.dialog.answer' | translate }}</p>
+        <div class="bilingual-row">
+          <div class="bilingual-col">
+            <label class="lang-label" for="sfq-answerAr">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
+            <textarea id="sfq-answerAr" class="faq-textarea" rows="6" dir="auto" formControlName="answerAr" [maxlength]="answerMax"
+              [class.is-invalid]="showError('answerAr')"></textarea>
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('answerAr') ? fieldError('answerAr') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('answerAr') >= answerMax">{{ length('answerAr') }} / {{ answerMax }}</span>
+            </div>
+          </div>
+          <div class="bilingual-col">
+            <label class="lang-label" for="sfq-answerEn">{{ 'd3.faq.dialog.englishLabel' | translate }}</label>
+            <textarea id="sfq-answerEn" class="faq-textarea" rows="6" dir="auto" formControlName="answerEn" [maxlength]="answerMax"
+              [class.is-invalid]="showError('answerEn')"></textarea>
+            <div class="field-meta">
+              <span class="field-error-msg">{{ showError('answerEn') ? fieldError('answerEn') : '' }}</span>
+              <span class="char-count" [class.is-full]="length('answerEn') >= answerMax">{{ length('answerEn') }} / {{ answerMax }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category / order -->
+      <div class="meta-row">
+        <div class="meta-col dept-col">
+          <label class="meta-label">{{ 'd3.serviceFaq.dialog.category' | translate }}</label>
+          <button class="dept-select" type="button" [matMenuTriggerFor]="categoryMenu" [class.is-invalid]="showError('category')">
+            <span class="dept-select-value">{{ selectedCategory ? (selectedCategory.labelKey | translate) : ('d3.serviceFaq.dialog.categoryPlaceholder' | translate) }}</span>
+            <i-tabler name="chevron-down" class="icon-16"></i-tabler>
+          </button>
+          <mat-menu #categoryMenu="matMenu" class="faq-dept-menu">
+            @for (c of categoryOptions; track c.value) {
+              <button mat-menu-item type="button" (click)="selectCategory(c.value)">{{ c.labelKey | translate }}</button>
+            }
+          </mat-menu>
+          @if (showError('category')) {
+            <span class="field-error-msg">{{ fieldError('category') || ('d3.serviceFaq.dialog.validation.required.category' | translate) }}</span>
+          }
+        </div>
+
+        <div class="meta-col order-col">
+          <label class="meta-label" for="sfq-order">{{ 'd3.serviceFaq.dialog.order' | translate }}</label>
+          <input id="sfq-order" class="faq-input order-input" type="number" min="0" [attr.max]="orderMax" step="1" formControlName="displayOrder"
+            [class.is-invalid]="showError('displayOrder')">
+          @if (showError('displayOrder')) {
+            <span class="field-error-msg">{{ fieldError('displayOrder') }}</span>
+          } @else {
+            <span class="order-hint">{{ 'd3.serviceFaq.dialog.orderHint' | translate }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Key / active -->
+      <div class="meta-row">
+        <div class="meta-col key-col">
+          <label class="meta-label" for="sfq-key">{{ 'd3.serviceFaq.dialog.key' | translate }}</label>
+          <input id="sfq-key" class="faq-input" type="text" dir="ltr" formControlName="key" [maxlength]="keyMax"
+            [class.is-invalid]="showError('key')" placeholder="lock-did-not-open">
+          @if (showError('key')) {
+            <span class="field-error-msg">{{ fieldError('key') }}</span>
+          } @else {
+            <span class="order-hint">{{ (isEditMode ? 'd3.serviceFaq.dialog.keyHintEdit' : 'd3.serviceFaq.dialog.keyHint') | translate }}</span>
+          }
+        </div>
+
+        <div class="meta-col active-col">
+          <label class="meta-label">{{ 'd3.serviceFaq.table.status' | translate }}</label>
+          <mat-slide-toggle formControlName="isActive" color="primary">
+            {{ (form.get('isActive')?.value ? 'd3.serviceFaq.status.active' : 'd3.serviceFaq.status.inactive') | translate }}
+          </mat-slide-toggle>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  @if (formError) {
+    <div class="form-error-banner" role="alert">
+      <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+      <span>{{ formError }}</span>
+    </div>
+  }
+
+  <div class="faq-dialog-footer">
+    <button class="submit-btn" type="button" [disabled]="saving" (click)="save()">
+      @if (saving) {
+        <mat-spinner diameter="18" class="submit-spinner"></mat-spinner>
+        {{ 'd3.faq.dialog.saving' | translate }}
+      } @else {
+        {{ (isEditMode ? 'common.save' : 'd3.faq.dialog.create') | translate }}
+      }
+    </button>
+    <button class="clear-btn" type="button" [disabled]="saving" (click)="close()">
+      {{ 'd3.faq.dialog.cancel' | translate }}
+    </button>
+  </div>
+
+</div>

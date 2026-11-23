@@ -66,7 +66,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   get unitFloor(): string  { return String(this.unitData?.floorNumber ?? ''); }
 
   get unitArea(): string {
-    return this.unitData?.sizeM != null ? `${this.unitData.sizeM} م²` : '';
+    if (this.unitData?.sizeM == null) return '';
+    const unit = this.translate.currentLang === 'en' ? 'm²' : 'م²';
+    return `${this.unitData.sizeM} ${unit}`;
   }
 
   // Admin maxGuests is still the adult capacity (legacy), so it's only a fallback here.
@@ -79,8 +81,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
 
   get childrenAllowed(): boolean { return this.childrenCapacity > 0; }
 
-  get maxChildAge(): string {
-    return this.unitData?.maxChildAge != null ? String(this.unitData.maxChildAge) : '-';
+  // Null while children are allowed means legacy pricing rows saved without an age.
+  get maxChildAge(): number | null {
+    return this.unitData?.maxChildAge ?? null;
   }
 
   get unitDescription(): string { return this.unitData?.description?.trim() ?? ''; }

@@ -14,7 +14,7 @@ import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { LoginService } from '../../../services/login/login.service';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
-import { DiscountCodeState, SubscriptionCatalogItem, SubscriptionDiscountCode } from '../interfaces/subscription.model';
+import { DiscountCodeState, SubscriptionCatalogItem, SubscriptionDiscountCode, SubscriptionPeriodOption } from '../interfaces/subscription.model';
 import { isStaleSubscriptionError, resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { discountCodeState, isPercentageDiscount } from './discount-code.util';
 import { CreateDiscountCodeDialogComponent, CreateDiscountCodeDialogData } from './create-discount-code-dialog/create-discount-code-dialog.component';
@@ -51,6 +51,8 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
   deletingId: number | null = null;
 
   private catalog: SubscriptionCatalogItem[] = [];
+  /** null when the list couldn't be loaded — the create dialog then leaves the fixed-amount cap to the server. */
+  private periodOptions: SubscriptionPeriodOption[] | null = null;
 
   ngOnInit(): void {
     this.load();
@@ -97,9 +99,12 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
       codes: this.service.getDiscountCodes(),
       // Only used for service names in the create dialog and as a fallback label.
       catalog: this.service.getCatalog().pipe(catchError(() => of([] as SubscriptionCatalogItem[]))),
+      // Prices bound the largest fixed-amount discount a new code may give.
+      periodOptions: this.service.getPeriodOptions().pipe(catchError(() => of(null))),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: ({ codes, catalog }) => {
+      next: ({ codes, catalog, periodOptions }) => {
         this.catalog = catalog;
+        this.periodOptions = periodOptions;
         this.rows = codes.map(c => this.toRow(c));
         this.loading = false;
       },
@@ -124,7 +129,7 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
       width: '520px',
       maxWidth: '94vw',
       panelClass: 'create-discount-code-panel',
-      data: { services: this.catalog } as CreateDiscountCodeDialogData,
+      data: { services: this.catalog, periodOptions: this.periodOptions } as CreateDiscountCodeDialogData,
     });
     ref.afterClosed().subscribe((created?: SubscriptionDiscountCode) => {
       if (created) this.rows = [this.toRow(created), ...this.rows];

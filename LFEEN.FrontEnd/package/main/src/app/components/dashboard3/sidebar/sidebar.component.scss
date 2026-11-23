@@ -112,6 +112,10 @@
     box-sizing: border-box;
     overflow: visible !important;
     flex: 0 0 auto;
+    // The global list theme tints hover/focus with the primary (blue) color; this sidebar is
+    // monochrome, so the items draw their own gray hover background instead.
+    --mdc-list-list-item-hover-state-layer-color: transparent;
+    --mdc-list-list-item-focus-state-layer-color: transparent;
 
     .d3-menu-item {
       color: #4a4a4a;
@@ -236,7 +240,12 @@
         margin-bottom: 4px;
         display: flex !important;
         align-items: center !important;
-        
+
+        // The open submenu sits on #fafafa, where the parent's #f5f5f5 hover barely shows.
+        &:not(.active-link):hover {
+          background-color: #eeeeee;
+        }
+
         .d3-menu-title {
           font-size: 14px !important;
           color: #62748E !important;
@@ -264,6 +273,12 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+
+    // Test builds: the Flow "report an issue" button is fixed at the bottom of the sidebar
+    // side (bottom 20px, ~40px tall). Keep the profile / logout clear of it.
+    :host-context(.dashboard-wrapper.with-flow-report) & {
+      padding-bottom: 72px;
+    }
 
     .footer-items {
       display: flex;
@@ -462,6 +477,11 @@
     padding: 16px 0 !important;
     align-items: center !important;
     gap: 12px !important;
+
+    // Same room for the Flow report button as the expanded sidebar (test builds only).
+    :host-context(.dashboard-wrapper.with-flow-report) & {
+      padding-bottom: 72px !important;
+    }
 
     .footer-items {
       width: 100% !important;

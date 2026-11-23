@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -11,17 +11,32 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  merge,
+  of,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { MatSelect } from '@angular/material/select';
 import { MaterialModule } from 'src/app/material.module';
 import { CoreService } from 'src/app/services/core.service';
-import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { extractApiErrorMessage, extractApiFieldErrors } from '../../utils/api-error.util';
 import { SingleDateCalendarComponent } from '../all-bookings/components/single-date-calendar/single-date-calendar.component';
-import { BookingUnitOption } from '../all-bookings/interfaces/booking.model';
+import { BookingUnitOption, PublishedUnitsPage } from '../all-bookings/interfaces/booking.model';
 import { BookingService } from '../all-bookings/services/booking.service';
 import { TimeSelectComponent } from './components/time-select/time-select.component';
 import {
   OfferFormValue,
   PlatformOfferDetail,
+  normalizeDisplayChannel,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -31,10 +46,16 @@ import {
   daysOfWeekValidator,
   discountValueMaxValidator,
   exclusionRowValidator,
+  happyHourWindow,
   offerCodeValidator,
   offerFormValidator,
   timeValidator,
+  toHhmm,
 } from './platform-offer.validators';
+import { maxValueValidator, wholeNumberValidator } from '../../utils/number-validators';
+
+/** A whole number from 0 to `max` (the API binds these fields as int). */
+const wholeCount = (max: number) => [Validators.min(0), maxValueValidator(max), wholeNumberValidator];
 
 @Component({
   selector: 'app-platform-offer-form',
@@ -63,7 +84,9 @@ export class PlatformOfferFormComponent implements OnInit {
   private tr = inject(TranslateService);
   private toast = inject(ToastrService);
   private code$ = new Subject<string>();
-  dir = computed(() => this.core.getOptionsSignal()().dir);
+  private destroyRef = inject(DestroyRef);
+  private reload$ = new Subject<void>();
+  dir =computed(() => this.core.getOptionsSignal()().dir);
   id?: number;
   loading = signal(false);
   saving = signal(false);
@@ -72,7 +95,23 @@ export class PlatformOfferFormComponent implements OnInit {
   banner?: File;
   preview = signal('');
   codeState = signal<'idle' | 'checking' | 'ok' | 'taken'>('idle');
-  units = signal<BookingUnitOption[]>([]);
+  /** Units found by the current server search (all loaded pages of it). */
+  unitResults = signal<BookingUnitOption[]>([]);
+  unitTotal = signal(0);
+  unitHasMore = signal(false);
+  unitsLoading = signal(false);
+  unitsFailed = signal(false);
+  /** The text in the picker's search box. */
+  unitSearchText = signal('');
+  /** The search the shown results belong to (load-more continues it). */
+  private unitQuery = { search: '', page: 1 };
+  private unitSearch$ = new Subject<string>();
+  private unitLoad$ = new Subject<{ search: string; page: number }>();
+  /**
+   * Names of every unit seen so far — search results and the offer's saved units —
+   * so a selected unit keeps its name after the search moves on.
+   */
+  private unitLabels = new Map<number, string>();
   readonly limits = OFFER_LIMITS;
   days = OFFER_DAYS;
   form = this.fb.group(
@@ -90,7 +129,7 @@ export class PlatformOfferFormComponent implements OnInit {
         null as number | null,
         [Validators.required, Validators.min(0.01), discountValueMaxValidator],
       ],
-      maxDiscountAmount: [null as number | null, Validators.min(0)],
+      maxDiscountAmount: [null as number | null, [Validators.min(0), maxValueValidator(OFFER_LIMITS.amountMax)]],
       appliedTo: ['AllUnits', Validators.required],
       unitIds: [[] as number[]],
       offerStartDate: [''],
@@ -101,15 +140,15 @@ export class PlatformOfferFormComponent implements OnInit {
       stayStartDate: [''],
       stayEndDate: [''],
       stayDaysOfWeek: ['', daysOfWeekValidator],
-      maxTotalUsage: [null as number | null, Validators.min(0)],
-      maxDailyUsage: [null as number | null, Validators.min(0)],
-      maxDailyUsagePerUser: [null as number | null, Validators.min(0)],
-      maxTotalUsagePerUser: [null as number | null, Validators.min(0)],
-      minDaysBeforeArrival: [null as number | null, Validators.min(0)],
-      minStayDays: [null as number | null, Validators.min(0)],
-      maxStayDays: [null as number | null, Validators.min(0)],
+      maxTotalUsage: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxDailyUsage: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxDailyUsagePerUser: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      maxTotalUsagePerUser: [null as number | null, wholeCount(OFFER_LIMITS.usageMax)],
+      minDaysBeforeArrival: [null as number | null, wholeCount(OFFER_LIMITS.arrivalDaysMax)],
+      minStayDays: [null as number | null, wholeCount(OFFER_LIMITS.stayDaysMax)],
+      maxStayDays: [null as number | null, wholeCount(OFFER_LIMITS.stayDaysMax)],
       allowedPaymentMethods: [''],
-      minBookingAmount: [null as number | null, Validators.min(0)],
+      minBookingAmount: [null as number | null, [Validators.min(0), maxValueValidator(OFFER_LIMITS.amountMax)]],
       displayChannel: ['All', Validators.required],
       canBeCombined: [false],
       expirationPolicy: ['WhicheverFirst'],
@@ -120,6 +159,8 @@ export class PlatformOfferFormComponent implements OnInit {
     },
     { validators: offerFormValidator(() => !this.id) },
   );
+  /** The empty form's values, to start over when the URL moves to another offer. */
+  private readonly emptyValue = this.form.getRawValue();
   get exclusions() {
     return this.form.controls.exclusionPeriods as FormArray;
   }
@@ -129,6 +170,28 @@ export class PlatformOfferFormComponent implements OnInit {
   get terms() {
     return this.form.controls.offerTerms as FormArray;
   }
+  private selectedUnitIds = toSignal(
+    this.form.controls.unitIds.valueChanges.pipe(
+      startWith(this.form.controls.unitIds.value),
+      map((ids) => ids ?? []),
+    ),
+    { initialValue: [] as number[] },
+  );
+  /**
+   * Options of the unit picker: the selected units the current results don't hold
+   * first, then the results. Every selected id must keep an option — mat-select only
+   * reports the values of its options, so a selected id without one would be dropped
+   * from the offer on the next click.
+   */
+  unitOptions = computed<BookingUnitOption[]>(() => {
+    const results = this.unitResults();
+    const shown = new Set(results.map((u) => u.id));
+    const kept = this.selectedUnitIds()
+      .filter((id) => !shown.has(id))
+      .map((id) => ({ id, name: this.unitLabel(id), propertyId: 0 }));
+    return [...kept, ...results];
+  });
+  selectedUnitCount = computed(() => this.selectedUnitIds().length);
   enumLabel(value: string | null | undefined): string {
     if (value === null || value === undefined || value === '') return '—';
     const key = `d3.platformOffers.enums.${value}`;
@@ -136,8 +199,6 @@ export class PlatformOfferFormComponent implements OnInit {
     return label === key ? '—' : label;
   }
   ngOnInit() {
-    const raw = this.route.snapshot.paramMap.get('id');
-    if (raw) this.id = +raw;
     this.syncCodeValidators();
     this.form.controls.triggerType.valueChanges.subscribe(() =>
       this.syncCodeValidators(),
@@ -161,10 +222,169 @@ export class PlatformOfferFormComponent implements OnInit {
         next: (r) => this.codeState.set(r.isAvailable ? 'ok' : 'taken'),
         error: () => this.codeState.set('idle'),
       });
-    this.bookingService
-      .getPublishedUnits()
-      .subscribe({ next: (u) => this.units.set(u) });
-    if (this.id) this.load();
+    this.initUnitPicker();
+    this.watchOfferId();
+  }
+
+  /**
+   * Follows the id in the URL: going from /2/edit to /3/edit reuses this component,
+   * so the form starts over and is filled with the offer the URL now names.
+   */
+  private watchOfferId() {
+    const id$ = this.route.paramMap.pipe(
+      map((p) => {
+        const raw = p.get('id');
+        return raw ? +raw : undefined;
+      }),
+      distinctUntilChanged(),
+      tap((id) => this.resetFor(id)),
+    );
+    merge(id$, this.reload$.pipe(map(() => this.id)))
+      .pipe(
+        // A newer id cancels the request of the previous one, so a late answer
+        // for the old offer never fills the form of the new one.
+        switchMap((id) => {
+          if (!id) return EMPTY;
+          this.loading.set(true);
+          this.error.set('');
+          return this.service.get(id).pipe(
+            tap({
+              next: (d) => {
+                this.patch(d);
+                this.loading.set(false);
+              },
+              error: (e) => {
+                this.error.set(
+                  extractApiErrorMessage(
+                    e,
+                    this.tr.instant('d3.platformOffers.errors.detail'),
+                  ),
+                );
+                this.loading.set(false);
+              },
+            }),
+            catchError(() => EMPTY),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  /** Clears everything that belonged to the offer shown before. */
+  private resetFor(id: number | undefined) {
+    this.id = id;
+    this.loading.set(false);
+    this.error.set('');
+    this.submitted = false;
+    this.banner = undefined;
+    this.preview.set('');
+    this.codeState.set('idle');
+    this.open.set(new Set(['basics']));
+    this.exclusions.clear();
+    this.messages.clear();
+    this.terms.clear();
+    this.form.reset(structuredClone(this.emptyValue));
+    this.syncCodeValidators();
+  }
+
+  /**
+   * The unit picker searches published units on the server a page at a time:
+   * the platform has far more units than one page holds (the API caps a page at 100).
+   */
+  private initUnitPicker() {
+    this.unitSearch$
+      .pipe(
+        debounceTime(350),
+        map((s) => s.trim()),
+        distinctUntilChanged(),
+      )
+      .subscribe((search) => this.unitLoad$.next({ search, page: 1 }));
+    this.unitLoad$
+      .pipe(
+        // A newer search or page cancels the one in flight, so stale results never land.
+        switchMap((q) => {
+          this.unitQuery = q;
+          this.unitsLoading.set(true);
+          this.unitsFailed.set(false);
+          return this.bookingService
+            .searchPublishedUnits({ search: q.search, page: q.page })
+            .pipe(
+              map((r): PublishedUnitsPage | null => r),
+              catchError(() => of(null)),
+              map((r) => ({ q, r })),
+            );
+        }),
+      )
+      .subscribe(({ q, r }) => {
+        this.unitsLoading.set(false);
+        if (!r) {
+          this.unitsFailed.set(true);
+          if (q.page === 1) {
+            this.unitResults.set([]);
+            this.unitHasMore.set(false);
+          }
+          return;
+        }
+        r.items.forEach((u) => this.unitLabels.set(u.id, u.name));
+        if (q.page === 1) this.unitResults.set(r.items);
+        else
+          this.unitResults.update((prev) => {
+            const seen = new Set(prev.map((u) => u.id));
+            return [...prev, ...r.items.filter((u) => !seen.has(u.id))];
+          });
+        this.unitTotal.set(r.totalCount);
+        this.unitHasMore.set(r.hasMore);
+      });
+    this.unitLoad$.next({ search: '', page: 1 });
+  }
+
+  unitSearchChanged(value: string) {
+    this.unitSearchText.set(value);
+    this.unitSearch$.next(value);
+  }
+
+  loadMoreUnits(e?: Event) {
+    e?.stopPropagation();
+    if (this.unitsLoading() || !this.unitHasMore()) return;
+    this.unitLoad$.next({ ...this.unitQuery, page: this.unitQuery.page + 1 });
+  }
+
+  retryUnits(e?: Event) {
+    e?.stopPropagation();
+    this.unitLoad$.next({ ...this.unitQuery });
+  }
+
+  private unitPanelScroll?: { el: HTMLElement; fn: () => void };
+
+  /**
+   * On open: focus the search box and load the next page when the list is scrolled
+   * near its end. The panel lives in an overlay, so the listener is added by hand.
+   */
+  unitPickerToggled(open: boolean, select: MatSelect, input: HTMLInputElement) {
+    this.unitPanelScroll?.el.removeEventListener('scroll', this.unitPanelScroll.fn);
+    this.unitPanelScroll = undefined;
+    if (!open) return;
+    setTimeout(() => input.focus());
+    const el = select.panel?.nativeElement as HTMLElement | undefined;
+    if (!el) return;
+    const fn = () => {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 48) this.loadMoreUnits();
+    };
+    el.addEventListener('scroll', fn, { passive: true });
+    this.unitPanelScroll = { el, fn };
+  }
+
+  /**
+   * Keys typed in the search box must not reach mat-select, which would treat
+   * space as "toggle option" and letters as type-ahead. Escape and Tab still close it.
+   */
+  unitSearchKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Escape' && e.key !== 'Tab') e.stopPropagation();
+  }
+
+  private unitLabel(id: number) {
+    return this.unitLabels.get(id) ?? `#${id}`;
   }
   toggle(k: string) {
     this.open.update((s) => {
@@ -177,41 +397,37 @@ export class PlatformOfferFormComponent implements OnInit {
     return this.open().has(k);
   }
   load() {
-    this.loading.set(true);
-    this.service.get(this.id!).subscribe({
-      next: (d) => {
-        this.patch(d);
-        this.loading.set(false);
-      },
-      error: (e) => {
-        this.error.set(
-          extractApiErrorMessage(
-            e,
-            this.tr.instant('d3.platformOffers.errors.detail'),
-          ),
-        );
-        this.loading.set(false);
-      },
-    });
+    this.reload$.next();
   }
   patch(d: PlatformOfferDetail) {
     const date = (v?: string | null) => (v ? v.slice(0, 16) : '');
+    // The saved units may be outside the loaded search results — name them from the
+    // offer itself so they show (and stay selected) in the picker.
+    const rtl = this.dir() === 'rtl';
+    d.offerUnits.forEach((u) => {
+      const title = (rtl ? u.unitTitleAr || u.unitTitleEn : u.unitTitleEn || u.unitTitleAr)?.trim();
+      if (!this.unitLabels.has(u.unitId))
+        this.unitLabels.set(u.unitId, title || u.unitExternalId || `#${u.unitId}`);
+    });
     this.form.patchValue({
       ...d,
       offerStartDate: date(d.offerStartDate),
       offerEndDate: date(d.offerEndDate),
       stayStartDate: date(d.stayStartDate),
       stayEndDate: date(d.stayEndDate),
+      // The API sends "22:00:00"; the picker and labels work in "22:00".
+      happyHourStart: toHhmm(d.happyHourStart),
+      happyHourEnd: toHhmm(d.happyHourEnd),
       unitIds: d.offerUnits.map((u) => u.unitId),
-      // Old rows may hold a value the API returns as a bare number (e.g. 1);
-      // clear it so the admin has to pick a valid channel again.
-      displayChannel: ['All', 'Merchant', 'Client'].includes(
-        d.displayChannel as string,
-      )
-        ? d.displayChannel
-        : '',
+      // Older API builds send the channel as its number ("1") — map it back to the
+      // name so editing an offer keeps its channel; only a truly unknown value is cleared.
+      displayChannel: normalizeDisplayChannel(d.displayChannel) ?? '',
     } as any);
     this.preview.set(d.banner || '');
+    // Replace, never append: a retry or another offer must not duplicate the rows.
+    this.exclusions.clear();
+    this.messages.clear();
+    this.terms.clear();
     d.exclusionPeriods.forEach((x) => this.exclusions.push(this.exclusion(x)));
     d.customMessages.forEach((x) => this.messages.push(this.message(x)));
     d.offerTerms.forEach((x) => this.terms.push(this.term(x)));
@@ -264,6 +480,36 @@ export class PlatformOfferFormComponent implements OnInit {
   timeLabel(hhmm: string | null | undefined) {
     return hhmm ? this.formatTime12(hhmm) : '';
   }
+
+  /**
+   * Sets one end of the happy hour. Both ends are re-validated (clearing a server
+   * error left on either) and touched, so "set both" shows under the start field.
+   */
+  setHappyHour(name: 'happyHourStart' | 'happyHourEnd', time: string) {
+    const { happyHourStart, happyHourEnd } = this.form.controls;
+    this.form.controls[name].setValue(time);
+    [happyHourStart, happyHourEnd].forEach((c) => {
+      c.markAsTouched();
+      c.updateValueAndValidity({ emitEvent: false });
+    });
+    this.form.updateValueAndValidity();
+  }
+
+  /**
+   * "From 22:00 to 02:00 (next day)" — or with the "available" prefix for the summary,
+   * matching the offer conditions text from the API. '' until the window is valid.
+   */
+  happyHourText(prefix: 'hint' | 'summary' = 'hint'): string {
+    const w = happyHourWindow(
+      this.form.controls.happyHourStart.value,
+      this.form.controls.happyHourEnd.value,
+    );
+    if (!w) return '';
+    return this.tr.instant(
+      `d3.platformOffers.happyHour.${prefix}${w.overnight ? 'NextDay' : ''}`,
+      { start: w.start, end: w.end },
+    );
+  }
   private formatTime12(hhmm: string) {
     const [hStr, m] = hhmm.split(':');
     const h24 = Number(hStr) || 0;
@@ -307,7 +553,15 @@ export class PlatformOfferFormComponent implements OnInit {
       id: [v.id],
       termAr: [v.termAr || '', Validators.required],
       termEn: [v.termEn || '', Validators.required],
-      order: [v.order ?? this.terms.length + 1, Validators.required],
+      order: [
+        v.order ?? this.terms.length + 1,
+        [
+          Validators.required,
+          Validators.min(1),
+          maxValueValidator(OFFER_LIMITS.orderMax),
+          wholeNumberValidator,
+        ],
+      ],
     });
   }
   /** True once the user has touched an invalid control — drives the inline error text. */
@@ -326,12 +580,14 @@ export class PlatformOfferFormComponent implements OnInit {
       this.tr.instant(`d3.platformOffers.validation.${k}`, p);
     const e = c.errors;
     if (e) {
+      if (e['server']) return e['server'];
       if (e['required']) return key('required');
       if (e['maxlength'])
         return key('maxLength', { max: e['maxlength'].requiredLength });
       if (e['min'])
         return key(e['min'].min > 0 ? 'positive' : 'notNegative');
       if (e['maxValue']) return key('maxValue', { max: e['maxValue'].max.toLocaleString() });
+      if (e['wholeNumber']) return key('wholeNumber');
       if (e['codePattern']) return key('codePattern');
       if (e['days']) return key('days');
       if (e['time']) return key('time');
@@ -357,7 +613,66 @@ export class PlatformOfferFormComponent implements OnInit {
     });
   }
 
+  /** Error under a term row: the order's own rule when it fails, else "complete the row". */
+  termRowError(row: AbstractControl): string {
+    const order = row.get('order');
+    const key = (k: string, p?: object) =>
+      this.tr.instant(`d3.platformOffers.validation.${k}`, p);
+    if (order?.value !== null && order?.value !== '') {
+      if (order?.hasError('min')) return key('positive');
+      if (order?.hasError('maxValue'))
+        return key('maxValue', { max: OFFER_LIMITS.orderMax.toLocaleString() });
+      if (order?.hasError('wholeNumber')) return key('wholeNumber');
+    }
+    return key('rowIncomplete');
+  }
+
   private submitted = false;
+
+  /** Opens every section and focuses the first invalid field. */
+  private revealErrors() {
+    this.open.set(
+      new Set([
+        'basics',
+        'discount',
+        'scope',
+        'timing',
+        'stay',
+        'usage',
+        'settings',
+        'exclusions',
+        'messages',
+        'terms',
+      ]),
+    );
+    setTimeout(() =>
+      document.querySelector<HTMLElement>('.ng-invalid:not(form)')?.focus(),
+    );
+  }
+
+  /**
+   * Puts the server's field errors on the matching controls. Returns the messages
+   * no control claims; model-binding errors (null message) get a local text.
+   */
+  private applyServerFieldErrors(e: unknown): { claimed: number; unclaimed: string[] } {
+    const controls = new Map(
+      Object.keys(this.form.controls).map((name) => [name.toLowerCase(), name]),
+    );
+    const invalid = this.tr.instant('d3.platformOffers.validation.invalidValue');
+    let claimed = 0;
+    const unclaimed: string[] = [];
+    for (const item of extractApiFieldErrors(e)) {
+      const name = controls.get(item.field);
+      const control = name ? this.form.get(name) : null;
+      if (control) {
+        // Cleared by the control's own validators on the next edit.
+        control.setErrors({ ...(control.errors ?? {}), server: item.message ?? invalid });
+        control.markAsTouched();
+        claimed++;
+      } else if (item.message) unclaimed.push(item.message);
+    }
+    return { claimed, unclaimed };
+  }
 
   private syncCodeValidators() {
     const coupon = this.form.controls.triggerType.value === 'Coupon';
@@ -383,26 +698,12 @@ export class PlatformOfferFormComponent implements OnInit {
     if (this.form.invalid || this.codeState() === 'taken') {
       this.form.markAllAsTouched();
       this.toast.error(this.tr.instant('d3.platformOffers.validation.fixErrors'));
-      this.open.set(
-        new Set([
-          'basics',
-          'discount',
-          'scope',
-          'timing',
-          'stay',
-          'usage',
-          'settings',
-          'exclusions',
-          'messages',
-          'terms',
-        ]),
-      );
-      setTimeout(() =>
-        document.querySelector<HTMLElement>('.ng-invalid:not(form)')?.focus(),
-      );
+      this.revealErrors();
       return;
     }
     this.saving.set(true);
+    // The offer the admin is saving, kept even if the URL moves on while the request runs.
+    const id = this.id;
     const value = this.form.getRawValue() as unknown as OfferFormValue;
     const onDone = (newId?: number) => {
       this.saving.set(false);
@@ -412,11 +713,28 @@ export class PlatformOfferFormComponent implements OnInit {
         this.lang(),
         'd3',
         'platform-offers',
-        this.id || newId,
+        id || newId,
       ]);
     };
     const onErr = (e: unknown) => {
       this.saving.set(false);
+      // The form now shows another offer: its fields must not get this save's errors.
+      if (this.id !== id) {
+        this.toast.error(
+          extractApiErrorMessage(e, this.tr.instant('d3.platformOffers.errors.save')),
+        );
+        return;
+      }
+      const { claimed, unclaimed } = this.applyServerFieldErrors(e);
+      if (claimed) {
+        this.revealErrors();
+        this.toast.error(
+          unclaimed.length
+            ? unclaimed.join(' - ')
+            : this.tr.instant('d3.platformOffers.validation.serverFieldErrors'),
+        );
+        return;
+      }
       this.toast.error(
         extractApiErrorMessage(
           e,
@@ -424,9 +742,9 @@ export class PlatformOfferFormComponent implements OnInit {
         ),
       );
     };
-    if (this.id)
+    if (id)
       this.service
-        .update(this.id, value, this.banner)
+        .update(id, value, this.banner)
         .subscribe({ next: () => onDone(), error: onErr });
     else
       this.service

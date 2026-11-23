@@ -3,17 +3,11 @@
   <!-- Stats -->
   <app-stats-row [stats]="stats" [isDeptView]="!!departmentId"></app-stats-row>
 
-  <!-- Header row: tabs (structure) + action button -->
+  <!-- Header row: tabs (structure). No search here: the departments API has no search
+       parameter, so a search box on this tab would look active but filter nothing. -->
   <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
     @if (activeTab === 'structure' && !departmentId) {
       <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
-      <app-team-header
-        [isBoxed]="false"
-        actionLabel="d3.teamManagement.addDept"
-        actionIcon="plus"
-        [showAction]="false"
-        (action)="onHeaderAction()">
-      </app-team-header>
     }
   </div>
 

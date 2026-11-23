@@ -25,6 +25,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { provideToastr } from 'ngx-toastr';
 import { AuthInterceptor } from './guards/auth.interceptor';
+import { ServiceBusyInterceptor } from './guards/service-busy.interceptor';
 import { ChunkLoadErrorHandler } from './guards/chunk-load-error.handler';
 import { ParamAwareRouteReuseStrategy } from './guards/param-aware-route-reuse.strategy';
 
@@ -77,6 +78,13 @@ export const appConfig: ApplicationConfig = {
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: RouteReuseStrategy, useClass: ParamAwareRouteReuseStrategy },
     provideHttpClient(withInterceptorsFromDi()),
+    // Order matters: ServiceBusyInterceptor wraps AuthInterceptor, so its one retry of a
+    // busy read is sent again through the auth step with the current token.
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ServiceBusyInterceptor,
+      multi: true,
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

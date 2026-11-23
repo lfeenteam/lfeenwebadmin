@@ -35,13 +35,6 @@
         </div>
       </div>
 
-      @if (receiptUploadFailed) {
-        <p class="success-message">{{ 'd3.settlements.errors.receiptUploadFailed' | translate }}</p>
-        <button type="button" class="btn btn-outline" [disabled]="receiptRetrying" (click)="retryReceiptUpload()">
-          {{ 'd3.settlements.detail.retryReceiptBtn' | translate }}
-        </button>
-      }
-
       <button type="button" class="btn btn-close-window" (click)="finish()">
         {{ 'd3.settlements.detail.closeWindowBtn' | translate }}
       </button>
@@ -71,6 +64,97 @@
 
     <div class="details-grid">
 
+    <!-- Leftover of a partial transfer: it carries no bookings of its own -->
+    @if (data.isRemainder) {
+      <div class="detail-notice">
+        <i-tabler name="info-circle" class="icon-18"></i-tabler>
+        <span>
+          @if (data.originatingReference) {
+            {{ 'd3.settlements.detail.remainderOf' | translate: { ref: data.originatingReference } }}
+          } @else {
+            {{ 'd3.settlements.detail.remainderOfUnknown' | translate }}
+          }
+        </span>
+      </div>
+    }
+
+    <!-- What was actually transferred — Completed / PartiallyCompleted -->
+    @if (data.isExecuted) {
+      <div class="detail-card detail-card--execution">
+        <div class="detail-card-head">
+          <div class="head-title">
+            <span>{{ 'd3.settlements.detail.executionSection' | translate }}</span>
+            <i-tabler name="circle-check" class="icon-16"></i-tabler>
+          </div>
+        </div>
+
+        <div class="execution-grid">
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.transferredAmount' | translate }}</span>
+            <span class="amount-value amount-value--accent">
+              {{ data.transferredFormatted }}
+              <span class="riyal-icon riyal-icon--accent"
+                    [class.is-text-currency]="data.isTextCurrency"
+                    [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                    [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+            </span>
+          </div>
+          @if (data.isPartial) {
+            <div class="detail-row">
+              <span class="row-label">{{ 'd3.settlements.detail.remainingAmount' | translate }}</span>
+              <span class="amount-value amount-value--danger">
+                {{ data.remainingFormatted }}
+                <span class="riyal-icon riyal-icon--danger"
+                      [class.is-text-currency]="data.isTextCurrency"
+                      [style.-webkit-mask-image]="'url(' + data.currencyIconSrc + ')'"
+                      [style.mask-image]="'url(' + data.currencyIconSrc + ')'"></span>
+              </span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.trxNumber' | translate }}</span>
+            <span class="row-value row-value--ltr" dir="ltr">{{ data.bankTransferReference }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.executionTime' | translate }}</span>
+            <span class="row-value">{{ data.processedAtLabel }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.processedBy' | translate }}</span>
+            <span class="row-value">{{ data.processedBy }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="row-label">{{ 'd3.settlements.detail.receipt' | translate }}</span>
+            @if (data.receiptUrl) {
+              <a class="receipt-link" [href]="data.receiptUrl" target="_blank" rel="noopener noreferrer">
+                <i-tabler name="file-text" class="icon-16"></i-tabler>
+                {{ 'd3.settlements.detail.viewReceipt' | translate }}
+              </a>
+            } @else {
+              <span class="row-value">{{ emptyValue }}</span>
+            }
+          </div>
+        </div>
+
+        @if (data.isPartial) {
+          <div class="form-field">
+            <span class="row-label">{{ 'd3.settlements.detail.partialReasonLabel' | translate }}</span>
+            <div class="recorded-reason-box">{{ data.partialReason }}</div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Failed: the reason the admin recorded -->
+    @if (data.rejectionReason) {
+      <div class="detail-card detail-card--execution">
+        <div class="form-field">
+          <span class="row-label">{{ 'd3.settlements.detail.recordedReason' | translate }}</span>
+          <div class="recorded-reason-box">{{ data.rejectionReason }}</div>
+        </div>
+      </div>
+    }
+
     <!-- Host details -->
     <div class="detail-card detail-card--host">
       <div class="detail-card-head">
@@ -90,11 +174,12 @@
       </div>
       <div class="detail-row">
         <span class="row-label">{{ 'd3.settlements.detail.phone' | translate }}</span>
-        <span class="row-value">{{ data.phone }}</span>
+        <span class="row-value row-value--ltr" dir="ltr">{{ data.phone }}</span>
       </div>
 
       <div class="amount-row">
-        <span class="row-label">{{ 'd3.settlements.detail.requestedAmount' | translate }}</span>
+        <!-- Once executed this is what was owed, not what was sent — the execution card shows the transferred amount -->
+        <span class="row-label">{{ (data.isExecuted ? 'd3.settlements.detail.settlementAmount' : 'd3.settlements.detail.requestedAmount') | translate }}</span>
         <span class="amount-value">
           {{ data.amountFormatted }}
           <img [src]="data.currencyIconSrc" alt="" class="riyal-icon" [class.is-text-currency]="data.isTextCurrency">
@@ -111,6 +196,12 @@
         </div>
       </div>
 
+      <div class="detail-row">
+        <span class="row-label">{{ 'd3.settlements.detail.status' | translate }}</span>
+        <span class="status-chip" [ngClass]="data.statusClass">
+          {{ data.statusKey ? (data.statusKey | translate) : data.statusLabel }}
+        </span>
+      </div>
       <div class="detail-row">
         <span class="row-label">{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
         <span class="row-value row-value--ltr">{{ data.payoutReference }}</span>
@@ -157,8 +248,13 @@
             <span>{{ 'd3.settlements.detail.entryNet' | translate }}</span>
           </div>
           @for (entry of data.entries; track $index) {
-            <div class="entries-row">
-              <span class="entry-booking">{{ entry.bookingNumber }}</span>
+            <div class="entries-row" [class.entries-row--refund]="entry.isRefundAfterSettlement">
+              <span class="entry-booking">
+                {{ entry.bookingNumber }}
+                @if (entry.isRefundAfterSettlement) {
+                  <span class="refund-tag" [attr.dir]="currentDir">{{ 'd3.settlements.recalc.kind.refundAfterSettlement' | translate }}</span>
+                }
+              </span>
               <span>{{ entry.gross }}</span>
               <span>{{ entry.fee }}</span>
               <span class="entry-net">{{ entry.net }}</span>
@@ -214,14 +310,19 @@
       @if (!data.hasIban) {
         <span class="action-blocked-hint">* {{ 'd3.settlements.errors.noBankAccount' | translate }}</span>
       }
+      <!-- Known up front from the dry run: stop before the admin fills the transfer form -->
+      <ng-container *ngTemplateOutlet="recalcStatus"></ng-container>
       <div class="detail-actions">
         <button type="button" class="btn btn-reject" (click)="goToConfirmReject()">
           {{ 'd3.settlements.detail.rejectBtn' | translate }}
         </button>
-        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban" (click)="goToConfirmTransfer()">
+        <button type="button" class="btn btn-accept" [disabled]="!data.hasIban || mustRecalculate || isOnHold || checkingRecalc" (click)="goToConfirmTransfer()">
           {{ 'd3.settlements.detail.acceptBtn' | translate }}
         </button>
       </div>
+    } @else if (data.canRecalculate) {
+      <!-- Failed / OnHold: no execute here, but the payout may still need recalculating (guide §6.1) -->
+      <ng-container *ngTemplateOutlet="recalcStatus"></ng-container>
     }
 
   } @else if (step === 'confirmReject') {
@@ -257,6 +358,8 @@
       </textarea>
       <span class="reject-reason-hint">* {{ 'd3.settlements.detail.rejectReasonHint' | translate }}</span>
     </div>
+
+    <ng-container *ngTemplateOutlet="actionErrorAlert"></ng-container>
 
     <!-- Actions -->
     <div class="detail-actions">
@@ -422,6 +525,12 @@
       </div>
     }
 
+    @if (block) {
+      <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
+    }
+
+    <ng-container *ngTemplateOutlet="actionErrorAlert"></ng-container>
+
     <!-- Actions -->
     <div class="detail-actions">
       <button type="button" class="btn btn-outline" (click)="close()">
@@ -437,3 +546,66 @@
   }
 
 </div>
+
+<!-- Why the last execute/reject attempt failed — stays in the dialog until the next attempt -->
+<ng-template #actionErrorAlert>
+  @if (actionError) {
+    <div class="action-blocked-alert" role="alert">
+      <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+      <span>{{ actionError }}</span>
+    </div>
+  }
+</ng-template>
+
+<!-- What the dry run said about a payout listed by recalculation-preview -->
+<ng-template #recalcStatus>
+  @if (checkingRecalc) {
+    <span class="action-blocked-hint">{{ 'd3.settlements.recalc.checking' | translate }}</span>
+  } @else if (isOnHold) {
+    <div class="action-blocked-alert payout-block-alert is-warning" role="alert">
+      <i-tabler name="clock-pause" class="icon-18"></i-tabler>
+      <div class="payout-block-body">
+        <strong>{{ 'd3.settlements.recalc.onHoldTitle' | translate }}</strong>
+        <span>{{ 'd3.settlements.recalc.blockerSummary' | translate }}</span>
+        @if (holdReasons.length) {
+          <details class="blocker-details">
+            <summary>{{ 'd3.settlements.recalc.blockerDetails' | translate }}</summary>
+            <ul class="hold-reasons" dir="ltr">
+              @for (reason of holdReasons; track $index) { <li>{{ reason }}</li> }
+            </ul>
+          </details>
+        }
+      </div>
+    </div>
+  } @else if (mustRecalculate) {
+    <ng-container *ngTemplateOutlet="blockAlert"></ng-container>
+  }
+</ng-template>
+
+<!-- BUG-1482 block: the server's own (localized) reason + the action that unblocks it -->
+<ng-template #blockAlert>
+  <div class="action-blocked-alert payout-block-alert"
+       [class.is-warning]="block?.kind === 'refundInProgress'"
+       role="alert">
+    <i-tabler [name]="block?.kind === 'refundInProgress' ? 'clock' : 'alert-triangle'" class="icon-18"></i-tabler>
+    <div class="payout-block-body">
+      <span>{{ blockMessage }}</span>
+      @if (canOfferRecalculation || block?.kind === 'debtOutstanding') {
+        <div class="block-actions">
+          @if (canOfferRecalculation) {
+            <button type="button" class="block-action-btn" [disabled]="recalcOpen || submitting" (click)="openRecalculation()">
+              <i-tabler name="calculator" class="icon-16"></i-tabler>
+              {{ 'd3.settlements.recalc.openBtn' | translate }}
+            </button>
+          }
+          @if (block?.kind === 'debtOutstanding') {
+            <button type="button" class="block-action-btn" (click)="openDebts()">
+              <i-tabler name="external-link" class="icon-16"></i-tabler>
+              {{ 'd3.settlements.debts.viewMerchantDebts' | translate }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

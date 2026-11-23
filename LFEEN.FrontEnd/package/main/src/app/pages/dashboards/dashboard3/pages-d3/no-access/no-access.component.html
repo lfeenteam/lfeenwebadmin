@@ -1,0 +1,24 @@
+<div class="no-access-page">
+  <div class="no-access-card">
+    <div class="no-access-icon">
+      <i-tabler name="lock" class="icon-32"></i-tabler>
+    </div>
+    <span class="no-access-code">403</span>
+    <h2 class="no-access-title">{{ 'd3.noAccess.title' | translate }}</h2>
+    <p class="no-access-subtitle">
+      {{ (homeUrl() ? 'd3.noAccess.subtitle' : 'd3.noAccess.emptySubtitle') | translate }}
+    </p>
+
+    <div class="no-access-actions">
+      @if (homeUrl()) {
+        <button type="button" class="btn-solid" (click)="goHome()">
+          {{ 'd3.noAccess.homeButton' | translate }}
+        </button>
+      } @else {
+        <button type="button" class="btn-outline" (click)="logout()">
+          {{ 'd3.noAccess.logoutButton' | translate }}
+        </button>
+      }
+    </div>
+  </div>
+</div>

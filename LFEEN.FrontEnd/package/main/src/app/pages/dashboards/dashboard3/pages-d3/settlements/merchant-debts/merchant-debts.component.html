@@ -1,0 +1,171 @@
+<div class="debts-container" [dir]="currentDir">
+
+  <div class="debts-toolbar">
+    <div class="search-wrapper">
+      <i-tabler name="search" class="icon-18 search-icon"></i-tabler>
+      <input
+        type="text"
+        class="search-input"
+        [placeholder]="'d3.settlements.debts.searchPlaceholder' | translate"
+        [attr.aria-label]="'d3.settlements.debts.searchPlaceholder' | translate"
+        [value]="searchQuery"
+        (input)="onSearchChange($any($event.target).value)" />
+    </div>
+  </div>
+
+  @if (accountFilter) {
+    <div class="filter-chip">
+      <i-tabler name="filter" class="icon-14"></i-tabler>
+      <span>{{ 'd3.settlements.debts.filteredBy' | translate }}: <strong>{{ filteredMerchantName }}</strong></span>
+      <button type="button" class="chip-clear" [attr.aria-label]="'d3.settlements.debts.showAll' | translate" (click)="clearAccountFilter()">
+        {{ 'd3.settlements.debts.showAll' | translate }}
+        <i-tabler name="x" class="icon-14"></i-tabler>
+      </button>
+    </div>
+  }
+
+  @if (loading) {
+    <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+  } @else {
+    <div class="table-box">
+      <div class="table-responsive">
+        <table class="table debts-table m-0">
+          <thead>
+            <tr>
+              <th class="col-toggle"></th>
+              <th>{{ 'd3.settlements.debts.merchant' | translate }}</th>
+              <th>{{ 'd3.settlements.debts.owedByMerchant' | translate }}</th>
+              <th>{{ 'd3.settlements.debts.owedToMerchant' | translate }}</th>
+              <th>{{ 'd3.settlements.debts.balance' | translate }}</th>
+              <th>{{ 'd3.settlements.debts.since' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of visibleRows; track row.accountId) {
+              <tr class="debt-row" [class.is-open]="expanded.has(row.accountId)">
+                <td class="col-toggle">
+                  <button type="button" class="toggle-btn"
+                          [disabled]="!row.lines.length"
+                          [attr.aria-expanded]="expanded.has(row.accountId)"
+                          [attr.aria-label]="'d3.settlements.debts.lines' | translate"
+                          (click)="toggle(row)">
+                    <i-tabler [name]="expanded.has(row.accountId) ? 'chevron-up' : 'chevron-down'" class="icon-16"></i-tabler>
+                  </button>
+                </td>
+                <td>
+                  <div class="merchant-cell">
+                    <span class="merchant-name">{{ row.merchant }}</span>
+                    @if (row.isClaim) {
+                      <span class="claim-badge">{{ 'd3.settlements.debts.claim' | translate }}</span>
+                    } @else {
+                      <span class="claim-badge claim-badge--alert">{{ 'd3.settlements.debts.alert' | translate }}</span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.settlements.debts.owedByMerchant' | translate }}</span>
+                  <span class="amount amount--danger">
+                    {{ fmtAmount(row.outstandingClawbackNet) }}
+                    <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.settlements.debts.owedToMerchant' | translate }}</span>
+                  <span class="amount">
+                    {{ fmtAmount(row.unsettledDuesNet) }}
+                    <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.settlements.debts.balance' | translate }}</span>
+                  <span class="amount amount--strong" [class.amount--danger]="row.balance < 0">
+                    {{ fmtAmount(row.balance) }}
+                    <img [src]="currencyIconSrc" alt="" class="riyal-icon-sm" [class.is-text-currency]="currentLang === 'en'">
+                  </span>
+                </td>
+                <td>
+                  <span class="mobile-field-label">{{ 'd3.settlements.debts.since' | translate }}</span>
+                  <span class="date">{{ row.since }}</span>
+                </td>
+              </tr>
+
+              @if (expanded.has(row.accountId) && row.lines.length) {
+                <tr class="lines-row">
+                  <td colspan="6">
+                    <div class="lines-table" [style.--line-cols]="row.lineColumns">
+                      <div class="line line--head">
+                        @if (row.showBooking) { <span>{{ 'd3.settlements.detail.bookingNumber' | translate }}</span> }
+                        @if (row.showPayoutRef) { <span>{{ 'd3.settlements.detail.payoutReference' | translate }}</span> }
+                        <span>{{ 'd3.settlements.debts.lineMethod' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.gross' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.fee' | translate }}</span>
+                        <span>{{ 'd3.settlements.recalc.net' | translate }}</span>
+                        <span>{{ 'd3.settlements.debts.lineRefundDate' | translate }}</span>
+                      </div>
+                      @for (line of row.lines; track $index) {
+                        <div class="line">
+                          @if (row.showBooking) {
+                            <span class="line-main">
+                              <span class="mobile-field-label">{{ 'd3.settlements.detail.bookingNumber' | translate }}</span>
+                              <span class="ltr">{{ line.bookingNumber }}</span>
+                              <span class="line-kind">{{ line.kindKey | translate }}</span>
+                              @if (line.description) { <small class="line-desc">{{ line.description }}</small> }
+                            </span>
+                          }
+                          @if (row.showPayoutRef) {
+                            <span>
+                              <span class="mobile-field-label">{{ 'd3.settlements.detail.payoutReference' | translate }}</span>
+                              <span class="ltr">{{ line.payoutReference }}</span>
+                            </span>
+                          }
+                          <!-- No booking column yet: the kind tag sits with the payment method instead -->
+                          <span [class.line-main]="!row.showBooking">
+                            <span class="mobile-field-label">{{ 'd3.settlements.debts.lineMethod' | translate }}</span>
+                            <span>{{ line.methodKey ? (line.methodKey | translate) : line.method }}</span>
+                            @if (!row.showBooking) { <span class="line-kind">{{ line.kindKey | translate }}</span> }
+                          </span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.gross' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.gross) }}</span>
+                          </span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.fee' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.fee) }}</span>
+                          </span>
+                          <span class="line-net">
+                            <span class="mobile-field-label">{{ 'd3.settlements.recalc.net' | translate }}</span>
+                            <span class="ltr">{{ fmtAmount(line.net) }}</span>
+                          </span>
+                          <span>
+                            <span class="mobile-field-label">{{ 'd3.settlements.debts.lineRefundDate' | translate }}</span>
+                            {{ line.date }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="6" class="p-0">
+                  @if (loadError) {
+                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.settlements.debts.loadTitle" [descKey]="loadError">
+                      <button type="button" class="retry-btn" (click)="load()">
+                        <i-tabler name="refresh" class="icon-16"></i-tabler>
+                        {{ 'd3.settlements.errors.retry' | translate }}
+                      </button>
+                    </app-dashboard-empty>
+                  } @else {
+                    <app-dashboard-empty icon="mood-check" titleKey="d3.settlements.debts.emptyTitle" descKey="d3.settlements.debts.emptyDesc"></app-dashboard-empty>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>

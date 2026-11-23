@@ -6,14 +6,15 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, of, Subscription } from 'rxjs';
-import { switchMap, map, catchError } from 'rxjs/operators';
+import { EMPTY, forkJoin, merge, Observable, of, Subject, Subscription } from 'rxjs';
+import { switchMap, map, catchError, distinctUntilChanged, tap } from 'rxjs/operators';
 import { DepartmentService } from '../../../services/department.service';
 import { Department, PermissionGroup, RolePayload, RolePermission } from '../../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
 import { resolveBilingualText } from '../../../utils/bilingual.util';
 import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
+import { applyRoleNameServerError, RoleNameField } from '../../../utils/role-error.util';
 
 interface PermissionRow extends RolePermission {
   selected: boolean;
@@ -33,7 +34,9 @@ interface PermissionGroupSection {
   styleUrl: './add-role.component.scss'
 })
 export class AddRoleComponent implements OnInit, OnDestroy {
-  private langSub!: Subscription;
+  private readonly subs = new Subscription();
+  /** Reload for the same department (retry, language change) — keeps the picked permissions. */
+  private readonly reload$ = new Subject<void>();
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -52,6 +55,8 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   isLoadingPerms = true;
   permsLoadError = false;
   isSubmitting = false;
+  /** Set once save is attempted with no permission selected; the hint hides again as soon as one is picked. */
+  noPermsError = false;
 
   departments: Department[] = [];
 
@@ -68,7 +73,6 @@ export class AddRoleComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private pageBreadcrumbTrail: PageBreadcrumbTrailService
   ) {
-    this.deptId = this.route.snapshot.paramMap.get('id');
     this.roleForm = this.fb.group({
       nameAr: [''],
       nameEn: [''],
@@ -95,29 +99,79 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateValidators();
-    this.langSub = this.translate.onLangChange.subscribe(() => {
-      this.updateValidators();
-      this.loadData();
-    });
 
-    this.loadData();
+    // The component is reused when only the department id in the URL changes (address bar,
+    // back/forward), so follow the URL instead of reading the id once from the snapshot.
+    const params$ = this.route.paramMap.pipe(
+      map(p => p.get('id')),
+      distinctUntilChanged(),
+      tap(deptId => {
+        this.deptId = deptId;
+        this.resetState();
+      }),
+      map(() => false)
+    );
+
+    this.subs.add(
+      merge(
+        params$,
+        this.reload$.pipe(map(() => true)),
+        this.translate.onLangChange.pipe(
+          tap(() => this.updateValidators()),
+          map(() => true)
+        )
+      )
+        // A newer department cancels the previous requests, so a late answer never lands on the new one.
+        .pipe(switchMap(keepSelection => this.loadData(keepSelection)))
+        .subscribe()
+    );
   }
 
-  private loadData(): void {
+  /** Clears everything tied to the previous department so a new role starts clean. */
+  private resetState(): void {
+    this.deptName = '';
+    this.deptEnglishName = '';
+    this.employeeCount = 0;
+    this.departments = [];
+    this.permissions = [];
+    this.groupedPermissions = [];
+    this.collapsedGroups.clear();
+    this.collapseInitialized = false;
+    this.currentPage = 1;
+    this.noPermsError = false;
+    this.showNameSecondary = false;
+    this.showDescSecondary = false;
+    this.roleForm.reset({
+      nameAr: '',
+      nameEn: '',
+      descriptionAr: '',
+      descriptionEn: '',
+      isManagerRole: false,
+      departmentId: ''
+    });
+    this.isLoadingPerms = true;
+    this.permsLoadError = false;
+    this.pageBreadcrumbTrail.clear();
+  }
+
+  private loadData(keepSelection: boolean): Observable<unknown> {
+    const deptId = this.deptId;
     const selectedIds = new Set(
-      this.permissions.filter(permission => permission.selected).map(permission => permission.id)
+      keepSelection
+        ? this.permissions.filter(permission => permission.selected).map(permission => permission.id)
+        : []
     );
 
     this.isLoadingPerms = true;
     this.permsLoadError = false;
-    forkJoin({
+    return forkJoin({
       perms: this.departmentService.getPermissions(500),
       groups: this.departmentService.getAllPermissionGroupsForDropdown(),
-      ...(this.deptId
-        ? { dept: this.departmentService.getDepartmentById(this.deptId) }
+      ...(deptId
+        ? { dept: this.departmentService.getDepartmentById(deptId) }
         : { allDepts: this.departmentService.getAllDepartmentsForDropdown() })
-    }).subscribe({
-      next: (res: any) => {
+    }).pipe(
+      tap((res: any) => {
         this.permissions = (res.perms as RolePermission[]).map(permission => ({
           ...permission,
           selected: selectedIds.has(permission.id)
@@ -132,7 +186,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
             {
               label: lang === 'ar' ? this.deptName : this.deptEnglishName,
               translate: false,
-              route: ['/', lang, 'd3', 'permissions', this.deptId ?? '']
+              route: ['/', lang, 'd3', 'permissions', deptId ?? '']
             }
           ]);
         }
@@ -140,21 +194,52 @@ export class AddRoleComponent implements OnInit, OnDestroy {
           this.departments = res.allDepts;
         }
         this.isLoadingPerms = false;
-      },
-      error: (err) => {
+      }),
+      catchError(err => {
+        // e.g. a department id that doesn't exist (400) — show the error, never the previous department
+        this.deptName = '';
+        this.deptEnglishName = '';
+        this.employeeCount = 0;
+        this.permissions = [];
+        this.groupedPermissions = [];
+        this.pageBreadcrumbTrail.clear();
         this.isLoadingPerms = false;
         this.permsLoadError = true;
         this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.addRolePage.loadError')));
-      }
-    });
+        return EMPTY;
+      })
+    );
   }
 
   retryLoad(): void {
-    this.loadData();
+    this.reload$.next();
   }
 
   get selectedCount(): number {
     return this.permissions.filter(p => p.selected).length;
+  }
+
+  get primaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameAr' : 'nameEn';
+  }
+
+  get secondaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameEn' : 'nameAr';
+  }
+
+  nameInvalid(field: RoleNameField): boolean {
+    const c = this.roleForm.get(field);
+    return !!(c?.invalid && c?.touched);
+  }
+
+  /** Server message (e.g. duplicate name) wins over the local "required" text. */
+  nameError(field: RoleNameField): string {
+    const c = this.roleForm.get(field);
+    const server = c?.getError('serverError');
+    if (server) return server;
+    return c?.hasError('required') || c?.hasError('minlength')
+      ? this.translate.instant('d3.addRolePage.validation.nameRequired')
+      : '';
   }
 
   get allPermissionsSelected(): boolean {
@@ -326,6 +411,9 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
+    // Never create a role while the department behind the URL isn't loaded (or doesn't exist)
+    if (this.isSubmitting || this.isLoadingPerms || this.permsLoadError) return;
+
     if (this.roleForm.invalid) {
       this.roleForm.markAllAsTouched();
       this.toastr.warning(
@@ -334,8 +422,19 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // A role is created first and its permissions are assigned in a second request,
+    // so the backend can't enforce this — a new role with no permissions is useless.
+    if (this.selectedCount === 0) {
+      this.noPermsError = true;
+      this.toastr.warning(this.translate.instant('d3.addRolePage.validation.permissionsRequired'));
+      return;
+    }
+
     this.isSubmitting = true;
     const v = this.roleForm.value;
+    // Pin the department shown when save was pressed; the URL may change while the request runs.
+    const deptId = this.deptId;
+    const backRoute = this.backRoute;
 
     const payload: RolePayload = {
       nameAr: v.nameAr || v.nameEn,
@@ -343,7 +442,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
       descriptionAr: v.descriptionAr || v.descriptionEn,
       descriptionEn: v.descriptionEn || v.descriptionAr,
       isManagerRole: v.isManagerRole,
-      ...((this.deptId || v.departmentId) ? { departmentId: this.deptId || v.departmentId } : {})
+      ...((deptId || v.departmentId) ? { departmentId: deptId || v.departmentId } : {})
     };
 
     this.departmentService.createRole(payload).pipe(
@@ -366,10 +465,17 @@ export class AddRoleComponent implements OnInit, OnDestroy {
         } else {
           this.toastr.success(this.translate.instant('d3.toast.addRoleSuccess'));
         }
-        this.router.navigate([this.backRoute]);
+        // Only leave the page if it still shows the department the role was created in
+        if (deptId === this.deptId) this.router.navigate([backRoute]);
       },
       error: (err) => {
         this.isSubmitting = false;
+        if (deptId !== this.deptId) {
+          this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.saveError')));
+          return;
+        }
+        const field = applyRoleNameServerError(err, this.roleForm);
+        if (field && field !== this.primaryNameField) this.showNameSecondary = true;
         this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.saveError')));
       }
     });
@@ -380,7 +486,7 @@ export class AddRoleComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.langSub?.unsubscribe();
+    this.subs.unsubscribe();
     this.pageBreadcrumbTrail.clear();
   }
 }

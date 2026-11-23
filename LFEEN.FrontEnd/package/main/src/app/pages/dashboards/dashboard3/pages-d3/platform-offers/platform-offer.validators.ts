@@ -8,6 +8,11 @@ export const OFFER_LIMITS = {
   percentMax: 100,
   amountMax: 1_000_000,
   maxYearsAhead: 2,
+  // Day/usage/order fields are int on the server; values past int range fail model binding.
+  stayDaysMax: 365,
+  arrivalDaysMax: 730,
+  usageMax: 1_000_000,
+  orderMax: 9999,
 } as const;
 
 export const OFFER_DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -32,6 +37,34 @@ export const offerCodeValidator: ValidatorFn = (c) =>
 
 export const timeValidator: ValidatorFn = (c) =>
   empty(c.value) || TIME_RE.test(String(c.value)) ? null : { time: true };
+
+/** "22:00:00" / "22:00" → "22:00" (what the time picker and labels use); '' when empty. */
+export function toHhmm(v: unknown): string {
+  return empty(v) ? '' : String(v).slice(0, 5);
+}
+
+/**
+ * "22:00" → "22:00:00" for the API. Happy hour is Riyadh wall-clock time, sent as the
+ * admin picked it — never shifted to UTC.
+ */
+export function toApiTime(v: unknown): string {
+  const hhmm = toHhmm(v);
+  return /^\d{2}:\d{2}$/.test(hhmm) ? `${hhmm}:00` : String(v ?? '');
+}
+
+/**
+ * The happy hour window when both ends are set and differ. A start after the end
+ * (22:00–02:00) runs past midnight into the next day.
+ */
+export function happyHourWindow(
+  start: unknown,
+  end: unknown,
+): { start: string; end: string; overnight: boolean } | null {
+  const s = toHhmm(start);
+  const e = toHhmm(end);
+  if (!s || !e || s === e) return null;
+  return { start: s, end: e, overnight: s > e };
+}
 
 /** Comma separated list of known day names, e.g. "Sat,Sun". */
 export const daysOfWeekValidator: ValidatorFn = (c) => {
@@ -78,6 +111,13 @@ export function offerFormValidator(isCreate: () => boolean): ValidatorFn {
     const stayEnd = parseLocal(v.stayEndDate);
     if (stayStart && stayEnd && stayEnd <= stayStart)
       fields['stayEndDate'] = 'endBeforeStart';
+
+    // Same rules as the API, reported on HappyHourStart like it does. Start > end is
+    // allowed: the window crosses midnight.
+    const hhStart = toHhmm(v.happyHourStart);
+    const hhEnd = toHhmm(v.happyHourEnd);
+    if (!hhStart !== !hhEnd) fields['happyHourStart'] = 'happyHourBoth';
+    else if (hhStart && hhStart === hhEnd) fields['happyHourStart'] = 'happyHourSame';
 
     const minStay = num(v.minStayDays);
     const maxStay = num(v.maxStayDays);

@@ -14,16 +14,48 @@
   <h4 class="detail-section-title">{{ 'd3.bookings.detail.financeTab.rentSummaryTitle' | translate }}</h4>
 
   <div class="finance-cards-grid">
-    <div class="finance-card">
-      <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.totalRent' | translate }}</span>
-      <span class="finance-amount">
-        <span class="finance-amount-value">{{ formatAmount(finance.totalRent) }}</span>
-        <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
-      </span>
-      <span class="finance-card-sub">
-        {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | translate: { nights: finance.nights, rate: formatAmount(finance.nightlyRate) } }}
-      </span>
-    </div>
+    @if (finance.additionalFees > 0) {
+      <div class="finance-card">
+        <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.baseRent' | translate }}</span>
+        <span class="finance-amount">
+          <span class="finance-amount-value">{{ formatAmount(finance.baseRent) }}</span>
+          <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+        </span>
+        <span class="finance-card-sub">
+          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | appPlural: finance.nights : { rate: formatAmount(finance.nightlyRate) } }}
+        </span>
+      </div>
+
+      <div class="finance-card">
+        <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.additionalFees' | translate }}</span>
+        <span class="finance-amount">
+          <span class="finance-amount-value">{{ formatAmount(finance.additionalFees) }}</span>
+          <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+        </span>
+      </div>
+
+      <div class="finance-card">
+        <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.totalAmount' | translate }}</span>
+        <span class="finance-amount">
+          <span class="finance-amount-value">{{ formatAmount(finance.totalRent) }}</span>
+          <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+        </span>
+        <span class="finance-card-sub">
+          {{ 'd3.bookings.detail.financeTab.totalBreakdown' | translate: { rent: formatAmount(finance.baseRent), fees: formatAmount(finance.additionalFees) } }}
+        </span>
+      </div>
+    } @else {
+      <div class="finance-card">
+        <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.totalRent' | translate }}</span>
+        <span class="finance-amount">
+          <span class="finance-amount-value">{{ formatAmount(finance.totalRent) }}</span>
+          <span class="finance-amount-currency-icon" [class.is-text-currency]="currencyIconEn"></span>
+        </span>
+        <span class="finance-card-sub">
+          {{ 'd3.bookings.detail.financeTab.nightsBreakdown' | appPlural: finance.nights : { rate: formatAmount(finance.nightlyRate) } }}
+        </span>
+      </div>
+    }
 
     <div class="finance-card">
       <span class="finance-card-label">{{ 'd3.bookings.detail.financeTab.nightlyRate' | translate }}</span>

@@ -6,6 +6,7 @@ import { BuildingCardItem, BuildingTab } from '../../interfaces/building-card.mo
 import { CardsBuildsComponent } from './cards-builds/cards-builds.component';
 import { DashboardSubHeaderComponent } from 'src/app/components/dashboard3/dashboard-sub-header/dashboard-sub-header.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { MetricCard, TabOption, ViewMode, BuildFilterOption } from '../../interfaces/dashboard-sub-header.model';
 import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
@@ -22,6 +23,7 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     MaterialModule,
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
+    DashboardEmptyComponent,
     CardsBuildsComponent
   ],
   templateUrl: './all-builds.component.html',
@@ -44,6 +46,10 @@ export class AllBuildsComponent implements OnInit {
   viewMode: ViewMode         = 'list';
   allBuildings: BuildingCardItem[] = [];
   isLoading                  = false;
+  /** The list request failed — shown as error + retry instead of "no buildings". */
+  loadError                  = false;
+  /** The failed load was a 403 (BUG-2496). */
+  loadForbidden = false;
   totalPages                 = 1;
   currentPage                = 1;
   totalCount                 = 0;
@@ -113,13 +119,18 @@ export class AllBuildsComponent implements OnInit {
       this.activeTab   = this.buildingService.activeTab();
       this.allBuildings = this.buildingService.buildings();
       this.isLoading    = this.buildingService.isLoading();
+      this.loadError    = this.buildingService.loadFailed();
+      this.loadForbidden = this.buildingService.loadForbidden();
       this.totalPages   = this.buildingService.totalPages();
       this.currentPage  = this.buildingService.currentPage();
       this.totalCount   = this.buildingService.totalCount();
       this.pageNumbers  = Array.from({ length: this.totalPages }, (_, i) => i + 1);
 
       const s = this.buildingService.propertyStats();
-      if (s) {
+      if (this.loadError) {
+        // "—" rather than stale or zero figures when the request failed.
+        this.metrics = this.metrics.map(m => ({ ...m, value: '—' }));
+      } else if (s) {
         this.metrics = [
           { ...this.metrics[0], value: formatNumber(s.total)              },
           { ...this.metrics[1], value: formatNumber(s.activeOrPublished)  },
@@ -136,6 +147,10 @@ export class AllBuildsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFilterOptions();
+  }
+
+  retryLoad(): void {
+    this.buildingService.reload();
   }
 
   private loadFilterOptions(): void {

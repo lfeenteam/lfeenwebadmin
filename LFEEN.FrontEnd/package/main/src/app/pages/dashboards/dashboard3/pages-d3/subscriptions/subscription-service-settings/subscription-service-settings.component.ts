@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subject, Subscription, catchError, debounceTime, distinctUntilChanged, forkJoin, of } from 'rxjs';
+import { Observable, Subject, Subscription, catchError, debounceTime, distinctUntilChanged, forkJoin, map, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -88,10 +88,13 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   /** Every period option of this service, active or not. */
   private serviceOptions: SubscriptionPeriodOption[] = [];
 
-  ngOnInit(): void {
-    this.serviceId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.serviceIcon = serviceVisual(this.serviceId).icon;
+  /**
+   * Loads for the service on screen. The component is reused when only :id changes in the URL,
+   * so these are dropped on a switch — a late answer for the old service can't land on the new one.
+   */
+  private serviceRequests = new Subscription();
 
+  ngOnInit(): void {
     this.subscriberSearch$
       .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -99,12 +102,62 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.loadSubscribers();
       });
 
-    this.load();
+    // Follow :id — changing it in the address bar or with back/forward keeps this instance alive.
+    this.route.paramMap.pipe(
+      map(p => p.get('id') ?? ''),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(id => {
+      this.resetForService(id);
+      this.load();
+    });
+
+    this.destroyRef.onDestroy(() => this.serviceRequests.unsubscribe());
+  }
+
+  /** Clears everything of the previous service, so nothing (above all Save) can act on it while the new one loads. */
+  private resetForService(id: string): void {
+    this.serviceRequests.unsubscribe();
+    this.serviceRequests = new Subscription();
+    this.subscribersRequest = undefined;
+    this.dialog.closeAll();
+
+    this.serviceId = id;
+    this.serviceIcon = serviceVisual(id).icon;
+    this.catalogItem = null;
+    this.servicePricing = [];
+    this.serviceOptions = [];
+    this.serviceState = this.originalState = 'active';
+    this.billing = this.billingOf(null);
+    this.packPrice = null;
+    this.messagesPerPack = null;
+
+    this.periodOptions = [];
+    this.periodOptionsLoading = false;
+    this.integrationFields = [];
+    this.integrationLoading = false;
+    this.features = [];
+    this.featuresLoading = false;
+    this.addingFeature = false;
+    this.newFeature = { textAr: '', textEn: '' };
+    this.tiers = [];
+    this.tiersLoading = false;
+    this.addingTier = false;
+    this.newTier = this.emptyTier();
+
+    this.subscribers = [];
+    this.subscribersLoading = false;
+    this.subscribersPage = 1;
+    this.subscribersTotalPages = 1;
+    if (this.subscriberSearch) {
+      this.subscriberSearch = '';
+      this.subscriberSearch$.next('');
+    }
   }
 
   private load(): void {
     this.loading = true;
-    forkJoin({
+    this.serviceRequests.add(forkJoin({
       catalog: this.subscriptionsService.getCatalog(),
       pricing: this.subscriptionsService.getPricing(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -129,7 +182,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.loading = false;
         this.toastr.error(resolveSubscriptionError(err, this.translate));
       },
-    });
+    }));
   }
 
   get serviceFound(): boolean {
@@ -346,7 +399,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private loadIntegrationFields(): void {
     if (!this.catalogItem) return;
     this.integrationLoading = true;
-    this.subscriptionsService.getIntegrationFields(this.catalogItem.id)
+    this.serviceRequests.add(this.subscriptionsService.getIntegrationFields(this.catalogItem.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: fields => {
@@ -361,7 +414,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
           this.integrationLoading = false;
           this.toastr.error(resolveSubscriptionError(err, this.translate));
         },
-      });
+      }));
   }
 
   startAddField(): void {
@@ -451,6 +504,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.toastr.error(resolveSubscriptionError(err, this.translate));
       },
     });
+    this.serviceRequests.add(this.subscribersRequest);
   }
 
   private toSubscriberRow(s: ServiceSubscriber): SubscriberRow {
@@ -478,7 +532,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private loadPeriodOptions(): void {
     if (!this.catalogItem) return;
     this.periodOptionsLoading = true;
-    this.subscriptionsService.getPeriodOptions(this.catalogItem.id)
+    this.serviceRequests.add(this.subscriptionsService.getPeriodOptions(this.catalogItem.id)
       .pipe(catchError(err => {
         this.toastr.error(resolveSubscriptionError(err, this.translate));
         return of([] as SubscriptionPeriodOption[]);
@@ -490,7 +544,20 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
           .filter(o => o.isActive)
           .sort((a, b) => a.displayOrder - b.displayOrder || a.durationInDays - b.durationInDays);
         this.periodOptionsLoading = false;
-      });
+      }));
+  }
+
+  /**
+   * The live option with the highest discount — the merchant catalog badges it "best value"
+   * (isBestValue there); worked out the same way here so the admin sees it too.
+   */
+  get bestValueOptionId(): number | null {
+    let best: SubscriptionPeriodOption | null = null;
+    for (const o of this.periodOptions) {
+      if (!(o.discountPercent != null && o.discountPercent > 0)) continue;
+      if (!best || o.discountPercent > (best.discountPercent ?? 0)) best = o;
+    }
+    return best?.id ?? null;
   }
 
   optionName(o: SubscriptionPeriodOption): string {
@@ -594,13 +661,13 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private reloadPricing(): void {
     const item = this.catalogItem;
     if (!item) return;
-    this.subscriptionsService.getPricing().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.serviceRequests.add(this.subscriptionsService.getPricing().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: pricing => {
         this.servicePricing = pricing.filter(p => p.subscriptionServiceId === item.id);
         this.applyMessagePack();
       },
       error: err => this.toastr.error(resolveSubscriptionError(err, this.translate)),
-    });
+    }));
   }
 
   // ── MessagePack (POST /pricing, period MessagePack) ─────────
@@ -696,7 +763,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private loadFeatures(): void {
     if (!this.catalogItem) return;
     this.featuresLoading = true;
-    this.subscriptionsService.getFeatures(this.catalogItem.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.serviceRequests.add(this.subscriptionsService.getFeatures(this.catalogItem.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: list => {
         this.features = (list ?? [])
           .filter(f => f.isActive !== false)
@@ -708,7 +775,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.featuresLoading = false;
         this.toastr.error(resolveSubscriptionError(err, this.translate));
       },
-    });
+    }));
   }
 
   startAddFeature(): void {
@@ -793,7 +860,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
   private loadTiers(): void {
     if (!this.catalogItem) return;
     this.tiersLoading = true;
-    this.subscriptionsService.getTiers(this.catalogItem.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.serviceRequests.add(this.subscriptionsService.getTiers(this.catalogItem.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: list => {
         // Tiers of a service switched to free/built-in come back inactive — they're shown muted.
         this.tiers = [...(list ?? [])].sort((a, b) => a.displayOrder - b.displayOrder);
@@ -804,7 +871,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         this.tiersLoading = false;
         this.toastr.error(resolveSubscriptionError(err, this.translate));
       },
-    });
+    }));
   }
 
   startAddTier(): void {
@@ -898,11 +965,14 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
         return;
       }
       this.saving = true;
+      const savedId = this.catalogItem?.id;
       catalog$.subscribe({
         next: updated => {
           this.saving = false;
           const item = this.catalogItem;
-          if (updated && item) {
+          // The route may have switched to another service while this was in flight.
+          if (!item || item.id !== savedId) return;
+          if (updated) {
             // The PUT answer has no feature list; keep the loaded one.
             this.catalogItem = { ...item, ...updated, features: item.features };
             this.serviceState = this.originalState = this.stateOf(this.catalogItem);

@@ -53,7 +53,12 @@
       </div>
     } @else {
       @for (item of visibleNotifications(); track item.id) {
-        <div class="notification-item" [class.unread]="!item.isRead" (click)="open(item)">
+        <div
+          class="notification-item"
+          [class.unread]="!item.isRead"
+          [class.opening]="openingId() === item.id"
+          [attr.aria-busy]="openingId() === item.id || null"
+          (click)="open(item)">
 
           <div class="icon-circle" [ngClass]="severityClass(item.type)">
             <i-tabler [name]="iconName(item.type)" class="icon-inner"></i-tabler>
@@ -82,7 +87,9 @@
                 (click)="remove(item, $event)">
                 <i-tabler name="trash" class="icon-16"></i-tabler>
               </button>
-              @if (hasDestination(item)) {
+              @if (openingId() === item.id) {
+                <mat-spinner diameter="16"></mat-spinner>
+              } @else if (hasDestination(item)) {
                 <i-tabler name="chevron-left" class="chevron-icon"></i-tabler>
               }
             </div>

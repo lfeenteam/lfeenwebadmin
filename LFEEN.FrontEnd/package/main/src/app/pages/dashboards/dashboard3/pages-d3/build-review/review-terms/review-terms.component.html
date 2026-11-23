@@ -20,7 +20,7 @@
         <div class="card-icon"><i-tabler name="clock"></i-tabler></div>
         <div class="early-info">
             <span class="time-label">{{ 'd3.buildReview.terms.earlyCheckInLabel' | translate }}</span>
-            <span class="status-badge">
+            <span class="status-badge" [class.is-unavailable]="!earlyCheckIn">
               {{ (earlyCheckIn ? 'd3.buildReview.terms.earlyCheckInAvailable' : 'd3.buildReview.terms.earlyCheckInUnavailable') | translate }}
               @if (earlyCheckIn && earlyCheckInFrom) {
                 - {{ earlyCheckInFrom }}

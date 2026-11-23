@@ -7,7 +7,9 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Subscription, catchError, forkJoin, map, of } from 'rxjs';
+import { PAGE_FLAGS } from 'src/app/config/page-flags';
 import { format, isToday, isYesterday } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
@@ -16,16 +18,29 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { parseApiUtc } from 'src/app/utils/date-format.util';
 import { LoginService } from '../../services/login/login.service';
 import { SettlementDetailDialogComponent, SettlementDetailDialogData, SettlementDialogResult } from './components/settlement-detail-dialog/settlement-detail-dialog.component';
-import { ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, PREVIOUS_TAB_STATUSES, Settlement, SettlementDetail, SettlementSummary } from './interfaces/settlement.model';
+import { RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult } from './components/recalculation-dialog/recalculation-dialog.component';
+import {
+  ACTIONABLE_STATUSES, CURRENT_TAB_STATUSES, OPTIONAL_LIST_STATUSES, PREVIOUS_TAB_STATUSES, RECALCULABLE_STATUSES,
+  RecalculationPreviewItem, RecalculationState,
+  Settlement, SettlementDetail, SettlementSummary, recalculationStateOf,
+} from './interfaces/settlement.model';
 import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
+import { MerchantDebtsComponent } from './merchant-debts/merchant-debts.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
-type SettlementTab = 'current' | 'previous';
+/** Kept in the URL as `?tab=` (absent = current) so a link can open the debts tab directly. */
+type SettlementTab = 'current' | 'previous' | 'debts';
 type StatusClass = 'status-pending' | 'status-approved' | 'status-rejected' | '';
 
 interface SettlementRow {
   id: string;
+  payoutReference: string;
+  /**
+   * Listed by GET recalculation-preview: `needed` = recalculate before executing,
+   * `onHold` = blocked (e.g. a refund under manual review). null = not listed / nothing to do.
+   */
+  recalcState: RecalculationState | null;
   /** '-' when the backend didn't return a merchant name. */
   accountInitials: string;
   partyName: string;
@@ -51,12 +66,13 @@ const STATUS_META: Record<string, { key: string; cls: StatusClass }> = {
   Completed: { key: 'approved', cls: 'status-approved' },
   PartiallyCompleted: { key: 'partiallyCompleted', cls: 'status-approved' },
   Failed: { key: 'rejected', cls: 'status-rejected' },
+  OnHold: { key: 'onHold', cls: 'status-pending' },
 };
 
 @Component({
   selector: 'app-settlements',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, MerchantDebtsComponent],
   templateUrl: './settlements.component.html',
   styleUrl: './settlements.component.scss'
 })
@@ -67,8 +83,22 @@ export class SettlementsComponent implements OnInit {
   private toastr = inject(ToastrService);
   private service = inject(SettlementsService);
   private login = inject(LoginService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  private readonly canExecute = computed(() => this.hasPermission('settlements.execute'));
+  readonly canExecute = computed(() => this.hasPermission('settlements.execute'));
+
+  readonly debtsEnabled = PAGE_FLAGS['settlement-debts'];
+  /** Merchants with a settlement debt, shown next to the tab label; null until known. */
+  debtsCount: number | null = null;
+  private debtsCountRequest?: Subscription;
+  /** False until the first ?tab= is read, so the initial load always runs. */
+  private tabResolved = false;
+
+  /** Payouts listed by recalculation-preview → what they need (keyed by id and by reference — the preview may carry either). */
+  private recalcStates = new Map<string, RecalculationState>();
+  private recalcCheckRequest?: Subscription;
+  recalculatingId: string | null = null;
 
   currentLang = this.translate.currentLang || 'ar';
   activeTab: SettlementTab = 'current';
@@ -106,7 +136,11 @@ export class SettlementsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.load();
+    // The debts tab loads its own list and reports the count, so fetch it here only otherwise.
+    if (this.tabFrom(this.route.snapshot.queryParamMap) !== 'debts') this.refreshDebtsCount();
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => this.applyTab(this.tabFrom(params)));
   }
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -139,17 +173,26 @@ export class SettlementsComponent implements OnInit {
   }
 
   load(): void {
+    // The debts tab has its own list (MerchantDebtsComponent).
+    if (this.activeTab === 'debts') return;
     this.listRequest?.unsubscribe();
     this.loading = true;
     this.loadError = false;
 
     const statuses = this.activeTab === 'current' ? CURRENT_TAB_STATUSES : PREVIOUS_TAB_STATUSES;
-    this.listRequest = this.service.listAllByStatuses(statuses).subscribe({
-      next: ({ items, summary }) => {
+    // Pending / OnHold (current tab) and Failed (previous tab) can all need recalculation, so the
+    // preview is fetched once with either list. The badge is a hint — execute itself still
+    // refuses — so a failing preview must never hide the list.
+    const preview$ = this.service.recalculationPreview().pipe(catchError(() => of([] as RecalculationPreviewItem[])));
+
+    this.listRequest = forkJoin([this.service.listAllByStatuses(statuses, OPTIONAL_LIST_STATUSES), preview$]).subscribe({
+      next: ([{ items, summary }, preview]) => {
+        const unchecked = this.readPreview(preview);
         this.summary = summary;
         this.allSettlements = items.map(s => this.toRow(s));
         this.loading = false;
         this.applyFilters();
+        this.checkRecalculations(unchecked);
       },
       error: err => {
         this.summary = null;
@@ -165,11 +208,99 @@ export class SettlementsComponent implements OnInit {
     });
   }
 
+  /** Tabs switch through the URL; applyTab() reacts to it, so back/forward and links work too. */
   setActiveTab(tab: SettlementTab): void {
     if (tab === this.activeTab) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      // A merchant filter belongs to the debts tab only.
+      queryParams: { tab: tab === 'current' ? null : tab, accountId: null },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  onDebtsLoaded(count: number): void {
+    this.debtsCount = count;
+  }
+
+  private tabFrom(params: ParamMap): SettlementTab {
+    const tab = params.get('tab');
+    if (tab === 'previous') return 'previous';
+    if (tab === 'debts' && this.debtsEnabled) return 'debts';
+    return 'current';
+  }
+
+  private applyTab(tab: SettlementTab): void {
+    // Only ?accountId= changed (debts filter) — the tab itself is already showing.
+    if (this.tabResolved && tab === this.activeTab) return;
+    this.tabResolved = true;
     this.activeTab = tab;
     this.currentPage = 1;
+    if (tab === 'debts') {
+      this.listRequest?.unsubscribe();
+      this.loading = false;
+      return;
+    }
     this.load();
+  }
+
+  /**
+   * Records each previewed payout's state. An item that carries its own dry-run result
+   * (hasChanges / blockers) is settled here; the ids of the rest are returned to be checked.
+   */
+  private readPreview(preview: RecalculationPreviewItem[]): string[] {
+    this.recalcCheckRequest?.unsubscribe();
+    this.recalcStates = new Map();
+    const unchecked: string[] = [];
+    for (const p of preview) {
+      const id = p.payoutId ?? p.id ?? '';
+      const known = p.hasChanges != null || p.blockers != null;
+      this.setRecalcState(id, p.payoutReference, known ? recalculationStateOf(p) : 'needed');
+      if (!known && id) unchecked.push(id);
+    }
+    return unchecked;
+  }
+
+  /**
+   * A payout in recalculation-preview may have nothing to recalculate and only a blocker
+   * (BUG-2205). Its dry run (saves nothing) tells which, so the badge doesn't send the admin
+   * to a recalculation that can't be applied. Until it answers, the row keeps "needs recalculation".
+   */
+  private checkRecalculations(ids: string[]): void {
+    if (!ids.length) return;
+    this.recalcCheckRequest = forkJoin(ids.map(id =>
+      this.service.getRecalculation(id).pipe(
+        map(r => ({ id, ref: r.payoutReference, state: recalculationStateOf(r) })),
+        catchError(() => of(null)),
+      ),
+    )).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(results => {
+      for (const r of results) if (r) this.setRecalcState(r.id, r.ref, r.state);
+      for (const row of this.allSettlements) row.recalcState = this.recalcStateOfRow(row.id, row.payoutReference, row.status);
+    });
+  }
+
+  private setRecalcState(id: string | null | undefined, ref: string | null | undefined, state: RecalculationState): void {
+    if (id) this.recalcStates.set(id, state);
+    if (ref) this.recalcStates.set(ref, state);
+  }
+
+  private recalcStateOf(id: string, reference: string | null | undefined): RecalculationState | null {
+    const state = this.recalcStates.get(id) ?? (reference ? this.recalcStates.get(reference) : undefined);
+    return state && state !== 'none' ? state : null;
+  }
+
+  private recalcStateOfRow(id: string, reference: string | null | undefined, status: string): RecalculationState | null {
+    return RECALCULABLE_STATUSES.includes(status) ? this.recalcStateOf(id, reference) : null;
+  }
+
+  /** Executing or recalculating a payout can settle or create a debt. */
+  private refreshDebtsCount(): void {
+    if (!this.debtsEnabled || this.activeTab === 'debts') return;
+    this.debtsCountRequest?.unsubscribe();
+    this.debtsCountRequest = this.service.debts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      // The count is a hint only; a failure just hides it.
+      .subscribe({ next: debts => { this.debtsCount = debts.length; }, error: () => { this.debtsCount = null; } });
   }
 
   onSearchChange(value: string): void {
@@ -240,6 +371,15 @@ export class SettlementsComponent implements OnInit {
 
   private openDetailDialog(detail: SettlementDetail): void {
     const iban = detail.bank?.iban?.trim() || '';
+    const meta = STATUS_META[detail.status];
+    const isExecuted = detail.status === 'Completed' || detail.status === 'PartiallyCompleted';
+    const isPartial = detail.status === 'PartiallyCompleted';
+    // A full transfer is recorded with transferredAmount = null — the whole net amount went out.
+    const transferred = detail.transferredAmount ?? detail.netAmount;
+    const remaining = Math.max(0, Math.round((detail.netAmount - transferred) * 100) / 100);
+    const originRef = detail.originatingPayoutId
+      ? this.allSettlements.find(r => r.id === detail.originatingPayoutId)?.payoutReference || ''
+      : '';
     const dialogRef = this.dialog.open(SettlementDetailDialogComponent, {
       width: '900px',
       maxWidth: '92vw',
@@ -247,8 +387,12 @@ export class SettlementsComponent implements OnInit {
       panelClass: 'settlement-detail-panel',
       data: {
         id: detail.id,
+        accountId: detail.accountId,
         netAmount: detail.netAmount,
+        needsRecalculation: this.recalcStateOf(detail.id, detail.payoutReference) !== null,
         canExecute: this.canExecute() && ACTIONABLE_STATUSES.includes(detail.status),
+        // A Failed / OnHold payout can't be executed here, but can (and may need to) be recalculated.
+        canRecalculate: this.canExecute() && RECALCULABLE_STATUSES.includes(detail.status),
         accountName: detail.merchantName?.trim() || EMPTY,
         hostName: detail.hostName?.trim() || EMPTY,
         phone: detail.contactPhoneNumber?.trim() || EMPTY,
@@ -273,14 +417,72 @@ export class SettlementsComponent implements OnInit {
           gross: this.fmtAmount(e.grossAmount),
           fee: this.fmtAmount(e.feeAmount),
           net: this.fmtAmount(e.netAmount),
+          isRefundAfterSettlement: e.isRefundAfterSettlement === true,
         })),
+        statusKey: meta ? `d3.settlements.status.${meta.key}` : null,
+        statusLabel: detail.status || EMPTY,
+        statusClass: meta?.cls ?? '',
+        isExecuted,
+        isPartial,
+        transferredFormatted: this.fmtAmount(transferred),
+        remainingFormatted: this.fmtAmount(remaining),
+        partialReason: detail.partialSettlementReason?.trim() || EMPTY,
+        bankTransferReference: detail.bankTransferReference?.trim() || EMPTY,
+        processedAtLabel: this.fmtDetailDate(detail.completedAtUtc ?? detail.processedAtUtc ?? detail.lastActionAtUtc, true),
+        processedBy: detail.lastActionByAdminName?.trim() || EMPTY,
+        receiptUrl: detail.receiptUrl?.trim() || null,
+        rejectionReason: detail.status === 'Failed' ? (detail.notes?.trim() || null) : null,
+        isRemainder: !!detail.originatingPayoutId,
+        originatingReference: originRef,
       } as SettlementDetailDialogData
     });
 
     // Any result means the payout changed on the server (or turned out stale) —
     // reload so statuses and the leftover Pending payout of a partial transfer show up.
     dialogRef.afterClosed().subscribe((result?: SettlementDialogResult) => {
-      if (result) this.load();
+      if (!result) return;
+      this.load();
+      this.refreshDebtsCount();
+      // Recalculated from inside the dialog: reopen it on the new totals so execute can go ahead.
+      if (result.decision === 'recalculated') this.reopen(detail.id);
+    });
+  }
+
+  private reopen(id: string): void {
+    this.viewingId = id;
+    this.service.get(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: detail => {
+        this.viewingId = null;
+        this.recalcStates.delete(detail.id);
+        this.recalcStates.delete(detail.payoutReference);
+        this.openDetailDialog(detail);
+      },
+      error: err => {
+        this.viewingId = null;
+        this.toastr.error(resolveSettlementError(err, this.translate));
+      },
+    });
+  }
+
+  onRecalculate(row: SettlementRow): void {
+    if (this.recalculatingId || !this.canExecute()) return;
+    this.recalculatingId = row.id;
+    this.dialog.open<RecalculationDialogComponent, RecalculationDialogData, RecalculationDialogResult>(RecalculationDialogComponent, {
+      width: '560px',
+      maxWidth: '92vw',
+      maxHeight: '92vh',
+      data: {
+        id: row.id,
+        payoutReference: row.payoutReference || EMPTY,
+        accountName: row.partyName,
+        currencyIconSrc: this.currencyIconSrc,
+        isTextCurrency: this.currentLang === 'en',
+      },
+    }).afterClosed().subscribe(result => {
+      this.recalculatingId = null;
+      if (!result?.applied) return;
+      this.load();
+      this.refreshDebtsCount();
     });
   }
 
@@ -298,6 +500,8 @@ export class SettlementsComponent implements OnInit {
     const cached = this.rejectionReasons.get(s.id);
     return {
       id: s.id,
+      payoutReference: s.payoutReference?.trim() || '',
+      recalcState: this.recalcStateOfRow(s.id, s.payoutReference, s.status),
       accountInitials: name ? this.initialsOf(name) : EMPTY,
       partyName: name || EMPTY,
       amount: typeof s.netAmount === 'number' ? s.netAmount : null,

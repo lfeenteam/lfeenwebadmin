@@ -115,7 +115,14 @@
             } @empty {
               <tr>
                 <td colspan="6" class="p-0">
-                  <app-dashboard-empty icon="history" titleKey="d3.subscriptionLog.empty.title" descKey="d3.subscriptionLog.empty.desc"></app-dashboard-empty>
+                  @if (loadError) {
+                    <app-dashboard-empty variant="error"
+                      [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
+                      actionKey="d3.state.retry" actionIcon="refresh" (action)="loadPage()">
+                    </app-dashboard-empty>
+                  } @else {
+                    <app-dashboard-empty icon="history" titleKey="d3.subscriptionLog.empty.title" descKey="d3.subscriptionLog.empty.desc"></app-dashboard-empty>
+                  }
                 </td>
               </tr>
             }

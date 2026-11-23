@@ -6,10 +6,13 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { BookingService } from '../../services/booking.service';
 import { BookingFinancialSummary } from '../../interfaces/booking.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface FinanceSummaryView {
   nightlyRate: number;
   nights: number;
+  baseRent: number;
+  additionalFees: number;
   totalRent: number;
   remainingAmount: number;
   paidAmount: number;
@@ -23,7 +26,7 @@ interface FinanceSummaryView {
 @Component({
   selector: 'app-booking-finance-tab',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, AppPluralPipe],
   templateUrl: './booking-finance-tab.component.html',
   styleUrl: './booking-finance-tab.component.scss'
 })
@@ -64,10 +67,15 @@ export class BookingFinanceTabComponent implements OnChanges {
   }
 
   private mapFinance(item: BookingFinancialSummary): FinanceSummaryView {
+    const totalRent = item.totalRentAmount ?? 0;
     return {
       nightlyRate: item.pricePerNight ?? 0,
       nights: item.nights ?? 0,
-      totalRent: item.totalRentAmount ?? 0,
+      // The API splits the total into base rent and fees; an older API without
+      // the split is treated as rent only, as before.
+      baseRent: item.baseRentAmount ?? totalRent,
+      additionalFees: item.additionalFeesAmount ?? 0,
+      totalRent,
       paidAmount: item.paidRentAmount ?? 0,
       remainingAmount: item.remainingRentAmount ?? 0,
       deposit: {

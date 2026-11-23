@@ -1,4 +1,5 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, ResourceStatus } from '@angular/core';
+import { isForbiddenError } from '../utils/transport-error.util';
 import { HttpClient } from '@angular/common/http';
 import { rxResource, toObservable } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, EMPTY, Observable, forkJoin } from 'rxjs';
@@ -119,15 +120,6 @@ export class UnitsService {
     loader: () => this.http.get<PaginatedUnitResponse>(`${this.apiUrl}?pageNumber=1&pageSize=1&newestFirst=true`)
   });
 
-  private readonly _accountsFilterResource = rxResource({
-    request: () => true,
-    loader: () => this.getAllAccountPages()
-  });
-  private readonly _propertiesFilterResource = rxResource({
-    request: () => true,
-    loader: () => this.getAllPropertyPages()
-  });
-
   readonly rawUnits = computed(() => {
     const data = this._unitsResource.value()?.data ?? [];
     if (this.sortOrder() === 'highestOccupancy') {
@@ -135,19 +127,14 @@ export class UnitsService {
     }
     return data;
   });
-  readonly rawAccounts = computed(() => this._accountsFilterResource.value()?.data ?? []);
-  readonly rawProperties = computed(() => this._propertiesFilterResource.value()?.data ?? []);
-  readonly propertyMainPhotoMap = computed(() => {
-    const mapByPropertyId = new Map<number, string>();
-    for (const property of this.rawProperties()) {
-      if (property.mainPhotoUrl) {
-        mapByPropertyId.set(property.propertyId, property.mainPhotoUrl);
-      }
-    }
-    return mapByPropertyId;
-  });
   readonly totalCount = computed(() => this._unitsResource.value()?.totalCount ?? 0);
   readonly isLoading  = this._unitsResource.isLoading;
+  /** The list request failed — pages show an error + retry instead of "no units". */
+  readonly loadFailed = computed(() => this._unitsResource.status() === ResourceStatus.Error);
+  /** The failed load was a 403 — show "no permission", not a connection error (BUG-2496). */
+  readonly loadForbidden = computed(() => this.loadFailed() && isForbiddenError(this._unitsResource.error()));
+  /** The stats request failed — metric cards show "—" instead of figures. */
+  readonly statsFailed = computed(() => this._statsResource.status() === ResourceStatus.Error);
   readonly unitStats  = computed<UnitApiStats | null>(() => this._statsResource.value()?.stats ?? null);
 
   readonly buildingsWithUnitsSignal = computed<BuildingWithUnits[]>(() => {
@@ -184,7 +171,8 @@ export class UnitsService {
   });
 
   private getBuildingImage(unit: UnitApiItem): string {
-    return this.propertyMainPhotoMap().get(unit.propertyId)
+    // The units response carries the building's photo, so no properties list is needed for it.
+    return unit.propertyMainPhotoUrl
       ?? unit.mainPhotoUrl
       ?? unit.accountLogoUrl
       ?? this.defaultBuildingImage;
@@ -195,30 +183,6 @@ export class UnitsService {
     if (image.includes('/account-logos/')) return 1;
     return 2;
   }
-
-  readonly propertiesForFilter = computed<FilterItem[]>(() => {
-    const seen = new Map<number, FilterItem>();
-    for (const p of this.rawProperties()) {
-      if (!seen.has(p.propertyId)) {
-        seen.set(p.propertyId, { value: String(p.propertyId), labelKey: p.name });
-      }
-    }
-    return Array.from(seen.values());
-  });
-
-  readonly accountsForFilter = computed<FilterItem[]>(() => {
-    const seen = new Map<string, FilterItem>();
-    const lang = this.coreService.getOptionsSignal()().language;
-    for (const account of this.rawAccounts()) {
-      if (!seen.has(account.accountId)) {
-        seen.set(account.accountId, {
-          value: account.accountId,
-          labelKey: this.getAccountDisplayName(account, lang),
-        });
-      }
-    }
-    return Array.from(seen.values());
-  });
 
   readonly totalBuildingPages = computed(() => this._unitsResource.value()?.totalPages ?? 1);
 
@@ -280,51 +244,47 @@ export class UnitsService {
     );
   }
 
-  private getAllAccountPages(): Observable<PaginatedAccountResponse> {
-    const fetchPage = (page: number): Observable<PaginatedAccountResponse> => {
-      const params = new URLSearchParams({
-        pageNumber:  String(page),
-        pageSize:    '50',
-        newestFirst: 'true',
-      });
-      return this.http.get<PaginatedAccountResponse>(`${this.accountsApiUrl}?${params}`);
-    };
-
-    return fetchPage(1).pipe(
-      // If a later page fails (e.g. a transient gateway error), stop paginating and
-      // keep whatever pages already succeeded instead of losing the whole list.
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage).pipe(catchError(() => EMPTY)) : EMPTY),
-      reduce((acc, res) => ({
-        ...res,
-        data: [...acc.data, ...res.data],
-        totalPages: 1,
-        page: 1,
-      }))
+  /**
+   * One page of buildings for the units page's building filter, searched on the server.
+   * The list of every building (2000+) is never pulled: the dropdown shows the first page and
+   * typing narrows it via `search`. The caller owns the subscription (see AllUnitsComponent),
+   * so leaving the page cancels any request still in flight.
+   */
+  searchPropertiesForFilter(search: string): Observable<FilterItem[]> {
+    const params = new URLSearchParams({
+      pageNumber:  '1',
+      pageSize:    String(UnitsService.FILTER_PAGE_SIZE),
+      newestFirst: 'true',
+    });
+    if (search) params.set('search', search);
+    return this.http.get<PaginatedPropertyResponse>(`${this.propertiesApiUrl}?${params}`).pipe(
+      map(res => (res.data ?? []).map(p => ({ value: String(p.propertyId), labelKey: p.name })))
     );
   }
 
-  private getAllPropertyPages(): Observable<PaginatedPropertyResponse> {
-    const fetchPage = (page: number): Observable<PaginatedPropertyResponse> => {
-      const params = new URLSearchParams({
-        pageNumber:  String(page),
-        pageSize:    '50',
-        newestFirst: 'true',
-      });
-      return this.http.get<PaginatedPropertyResponse>(`${this.propertiesApiUrl}?${params}`);
-    };
-
-    return fetchPage(1).pipe(
-      // If a later page fails (e.g. a transient gateway error), stop paginating and
-      // keep whatever pages already succeeded instead of losing the whole list.
-      expand(res => res.nextpage != null ? fetchPage(res.nextpage).pipe(catchError(() => EMPTY)) : EMPTY),
-      reduce((acc, res) => ({
-        ...res,
-        data: [...acc.data, ...res.data],
-        totalPages: 1,
-        page: 1,
-      }))
+  /** Same as {@link searchPropertiesForFilter}, for the account filter. */
+  searchAccountsForFilter(search: string): Observable<AccountItem[]> {
+    const params = new URLSearchParams({
+      pageNumber:  '1',
+      pageSize:    String(UnitsService.FILTER_PAGE_SIZE),
+      newestFirst: 'true',
+    });
+    if (search) params.set('search', search);
+    return this.http.get<PaginatedAccountResponse>(`${this.accountsApiUrl}?${params}`).pipe(
+      map(res => res.data ?? [])
     );
   }
+
+  /** Account filter entries, labelled in the current language (reactive when read in a computed). */
+  toAccountFilterItems(accounts: AccountItem[]): FilterItem[] {
+    const lang = this.coreService.getOptionsSignal()().language;
+    return accounts.map(account => ({
+      value: account.accountId,
+      labelKey: this.getAccountDisplayName(account, lang),
+    }));
+  }
+
+  private static readonly FILTER_PAGE_SIZE = 20;
 
   private getAccountDisplayName(account: AccountItem, lang: string): string {
     return (lang === 'ar' ? account.tradeNameAr : account.tradeNameEn)

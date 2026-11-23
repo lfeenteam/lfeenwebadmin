@@ -11,6 +11,7 @@ import { BookingServicesTabComponent } from '../booking-services-tab/booking-ser
 import { BookingLogTabComponent } from '../booking-log-tab/booking-log-tab.component';
 import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
 import { formatLocalizedDateTime } from 'src/app/utils/date-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type BookingDetailTab =   'details' | 'finance' |  'log' | 'services'  ;
 
@@ -47,7 +48,7 @@ interface BookingDetailView {
 @Component({
   selector: 'app-booking-detail-drawer',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent, CatalogIconComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, BookingFinanceTabComponent, BookingServicesTabComponent, BookingLogTabComponent, CatalogIconComponent, AppPluralPipe],
   templateUrl: './booking-detail-drawer.component.html',
   styleUrl: './booking-detail-drawer.component.scss'
 })
@@ -162,15 +163,6 @@ export class BookingDetailDrawerComponent implements OnChanges, OnDestroy {
       unknown:           'd3.bookings.status.unknown',
     };
     return this.translate.instant(map[status]);
-  }
-
-  /** Arabic: 1 ليلة واحدة، 2 ليلتان، 3–10 ليالٍ، 11+ ليلة. English only uses one/many. */
-  nightsKey(count: number): string {
-    const base = 'd3.bookings.detail.staySection.';
-    if (count === 1) return base + 'nightsOne';
-    if (count === 2) return base + 'nightsTwo';
-    if (count >= 3 && count <= 10) return base + 'nightsFew';
-    return base + 'nightsMany';
   }
 
   private fetchBookingDetail(bookingId: string): void {

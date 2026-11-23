@@ -54,12 +54,16 @@ export interface ListingBanRefund {
   bookingNumber: string | null;
   propertyId: number | null;
   unitId: number | null;
+  // Display names, localized by Accept-Language. Null when the building/unit was deleted — fall back to the ids.
+  propertyName?: string | null;
+  unitNumber?: string | null;
   guestName: string | null;
   // What's still owed out of what was actually paid — not the booking total.
+  // 0 on legacy rows for unpaid bookings (no longer created); those are "nothing to refund", not "refunded".
   amount: number;
   currencyCode: string | null;
   attempts: number;
-  // Technical message; show it in a tooltip, not inline.
+  // Raw gateway message; shown under "Technical details" so the admin can decide between retry and manual handling.
   lastError: string | null;
   // Stable code for the last failure — map on this, not on the text.
   failureReasonCode: RefundFailureReasonCode | string | null;

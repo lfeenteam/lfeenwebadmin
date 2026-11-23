@@ -37,6 +37,7 @@
   @if (activeView === 'bookings') {
 
   <!-- Metric Cards -->
+  <div class="metrics-container">
   <section class="sub-header-metrics">
     @for (card of metrics; track card.titleKey) {
       <article class="metric-card">
@@ -55,6 +56,7 @@
       </article>
     }
   </section>
+  </div>
 
   <!-- Origin Tabs -->
   <div class="origin-tabs" role="tablist">
@@ -234,9 +236,15 @@
 
   @if (loading) {
     <app-dashboard-loading variant="table" [rows]="pageSize"></app-dashboard-loading>
+  } @else if (loadError) {
+    <app-dashboard-empty variant="error"
+      [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
+      actionKey="d3.state.retry" actionIcon="refresh" (action)="retryLoad()">
+    </app-dashboard-empty>
   } @else {
 
   <!-- Table -->
+  <div class="bookings-table-container">
   <div class="bookings-table-wrapper">
     <table mat-table [dataSource]="pagedBookings" [trackBy]="trackByBookingId" class="w-100">
 
@@ -336,9 +344,10 @@
 
     </table>
   </div>
+  </div>
 
   <!-- Single shared row-action menu (one instance for the whole table) -->
-  <mat-menu #rowMenu="matMenu" class="cardWithShadow" yPosition="below">
+  <mat-menu #rowMenu="matMenu" class="cardWithShadow booking-row-menu" yPosition="below">
     <ng-template matMenuContent let-booking="booking">
       <button mat-menu-item type="button" (click)="openBookingDetail(booking.id)">
         <i-tabler name="eye" class="icon-16"></i-tabler>

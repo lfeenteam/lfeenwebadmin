@@ -1,0 +1,40 @@
+<section class="agd" [dir]="dir" role="dialog" aria-labelledby="agd-expiry-title">
+  <div class="agd-body">
+    <div class="agd-header">
+      <h2 class="agd-title" id="agd-expiry-title">{{ 'd3.agreements.expiry.title' | translate }}</h2>
+      <button type="button" class="agd-close" [disabled]="saving()" (click)="ref.close()" [attr.aria-label]="'common.cancel' | translate">
+        <i-tabler name="x"></i-tabler>
+      </button>
+    </div>
+    <p class="agd-sub">{{ subtitle }}</p>
+
+    @if (error()) {
+      <div class="agd-error-banner" role="alert">{{ error() }}</div>
+    }
+
+    <label class="agd-label" for="agd-expiry-date">{{ 'd3.agreements.expiry.label' | translate }}</label>
+    <app-agreement-date-field inputId="agd-expiry-date" [value]="expiry" [disabled]="removeDate"
+      [invalid]="!!expiryError()" [alwaysOpen]="true" (valueChange)="onExpiry($event)"></app-agreement-date-field>
+    @if (expiryError()) {
+      <p class="agd-field-error" role="alert">{{ expiryError() }}</p>
+    }
+
+    <div class="agd-section" style="margin-top: 16px">
+      <label class="agd-check">
+        <input type="checkbox" [(ngModel)]="removeDate" (ngModelChange)="onRemoveChange()" [disabled]="saving()" />
+        {{ 'd3.agreements.expiry.remove' | translate }}
+      </label>
+    </div>
+
+    <p class="agd-hint" style="margin-top: 16px">
+      {{ (removeDate ? 'd3.agreements.expiry.removeHint' : 'd3.agreements.expiry.hint') | translate }}
+    </p>
+  </div>
+
+  <div class="agd-footer">
+    <button type="button" class="agd-btn agd-btn--primary" [disabled]="saving()" (click)="submit()">
+      {{ (saving() ? 'd3.agreements.saving' : 'd3.agreements.expiry.submit') | translate }}
+    </button>
+    <button type="button" class="agd-btn" [disabled]="saving()" (click)="ref.close()">{{ 'common.cancel' | translate }}</button>
+  </div>
+</section>

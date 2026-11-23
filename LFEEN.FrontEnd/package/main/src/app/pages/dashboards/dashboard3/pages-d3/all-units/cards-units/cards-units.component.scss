@@ -478,6 +478,18 @@ background: #F0FDF4;
     gap: 16px;
     padding: 16px 20px;
 
+    // align-items: flex-start sizes this to its content; cap it to the card so the
+    // name/meta/account ellipsis kicks in instead of spilling past the screen edge.
+    .banner-right {
+      width: 100%;
+      min-width: 0;
+      gap: 12px;
+
+      .building-info {
+        flex: 1;
+      }
+    }
+
     .banner-left {
       width: 100%;
 
@@ -515,36 +527,54 @@ background: #F0FDF4;
     &__left {
       display: contents;
     }
+
+    // Scoped to the header grid: unscoped, `display: contents` also hit the review banner's
+    // .building-info and laid name/meta/account out in one row wider than the screen.
+    .building-info {
+      display: contents;
+    }
+
+    .building-image {
+      grid-area: img;
+      width: 36px;
+      height: 36px;
+      align-self: center;
+    }
+
+    .building-name {
+      grid-area: name;
+      font-size: 12px;
+      align-self: end;
+    }
+
+    .building-meta {
+      grid-area: meta;
+      font-size: 10px;
+      align-self: start;
+      margin-top: 0;
+    }
+
+    .building-account {
+      grid-column: 2 / -1;
+      margin-top: 0;
+      font-size: 10px;
+    }
   }
 
-  .building-info {
-    display: contents;
-  }
+  .property-review-banner {
+    .building-image {
+      width: 36px;
+      height: 36px;
+    }
 
-  .building-image {
-    grid-area: img;
-    width: 36px;
-    height: 36px;
-    align-self: center;
-  }
+    .building-name {
+      font-size: 12px;
+    }
 
-  .building-name {
-    grid-area: name;
-    font-size: 12px;
-    align-self: end;
-  }
-
-  .building-meta {
-    grid-area: meta;
-    font-size: 10px;
-    align-self: start;
-    margin-top: 0;
-  }
-
-  .building-account {
-    grid-column: 2 / -1;
-    margin-top: 0;
-    font-size: 10px;
+    .building-meta,
+    .building-account {
+      font-size: 10px;
+    }
   }
 
   .building-badge {

@@ -9,6 +9,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { ListingBanService } from 'src/app/pages/dashboards/dashboard3/services/listing-ban.service';
+import { transportErrorMessage } from 'src/app/pages/dashboards/dashboard3/utils/transport-error.util';
 import {
   BAN_REASON_MAX_LENGTH,
   BanDialogMode,
@@ -154,6 +155,12 @@ export class BanListingDialogComponent {
     const validationMessage: string | undefined = body?.errors?.[0]?.message;
     if (err.status === 400 && validationMessage) {
       this.toastr.error(validationMessage);
+      return;
+    }
+
+    const transport = transportErrorMessage(err, this.translate);
+    if (transport) {
+      this.toastr.error(transport);
       return;
     }
 

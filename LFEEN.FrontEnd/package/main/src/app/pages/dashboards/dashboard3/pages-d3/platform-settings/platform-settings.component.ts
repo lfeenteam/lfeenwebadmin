@@ -20,6 +20,7 @@ import {
   SETTINGS_PERMISSIONS,
   TIME_ZONE_OPTIONS,
   UpdatePlatformGeneralSettings,
+  UpdateReviewReward,
   hasSettingsPermission,
 } from '../../interfaces/platform-settings.model';
 import { ReviewConfirmDialogComponent } from '../build-review/review-confirm-dialog/review-confirm-dialog.component';
@@ -33,6 +34,16 @@ const GENERAL_FIELD_MAP: Record<string, GeneralField> = {
   'request.supportemail': 'supportEmail',
   'request.timezone': 'timeZone',
 };
+
+// Same limits as the API validator and DB columns; every field is required.
+const GENERAL_MAX_LENGTH: Record<GeneralField, number> = {
+  platformName: 200,
+  platformUrl: 500,
+  supportEmail: 256,
+  timeZone: 100,
+};
+const GENERAL_FIELD_ORDER: GeneralField[] = ['platformName', 'platformUrl', 'supportEmail', 'timeZone'];
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface ActiveSession {
   id: string;
@@ -104,8 +115,10 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   rewardEnabled = false;
   rewardAmount: number | null = null;
   rewardFieldError: string | null = null;
-  // Off is stored as 0, so remember the last amount above 0 to refill the field when switched back on.
-  private lastRewardAmount: number = REVIEW_REWARD_LIMITS.defaultAmount;
+  /** Settings.Manage and not locked in the main backend (isReadOnly). */
+  readonly rewardEditable = computed(() => this.canManage() && !!this.reward() && !this.reward()!.isReadOnly);
+  readonly rewardMax = computed(() => this.reward()?.maxAmountSar || REVIEW_REWARD_LIMITS.max);
+  readonly rewardDefault = computed(() => this.reward()?.defaultAmountSar || REVIEW_REWARD_LIMITS.defaultAmount);
 
   // Security — 2FA, sessions and the login log below are sample data with no API
   // behind them, so the tab shows "coming soon" until this is wired.
@@ -274,6 +287,13 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
       supportEmail: this.form.supportEmail.trim(),
       timeZone: this.form.timeZone,
     };
+    const errors = this.validateGeneral(body);
+    const firstInvalid = GENERAL_FIELD_ORDER.find(f => errors[f]);
+    if (firstInvalid) {
+      this.fieldErrors = errors;
+      document.getElementById(firstInvalid)?.focus();
+      return;
+    }
     this.fieldErrors = {};
     this.saving.set(true);
 
@@ -327,7 +347,7 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
     if (!saved) return null;
     if (!this.rewardDirty) return saved.points;
     const amount = this.rewardAmount;
-    if (amount === null || !isFinite(amount) || !(saved.pointsToSarRate > 0)) return null;
+    if (amount === null || this.rewardValidationKey(amount) || !(saved.pointsToSarRate > 0)) return null;
     // toFixed drops float noise (7.5 / 0.05 = 149.99999999999997) before rounding.
     return Math.round(Number((amount / saved.pointsToSarRate).toFixed(6)));
   }
@@ -341,7 +361,8 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
   }
 
   onToggleReward(event: MatSlideToggleChange): void {
-    if (!this.canManage() || this.rewardSaving()) {
+    const saved = this.reward();
+    if (!saved || !this.rewardEditable() || this.rewardSaving()) {
       event.source.checked = this.rewardEnabled;
       return;
     }
@@ -350,14 +371,14 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
     if (event.checked) {
       // Turning on only unlocks the field; the admin saves an amount above 0.
       this.rewardEnabled = true;
-      if (!this.rewardAmount || this.rewardAmount <= 0) this.rewardAmount = this.lastRewardAmount;
+      this.rewardAmount = saved.amountSar > 0 ? saved.amountSar : this.rewardDefault();
       return;
     }
 
     // Switched on but never saved → nothing to send, just go back to the saved off state.
-    if (!this.reward()?.isEnabled) {
+    if (!saved.isEnabled) {
       this.rewardEnabled = false;
-      this.rewardAmount = 0;
+      this.rewardAmount = saved.amountSar;
       return;
     }
 
@@ -374,31 +395,33 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
       },
     });
     ref.afterClosed().subscribe(confirmed => {
-      if (confirmed) this.saveReward(0);
+      // Off keeps the saved amount, so only the switch is sent.
+      if (confirmed) this.saveReward({ isEnabled: false }, () => (event.source.checked = true));
       else event.source.checked = true;
     });
   }
 
   onSaveReward(): void {
-    if (!this.canManage() || this.rewardSaving() || !this.rewardEnabled) return;
+    if (!this.rewardEditable() || this.rewardSaving() || !this.rewardEnabled) return;
 
     const amount = this.rewardAmount;
     const errorKey = this.rewardValidationKey(amount);
     if (errorKey) {
       this.rewardFieldError = this.translate.instant(errorKey, {
         min: REVIEW_REWARD_LIMITS.min,
-        max: REVIEW_REWARD_LIMITS.max,
+        max: this.rewardMax(),
       });
       return;
     }
-    this.saveReward(amount as number);
+    this.saveReward({ isEnabled: true, amountSar: amount as number });
   }
 
-  private saveReward(amountSar: number): void {
+  /** `revertSwitch` puts the toggle back when it was flipped by the admin and the request failed. */
+  private saveReward(body: UpdateReviewReward, revertSwitch?: () => void): void {
     this.rewardFieldError = null;
     this.rewardSaving.set(true);
 
-    this.api.updateReviewReward({ amountSar }).subscribe({
+    this.api.updateReviewReward(body).subscribe({
       next: res => {
         this.fillReward(res);
         this.rewardSaving.set(false);
@@ -406,6 +429,7 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
       },
       error: (err: HttpErrorResponse) => {
         this.rewardSaving.set(false);
+        revertSwitch?.();
 
         if (err.status === 400) {
           const errors: { field?: string; message?: string }[] = Array.isArray(err.error?.errors) ? err.error.errors : [];
@@ -423,24 +447,49 @@ export class PlatformSettingsComponent implements OnInit, OnDestroy {
           ? this.translate.instant('d3.toast.errorOp')
           : this.errorMessage(err);
         this.toastr.error(message);
+        // Locked meanwhile: reload so the card comes back read-only (isReadOnly: true).
+        if (err.status === 409) this.loadReviewReward();
       },
     });
   }
 
-  /** Mirrors the backend rules (0–1000, ≤ 2 decimals); above 0 while the switch is on. */
+  /** Mirrors the backend rules (0–max, ≤ 2 decimals); above 0 while the switch is on. */
   private rewardValidationKey(amount: number | null): string | null {
     if (amount === null || amount === undefined || !isFinite(amount)) return 'd3.settings.reviewReward.errors.required';
     if (amount <= 0) return 'd3.settings.reviewReward.errors.aboveZero';
-    if (amount > REVIEW_REWARD_LIMITS.max) return 'd3.settings.reviewReward.errors.range';
+    if (amount > this.rewardMax()) return 'd3.settings.reviewReward.errors.range';
     if (Math.abs(amount * 100 - Math.round(amount * 100)) > 1e-6) return 'd3.settings.reviewReward.errors.decimals';
     return null;
+  }
+
+  /** Mirrors the API rules so bad values never reach PUT /api/settings/general. */
+  private validateGeneral(body: UpdatePlatformGeneralSettings): Partial<Record<GeneralField, string>> {
+    const t = (key: string, params?: object) => this.translate.instant(`d3.settings.sysInfo.errors.${key}`, params);
+    const errors: Partial<Record<GeneralField, string>> = {};
+
+    for (const field of GENERAL_FIELD_ORDER) {
+      const value = body[field] ?? '';
+      if (!value) errors[field] = t(`required.${field}`);
+      else if (value.length > GENERAL_MAX_LENGTH[field]) errors[field] = t('maxLength', { max: GENERAL_MAX_LENGTH[field] });
+    }
+    if (!errors.platformUrl && !this.isHttpUrl(body.platformUrl)) errors.platformUrl = t('urlInvalid');
+    if (!errors.supportEmail && !EMAIL_PATTERN.test(body.supportEmail)) errors.supportEmail = t('emailInvalid');
+    return errors;
+  }
+
+  private isHttpUrl(value: string): boolean {
+    try {
+      const url = new URL(value);
+      return (url.protocol === 'http:' || url.protocol === 'https:') && !!url.hostname;
+    } catch {
+      return false;
+    }
   }
 
   private fillReward(res: ReviewRewardSettings): void {
     this.reward.set(res);
     this.rewardEnabled = res.isEnabled;
     this.rewardAmount = res.amountSar;
-    if (res.amountSar > 0) this.lastRewardAmount = res.amountSar;
     this.rewardFieldError = null;
   }
 

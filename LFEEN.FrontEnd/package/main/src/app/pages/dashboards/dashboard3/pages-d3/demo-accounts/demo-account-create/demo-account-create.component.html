@@ -36,6 +36,21 @@
         </button>
 
         <div class="da-acc__body" id="acc-account" [hidden]="!open.account">
+        <!-- Account kind first: it decides the app, the invitation fields and the presets -->
+        <div class="da-field">
+          <span class="da-label" id="da-kind-label">{{ 'd3.demoAccounts.create.kind' | translate }}<span class="req">*</span></span>
+          <div class="da-segmented" role="radiogroup" aria-labelledby="da-kind-label">
+            @for (k of kinds; track k) {
+              <button type="button" role="radio" [class.active]="kind === k" [attr.aria-checked]="kind === k"
+                      [disabled]="submitting" (click)="setKind(k)">
+                <i-tabler [name]="kindIcons[k]" class="icon-16"></i-tabler>
+                {{ ('d3.demoAccounts.create.kindOptions.' + k) | translate }}
+              </button>
+            }
+          </div>
+          <p class="da-helper">{{ ('d3.demoAccounts.create.kindHelp.' + kind) | translate }}</p>
+        </div>
+
         <div class="da-field">
           <label for="da-fullName">{{ 'd3.demoAccounts.create.fullName' | translate }}<span class="req">*</span></label>
           <input id="da-fullName" name="fullName" type="text" class="da-input" autocomplete="off"

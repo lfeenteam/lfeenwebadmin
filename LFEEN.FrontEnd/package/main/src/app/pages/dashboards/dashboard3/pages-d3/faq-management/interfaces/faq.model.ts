@@ -31,6 +31,8 @@ export const FAQ_DEPARTMENT_OPTIONS: FaqDepartmentOption[] = [
 export const FAQ_TITLE_MIN_LENGTH = 2;
 export const FAQ_TITLE_MAX_LENGTH = 300;
 export const FAQ_BODY_MAX_LENGTH = 5000;
+// DisplayOrder is an int on the server; anything past int range fails model binding.
+export const FAQ_ORDER_MAX = 9999;
 
 // POST and PUT /api/client-faq use the same editable-field payload.
 export interface CreateFaqArticleRequest {

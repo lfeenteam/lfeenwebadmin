@@ -6,6 +6,13 @@ import { authGuard, guestGuard } from './guards/auth.guard';
 import { pageFlagGuard } from './guards/page-flag.guard';
 import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 import { settingsViewGuard } from './guards/settings-view.guard';
+import { cancellationRefundsViewGuard } from './guards/cancellation-refunds-view.guard';
+import { settlementDebtsRedirectGuard } from './guards/settlement-debts-redirect.guard';
+import { pageAccessGuard } from './guards/page-access.guard';
+import {
+  agreementsViewGuard,
+  unsavedAgreementGuard,
+} from './pages/dashboards/dashboard3/pages-d3/agreements/guards/agreement-guards';
 
 export const routes: Routes = [
   {
@@ -69,7 +76,7 @@ export const routes: Routes = [
               },
               {
                 path: 'ceo',
-                canActivate: [authGuard, pageFlagGuard('dashboard')],
+                canActivate: [authGuard, pageFlagGuard('dashboard'), pageAccessGuard('dashboard')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/ceo-page/ceo-page.component'
@@ -78,7 +85,7 @@ export const routes: Routes = [
               },
               {
                 path: 'buildings',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('buildings')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-builds/all-builds.component'
@@ -93,7 +100,7 @@ export const routes: Routes = [
               },
               {
                 path: 'units',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/all-units.component'
@@ -115,7 +122,7 @@ export const routes: Routes = [
               },
               {
                 path: 'build-review/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('buildings')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/build-review/build-review.component'
@@ -132,7 +139,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/basic-info',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/basic-info-review/basic-info-review.component'
@@ -148,7 +155,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/photos',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-images-review/unit-images-review.component'
@@ -164,7 +171,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/terms',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-terms-review/unit-terms-review.component'
@@ -180,7 +187,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/pricing',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-pricing-review/unit-pricing-review.component'
@@ -196,7 +203,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/access',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-access-review/unit-access-review.component'
@@ -212,7 +219,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/cancel-policy',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/cancel-policy-review/cancel-policy-review.component'
@@ -228,7 +235,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/deposit',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-deposit-review/unit-deposit-review.component'
@@ -244,7 +251,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/services',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-services-review/unit-services-review.component'
@@ -260,7 +267,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId/license',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/components/unit-license-review/unit-license-review.component'
@@ -276,7 +283,7 @@ export const routes: Routes = [
               },
               {
                 path: 'unit-review/:buildingId/:unitId',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('units')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-units/unit-review/unit-review.component'
@@ -292,7 +299,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('teamManagement')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
@@ -307,7 +314,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management/add',
-                canActivate: [authGuard, pageFlagGuard('add-department')],
+                canActivate: [authGuard, pageFlagGuard('add-department'), pageAccessGuard('teamManagement')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'
@@ -322,7 +329,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('teamManagement')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/team-management.component'
@@ -339,7 +346,7 @@ export const routes: Routes = [
               },
               {
                 path: 'settlements',
-                canActivate: [authGuard, pageFlagGuard('settlements')],
+                canActivate: [authGuard, pageFlagGuard('settlements'), pageAccessGuard('settlements')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/settlements/settlements.component'
@@ -353,8 +360,16 @@ export const routes: Routes = [
                 },
               },
               {
+                // Merchant debts now live in a tab of Settlements; the old address
+                // (and its ?accountId= filter) still opens that tab.
+                path: 'settlement-debts',
+                pathMatch: 'full',
+                canActivate: [settlementDebtsRedirectGuard],
+                children: [],
+              },
+              {
                 path: 'demo-accounts',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-accounts.component'
@@ -369,7 +384,7 @@ export const routes: Routes = [
               // These must stay above 'demo-accounts/:id', or "new" / "activation-requests" would be read as an id.
               ...['demo-accounts/activation-requests', 'demo-accounts/activation-requests/:requestId'].map(path => ({
                 path,
-                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/activation-requests/activation-requests.component'
@@ -384,7 +399,7 @@ export const routes: Routes = [
               })),
               {
                 path: 'demo-accounts/new',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-create/demo-account-create.component'
@@ -399,7 +414,7 @@ export const routes: Routes = [
               },
               {
                 path: 'demo-accounts/:id/resend',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-resend/demo-account-resend.component'
@@ -415,7 +430,7 @@ export const routes: Routes = [
               },
               {
                 path: 'demo-accounts/:id',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-details/demo-account-details.component'
@@ -431,7 +446,7 @@ export const routes: Routes = [
               },
               {
                 path: 'esim',
-                canActivate: [authGuard, pageFlagGuard('esim')],
+                canActivate: [authGuard, pageFlagGuard('esim'), pageAccessGuard('esim')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/esim/esim.component'
@@ -461,7 +476,7 @@ export const routes: Routes = [
               },
               {
                 path: 'ban-refunds',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('banRefunds')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/ban-refunds/ban-refunds.component'
@@ -474,8 +489,55 @@ export const routes: Routes = [
                 },
               },
               {
+                path: 'cancellation-refunds',
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, cancellationRefundsViewGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/cancellation-refunds/cancellation-refunds.component'
+                  ).then((m) => m.CancellationRefundsComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.cancellationRefunds.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showDate: true
+                },
+              },
+              {
+                path: 'agreements',
+                // authGuard first: it may refresh the token, which reloads the permissions.
+                canActivate: [authGuard, agreementsViewGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/agreements/agreements-list.component'
+                  ).then((m) => m.AgreementsListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.agreements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
+                path: 'agreements/:id',
+                canActivate: [authGuard, agreementsViewGuard],
+                canDeactivate: [unsavedAgreementGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/agreements/agreement-page.component'
+                  ).then((m) => m.AgreementPageComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.agreements.title',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: true
+                },
+              },
+              {
                 path: 'account-management',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('accounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/account-management/account-management.component'
@@ -490,7 +552,7 @@ export const routes: Routes = [
               },
               {
                 path: 'account-management/review/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('accounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/account-management/components/review-account/review-account.component'
@@ -506,7 +568,7 @@ export const routes: Routes = [
               {
                 // Opened from the "profile changes" tab of account management.
                 path: 'account-management/profile-changes/:accountId',
-                canActivate: [authGuard, pageFlagGuard('profile-changes')],
+                canActivate: [authGuard, pageFlagGuard('profile-changes'), pageAccessGuard('accounts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/profile-changes/profile-change-review/profile-change-review.component'
@@ -521,7 +583,7 @@ export const routes: Routes = [
               },
               {
                 path: 'additional-conditions',
-                canActivate: [authGuard, pageFlagGuard('additional-conditions')],
+                canActivate: [authGuard, pageFlagGuard('additional-conditions'), pageAccessGuard('additionalConditions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/additional-conditions-pending/additional-conditions-pending.component'
@@ -535,7 +597,7 @@ export const routes: Routes = [
               },
               {
                 path: 'wallet-approvals',
-                canActivate: [authGuard, pageFlagGuard('wallet-approvals')],
+                canActivate: [authGuard, pageFlagGuard('wallet-approvals'), pageAccessGuard('wallet')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/wallet/wallet-approvals/wallet-approvals.component'
@@ -549,7 +611,7 @@ export const routes: Routes = [
               },
               {
                 path: 'wallet/:id',
-                canActivate: [authGuard, pageFlagGuard('wallet')],
+                canActivate: [authGuard, pageFlagGuard('wallet'), pageAccessGuard('wallet')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/wallet/wallet.component'
@@ -564,7 +626,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id',
-                canActivate: [authGuard, pageFlagGuard('permissions')],
+                canActivate: [authGuard, pageFlagGuard('permissions'), pageAccessGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/permissions.component'
@@ -579,7 +641,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id/add-role',
-                canActivate: [authGuard, pageFlagGuard('permissions')],
+                canActivate: [authGuard, pageFlagGuard('permissions'), pageAccessGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
@@ -594,7 +656,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id/role/:roleId',
-                canActivate: [authGuard, pageFlagGuard('permissions')],
+                canActivate: [authGuard, pageFlagGuard('permissions'), pageAccessGuard('permissions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
@@ -609,7 +671,7 @@ export const routes: Routes = [
               },
               {
                 path: 'roles',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('roles')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/roles/roles.component'
@@ -627,7 +689,7 @@ export const routes: Routes = [
               // Components kept on disk under pages-d3/all-permissions & pages-d3/permission-groups.
               {
                 path: 'roles/add',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('roles')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
@@ -642,7 +704,7 @@ export const routes: Routes = [
               },
               {
                 path: 'roles/:roleId',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('roles')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/role-permissions/role-permissions.component'
@@ -657,7 +719,7 @@ export const routes: Routes = [
               },
               {
                 path: 'complaints/:id/assign',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('complaints')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/complaint-management/components/assign-employee-page/assign-employee-page.component'
@@ -674,7 +736,7 @@ export const routes: Routes = [
               },
               {
                 path: 'complaints/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('complaints')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/complaint-management/components/host-complaint-detail/host-complaint-detail.component'
@@ -697,7 +759,7 @@ export const routes: Routes = [
               },
               {
                 path: 'complaints',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('complaints')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/complaint-management/complaint-management.component'
@@ -712,7 +774,7 @@ export const routes: Routes = [
               },
               {
                 path: 'bookings',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('bookings')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/all-bookings/all-bookings.component'
@@ -727,7 +789,7 @@ export const routes: Routes = [
               },
               {
                 path: 'contact-us',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('contactUs')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/contact-us-management/contact-us-management.component'
@@ -742,7 +804,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('platformOffers')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offers-list.component'
@@ -757,7 +819,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers/create',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('platformOffers')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
@@ -774,7 +836,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('platformOffers')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-detail.component'
@@ -791,7 +853,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers/:id/edit',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('platformOffers')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
@@ -808,7 +870,7 @@ export const routes: Routes = [
               },
               {
                 path: 'client-faq',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('clientFaq')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/faq-management/faq-management.component'
@@ -822,8 +884,15 @@ export const routes: Routes = [
                 },
               },
               {
+                // Service (worker) app FAQ — BUG-2453 / TAS-2317.
+                // The service (worker) app FAQ is a tab of the FAQ page (TAS-2317); old links land on it.
+                path: 'service-faq',
+                pathMatch: 'full',
+                redirectTo: 'client-faq?tab=service',
+              },
+              {
                 path: 'call-scripts',
-                canActivate: [authGuard, pageFlagGuard('call-scripts')],
+                canActivate: [authGuard, pageFlagGuard('call-scripts'), pageAccessGuard('callScripts')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/call-scripts/call-scripts.component'
@@ -838,7 +907,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/management',
-                canActivate: [authGuard, pageFlagGuard('subscriptions-management')],
+                canActivate: [authGuard, pageFlagGuard('subscriptions-management'), pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-management/subscription-management.component'
@@ -853,7 +922,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/log',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-log/subscription-log.component'
@@ -868,7 +937,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/requests',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-requests/subscription-requests.component'
@@ -883,7 +952,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/discount-codes',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-discount-codes/subscription-discount-codes.component'
@@ -898,7 +967,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/settings',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-settings/subscription-settings.component'
@@ -913,7 +982,7 @@ export const routes: Routes = [
               },
               {
                 path: 'subscriptions/settings/:id',
-                canActivate: [authGuard],
+                canActivate: [authGuard, pageAccessGuard('subscriptions')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-service-settings/subscription-service-settings.component'
@@ -972,6 +1041,22 @@ export const routes: Routes = [
                   showLive: false,
                   showDate: false,
                   showBack: true,
+                },
+              },
+              {
+                // Where permission guards send an admin who may not open a page (BUG-2496).
+                path: 'no-access',
+                canActivate: [authGuard],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/no-access/no-access.component'
+                  ).then((m) => m.NoAccessComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.noAccess.pageTitle',
+                  breadcrumbKey: 'd3.header.platform',
+                  showLive: false,
+                  showDate: false,
                 },
               },
             ],

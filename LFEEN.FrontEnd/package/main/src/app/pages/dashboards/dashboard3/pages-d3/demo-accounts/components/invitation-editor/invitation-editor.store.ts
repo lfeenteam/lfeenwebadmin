@@ -3,6 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 import { DemoAccountsService } from '../../../../services/demo-accounts.service';
 import {
+  DEFAULT_DEMO_KIND,
+  DemoAccountKind,
   DemoChannel,
   InvitationField,
   InvitationIssue,
@@ -59,6 +61,8 @@ export class InvitationEditorStore implements OnDestroy {
   message = '';
   language: InvitationLanguage = 'Ar';
   channel: DemoChannel = 'Email';
+  /** Picks the variables and presets (Client adds {{9}} birth date and the guest-* presets). */
+  kind: DemoAccountKind = DEFAULT_DEMO_KIND;
   /** Set on resend: the preview uses this account's real values. */
   demoAccountId: string | null = null;
   activePreset: string | null = null;
@@ -89,6 +93,8 @@ export class InvitationEditorStore implements OnDestroy {
   /** Body of the last preview request, to skip asking again for the same text. */
   private lastPreviewKey: string | null = null;
   private readonly subs = new Subscription();
+  /** The templates request in flight — dropped when the kind changes again before it answers. */
+  private templatesRequest?: Subscription;
   private issueCache = new Map<InvitationField, { preview: InvitationPreview | null; issues: InvitationIssue[] }>();
 
   constructor() {
@@ -126,12 +132,21 @@ export class InvitationEditorStore implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.templatesRequest?.unsubscribe();
     this.subs.unsubscribe();
   }
 
   /** Called once by the dialog when it opens (and after the saved values are loaded on resend). */
-  init(opts: { channel: DemoChannel; demoAccountId?: string | null; subject?: string | null; message?: string | null; language?: InvitationLanguage | null }): void {
+  init(opts: {
+    channel: DemoChannel;
+    kind?: DemoAccountKind | null;
+    demoAccountId?: string | null;
+    subject?: string | null;
+    message?: string | null;
+    language?: InvitationLanguage | null;
+  }): void {
     this.channel = opts.channel;
+    this.kind = opts.kind ?? DEFAULT_DEMO_KIND;
     this.demoAccountId = opts.demoAccountId ?? null;
     this.subject = opts.subject ?? '';
     this.message = opts.message ?? '';
@@ -141,9 +156,15 @@ export class InvitationEditorStore implements OnDestroy {
     this.refresh();
   }
 
-  loadTemplates(): void {
+  /**
+   * Asks for the current kind's variables and presets. A request still in flight is dropped,
+   * so a quick Merchant → Client → Merchant can never end on the wrong kind's chips. The old
+   * templates stay on screen until the new ones arrive.
+   */
+  loadTemplates(onLoaded?: () => void): void {
     this.templatesError = null;
-    this.subs.add(this.service.getInvitationTemplates().subscribe({
+    this.templatesRequest?.unsubscribe();
+    this.templatesRequest = this.service.getInvitationTemplates(this.kind).subscribe({
       next: t => {
         this.templates = t;
         // Saved text (resend) may use numbers like {{1}}: show it with names, without counting
@@ -152,9 +173,47 @@ export class InvitationEditorStore implements OnDestroy {
         this.subject = this.readableTokens(this.subject);
         this.message = this.readableTokens(this.message);
         if (untouched) this.initial = { ...this.initial, subject: this.subject, message: this.message };
+        onLoaded?.();
       },
       error: err => (this.templatesError = demoErrorMessage(readDemoError(err), this.translate)),
-    }));
+    });
+  }
+
+  /**
+   * Create page: the account kind changed. Reloads the variables/presets for it and asks for a
+   * fresh preview. An untouched preset follows to the same tone of the new kind (formal ↔
+   * guest-formal); edited text is kept as typed — {{birthDate}} left in a host message comes
+   * back from the preview as UNKNOWN_VARIABLE, shown like any other issue.
+   */
+  setKind(kind: DemoAccountKind): void {
+    if (kind === this.kind) return;
+    const preset = this.presets.find(p => p.id === this.activePreset);
+    const untouchedPreset = !!preset && this.isUntouched(preset);
+    this.kind = kind;
+    this.fieldErrors = {};
+    this.loadTemplates(() => {
+      if (untouchedPreset && preset) {
+        const next = this.presets.find(p => p.tone === preset.tone) ?? this.presets.find(p => p.id === this.counterpartId(preset.id));
+        if (next) {
+          this.applyPreset(next);
+          return;
+        }
+      }
+      this.activePreset = null;
+      this.refresh();
+    });
+    this.refresh();
+  }
+
+  /** The preset's text in the current language is still exactly what the fields hold. */
+  private isUntouched(preset: InvitationPreset): boolean {
+    const t = this.language === 'En' ? preset.en : preset.ar;
+    return this.readableTokens(t.subject ?? '') === this.subject && this.readableTokens(t.message ?? '') === this.message;
+  }
+
+  /** formal ↔ guest-formal: the fallback when the presets carry no matching tone. */
+  private counterpartId(id: string): string {
+    return id.startsWith('guest-') ? id.slice('guest-'.length) : `guest-${id}`;
   }
 
   // ── Derived values ────────────────────────────────────────
@@ -300,13 +359,16 @@ export class InvitationEditorStore implements OnDestroy {
     this.previewTrigger.next();
   }
 
-  /** The subject is only sent for Email; a hidden subject must not block WhatsApp/SMS. */
+  /**
+   * The subject is only sent for Email; a hidden subject must not block WhatsApp/SMS.
+   * With an account the server uses that account's kind, so kind goes only without one.
+   */
   previewBody(): InvitationPreviewRequest {
     return {
       ...(this.isEmail ? { invitationSubject: this.subject } : {}),
       invitationMessage: this.message,
       invitationLanguage: this.language,
-      ...(this.demoAccountId ? { demoAccountId: this.demoAccountId } : {}),
+      ...(this.demoAccountId ? { demoAccountId: this.demoAccountId } : { kind: this.kind }),
     };
   }
 

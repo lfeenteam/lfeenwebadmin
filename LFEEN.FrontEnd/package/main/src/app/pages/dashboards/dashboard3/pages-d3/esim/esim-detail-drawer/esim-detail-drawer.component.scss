@@ -443,6 +443,75 @@ small {
 }
 
 // ── Facts grid ──────────────────────────────────────────────
+.attention-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  color: #C2410C;
+
+  i-tabler { display: flex; flex-shrink: 0; margin-top: 2px; }
+  strong { font-size: 14px; font-weight: 800; }
+  small { font-size: 12px; line-height: 1.7; color: #9A3412; }
+}
+
+.refund-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+
+  strong { font-size: 14px; font-weight: 800; color: #0F172B; }
+  small { font-size: 12px; line-height: 1.7; color: #62748E; }
+}
+
+.pay-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #F1F5F9;
+  color: #45556C;
+
+  &.pay-paid,
+  &.pay-authorized        { background: #ECFDF5; color: #007A55; }
+  &.pay-partiallyRefunded { background: #FFF7ED; color: #C2410C; }
+  &.pay-refunded          { background: #EFF6FF; color: #1447E6; }
+  &.pay-failed,
+  &.pay-cancelled         { background: #FEF2F2; color: #C10007; }
+}
+
+.refund-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 12px;
+  background: #111110;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease;
+
+  &:hover:not(:disabled) { background: #2E2E2C; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
 .facts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -481,6 +550,94 @@ small {
   object-fit: contain;
 
   &.is-text-currency { width: 20px; height: auto; }
+}
+
+// ── Support actions log ─────────────────────────────────────
+.admin-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #F1F5F9;
+
+  &:last-child { padding-bottom: 0; border-bottom: none; }
+
+  // Icon colour per action.
+  &.log-refund    .log-icon { background: #FFF7ED; color: #C2410C; }
+  &.log-suspend   .log-icon { background: #FFFBEB; color: #D97706; }
+  &.log-unsuspend .log-icon { background: #F0FDF4; color: #16A34A; }
+  &.log-revoke    .log-icon { background: #FEF2F2; color: #C10007; }
+  &.log-sms       .log-icon { background: #EFF6FF; color: #1447E6; }
+}
+
+.log-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #F1F5F9;
+  color: #45556C;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.log-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.log-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.log-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #62748E;
+  overflow-wrap: anywhere;
+}
+
+.log-amount {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C2410C;
+}
+
+.log-reason {
+  margin: 2px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #F8FAFC;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #314158;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.admin-log-empty {
+  margin: 0;
+  font-size: 12px;
+  color: #9E9E9A;
 }
 
 @media (max-width: 576px) {

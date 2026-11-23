@@ -137,6 +137,26 @@
     &.selected {
       background: #fff;
     }
+
+    // Deactivated employees stay listed (so the paging and count match the API)
+    // but can't be picked (BUG-2501).
+    &.inactive {
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+      }
+
+      .avatar-wrap,
+      .employee-email,
+      .phone-cell {
+        opacity: 0.5;
+      }
+
+      .employee-name {
+        color: #8E95A3;
+      }
+    }
   }
 
   td {
@@ -183,6 +203,30 @@
       background: #111110;
     }
   }
+
+  &.disabled {
+    border-color: #D4D4D8;
+    background: #F4F4F5;
+  }
+}
+
+.employee-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.inactive-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #F4F4F5;
+  color: #71717A;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .employee-cell {
@@ -292,7 +336,30 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
   direction: rtl;
+}
+
+.page-ellipsis {
+  min-width: 14px;
+  color: #A2A29C;
+  font-size: 11px;
+  text-align: center;
+}
+
+// Counter on its own line above the page buttons, both centered.
+@media (max-width: 480px) {
+  .assign-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+  }
+
+  .pagination-total {
+    flex-basis: 100%;
+    order: -1;
+    text-align: center;
+  }
 }
 
 .pagination-total {
@@ -462,5 +529,66 @@
     .confirm-btn {
       width: 100%;
     }
+  }
+}
+
+.assign-loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+.assign-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E4E4E7;
+  border-top-color: #111110;
+  border-radius: 50%;
+  animation: assignPageSpin 0.8s linear infinite;
+}
+
+@keyframes assignPageSpin {
+  to { transform: rotate(360deg); }
+}
+
+.assign-closed-notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid #FDE68A;
+  border-radius: 16px;
+  background: #FFFBEB;
+  color: #92400E;
+
+  i-tabler {
+    flex-shrink: 0;
+  }
+
+  .assign-closed-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 200px;
+    font-size: 13px;
+
+    strong {
+      font-size: 14px;
+      font-weight: 800;
+    }
+  }
+
+  .assign-closed-back {
+    padding: 8px 16px;
+    border: 1px solid #E4E4E7;
+    border-radius: 12px;
+    background: #fff;
+    color: #111110;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
   }
 }

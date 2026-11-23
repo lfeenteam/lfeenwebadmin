@@ -41,6 +41,15 @@
     &.icon-40 ::ng-deep svg { width: 40px; height: 40px; }
   }
 
+  // Shown in the permissions card when save is attempted with nothing selected
+  .perms-required-error {
+    font-size: 12px;
+    font-weight: 700;
+    color: #DC2626;
+    background: #FEF2F2;
+    border-bottom: 1px solid #FECACA;
+  }
+
   // ── Info Card ──────────────────────────────
   .info-card {
     border-radius: 20px !important;

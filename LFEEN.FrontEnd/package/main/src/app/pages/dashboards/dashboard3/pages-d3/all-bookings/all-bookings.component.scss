@@ -5,6 +5,13 @@
 }
 
 // ── Metric Cards ─────────────────────────────────────────────────────────────
+// Column count follows the width the cards actually get, not the viewport:
+// with the sidebar open a 1024–1180 screen leaves too little for four cards.
+.metrics-container {
+  container-type: inline-size;
+  container-name: bookings-metrics;
+}
+
 .sub-header-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -42,7 +49,8 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 1.2;
-  overflow-wrap: anywhere;
+  // Wrap between words; only split a word when it can't fit on a line alone.
+  overflow-wrap: break-word;
 }
 
 .metric-value {
@@ -383,10 +391,23 @@
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
+// The table layout steps (compact → fewer columns → cards) follow the width the
+// table gets, not the viewport, so an open sidebar is taken into account.
+// Kept on its own element: containment makes it the containing block for fixed
+// children, which would break the mobile filter sheet if put on the page root.
+.bookings-table-container {
+  container-type: inline-size;
+  container-name: bookings-table;
+}
+
 .bookings-table-wrapper {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  // Last resort when the columns still don't fit (e.g. long names): scroll
+  // instead of clipping the status and actions columns.
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -475,7 +496,7 @@ table {
   min-width: 0;
   // Without a cap the table cell grows to fit the whole name, so the ellipsis
   // below never kicks in and one long name stretches the table off-screen.
-  max-width: 240px;
+  max-width: 200px;
 
   .client-name {
     font-size: 14px;
@@ -506,6 +527,10 @@ table {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
+  // Same as the client name: cap it so the ellipsis on long unit/property
+  // names applies instead of widening the table.
+  max-width: 200px;
 }
 
 .unit-name {
@@ -743,6 +768,23 @@ table {
   color: #dc2626 !important;
 }
 
+// ── Row-action menu: center the tabler icon with its label ───────────────────
+// i-tabler isn't a mat-icon, so Material puts it inside the text span where it
+// sits on the text baseline. The global .icon-16 helper also forces
+// line-height: 24px into a 16px box, which pushes the inline svg further down.
+::ng-deep .booking-row-menu .mat-mdc-menu-item-text {
+  display: inline-flex;
+  align-items: center;
+}
+::ng-deep .booking-row-menu .mat-mdc-menu-item i-tabler {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  line-height: 0 !important;
+
+  svg { display: block; }
+}
+
 // ── Status filter menu ───────────────────────────────────────────────────────
 ::ng-deep .mat-mdc-menu-panel.d3-builds-filter-menu {
   min-width: 200px;
@@ -945,28 +987,38 @@ table {
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────
-@media (max-width: 900px) {
+@container bookings-metrics (max-width: 899.98px) {
   .sub-header-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .metric-card { border-radius: 28px; }
+}
 
+@media (max-width: 900px) {
   .bookings-toolbar {
     flex-wrap: wrap;
     .search-box { flex-basis: 100%; order: -1; }
   }
+}
 
+// Table steps by available width (sidebar open: 1440 → 1152, 1280 → 992,
+// 1180 → 892, 1024 → 736). Horizontal scroll on the wrapper covers the rest.
+@container bookings-table (max-width: 1199.98px) {
   table {
     th.mat-mdc-header-cell,
     td.mat-mdc-cell { padding-inline: 12px; }
+  }
+}
 
+@container bookings-table (max-width: 899.98px) {
+  table {
     .mat-column-unit,
     .mat-column-dates { display: none; }
   }
 }
 
-@media (max-width: 767.98px) {
+@container bookings-table (max-width: 719.98px) {
   .bookings-table-wrapper {
     background: #f5f5f3;
     border-radius: 16px;
@@ -1083,10 +1135,8 @@ table {
   .metric-value { font-size: 20px; }
 }
 
-:host-context([dir='rtl']) {
-  @media (max-width: 767.98px) {
-    td.mat-mdc-cell::before { letter-spacing: 0; }
-  }
+@container bookings-table (max-width: 719.98px) {
+  :host-context([dir='rtl']) td.mat-mdc-cell::before { letter-spacing: 0; }
 }
 
 // Keep the search box next to the mobile "Filters" trigger on one row —
@@ -1097,5 +1147,34 @@ table {
     flex: 1 1 auto;
     flex-basis: auto;
     order: 0;
+  }
+}
+
+// Phones: the counter and the page buttons don't fit on one row (~460px at 390),
+// and the extra width made .page-content scroll sideways — opening a row's "⋮"
+// menu then shifted every card. Counter on its own line above the buttons, both
+// centered (same as the complaints table). overflow-x: clip on the host is a
+// guard so nothing else here can widen the page; unlike hidden it doesn't make
+// a scroll container, so the table wrapper and tabs keep their own scrolling.
+@media (max-width: 768px) {
+  :host { overflow-x: clip; }
+
+  .table-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .pagination-total {
+    flex-basis: 100%;
+    order: -1;
+    text-align: center;
+  }
+
+  .pagination-controls {
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }

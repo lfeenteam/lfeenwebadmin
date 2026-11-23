@@ -27,36 +27,42 @@
         <mat-label class="field-label d-block m-b-8">{{ 'd3.addRoleDialog.roleNameLabel' | translate }}</mat-label>
 
         @if (currentLang === 'ar') {
-          <div class="bilingual-input-wrapper" [class.is-invalid]="roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched">
+          <div class="bilingual-input-wrapper" [class.is-invalid]="nameInvalid('nameAr')">
             <input class="bilingual-input" formControlName="nameAr" [placeholder]="'d3.addRoleDialog.namePlaceholderAr' | translate">
             <button type="button" class="lang-chip" [class.active]="showNameSecondary" (click)="showNameSecondary = !showNameSecondary">
               English
             </button>
           </div>
-          @if (roleForm.get('nameAr')?.invalid && roleForm.get('nameAr')?.touched) {
-            <p class="field-error-msg">
-              @if (roleForm.get('nameAr')?.hasError('required')) { {{ 'd3.addRoleDialog.validation.nameRequired' | translate }} }
-              @else if (roleForm.get('nameAr')?.hasError('minlength')) { {{ 'd3.addRoleDialog.validation.nameMinLength' | translate }} }
-            </p>
+          @if (nameInvalid('nameAr')) {
+            <p class="field-error-msg">{{ nameError('nameAr') }}</p>
           }
           @if (showNameSecondary) {
-            <div class="bilingual-input-wrapper secondary m-t-8" dir="ltr">
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="ltr" [class.is-invalid]="nameInvalid('nameEn')">
               <input class="bilingual-input" formControlName="nameEn" placeholder="e.g. Quality Supervisor...">
               <span class="lang-chip static">English</span>
             </div>
+            @if (nameInvalid('nameEn')) {
+              <p class="field-error-msg">{{ nameError('nameEn') }}</p>
+            }
           }
         } @else {
-          <div class="bilingual-input-wrapper" [class.is-invalid]="roleForm.get('nameEn')?.invalid && roleForm.get('nameEn')?.touched">
+          <div class="bilingual-input-wrapper" [class.is-invalid]="nameInvalid('nameEn')">
             <input class="bilingual-input" formControlName="nameEn" placeholder="e.g. Quality Supervisor...">
             <button type="button" class="lang-chip" [class.active]="showNameSecondary" (click)="showNameSecondary = !showNameSecondary">
               عربي
             </button>
           </div>
+          @if (nameInvalid('nameEn')) {
+            <p class="field-error-msg">{{ nameError('nameEn') }}</p>
+          }
           @if (showNameSecondary) {
-            <div class="bilingual-input-wrapper secondary m-t-8" dir="rtl">
+            <div class="bilingual-input-wrapper secondary m-t-8" dir="rtl" [class.is-invalid]="nameInvalid('nameAr')">
               <input class="bilingual-input" formControlName="nameAr" [placeholder]="'d3.addRoleDialog.namePlaceholderAr' | translate">
               <span class="lang-chip static">عربي</span>
             </div>
+            @if (nameInvalid('nameAr')) {
+              <p class="field-error-msg">{{ nameError('nameAr') }}</p>
+            }
           }
         }
       </div>

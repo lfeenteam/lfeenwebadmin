@@ -104,8 +104,12 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
       next: data => {
         this.account = data;
         this.additionalConditions = data.additionalConditions ?? [];
-        this.basicNameAr = data.business?.basicNameAr || data.business?.basicName || '';
-        this.basicNameEn = data.business?.basicNameEn || '';
+        // Prefill each language from its own field only: basicName follows the request language,
+        // so using it here put the English name in the Arabic box (BUG-0888).
+        // Keep what the reviewer already typed when the page reloads on a language switch.
+        const business = data.business;
+        this.basicNameAr ||= business?.basicNameAr || business?.tradeNameAr || '';
+        this.basicNameEn ||= business?.basicNameEn || business?.tradeNameEn || '';
         this.isLoading = false;
         this.pageTitleOverride.set(this.tradeName !== '—' ? this.tradeName : null);
       },
@@ -124,9 +128,12 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
 
   accept(): void {
     if (!this.account || this.isSubmitting) return;
-    const basicNameAr = (this.basicNameAr || this.basicNameEn).trim();
-    const basicNameEn = (this.basicNameEn || this.basicNameAr).trim();
+    // Both languages are required: never copy one into the other, or the approved name is saved in the wrong language
+    const basicNameAr = this.basicNameAr.trim();
+    const basicNameEn = this.basicNameEn.trim();
     if (!basicNameAr || !basicNameEn) {
+      // Open the other-language box so the reviewer can see which one is missing
+      this.showBasicNameSecondary = true;
       this.toastr.warning(this.translate.instant('d3.reviewAccount.decision.basicNameRequired'));
       return;
     }

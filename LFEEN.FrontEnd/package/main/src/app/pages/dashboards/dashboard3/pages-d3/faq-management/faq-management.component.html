@@ -1,3 +1,24 @@
+<div class="faq-shell" [dir]="dirSignal()">
+
+@if (showServiceTab) {
+  <!-- Client app / service (worker) app FAQ — ?tab=service in the URL -->
+  <div class="faq-tabs" role="tablist">
+    <button type="button" role="tab" class="faq-tab" [class.active]="activeTab() === 'client'"
+      [attr.aria-selected]="activeTab() === 'client'" (click)="setTab('client')">
+      <i-tabler name="users" class="icon-16"></i-tabler>
+      {{ 'd3.faq.tabs.client' | translate }}
+    </button>
+    <button type="button" role="tab" class="faq-tab" [class.active]="activeTab() === 'service'"
+      [attr.aria-selected]="activeTab() === 'service'" (click)="setTab('service')">
+      <i-tabler name="tool" class="icon-16"></i-tabler>
+      {{ 'd3.faq.tabs.service' | translate }}
+    </button>
+  </div>
+}
+
+@if (activeTab() === 'service') {
+  <app-service-faq-management></app-service-faq-management>
+} @else {
 <div class="faq-page" [dir]="dirSignal()">
 
   <!-- Hero header -->
@@ -16,19 +37,19 @@
         <div class="stats-row">
         <span class="stat-item">
            <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
-        <span class="stat-circle stat-circle-total">{{ totalCount() }}</span>
+        <span class="stat-circle stat-circle-total">{{ loadError() ? '—' : totalCount() }}</span>
           </span>
         <span class="stat-divider"></span>
         <span class="stat-item">
 
           <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
-                  <span class="stat-circle stat-circle-active">{{ activeCount() }}</span>
+                  <span class="stat-circle stat-circle-active">{{ loadError() ? '—' : activeCount() }}</span>
         </span>
         <span class="stat-divider"></span>
         <span class="stat-item">
-          
+
           <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
-          <span class="stat-circle stat-circle-inactive">{{ inactiveCount() }}</span>
+          <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
         </span>
       </div>
       <button class="add-article-btn" type="button" (click)="openAddDialog()">
@@ -72,6 +93,11 @@
 
       @if (loading()) {
         <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+      } @else if (loadError()) {
+        <app-dashboard-empty variant="error"
+          [titleKey]="loadForbidden() ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden() ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
+          actionKey="d3.state.retry" actionIcon="refresh" (action)="loadArticles()">
+        </app-dashboard-empty>
       } @else {
 
       @for (article of filteredArticles(); track article.externalId) {
@@ -141,5 +167,8 @@
     </div>
 
   </div>
+
+</div>
+}
 
 </div>

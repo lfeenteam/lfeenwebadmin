@@ -3,6 +3,66 @@
   width: 100%;
 }
 
+// ── Tabs: client app / service (worker) app (TAS-2317) ──────────────────────
+
+.faq-shell {
+  display: block;
+}
+
+.faq-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 20px 20px 0;
+  padding: 4px;
+  width: fit-content;
+  max-width: calc(100% - 40px);
+  box-sizing: border-box;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #F7F7F5;
+  font-family: 'Cairo', sans-serif;
+  overflow-x: auto;
+}
+
+.faq-tab {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 9px;
+  color: #6B6B67;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    color: #111110;
+  }
+
+  &.active {
+    background: #111110;
+    color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #111110;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 900px) {
+  .faq-tabs {
+    margin: 14px 14px 0;
+    max-width: calc(100% - 28px);
+  }
+}
+
 .faq-page {
   display: flex;
   flex-direction: column;

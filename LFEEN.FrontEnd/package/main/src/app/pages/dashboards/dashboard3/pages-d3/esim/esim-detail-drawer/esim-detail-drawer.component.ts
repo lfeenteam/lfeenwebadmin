@@ -7,7 +7,9 @@ import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
-import { EsimDetail, EsimTimelineKey, esimDurationKey, esimIsUnlimited, esimStatusKey } from '../interfaces/esim.model';
+import {
+  EsimAdminActionKey, EsimDetail, EsimTimelineKey, esimAdminActionKey, esimDurationKey, esimIsUnlimited, esimStatusKey,
+} from '../interfaces/esim.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface JourneyStep {
@@ -16,6 +18,26 @@ interface JourneyStep {
   date: string | null;
   done: boolean;
 }
+
+/** One row of the support-actions log, ready to render. */
+interface AdminLogEntry {
+  /** null = an actionType we don't know yet; `label` then holds the raw value. */
+  key: EsimAdminActionKey | null;
+  label: string;
+  icon: string;
+  adminName: string;
+  reason: string | null;
+  amount: number | null;
+  date: string | null;
+}
+
+const ADMIN_ACTION_ICONS: Record<EsimAdminActionKey, string> = {
+  refund: 'receipt-refund',
+  suspend: 'player-pause',
+  unsuspend: 'player-play',
+  revoke: 'trash',
+  sms: 'message',
+};
 
 @Component({
   selector: 'app-esim-detail-drawer',
@@ -28,6 +50,11 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
   private translate = inject(TranslateService);
 
   @Input() sim: EsimDetail | null = null;
+  /** Esim.ManageState — shows the order refund button. */
+  @Input() canRefund = false;
+  /** Another action on a SIM is in flight. */
+  @Input() busy = false;
+  @Output() refund = new EventEmitter<void>();
   @Output() closed = new EventEmitter<void>();
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -79,6 +106,25 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
     return this.sim ? esimStatusKey(this.sim.statusBucket) : 'expired';
   }
 
+  /** Translation segment under d3.esim.payment.* — also the pill's `pay-*` class. */
+  get paymentStatusKey(): string {
+    switch (this.sim?.paymentStatus) {
+      case 'Paid':              return 'paid';
+      case 'Authorized':        return 'authorized';
+      case 'PartiallyRefunded': return 'partiallyRefunded';
+      case 'Refunded':          return 'refunded';
+      case 'Failed':            return 'failed';
+      case 'Cancelled':         return 'cancelled';
+      case 'CheckoutCreated':   return 'checkoutCreated';
+      default:                  return 'other';
+    }
+  }
+
+  get paymentStatusLabel(): string {
+    const key = this.paymentStatusKey;
+    return key === 'other' ? (this.sim?.paymentStatus ?? '') : this.translate.instant(`d3.esim.payment.${key}`);
+  }
+
   get isUnlimited(): boolean {
     return esimIsUnlimited(this.sim?.dataPlanLabel);
   }
@@ -120,6 +166,22 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
     ];
   }
 
+  /** Support actions (refund / suspend / revoke / SMS…), newest first as the API sends them. */
+  get adminLog(): AdminLogEntry[] {
+    return (this.sim?.adminActions ?? []).map(a => {
+      const key = esimAdminActionKey(a.actionType);
+      return {
+        key,
+        label: key ? this.translate.instant(`d3.esim.adminLog.types.${key}`) : (a.actionType || '-'),
+        icon: key ? ADMIN_ACTION_ICONS[key] : 'history',
+        adminName: a.adminName?.trim() || a.adminUserId || this.translate.instant('d3.esim.adminLog.unknownAdmin'),
+        reason: a.reason?.trim() || null,
+        amount: a.amount ?? null,
+        date: this.fmtDateTime(a.createdAtUtc),
+      };
+    });
+  }
+
   fmt(value: number): string {
     return formatLocalizedNumber(value, this.currentLang);
   }
@@ -138,5 +200,11 @@ export class EsimDetailDrawerComponent implements OnChanges, OnDestroy {
   private fmtDate(value: string | null): string | null {
     const date = parseApiUtc(value);
     return date ? format(date, 'd MMMM yyyy', { locale: this.currentLang === 'en' ? enUS : ar }) : null;
+  }
+
+  private fmtDateTime(value: string | null): string | null {
+    const date = parseApiUtc(value);
+    const en = this.currentLang === 'en';
+    return date ? format(date, en ? 'd MMM yyyy, HH:mm' : 'd MMM yyyy، HH:mm', { locale: en ? enUS : ar }) : null;
   }
 }

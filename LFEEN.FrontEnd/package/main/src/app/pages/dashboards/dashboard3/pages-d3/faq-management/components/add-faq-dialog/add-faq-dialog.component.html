@@ -77,7 +77,7 @@
 
         <div class="meta-col order-col">
           <label class="meta-label">{{ 'd3.faq.dialog.order' | translate }}</label>
-          <input class="faq-input order-input" type="number" min="1" formControlName="order"
+          <input class="faq-input order-input" type="number" min="1" [attr.max]="orderMax" step="1" formControlName="order"
             [class.is-invalid]="showError('order')">
           @if (showError('order')) {
             <span class="field-error-msg">{{ orderError() }}</span>

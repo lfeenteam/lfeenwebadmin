@@ -1,0 +1,326 @@
+<div class="ag agv agv--fab-gutter" [dir]="dir">
+
+  @if (loading() && !version()) {
+    <app-dashboard-loading variant="review" [rows]="4"></app-dashboard-loading>
+  } @else if (loadError()) {
+    <div class="ag-card ag-empty-card">
+      <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.agreements.errors.loadVersionTitle"
+        [descKey]="loadError()?.kind === 'forbidden' ? 'd3.agreements.errors.forbidden' : 'd3.agreements.errors.loadDesc'">
+        <div class="ag-empty-actions">
+          <button type="button" class="ag-btn" (click)="back()">{{ 'd3.agreements.actions.back' | translate }}</button>
+          @if (loadError()?.kind !== 'forbidden') {
+            <button type="button" class="ag-btn ag-btn--primary" (click)="load()">{{ 'd3.agreements.actions.retry' | translate }}</button>
+          }
+        </div>
+      </app-dashboard-empty>
+    </div>
+  } @else {
+  @if (version(); as v) {
+
+    <!-- ── header ─────────────────────────────────────────── -->
+    <nav class="agv-crumbs" [attr.aria-label]="'d3.agreements.breadcrumb' | translate">
+      <a (click)="actions.goToList()" tabindex="0" (keydown.enter)="actions.goToList()">{{ 'd3.agreements.title' | translate }}</a>
+      <span aria-hidden="true">/</span>
+      <a (click)="back()" tabindex="0" (keydown.enter)="back()">{{ labels.typeLabel(v.type) }}</a>
+      <span aria-hidden="true">/</span>
+      <span>{{ labels.versionLabel(v) }}</span>
+    </nav>
+
+    <!-- Leaves the screen when the header sticks — drives the «stuck» shadow. -->
+    <div #stickSentinel class="agv-stick-sentinel" aria-hidden="true"></div>
+    <header class="agv-head" [class.is-sticky]="editable()" [class.is-stuck]="editable() && headStuck()">
+      <div class="agv-head-main">
+        <div class="agv-title-row">
+          <button type="button" class="ag-btn ag-btn--icon agv-back" (click)="back()"
+            [attr.aria-label]="'d3.agreements.actions.back' | translate" [title]="'d3.agreements.actions.back' | translate">
+            <i-tabler [name]="dir === 'rtl' ? 'arrow-right' : 'arrow-left'"></i-tabler>
+          </button>
+          <h1 class="agv-title">{{ pageTitle(v) }}</h1>
+        </div>
+        <div class="agv-head-meta">
+          <span class="ag-badge" [ngClass]="labels.statusClass(v)">{{ labels.statusLabel(v) }}</span>
+          @if (v.isCurrent) {
+            <span class="ag-badge is-current">{{ 'd3.agreements.current' | translate }}</span>
+          }
+          @if (editable()) {
+            @if (saving()) {
+              <span class="agv-dirty">{{ 'd3.agreements.saving' | translate }}</span>
+            } @else if (dirty()) {
+              <span class="agv-dirty"><span class="agv-dot"></span>{{ 'd3.agreements.unsavedChanges' | translate }}</span>
+            } @else if (v.updatedAt) {
+              <span class="agv-dirty is-saved">{{ 'd3.agreements.lastSaved' | translate: { date: labels.date(v.updatedAt, true) } }}</span>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="agv-actions">
+        @if (v.status === 'Draft') {
+          @if (canEdit()) {
+            <button type="button" class="ag-btn ag-btn--icon" [matMenuTriggerFor]="moreMenu" [disabled]="busy()"
+              [attr.aria-label]="'d3.agreements.actions.more' | translate">
+              <i-tabler name="dots-vertical"></i-tabler>
+            </button>
+          }
+          <button type="button" class="ag-btn" [matMenuTriggerFor]="previewMenu" [disabled]="saving()">
+            {{ 'd3.agreements.actions.previewPdf' | translate }}
+            <i-tabler name="chevron-down" class="ag-btn-icon"></i-tabler>
+          </button>
+          @if (editable()) {
+            <button type="button" class="ag-btn" [disabled]="saving() || busy() || !dirty()" (click)="save()">
+              {{ (saving() ? 'd3.agreements.saving' : 'd3.agreements.actions.save') | translate }}
+            </button>
+          }
+          @if (canPublish()) {
+            <button type="button" class="ag-btn ag-btn--primary" [disabled]="saving() || busy()" (click)="publish()">
+              {{ 'd3.agreements.actions.publish' | translate }}
+            </button>
+          }
+        } @else {
+          @if (canEdit() || (v.status === 'Published' && canPublish())) {
+            <button type="button" class="ag-btn ag-btn--icon" [matMenuTriggerFor]="moreMenu" [disabled]="busy()"
+              [attr.aria-label]="'d3.agreements.actions.more' | translate">
+              <i-tabler name="dots-vertical"></i-tabler>
+            </button>
+          }
+          <button type="button" class="ag-btn" [matMenuTriggerFor]="previewMenu">
+            {{ 'd3.agreements.actions.previewPdf' | translate }}
+            <i-tabler name="chevron-down" class="ag-btn-icon"></i-tabler>
+          </button>
+          @if (v.status === 'Published' && canPublish()) {
+            <button type="button" class="ag-btn" [disabled]="busy()" (click)="editExpiry()">
+              {{ 'd3.agreements.actions.editExpiry' | translate }}
+            </button>
+          }
+        }
+      </div>
+    </header>
+
+    <mat-menu #previewMenu="matMenu" class="ag-menu">
+      <button mat-menu-item (click)="preview('ar')">عربي</button>
+      <button mat-menu-item (click)="preview('en')">English</button>
+    </mat-menu>
+
+    <mat-menu #moreMenu="matMenu" class="ag-menu" [xPosition]="dir === 'rtl' ? 'after' : 'before'">
+      <div [dir]="dir">
+        @if (canEdit()) {
+          <button mat-menu-item (click)="copyAsDraft()">{{ 'd3.agreements.actions.copyAsDraft' | translate }}</button>
+        }
+        @if (v.status === 'Published' && canPublish()) {
+          <button mat-menu-item class="ag-menu-danger" (click)="end()">{{ 'd3.agreements.actions.end' | translate }}</button>
+        }
+        @if (v.status === 'Draft' && canEdit()) {
+          <button mat-menu-item class="ag-menu-danger" (click)="deleteDraft()">{{ 'd3.agreements.actions.deleteDraft' | translate }}</button>
+        }
+      </div>
+    </mat-menu>
+
+    @if (errorBanner()) {
+      <div class="agv-error-banner" role="alert">{{ errorBanner() }}</div>
+    }
+
+    <!-- ── version facts (published / ended) ──────────────── -->
+    @if (v.status !== 'Draft') {
+      <section class="ag-card agv-facts">
+        <dl class="ag-stats ag-stats--5">
+          <div>
+            <dt>{{ 'd3.agreements.fields.version' | translate }}</dt>
+            <dd>{{ labels.num(v.version) }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.agreements.fields.published' | translate }}</dt>
+            <dd>
+              {{ v.publishedAtUtc ? labels.date(v.publishedAtUtc) : '—' }}
+              @if (v.publishedAtUtc && labels.actor(v.publishedBy); as by) {
+                <span class="agv-fact-sub" [title]="v.publishedBy">{{ by }}</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.agreements.fields.expiresAt' | translate }}</dt>
+            <dd>{{ v.expiresAtUtc ? labels.date(v.expiresAtUtc) : ('d3.agreements.noExpiry' | translate) }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.agreements.fields.signersCount' | translate }}</dt>
+            <dd>{{ labels.signers(v.signedCount) }}</dd>
+          </div>
+          @if (v.status === 'Ended') {
+            <div>
+              <dt>{{ 'd3.agreements.fields.endedAt' | translate }}</dt>
+              <dd>
+                {{ v.endedAtUtc ? labels.date(v.endedAtUtc) : '—' }}
+                @if (v.endedAtUtc && labels.actor(v.endedBy); as by) {
+                  <span class="agv-fact-sub" [title]="v.endedBy">{{ by }}</span>
+                }
+              </dd>
+            </div>
+          } @else {
+            <div>
+              <dt>{{ 'd3.agreements.fields.state' | translate }}</dt>
+              <dd>
+                {{ (v.isCurrent ? 'd3.agreements.currentVersion'
+                    : v.keepsSignaturesValid ? 'd3.agreements.signaturesValid' : 'd3.agreements.status.Expired') | translate }}
+              </dd>
+            </div>
+          }
+        </dl>
+      </section>
+    }
+
+    @if (editable()) {
+      <!-- ── editor ──────────────────────────────────────────── -->
+      <section class="ag-card agv-section">
+        <h2 class="agv-section-title">{{ 'd3.agreements.form.dataTitle' | translate }}</h2>
+        <div class="agv-grid">
+          <div class="agv-col" dir="rtl">
+            <label class="agv-label" for="agf-titleAr">{{ 'd3.agreements.form.titleAr' | translate }} *</label>
+            <input id="agf-titleAr" class="agv-input" [class.is-invalid]="err('titleAr')" [(ngModel)]="form.titleAr"
+              (ngModelChange)="markDirty(fk('titleAr'))" [attr.aria-invalid]="!!err('titleAr')" maxlength="300" />
+            @if (err('titleAr')) { <p class="agv-error">{{ err('titleAr') }}</p> }
+
+            <label class="agv-label" for="agf-descriptionAr">{{ 'd3.agreements.form.descriptionAr' | translate }} *</label>
+            <textarea id="agf-descriptionAr" class="agv-input agv-textarea" [class.is-invalid]="err('descriptionAr')"
+              cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="10"
+              [(ngModel)]="form.descriptionAr" (ngModelChange)="markDirty(fk('descriptionAr'))" [attr.aria-invalid]="!!err('descriptionAr')"></textarea>
+            @if (err('descriptionAr')) { <p class="agv-error">{{ err('descriptionAr') }}</p> }
+          </div>
+          <div class="agv-col" dir="ltr">
+            <label class="agv-label" for="agf-titleEn">{{ 'd3.agreements.form.titleEn' | translate }} *</label>
+            <input id="agf-titleEn" class="agv-input" [class.is-invalid]="err('titleEn')" [(ngModel)]="form.titleEn"
+              (ngModelChange)="markDirty(fk('titleEn'))" [attr.aria-invalid]="!!err('titleEn')" maxlength="300" />
+            @if (err('titleEn')) { <p class="agv-error">{{ err('titleEn') }}</p> }
+
+            <label class="agv-label" for="agf-descriptionEn">{{ 'd3.agreements.form.descriptionEn' | translate }} *</label>
+            <textarea id="agf-descriptionEn" class="agv-input agv-textarea" [class.is-invalid]="err('descriptionEn')"
+              cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="10"
+              [(ngModel)]="form.descriptionEn" (ngModelChange)="markDirty(fk('descriptionEn'))" [attr.aria-invalid]="!!err('descriptionEn')"></textarea>
+            @if (err('descriptionEn')) { <p class="agv-error">{{ err('descriptionEn') }}</p> }
+          </div>
+        </div>
+      </section>
+
+      <div class="ag-section-head">
+        <h2>{{ 'd3.agreements.form.clausesTitle' | translate }}</h2>
+        <span>{{ 'd3.agreements.form.clausesHint' | translate: { n: labels.clauses(clauses.length) } }}</span>
+      </div>
+
+      <div class="agv-clauses" cdkDropList (cdkDropListDropped)="dropClause($event)" [cdkDropListData]="clauses">
+        @for (c of clauses; track c.key; let i = $index; let first = $first; let last = $last) {
+          <article class="ag-card agv-clause" cdkDrag [cdkDragData]="c" [class.has-error]="clauseHasError(i)">
+            <div class="agv-clause-head">
+              <span class="agv-chip">{{ labels.num(i + 1) }}</span>
+              <button type="button" class="agv-clause-toggle" (click)="toggleClause(c)" [attr.aria-expanded]="c.open"
+                [attr.aria-controls]="'agc-body-' + c.key">
+                <span class="agv-clause-title">{{ clauseHeading(c) }}</span>
+                <i-tabler [name]="c.open ? 'chevron-up' : 'chevron-down'" class="agv-chevron"></i-tabler>
+              </button>
+              <div class="agv-clause-tools">
+                <button type="button" class="agv-link-danger" (click)="removeClause(i)">{{ 'd3.agreements.actions.delete' | translate }}</button>
+                <button type="button" class="agv-tool" [disabled]="first" (click)="moveClause(i, -1)"
+                  [attr.aria-label]="'d3.agreements.form.moveUp' | translate">
+                  <i-tabler name="arrow-up"></i-tabler>
+                </button>
+                <button type="button" class="agv-tool" [disabled]="last" (click)="moveClause(i, 1)"
+                  [attr.aria-label]="'d3.agreements.form.moveDown' | translate">
+                  <i-tabler name="arrow-down"></i-tabler>
+                </button>
+                <span class="agv-drag" cdkDragHandle [attr.aria-label]="'d3.agreements.form.drag' | translate">
+                  <i-tabler name="grip-vertical"></i-tabler>
+                </span>
+              </div>
+            </div>
+
+            @if (c.open) {
+              <div class="agv-grid agv-clause-body" [id]="'agc-body-' + c.key">
+                <div class="agv-col" dir="rtl">
+                  <label class="agv-label" [for]="'agc-' + c.key + '-titleAr'">{{ 'd3.agreements.form.clause_titleAr' | translate }} *</label>
+                  <input [id]="'agc-' + c.key + '-titleAr'" class="agv-input" [class.is-invalid]="clauseErr(i, 'titleAr')"
+                    [(ngModel)]="c.titleAr" (ngModelChange)="markDirty(fk('titleAr', i))" maxlength="300" />
+                  @if (clauseErr(i, 'titleAr')) { <p class="agv-error">{{ clauseErr(i, 'titleAr') }}</p> }
+
+                  <label class="agv-label" [for]="'agc-' + c.key + '-contentAr'">{{ 'd3.agreements.form.clause_contentAr' | translate }} *</label>
+                  <textarea [id]="'agc-' + c.key + '-contentAr'" class="agv-input agv-textarea" [class.is-invalid]="clauseErr(i, 'contentAr')"
+                    cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="16"
+                    [(ngModel)]="c.contentAr" (ngModelChange)="markDirty(fk('contentAr', i))"></textarea>
+                  @if (clauseErr(i, 'contentAr')) { <p class="agv-error">{{ clauseErr(i, 'contentAr') }}</p> }
+                </div>
+                <div class="agv-col" dir="ltr">
+                  <label class="agv-label" [for]="'agc-' + c.key + '-titleEn'">{{ 'd3.agreements.form.clause_titleEn' | translate }} *</label>
+                  <input [id]="'agc-' + c.key + '-titleEn'" class="agv-input" [class.is-invalid]="clauseErr(i, 'titleEn')"
+                    [(ngModel)]="c.titleEn" (ngModelChange)="markDirty(fk('titleEn', i))" maxlength="300" />
+                  @if (clauseErr(i, 'titleEn')) { <p class="agv-error">{{ clauseErr(i, 'titleEn') }}</p> }
+
+                  <label class="agv-label" [for]="'agc-' + c.key + '-contentEn'">{{ 'd3.agreements.form.clause_contentEn' | translate }} *</label>
+                  <textarea [id]="'agc-' + c.key + '-contentEn'" class="agv-input agv-textarea" [class.is-invalid]="clauseErr(i, 'contentEn')"
+                    cdkTextareaAutosize cdkAutosizeMinRows="4" cdkAutosizeMaxRows="16"
+                    [(ngModel)]="c.contentEn" (ngModelChange)="markDirty(fk('contentEn', i))"></textarea>
+                  @if (clauseErr(i, 'contentEn')) { <p class="agv-error">{{ clauseErr(i, 'contentEn') }}</p> }
+                </div>
+              </div>
+            }
+          </article>
+        } @empty {
+          <div class="ag-card agv-no-clauses">{{ 'd3.agreements.form.noClauses' | translate }}</div>
+        }
+      </div>
+
+      <button type="button" class="ag-btn agv-add" (click)="addClause()">
+        <i-tabler name="plus" class="ag-btn-icon"></i-tabler>
+        {{ 'd3.agreements.form.addClause' | translate }}
+      </button>
+
+    } @else {
+      <!-- ── read-only view ──────────────────────────────────── -->
+      <section class="ag-card agv-section">
+        <h2 class="agv-section-title">{{ 'd3.agreements.form.dataTitle' | translate }}</h2>
+        <div class="agv-grid">
+          <div class="agv-col" dir="rtl">
+            <span class="agv-lang">العربية</span>
+            <h3 class="agv-read-title">{{ v.titleAr || '—' }}</h3>
+            @if (v.descriptionAr) { <p class="agv-read-text">{{ v.descriptionAr }}</p> }
+          </div>
+          <div class="agv-col" dir="ltr">
+            <span class="agv-lang">English</span>
+            <h3 class="agv-read-title">{{ v.titleEn || '—' }}</h3>
+            @if (v.descriptionEn) { <p class="agv-read-text">{{ v.descriptionEn }}</p> }
+          </div>
+        </div>
+      </section>
+
+      <div class="ag-section-head">
+        <h2>{{ 'd3.agreements.form.clausesTitle' | translate }}</h2>
+        <span>{{ 'd3.agreements.form.clausesOrdered' | translate: { n: labels.clauses(v.clauses?.length ?? v.clauseCount) } }}</span>
+      </div>
+
+      <div class="agv-clauses">
+        @for (c of viewerClauses(v); track $index; let i = $index) {
+          <article class="ag-card agv-clause">
+            <div class="agv-clause-head">
+              <span class="agv-chip">{{ labels.num(i + 1) }}</span>
+              <button type="button" class="agv-clause-toggle" (click)="viewerOpen[i] = !viewerOpen[i]"
+                [attr.aria-expanded]="viewerOpen[i]">
+                <span class="agv-clause-title">{{ clauseHeading(c) }}</span>
+                <i-tabler [name]="viewerOpen[i] ? 'chevron-up' : 'chevron-down'" class="agv-chevron"></i-tabler>
+              </button>
+            </div>
+            @if (viewerOpen[i]) {
+              <div class="agv-grid agv-clause-body">
+                <div class="agv-col" dir="rtl">
+                  <h4 class="agv-read-subtitle">{{ c.titleAr }}</h4>
+                  <p class="agv-read-text">{{ c.contentAr }}</p>
+                </div>
+                <div class="agv-col" dir="ltr">
+                  <h4 class="agv-read-subtitle">{{ c.titleEn }}</h4>
+                  <p class="agv-read-text">{{ c.contentEn }}</p>
+                </div>
+              </div>
+            }
+          </article>
+        } @empty {
+          <div class="ag-card agv-no-clauses">{{ 'd3.agreements.form.noClausesView' | translate }}</div>
+        }
+      </div>
+    }
+  }
+  }
+</div>

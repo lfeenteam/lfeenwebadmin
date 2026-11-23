@@ -56,7 +56,13 @@
         align-items: flex-start;
         flex: 1;
         margin-right: 12px;
-        .status-badge { font-size: 10px; color: #059669; font-weight: 900; }
+        .status-badge {
+            font-size: 10px;
+            color: #059669;
+            font-weight: 900;
+
+            &.is-unavailable { color: #9E9E9A; }
+        }
     }
 }
 

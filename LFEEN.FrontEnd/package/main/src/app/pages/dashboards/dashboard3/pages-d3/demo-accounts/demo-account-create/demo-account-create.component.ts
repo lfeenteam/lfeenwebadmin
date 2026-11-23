@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, ViewChild, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,11 +9,15 @@ import { ToastrService } from 'ngx-toastr';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
 import {
+  DEFAULT_DEMO_KIND,
   DEMO_CHANNELS,
   DEMO_CHANNEL_ICONS,
   DEMO_EMAIL_PATTERN,
+  DEMO_KINDS,
+  DEMO_KIND_ICONS,
   DEMO_LIMITS,
   DEMO_PERMISSIONS,
+  DemoAccountKind,
   DemoChannel,
   SAUDI_MOBILE_PATTERN,
   isStrongDemoPin,
@@ -21,6 +25,7 @@ import {
   toLocalPhone
 } from '../../../interfaces/demo-account.model';
 import { DEMO_FIELD_ALIASES, demoErrorMessage, isNoAnswerError, newIdempotencyKey, readDemoError } from '../demo-accounts.util';
+import { scrollToFirstError } from '../scroll-to-error';
 import { DemoAttachmentsComponent } from '../components/demo-attachments/demo-attachments.component';
 import { InvitationEditorStore } from '../components/invitation-editor/invitation-editor.store';
 import { InvitationEditorComponent } from '../components/invitation-editor/invitation-editor.component';
@@ -51,6 +56,8 @@ export class DemoAccountCreateComponent implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly toastr = inject(ToastrService);
   private readonly login = inject(LoginService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   readonly invitation = inject(InvitationEditorStore);
 
   @ViewChild(DemoAttachmentsComponent) private attachments?: DemoAttachmentsComponent;
@@ -61,9 +68,13 @@ export class DemoAccountCreateComponent implements OnInit {
 
   readonly channels = DEMO_CHANNELS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
+  readonly kinds = DEMO_KINDS;
+  readonly kindIcons = DEMO_KIND_ICONS;
   readonly limits = DEMO_LIMITS;
   readonly lang = this.translate.currentLang || 'ar';
 
+  /** Which app the account opens: host (default) or guest. */
+  kind: DemoAccountKind = DEFAULT_DEMO_KIND;
   fullName = '';
   channel: DemoChannel = 'Email';
   email = '';
@@ -92,7 +103,7 @@ export class DemoAccountCreateComponent implements OnInit {
     // No account yet: the preview fills the text with example values.
     // The preview shows what's typed (name, days → expiry) before anything is sent.
     this.invitation.typedValues = () => ({ name: this.fullName, days: Number(this.durationDays) || undefined });
-    this.invitation.init({ channel: this.channel });
+    this.invitation.init({ channel: this.channel, kind: this.kind });
     this.invitation.attachmentIds = () => this.attachments?.ids ?? [];
   }
 
@@ -118,9 +129,10 @@ export class DemoAccountCreateComponent implements OnInit {
     return FIELDS.some(f => this.errors[f]);
   }
 
-  /** One line shown on the folded header: name · channel · days. */
+  /** One line shown on the folded header: kind · name · channel · days. */
   get accountSummary(): string {
     const parts = [
+      this.translate.instant(`d3.demoAccounts.kinds.${this.kind}`),
       this.fullName.trim() || this.translate.instant('d3.demoAccounts.create.noName'),
       this.translate.instant(`d3.demoAccounts.channels.${this.channel}`),
       `${Number(this.durationDays) || 0} ${this.translate.instant('d3.demoAccounts.dayUnit')}`,
@@ -136,6 +148,14 @@ export class DemoAccountCreateComponent implements OnInit {
   }
 
   // ── Form ──────────────────────────────────────────────────
+
+  /** The editor reloads this kind's variables and presets and previews again. */
+  setKind(kind: DemoAccountKind): void {
+    if (this.submitting || kind === this.kind) return;
+    this.kind = kind;
+    this.formError = null;
+    this.invitation.setKind(kind);
+  }
 
   setChannel(channel: DemoChannel): void {
     if (this.submitting || channel === this.channel) return;
@@ -193,6 +213,7 @@ export class DemoAccountCreateComponent implements OnInit {
     this.attachments?.setError(null);
 
     this.service.create({
+      kind: this.kind,
       fullName,
       email: this.email.trim() || null,
       phoneNumber: phone || null,
@@ -286,8 +307,7 @@ export class DemoAccountCreateComponent implements OnInit {
   private scrollToFirstError(): void {
     if (this.accountHasErrors) this.open.account = true;
     if (this.invitation.preview?.isValid === false || this.attachments?.error) this.open.message = true;
-    setTimeout(() => document.querySelector('.da-create .da-error, .da-create .da-alert.danger')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    scrollToFirstError(this.host.nativeElement, this.injector);
   }
 
   private revalidate(fields: CreateField[]): void {

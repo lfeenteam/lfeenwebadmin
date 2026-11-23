@@ -6,8 +6,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { MaterialModule } from 'src/app/material.module';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
-import { SubscriptionPeriodOption, SubscriptionTier } from '../interfaces/subscription.model';
+import { PeriodOptionDiscountType, SubscriptionPeriodOption, SubscriptionTier } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { appLocale } from 'src/app/utils/locale-format.util';
 
 export interface PeriodOptionDialogData {
   subscriptionServiceId: number;
@@ -60,8 +61,12 @@ export class PeriodOptionDialogComponent {
   durationInDays: number | null;
   nameAr: string;
   nameEn: string;
+  /** The amount charged — after the discount. */
   price: number | null;
   displayOrder: number | null;
+  /** 'none' rather than null so the segmented control has a value to mark. */
+  discountType: PeriodOptionDiscountType | 'none';
+  discountValue: number | null;
 
   submitting = false;
   serverError = '';
@@ -77,6 +82,9 @@ export class PeriodOptionDialogComponent {
     this.nameEn = o?.nameEn ?? '';
     this.price = o?.price ?? null;
     this.displayOrder = o?.displayOrder ?? data.nextDisplayOrder;
+    const hasDiscount = (o?.discountType === 'Percentage' || o?.discountType === 'FixedAmount') && o.discountValue != null;
+    this.discountType = hasDiscount ? o!.discountType! : 'none';
+    this.discountValue = hasDiscount ? o!.discountValue! : null;
   }
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -122,11 +130,61 @@ export class PeriodOptionDialogComponent {
     return o !== null && !(Number.isInteger(o) && o >= 0);
   }
 
+  // ── Discount (mirrors SUBSCRIPTION_PERIOD_OPTION_INVALID_DISCOUNT: value > 0, percent < 100) ──
+  get hasDiscount(): boolean {
+    return this.discountType !== 'none';
+  }
+
+  get isPercentDiscount(): boolean {
+    return this.discountType === 'Percentage';
+  }
+
+  setDiscountType(type: PeriodOptionDiscountType | 'none'): void {
+    if (this.discountType === type) return;
+    this.discountType = type;
+    // A percent and an amount aren't interchangeable, so switching starts the value over.
+    this.discountValue = null;
+  }
+
+  /** Translation key of the discount value's error, or null. */
+  get discountError(): string | null {
+    if (!this.hasDiscount || this.discountValue === null) return null;
+    const v = this.discountValue;
+    if (!(v > 0)) return 'd3.periodOption.errors.discountValue';
+    if (this.isPercentDiscount && v >= 100) return 'd3.periodOption.errors.discountPercentMax';
+    return null;
+  }
+
+  /**
+   * The struck-through price the merchant will see — a preview of what the server computes
+   * from the charged price: percent → price ÷ (1 − v/100), fixed amount → price + v.
+   */
+  get originalPricePreview(): number | null {
+    if (!this.hasDiscount || this.discountError || this.discountValue === null) return null;
+    if (this.price === null || this.priceError) return null;
+    const original = this.isPercentDiscount
+      ? this.price / (1 - this.discountValue / 100)
+      : this.price + this.discountValue;
+    return Math.round(original * 100) / 100;
+  }
+
+  /** The saving as a percent of the original price, for the preview line. */
+  get discountPercentPreview(): number | null {
+    const original = this.originalPricePreview;
+    if (original === null || this.price === null || !(original > 0)) return null;
+    return Math.round((1 - this.price / original) * 1000) / 10;
+  }
+
+  fmt(n: number): string {
+    return n.toLocaleString(appLocale(this.translate.currentLang), { maximumFractionDigits: 2 });
+  }
+
   get canSubmit(): boolean {
     return !this.submitting
       && this.durationInDays !== null && !this.durationError
       && this.price !== null && !this.priceError
       && this.displayOrder !== null && !this.displayOrderError
+      && (!this.hasDiscount || (this.discountValue !== null && !this.discountError))
       && !!this.nameAr.trim() && !!this.nameEn.trim();
   }
 
@@ -141,6 +199,9 @@ export class PeriodOptionDialogComponent {
       nameEn: this.nameEn.trim(),
       price: this.price,
       displayOrder: this.displayOrder,
+      // Always sent, so an edit (which supersedes the row) keeps — or clears — the discount.
+      discountType: this.discountType === 'none' ? null : this.discountType,
+      discountValue: this.discountType === 'none' ? null : this.discountValue,
     };
     const option = this.data.option;
     const request$ = option

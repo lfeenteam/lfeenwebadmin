@@ -13,6 +13,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { formatApiDateLocal } from 'src/app/utils/date-format.util';
 import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { ListingBanService } from '../../services/listing-ban.service';
+import { transportErrorMessage } from '../../utils/transport-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ListingBanRefund, RefundStatus } from '../../interfaces/listing-ban.model';
 import { RefundResolveDialogComponent, RefundResolveDialogData } from './refund-resolve-dialog/refund-resolve-dialog.component';
@@ -204,6 +205,11 @@ export class BanRefundsComponent implements OnInit {
       this.toastr.error(validationMessage);
       return;
     }
+    const transport = transportErrorMessage(err, this.translate);
+    if (transport) {
+      this.toastr.error(transport);
+      return;
+    }
     const fallback = err?.status === 403
       ? 'd3.listingBan.errors.forbidden'
       : err?.status === 0 || err?.status >= 500
@@ -212,8 +218,34 @@ export class BanRefundsComponent implements OnInit {
     this.toastr.error(this.translate.instant(fallback));
   }
 
+  /** Rows whose technical details are expanded. */
+  expandedErrorIds = new Set<number>();
+
+  toggleError(id: number): void {
+    if (this.expandedErrorIds.has(id)) this.expandedErrorIds.delete(id);
+    else this.expandedErrorIds.add(id);
+  }
+
+  /** Legacy rows for unpaid bookings: "Succeeded" with nothing actually refunded. */
+  isNothingToRefund(row: ListingBanRefund): boolean {
+    return row.status === 'Succeeded' && !row.amount;
+  }
+
   statusMeta(row: ListingBanRefund) {
+    if (this.isNothingToRefund(row)) return { key: 'd3.banRefunds.status.nothingToRefund', cls: 'st-neutral' };
     return STATUS_META[row.status] ?? { key: row.status, cls: 'st-neutral' };
+  }
+
+  /** "Lamira Villas" — falls back to "Building #4" when the name is missing. */
+  propertyLabel(row: ListingBanRefund): string | null {
+    if (row.propertyName?.trim()) return row.propertyName;
+    return row.propertyId ? this.translate.instant('d3.banRefunds.table.property', { id: row.propertyId }) : null;
+  }
+
+  /** "Unit 444" — falls back to "Unit #27" when the number is missing. */
+  unitLabel(row: ListingBanRefund): string | null {
+    if (row.unitNumber?.trim()) return this.translate.instant('d3.banRefunds.table.unitNumber', { number: row.unitNumber });
+    return row.unitId ? this.translate.instant('d3.banRefunds.table.unit', { id: row.unitId }) : null;
   }
 
   /** Readable failure reason: the backend's localized text, else ours by code, else nothing. */

@@ -9,8 +9,9 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'control-center': true,           // wired to /api/app-runtime (summary, themes, releases, maintenance)
   dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
   notifications: true,              // hardcoded fake notifications list
-  settings: true,                   // platform-settings: all fields are static literals
-  settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt)
+  settings: true,                   // wired to /api/settings (general, notifications, review-reward)
+  settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt, recalculation)
+  'settlement-debts': true,         // "Merchant debts" tab in Settlements, wired to /api/settlements/debts (BUG-1482)
   'subscriptions-management': true, // hardcoded accounts/stats + setTimeout fake loader
   wallet: true,                     // wired to /api/wallet/{merchantAccountId} (balance, ledger, adjust)
   'wallet-approvals': true,         // wired to /api/wallet/adjustments (pending, approve, reject) — maker-checker queue
@@ -18,6 +19,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'profile-changes': true,          // account-management tab; wired to /api/accounts/profile-changes (branding / commercial register review)
   'demo-accounts': true,            // wired to /api/admin/demo-accounts (list, details, create, resend, new PIN, extend, unlock, disable)
   'add-department': false,          // departments come seeded from the backend; the admin has no "add department" flow
+  'service-faq': true,              // "Service app" tab on the FAQ page, wired to /api/service/faqs (BUG-2453) — needs its migration on the server
 };
 
 export type PageFlagKey = keyof typeof PAGE_FLAGS;

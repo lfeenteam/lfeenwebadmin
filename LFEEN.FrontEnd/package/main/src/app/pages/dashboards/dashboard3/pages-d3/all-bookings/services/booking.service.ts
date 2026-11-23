@@ -3,11 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption } from '../interfaces/booking.model';
+import { Booking, BookingActivityLogApiItem, BookingApiItem, BookingDetailApiItem, BookingFinancialSummary, BookingListResponse, BookingQueryParams, BookingServiceRequestListResponse, BookingStatus, BookingUnitOption, ChangeBookingUnitResult, PublishedUnitsPage } from '../interfaces/booking.model';
 import { ApproveReviewReportRequest, ReviewReportItem, ReviewTargetField } from '../interfaces/review-report.model';
 import { PaginatedUnitResponse } from '../../../interfaces/unit-card.model';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
-import { formatNaiveDayMonth } from 'src/app/utils/date-format.util';
+import { formatLocalizedDayMonth } from 'src/app/utils/date-format.util';
 
 const BOOKING_STATUS_LABEL_KEY: Record<BookingStatus, string> = {
   blocked:           'd3.bookings.status.blocked',
@@ -66,25 +66,47 @@ export class BookingService {
   }
 
   /**
-   * Published (review status 3 = Approved) units. Pass propertyId to limit them to
-   * one property (change-unit dialog); platform offers call it without one for all units.
+   * Published (review status 3 = Approved) units of one property (change-unit dialog).
+   * Only the first page comes back — the API caps pageSize at 100.
    */
   getPublishedUnits(propertyId?: number): Observable<BookingUnitOption[]> {
+    return this.searchPublishedUnits({ propertyId, pageSize: 500 }).pipe(map(r => r.items));
+  }
+
+  /**
+   * One page of published units, searched on the server. Used where the whole
+   * platform is in scope (platform offers): there are far more units than one page holds.
+   */
+  searchPublishedUnits(query: {
+    search?: string;
+    page?: number;
+    pageSize?: number;
+    propertyId?: number;
+  } = {}): Observable<PublishedUnitsPage> {
+    const page = query.page ?? 1;
     let params = new HttpParams()
-      .set('pageNumber', '1')
-      .set('pageSize', '500')
+      .set('pageNumber', String(page))
+      .set('pageSize', String(query.pageSize ?? 50))
       .set('status', '3')
       .set('newestFirst', 'true');
-    if (propertyId != null) params = params.set('propertyId', String(propertyId));
+    if (query.search?.trim()) params = params.set('search', query.search.trim());
+    if (query.propertyId != null) params = params.set('propertyId', String(query.propertyId));
 
     return this.http
       .get<PaginatedUnitResponse>(`${environment.apiBaseUrl}/api/units`, { params })
       .pipe(
-        map(res => (res.data ?? []).map(u => ({
-          id: u.unitId,
-          name: this.buildUnitOptionLabel(u.name, u.unitTypeName, u.apartmentNumberInFloor, u.propertyName),
-          propertyId: u.propertyId,
-        })))
+        map(res => {
+          const items = (res.data ?? []).map(u => ({
+            id: u.unitId,
+            name: this.buildUnitOptionLabel(u.name, u.unitTypeName, u.apartmentNumberInFloor, u.propertyName),
+            propertyId: u.propertyId,
+          }));
+          const totalCount = res.totalCount ?? items.length;
+          const hasMore = res.nextpage != null
+            ? res.nextpage > page
+            : (res.totalPages ?? page) > page;
+          return { items, totalCount, page, hasMore: hasMore && items.length > 0 };
+        })
       );
   }
 
@@ -98,11 +120,20 @@ export class BookingService {
     return propertyName?.trim() ? `${base} - ${propertyName.trim()}` : base;
   }
 
-  changeBookingUnit(bookingId: string, newUnitId: number, reason: string): Observable<void> {
-    return this.http.post<void>(`${environment.apiBaseUrl}/api/bookings/${bookingId}/change-unit`, {
-      newUnitId,
-      reason,
-    });
+  /** Null when the API answers without a body (older backends). */
+  changeBookingUnit(bookingId: string, newUnitId: number, reason: string): Observable<ChangeBookingUnitResult | null> {
+    return this.http
+      .post<{ data?: ChangeBookingUnitResult } | ChangeBookingUnitResult | null>(
+        `${environment.apiBaseUrl}/api/bookings/${bookingId}/change-unit`,
+        { newUnitId, reason },
+      )
+      .pipe(
+        // Accept both the { success, data } envelope and a bare payload.
+        map(res => {
+          if (!res) return null;
+          return 'data' in res && res.data ? res.data : (res as ChangeBookingUnitResult);
+        }),
+      );
   }
 
   cancelBooking(bookingId: string, cancellationReason: string): Observable<void> {
@@ -161,8 +192,8 @@ export class BookingService {
       amount,
       status,
       isClientPortalBooking,
-      checkInLabel: formatNaiveDayMonth(checkIn, lang),
-      checkOutLabel: formatNaiveDayMonth(checkOut, lang),
+      checkInLabel: formatLocalizedDayMonth(item.checkIn, lang),
+      checkOutLabel: formatLocalizedDayMonth(item.checkOut, lang),
       amountLabel: formatLocalizedNumber(amount, lang),
       statusLabel: status ? this.translate.instant(BOOKING_STATUS_LABEL_KEY[status]) : '-',
       canModify: isClientPortalBooking && MODIFIABLE_STATUSES.has(status),

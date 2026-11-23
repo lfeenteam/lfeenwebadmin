@@ -101,7 +101,8 @@ export class MaintenanceComponent implements OnInit {
     scheduled: false,
     startsAt: this.fb.control<string | null>(null),
     endsAt: this.fb.control<string | null>(null),
-    message: ['', Validators.maxLength(MESSAGE_MAX)],
+    messageAr: ['', Validators.maxLength(MESSAGE_MAX)],
+    messageEn: ['', Validators.maxLength(MESSAGE_MAX)],
   }, { validators: scheduleValidator });
 
   constructor() {
@@ -178,7 +179,8 @@ export class MaintenanceComponent implements OnInit {
       scheduled: !!(startsAt || endsAt),
       startsAt,
       endsAt,
-      message: source?.maintenanceMessageAr ?? '',
+      messageAr: source?.maintenanceMessageAr ?? '',
+      messageEn: source?.maintenanceMessageEn ?? '',
     }, { emitEvent: false });
     if (!this.canManage) this.form.disable({ emitEvent: false });
     this.serverError = null;
@@ -260,6 +262,23 @@ export class MaintenanceComponent implements OnInit {
     return null;
   }
 
+  /**
+   * What the app shows in the panel's language, like the API: English falls back to the
+   * Arabic message; empty means the app's own default text.
+   */
+  get previewMessage(): string {
+    const ar = this.form.controls.messageAr.value.trim();
+    return this.currentLang === 'en' ? this.form.controls.messageEn.value.trim() || ar : ar;
+  }
+
+  /** A server error that isn't tied to a schedule or message field — shown above the actions. */
+  get generalServerError(): string | null {
+    const e = this.serverError;
+    if (!e) return null;
+    const claimed = ['startsAt', 'endsAt', 'messageAr', 'messageEn'].some(f => e.fieldErrors[f]);
+    return claimed ? null : e.message;
+  }
+
   fieldServerError(name: string): string | null {
     return this.serverError?.fieldErrors[name] ?? null;
   }
@@ -282,7 +301,14 @@ export class MaintenanceComponent implements OnInit {
     }
 
     const v = this.form.getRawValue();
-    const body: SaveMaintenanceRequest = { target: v.target, isEnabled: v.enabled, messageAr: v.message.trim() };
+    // Both messages always go: the API overwrites each with what it receives (a missing one is
+    // wiped), and with "All" it would otherwise copy one platform's stored text onto both.
+    const body: SaveMaintenanceRequest = {
+      target: v.target,
+      isEnabled: v.enabled,
+      messageAr: v.messageAr.trim(),
+      messageEn: v.messageEn.trim(),
+    };
     if (v.enabled) {
       // Explicit nulls: "start now" / "until switched off".
       body.startsAt = v.scheduled && v.startsAt ? riyadhLocalToOffset(v.startsAt) : null;

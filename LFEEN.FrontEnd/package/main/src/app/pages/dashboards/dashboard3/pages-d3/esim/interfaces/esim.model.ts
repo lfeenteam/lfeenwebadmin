@@ -42,6 +42,8 @@ export interface EsimListItem {
   dataPlanLabel: string;
   statusBucket: EsimStatusBucket;
   rawStatus: string;
+  /** Flagged for support follow-up, e.g. the provider cancelled it while the order is still paid. */
+  needsSupportAttention: boolean;
   createdAtUtc: string;
   expiresAtUtc: string | null;
 }
@@ -63,6 +65,7 @@ export interface EsimListQuery {
   destinationCode?: string;
   networkType?: string;
   search?: string;
+  needsSupportAttention?: boolean;
   page: number;
   pageSize: number;
 }
@@ -104,13 +107,64 @@ export interface EsimDetail {
   durationUnit: string;
   statusBucket: EsimStatusBucket;
   rawStatus: string;
+  needsSupportAttention: boolean;
+  // ── The ORDER behind this SIM (zero / false for an orphan SIM with no order) ──
+  /** The order's total — use this rather than priceSar. */
+  totalSar: number;
+  refundedSar: number;
+  /** CheckoutCreated / Authorized / Paid / PartiallyRefunded / Refunded / Failed / Cancelled. */
+  paymentStatus: string | null;
+  /** Paid / PartiallyRefunded / Authorized with something left — drives the refund button. */
+  isRefundable: boolean;
+  /** The most the refund form may accept. */
+  refundableRemainingSar: number;
   /** Always purchased, installed, activated, expires — in that order. */
   timeline: EsimTimelineStep[];
+  /**
+   * Support actions taken on this SIM / its order (refund, suspend, revoke, SMS…), newest first.
+   * Optional so an API that doesn't send it yet still renders.
+   */
+  adminActions?: EsimAdminAction[];
   createdAtUtc: string;
   installedAtUtc: string | null;
   activatedAtUtc: string | null;
   expiresAtUtc: string | null;
 }
+
+/** One row of EsimDetail.adminActions — an append-only audit entry written by the backend. */
+export interface EsimAdminAction {
+  actionType: string;
+  reason: string | null;
+  /** SAR, refunds only. */
+  amount: number | null;
+  adminUserId: string | null;
+  adminName: string | null;
+  createdAtUtc: string;
+}
+
+/** Known actionType values, normalised (see esimAdminActionKey). */
+export type EsimAdminActionKey = 'refund' | 'suspend' | 'unsuspend' | 'revoke' | 'sms';
+
+/**
+ * Translation segment under d3.esim.adminLog.types.* for an actionType, or null when unknown.
+ * Tolerant of casing and an "Admin" prefix ("Refund", "AdminRefund", "admin_refund").
+ */
+export function esimAdminActionKey(actionType: string | null | undefined): EsimAdminActionKey | null {
+  const k = (actionType ?? '').toLowerCase().replace(/[^a-z]/g, '').replace(/^admin/, '');
+  switch (k) {
+    case 'refund': return 'refund';
+    case 'suspend': return 'suspend';
+    case 'unsuspend':
+    case 'resume': return 'unsuspend';
+    case 'revoke': return 'revoke';
+    case 'sms':
+    case 'sendsms': return 'sms';
+    default: return null;
+  }
+}
+
+/** Suspend and revoke need a reason (the backend answers 400 without one); unsuspend doesn't. */
+export const ESIM_STATE_REASON_MAX_LENGTH = 200;
 
 /**
  * POST /api/esim/esims/{esimId}/state — the thin live-provider shape. `id` is the esimId.
@@ -162,6 +216,46 @@ export function esimDurationKey(count: number, unit: string): string {
   }
 }
 
+/**
+ * POST /api/esim/orders/{orderId}/refund. orderId is not the esimId — one order can cover
+ * several eSIMs. amount null = refund everything left (totalSar - refundedSar).
+ */
+export interface EsimRefundRequest {
+  amount: number | null;
+  reason: string;
+}
+
+export const ESIM_REFUND_REASON_MAX_LENGTH = 200;
+
+/** The order after the refund. Re-fetch Detail / List afterwards rather than patching the UI from this. */
+export interface EsimOrder {
+  id: string;
+  userId: string;
+  kind: string;
+  status: string;
+  /** "Refunded" after a full refund, "PartiallyRefunded" after a partial one. */
+  paymentStatus: string;
+  paymentProvider: string | null;
+  paymentMethod: string | null;
+  paymentReference: string | null;
+  gatewayPaymentId: string | null;
+  slug: string;
+  packageName: string;
+  quantity: number;
+  days: number;
+  totalSar: number;
+  refundedSar: number;
+  costUsd: number;
+  providerTransactionId: string | null;
+  providerOrderNo: string | null;
+  failureCode: string | null;
+  failureReason: string | null;
+  esimCount: number;
+  createdAtUtc: string;
+  paidAtUtc: string | null;
+  fulfilledAtUtc: string | null;
+}
+
 /** Filter dialog selection; 'all' on a field means that field doesn't filter. */
 export interface EsimFilters {
   status: EsimStatusBucket | 'all';
@@ -169,9 +263,11 @@ export interface EsimFilters {
   destination: string;
   /** A network generation, e.g. "5G". */
   network: string;
+  /** true = only SIMs flagged "needs follow-up". */
+  needsAttention: boolean;
 }
 
-export const EMPTY_ESIM_FILTERS: EsimFilters = { status: 'all', destination: 'all', network: 'all' };
+export const EMPTY_ESIM_FILTERS: EsimFilters = { status: 'all', destination: 'all', network: 'all', needsAttention: false };
 
 /** Matched against the destination's best advertised network. */
 export const ESIM_NETWORK_OPTIONS = ['5G', '4G', '3G'];

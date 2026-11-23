@@ -1,0 +1,25 @@
+<button type="button" class="adf-box" [id]="inputId"
+  [class.is-invalid]="invalid" [class.is-disabled]="disabled" [disabled]="disabled"
+  [attr.aria-expanded]="alwaysOpen ? null : open" (click)="toggle()">
+  <i-tabler name="calendar" class="adf-icon"></i-tabler>
+  @if (disabled) {
+    <span class="adf-text adf-muted">{{ 'd3.agreements.date.noExpiry' | translate }}</span>
+  } @else if (value) {
+    <span class="adf-text">{{ label }}</span>
+    @if (!alwaysOpen) {
+      <span class="adf-clear" role="button" tabindex="0" [attr.aria-label]="'d3.agreements.date.clear' | translate"
+        (click)="clear($event)" (keydown.enter)="clear($event)">
+        <i-tabler name="x"></i-tabler>
+      </span>
+    }
+  } @else {
+    <span class="adf-text adf-muted">{{ placeholderKey | translate }}</span>
+  }
+</button>
+
+@if (!disabled && (alwaysOpen || open)) {
+  <div class="adf-calendar">
+    <mat-calendar [selected]="selected" [startAt]="startAt" [minDate]="minDate"
+      (selectedChange)="pick($event)"></mat-calendar>
+  </div>
+}

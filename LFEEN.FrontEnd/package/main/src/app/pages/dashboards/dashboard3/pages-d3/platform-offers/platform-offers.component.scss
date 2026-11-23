@@ -76,6 +76,12 @@
   border-radius: 16px;
   overflow: hidden;
 }
+// The list panel is sized by the content area, not the viewport: with the sidebar open a
+// 1024 screen leaves ~730px, so the filters are laid out from the panel's own width.
+.panel {
+  container-type: inline-size;
+  container-name: offers-panel;
+}
 .filters {
   display: grid;
   grid-template-columns:
@@ -84,6 +90,13 @@
   gap: 10px;
   padding: 16px;
   border-bottom: 1px solid #e8e8e4;
+}
+// One row of filters needs ~784px; below that they wrap into rows of three (the same
+// layout the ≤1000px media query uses) instead of spilling out of the card.
+@container offers-panel (max-width: 860px) {
+  .filters {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 .filters input,
 .filters select,
@@ -228,6 +241,81 @@
   .mat-mdc-option:hover:not(.mdc-list-item--selected) {
   background: #f3f3ef !important;
 }
+/* Unit picker: search box pinned to the top of the panel, status row at the end. */
+::ng-deep .mat-mdc-select-panel.d3-offer-unit-panel {
+  padding-top: 0 !important;
+  max-height: 360px;
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-search {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -6px 6px;
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid #ededea;
+  color: #8a8a84;
+
+  i-tabler {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 500 13px "Cairo", sans-serif;
+    color: #111110;
+  }
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-clear {
+  all: unset;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  i-tabler {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: #f3f3ef;
+  }
+}
+::ng-deep .d3-offer-unit-panel .unit-picker-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px 6px;
+  font: 500 12px "Cairo", sans-serif;
+  color: #5b6475;
+
+  button {
+    all: unset;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e3e3de;
+    color: #111110;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: #f3f3ef;
+    }
+  }
+}
 ::ng-deep .d3-offer-select-panel .mat-mdc-option.mdc-list-item--selected {
   background: #111110 !important;
 }
@@ -351,10 +439,19 @@
   height: 16px;
   stroke-width: 2;
 }
+// The desktop table needs ~974px (fixed columns + gaps + padding). The panel clips
+// (`overflow: hidden` for its radius), so the table scrolls inside its own box instead
+// of losing the status / uses / actions columns on narrow content widths.
+.offer-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .table-head,
 .offer-row {
   display: grid;
   grid-template-columns: minmax(220px, 1.5fr) 110px 95px 145px 105px 70px 125px;
+  min-width: 974px;
+  box-sizing: border-box;
   gap: 12px;
   align-items: center;
   padding: 0 16px;
@@ -910,6 +1007,12 @@
   font-size: 12px;
   font-weight: 500;
 }
+.field-hint {
+  display: block;
+  margin-top: 8px;
+  color: #5b6475;
+  font-size: 12px;
+}
 @media (max-width: 1000px) {
   .filters {
     grid-template-columns: 1fr 1fr 1fr;
@@ -918,6 +1021,7 @@
     display: none;
   }
   .offer-row {
+    min-width: 0;
     grid-template-columns: 1fr auto;
     grid-template-areas: "name status" "code discount" "dates uses" "actions actions";
     padding: 14px;

@@ -4,38 +4,21 @@
 
 // Logical "end" side: bottom-left in Arabic, bottom-right in English — always the
 // corner away from the sidebar, which flips sides with the language.
+// z-index sits between page content and every overlay: content goes up to 100 (sticky
+// headers, the complaints mobile chat), while overlays start at 200 (mobile filter sheets),
+// then drawers (300 / 1001), Material dialogs/menus (cdk-overlay, 1000) and the mobile
+// sidebar (1050+). So any open drawer, dialog or backdrop covers this button instead of it
+// sitting on top of their buttons.
 .chat-fab {
   position: fixed;
   bottom: 28px;
   inset-inline-end: 28px;
-  z-index: 1050;
+  z-index: 150;
   font-family: 'Cairo', sans-serif;
 
   @media (max-width: 576px) {
     bottom: 16px;
     inset-inline-end: 16px;
-  }
-}
-
-// Where the Flow "report an issue" button is enabled (test builds only — off in
-// production), it sits fixed at the bottom-right. In English that is this button's
-// corner too, so stack above it instead of overlapping.
-:host-context(.dashboard-wrapper.with-flow-report[dir='ltr']) .chat-fab {
-  bottom: 88px;
-
-  @media (max-width: 576px) {
-    bottom: 76px;
-  }
-}
-
-// Complaints page with its chat open (body class set by complaint-management): the
-// composer is pinned to the bottom of the screen, so lift above it rather than cover
-// the reply field / send button. Declared after the rule above so it wins in English too.
-:host-context(body.complaint-composer-open) .chat-fab {
-  bottom: 108px;
-
-  @media (max-width: 576px) {
-    bottom: 84px;
   }
 }
 
@@ -92,7 +75,7 @@
   position: fixed;
   inset: 0;
   background: transparent;
-  z-index: 1049;
+  z-index: 149;
 }
 
 .chat-fab-panel {
@@ -109,7 +92,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 1050;
+  z-index: 150;
   animation: chatFabIn 0.15s ease-out;
 
   &.is-chat-view {

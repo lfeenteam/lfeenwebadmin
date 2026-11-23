@@ -262,6 +262,9 @@
 // ── List View overrides ───────────────────────────────────
 :host-context(.list-view) {
   .building-card {
+    // Same as `.table-header` in cards-builds — keeps rows aligned with the header
+    // while the list scrolls sideways on narrow content widths.
+    min-width: 920px;
     display: grid;
     grid-template-columns: 50px 1.5fr 1fr 1fr 80px 80px 80px 120px 100px;
     align-items: center;

@@ -2,6 +2,19 @@ export type OfferTriggerType = 'Automatic' | 'Coupon';
 export type OfferDiscountType = 'Percentage' | 'FixedAmount' | 'FinalPrice';
 export type OfferAppliedTo = 'AllUnits' | 'SpecificUnits';
 export type OfferDisplayChannel = 'All' | 'Merchant' | 'Client';
+
+const DISPLAY_CHANNELS: readonly OfferDisplayChannel[] = ['All', 'Merchant', 'Client'];
+/** Backend enum order (All=1, Merchant=2, Client=3) — API builds before the DTO fix
+ * serialize displayChannel as that number ("1") instead of the enum name. */
+const DISPLAY_CHANNEL_BY_NUMBER: Record<string, OfferDisplayChannel> = { '1': 'All', '2': 'Merchant', '3': 'Client' };
+
+/** The channel name for either API shape, or null when the value is unknown/empty. */
+export function normalizeDisplayChannel(value: unknown): OfferDisplayChannel | null {
+  if (value === null || value === undefined) return null;
+  const v = String(value).trim();
+  const byName = DISPLAY_CHANNELS.find(c => c.toLowerCase() === v.toLowerCase());
+  return byName ?? DISPLAY_CHANNEL_BY_NUMBER[v] ?? null;
+}
 export type OfferExpirationPolicy =
   'ByDate' | 'ByUsageLimit' | 'WhicheverFirst';
 

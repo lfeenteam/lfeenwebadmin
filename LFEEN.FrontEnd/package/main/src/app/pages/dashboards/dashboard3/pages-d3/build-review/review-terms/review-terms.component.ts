@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../interfaces/additional-condition.model';
+import { formatTimeOfDay } from 'src/app/utils/date-format.util';
 
 interface Rule {
   id: number;
@@ -49,14 +50,27 @@ export class ReviewTermsComponent implements OnInit {
 
   isLoading = false;
   isSubmitting = false;
-  checkInTime = '-';
-  checkOutTime = '-';
+  // Raw TimeSpan values from the API ("15:00:00"); the getters below format them.
+  private rawCheckInTime: string | null = null;
+  private rawCheckOutTime: string | null = null;
+  private rawEarlyCheckInFrom: string | null = null;
   earlyCheckIn = false;
-  earlyCheckInFrom: string | null = null;
   rejectionReason = '';
   generalRules: Rule[] = [];
   customRules: string[] = [];
   additionalConditions: AdminAdditionalCondition[] = [];
+
+  get checkInTime(): string {
+    return formatTimeOfDay(this.rawCheckInTime, this.translate.currentLang) ?? '-';
+  }
+
+  get checkOutTime(): string {
+    return formatTimeOfDay(this.rawCheckOutTime, this.translate.currentLang) ?? '-';
+  }
+
+  get earlyCheckInFrom(): string | null {
+    return formatTimeOfDay(this.rawEarlyCheckInFrom, this.translate.currentLang);
+  }
 
   ngOnInit(): void {
     this.translate.onLangChange
@@ -77,10 +91,10 @@ export class ReviewTermsComponent implements OnInit {
     this.buildingService.getPropertyTerms(this.propertyId).subscribe({
       next: (data) => {
         this.isLoading = false;
-        this.checkInTime = data.checkInTime || '-';
-        this.checkOutTime = data.checkOutTime || '-';
+        this.rawCheckInTime = data.checkInTime;
+        this.rawCheckOutTime = data.checkOutTime;
         this.earlyCheckIn = data.isEarlyCheckInAllowed;
-        this.earlyCheckInFrom = data.earlyCheckInFrom;
+        this.rawEarlyCheckInFrom = data.earlyCheckInFrom;
         this.rejectionReason = data.rejectionReason ?? '';
         this.generalRules = data.conditions.map(condition => this.mapCondition(condition));
         this.customRules = data.customRules.map(rule => rule.description);

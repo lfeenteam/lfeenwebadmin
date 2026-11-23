@@ -134,6 +134,8 @@ export interface UnitApiItem {
   floorNumber: number;
   apartmentNumberInFloor: number;
   mainPhotoUrl: string | null;
+  /** The building's own main photo (separate from the unit's `mainPhotoUrl`). */
+  propertyMainPhotoUrl?: string | null;
   maxGuests: number | null;
   district: string | null;
   hasLock: boolean;

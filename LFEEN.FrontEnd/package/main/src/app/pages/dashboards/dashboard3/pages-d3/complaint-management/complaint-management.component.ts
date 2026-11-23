@@ -1,9 +1,9 @@
-import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, finalize, map, of } from 'rxjs';
+import { Subject, Subscription, catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ComplaintTabsBarComponent } from './components/complaint-tabs-bar/complaint-tabs-bar.component';
@@ -12,11 +12,9 @@ import { ComplaintChatComponent } from './components/complaint-chat/complaint-ch
 import { ClientRatingsComponent } from './components/client-ratings/client-ratings.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem } from './interfaces/complaint.model';
+import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
-
-// Read by client-chat-fab.component.scss — keep the two in sync.
-const COMPOSER_OPEN_BODY_CLASS = 'complaint-composer-open';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
 @Component({
   selector: 'app-complaint-management',
@@ -31,6 +29,7 @@ const COMPOSER_OPEN_BODY_CLASS = 'complaint-composer-open';
     ComplaintChatComponent,
     ClientRatingsComponent,
     TabsFilterComponent,
+    DashboardEmptyComponent,
   ],
   templateUrl: './complaint-management.component.html',
   styleUrl: './complaint-management.component.scss'
@@ -49,15 +48,16 @@ export class ComplaintManagementComponent implements OnDestroy {
   private customerSearchSubject = new Subject<string>();
   private langSub?: Subscription;
   private openTicketSub?: Subscription;
-  private document = inject(DOCUMENT);
 
-  // The floating chat button lives in the dashboard layout; this body class lets it lift
-  // above the chat composer instead of covering the reply field and send button.
-  private composerFlag = effect(() => {
-    const tab = this.activeTab();
-    const composerVisible = this.selectedComplaint() !== null && tab !== 'resolved' && tab !== 'ratings';
-    this.document.body.classList.toggle(COMPOSER_OPEN_BODY_CLASS, composerVisible);
-  });
+  // One load stream per list: switchMap cancels the in-flight request whenever a newer
+  // search/page/filter load starts, so a slow stale response can never overwrite the
+  // results of the latest one.
+  /** Emits `silent`: true = background refresh (no loader, keep the list on failure). */
+  private clientLoad$   = new Subject<boolean>();
+  private hostLoad$     = new Subject<void>();
+  private resolvedLoad$ = new Subject<void>();
+  private listLoadSubs  = new Subscription();
+
   private currentLangSignal = signal(this.translate.currentLang || this.translate.defaultLang || 'ar');
 
   activeTab         = signal<ComplaintTab>('customers');
@@ -67,12 +67,10 @@ export class ComplaintManagementComponent implements OnDestroy {
   private resolvedTickets = signal<Complaint[]>([]);
 
   readonly clientStatusOptions = CLIENT_TICKET_STATUS_OPTIONS;
-  // customerAllTickets: the paginated main list from GET /api/client-tickets.
-  // customerQueueTickets: PendingAgent tickets from GET /api/client-tickets/queue, kept
-  // separate so a live queue refresh never clobbers the main list or its pagination.
-  // customerDisplayTickets (below) derives the merged, deduped, priority-first view.
+  // customerAllTickets: one server page of OPEN tickets from GET /api/client-tickets?isOpen=true.
+  // Filtering is server-side only — never drop rows here, or the page stops matching
+  // totalCount/totalPages. customerDisplayTickets (below) only reorders within the page.
   customerAllTickets  = signal<Complaint[]>([]);
-  customerQueueTickets = signal<Complaint[]>([]);
   customerTotalCount  = signal<number | null>(null);
   customerTotalPages  = signal(1);
   customerPage        = signal(1);
@@ -85,22 +83,14 @@ export class ComplaintManagementComponent implements OnDestroy {
   readonly clientDepartmentOptions = CLIENT_TICKET_DEPARTMENT_OPTIONS;
   readonly clientPriorityOptions   = CLIENT_TICKET_PRIORITY_OPTIONS;
 
-  // Queue-priority ordering only applies to the default, unfiltered first page — the same
-  // guard already used for live NewClientTicket inserts — so it never fights search/filter/
-  // pagination results with tickets that don't belong in them.
-  private customerQueueApplicable = computed(() =>
-    this.customerPage() === 1 && !this.customerSearch() &&
-    this.customerStatus() === null && this.customerDepartment() === null &&
-    this.customerPriority() === null && this.customerAssignedAgentUserId() === null
-  );
-
+  // Tickets waiting for an agent float to the top of the current page. Reordering only —
+  // never adds rows from elsewhere, so the row count always equals the server page.
   customerDisplayTickets = computed<Complaint[]>(() => {
     const all = this.customerAllTickets();
-    if (!this.customerQueueApplicable()) return all;
-    const queue = this.customerQueueTickets();
-    if (!queue.length) return all;
-    const queueIds = new Set(queue.map(c => c.id));
-    return [...queue, ...all.filter(c => !queueIds.has(c.id))];
+    return [
+      ...all.filter(c => c.status === 'pending'),
+      ...all.filter(c => c.status !== 'pending'),
+    ];
   });
 
   hostTickets     = signal<Complaint[]>([]);
@@ -113,10 +103,15 @@ export class ComplaintManagementComponent implements OnDestroy {
   hostStatus      = signal<string | null>(null);
   hostDepartment  = signal<string | null>(null);
   hostPriority    = signal<string | null>(null);
+  /** Host app vs service (worker) app — sent to GET /api/tickets as `source`. */
+  hostSource      = signal<TicketSource | null>(null);
   hostError       = signal(false);
+  customerError   = signal(false);
+  resolvedError   = signal(false);
 
   readonly hostStatusOptions   = HOST_TICKET_STATUS_OPTIONS;
   readonly hostPriorityOptions = HOST_TICKET_PRIORITY_OPTIONS;
+  readonly hostSourceOptions   = HOST_TICKET_SOURCE_OPTIONS;
 
   hostProperties  = signal<TicketPropertyFilterItem[]>([]);
   hostEmployees   = signal<AssignableEmployee[]>([]);
@@ -127,7 +122,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostAssignedAdminUserId() !== null ||
     this.hostStatus() !== null ||
     this.hostDepartment() !== null ||
-    this.hostPriority() !== null
+    this.hostPriority() !== null ||
+    this.hostSource() !== null
   );
 
   /** Unified search + dropdown bar for the hosts tab, styled like the Units/Builds pages.
@@ -147,6 +143,11 @@ export class ComplaintManagementComponent implements OnDestroy {
         id: 'department',
         labelKey: 'd3.complaints.hostFilters.allDepartments',
         items: [allItem('d3.complaints.hostFilters.allDepartments'), ...CLIENT_TICKET_DEPARTMENT_OPTIONS],
+      },
+      {
+        id: 'source',
+        labelKey: 'd3.complaints.hostFilters.source.all',
+        items: [allItem('d3.complaints.hostFilters.source.all'), ...this.hostSourceOptions],
       },
       {
         id: 'priority',
@@ -178,6 +179,7 @@ export class ComplaintManagementComponent implements OnDestroy {
     status: this.hostStatus() ?? 'all',
     department: this.hostDepartment() ?? 'all',
     priority: this.hostPriority() ?? 'all',
+    source: this.hostSource() ?? 'all',
     property: this.hostPropertyId() !== null ? String(this.hostPropertyId()) : 'all',
     employee: this.hostAssignedAdminUserId() ?? 'all',
   }));
@@ -234,8 +236,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     if (tab === 'customers' || tab === 'hosts' || tab === 'resolved' || tab === 'ratings') {
       this.activeTab.set(tab);
     }
+    this.watchListLoads();
     this.loadTabData(this.activeTab());
-    this.loadQueueTickets();
     this.watchLiveUpdates();
     this.loadHostFilterSources();
 
@@ -306,8 +308,8 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.document.body.classList.remove(COMPOSER_OPEN_BODY_CLASS);
     this.hubSubs.unsubscribe();
+    this.listLoadSubs.unsubscribe();
     this.hostSearchSub?.unsubscribe();
     this.customerSearchSub?.unsubscribe();
     this.langSub?.unsubscribe();
@@ -315,33 +317,29 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private watchLiveUpdates(): void {
-    // NewClientTicket/SessionEscalated only tell us *that* something changed, not the full
-    // row data needed to render it — so they're used purely as a trigger to refetch the
-    // queue and re-merge, never to synthesize a partial ticket into the list.
+    // NewClientTicket/SessionEscalated/Claimed/Released/Resolved only tell us *that* something
+    // changed, not the full row data — so they just trigger a silent refetch of the current
+    // open-tickets page (new/requeued tickets appear, resolved ones drop out, counts stay true).
     this.hubSubs.add(
-      this.hub.newClientTicket$.subscribe(() => this.loadQueueTickets())
+      this.hub.newClientTicket$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
     this.hubSubs.add(
-      this.hub.sessionEscalated$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionEscalated$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
-    // Another agent claimed a session that was in our queue — refresh so it drops out
-    // of the priority section immediately.
     this.hubSubs.add(
-      this.hub.sessionClaimed$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionClaimed$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
-    // A session only needs a queue refresh if it was actually put back into PendingAgent.
     this.hubSubs.add(
       this.hub.agentReleased$.subscribe(event => {
-        if (event.requeued) this.loadQueueTickets();
+        if (event.requeued) this.refreshClientTicketsSilently();
       })
     );
 
-    // Status moved to Resolved/Closed* — it no longer belongs in the priority queue.
     this.hubSubs.add(
-      this.hub.sessionResolved$.subscribe(() => this.loadQueueTickets())
+      this.hub.sessionResolved$.subscribe(() => this.refreshClientTicketsSilently())
     );
 
     this.hubSubs.add(
@@ -360,16 +358,11 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   // Silent background refresh — never toggles the page-level `loading` signal, so it
-  // doesn't blank the table or show a full-page loader while the main list stays put.
-  private loadQueueTickets(): void {
-    this.service.getClientTicketsQueue()
-      .pipe(
-        map(res => [...res.data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
-        catchError(() => of([])),
-      )
-      .subscribe(sorted => {
-        this.customerQueueTickets.set(sorted.map(t => this.service.mapClientTicketToComplaint(t)));
-      });
+  // doesn't blank the table or show a full-page loader. Only while the customers tab is
+  // on screen; switching to it reloads anyway.
+  private refreshClientTicketsSilently(): void {
+    if (this.activeTab() !== 'customers' || this.loading()) return;
+    this.clientLoad$.next(true);
   }
 
   visibleComplaints = computed(() => {
@@ -400,43 +393,129 @@ export class ComplaintManagementComponent implements OnDestroy {
       next: properties => this.hostProperties.set(Array.isArray(properties) ? properties : []),
       error: () => { /* property filter simply stays empty if this call fails */ },
     });
-    this.service.getAssignableEmployees(undefined, 1, 50).subscribe({
-      next: page => this.hostEmployees.set(Array.isArray(page?.data) ? page.data : []),
+    // All pages, not just the first — a single page of 50 silently dropped everyone after it.
+    this.service.getAllAssignableEmployees().subscribe({
+      next: employees => this.hostEmployees.set(employees),
       error: () => { /* assigned-employee filter simply stays empty if this call fails */ },
     });
   }
 
-  private loadHostTickets(): void {
-    this.loading.set(true);
-    this.hostError.set(false);
-    this.service.getTickets({
-      propertyId: this.hostPropertyId() ?? undefined,
-      assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
-      status: this.hostStatus() ?? undefined,
-      department: this.hostDepartment() ?? undefined,
-      priority: this.hostPriority() ?? undefined,
-      search: this.hostSearch() || undefined,
-      page: this.hostPage(),
-      pageSize: HOST_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data.map(t => this.service.mapTicketToComplaint(t)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          this.hostError.set(true);
-          return of(null);
+  /** Wires the three list load streams. Params are read from the signals inside switchMap so
+   * each request uses the latest search/page/filters; catchError sits on the inner request so a
+   * failure never kills the stream. `loading` is cleared only when the latest request settles —
+   * a cancelled stale request no longer flips it off while the newer one is still in flight. */
+  private watchListLoads(): void {
+    this.listLoadSubs.add(
+      this.clientLoad$.pipe(
+        tap(silent => {
+          if (silent) return;
+          this.loading.set(true);
+          this.customerError.set(false);
         }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
+        switchMap(silent => this.service.getClientTickets({
+          // Work queue: open tickets only, filtered by the server so every page is full
+          // and totalCount/totalPages count exactly what this tab can show.
+          isOpen: true,
+          status: this.customerStatus() ?? undefined,
+          department: this.customerDepartment() ?? undefined,
+          priority: this.customerPriority() ?? undefined,
+          assignedAgentUserId: this.customerAssignedAgentUserId() ?? undefined,
+          search: this.customerSearch() || undefined,
+          page: this.customerPage(),
+          pageSize: CLIENT_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data.map(t => this.service.mapClientTicketToComplaint(t)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            // A failed background refresh keeps the current list as-is.
+            if (silent) return of(null);
+            // Inline error + retry instead of a toast over an empty "no complaints" table.
+            this.customerError.set(true);
+            return of({ complaints: [] as Complaint[], totalCount: 0, totalPages: 1 });
+          }),
+        )),
+      ).subscribe(res => {
+        if (!res) return;
+        // The last item on the last page was resolved by a refresh — step back a page.
+        if (res.complaints.length === 0 && res.totalCount > 0 && res.totalPages < this.customerPage()) {
+          this.customerPage.set(Math.max(1, res.totalPages));
+          this.clientLoad$.next(false);
+          return;
+        }
+        this.customerAllTickets.set(res.complaints);
+        this.customerTotalCount.set(res.totalCount);
+        this.customerTotalPages.set(res.totalPages);
+        this.loading.set(false);
+      })
+    );
+
+    this.listLoadSubs.add(
+      this.hostLoad$.pipe(
+        tap(() => { this.loading.set(true); this.hostError.set(false); }),
+        switchMap(() => this.service.getTickets({
+          propertyId: this.hostPropertyId() ?? undefined,
+          assignedAdminUserId: this.hostAssignedAdminUserId() ?? undefined,
+          status: this.hostStatus() ?? undefined,
+          department: this.hostDepartment() ?? undefined,
+          priority: this.hostPriority() ?? undefined,
+          source: this.hostSource() ?? undefined,
+          search: this.hostSearch() || undefined,
+          page: this.hostPage(),
+          pageSize: HOST_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data.map(t => this.service.mapTicketToComplaint(t)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            this.hostError.set(true);
+            return of(null);
+          }),
+        )),
+      ).subscribe(res => {
+        this.loading.set(false);
         if (!res) return; // keep the previous list/filters on screen when the request fails
         this.hostTickets.set(res.complaints);
         this.hostTotalCount.set(res.totalCount);
         this.hostTotalPages.set(res.totalPages);
-      });
+      })
+    );
+
+    this.listLoadSubs.add(
+      this.resolvedLoad$.pipe(
+        tap(() => { this.loading.set(true); this.resolvedError.set(false); }),
+        switchMap(() => this.service.getResolvedTicketsOverview({
+          type: this.resolvedType() ?? undefined,
+          search: this.resolvedSearch() || undefined,
+          page: this.resolvedPage(),
+          pageSize: RESOLVED_TICKETS_PAGE_SIZE,
+        }).pipe(
+          map(res => ({
+            complaints: res.data.map(item => this.service.mapTicketsOverviewItemToComplaint(item)),
+            totalCount: res.totalCount,
+            totalPages: res.totalPages,
+          })),
+          catchError(() => {
+            // Inline error + retry instead of a toast over an empty "no complaints" table.
+            this.resolvedError.set(true);
+            return of({ complaints: [] as Complaint[], totalCount: 0, totalPages: 1 });
+          }),
+        )),
+      ).subscribe(res => {
+        this.resolvedTickets.set(res.complaints);
+        this.resolvedTotalCount.set(res.totalCount);
+        this.resolvedTotalPages.set(res.totalPages);
+        this.loading.set(false);
+      })
+    );
+  }
+
+  private loadHostTickets(): void {
+    this.hostLoad$.next();
   }
 
   onHostSearchInput(term: string): void {
@@ -455,6 +534,8 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostStatus.set(norm(filters['status']));
     this.hostDepartment.set(norm(filters['department']));
     this.hostPriority.set(norm(filters['priority']));
+    const source = filters['source'];
+    this.hostSource.set(source === 'HostApp' || source === 'ServiceApp' ? source : null);
     this.hostPropertyId.set(filters['property'] && filters['property'] !== 'all' ? Number(filters['property']) : null);
     this.hostAssignedAdminUserId.set(filters['employee'] && filters['employee'] !== 'all' ? filters['employee'] : null);
     this.hostPage.set(1);
@@ -470,6 +551,15 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.loadHostTickets();
   }
 
+  /** The customers/resolved list failed to load — shown as error + retry, not "no complaints". */
+  readonly listLoadError = computed(() =>
+    (this.activeTab() === 'customers' && this.customerError()) ||
+    (this.activeTab() === 'resolved' && this.resolvedError()));
+
+  retryLoadActiveTab(): void {
+    this.loadTabData(this.activeTab());
+  }
+
   resetHostFilters(): void {
     this.hostSearch.set('');
     this.hostPropertyId.set(null);
@@ -477,35 +567,13 @@ export class ComplaintManagementComponent implements OnDestroy {
     this.hostStatus.set(null);
     this.hostDepartment.set(null);
     this.hostPriority.set(null);
+    this.hostSource.set(null);
     this.hostPage.set(1);
     this.loadHostTickets();
   }
 
   private loadResolvedTickets(): void {
-    this.loading.set(true);
-    this.service.getResolvedTicketsOverview({
-      type: this.resolvedType() ?? undefined,
-      search: this.resolvedSearch() || undefined,
-      page: this.resolvedPage(),
-      pageSize: RESOLVED_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data.map(item => this.service.mapTicketsOverviewItemToComplaint(item)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-          return of({ complaints: [], totalCount: 0, totalPages: 1 });
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
-        this.resolvedTickets.set(res.complaints);
-        this.resolvedTotalCount.set(res.totalCount);
-        this.resolvedTotalPages.set(res.totalPages);
-      });
+    this.resolvedLoad$.next();
   }
 
   onResolvedSearchChange(term: string): void {
@@ -526,35 +594,7 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   private loadClientTickets(): void {
-    this.loading.set(true);
-    this.service.getClientTickets({
-      status: this.customerStatus() ?? undefined,
-      department: this.customerDepartment() ?? undefined,
-      priority: this.customerPriority() ?? undefined,
-      assignedAgentUserId: this.customerAssignedAgentUserId() ?? undefined,
-      search: this.customerSearch() || undefined,
-      page: this.customerPage(),
-      pageSize: CLIENT_TICKETS_PAGE_SIZE,
-    })
-      .pipe(
-        map(res => ({
-          complaints: res.data
-            .filter(t => this.service.mapClientTicketStatus(t.status) !== 'closed')
-            .map(t => this.service.mapClientTicketToComplaint(t)),
-          totalCount: res.totalCount,
-          totalPages: res.totalPages,
-        })),
-        catchError(() => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
-          return of({ complaints: [], totalCount: 0, totalPages: 1 });
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe(res => {
-        this.customerAllTickets.set(res.complaints);
-        this.customerTotalCount.set(res.totalCount);
-        this.customerTotalPages.set(res.totalPages);
-      });
+    this.clientLoad$.next(false);
   }
 
   onCustomerSearchChange(term: string): void {
@@ -661,7 +701,6 @@ export class ComplaintManagementComponent implements OnDestroy {
     const assignment = { assignedAdminUserId: employee.userId, assignedAdminName: employee.fullName, assignedAtUtc: new Date().toISOString() };
     const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
     this.customerAllTickets.update(patch);
-    this.customerQueueTickets.update(patch);
     this.hostTickets.update(patch);
 
     if (this.selectedComplaint()?.id === complaintId) {
@@ -669,20 +708,24 @@ export class ComplaintManagementComponent implements OnDestroy {
     }
   }
 
-  // The chat already made the claim call — this reflects the new assignee in the in-memory
-  // lists and drops the ticket out of the priority Queue immediately, without waiting on the
-  // background refresh below (kept for cases another ticket became claimable/requeued too).
+  // The assignee changed since the list loaded — refetch so the row shows who really has it.
+  onAssignConflict(): void {
+    this.loadTabData(this.activeTab());
+  }
+
+  // The chat already made the claim call — this reflects the new assignee (and status) in
+  // the in-memory list right away; the silent refresh then syncs the page with the server.
   onTicketClaimed({ complaintId, agentUserId, agentName }: { complaintId: string; agentUserId: string; agentName: string }): void {
     const assignment = { assignedAdminUserId: agentUserId, assignedAdminName: agentName, assignedAtUtc: new Date().toISOString() };
-    const patch = (list: Complaint[]) => list.map(c => c.id === complaintId ? { ...c, ...assignment } : c);
+    const patch = (list: Complaint[]) => list.map(c =>
+      c.id === complaintId ? { ...c, ...assignment, status: c.status === 'pending' ? 'in_progress' as const : c.status } : c);
     this.customerAllTickets.update(patch);
-    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaintId));
 
     if (this.selectedComplaint()?.id === complaintId) {
       this.selectedComplaint.update(c => c && { ...c, ...assignment });
     }
 
-    this.loadQueueTickets();
+    this.refreshClientTicketsSilently();
   }
 
   openHostComplaint(complaint: Complaint): void {
@@ -702,8 +745,9 @@ export class ComplaintManagementComponent implements OnDestroy {
     // The status update already happened server-side (chat component calls the API
     // before emitting resolve) — just drop it from the active customers list here.
     this.customerAllTickets.update(list => list.filter(c => c.id !== complaint.id));
-    this.customerQueueTickets.update(list => list.filter(c => c.id !== complaint.id));
     this.customerTotalCount.update(count => (count !== null ? Math.max(0, count - 1) : count));
+    // Pull the next open ticket up so the page stays full and the page count stays true.
+    this.refreshClientTicketsSilently();
   }
 
   // Opens the rated session's chat read-only next to the ratings list. The rating's

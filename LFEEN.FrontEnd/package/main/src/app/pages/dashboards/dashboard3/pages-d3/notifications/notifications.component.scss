@@ -121,6 +121,9 @@
   cursor: pointer;
   transition: box-shadow 0.15s, background 0.15s;
 
+  // Looking up the unit/property before navigating.
+  &.opening { cursor: progress; }
+
   &:hover {
     background: #FAFAFA;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);

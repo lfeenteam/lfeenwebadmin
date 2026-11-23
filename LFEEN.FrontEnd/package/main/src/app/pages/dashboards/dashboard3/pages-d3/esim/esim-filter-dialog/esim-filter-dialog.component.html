@@ -27,6 +27,20 @@
           </div>
         </div>
 
+        <div class="filter-group" role="group" aria-labelledby="esim-filter-attention">
+          <span id="esim-filter-attention" class="filter-label">{{ 'd3.esim.filters.attention' | translate }}</span>
+          <div class="status-grid">
+            <button type="button" class="status-option" [class.active]="!draft.needsAttention"
+              [attr.aria-pressed]="!draft.needsAttention" (click)="setNeedsAttention(false)">
+              {{ 'd3.esim.tabs.all' | translate }}
+            </button>
+            <button type="button" class="status-option" [class.active]="draft.needsAttention"
+              [attr.aria-pressed]="draft.needsAttention" (click)="setNeedsAttention(true)">
+              {{ 'd3.esim.attention.badge' | translate }}
+            </button>
+          </div>
+        </div>
+
         <label class="filter-group">
           <span class="filter-label">{{ 'd3.esim.filters.coverage' | translate }}</span>
           <span class="select-wrap">

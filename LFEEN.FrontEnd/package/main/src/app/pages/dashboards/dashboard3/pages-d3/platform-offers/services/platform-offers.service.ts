@@ -13,6 +13,7 @@ import {
   PlatformOfferListResponse,
   PlatformOfferStatistics,
 } from '../interfaces/platform-offer.model';
+import { toApiTime } from '../platform-offer.validators';
 
 @Injectable({ providedIn: 'root' })
 export class PlatformOffersService {
@@ -123,6 +124,8 @@ export class PlatformOffersService {
               data.append(`${key}[${i}].${child}`, String(childValue));
           }),
         );
+      else if (key === 'happyHourStart' || key === 'happyHourEnd')
+        data.append(key, toApiTime(raw));
       else data.append(key, String(raw));
     });
     if (banner) data.append('bannerFile', banner, banner.name);

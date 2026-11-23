@@ -4,7 +4,13 @@
   padding: 0 !important;
 }
 
+// Column layout capped to the viewport: the form takes whatever height is left between the
+// title and the actions, so it only scrolls when the screen is genuinely too short.
 .create-code-dialog {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-height: 90vh;
   padding: 24px;
   background: #fff;
   font-family: 'Cairo', sans-serif;
@@ -22,8 +28,11 @@
 }
 
 .form-scroll {
-  max-height: 64vh;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -225,16 +234,51 @@
   color: #dc2626;
 }
 
+.error-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+// Masked so the riyal sign takes the text colour (red here), like the codes table.
+.currency-icon {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &.currency-icon-en { width: 24px; height: 10px; }
+}
+
+// Sits between .form-scroll and .dialog-actions (not inside the scroll), so it no
+// longer gets the scroll container's gap — space it here instead.
 .server-error {
   display: flex;
-  align-items: center;
+  // flex-start, not center: a centered message taller than max-height would be
+  // clipped at the top where the scroll can't reach it.
+  align-items: flex-start;
   gap: 6px;
+  flex-shrink: 0;
+  margin-top: 14px;
+  max-height: 96px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
   padding: 10px 12px;
   border-radius: 12px;
   background: #fef2f2;
   color: #b91c1c;
   font-size: 12px;
   font-weight: 700;
+
+  i-tabler { flex-shrink: 0; }
 }
 
 .dialog-actions {

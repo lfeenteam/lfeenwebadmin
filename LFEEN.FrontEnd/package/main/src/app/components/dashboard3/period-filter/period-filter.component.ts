@@ -29,8 +29,14 @@ function pad(n: number): string {
 // Builds "YYYY-MM-DDT00:00:00+03:00" straight from calendar Y/M/D components —
 // never through Date#toISOString(), which re-expresses the instant in the
 // browser's own offset and can silently shift a Riyadh midnight to the wrong day.
+//
+// Callers pass raw arithmetic (day - 89, day + 1, month0 - 1), so the components
+// are normalized through Date.UTC first: day -74 → previous months, day 31 of a
+// 30-day month → 1st of next month, month -1 → December of the previous year.
+// UTC (not a local Date) keeps the math free of the browser's zone and DST.
 function isoAtRiyadhMidnight(year: number, month0: number, day: number): string {
-  return `${year}-${pad(month0 + 1)}-${pad(day)}T00:00:00+03:00`;
+  const d = new Date(Date.UTC(year, month0, day));
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T00:00:00+03:00`;
 }
 
 // "Today" in Riyadh, independent of the browser's own time zone: shift the

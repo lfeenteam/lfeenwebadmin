@@ -36,14 +36,15 @@ function releaseValidator(group: AbstractControl): ValidationErrors | null {
   return null;
 }
 
-type FieldName = 'latestVersion' | 'minSupportedVersion' | 'storeUrl' | 'message';
+type FieldName = 'latestVersion' | 'minSupportedVersion' | 'storeUrl' | 'messageAr' | 'messageEn';
 
 /** Maps form fields to the API's field names (camelCased from errors[].field). */
 const SERVER_FIELD: Record<FieldName, string> = {
   latestVersion: 'latestVersion',
   minSupportedVersion: 'minSupportedVersion',
   storeUrl: 'storeUrl',
-  message: 'updateMessageAr',
+  messageAr: 'updateMessageAr',
+  messageEn: 'updateMessageEn',
 };
 
 @Component({
@@ -107,7 +108,8 @@ export class AppUpdatesComponent implements OnInit {
     minSupportedVersion: ['', Validators.pattern(VERSION_PATTERN)],
     policy: this.fb.nonNullable.control<UpdatePolicy>('Optional'),
     storeUrl: ['', Validators.pattern(STORE_URL)],
-    message: ['', Validators.maxLength(MESSAGE_MAX)],
+    messageAr: ['', Validators.maxLength(MESSAGE_MAX)],
+    messageEn: ['', Validators.maxLength(MESSAGE_MAX)],
   }, { validators: releaseValidator });
 
   constructor() {
@@ -212,7 +214,8 @@ export class AppUpdatesComponent implements OnInit {
       minSupportedVersion: configured ? r!.minSupportedVersion ?? '' : '',
       policy: configured && r!.enforceMinVersionOnServer ? 'Forced' : 'Optional',
       storeUrl: configured ? r!.storeUrl ?? '' : '',
-      message: configured ? r!.updateMessageAr ?? '' : '',
+      messageAr: configured ? r!.updateMessageAr ?? '' : '',
+      messageEn: configured ? r!.updateMessageEn ?? '' : '',
     }, { emitEvent: false });
     if (this.canManage) this.form.enable({ emitEvent: false });
     else this.form.disable({ emitEvent: false });
@@ -267,14 +270,16 @@ export class AppUpdatesComponent implements OnInit {
       return;
     }
 
-    // The whole form is sent — safe with the API's partial update; "" clears a text field.
+    // The whole form is sent; "" clears a text field. Both messages always go — the API
+    // overwrites each one with what it receives, so a missing field would wipe it.
     const v = this.form.getRawValue();
     const body: SaveReleaseRequest = {
       latestVersion: v.latestVersion.trim(),
       minSupportedVersion: v.minSupportedVersion.trim(),
       updatePolicy: v.policy,
       storeUrl: v.storeUrl.trim(),
-      updateMessageAr: v.message.trim(),
+      updateMessageAr: v.messageAr.trim(),
+      updateMessageEn: v.messageEn.trim(),
     };
 
     this.saving = true;
@@ -301,6 +306,15 @@ export class AppUpdatesComponent implements OnInit {
 
   get policy(): UpdatePolicy {
     return this.form.controls.policy.value;
+  }
+
+  /**
+   * What the app shows in the panel's language, like the API: English falls back to the
+   * Arabic message; empty means the app's own default text.
+   */
+  get previewMessage(): string {
+    const ar = this.form.controls.messageAr.value.trim();
+    return this.currentLang === 'en' ? this.form.controls.messageEn.value.trim() || ar : ar;
   }
 
   get minVersionLabel(): string {

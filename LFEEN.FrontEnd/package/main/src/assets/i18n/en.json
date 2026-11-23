@@ -99,6 +99,11 @@
   "Menu 2": "Menu 2",
   "Disabled": "Disabled",
   "common": {
+    "httpErrors": {
+      "serviceBusy": "The service is busy right now. Please try again in a moment.",
+      "networkUnstable": "Your internet connection seems unstable. Check it and try again.",
+      "tooManyRequests": "Too many requests in a short time. Please wait a moment and try again."
+    },
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
@@ -230,7 +235,20 @@
       },
       "neverDelivered": "No invitation delivered yet",
       "filters": {
-        "all": "All"
+        "all": "All",
+        "allKinds": "All types"
+      },
+      "kinds": {
+        "Merchant": "Host",
+        "Client": "Guest"
+      },
+      "kindAccounts": {
+        "Merchant": "Host account",
+        "Client": "Guest account"
+      },
+      "kindOptions": {
+        "Merchant": "Host account (host app)",
+        "Client": "Guest account (guest app)"
       },
       "status": {
         "Ready": "Ready",
@@ -246,6 +264,7 @@
       },
       "table": {
         "name": "Name",
+        "kind": "Type",
         "email": "Email",
         "contactPhone": "Contact phone",
         "channel": "Channel",
@@ -289,9 +308,18 @@
       },
       "create": {
         "title": "Create demo account",
-        "pageHelp": "Enter the host's details, then write the invitation and check it before sending.",
+        "pageHelp": "Pick the account type and enter the person's details, then write the invitation and check it before sending.",
         "accountSection": "Account details",
         "noName": "No name",
+        "kind": "Account type",
+        "kindOptions": {
+          "Merchant": "Host account (host app)",
+          "Client": "Guest account (guest app)"
+        },
+        "kindHelp": {
+          "Merchant": "Signs in to the host app (web and mobile) only, with a demo facility.",
+          "Client": "Signs in to the guest app only, with 3 sample bookings: upcoming, current stay and past. It can't book or pay."
+        },
         "fullName": "Full name",
         "channel": "Invitation channel",
         "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
@@ -327,7 +355,9 @@
         "confirmClose": "I've saved the details, close",
         "copyAll": {
           "heading": "Lfeen sign-in details (demo account)",
+          "headingClient": "Lfeen guest app sign-in details (demo account)",
           "sid": "ID number",
+          "birthDate": "Date of birth",
           "phone": "Phone number",
           "pin": "PIN",
           "expires": "Trial ends"
@@ -339,7 +369,9 @@
         "contactPhone": "Contact phone",
         "channel": "Channel",
         "note": "Internal note",
+        "kind": "Account type",
         "loginSid": "ID number (sign-in)",
+        "birthDate": "Date of birth (sign-in)",
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
         "invitationSubject": "Invitation subject",
@@ -458,13 +490,25 @@
         "DEMO_INVITATION_TEMPLATE_INVALID": "There is a problem in the invitation text. Check the marks in the text.",
         "DEMO_TEST_SEND_FAILED": "The test copy could not be sent. Try again shortly.",
         "DEMO_ACTIVATION_REQUEST_NOT_FOUND": "The request was not found.",
+        "DEMO_KIND_INVALID": "Invalid account type. Choose a host account or a guest account.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }
     },
     "state": {
       "loadError": "Could not load data",
+      "loadErrorDesc": "We couldn't reach the server. Check your connection and try again.",
+      "forbidden": "No permission",
+      "forbiddenDesc": "You don't have permission to view this data. Contact your system administrator if you need it.",
       "retry": "Retry"
+    },
+    "noAccess": {
+      "pageTitle": "No access",
+      "title": "You don't have permission to access this page",
+      "subtitle": "Your account lacks the permission needed to open this page. Contact your system administrator if you need it.",
+      "emptySubtitle": "Your account hasn't been given any admin panel permissions yet. Contact your system administrator.",
+      "homeButton": "Go to my home page",
+      "logoutButton": "Log out"
     },
     "filters": {
       "ariaLabel": "Select the dashboard period",
@@ -539,11 +583,15 @@
       "complaints": "Complaints",
       "customers": "Customers",
       "faq": "FAQ",
+      "serviceFaq": "Service App FAQ",
       "contactUs": "Contact Us",
       "settlements": "Settlements",
       "walletApprovals": "Wallet Approvals",
+      "settlementDebts": "Merchant Debts",
       "platformOffers": "Platform Offers",
       "banRefunds": "Ban Refunds",
+      "cancellationRefunds": "Cancellation Refunds",
+      "agreements": "Agreements",
       "callScripts": "Call Scripts",
       "additionalConditions": "Additional Conditions",
       "esim": "eSIM",
@@ -704,6 +752,8 @@
       },
       "nextAttempt": "Next attempt: {{date}}",
       "resolvedBy": "Handled by {{name}}",
+      "technicalDetails": "Technical details",
+      "technicalDetailsHide": "Hide technical details",
       "tabs": {
         "all": "All"
       },
@@ -711,6 +761,7 @@
         "pending": "Refund in progress",
         "retrying": "Retrying…",
         "succeeded": "Refunded",
+        "nothingToRefund": "Nothing to refund",
         "manualReview": "Needs manual review",
         "resolved": "Handled manually"
       },
@@ -718,6 +769,8 @@
         "booking": "Booking no.",
         "property": "Building #{{id}}",
         "unit": "Unit #{{id}}",
+        "unitNumber": "Unit {{number}}",
+        "listing": "Building",
         "guest": "Guest",
         "amount": "Amount",
         "attempts": "Attempts",
@@ -749,6 +802,279 @@
       "errors": {
         "notInManualReview": "This refund was already handled — the list has been refreshed",
         "notFound": "Refund not found",
+        "loadTitle": "Couldn't load refunds",
+        "loadDesc": "Check your connection and try again."
+      }
+    },
+    "agreements": {
+      "title": "Agreements",
+      "subtitle": "Manage agreement versions and their clauses, from draft to publishing and ending.",
+      "breadcrumb": "Breadcrumb",
+      "types": {
+        "Host": "Host agreement",
+        "ServiceLevel": "Service level agreement"
+      },
+      "status": {
+        "Draft": "Draft",
+        "Published": "Published",
+        "Ended": "Ended",
+        "Expired": "Expired"
+      },
+      "versionN": "Version {{n}}",
+      "signersN": "{{n}} signers",
+      "clauseCount": {
+        "zero": "No clauses",
+        "one": "{{n}} clause",
+        "two": "{{n}} clauses",
+        "few": "{{n}} clauses",
+        "many": "{{n}} clauses",
+        "other": "{{n}} clauses"
+      },
+      "versionsCount": "{{n}} versions",
+      "current": "Current",
+      "currentVersion": "Current version",
+      "signaturesValid": "Signatures valid",
+      "noExpiry": "No expiry date",
+      "notPublished": "Not published yet",
+      "byName": "by {{name}}",
+      "bySystem": "Automatically by the system",
+      "allVersions": "All versions",
+      "unsavedChanges": "Unsaved changes",
+      "lastSaved": "Saved {{date}}",
+      "saving": "Saving…",
+      "creating": "Creating…",
+      "publishing": "Publishing…",
+      "editDraftTitle": "Edit {{type}} draft",
+      "actions": {
+        "newDraft": "New draft",
+        "retry": "Try again",
+        "edit": "Edit",
+        "view": "View",
+        "copyAsDraft": "Copy as new draft",
+        "previewPdf": "Preview PDF",
+        "editExpiry": "Edit expiry date",
+        "end": "End version",
+        "delete": "Delete",
+        "deleteDraft": "Delete draft",
+        "save": "Save",
+        "publish": "Publish",
+        "back": "Back",
+        "more": "More actions"
+      },
+      "fields": {
+        "publishedAt": "Published on",
+        "signers": "Signers",
+        "expiresAt": "Expiry date",
+        "version": "Version",
+        "published": "Published",
+        "signersCount": "Signers",
+        "endedAt": "Ended",
+        "state": "State"
+      },
+      "table": {
+        "version": "Version",
+        "title": "Title",
+        "status": "Status",
+        "current": "Current",
+        "clauses": "Clauses",
+        "signers": "Signers",
+        "published": "Published",
+        "expires": "Expires",
+        "ended": "Ended",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "range": "Showing {{from}}–{{to}} of {{total}} versions",
+        "prev": "Previous",
+        "next": "Next"
+      },
+      "empty": {
+        "title": "No versions of the {{type}} yet",
+        "desc": "Start a new draft and add the agreement details and clauses in Arabic and English.",
+        "hint": "Use the «New draft» button at the top of the page to begin."
+      },
+      "errors": {
+        "loadTitle": "Couldn't load the agreements",
+        "loadVersionTitle": "Couldn't load this version",
+        "loadDesc": "Check your connection and try again.",
+        "forbidden": "You don't have permission to do this",
+        "notFound": "Agreement not found",
+        "network": "Couldn't reach the service, please try again",
+        "action": "Something went wrong, please try again",
+        "preview": "Couldn't open the PDF preview",
+        "unknownResult": "The connection dropped, so we couldn't confirm whether the action went through. The data has been refreshed — check the version's state before trying again."
+      },
+      "preview": {
+        "loading": "Loading the PDF…",
+        "blocked": "The browser blocked the new tab. Allow pop-ups for this site and try again."
+      },
+      "toast": {
+        "draftCreated": "Draft created",
+        "draftDeleted": "Draft deleted",
+        "saved": "Draft saved",
+        "published": "Version {{n}} published",
+        "expiryUpdated": "Expiry date updated",
+        "ended": "Version {{n}} ended"
+      },
+      "newDraft": {
+        "title": "New draft",
+        "subtitle": "Create a draft of the {{type}}, or start from an existing version.",
+        "publishedOn": "Published {{date}}",
+        "editedOn": "Last edited {{date}}",
+        "blank": "Blank draft",
+        "blankDesc": "Start with a new title, description and list of clauses.",
+        "copy": "Copy an existing version",
+        "copyDesc": "Copies the details and clauses; the original version doesn't change.",
+        "noSources": "There are no versions of this agreement to copy yet.",
+        "source": "Source version",
+        "sourceRequired": "Choose the version to copy",
+        "hint": "A new draft will be created.",
+        "submit": "Create draft"
+      },
+      "publish": {
+        "title": "Publish agreement",
+        "expiryLabel": "Expiry date (optional)",
+        "expiryHint": "Pick a future date, or leave it empty for no expiry date.",
+        "endPrevious": "End previous versions",
+        "endPreviousWarning": "Every previously published version of this agreement will end immediately, and everyone who signed them ({{n}}) will need to sign again.",
+        "note": "This draft becomes the current version as soon as it's published.",
+        "submit": "Publish agreement"
+      },
+      "expiry": {
+        "title": "Edit expiry date",
+        "label": "Expiry date",
+        "remove": "Remove the date",
+        "hint": "Past days aren't available. Removing the date cancels the automatic expiry.",
+        "removeHint": "The version stays published until it is ended manually.",
+        "submit": "Save changes"
+      },
+      "date": {
+        "placeholder": "Pick a date",
+        "noExpiry": "No expiry date",
+        "clear": "Clear date",
+        "mustBeFuture": "The expiry date must be in the future",
+        "required": "Pick a date, or tick «Remove the date»"
+      },
+      "delete": {
+        "title": "Delete the draft?",
+        "alertTitle": "The draft and all its clauses will be deleted permanently.",
+        "alertText": "This draft can't be restored after it's deleted.",
+        "text": "Published versions and their signers won't be affected.",
+        "confirm": "Delete draft"
+      },
+      "end": {
+        "title": "End version {{n}}?",
+        "alertTitle": "This action can't be undone",
+        "alertText": "Version {{n}} will end immediately, and no new user will be able to sign it.",
+        "heading": "{{count}} signers will be affected",
+        "text": "Signers will need to sign the current available version. If there's no published version, publish a new one so signing is possible.",
+        "confirm": "End version"
+      },
+      "unsaved": {
+        "title": "Leave without saving?",
+        "alertTitle": "You have changes that aren't saved",
+        "alertText": "If you leave this page, your changes to the draft will be lost.",
+        "confirm": "Leave without saving"
+      },
+      "validation": {
+        "required": "{{field}} is required",
+        "bannerFields": "{{n}} error(s) — review the highlighted fields.",
+        "bannerClause": "{{n}} error(s) — review clause {{clause}}.",
+        "noClauses": "Add at least one clause before publishing"
+      },
+      "form": {
+        "dataTitle": "Agreement details",
+        "titleAr": "Title in Arabic",
+        "titleEn": "Title in English",
+        "descriptionAr": "Description in Arabic",
+        "descriptionEn": "Description in English",
+        "clause_titleAr": "Clause title in Arabic",
+        "clause_titleEn": "Clause title in English",
+        "clause_contentAr": "Clause content in Arabic",
+        "clause_contentEn": "Clause content in English",
+        "clausesTitle": "Clauses",
+        "clausesHint": "{{n}} · drag to reorder",
+        "clausesOrdered": "{{n}} · in order",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "drag": "Drag to reorder",
+        "addClause": "Add clause",
+        "noClauses": "No clauses yet. Add the first clause.",
+        "noClausesView": "This version has no clauses.",
+        "untitledClause": "Untitled clause"
+      }
+    },
+    "cancellationRefunds": {
+      "title": "Stalled Cancellation Refunds",
+      "currencySar": "SAR",
+      "intro": "Guest refunds for cancelled bookings that failed automatically 6 times and stopped for review. “Retry” puts the refund back in the queue; the system picks it up within about 30 seconds.",
+      "refresh": "Refresh",
+      "cancelledAt": "Opened {{date}}",
+      "technicalDetails": "Technical details",
+      "technicalDetailsHide": "Hide technical details",
+      "queuedHint": "Leaves this list once it's picked up, and comes back here if it fails again",
+      "notRetryableHint": "A retry can't fix this — refund the guest outside the system, then mark it resolved",
+      "failureReasons": {
+        "manualRefundRequired": "Cash or bank-transfer payment with no gateway to refund it — refund it manually, then close the case",
+        "gatewayError": "The payment gateway rejected the refund",
+        "maxAttemptsReached": "Failed after every retry attempt",
+        "requiresManualReview": "Needs a manual review",
+        "unknown": "The refund failed for an unknown reason"
+      },
+      "status": {
+        "manualReview": "Needs review",
+        "queued": "Queued for retry…"
+      },
+      "table": {
+        "booking": "Booking no.",
+        "property": "Building #{{id}}",
+        "unit": "Unit #{{id}}",
+        "unitNumber": "Unit {{number}}",
+        "listing": "Building",
+        "guest": "Guest",
+        "amount": "Amount",
+        "attempts": "Attempts",
+        "status": "Status",
+        "date": "Last attempt"
+      },
+      "actions": {
+        "retry": "Retry",
+        "resolve": "Mark resolved"
+      },
+      "resolveDialog": {
+        "title": "Close as refunded manually",
+        "desc": "Use this after the guest was refunded outside the system (e.g. by bank transfer) for booking {{booking}}. Amount due: {{amount}} {{currency}}. The system won't try to refund it again.",
+        "amountLabel": "Amount refunded",
+        "referenceLabel": "Reference number (optional)",
+        "referencePlaceholder": "e.g. TRANSFER-123",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "e.g. Refunded by bank transfer on …",
+        "confirmBtn": "Close case",
+        "submitting": "Saving…",
+        "errors": {
+          "amountRequired": "Enter the amount that was refunded",
+          "amountPositive": "Amount must be greater than zero",
+          "amountAbove": "Amount can't be more than what's due ({{amount}} {{currency}})",
+          "uncertain": "No response from the server. The case may already be closed — refresh the list before trying again."
+        }
+      },
+      "toast": {
+        "retryQueued": "Refund queued for retry — the list will refresh in about 40 seconds",
+        "resolved": "Case closed as refunded manually"
+      },
+      "empty": {
+        "title": "No stalled refunds",
+        "desc": "Every cancellation refund is going through normally."
+      },
+      "pagination": {
+        "total": "refunds"
+      },
+      "errors": {
+        "notInManualReview": "This refund was already retried or completed — the list has been refreshed",
+        "notFound": "Refund not found",
+        "forbidden": "You don't have permission to retry refunds",
+        "forbiddenResolve": "You don't have permission to close refunds",
+        "network": "Couldn't reach the service, please try again",
         "loadTitle": "Couldn't load refunds",
         "loadDesc": "Check your connection and try again."
       }
@@ -1431,7 +1757,7 @@
         "jobRole": "Job Role",
         "jobRolePlaceholder": "Choose Job Role",
         "tempPassword": "Temporary Password",
-        "passwordHint": "This password will be sent to the employee's email automatically.",
+        "passwordHint": "A temporary password will be generated and sent to the employee's email automatically.",
         "submit": "Save and Send",
         "validation": {
           "nameRequired": "Name is required",
@@ -1723,7 +2049,8 @@
       "cancelBtn": "Cancel",
       "dependencyBlocked": "This permission can't be disabled because it's required by: {{names}}",
       "validation": {
-        "nameRequired": "Role name is required"
+        "nameRequired": "Role name is required",
+        "permissionsRequired": "Select at least one permission for this role"
       }
     },
     "addRoleDialog": {
@@ -1884,7 +2211,10 @@
       "noPermissions": "No permissions defined for this department",
       "rolePermsEdit": {
         "saveBtn": "Save changes",
-        "saveSuccess": "Role permissions updated"
+        "saveSuccess": "Role permissions updated",
+        "removeAllTitle": "Remove all permissions?",
+        "removeAllMessage": "All permissions will be removed from this role, and employees assigned to it will lose all their access. Do you want to continue?",
+        "removeAllConfirm": "Remove all permissions"
       },
       "table": {
         "department": "Department / Job Title",
@@ -2196,6 +2526,7 @@
           "IndividualHousing": "Individual Housing"
         },
         "viewTypesLabel": "Available Views",
+        "spokenLanguagesLabel": "Languages spoken by the host team",
         "businessTypeLabel": "Business Type",
         "districtLabel": "Facade Direction",
         "organizationLabel": "Operating Organization",
@@ -2380,6 +2711,7 @@
           "children": "Children",
           "maxChildAge": "Max Child Age",
           "maxChildAgeValue": "Up to {{age}} years",
+          "maxChildAgeNotSet": "Not set",
           "childrenNotAllowed": "Children not allowed",
           "area": "Area",
           "floor": "Floor Number",
@@ -2517,6 +2849,7 @@
           "children": "Children",
           "maxChildAge": "Max child age",
           "ageYears": "{{age}} yrs",
+          "ageNotSet": "Not set",
           "basePrice": "Base Price",
           "minimumPrice": "Minimum Price",
           "status": "Status",
@@ -2961,13 +3294,24 @@
         "errorMsg": "Something went wrong while loading tickets.",
         "emptyFiltered": "No tickets match the current filters",
         "clearFilters": "Clear filters",
-        "dateRangeError": "\"Date from\" must not be after \"Date to\""
+        "dateRangeError": "\"Date from\" must not be after \"Date to\"",
+        "source": {
+          "all": "All sources",
+          "host": "Host",
+          "worker": "Worker"
+        }
       },
       "clientStatus": {
         "open": "Open",
         "pending": "Pending",
         "resolved": "Resolved",
         "closed": "Closed"
+      },
+      "resolvedOutcome": {
+        "resolvedByAgent": "Resolved by an agent",
+        "closedByClient": "Closed by the client",
+        "closedByHost": "Closed by the host",
+        "closedByAdmin": "Closed by an admin"
       },
       "customerFilters": {
         "dept": {
@@ -3023,7 +3367,12 @@
         "supportReplyTime": "09:40 PM",
         "supportReplyBody": "Hello Mr. Fahad, we apologize for the inconvenience. We identified that the issue is caused by a temporary real-time sync problem. Our technical team is working on it now, and we will update you within less than an hour.",
         "supportReplySentNotice": "This reply was sent by email and app notifications",
-        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply."
+        "internalNoteBadge": "Internal note",
+        "internalNoteHint": "Internal note for the support team only — not sent to the merchant",
+        "notice": "The final reply will be sent to the host, and the ticket will be closed after sending the reply.",
+        "notFoundTitle": "Ticket not found",
+        "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
+        "backToList": "Back to complaints"
       },
       "assignDialog": {
         "title": "Assign Complaint to Employee",
@@ -3036,10 +3385,16 @@
         },
         "empty": "No matching employees",
         "selectHint": "Choose an employee from the list to follow up this complaint.",
+        "inactive": "Inactive",
         "confirmTextPrefix": "You selected",
         "confirmTextSuffix": "to follow up this complaint. An instant notification will be sent to the assigned employee.",
         "confirmBtn": "Confirm Assignment",
-        "success": "Employee assigned successfully"
+        "success": "Employee assigned successfully",
+        "notFoundTitle": "Ticket not found",
+        "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
+        "closedTitle": "This ticket is closed",
+        "closedDesc": "This ticket has been resolved or closed, so it can't be assigned to an employee.",
+        "backToList": "Back to complaints"
       }
     },
     "chatFab": {
@@ -3177,7 +3532,21 @@
         "errors": {
           "sameUnit": "The selected unit is the same as the current unit",
           "unitNotFound": "Unit not found",
-          "differentProperty": "The unit must be in the same property"
+          "differentProperty": "The unit must be in the same property",
+          "unitNotAvailable": "This unit isn't available for the booking dates: it's blocked (maintenance or cleaning) or not ready. Pick another unit."
+        },
+        "result": {
+          "toast": "Unit changed",
+          "title": "Unit changed",
+          "desc": "Booking {{booking}} moved to {{unit}} and was repriced at the new unit's rate.",
+          "oldPrice": "Previous price",
+          "newPrice": "New price",
+          "difference": "Difference",
+          "noChange": "Price unchanged",
+          "hintUp": "The new price is higher; the difference is owed by the guest.",
+          "hintDown": "The new price is lower; the difference is in the guest's favor.",
+          "noPricing": "The unit was changed. Check the booking details to confirm the price.",
+          "doneBtn": "Done"
         }
       },
       "cancelBookingDialog": {
@@ -3216,11 +3585,10 @@
           "checkOut": "Check-out",
           "checkIn": "Check-in",
           "duration": "Stay Duration",
-          "nights": "nights",
-          "nightsOne": "1 night",
-          "nightsTwo": "2 nights",
-          "nightsFew": "{{count}} nights",
-          "nightsMany": "{{count}} nights",
+          "nights": {
+            "one": "{{count}} night",
+            "other": "{{count}} nights"
+          },
           "actualCheckIn": "Actual check-in",
           "actualCheckOut": "Actual check-out",
           "notCheckedInYet": "Guest hasn't checked in yet",
@@ -3231,7 +3599,14 @@
           "rentSummaryTitle": "Rent Summary",
           "nightlyRate": "Nightly Rate",
           "totalRent": "Total Rent",
-          "nightsBreakdown": "{{nights}} nights × {{rate}} SAR",
+          "nightsBreakdown": {
+            "one": "{{count}} night × {{rate}} SAR",
+            "other": "{{count}} nights × {{rate}} SAR"
+          },
+          "baseRent": "Base Rent",
+          "additionalFees": "Additional Fees",
+          "totalAmount": "Total Amount",
+          "totalBreakdown": "Rent {{rent}} + fees {{fees}}",
           "remainingAmount": "Remaining Amount",
           "paidAmount": "Paid Amount",
           "depositTitle": "Deposit Amount",
@@ -3240,12 +3615,17 @@
           "depositTotal": "Total Deposit"
         },
         "servicesTab": {
-          "currentRequestsTitle": "Current Requests",
+          "title": "Service Requests",
           "totalLabel": "Total",
-          "empty": "No current requests"
+          "free": "Free",
+          "empty": "No service requests"
         },
         "logTab": {
-          "recentActivityTitle": "Last {{count}} Activities",
+          "recentActivityTitle": {
+            "zero": "Recent Activity",
+            "one": "Last Activity",
+            "other": "Last {{count}} Activities"
+          },
           "byLabel": "By",
           "empty": "No activity log",
           "source": {
@@ -3365,9 +3745,11 @@
         "endsAtHint": "Until switched off",
         "clearDate": "Clear time",
         "riyadhTimeHint": "Times are in Saudi time.",
-        "message": "Maintenance message",
-        "messagePlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
-        "messageHint": "The message is kept after maintenance is switched off.",
+        "message": "Maintenance message (Arabic)",
+        "messagePlaceholder": "تطبيق لفين يخضع حاليًا لبعض التحسينات. سنعود إليك قريبًا، شكرًا لتفهمك.",
+        "messageEn": "Maintenance message (English)",
+        "messageEnPlaceholder": "The LFEEN app is undergoing some improvements. We'll be back soon, thanks for your patience.",
+        "messageHint": "Messages are kept after maintenance is switched off. If the English one is empty, English users see the Arabic message.",
         "save": "Save maintenance settings",
         "cancel": "Discard changes",
         "saveSuccess": "Maintenance settings saved",
@@ -3418,7 +3800,10 @@
         },
         "storeUrl": "Store link",
         "message": "Update message (Arabic)",
-        "messagePlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
+        "messagePlaceholder": "يتوفر إصدار جديد من تطبيق لفين. يرجى التحديث للاستمرار والاستفادة من أحدث المميزات.",
+        "messageEn": "Update message (English)",
+        "messageEnPlaceholder": "A new version of LFEEN is available. Please update to continue and enjoy the latest features.",
+        "messageEnHint": "Optional: if left empty, English users see the Arabic message.",
         "save": "Save version settings",
         "saveSuccess": "Version settings saved",
         "previewTitle": "Update message preview",
@@ -3545,6 +3930,7 @@
         "network": "Network Type",
         "allNetworks": "All networks",
         "networkOption": "{{value}} networks",
+        "attention": "Support follow-up",
         "clear": "Clear",
         "showResults": "Show results ({{count}})"
       },
@@ -3631,6 +4017,72 @@
         "unsuspendSuccess": "SIM resumed",
         "revokeSuccess": "SIM revoked"
       },
+      "stateReason": {
+        "reasonLabel": "Reason",
+        "reasonHint": "The reason is saved with your name in the support actions log.",
+        "submitting": "Working…",
+        "suspend": {
+          "title": "Suspend SIM",
+          "desc": "Temporarily suspend this SIM: {{sim}}. It can be resumed later.",
+          "placeholder": "e.g. Customer asked to pause the SIM after losing their phone",
+          "confirmBtn": "Suspend"
+        },
+        "revoke": {
+          "title": "Revoke SIM permanently",
+          "desc": "Revoke this SIM: {{sim}}.",
+          "placeholder": "e.g. Confirmed account fraud after support review",
+          "confirmBtn": "Revoke permanently"
+        },
+        "errors": {
+          "reasonRequired": "Reason is required",
+          "uncertain": "No response from the server. The action may have gone through — refresh and check the SIM's status before trying again."
+        }
+      },
+      "adminLog": {
+        "title": "Support actions log",
+        "subtitle": "Who did what, why, and when",
+        "empty": "No support actions on this SIM yet",
+        "unknownAdmin": "Unknown",
+        "amount": "Amount",
+        "types": {
+          "refund": "Refund",
+          "suspend": "Suspended",
+          "unsuspend": "Resumed",
+          "revoke": "Revoked",
+          "sms": "SMS sent"
+        }
+      },
+      "attention": {
+        "badge": "Needs follow-up",
+        "hint": "Flagged for support — e.g. the provider cancelled it while the order is still paid. Refunding the order clears the flag."
+      },
+      "refund": {
+        "action": "Refund",
+        "title": "Refund eSIM order",
+        "desc": "Refunds the order for {{package}}. If the order covers more than one SIM, the refund applies to the whole order.",
+        "total": "Order total",
+        "refunded": "Refunded",
+        "remaining": "Left to refund",
+        "sar": "SAR",
+        "notRefundable": "This order has nothing left to refund",
+        "amountLabel": "Amount (SAR, optional)",
+        "amountPlaceholder": "Leave empty to refund everything left",
+        "amountHint": "Leave empty for a full refund of what hasn't been refunded yet.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "e.g. Guest never received the eSIM — provider confirmed install failure",
+        "confirmBtn": "Refund",
+        "submitting": "Refunding…",
+        "success": "Order refunded",
+        "partialSuccess": "Order partially refunded",
+        "panelTitle": "Order refund",
+        "panelHint": "Refund the order behind this SIM, in full or in part.",
+        "errors": {
+          "amountPositive": "Amount must be greater than zero",
+          "amountAboveRemaining": "Amount can't be more than what's left to refund ({{remaining}} SAR)",
+          "reasonRequired": "Reason is required",
+          "uncertain": "No response from the server. The refund may have gone through — refresh and check the order before trying again."
+        }
+      },
       "dates": {
         "activation": "Activated",
         "expiry": "Expires",
@@ -3644,7 +4096,20 @@
         "forbidden": "You don't have permission to do this",
         "notFound": "SIM not found",
         "generic": "Something went wrong, please try again",
+        "refundNotRefundable": "This order can't be refunded in its current payment state",
+        "refundTooLarge": "The amount is more than what's left to refund on this order",
+        "refundInProgress": "A refund for this order is already in progress — try again shortly",
+        "orderNotFound": "Order not found",
         "retry": "Try again"
+      },
+      "payment": {
+        "paid": "Paid",
+        "authorized": "Authorized",
+        "partiallyRefunded": "Partially refunded",
+        "refunded": "Refunded",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "checkoutCreated": "Awaiting payment"
       },
       "empty": {
         "title": "No SIMs",
@@ -3666,7 +4131,8 @@
       "subtitle": "Track payment settlement requests with accounts",
       "tabs": {
         "current": "Current Settlements",
-        "previous": "Previous Settlements"
+        "previous": "Previous Settlements",
+        "debts": "Merchant Debts"
       },
       "stats": {
         "maxPaymentTime": "Max Payment Time",
@@ -3688,14 +4154,24 @@
       },
       "paymentMethods": {
         "bankTransfer": "Bank Transfer",
-        "mada": "Mada Network"
+        "mada": "Mada Network",
+        "card": "Card",
+        "applePay": "Apple Pay",
+        "stcPay": "STC Pay",
+        "wallet": "Wallet",
+        "tabby": "Tabby",
+        "tamara": "Tamara",
+        "visa": "Visa",
+        "mastercard": "Mastercard",
+        "gatewayOnline": "Online payment"
       },
       "status": {
         "pending": "Pending Review",
         "processing": "Processing",
         "approved": "Completed",
         "partiallyCompleted": "Partially Completed",
-        "rejected": "Rejected"
+        "rejected": "Rejected",
+        "onHold": "On Hold"
       },
       "errors": {
         "loadTitle": "Couldn't load settlements",
@@ -3711,7 +4187,64 @@
         "generic": "Something went wrong, please try again",
         "receiptType": "Unsupported file type (JPG, PNG, PDF only)",
         "receiptSize": "File exceeds the maximum size (5 MB)",
-        "receiptUploadFailed": "The settlement was executed, but the receipt couldn't be uploaded."
+        "receiptUploadFailed": "The receipt couldn't be uploaded, so the settlement was not executed.",
+        "receiptRequired": "A settlement receipt must be uploaded before executing it. The settlement was not executed, please try again.",
+        "block": {
+          "needsRecalculation": "This payout must be recalculated before it can be executed.",
+          "refundInProgress": "A refund on this payout is still in progress — please try again later.",
+          "debtOutstanding": "This merchant has an outstanding settlement debt."
+        }
+      },
+      "recalc": {
+        "badge": "Needs recalculation",
+        "openBtn": "Recalculate",
+        "title": "Recalculate Payout",
+        "loading": "Calculating...",
+        "dryRunHint": "This is a preview — nothing is saved until you apply it.",
+        "old": "Current",
+        "new": "After recalculation",
+        "gross": "Gross",
+        "fee": "Fee",
+        "net": "Net",
+        "diff": "Difference",
+        "noChanges": "No changes",
+        "adjustments": "Adjustments",
+        "kind": {
+          "refundAfterPayout": "Refund after payout",
+          "refundAfterSettlement": "Refund after settlement",
+          "adjustment": "Adjustment"
+        },
+        "newLine": "New line",
+        "removedLine": "Will be removed",
+        "checking": "Checking the payout's status...",
+        "onHoldBadge": "Refund in progress",
+        "onHoldTitle": "This payout is on hold and can't be executed yet",
+        "blockerSummary": "A refund on this settlement's bookings hasn't completed yet — finish the refund, then try again.",
+        "blockerDetails": "Details",
+        "blockedTitle": "The recalculation can't be applied yet",
+        "applyBtn": "Apply",
+        "applied": "The payout was recalculated",
+        "appliedHint": "The payout was recalculated — these are the saved figures."
+      },
+      "debts": {
+        "title": "Merchant debts",
+        "searchPlaceholder": "Search by merchant...",
+        "merchant": "Merchant",
+        "owedByMerchant": "Owed by merchant",
+        "owedToMerchant": "Owed to merchant",
+        "balance": "Balance",
+        "since": "Since",
+        "claim": "Claim",
+        "alert": "Alert",
+        "lines": "Details",
+        "lineMethod": "Payment method",
+        "lineRefundDate": "Refund date",
+        "filteredBy": "Showing",
+        "showAll": "Show all",
+        "viewMerchantDebts": "View merchant debts",
+        "loadTitle": "Couldn't load merchant debts",
+        "emptyTitle": "No merchant debts",
+        "emptyDesc": "No merchant currently has an outstanding settlement debt"
       },
       "rejectionReasonPrefix": "Rejection reason",
       "rejectionReasons": {
@@ -3766,7 +4299,6 @@
         "actualAmount": "Actual Transferred Amount",
         "partialReasonLabel": "Partial transfer reason",
         "partialReasonPlaceholder": "Explain why less than the requested amount was transferred...",
-        "retryReceiptBtn": "Re-upload receipt",
         "trxId": "Transaction Reference Number (TRX ID)",
         "trxIdPlaceholder": "Enter the 12-digit bank reference number...",
         "receiptLabel": "Transfer Receipt (Image or PDF)",
@@ -3791,7 +4323,15 @@
         "rejectDoneTitle": "Rejection Completed Successfully",
         "rejectDoneMessage": "A rejection notice was sent to the host and the transaction status updated in the system",
         "recordedReason": "Recorded Rejection Reason",
-        "rejectionDate": "Rejection Date"
+        "rejectionDate": "Rejection Date",
+        "status": "Status",
+        "executionSection": "Execution Details",
+        "remainingAmount": "Remaining Amount",
+        "processedBy": "Processed By",
+        "receipt": "Transfer Receipt",
+        "viewReceipt": "View receipt",
+        "remainderOf": "This settlement is the remainder of a partial transfer of settlement {{ref}}",
+        "remainderOfUnknown": "This settlement is the remainder of a partial transfer of an earlier settlement"
       }
     },
     "wallet": {
@@ -3873,6 +4413,7 @@
         "notEditable": "This entry can't be edited",
         "entryNotFound": "Entry not found — refresh the page",
         "accountNotFound": "The merchant account doesn't exist or isn't active",
+        "notFoundTitle": "Account not found",
         "sameAdminNotAllowed": "You can't approve a request you submitted — another admin has to approve it",
         "tooManyDecimals": "The amount accepts up to 2 decimal places",
         "generic": "Something went wrong, please try again"
@@ -4061,12 +4602,24 @@
       "empty": "No periods yet. Merchants can't subscribe until you add at least one.",
       "historyNote": "Editing a period creates a new version of it. Merchants already on it keep the price they bought.",
       "editNote": "Saving closes the current period and opens a new one in its place; its subscribers keep their old price.",
-      "priceNote": "The price is used as entered — longer periods aren't discounted automatically.",
+      "priceNote": "The price is what the merchant pays. Add a discount to show them the original price struck through.",
+      "priceAfterDiscount": "Price after discount (amount charged)",
+      "discount": "Period discount",
+      "noDiscount": "No discount",
+      "percentage": "Percentage",
+      "fixedAmount": "Fixed amount",
+      "discountValue": "Discount value",
+      "merchantSees": "Merchant sees:",
+      "discountBadge": "{{percent}}% off",
+      "bestValue": "Best value",
+      "discountNote": "The discount is for display only: the merchant pays the price after discount as entered, and the original price is worked out from it.",
       "save": "Save",
       "saved": "Period saved",
       "errors": {
         "duration": "The duration must be a whole number above zero",
-        "price": "The price must be greater than zero"
+        "price": "The price must be greater than zero",
+        "discountValue": "The discount must be greater than zero",
+        "discountPercentMax": "The discount percentage must be below 100%"
       }
     },
     "transactionRate": {
@@ -4722,6 +5275,7 @@
           "codeFormat": "Use only uppercase letters, digits, - or _",
           "valuePositive": "Value must be greater than zero",
           "percentMax": "Percentage can't exceed 100%",
+          "fixedMax": "A fixed discount can't exceed the highest fee the code applies to:",
           "redemptionsMin": "Max uses must be a whole number, 1 or more",
           "appliesTo": "Select at least one fee type",
           "dates": "Dates can't be in the past, and the end date must be after the start date"
@@ -4764,6 +5318,7 @@
         "SUBSCRIPTION_PERIOD_OPTION_NAME_REQUIRED": "Enter the period's Arabic and English names.",
         "SUBSCRIPTION_PERIOD_OPTION_NOT_PACKAGE_STYLE": "Period options only apply to package-billed services.",
         "SUBSCRIPTION_PERIOD_OPTION_NOT_FOUND": "Period option not found.",
+        "SUBSCRIPTION_PERIOD_OPTION_INVALID_DISCOUNT": "Invalid discount: pick a type and enter a value above zero, with a percentage below 100%.",
         "SUBSCRIPTION_DISCOUNT_VALIDATION": "The discount code details are invalid.",
         "SUBSCRIPTION_DISCOUNT_NOT_ALLOWED_FOR_TRANSACTION_STYLE": "Discount codes don't apply to per-operation services.",
         "SUBSCRIPTION_DISCOUNT_CODE_TAKEN": "This discount code already exists.",
@@ -4916,7 +5471,18 @@
         "webhookDesc": "Use this URL to receive real-time notifications in your system when any booking or cancellation occurs",
         "generateNew": "Generate New",
         "copy": "Copy",
-        "defaultsNote": "These are the built-in defaults; the settings haven't been saved yet"
+        "defaultsNote": "These are the built-in defaults; the settings haven't been saved yet",
+        "errors": {
+          "required": {
+            "platformName": "Platform name is required",
+            "platformUrl": "Platform URL is required",
+            "supportEmail": "Support email is required",
+            "timeZone": "Timezone is required"
+          },
+          "maxLength": "Must be {{max}} characters or fewer",
+          "urlInvalid": "Enter a valid URL starting with http:// or https://",
+          "emailInvalid": "Enter a valid email address"
+        }
       },
       "reviewReward": {
         "title": "Stay Review Reward",
@@ -4926,7 +5492,8 @@
         "amount": "Amount (SAR)",
         "pointsHint": "= {{points}} points",
         "note": "Given only when the client reviews the unit, the host and the platform together, once per booking.",
-        "defaultsNote": "This is the platform default (5 SAR); it hasn't been changed yet",
+        "defaultsNote": "This is the platform default ({{amount}} SAR); it hasn't been changed yet",
+        "locked": "This setting is locked and can't be changed",
         "save": "Save",
         "unsaved": "You have unsaved changes",
         "confirmOffTitle": "Turn off the stay review reward?",
@@ -5008,12 +5575,14 @@
       "table": { "offer": "Offer", "code": "Code", "discount": "Discount", "validity": "Validity", "status": "Status", "uses": "uses", "actions": "Actions" },
       "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
       "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
-      "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red.", "maxLength": "Maximum {{max}} characters.", "notNegative": "Value cannot be negative.", "maxValue": "Value must not exceed {{max}}.", "codePattern": "Use English letters, numbers, - and _ only, with no spaces.", "days": "Use comma-separated weekdays only: Sat,Sun,Mon,Tue,Wed,Thu,Fri", "time": "Invalid time.", "endBeforeStart": "End date must be after the start date.", "endInPast": "End date cannot be in the past.", "tooFar": "Date cannot be more than {{years}} years from today.", "minGtMax": "Maximum stay must be greater than or equal to the minimum stay.", "dailyGtTotal": "Daily limit cannot exceed the total limit.", "userGtTotal": "Per-customer total cannot exceed the total usage limit.", "unitsRequired": "Select at least one unit.", "exclusionRange": "Exclusion end must be after its start.", "exclusionOutside": "Exclusion period must be inside the offer period." },
+      "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red.", "maxLength": "Maximum {{max}} characters.", "notNegative": "Value cannot be negative.", "wholeNumber": "Value must be a whole number.", "invalidValue": "This value is not valid.", "serverFieldErrors": "The offer was not saved. Check the fields highlighted in red.","maxValue": "Value must not exceed {{max}}.", "codePattern": "Use English letters, numbers, - and _ only, with no spaces.", "days": "Use comma-separated weekdays only: Sat,Sun,Mon,Tue,Wed,Thu,Fri", "time": "Offer time must be between 00:00 and 23:59.", "happyHourBoth": "Set both the offer start and end time.", "happyHourSame": "Offer start time must differ from the end time.", "endBeforeStart": "End date must be after the start date.", "endInPast": "End date cannot be in the past.", "tooFar": "Date cannot be more than {{years}} years from today.", "minGtMax": "Maximum stay must be greater than or equal to the minimum stay.", "dailyGtTotal": "Daily limit cannot exceed the total limit.", "userGtTotal": "Per-customer total cannot exceed the total usage limit.", "unitsRequired": "Select at least one unit.", "exclusionRange": "Exclusion end must be after its start.", "exclusionOutside": "Exclusion period must be inside the offer period." },
+      "happyHour": { "hint": "From {{start}} to {{end}}", "hintNextDay": "From {{start}} to {{end}} (next day)", "summary": "Available from {{start}} to {{end}}", "summaryNextDay": "Available from {{start}} to {{end}} (next day)" },
       "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
       "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
       "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
-      "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
+      "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "happyHour": "Offer Time", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
       "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
+      "unitPicker": { "search": "Search units…", "clear": "Clear search", "loading": "Loading units…", "error": "Unable to load units.", "retry": "Retry", "empty": "No matching units", "loadMore": "Show more ({{shown}} of {{total}})", "count": "{{count}} units", "selected": "{{count}} units selected" },
       "form": { "createTitle": "Create Platform Offer", "editTitle": "Edit Platform Offer", "subtitle": "Configure an offer that applies across the platform, regardless of merchant.", "preview": "Preview", "unnamed": "Unnamed offer", "save": "Save Offer", "saving": "Saving…", "addExclusion": "Add Exclusion Period", "addMessage": "Add Message", "addTerm": "Add Term" }
     },
     "contactUs": {
@@ -5023,7 +5592,87 @@
       "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
       "errors": { "title": "We couldn't load the messages", "load": "Unable to load contact messages.", "detail": "Unable to load message details.", "close": "Unable to close this message.", "forbidden": "You don't have permission to view Contact Us messages." },
       "detail": { "title": "Message details", "message": "Message", "attachments": "Attachments", "submitted": "Submitted", "viewed": "Viewed", "closed": "Closed", "closingNote": "Internal closing note", "previewImage": "Preview image", "openFile": "Open attachment", "imagePreview": "Image preview", "closePreview": "Close image preview" },
-      "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully" }
+      "close": { "button": "Close request", "title": "Close this request?", "text": "Mark the message as handled. This action cannot be reopened.", "note": "Internal note (optional)", "placeholder": "What was done or why is this being closed?", "cancel": "Cancel", "confirm": "Confirm close", "closing": "Closing...", "success": "Contact request closed successfully", "noteTooLong": "The note must not exceed {{max}} characters" }
+    },
+    "serviceFaq": {
+      "title": "Service App FAQ",
+      "pageTitle": "Service App FAQ",
+      "pageSubtitle": "Questions workers see in the service app. Changes show in the app right away.",
+      "add": "Add question",
+      "listTitle": "Questions",
+      "category": {
+        "Tasks": "Tasks",
+        "Locks": "Locks",
+        "Photos": "Photos",
+        "Account": "Account"
+      },
+      "filter": {
+        "byCategory": "Category",
+        "allCategories": "All categories",
+        "searchPlaceholder": "Search questions and answers...",
+        "showInactive": "Show inactive",
+        "clear": "Clear filters"
+      },
+      "table": {
+        "order": "Order",
+        "category": "Category",
+        "question": "Question",
+        "status": "Status",
+        "updatedAt": "Last updated",
+        "actions": "Actions",
+        "empty": "No questions yet",
+        "emptyFiltered": "No questions match the current filters"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "menu": {
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      },
+      "delete": {
+        "title": "Delete this question?",
+        "message": "It will be removed from the service app right away. This can't be undone."
+      },
+      "dialog": {
+        "addTitle": "Add question",
+        "editTitle": "Edit question",
+        "question": "Question",
+        "answer": "Answer",
+        "category": "Category",
+        "categoryPlaceholder": "Choose a category",
+        "order": "Display order",
+        "orderHint": "0 or more — lower numbers show first",
+        "key": "Key (optional)",
+        "keyHint": "English letters, numbers, - and _ only. Leave empty and the server generates one.",
+        "keyHintEdit": "English letters, numbers, - and _ only. Leave empty to keep the current key.",
+        "validation": {
+          "required": {
+            "questionAr": "Enter the question in Arabic",
+            "questionEn": "Enter the question in English",
+            "answerAr": "Enter the answer in Arabic",
+            "answerEn": "Enter the answer in English",
+            "category": "Choose a category"
+          },
+          "maxLength": "Must not exceed {{max}} characters",
+          "keyPattern": "Use English letters, numbers, - and _ only",
+          "keyExists": "This key is already used by another question",
+          "orderRequired": "Enter the display order",
+          "orderMin": "The order must be 0 or more",
+          "orderMax": "The order must not exceed {{max}}",
+          "orderWholeNumber": "The order must be a whole number",
+          "invalidValue": "Invalid value"
+        }
+      },
+      "toast": {
+        "addSuccess": "Question added",
+        "updateSuccess": "Question updated",
+        "statusUpdateSuccess": "Question status updated",
+        "deleteSuccess": "Question deleted",
+        "notFound": "This question no longer exists — the list was refreshed"
+      }
     },
     "faq": {
       "title": "FAQ Management",
@@ -5032,6 +5681,7 @@
       "help": "Help",
       "addArticle": "Add New Article",
       "listTitle": "Articles List",
+      "tabs": { "client": "Clients", "service": "Service app" },
       "stats": {
         "total": "Total",
         "active": "Active",
@@ -5096,7 +5746,10 @@
           "minLength": "Must be at least {{min}} characters",
           "maxLength": "Maximum {{max}} characters",
           "orderRequired": "Order is required",
-          "orderMin": "Order must be 1 or higher"
+          "orderMin": "Order must be 1 or higher",
+          "orderMax": "Order must not exceed {{max}}",
+          "orderWholeNumber": "Order must be a whole number",
+          "invalidValue": "This value is not valid"
         }
       },
       "toast": {
@@ -5139,17 +5792,23 @@
         "inactive": "Inactive"
       },
       "menu": {
-        "activate": "Activate"
+        "activate": "Activate",
+        "delete": "Delete"
       },
       "activateConfirm": {
         "title": "Confirm Activation",
         "message": "Activating this version will deactivate the currently active script for this scenario. Continue?"
+      },
+      "deleteConfirm": {
+        "title": "Delete Script Version",
+        "message": "This version will be permanently deleted and this can't be undone. Continue?"
       },
       "dialog": {
         "addTitle": "New Script Version",
         "editTitle": "Edit Script",
         "cancel": "Cancel",
         "create": "Create Version",
+        "saving": "Saving…",
         "scenarioSection": "Scenario",
         "scenarioPlaceholder": "Select scenario",
         "audioSection": "Audio File",
@@ -5167,7 +5826,15 @@
         "validation": {
           "scenarioRequired": "Scenario is required",
           "audioUrlRequired": "Audio file URL is required",
-          "optionsRequired": "At least one menu option is required"
+          "optionsRequired": "At least one menu option is required",
+          "audioUrlInvalid": "Enter an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+          "responseUrlInvalid": "The response audio must be an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+          "digitRequired": "Digit is required",
+          "digitInvalid": "Digit must be a single key: 0–9, * or #",
+          "digitDuplicate": "The same digit can't be used for more than one option",
+          "descriptionRequired": "Description is required",
+          "descriptionTooLong": "Description must not exceed {{max}} characters",
+          "optionsMax": "You can add up to {{max}} options"
         }
       },
       "errors": {
@@ -5177,13 +5844,23 @@
         "forbidden": "You are not allowed to view call scripts",
         "audioUrlRequired": "Audio file URL is required",
         "optionsRequired": "At least one menu option is required",
+        "audioUrlInvalid": "The audio file must be an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+        "responseUrlInvalid": "The response audio must be an https link to an audio file (mp3, wav, ogg, m4a, aac or wma)",
+        "digitInvalid": "Digit must be a single key: 0–9, * or #",
+        "digitDuplicate": "The same digit can't be used for more than one option",
+        "descriptionInvalid": "Description is required and must not exceed 200 characters",
+        "tooManyOptions": "You can add up to 12 options",
+        "scenarioConflict": "Another version of this scenario was activated at the same moment. Please refresh and try again.",
+        "deleteActiveNotAllowed": "The active version can't be deleted. Activate another version first.",
+        "deleteUnavailable": "Deleting isn't available right now, please try again later",
         "notFound": "This script no longer exists",
         "generic": "Something went wrong, please try again"
       },
       "toast": {
         "createSuccess": "Script version created successfully",
         "updateSuccess": "Script updated successfully",
-        "activateSuccess": "Script activated successfully"
+        "activateSuccess": "Script activated successfully",
+        "deleteSuccess": "Script version deleted successfully"
       }
     }
   },

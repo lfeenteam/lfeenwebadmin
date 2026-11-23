@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { parseApiUtc } from 'src/app/utils/date-format.util';
+import { transportErrorMessage } from '../../utils/transport-error.util';
 import type { DemoAccount } from '../../interfaces/demo-account.model';
 import type { DemoAction } from './components/demo-action-dialog/demo-action-dialog.component';
 
@@ -88,6 +89,7 @@ const KNOWN_CODES = new Set([
   'DEMO_INVITATION_TEMPLATE_INVALID',
   'DEMO_TEST_SEND_FAILED',
   'DEMO_ACTIVATION_REQUEST_NOT_FOUND',
+  'DEMO_KIND_INVALID',
   'PIN_TOO_WEAK',
 ]);
 
@@ -117,11 +119,12 @@ export function readDemoError(err: any): DemoApiError {
 
 /**
  * True when the create may be retried with the same Idempotency-Key (§6.2, §8.1): no answer
- * reached the browser (network / timeout), or a server error (500 / 502 / 503 / 504 or
- * INTERNAL_ERROR). Any other answer means the next submit is a new request.
+ * reached the browser (network / timeout / 408 NETWORK_UNSTABLE), or a server error
+ * (500 / 502 / 503 SERVICE_BUSY / 504 or INTERNAL_ERROR). Any other answer means the next
+ * submit is a new request.
  */
 export function isNoAnswerError(e: DemoApiError): boolean {
-  return e.status === 0 || e.status >= 500 || e.code === 'INTERNAL_ERROR';
+  return e.status === 0 || e.status === 408 || e.status >= 500 || e.code === 'INTERNAL_ERROR';
 }
 
 /** The text to show for an error: our own translation per code, else the server message. */
@@ -134,6 +137,11 @@ export function demoErrorMessage(e: DemoApiError, translate: TranslateService): 
   }
   if (e.code && KNOWN_CODES.has(e.code)) return translate.instant(`d3.demoAccounts.errors.${e.code}`);
   if (e.status === 403) return translate.instant('d3.demoAccounts.errors.forbidden');
+  const transport = transportErrorMessage(
+    { status: e.status, error: { message: e.message, errorCode: e.code } },
+    translate
+  );
+  if (transport) return transport;
   if (e.code === 'VALIDATION_ERROR' && e.fieldErrors.length) return e.fieldErrors.map(f => f.message).join(' - ');
   if ((!e.code && (e.status === 0 || e.status >= 500)) || e.code === 'INTERNAL_ERROR') {
     return translate.instant('d3.demoAccounts.errors.unexpected');

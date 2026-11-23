@@ -98,7 +98,7 @@
           [listingName]="unit.title"
           (changed)="onBanChanged()" />
       }
-      <button type="button" class="view-btn" *ngIf="!isLockedDisplay" aria-label="View unit review">
+      <button type="button" class="view-btn" *ngIf="!isLockedDisplay" [attr.aria-label]="'d3.unitReview.title' | translate">
         <i-tabler name="eye"></i-tabler>
       </button>
     </div>

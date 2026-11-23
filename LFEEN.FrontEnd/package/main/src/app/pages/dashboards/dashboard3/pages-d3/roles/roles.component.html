@@ -57,6 +57,15 @@
                   <mat-spinner diameter="32" class="m-auto"></mat-spinner>
                 </td>
               </tr>
+            } @else if (loadError) {
+              <tr>
+                <td colspan="4">
+                  <app-dashboard-empty variant="error"
+                    [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
+                    actionKey="d3.state.retry" actionIcon="refresh" (action)="loadData()">
+                  </app-dashboard-empty>
+                </td>
+              </tr>
             } @else if (roles.length === 0) {
               <tr>
                 <td colspan="4" class="p-24 text-center text-muted">

@@ -9,6 +9,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DepartmentService } from '../../../../services/department.service';
 import { DepartmentRole, RolePayload } from '../../../../interfaces/department.model';
 import { extractApiErrorMessage } from '../../../../utils/api-error.util';
+import { applyRoleNameServerError, RoleNameField } from '../../../../utils/role-error.util';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -90,6 +91,21 @@ export class AddRoleDialogComponent implements OnInit {
     return this.translate.currentLang || 'ar';
   }
 
+  nameInvalid(field: RoleNameField): boolean {
+    const c = this.roleForm.get(field);
+    return !!(c?.invalid && c?.touched);
+  }
+
+  /** Server message (e.g. duplicate name) wins over the local validation text. */
+  nameError(field: RoleNameField): string {
+    const c = this.roleForm.get(field);
+    const server = c?.getError('serverError');
+    if (server) return server;
+    if (c?.hasError('required')) return this.translate.instant('d3.addRoleDialog.validation.nameRequired');
+    if (c?.hasError('minlength')) return this.translate.instant('d3.addRoleDialog.validation.nameMinLength');
+    return '';
+  }
+
   save(): void {
     if (this.roleForm.invalid) {
       this.roleForm.markAllAsTouched();
@@ -132,6 +148,9 @@ export class AddRoleDialogComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting = false;
+        const field = applyRoleNameServerError(err, this.roleForm);
+        const primary = this.currentLang === 'ar' ? 'nameAr' : 'nameEn';
+        if (field && field !== primary) this.showNameSecondary = true;
         this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.errorOp')));
         this.cdr.detectChanges();
       }

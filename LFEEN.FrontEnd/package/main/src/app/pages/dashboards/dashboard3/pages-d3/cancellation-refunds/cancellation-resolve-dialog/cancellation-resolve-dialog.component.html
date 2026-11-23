@@ -1,0 +1,47 @@
+<form class="rf rf--green" [dir]="currentDir" (ngSubmit)="submit()" novalidate>
+  <div class="rf-header">
+    <div class="rf-heading">
+      <span class="rf-icon"><i-tabler name="check"></i-tabler></span>
+      <h2 class="rf-title">{{ 'd3.cancellationRefunds.resolveDialog.title' | translate }}</h2>
+    </div>
+    <button type="button" class="rf-close" [disabled]="submitting" (click)="close()"
+      [attr.aria-label]="'d3.esim.detail.close' | translate">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="rf-desc">
+    {{ 'd3.cancellationRefunds.resolveDialog.desc' | translate: { booking: data.row.bookingNumber || '—', amount: amountText, currency: data.currencyLabel } }}
+  </p>
+
+  <label class="rf-label" for="cr-resolve-amount">{{ 'd3.cancellationRefunds.resolveDialog.amountLabel' | translate }}</label>
+  <input id="cr-resolve-amount" name="amount" class="rf-input" type="number" inputmode="decimal" min="0" step="0.01"
+    dir="ltr" [(ngModel)]="amount" [disabled]="submitting" [class.has-error]="submitted && amountError" />
+  @if (submitted && amountError) {
+    <span class="rf-error">{{ amountError | translate: { amount: amountText, currency: data.currencyLabel } }}</span>
+  }
+
+  <label class="rf-label rf-label--gap" for="cr-resolve-reference">{{ 'd3.cancellationRefunds.resolveDialog.referenceLabel' | translate }}</label>
+  <input id="cr-resolve-reference" name="referenceNumber" class="rf-input" type="text" dir="ltr"
+    [maxlength]="referenceMax" [(ngModel)]="referenceNumber" [disabled]="submitting"
+    [placeholder]="'d3.cancellationRefunds.resolveDialog.referencePlaceholder' | translate" />
+
+  <label class="rf-label rf-label--gap" for="cr-resolve-note">{{ 'd3.cancellationRefunds.resolveDialog.noteLabel' | translate }}</label>
+  <textarea id="cr-resolve-note" name="note" class="rf-textarea" rows="3"
+    [maxlength]="noteMax" [(ngModel)]="note" [disabled]="submitting"
+    [placeholder]="'d3.cancellationRefunds.resolveDialog.notePlaceholder' | translate"></textarea>
+
+  @if (serverError) {
+    <div class="rf-server-error" role="alert">
+      <i-tabler name="alert-circle"></i-tabler>
+      <span>{{ serverError }}</span>
+    </div>
+  }
+
+  <div class="rf-actions">
+    <button type="button" class="rf-cancel" [disabled]="submitting" (click)="close()">{{ 'd3.listingBan.dialog.cancelBtn' | translate }}</button>
+    <button type="submit" class="rf-confirm" [disabled]="submitting">
+      {{ (submitting ? 'd3.cancellationRefunds.resolveDialog.submitting' : 'd3.cancellationRefunds.resolveDialog.confirmBtn') | translate }}
+    </button>
+  </div>
+</form>

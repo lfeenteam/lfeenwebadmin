@@ -142,6 +142,8 @@ export interface SaveReleaseRequest {
   updatePolicy?: UpdatePolicy;
   storeUrl?: string;
   updateMessageAr?: string;
+  /** The API overwrites both messages on every save — always send it ("" clears). */
+  updateMessageEn?: string;
 }
 
 /** "All" = Android + iOS only; the web is never affected. */
@@ -152,6 +154,8 @@ export interface SaveMaintenanceRequest {
   /** Required on purpose, so a partial body can never switch maintenance off by accident. */
   isEnabled: boolean;
   messageAr?: string;
+  /** Read back as `maintenanceMessageEn`. Always sent: a missing field wipes the stored one. */
+  messageEn?: string;
   /** ISO date-time with the +03:00 offset; null = start now. */
   startsAt?: string | null;
   /** ISO date-time with the +03:00 offset; null = until switched off. */

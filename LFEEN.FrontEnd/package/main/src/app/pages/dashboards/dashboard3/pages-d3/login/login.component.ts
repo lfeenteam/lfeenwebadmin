@@ -8,8 +8,10 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoginService } from '../../services/login/login.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { safeReturnUrl, withLang } from '../../../../../guards/return-url.util';
 
 import { TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
@@ -64,8 +66,10 @@ export class LoginComponent {
     private loginService: LoginService,
     private toastr: ToastrService,
     private router: Router,
+    private route: ActivatedRoute,
     private translate: TranslateService,
-    private settings: CoreService
+    private settings: CoreService,
+    private sidebarService: SidebarService
   ) {
     const savedEmail = localStorage.getItem('rememberedEmail');
     this.loginForm = this.fb.group({
@@ -118,8 +122,11 @@ export class LoginComponent {
         
             this.loginService.setToken(response);
           
+            // Back to the page that sent the admin here, in the language chosen on this page;
+            // otherwise the first page they may open (BUG-2496 — not always the dashboard).
             const lang = this.translate.currentLang || 'en';
-            this.router.navigate([`/${lang}/d3/ceo`]);
+            const returnUrl = safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+            this.router.navigateByUrl(returnUrl ? withLang(returnUrl, lang) : this.sidebarService.landingUrl(lang));
           },
           error: (err) => {
             // Several field errors (e.g. password rules) → one toast with a bullet per message.

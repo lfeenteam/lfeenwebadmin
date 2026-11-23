@@ -9,10 +9,11 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isUnengagedStatus } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 @Component({
   selector: 'app-complaints-table',
@@ -44,6 +45,9 @@ export class ComplaintsTableComponent implements OnChanges {
   @Output() detailSelect = new EventEmitter<Complaint>();
   /** Fired once an employee is picked from the inline assign popover and the assignment call succeeds. */
   @Output() assignConfirm = new EventEmitter<{ complaintId: string; employee: AssignableEmployee }>();
+  /** Fired when the API rejects an assign because the ticket's assignee changed under us —
+   * the row is stale, so the parent refetches the list. */
+  @Output() assignConflict = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusFilterChange = new EventEmitter<number | string | null>();
   @Output() pageChange = new EventEmitter<number>();
@@ -126,8 +130,9 @@ export class ComplaintsTableComponent implements OnChanges {
     return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
   }
 
-  get visiblePages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  // Compact list (1 2 3 4 … 13 14 15) so the pager fits a phone screen.
+  get visiblePages(): (number | '...')[] {
+    return getVisiblePages(this.currentPage, this.totalPages);
   }
 
   changePage(page: number): void {
@@ -195,6 +200,20 @@ export class ComplaintsTableComponent implements OnChanges {
       resolved:    'd3.complaints.status.resolved',
     };
     return map[status] ?? '';
+  }
+
+  /** "resolved" tab badge — the ticket's real ending, not a blanket "replied & resolved". */
+  resolvedOutcomeLabelKey(complaint: Complaint): string {
+    switch (complaint.resolvedOutcome) {
+      case 'closedBySelf':
+        return complaint.type === 'host'
+          ? 'd3.complaints.resolvedOutcome.closedByHost'
+          : 'd3.complaints.resolvedOutcome.closedByClient';
+      case 'closedByAdmin':
+        return 'd3.complaints.resolvedOutcome.closedByAdmin';
+      default:
+        return 'd3.complaints.resolvedOutcome.resolvedByAgent';
+    }
   }
 
   displayClientName(complaint: Complaint): string {
@@ -403,9 +422,14 @@ export class ComplaintsTableComponent implements OnChanges {
     return name.split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase();
   }
 
+  isAssignInactive(employee: AssignableEmployee): boolean {
+    return isInactiveEmployee(employee);
+  }
+
   selectAssignEmployee(employee: AssignableEmployee): void {
     const complaint = this.assigningComplaint;
-    if (!complaint || this.assignSubmitting) return;
+    // A deactivated employee can't sign in to handle the ticket (BUG-2501).
+    if (!complaint || this.assignSubmitting || isInactiveEmployee(employee)) return;
 
     this.assignSubmitting = true;
     const request$ = complaint.type === 'customer'
@@ -418,7 +442,10 @@ export class ComplaintsTableComponent implements OnChanges {
           this.toastr.success(this.translate.instant('d3.complaints.assignDialog.success'));
           this.assignConfirm.emit({ complaintId: complaint.id, employee });
         },
-        error: () => this.toastr.error(this.translate.instant('d3.toast.errorOp')),
+        error: err => {
+          this.toastr.error(this.complaintService.assignErrorMessage(err) ?? this.translate.instant('d3.toast.errorOp'));
+          if (this.complaintService.isAssignConflict(err)) this.assignConflict.emit();
+        },
       });
   }
 

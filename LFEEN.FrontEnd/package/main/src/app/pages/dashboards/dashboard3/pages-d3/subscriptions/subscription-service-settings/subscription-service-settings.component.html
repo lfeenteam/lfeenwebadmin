@@ -120,7 +120,18 @@
                       <td [attr.data-label]="'d3.pricingRow.tier' | translate">{{ optionTierName(o) }}</td>
                     }
                     <td [attr.data-label]="'d3.periodOption.price' | translate">
-                      <ng-container *ngTemplateOutlet="money; context: { $implicit: o.price }"></ng-container>
+                      <div class="period-price">
+                        @if (o.originalPrice != null && o.originalPrice > o.price) {
+                          <span class="original-price">{{ fmtAmount(o.originalPrice) }}</span>
+                        }
+                        <ng-container *ngTemplateOutlet="money; context: { $implicit: o.price }"></ng-container>
+                        @if (o.discountPercent != null && o.discountPercent > 0) {
+                          <span class="discount-badge">{{ 'd3.periodOption.discountBadge' | translate: { percent: fmtAmount(o.discountPercent) } }}</span>
+                        }
+                        @if (bestValueOptionId === o.id) {
+                          <span class="best-value-badge">{{ 'd3.periodOption.bestValue' | translate }}</span>
+                        }
+                      </div>
                     </td>
                     @if (canManagePricing) {
                       <td class="text-center mobile-actions-cell">

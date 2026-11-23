@@ -48,7 +48,19 @@
             <img [src]="currencyIconSrc" alt="" class="field-suffix-icon" />
           }
         </div>
-        @if (valueError) { <span class="field-error">{{ valueError | translate }}</span> }
+        @if (valueError) {
+          <span class="field-error">
+            {{ valueError | translate }}
+            @if (valueError === 'd3.discountCodes.create.errors.fixedMax') {
+              <span class="error-amount">
+                {{ maxFixedAmountLabel }}
+                <span class="currency-icon" [class.currency-icon-en]="currentDir === 'ltr'"
+                  [style.-webkit-mask-image]="'url(' + currencyIconSrc + ')'"
+                  [style.mask-image]="'url(' + currencyIconSrc + ')'"></span>
+              </span>
+            }
+          </span>
+        }
       </div>
 
       @if (isPercentage) {
@@ -141,13 +153,15 @@
       @if (datesError) { <span class="field-error span-2">{{ 'd3.discountCodes.create.errors.dates' | translate }}</span> }
     </div>
 
-    @if (serverError) {
-      <div class="server-error">
-        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
-        <span>{{ serverError }}</span>
-      </div>
-    }
   </div>
+
+  <!-- Outside .form-scroll so it stays in view next to the buttons on a short screen. -->
+  @if (serverError) {
+    <div class="server-error" role="alert">
+      <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+      <span>{{ serverError }}</span>
+    </div>
+  }
 
   <div class="dialog-actions">
     <button type="button" class="btn-primary" [disabled]="!canSubmit" (click)="submit()">

@@ -190,6 +190,12 @@ export interface SetSubscriptionPriceRequest {
 }
 
 // ── /api/subscriptions/period-options (Package-style price list) ──
+/**
+ * A period's discount is for display only: `price` stays the amount actually charged, and the
+ * server works the "original" (struck-through) price back from it.
+ */
+export type PeriodOptionDiscountType = 'Percentage' | 'FixedAmount';
+
 export interface SubscriptionPeriodOption {
   id: number;
   subscriptionServiceId: number;
@@ -207,6 +213,13 @@ export interface SubscriptionPeriodOption {
   subscriptionServiceTierId: number | null;
   tierKey: string | null;
   tierName: string | null;
+  /** null = no discount. Optional: older API builds don't send these. */
+  discountType?: PeriodOptionDiscountType | null;
+  discountValue?: number | null;
+  /** Server-computed: the price before the discount (null when there is none). */
+  originalPrice?: number | null;
+  /** Server-computed percent, also for a FixedAmount discount. */
+  discountPercent?: number | null;
 }
 
 export interface CreatePeriodOptionRequest {
@@ -215,9 +228,13 @@ export interface CreatePeriodOptionRequest {
   durationInDays: number;
   nameAr: string;
   nameEn: string;
+  /** The amount charged — after the discount. */
   price: number;
   displayOrder: number;
   currencyCode?: string;
+  /** Sent together: both set, or both null (no discount). */
+  discountType: PeriodOptionDiscountType | null;
+  discountValue: number | null;
 }
 
 /** PUT supersedes: the row in the route is closed and a new one (new id) is returned. */

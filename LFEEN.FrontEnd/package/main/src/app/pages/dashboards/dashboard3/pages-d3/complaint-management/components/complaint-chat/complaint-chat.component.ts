@@ -206,7 +206,11 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
             ? { previousScrollHeight: container.scrollHeight, previousScrollTop: container.scrollTop }
             : null;
           const older = this.service.mapClientChatMessages(page.messages);
-          this.complaint = { ...this.complaint, messages: [...older, ...this.complaint.messages] };
+          // Relabel the merged thread: a reply loaded earlier may answer a bot prompt in this page.
+          this.complaint = {
+            ...this.complaint,
+            messages: this.service.labelOptionReplies([...older, ...this.complaint.messages]),
+          };
           this.hasMoreMessages.set(page.hasMore);
         },
       });
@@ -221,12 +225,16 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
       senderType: event.senderType,
       senderName: event.senderName,
       body: event.body,
+      options: this.service.parseHubOptions(event.optionsJson),
       attachment: event.attachment,
       createdAt: event.createdAt,
     });
 
     this.shouldScroll = true;
-    this.complaint = { ...this.complaint, messages: [...this.complaint.messages, message] };
+    this.complaint = {
+      ...this.complaint,
+      messages: this.service.labelOptionReplies([...this.complaint.messages, message]),
+    };
     // This chat is open on screen right now, so mark it seen as soon as the message lands.
     this.hub.markSeen(event.chatExternalId);
   }

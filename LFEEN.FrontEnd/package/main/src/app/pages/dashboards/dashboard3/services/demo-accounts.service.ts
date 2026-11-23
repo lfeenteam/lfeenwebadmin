@@ -10,6 +10,7 @@ import {
   CreateDemoAccountRequest,
   DemoAccount,
   DemoAccountCredentials,
+  DemoAccountKind,
   DemoAccountsPage,
   DemoAccountsQuery,
   DemoAttachment,
@@ -101,9 +102,11 @@ export class DemoAccountsService {
 
   // ── Invitation editor ─────────────────────────────────────
 
-  // Variables, presets, limits and default subjects. Asked once when the editor opens.
-  getInvitationTemplates(): Observable<InvitationTemplates> {
-    return this.http.get<InvitationTemplates>(`${this.baseUrl}/invitation-templates`);
+  // Variables, presets, limits and default subjects for one account kind (Client adds
+  // {{9}} birth date and the guest-* presets). Asked when the editor opens and when the kind changes.
+  getInvitationTemplates(kind?: DemoAccountKind | null): Observable<InvitationTemplates> {
+    const params = kind ? new HttpParams().set('kind', kind) : undefined;
+    return this.http.get<InvitationTemplates>(`${this.baseUrl}/invitation-templates`, { params });
   }
 
   // Renders the invitation for every channel. Saves and sends nothing.
