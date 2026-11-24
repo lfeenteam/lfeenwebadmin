@@ -87,6 +87,8 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         const dept = result.department;
         this.deptName = resolveBilingualText('ar', dept.nameAr, dept.nameEn, dept.name);
         this.deptEnglishName = resolveBilingualText('en', dept.nameAr, dept.nameEn, dept.name);
+        this.deptDescAr = dept.descriptionAr ?? '';
+        this.deptDescEn = dept.descriptionEn ?? '';
         this.managers = dept.managers?.length
           ? dept.managers
           : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);

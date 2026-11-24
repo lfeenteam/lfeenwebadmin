@@ -104,6 +104,10 @@
       "networkUnstable": "Your internet connection seems unstable. Check it and try again.",
       "tooManyRequests": "Too many requests in a short time. Please wait a moment and try again."
     },
+    "pagination": {
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
+    },
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
@@ -260,7 +264,8 @@
       "channels": {
         "Email": "Email",
         "WhatsApp": "WhatsApp",
-        "Sms": "SMS"
+        "Sms": "SMS",
+        "None": "Not sent yet"
       },
       "table": {
         "name": "Name",
@@ -294,6 +299,7 @@
         "more": "More",
         "copy": "Copy",
         "copyAll": "Copy all",
+        "copyMessage": "Copy invitation message",
         "show": "Show",
         "hide": "Hide",
         "resend": "Resend invitation",
@@ -322,7 +328,7 @@
         },
         "fullName": "Full name",
         "channel": "Invitation channel",
-        "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
+        "channelHelp": "Only one invitation is sent this way, with the sign-in details. Click it again to create without sending.",
         "email": "Email",
         "phone": "Contact phone",
         "phoneHelp": "The person's real number, used only to send the invitation, never to sign in.",
@@ -339,12 +345,19 @@
         "chooseFiles": "Choose files",
         "uploading": "Uploading files...",
         "attachmentsHelp": "PDF, Word or PNG/JPEG images — up to 5 files and 10 MB in total.",
-        "submit": "Create and send invitation"
+        "submit": "Create and send invitation",
+        "submitCreateOnly": "Create account",
+        "optional": "(optional)",
+        "createOnlyHelp": "No channel chosen: the account is created by name only and nothing is sent; then copy the invitation message and send it yourself. To send the invitation now, choose a channel."
       },
       "credentials": {
         "titleCreated": "Demo account created",
         "titleReopened": "Demo account reopened",
         "titleNewPin": "New PIN issued",
+        "titleResent": "Invitation resent with a new PIN",
+        "notRequestedCreate": "No invitation was sent. Copy the invitation message and send it to the person yourself.",
+        "notSentResend": "The invitation was not delivered, and the previous PIN has stopped working. Copy the invitation message and send it to the person yourself.",
+        "messageTitle": "Invitation message",
         "sentPrefix": "The invitation was sent to",
         "sentVia": "via",
         "notSentCreate": "The account was created, but the invitation was not delivered. Hand the details to the person yourself, or issue a new PIN with the invitation from the account page.",
@@ -354,13 +367,17 @@
         "onceWarning": "This PIN is shown only once and can never be shown again. If it is lost, issue a new PIN.",
         "confirmClose": "I've saved the details, close",
         "copyAll": {
-          "heading": "Lfeen sign-in details (demo account)",
-          "headingClient": "Lfeen guest app sign-in details (demo account)",
+          "greeting": "Hi {{name}} 👋",
+          "greetingNoName": "Hi 👋",
+          "intro": "We've set up a demo Lfeen account for you to see for yourself how easily you can manage your units and bookings. Here are your sign-in details:",
+          "introClient": "We've set up a demo account for you in the Lfeen guest app, with sample bookings ready to explore. Here are your sign-in details:",
           "sid": "ID number",
           "birthDate": "Date of birth",
           "phone": "Phone number",
+          "verificationCode": "Verification code",
           "pin": "PIN",
-          "expires": "Trial ends"
+          "expires": "The trial is available until",
+          "signOff": "Enjoy your trial ✨\nThe Lfeen team"
         }
       },
       "fields": {
@@ -374,6 +391,7 @@
         "birthDate": "Date of birth (sign-in)",
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
+        "verificationCode": "Verification code (OTP)",
         "invitationSubject": "Invitation subject",
         "renderedSubject": "Subject as received",
         "invitationMessage": "Invitation text",
@@ -398,6 +416,7 @@
         "sendFailed": "The last invitation attempt failed."
       },
       "deliveries": {
+        "technicalError": "Sending service error",
         "time": "Time",
         "channel": "Channel",
         "recipient": "Recipient",
@@ -413,16 +432,18 @@
         "resend": {
           "title": "Resend invitation",
           "confirm": "Send",
-          "noEmail": "This account has no email",
-          "noPhone": "This account has no phone",
+          "noEmail": "This account has no email. Enter it and it will be saved on the account.",
+          "noPhone": "This account has no phone. Enter it and it will be saved on the account.",
+          "noChannelYet": "This account was created without sending. Choose how to send the invitation.",
           "channelChanged": "This will become the account's invitation channel.",
-          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN stops working at once. You will not see the new PIN. To know the PIN, use “New PIN” instead."
+          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN stops working at once. The new PIN and the invitation message are shown to you once after sending."
         },
         "resetPin": {
           "title": "Issue a new PIN",
           "confirm": "Issue",
           "text": "The host will be signed out of every device, and the current PIN will stop working.",
-          "sendInvitation": "Send the invitation with the new PIN"
+          "sendInvitation": "Send the invitation with the new PIN",
+          "noChannel": "This account has no contact details, so no invitation is sent. To send one, use “Resend invitation”."
         },
         "extend": {
           "title": "Extend trial",
@@ -491,6 +512,9 @@
         "DEMO_TEST_SEND_FAILED": "The test copy could not be sent. Try again shortly.",
         "DEMO_ACTIVATION_REQUEST_NOT_FOUND": "The request was not found.",
         "DEMO_KIND_INVALID": "Invalid account type. Choose a host account or a guest account.",
+        "DEMO_RECIPIENT_REQUIRED": "Enter the email or phone number to send the invitation.",
+        "DEMO_CHANNEL_REQUIRED": "Choose how to send the invitation.",
+        "DEMO_CHANNEL_INVALID": "Invalid invitation channel.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }
@@ -625,6 +649,7 @@
       "addDeptSuccess": "Department and roles added successfully",
       "addRoleSuccess": "Role added successfully",
       "editRoleSuccess": "Role updated successfully",
+      "roleManagerNotSaved": "The role was saved, but its manager setting was not",
       "deleteRoleSuccess": "Role deleted successfully",
       "removePermTitle": "Remove Permission",
       "removePermMessage": "Remove permission \"{{permName}}\" from this role? This action cannot be undone.",
@@ -788,6 +813,12 @@
         "notePlaceholder": "e.g. Refunded manually from the gateway dashboard",
         "confirmBtn": "Confirm"
       },
+      "retryDialog": {
+        "title": "Confirm retry",
+        "desc": "The refund will be sent to the payment gateway again within seconds.",
+        "warning": "If you already refunded the guest manually, don't retry — mark the refund as handled manually instead, so it isn't refunded twice.",
+        "confirmBtn": "Send to gateway"
+      },
       "toast": {
         "retryQueued": "Retry scheduled — the status will update in a few seconds",
         "resolved": "Refund marked as handled"
@@ -800,7 +831,7 @@
         "total": "refunds"
       },
       "errors": {
-        "notInManualReview": "This refund was already handled — the list has been refreshed",
+        "notInManualReview": "This refund was already handled or is being processed right now — the list has been refreshed",
         "notFound": "Refund not found",
         "loadTitle": "Couldn't load refunds",
         "loadDesc": "Check your connection and try again."
@@ -1014,6 +1045,8 @@
       "technicalDetailsHide": "Hide technical details",
       "queuedHint": "Leaves this list once it's picked up, and comes back here if it fails again",
       "notRetryableHint": "A retry can't fix this — refund the guest outside the system, then mark it resolved",
+      "manualOnly": "Manual only",
+      "attemptsLine": "Attempts: {{count}}",
       "failureReasons": {
         "manualRefundRequired": "Cash or bank-transfer payment with no gateway to refund it — refund it manually, then close the case",
         "gatewayError": "The payment gateway rejected the refund",
@@ -1035,7 +1068,8 @@
         "amount": "Amount",
         "attempts": "Attempts",
         "status": "Status",
-        "date": "Last attempt"
+        "date": "Last attempt",
+        "actions": "Actions"
       },
       "actions": {
         "retry": "Retry",
@@ -1070,7 +1104,7 @@
         "total": "refunds"
       },
       "errors": {
-        "notInManualReview": "This refund was already retried or completed — the list has been refreshed",
+        "notInManualReview": "This refund was already retried, completed, or is being processed right now — the list has been refreshed",
         "notFound": "Refund not found",
         "forbidden": "You don't have permission to retry refunds",
         "forbiddenResolve": "You don't have permission to close refunds",
@@ -1374,7 +1408,9 @@
         }
       },
       "viewToggle": {
-        "label": "View mode"
+        "label": "View mode",
+        "list": "List view",
+        "grid": "Grid view"
       },
       "buildingCard": {
         "statusRejected": "Rejected",
@@ -1603,7 +1639,11 @@
       "segCompanies": "Companies (20%)",
       "rowDownloads": "Downloads",
       "segMale": "Male",
-      "segFemale": "Female"
+      "segFemale": "Female",
+      "segUnknown": "Unspecified",
+      "genderBasis": "Based on {{known}} guests with a known (verified) gender out of {{total}}",
+      "genderNoData": "Not enough gender data (no verified guests)",
+      "genderBasisVerifiedOnly": "Based on verified guests only; the rest have an unspecified gender"
     },
     "insights": {
       "topCities": "Top 6 Saudi Cities",
@@ -1734,7 +1774,8 @@
         "inactive": "Inactive",
         "manager": "Manager In Charge",
         "employees": "Employee Count",
-        "permissions": "Department Permissions"
+        "permissions": "Department Permissions",
+        "view": "View department"
       },
       "deptManagerTitle": "{{name}} Manager",
       "deptEmployees": "Department Employees List",
@@ -2221,6 +2262,7 @@
         "description": "Permission Description",
         "actions": "Actions",
         "viewTooltip": "View",
+        "actionsMenu": "Role actions",
         "editBtn": "Edit",
         "deleteBtn": "Delete",
         "addRoleBtn": "Add a Role or new permission to the department",
@@ -2374,7 +2416,7 @@
       },
       "status": {
         "adminReviewLabel": "Pending Administrative Review",
-        "adopted": "Adopted",
+        "adopted": "Approved",
         "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",
@@ -2637,7 +2679,7 @@
         "progressLabel": "Review status",
         "progressCount": "{{completed}} of {{total}}",
         "approved": "Approved",
-        "adopted": "Adopted",
+        "adopted": "Approved",
         "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",
@@ -3251,6 +3293,13 @@
         "status": "Status",
         "date": "Date",
         "assign": "Assign",
+        "host": "Host",
+        "subject": "Issue subject",
+        "action": "Action",
+        "user": "User",
+        "type": "Type",
+        "resolvedSubject": "Subject",
+        "replyDate": "Reply date",
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
         "assignDelayedMsg": "No activity from the assignee for {{hours}} hours — you can reassign this complaint",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
@@ -3336,6 +3385,18 @@
         "noMessages": "No messages yet",
         "placeholder": "Type here...",
         "resolveBtn": "Close & Resolve"
+      },
+      "closeDialog": {
+        "title": "Close and resolve complaint",
+        "desc": "This complaint will be closed and moved to Resolved",
+        "noteLabel": "Note",
+        "optional": "(optional)",
+        "notePlaceholder": "Add a note before closing...",
+        "cancel": "Cancel",
+        "confirm": "Confirm close",
+        "error": "Something went wrong while closing the complaint. Please try again.",
+        "closedBanner": "This complaint has been answered and closed successfully",
+        "resolvedLabel": "Replied & resolved"
       },
       "hostDetail": {
         "submittedAt": "Submitted at",
@@ -3673,12 +3734,14 @@
         "statusPending": "Pending Review",
         "statusRejected": "Rejected",
         "statusSuspended": "Suspended",
+        "statusIncomplete": "Registration incomplete",
         "idFieldCompany": "Commercial Register",
         "idFieldIndividual": "ID Number",
         "actionCompany": "Company",
         "actionSoleProprietorship": "Sole Proprietorship",
         "actionIndividual": "Individual",
-        "walletAction": "Wallet"
+        "walletAction": "Wallet",
+        "viewAccountAction": "View account"
       },
       "pagination": {
         "total": "account"
@@ -3693,7 +3756,7 @@
       "pendingAlertAction": "Review themes",
       "stats": {
         "platforms": "App platforms",
-        "platformsNote": "Client & merchant · iOS Android",
+        "platformsNote": "Client, merchant & service · iOS Android",
         "maintenance": "Platforms under maintenance",
         "allRunning": "All systems operational",
         "someDown": "Some platforms are paused",
@@ -4150,7 +4213,8 @@
         "amount": "Amount",
         "paymentMethod": "Payment Method",
         "requestDate": "Date & Time",
-        "status": "Status"
+        "status": "Status",
+        "viewDetails": "View settlement"
       },
       "paymentMethods": {
         "bankTransfer": "Bank Transfer",
@@ -5115,9 +5179,12 @@
         "IsAvailable": "Available",
         "IsDefault": "Default",
         "TrialDays": "Trial days",
-        "MessagesPerPack": "Messages per pack"
+        "MessagesPerPack": "Messages per pack",
+        "Source": "Source"
       },
       "detailValues": {
+        "Wallet": "Wallet",
+        "Card": "Card",
         "Paid": "Paid",
         "Free": "Free",
         "BuiltIn": "Built-in",
@@ -5402,6 +5469,8 @@
         "propertyCount": "Property Count",
         "createdAt": "Created At",
         "updatedAt": "Last Updated",
+        "submittedAt": "Submitted At",
+        "notSubmitted": "Not submitted yet",
         "businessInfoStatus": "Business Info Status",
         "bankInfoStatus": "Bank Info Status",
         "taxInfoStatus": "Tax Info Status",
@@ -5413,6 +5482,10 @@
         "PendingReview": "Pending Review",
         "Approved": "Approved",
         "Rejected": "Rejected"
+      },
+      "notSubmittedNotice": {
+        "title": "Registration incomplete",
+        "desc": "The account owner hasn't submitted their details for review yet, so the account can't be accepted or rejected. It will appear under \"Under Review\" once it's submitted."
       },
       "decision": {
         "cardTitle": "Make Decision on Request",
@@ -5431,6 +5504,9 @@
         "acceptSuccess": "Account has been accepted and activated successfully",
         "rejectSuccess": "Account request has been rejected successfully",
         "rejectionRequired": "Please enter a rejection reason before proceeding",
+        "errors": {
+          "notSubmitted": "Can't decide yet: the account owner hasn't submitted it for review"
+        },
         "confirm": {
           "approveTitle": "Confirm Account Approval",
           "approveMessage": "Are you sure you want to accept and activate this account?",

@@ -211,7 +211,7 @@
                 {{ 'd3.addRolePage.pagination.total' | translate: { count: groupedPermissions.length } }}
               </span>
               <div class="d-flex align-items-center gap-4">
-                <button type="button" class="page-nav-btn"
+                <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
                   [disabled]="currentPage === 1"
                   (click)="changePage(currentPage - 1)">
                   <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
@@ -223,7 +223,7 @@
                     {{ p }}
                   </button>
                 }
-                <button type="button" class="page-nav-btn"
+                <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
                   [disabled]="currentPage === totalPages"
                   (click)="changePage(currentPage + 1)">
                   <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>

@@ -36,6 +36,8 @@
         type="button"
         class="view-btn"
         [class.active]="viewMode === 'list'"
+        [attr.aria-pressed]="viewMode === 'list'"
+        [attr.aria-label]="'d3.allBuilds.viewToggle.list' | translate"
         (click)="setViewMode('list')">
         <i-tabler name="list"></i-tabler>
       </button>
@@ -43,6 +45,8 @@
         type="button"
         class="view-btn"
         [class.active]="viewMode === 'grid'"
+        [attr.aria-pressed]="viewMode === 'grid'"
+        [attr.aria-label]="'d3.allBuilds.viewToggle.grid' | translate"
         (click)="setViewMode('grid')">
         <i-tabler name="layout-grid"></i-tabler>
       </button>

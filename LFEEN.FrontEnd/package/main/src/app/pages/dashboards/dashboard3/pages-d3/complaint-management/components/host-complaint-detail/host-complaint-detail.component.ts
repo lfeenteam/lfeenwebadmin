@@ -234,7 +234,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   get hostSubtitle(): string {
     const t = this.ticket();
     if (!t) return '';
-    const role = this.isFromWorker ? this.workerLabel : this.currentDir === 'rtl' ? 'مضيف' : 'Host';
+    const role = this.isFromWorker ? this.workerLabel : this.translate.instant('d3.complaints.table.host');
     return t.propertyName ? `${role} · ${t.propertyName}` : role;
   }
 
@@ -364,7 +364,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
       error: () => {
         if (id !== this.ticketId) return;
         this.closingTicket.set(false);
-        this.closeError.set('حدث خطأ أثناء إغلاق الشكوى، يرجى المحاولة مرة أخرى.');
+        this.closeError.set(this.translate.instant('d3.complaints.closeDialog.error'));
       },
     });
   }

@@ -8,6 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ToastrService } from 'ngx-toastr';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
+import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { AdditionalConditionsService } from '../../services/additional-conditions.service';
 import { AdditionalConditionListResult, AdditionalConditionScope, AdminAdditionalCondition } from '../../interfaces/additional-condition.model';
 
@@ -22,7 +23,7 @@ type ConditionsView = 'pending' | 'all';
 @Component({
   selector: 'app-additional-conditions-pending',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AdditionalConditionsReviewComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AdditionalConditionsReviewComponent, DashboardEmptyComponent],
   templateUrl: './additional-conditions-pending.component.html',
   styleUrl: './additional-conditions-pending.component.scss'
 })
@@ -85,6 +86,12 @@ export class AdditionalConditionsPendingComponent implements OnInit {
 
   onSearch(value: string): void {
     this.search$.next(value.trim());
+  }
+
+  /** "Clear search" on the no-results state — reloads through the same debounced stream. */
+  clearSearch(): void {
+    this.search = '';
+    this.search$.next('');
   }
 
   load(append = false): void {

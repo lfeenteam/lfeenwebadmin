@@ -10,7 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AccountService } from '../../../../services/account.service';
-import { AccountDetail } from '../../../../interfaces/account.model';
+import { AccountDetail, isSubmittedForReview } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
@@ -149,7 +149,13 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
         tone:              'approve',
         successTitleKey:   'common.done',
         successMessageKey: 'd3.reviewAccount.decision.acceptSuccess',
-        onConfirm: () => this.service.acceptAccount(accountId, { basicNameAr, basicNameEn })
+        onConfirm: () => this.service.acceptAccount(accountId, { basicNameAr, basicNameEn }),
+        errorKeyFor: (err: any) => {
+          const key = this.decisionErrorKey(err);
+          // The screen showed a stale state — reload so the decision actions disappear
+          if (key) this.reloadAccount();
+          return key;
+        }
       }
     });
     dialogRef.afterClosed().subscribe(confirmed => {
@@ -188,9 +194,11 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
           this.service.setTab('rejected');
           this.navigateBack();
         },
-        error: () => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        error: (err) => {
+          const key = this.decisionErrorKey(err);
+          this.toastr.error(this.translate.instant(key ?? 'd3.toast.errorOp'));
           this.isSubmitting = false;
+          if (key) this.reloadAccount();
         }
       });
     });
@@ -202,9 +210,21 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   // Draft accounts haven't been submitted for review yet, so there's nothing to
-  // accept/reject — only PendingReview should show the decision actions.
+  // accept/reject. A draft also has onboardingStatus=PendingReview, so the decision
+  // actions need submittedForReviewAtUtc too (BUG-2530).
   get isPending(): boolean {
-    return this.account?.onboardingStatus === 'PendingReview';
+    return isSubmittedForReview(this.account);
+  }
+
+  /** Created but never submitted: show a notice instead of the decision actions. */
+  get isDraft(): boolean {
+    return this.account?.onboardingStatus === 'PendingReview' && !this.account.submittedForReviewAtUtc;
+  }
+
+  /** Backend errorCode → translation key; null = fall back to the generic error. */
+  private decisionErrorKey(err: any): string | null {
+    const code: string | undefined = err?.error?.errorCode ?? err?.error?.code;
+    return code === 'ACCOUNT_NOT_SUBMITTED' ? 'd3.reviewAccount.decision.errors.notSubmitted' : null;
   }
 
   get tradeName(): string {

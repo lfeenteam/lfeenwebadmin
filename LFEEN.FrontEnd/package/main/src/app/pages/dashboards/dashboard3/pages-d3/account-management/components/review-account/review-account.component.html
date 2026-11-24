@@ -334,6 +334,16 @@
           <span class="field-label">{{ 'd3.reviewAccount.accountOverview.createdAt' | translate }}</span>
           <span class="field-value">{{ account.createdAt | appDate: 'mediumDate' }}</span>
         </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.submittedAt' | translate }}</span>
+          <span class="field-value">
+            @if (account.submittedForReviewAtUtc) {
+              {{ account.submittedForReviewAtUtc | appDate: 'mediumDate' }}
+            } @else {
+              {{ 'd3.reviewAccount.accountOverview.notSubmitted' | translate }}
+            }
+          </span>
+        </div>
         @if (account.updatedAt) {
           <div class="field-col">
             <span class="field-label">{{ 'd3.reviewAccount.accountOverview.updatedAt' | translate }}</span>
@@ -376,6 +386,17 @@
         [(conditions)]="additionalConditions"
         (reloadRequested)="reloadAccount()">
       </app-additional-conditions-review>
+    </div>
+  }
+
+  @if (isDraft) {
+    <!-- BUG-2530: a draft isn't a request — no accept/reject until the host submits it -->
+    <div class="not-submitted-notice">
+      <i-tabler name="info-circle" class="icon-20"></i-tabler>
+      <div>
+        <p class="notice-title">{{ 'd3.reviewAccount.notSubmittedNotice.title' | translate }}</p>
+        <p class="notice-desc">{{ 'd3.reviewAccount.notSubmittedNotice.desc' | translate }}</p>
+      </div>
     </div>
   }
 

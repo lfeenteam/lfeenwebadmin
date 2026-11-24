@@ -131,6 +131,13 @@
       border: 1px solid #E5E7EB;
     }
 
+    // Draft account, never submitted for review (BUG-2530)
+    &.incomplete {
+      background: #F8FAFC;
+      color: #64748B;
+      border: 1px dashed #CBD5E1;
+    }
+
   }
 
   // ===== Account Name =====

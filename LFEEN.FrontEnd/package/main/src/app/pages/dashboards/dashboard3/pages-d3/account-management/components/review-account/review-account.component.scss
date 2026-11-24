@@ -691,6 +691,23 @@
   ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2.5; }
 }
 
+// BUG-2530: shown instead of the decision actions for a draft account
+.not-submitted-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 20px;
+  color: #475569;
+
+  ::ng-deep svg { stroke: #64748B; }
+
+  .notice-title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #111110; }
+  .notice-desc  { margin: 0; font-size: 13px; line-height: 1.6; }
+}
+
 .lock-notice {
   display: flex;
   align-items: center;

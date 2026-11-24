@@ -343,6 +343,10 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
     return `${day} - ${time}`;
   }
 
+  get dialogDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
   get resolveButtonLabel(): string {
     return this.translate.currentLang === 'en' ? 'Close and resolve complaint' : 'إغلاق وحل الشكوى';
   }

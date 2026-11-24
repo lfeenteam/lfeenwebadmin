@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <!-- Every resend issues a new PIN the admin never sees -->
+    <!-- Every resend issues a new PIN, shown once after sending -->
     <div class="da-alert warning">
       <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
       <p>{{ 'd3.demoAccounts.dialogs.resend.newPinWarning' | translate }}</p>
@@ -48,19 +48,40 @@
           <div class="da-field">
             <div class="da-segmented" role="radiogroup">
               @for (ch of channels; track ch) {
-                <span class="seg-slot" [matTooltip]="noContactTip(ch)" [matTooltipDisabled]="hasContact(ch)">
+                <span class="seg-slot">
                   <button type="button" role="radio" [class.active]="channel === ch" [attr.aria-checked]="channel === ch"
-                          [disabled]="submitting || !hasContact(ch)" (click)="setChannel(ch)">
+                          [disabled]="submitting" (click)="setChannel(ch)">
                     <i-tabler [name]="channelIcons[ch]" class="icon-16"></i-tabler>
                     {{ ('d3.demoAccounts.channels.' + ch) | translate }}
                   </button>
                 </span>
               }
             </div>
-            @if (channel !== account.channel) {
+            @if (account.channel === 'None') {
+              <p class="da-helper">{{ 'd3.demoAccounts.dialogs.resend.noChannelYet' | translate }}</p>
+            } @else if (channel !== account.channel) {
               <p class="da-helper">{{ 'd3.demoAccounts.dialogs.resend.channelChanged' | translate }}</p>
             }
           </div>
+
+          <!-- No saved email/phone for this channel (e.g. made by name only): ask for it, it is saved on the account -->
+          @if (needsContact) {
+            <div class="da-field">
+              @if (isEmail) {
+                <label for="rs-email">{{ 'd3.demoAccounts.create.email' | translate }}<span class="req">*</span></label>
+                <input id="rs-email" name="email" type="email" class="da-input" dir="ltr" autocomplete="off"
+                       [maxLength]="limits.email" [class.invalid]="contactError()" [disabled]="submitting"
+                       [(ngModel)]="email" (ngModelChange)="onContactInput()" (blur)="contactTouched = true" />
+              } @else {
+                <label for="rs-phone">{{ 'd3.demoAccounts.create.phone' | translate }}<span class="req">*</span></label>
+                <input id="rs-phone" name="phoneNumber" type="tel" class="da-input" dir="ltr" autocomplete="off"
+                       placeholder="05XXXXXXXX" [class.invalid]="contactError()" [disabled]="submitting"
+                       [(ngModel)]="phoneNumber" (ngModelChange)="onContactInput()" (blur)="contactTouched = true" />
+              }
+              <p class="da-helper">{{ (isEmail ? 'd3.demoAccounts.dialogs.resend.noEmail' : 'd3.demoAccounts.dialogs.resend.noPhone') | translate }}</p>
+              @if (contactError()) { <p class="da-error">{{ contactError() }}</p> }
+            </div>
+          }
         </section>
 
         <!-- ② Invitation message (pre-filled with the saved one) -->

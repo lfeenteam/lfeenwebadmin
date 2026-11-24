@@ -12,7 +12,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { LoginService } from '../../../services/login/login.service';
 import {
-  API_PLATFORM, ControlCenterApp, ControlCenterPlatform, ReleaseConfig, SaveReleaseRequest, UpdatePolicy,
+  API_PLATFORM, CONTROL_CENTER_APP_OPTIONS, ControlCenterApp,ControlCenterPlatform, ReleaseConfig, SaveReleaseRequest, UpdatePolicy,
   VERSION_PATTERN, VersionImpact, compareVersions,
 } from '../interfaces/control-center.model';
 import { ControlCenterError, parseControlCenterError } from '../interfaces/control-center-error.util';
@@ -88,10 +88,7 @@ export class AppUpdatesComponent implements OnInit {
   private request?: Subscription;
   private impact$ = new Subject<string>();
 
-  readonly appOptions: { value: ControlCenterApp; labelKey: string }[] = [
-    { value: 'client', labelKey: 'd3.controlCenter.apps.Client' },
-    { value: 'host', labelKey: 'd3.controlCenter.apps.Host' },
-  ];
+  readonly appOptions = CONTROL_CENTER_APP_OPTIONS;
 
   readonly platformOptions: { value: ControlCenterPlatform; labelKey: string }[] = [
     { value: 'ios', labelKey: 'd3.controlCenter.platforms.Ios' },

@@ -15,6 +15,8 @@ export interface ReviewConfirmDialogData {
   onConfirm?:          () => Observable<any>;
   successTitleKey?:    string;
   successMessageKey?:  string;
+  /** Optional — maps an API error to a specific translation key (null = generic error) */
+  errorKeyFor?:        (err: any) => string | null;
 }
 
 export type D3DialogState = 'idle' | 'loading' | 'success' | 'error';
@@ -29,6 +31,8 @@ export type D3DialogState = 'idle' | 'loading' | 'success' | 'error';
 export class ReviewConfirmDialogComponent {
   state: D3DialogState = 'idle';
   isOffline = false;
+  /** Specific error message from data.errorKeyFor, shown instead of the generic one */
+  errorKey: string | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<ReviewConfirmDialogComponent>,
@@ -53,6 +57,7 @@ export class ReviewConfirmDialogComponent {
       error: (err) => {
         this.state = 'error';
         this.isOffline = !navigator.onLine || err?.status === 0;
+        this.errorKey = this.isOffline ? null : (this.data.errorKeyFor?.(err) ?? null);
       }
     });
   }

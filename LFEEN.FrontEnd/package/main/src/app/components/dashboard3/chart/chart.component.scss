@@ -144,6 +144,13 @@
       }
     }
 
+    .d3-distribution-note {
+      font-family: 'Cairo', sans-serif;
+      font-size: 11px;
+      color: #90A1B9;
+      line-height: 1.5;
+    }
+
     .d3-distribution-legend {
       display: flex;
       justify-content: space-between;
@@ -156,6 +163,10 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
+      }
+
+      .d3-legend-unknown {
+        color: #90A1B9;
       }
 
       .d3-legend-dot {

@@ -76,7 +76,11 @@ export class DemoAccountCreateComponent implements OnInit {
   /** Which app the account opens: host (default) or guest. */
   kind: DemoAccountKind = DEFAULT_DEMO_KIND;
   fullName = '';
-  channel: DemoChannel = 'Email';
+  /**
+   * No channel picked (the default) = create by name only: nothing is sent and the admin copies
+   * the message from the result dialog. Picking a channel = send the invitation that way.
+   */
+  channel: DemoChannel | null = null;
   email = '';
   phoneNumber = '';
   durationDays: number | null = DEMO_LIMITS.defaultDays;
@@ -103,13 +107,19 @@ export class DemoAccountCreateComponent implements OnInit {
     // No account yet: the preview fills the text with example values.
     // The preview shows what's typed (name, days → expiry) before anything is sent.
     this.invitation.typedValues = () => ({ name: this.fullName, days: Number(this.durationDays) || undefined });
-    this.invitation.init({ channel: this.channel, kind: this.kind });
+    // The preview opens on Email until a channel is picked.
+    this.invitation.init({ channel: this.channel ?? 'Email', kind: this.kind });
     this.invitation.attachmentIds = () => this.attachments?.ids ?? [];
   }
 
+  /** A channel is picked → the invitation is sent now. */
+  get sendInvitation(): boolean { return this.channel !== null; }
   get isEmail(): boolean { return this.channel === 'Email'; }
-  get emailRequired(): boolean { return this.isEmail; }
-  get phoneRequired(): boolean { return !this.isEmail; }
+  /** Email subject and files go only with an email that is actually sent. */
+  get sendsEmail(): boolean { return this.isEmail; }
+  // Without a channel, both are optional (checked and saved when typed).
+  get emailRequired(): boolean { return this.channel === 'Email'; }
+  get phoneRequired(): boolean { return this.channel === 'WhatsApp' || this.channel === 'Sms'; }
 
   /** Off while files upload or the invitation text is invalid / being checked. */
   get canSubmit(): boolean {
@@ -134,7 +144,7 @@ export class DemoAccountCreateComponent implements OnInit {
     const parts = [
       this.translate.instant(`d3.demoAccounts.kinds.${this.kind}`),
       this.fullName.trim() || this.translate.instant('d3.demoAccounts.create.noName'),
-      this.translate.instant(`d3.demoAccounts.channels.${this.channel}`),
+      this.translate.instant(`d3.demoAccounts.channels.${this.channel ?? 'None'}`),
       `${Number(this.durationDays) || 0} ${this.translate.instant('d3.demoAccounts.dayUnit')}`,
     ];
     return parts.join(' · ');
@@ -143,7 +153,7 @@ export class DemoAccountCreateComponent implements OnInit {
   /** The subject (Email) or the first line of the message, else "standard invitation". */
   get messageSummary(): string {
     const inv = this.invitation;
-    const text = (this.isEmail && inv.subject.trim()) || inv.message.trim().split('\n')[0];
+    const text = (this.sendsEmail && inv.subject.trim()) || inv.message.trim().split('\n')[0];
     return text || this.translate.instant('d3.demoAccounts.standardInvitation');
   }
 
@@ -157,10 +167,12 @@ export class DemoAccountCreateComponent implements OnInit {
     this.invitation.setKind(kind);
   }
 
+  /** Picks a channel; picking the chosen one again clears it (back to create by name only). */
   setChannel(channel: DemoChannel): void {
-    if (this.submitting || channel === this.channel) return;
-    this.channel = channel;
-    this.invitation.setChannel(channel);
+    if (this.submitting) return;
+    this.channel = channel === this.channel ? null : channel;
+    if (this.channel) this.invitation.setChannel(this.channel);
+    this.formError = null;
     // The other fields keep their values; only the required star moves.
     this.revalidate(['email', 'phoneNumber']);
   }
@@ -209,6 +221,8 @@ export class DemoAccountCreateComponent implements OnInit {
     const fullName = this.fullName.trim();
     const { subject, message, language } = this.invitation;
     const attachmentIds = this.attachments?.ids ?? [];
+    const send = this.sendInvitation;
+    const channel = this.channel;
     this.submitting = true;
     this.attachments?.setError(null);
 
@@ -217,27 +231,30 @@ export class DemoAccountCreateComponent implements OnInit {
       fullName,
       email: this.email.trim() || null,
       phoneNumber: phone || null,
-      channel: this.channel,
+      // Create only: no channel (the account gets "None"); never send "None" ourselves.
+      ...(channel ? { channel } : {}),
+      sendInvitation: send,
       durationDays: Number(this.durationDays),
       pin: this.pin || null,
       note: this.note.trim() || null,
       // Empty = the defaults. The message is sent exactly as typed (lines and spaces kept).
-      ...(this.isEmail && subject.trim() ? { invitationSubject: subject } : {}),
+      // It also builds the message to copy when nothing is sent.
+      ...(this.sendsEmail && subject.trim() ? { invitationSubject: subject } : {}),
       ...(message.trim() ? { invitationMessage: message } : {}),
       invitationLanguage: language,
-      // Files are for Email only — never sent for WhatsApp/SMS.
-      ...(this.isEmail && attachmentIds.length ? { attachmentIds } : {}),
+      // Files are for a sent Email only — never for WhatsApp/SMS or create only.
+      ...(this.sendsEmail && attachmentIds.length ? { attachmentIds } : {}),
     }, this.idempotencyKey).subscribe({
       next: credentials => {
         this.submitting = false;
-        const recipient = this.isEmail ? this.email.trim() : (toLocalPhone(phone) ?? phone);
+        const recipient = !channel ? null : channel === 'Email' ? this.email.trim() : (toLocalPhone(phone) ?? phone);
         // The PIN is shown once, then the account page opens (replacing this form in history).
         this.dialog.open(CredentialsDialogComponent, {
-          width: '520px',
+          width: '560px',
           maxWidth: '94vw',
           disableClose: true,
           direction: this.lang === 'en' ? 'ltr' : 'rtl',
-          data: { credentials, mode: 'create', recipient } as CredentialsDialogData,
+          data: { credentials, mode: 'create', recipient, invitationRequested: send } as CredentialsDialogData,
         }).afterClosed().subscribe(() => {
           this.router.navigate(['/', this.lang, 'd3', 'demo-accounts', credentials.account.id], { replaceUrl: true });
         });

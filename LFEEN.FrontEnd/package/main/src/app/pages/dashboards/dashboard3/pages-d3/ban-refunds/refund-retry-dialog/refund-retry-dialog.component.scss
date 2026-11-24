@@ -1,0 +1,54 @@
+// Retry-only overrides on top of refund-resolve-dialog.component.scss. Black-and-white only.
+$ink:   #111110;
+$body:  #3F3F3C;
+$muted: #6B6B67;
+$line:  #E8E8E4;
+$soft:  #F7F7F5;
+
+.rr-icon--retry {
+  background: $ink;
+  box-shadow: none;
+}
+
+.rr-confirm--retry {
+  background: $ink;
+  box-shadow: none;
+
+  &:hover { filter: none; background: #2B2B29; }
+}
+
+.rt-summary {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: $soft;
+  border: 1px solid $line;
+}
+
+.rt-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+
+  dt { font-size: 13px; color: $muted; }
+  dd { margin: 0; font-size: 14px; font-weight: 700; color: $ink; text-align: end; overflow-wrap: anywhere; }
+}
+
+.rt-amount { font-size: 16px !important; font-weight: 900 !important; }
+
+.rt-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid $ink;
+  color: $body;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.rt-warning-icon { display: flex; flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; color: $ink; }

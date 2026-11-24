@@ -219,8 +219,10 @@ export class DepartmentService {
     return this.http.delete(`${this.rolesApiUrl}/${id}`);
   }
 
-  getRolePermissions(roleId: string): Observable<RolePermission[]> {
-    return this.http.get<RolePermissionsResponse>(`${this.rolesApiUrl}/${roleId}/permissions`).pipe(
+  getRolePermissions(roleId: string, pageSize: number = 500): Observable<RolePermission[]> {
+    return this.http.get<RolePermissionsResponse>(
+      `${this.rolesApiUrl}/${roleId}/permissions?page=1&pageSize=${pageSize}`
+    ).pipe(
       map(res => res.data)
     );
   }

@@ -62,7 +62,9 @@ export class DemoActionDialogComponent {
   // reset PIN
   pin = '';
   showPin = false;
-  sendInvitation = true;
+  /** An account made by name only (channel "None") has nowhere to send — it uses Resend instead. */
+  readonly canSendInvitation = this.account.channel !== 'None';
+  sendInvitation = this.canSendInvitation;
   // extend
   days: number | null = DEMO_LIMITS.defaultDays;
   // disable

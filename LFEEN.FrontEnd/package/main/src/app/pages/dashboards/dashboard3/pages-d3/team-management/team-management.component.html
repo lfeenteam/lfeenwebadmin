@@ -81,7 +81,7 @@
             {{ totalCount }} {{ 'd3.teamManagement.pagination.total' | translate }}
           </span>
           <div class="d-flex align-items-center gap-4">
-            <button type="button" class="page-nav-btn"
+            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
               [disabled]="currentPage === 1"
               (click)="changePage(currentPage - 1)">
               <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
@@ -93,7 +93,7 @@
                 {{ p }}
               </button>
             }
-            <button type="button" class="page-nav-btn"
+            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
               [disabled]="currentPage === totalPages"
               (click)="changePage(currentPage + 1)">
               <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>

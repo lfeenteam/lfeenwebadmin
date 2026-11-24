@@ -339,7 +339,8 @@
                     </td>
                     <td>
                       @if (!d.succeeded && d.error) {
-                        <span class="dd-reason" [matTooltip]="d.error">{{ d.error }}</span>
+                        <!-- Readable text; the raw server reason stays in the tooltip for support -->
+                        <span class="dd-reason" [matTooltip]="d.error">{{ deliveryError(d.error) }}</span>
                       }
                     </td>
                     <td>{{ d.adminName || emptyValue }}</td>

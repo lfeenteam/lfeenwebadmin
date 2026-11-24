@@ -234,6 +234,11 @@
                       [titleKey]="listForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="listForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
                       actionKey="d3.state.retry" actionIcon="refresh" (action)="loadPage()">
                     </app-dashboard-empty>
+                  } @else if (searchQuery.trim()) {
+                    <app-dashboard-empty variant="search"
+                      titleKey="d3.emptyState.noResults.title" descKey="d3.emptyState.noResults.desc"
+                      actionKey="d3.emptyState.noResults.clear" actionIcon="x" (action)="clearSearch()">
+                    </app-dashboard-empty>
                   } @else {
                     <app-dashboard-empty icon="users" titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
                   }

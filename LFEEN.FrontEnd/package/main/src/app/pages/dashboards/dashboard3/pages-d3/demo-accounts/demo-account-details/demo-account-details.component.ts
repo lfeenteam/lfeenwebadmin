@@ -25,7 +25,7 @@ import {
   DemoAccountCredentials,
   DemoAccountKind,
   DemoAttachment,
-  DemoChannel,
+  DemoAccountChannel,
   attachmentSize,
   demoKindOf,
   toLocalPhone
@@ -33,6 +33,7 @@ import {
 import {
   DEMO_ACTION_BUTTONS,
   DemoApiError,
+  deliveryErrorText,
   demoActionToast,
   demoErrorMessage,
   demoFileIcon,
@@ -313,10 +314,14 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     return label === key ? status : label;
   }
 
-  channelLabel(channel: DemoChannel): string {
+  channelLabel(channel: DemoAccountChannel): string {
     const key = `d3.demoAccounts.channels.${channel}`;
     const label = this.translate.instant(key);
     return label === key ? channel : label;
+  }
+
+  deliveryError(error: string | null): string | null {
+    return deliveryErrorText(error, this.translate);
   }
 
   phone(value: string | null): string | null {

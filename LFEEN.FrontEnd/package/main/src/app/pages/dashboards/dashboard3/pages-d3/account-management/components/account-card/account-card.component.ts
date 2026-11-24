@@ -37,6 +37,10 @@ export class AccountCardComponent {
   }
 
   get statusLabel(): string {
+    // A draft also carries onboardingStatus=PendingReview, so check the derived status first (BUG-2530)
+    if (this.account?.status === 'incomplete') {
+      return this.translate.instant('d3.accountManagement.card.statusIncomplete');
+    }
     const onboarding = this.account?.onboardingStatus;
     const onboardingMap: Record<string, string> = {
       PendingReview: 'd3.accountManagement.card.statusPending',

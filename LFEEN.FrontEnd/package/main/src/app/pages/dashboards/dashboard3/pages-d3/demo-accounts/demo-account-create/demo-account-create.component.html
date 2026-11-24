@@ -10,8 +10,8 @@
         {{ 'd3.demoAccounts.actions.cancel' | translate }}
       </button>
       <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
-        @if (submitting) { <span class="da-spin"></span> } @else { <i-tabler name="send" class="icon-16"></i-tabler> }
-        {{ 'd3.demoAccounts.create.submit' | translate }}
+        @if (submitting) { <span class="da-spin"></span> } @else { <i-tabler [name]="sendInvitation ? 'send' : 'user-plus'" class="icon-16"></i-tabler> }
+        {{ (sendInvitation ? 'd3.demoAccounts.create.submit' : 'd3.demoAccounts.create.submitCreateOnly') | translate }}
       </button>
     </div>
   </div>
@@ -59,8 +59,10 @@
           @if (errors.fullName) { <p class="da-error">{{ errors.fullName }}</p> }
         </div>
 
+        <!-- Optional: nothing picked = create by name only (the message is copied from the result dialog).
+             Clicking the picked channel again clears it. -->
         <div class="da-field">
-          <span class="da-label">{{ 'd3.demoAccounts.create.channel' | translate }}<span class="req">*</span></span>
+          <span class="da-label">{{ 'd3.demoAccounts.create.channel' | translate }} {{ 'd3.demoAccounts.create.optional' | translate }}</span>
           <div class="da-segmented" role="radiogroup">
             @for (ch of channels; track ch) {
               <button type="button" role="radio" [class.active]="channel === ch" [attr.aria-checked]="channel === ch"
@@ -70,7 +72,9 @@
               </button>
             }
           </div>
-          <p class="da-helper">{{ 'd3.demoAccounts.create.channelHelp' | translate }}</p>
+          <p class="da-helper">
+            {{ (sendInvitation ? 'd3.demoAccounts.create.channelHelp' : 'd3.demoAccounts.create.createOnlyHelp') | translate }}
+          </p>
           @if (errors.channel) { <p class="da-error">{{ errors.channel }}</p> }
         </div>
 
@@ -163,8 +167,8 @@
 
         <div class="da-acc__body" id="acc-message" [hidden]="!open.message">
           <app-invitation-editor [bare]="true" [disabled]="submitting"></app-invitation-editor>
-          <!-- Email only. [hidden] (not @if) keeps the files when switching channels. -->
-          <app-demo-attachments [hidden]="!isEmail" [disabled]="submitting" inputId="da-create-files"></app-demo-attachments>
+          <!-- A sent Email only. [hidden] (not @if) keeps the files when switching channels. -->
+          <app-demo-attachments [hidden]="!sendsEmail" [disabled]="submitting" inputId="da-create-files"></app-demo-attachments>
         </div>
       </section>
     </div>
@@ -180,7 +184,7 @@
     </button>
     <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
       @if (submitting) { <span class="da-spin"></span> }
-      {{ 'd3.demoAccounts.create.submit' | translate }}
+      {{ (sendInvitation ? 'd3.demoAccounts.create.submit' : 'd3.demoAccounts.create.submitCreateOnly') | translate }}
     </button>
   </div>
 </form>

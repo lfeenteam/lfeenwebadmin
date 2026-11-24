@@ -1,15 +1,19 @@
 // Shapes of LFEENAdmin.API /api/app-runtime/*. URLs and queries use lowercase
 // ("client", "host", "ios", "android"); JSON bodies use PascalCase enums.
 
-/** URL form of the two apps this screen manages. */
-export type ControlCenterApp = 'client' | 'host';
+/** URL form of the apps this screen manages. */
+export type ControlCenterApp = 'client' | 'host' | 'serviceapp';
 /** URL form of the two platforms this screen manages (Web is never touched here). */
 export type ControlCenterPlatform = 'android' | 'ios';
 
 export type ApiApp = 'Client' | 'Host' | 'ServiceApp';
 export type ApiPlatform = 'Android' | 'Ios' | 'Web';
 
-export const API_APP: Record<ControlCenterApp, ApiApp> = { client: 'Client', host: 'Host' };
+export const API_APP: Record<ControlCenterApp, ApiApp> = { client: 'Client', host: 'Host', serviceapp: 'ServiceApp' };
+
+/** App picker shared by the updates and maintenance tabs. */
+export const CONTROL_CENTER_APP_OPTIONS: { value: ControlCenterApp; labelKey: string }[] =
+  (Object.keys(API_APP) as ControlCenterApp[]).map(value => ({ value, labelKey: `d3.controlCenter.apps.${API_APP[value]}` }));
 export const API_PLATFORM: Record<ControlCenterPlatform, ApiPlatform> = { android: 'Android', ios: 'Ios' };
 
 export type ControlCenterTab = 'maintenance' | 'updates' | 'themes';

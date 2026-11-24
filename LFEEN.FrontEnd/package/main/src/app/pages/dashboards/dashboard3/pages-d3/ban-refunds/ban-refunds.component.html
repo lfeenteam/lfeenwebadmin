@@ -84,9 +84,9 @@
                     {{ (retryingIds.has(row.id) && row.status === 'Pending' ? 'd3.banRefunds.status.retrying' : statusMeta(row).key) | translate }}
                   </span>
                   @if (row.status !== 'Succeeded' && failureLabel(row); as reason) {
-                    <span class="br-failure">
+                    <span class="br-failure" [title]="reason">
                       <i-tabler name="alert-circle" class="br-error-icon"></i-tabler>
-                      {{ reason }}
+                      <span class="br-failure-text">{{ reason }}</span>
                     </span>
                   }
                   @if (row.status !== 'Succeeded' && row.status !== 'Resolved' && row.lastError?.trim()) {
@@ -120,7 +120,7 @@
                 <span class="br-date">{{ fmtDate(row.status === 'Resolved' ? row.resolvedAt : (row.lastAttemptAt || row.createdAt)) }}</span>
               </td>
               <td class="br-actions-cell">
-                @if (row.status === 'ManualReview' && canManage()) {
+                @if (row.status === 'ManualReview' && canManage() && !retryingIds.has(row.id)) {
                   <div class="br-actions">
                     <button type="button" class="br-btn br-btn--retry" [disabled]="busyIds.has(row.id)" (click)="retry(row)">
                       <i-tabler name="refresh" class="br-btn-icon"></i-tabler>

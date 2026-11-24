@@ -37,8 +37,13 @@ export interface DashboardSummary {
     returningGuestRate: number;
     averageAppRating: number | null;
     openComplaints: number;
+    /** Share of guests whose gender is known (identity-verified), not of all guests. */
     malePercentage: number;
     femalePercentage: number;
+    /** Guests whose gender is unknown (not identity-verified). Optional until every backend ships it. */
+    unknownGenderCount?: number;
+    /** unknownGenderCount as a share of all registered guests. */
+    unknownGenderPercentage?: number;
     downloads: UnavailableMetric;
   };
   merchantApp: {

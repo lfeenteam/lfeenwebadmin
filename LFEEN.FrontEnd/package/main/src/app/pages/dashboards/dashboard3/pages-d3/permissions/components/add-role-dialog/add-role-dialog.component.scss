@@ -233,6 +233,30 @@
     display: none !important;
   }
 
+  // Manager role toggle — black when on, same look as the add-role page
+  ::ng-deep .manager-toggle-row .mat-mdc-slide-toggle.mat-primary {
+    --mdc-switch-selected-track-color: #111110;
+    --mdc-switch-selected-hover-track-color: #111110;
+    --mdc-switch-selected-focus-track-color: #111110;
+    --mdc-switch-selected-pressed-track-color: #111110;
+    --mdc-switch-selected-handle-color: #fff;
+    --mdc-switch-selected-hover-handle-color: #fff;
+    --mdc-switch-selected-focus-handle-color: #fff;
+    --mdc-switch-selected-pressed-handle-color: #fff;
+    --mdc-switch-selected-icon-color: #111110;
+    --mdc-switch-unselected-track-color: #EDEDEB;
+    --mdc-switch-unselected-handle-color: #fff;
+
+    .mdc-switch:enabled .mdc-switch__track::after {
+      background-color: #111110 !important;
+    }
+
+    .mdc-switch:enabled:not(.mdc-switch--selected) .mdc-switch__track::before {
+      background-color: #EDEDEB !important;
+      border: 1px solid #E8E8E4;
+    }
+  }
+
   // ════════════════════════════════════════
   // Mobile (576px)
   // ════════════════════════════════════════

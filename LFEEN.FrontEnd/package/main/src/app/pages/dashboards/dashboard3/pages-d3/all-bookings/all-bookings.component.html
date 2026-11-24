@@ -371,7 +371,7 @@
       <span class="pagination-total">{{ paginationSummary }}</span>
     <div class="pagination-controls">
       <button
-        class="page-nav-btn"
+        class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
         [disabled]="currentPage === 1"
         (click)="changePage(currentPage - 1)">
         <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
@@ -391,7 +391,7 @@
       }
 
       <button
-        class="page-nav-btn"
+        class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
         [disabled]="currentPage === totalPages"
         (click)="changePage(currentPage + 1)">
         <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>

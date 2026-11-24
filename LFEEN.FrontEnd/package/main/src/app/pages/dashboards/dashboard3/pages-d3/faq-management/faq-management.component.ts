@@ -79,6 +79,9 @@ export class FaqManagementComponent implements OnInit {
   // detection tick that happens to run after ngx-translate resolves its language.
   readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
 
+  // The row's bold title follows the UI language; the other language is shown as the subtitle.
+  readonly isEn = computed(() => this.coreService.getOptionsSignal()().language === 'en');
+
   ngOnInit(): void {
     // Follows the URL, so refresh, back/forward and a direct ?tab=service link all open the right tab.
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {

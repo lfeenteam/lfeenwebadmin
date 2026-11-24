@@ -2,6 +2,14 @@ import { AdminAdditionalCondition } from './additional-condition.model';
 
 export type OnboardingStatus ='Draft' | 'PendingReview' | 'Approved' | 'Rejected';
 
+/**
+ * Every account is created with onboardingStatus=PendingReview (the backend has no Draft value),
+ * so PendingReview alone doesn't mean the host submitted it. Only submittedForReviewAtUtc does (BUG-2530).
+ */
+export function isSubmittedForReview(a: { onboardingStatus: OnboardingStatus; submittedForReviewAtUtc?: string | null } | null | undefined): boolean {
+  return a?.onboardingStatus === 'PendingReview' && !!a.submittedForReviewAtUtc;
+}
+
 export interface AccountItem {
   accountId: string;
   referenceCode: string;
@@ -12,6 +20,8 @@ export interface AccountItem {
   onboardingStatus: OnboardingStatus;
   rejectionReason: string | null;
   createdAt: string;
+  /** Set only by Submit/Resubmit — null means the account is still a draft (BUG-2530). */
+  submittedForReviewAtUtc?: string | null;
   propertyCount: number;
   businessType: string;
   logoFileId: string | null;
@@ -43,6 +53,8 @@ export interface AccountDetail {
   businessType: string;
   createdAt: string;
   updatedAt: string | null;
+  /** Set only by Submit/Resubmit — null means the account is still a draft (BUG-2530). */
+  submittedForReviewAtUtc?: string | null;
   idNumber: string | null;
   birthDateGregorian: string | null;
   businessInfoStatus: string;
@@ -117,7 +129,8 @@ export interface Account {
   id: string;
   name: string;
   type: 'individual' | 'company' | 'sole_proprietorship';
-  status: 'active' | 'suspended' | 'under_review' | 'rejected';
+  // 'incomplete' = created but never submitted for review (a draft), BUG-2530
+  status: 'active' | 'suspended' | 'under_review' | 'rejected' | 'incomplete';
   onboardingStatus: OnboardingStatus;
   idNumber: string;
   joinDate: string;

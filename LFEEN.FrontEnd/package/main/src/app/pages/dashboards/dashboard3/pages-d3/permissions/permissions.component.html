@@ -8,7 +8,9 @@
         </div>
         <div class="department-details">
           <h2 class="f-s-20 f-w-900 m-b-4">{{ currentLang === 'ar' ? deptName : deptEnglishName }}</h2>
-          <p class="permissions-description m-0">{{ 'd3.permissions.description' | translate }}</p>
+          @if ((currentLang === 'ar' ? deptDescAr : deptDescEn); as desc) {
+            <p class="permissions-description m-0">{{ desc }}</p>
+          }
         </div>
       </div>
       <div class="header-stats">

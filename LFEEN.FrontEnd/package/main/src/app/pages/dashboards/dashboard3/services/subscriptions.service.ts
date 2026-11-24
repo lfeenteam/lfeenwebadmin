@@ -38,12 +38,13 @@ function toPage<T>(res: unknown): SubscriptionPaginated<T> {
   if (Array.isArray(res)) {
     return { data: res as T[], totalCount: res.length, page: 1, nextpage: null, totalPages: 1 };
   }
-  const r = (res ?? {}) as Partial<SubscriptionPaginated<T>> & { items?: T[] };
+  // The core API answers { items, pageNumber, ... }; the gateway's own lists use { data, page, ... }.
+  const r = (res ?? {}) as Partial<SubscriptionPaginated<T>> & { items?: T[]; pageNumber?: number };
   const data = r.data ?? r.items ?? [];
   return {
     data,
     totalCount: r.totalCount ?? data.length,
-    page: r.page ?? 1,
+    page: r.page ?? r.pageNumber ?? 1,
     nextpage: r.nextpage ?? null,
     totalPages: Math.max(1, r.totalPages ?? 1),
   };
@@ -187,11 +188,12 @@ export class SubscriptionsService {
     return this.http.get<SubscriptionOverview>(`${this.apiUrl}/overview`);
   }
 
-  /** Read-only history — no status = every order. */
-  getRequests(status?: SubscriptionOrderStatus): Observable<SubscriptionOrder[]> {
-    let params = new HttpParams();
-    if (status) params = params.set('status', status);
-    return this.http.get<SubscriptionOrder[]>(`${this.apiUrl}/requests`, { params });
+  /** Read-only order history, paginated on the server (newest first) — no status = every order. */
+  getRequests(query: { status?: SubscriptionOrderStatus; pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<SubscriptionOrder>> {
+    let params = this.pageParams(query);
+    if (query.status) params = params.set('status', query.status);
+    return this.http.get<unknown>(`${this.apiUrl}/requests`, { params })
+      .pipe(map(res => toPage<SubscriptionOrder>(res)));
   }
 
   // ── Activity log ────────────────────────────────────────────

@@ -14,6 +14,7 @@ import {
   DemoAccountsPage,
   DemoAccountsQuery,
   DemoAttachment,
+  DemoResendResult,
   InvitationPreview,
   InvitationPreviewRequest,
   InvitationTemplates,
@@ -52,9 +53,9 @@ export class DemoAccountsService {
   }
 
   // 200 even when delivery failed — the real result is deliveries[0].succeeded.
-  // Always issues a new PIN; the response never contains it.
-  resend(id: string, body: ResendDemoRequest): Observable<DemoAccount> {
-    return this.http.post<DemoAccount>(`${this.baseUrl}/${id}/resend`, body);
+  // Always issues a new PIN, returned once with the verification code and the message as sent.
+  resend(id: string, body: ResendDemoRequest): Observable<DemoResendResult> {
+    return this.http.post<DemoResendResult>(`${this.baseUrl}/${id}/resend`, body);
   }
 
   // The response carries no deliveries/attachments; the details page re-fetches after it.

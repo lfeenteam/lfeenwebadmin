@@ -104,8 +104,17 @@
         <div class="table-row">
 
           <div class="col-title">
-            <span class="row-title">{{ article.titleEn }}</span>
-            <span class="row-subtitle">{{ article.titleAr }}</span>
+            @if (isEn()) {
+              <span class="row-title" dir="ltr">{{ article.titleEn || article.titleAr }}</span>
+              @if (article.titleEn && article.titleAr) {
+                <span class="row-subtitle" dir="rtl">{{ article.titleAr }}</span>
+              }
+            } @else {
+              <span class="row-title" dir="rtl">{{ article.titleAr || article.titleEn }}</span>
+              @if (article.titleAr && article.titleEn) {
+                <span class="row-subtitle" dir="ltr">{{ article.titleEn }}</span>
+              }
+            }
           </div>
 
           <div class="col-dept">

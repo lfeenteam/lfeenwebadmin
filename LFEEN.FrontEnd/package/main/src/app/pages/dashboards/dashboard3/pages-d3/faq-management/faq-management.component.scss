@@ -323,8 +323,6 @@
   font-size: 13px;
   font-weight: 700;
   color: #111110;
-  direction: ltr;
-  text-align: right;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -524,10 +522,6 @@
   .table-head,
   .table-row {
     direction: ltr;
-  }
-
-  .row-title {
-    text-align: left;
   }
 
   .col-title {

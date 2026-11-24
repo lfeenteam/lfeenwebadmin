@@ -2,7 +2,10 @@
 // (no success/data envelope). View needs DemoAccounts.View, every action DemoAccounts.Manage.
 
 export type DemoAccountStatus = 'Ready' | 'Sent' | 'SendFailed' | 'Expired' | 'Disabled';
+/** A channel an invitation can be sent on — the only values the forms ever send. */
 export type DemoChannel = 'Email' | 'WhatsApp' | 'Sms';
+/** An account's saved channel: "None" = made by name only, nothing sent yet (never sent by us). */
+export type DemoAccountChannel = DemoChannel | 'None';
 /** Merchant = host app (web + mobile), Client = guest app. Each account opens one app only. */
 export type DemoAccountKind = 'Merchant' | 'Client';
 
@@ -28,11 +31,18 @@ export const DEMO_PERMISSIONS = {
 } as const;
 
 // Translation keys live under d3.demoAccounts.status.* / d3.demoAccounts.channels.*.
-export const DEMO_CHANNEL_ICONS: Record<DemoChannel, string> = {
+export const DEMO_CHANNEL_ICONS: Record<DemoAccountChannel, string> = {
   Email: 'mail',
   WhatsApp: 'brand-whatsapp',
   Sms: 'message',
+  None: 'send-off',
 };
+
+/** The server sends "-" when no verification code is configured — treat it as none. */
+export function demoVerificationCode(value: string | null | undefined): string | null {
+  const v = (value ?? '').trim();
+  return v && v !== '-' ? v : null;
+}
 
 export interface DemoDelivery {
   channel: DemoChannel;
@@ -66,7 +76,7 @@ export interface DemoAccount {
   fullName: string;
   email: string | null;
   contactPhone: string | null;
-  channel: DemoChannel;
+  channel: DemoAccountChannel;
   loginPhone: string;
   loginSid: string;
   /**
@@ -102,13 +112,24 @@ export interface DemoAccount {
   deliveries: DemoDelivery[];
 }
 
-/** Returned by create and new PIN only — the only time the PIN reaches the browser. */
+/** Returned by create and new PIN (and resend, see DemoResendResult) — the only time the PIN reaches the browser. */
 export interface DemoAccountCredentials {
   account: DemoAccount;
   pin: string;
+  /** The sign-in code the invitation mentions; "-" when none is configured (read it through demoVerificationCode()). */
+  verificationCode?: string | null;
+  /** The invitation exactly as sent (every variable filled, PIN included) — present even when nothing was sent. */
+  renderedMessage?: string | null;
   invitationSent: boolean;
   reopened: boolean;
 }
+
+/** Resend answers with the account itself plus the new PIN it issued (every resend changes the PIN). */
+export type DemoResendResult = DemoAccount & {
+  pin?: string | null;
+  verificationCode?: string | null;
+  renderedMessage?: string | null;
+};
 
 export interface DemoAccountsPage {
   items: DemoAccount[];
@@ -135,7 +156,10 @@ export interface CreateDemoAccountRequest {
   fullName: string;
   email: string | null;
   phoneNumber: string | null;
-  channel: DemoChannel;
+  /** Left out when sendInvitation is false and no channel was picked (the account gets "None"). */
+  channel?: DemoChannel;
+  /** false = create only, send nothing: only the name is required (email/phone are checked and saved if given). */
+  sendInvitation?: boolean;
   durationDays: number;
   pin: string | null;
   note: string | null;
@@ -155,6 +179,10 @@ export interface CreateDemoAccountRequest {
  */
 export interface ResendDemoRequest {
   channel?: DemoChannel;
+  /** For an account without one: saved on the account, then used for this send. */
+  email?: string;
+  /** For an account without one (05XXXXXXXX or +9665XXXXXXXX): saved on the account. */
+  phoneNumber?: string;
   invitationSubject?: string;
   invitationMessage?: string;
   invitationLanguage?: InvitationLanguage;

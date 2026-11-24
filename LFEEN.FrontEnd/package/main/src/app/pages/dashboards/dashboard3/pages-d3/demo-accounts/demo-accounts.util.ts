@@ -33,9 +33,10 @@ export function demoActionToast(
       // 200 even when delivery failed — the real result is the newest attempt.
       // Every resend issues a new PIN, so on failure the old PIN has already stopped working.
       const last = account.deliveries?.[0];
+      const reason = deliveryErrorText(last?.error, translate);
       return last?.succeeded === true
         ? { ok: true, message: t('resent') }
-        : { ok: false, message: t('resendFailed', { reason: last?.error ? `: ${last.error}` : '' }) };
+        : { ok: false, message: t('resendFailed', { reason: reason ? `: ${reason}` : '' }) };
     }
     case 'extend':
       return { ok: true, message: t('extended', { date: formatRiyadhDate(account.expiresAt, lang) ?? '' }) };
@@ -46,6 +47,18 @@ export function demoActionToast(
     default:
       return null;
   }
+}
+
+/**
+ * A failed delivery's reason as shown to the admin. The server sometimes stores a raw exception
+ * name (e.g. "SmtpCommandException") — that becomes a readable "sending service error";
+ * a real sentence from the server is kept as is.
+ */
+export function deliveryErrorText(error: string | null | undefined, translate: TranslateService): string | null {
+  const v = (error ?? '').trim();
+  if (!v) return null;
+  const technical = /exception|error$/i.test(v) && !/\s/.test(v);
+  return technical ? translate.instant('d3.demoAccounts.deliveries.technicalError') : v;
 }
 
 // ── Errors (§8) ─────────────────────────────────────────────────────────
@@ -90,6 +103,9 @@ const KNOWN_CODES = new Set([
   'DEMO_TEST_SEND_FAILED',
   'DEMO_ACTIVATION_REQUEST_NOT_FOUND',
   'DEMO_KIND_INVALID',
+  'DEMO_RECIPIENT_REQUIRED',
+  'DEMO_CHANNEL_REQUIRED',
+  'DEMO_CHANNEL_INVALID',
   'PIN_TOO_WEAK',
 ]);
 

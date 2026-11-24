@@ -236,6 +236,11 @@ export class SubscriptionManagementComponent implements OnInit {
     this.searchQuery = value;
   }
 
+  /** "Clear search" on the no-results state — empties the box via its [value] binding. */
+  clearSearch(): void {
+    this.searchQuery = '';
+  }
+
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.currentPage = page;

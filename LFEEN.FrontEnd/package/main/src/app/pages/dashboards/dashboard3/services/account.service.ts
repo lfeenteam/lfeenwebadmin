@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDetail, AcceptAccountRequest, RejectAccountRequest } from '../interfaces/account.model';
+import { AccountItem, AccountStats, PaginatedAccountResponse, Account, AccountDetail, AcceptAccountRequest, RejectAccountRequest, isSubmittedForReview } from '../interfaces/account.model';
 import { AccountTab } from '../pages-d3/account-management/components/account-tabs-bar/account-tabs-bar.component';
 import { CoreService } from 'src/app/services/core.service';
 import { environment } from 'src/environments/environment';
@@ -50,8 +50,9 @@ export class AccountService {
     this._accountsResource.reload();
   }
 
-  // PendingReview=1 | Approved=2 | Rejected=3. Draft accounts haven't been submitted yet,
-  // so they appear under "all" only, not in the review queue.
+  // PendingReview=1 | Approved=2 | Rejected=3. Drafts share PendingReview with real requests;
+  // the server's PendingReview filter also requires SubmittedForReviewAtUtc, so drafts
+  // appear under "all" only, not in the review queue (BUG-2530).
   private tabToStatusParam(tab: AccountTab): string | null {
     switch (tab) {
       case 'under_review': return '1';
@@ -86,11 +87,11 @@ export class AccountService {
       id:               item.accountId,
       name:             displayName,
       type:             this.mapBusinessType(item.businessType),
-      status:           this.mapStatus(item.onboardingStatus),
+      status:           this.mapStatus(item),
       onboardingStatus: item.onboardingStatus,
       // The card labels this field "Commercial Register"; referenceCode is an internal code, not the CR number
       idNumber:         item.companyNumber ?? '',
-      joinDate:         this.formatDate(item.createdAt, lang),
+      joinDate:         this.requestDate(item, lang),
       propertyCount:    item.propertyCount,
       avatarInitials:   this.getInitials(displayName),
       logoUrl:          item.logoUrl,
@@ -105,12 +106,19 @@ export class AccountService {
     }
   }
 
-  private mapStatus(status: string): 'active' | 'suspended' | 'under_review' | 'rejected' {
-    switch (status) {
-      case 'Approved':      return 'active';
-      case 'Rejected':      return 'rejected';
-      case 'PendingReview': return 'under_review';
-      default:              return 'under_review';
+  // "Request date" = when the host submitted, not when the account was created (BUG-2530).
+  // A draft has no request yet → "—". Approved/Rejected accounts decided before the column
+  // existed (12/11) may have no submit time, so they keep showing createdAt as before.
+  private requestDate(item: AccountItem, lang: string): string {
+    if (item.submittedForReviewAtUtc) return this.formatDate(item.submittedForReviewAtUtc, lang);
+    return item.onboardingStatus === 'PendingReview' ? '' : this.formatDate(item.createdAt, lang);
+  }
+
+  private mapStatus(item: AccountItem): Account['status'] {
+    switch (item.onboardingStatus) {
+      case 'Approved': return 'active';
+      case 'Rejected': return 'rejected';
+      default:         return isSubmittedForReview(item) ? 'under_review' : 'incomplete';
     }
   }
 

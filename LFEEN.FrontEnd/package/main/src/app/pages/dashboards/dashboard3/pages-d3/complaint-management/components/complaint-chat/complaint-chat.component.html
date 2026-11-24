@@ -32,7 +32,7 @@
     } @else {
       <span class="resolved-label">
         <i-tabler name="circle-check" class="icon-16"></i-tabler>
-        تم الرد والحل
+        {{ 'd3.complaints.closeDialog.resolvedLabel' | translate }}
       </span>
     }
   </div>
@@ -131,23 +131,23 @@
   <!-- Close & resolve dialog -->
   @if (showCloseDialog()) {
     <div class="dialog-backdrop" (click)="cancelClose()">
-      <div class="close-dialog" (click)="$event.stopPropagation()">
+      <div class="close-dialog" [dir]="dialogDir" (click)="$event.stopPropagation()">
 
         <div class="close-dialog-header">
           <span class="close-dialog-icon">
             <i-tabler name="alert-circle" class="icon-24"></i-tabler>
           </span>
           <div>
-            <h2>إغلاق الشكوى ومعالجتها</h2>
-            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+            <h2>{{ 'd3.complaints.closeDialog.title' | translate }}</h2>
+            <p>{{ 'd3.complaints.closeDialog.desc' | translate }}</p>
           </div>
         </div>
 
         <div class="close-dialog-note">
-          <label>ملاحظة <span>(اختياري)</span></label>
+          <label>{{ 'd3.complaints.closeDialog.noteLabel' | translate }} <span>{{ 'd3.complaints.closeDialog.optional' | translate }}</span></label>
           <textarea
             [(ngModel)]="closeNote"
-            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+            [placeholder]="'d3.complaints.closeDialog.notePlaceholder' | translate"></textarea>
         </div>
 
         @if (closeError()) {
@@ -156,7 +156,7 @@
 
         <div class="close-dialog-actions">
           <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
-            إلغاء
+            {{ 'd3.complaints.closeDialog.cancel' | translate }}
           </button>
           <button
             class="dialog-confirm-btn"
@@ -168,7 +168,7 @@
             } @else {
               <i-tabler name="circle-check" class="icon-16"></i-tabler>
             }
-            تأكيد الإغلاق
+            {{ 'd3.complaints.closeDialog.confirm' | translate }}
           </button>
         </div>
 

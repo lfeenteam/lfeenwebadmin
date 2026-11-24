@@ -1,57 +1,83 @@
-<div class="br" [dir]="currentDir">
+<div class="cr" [dir]="currentDir">
 
-  <p class="br-intro">{{ 'd3.cancellationRefunds.intro' | translate }}</p>
-
-  <div class="br-tabs">
-    <button type="button" class="br-refresh" [disabled]="loading" (click)="load()"
-      [matTooltip]="'d3.cancellationRefunds.refresh' | translate"
-      [attr.aria-label]="'d3.cancellationRefunds.refresh' | translate">
-      <i-tabler name="refresh"></i-tabler>
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header class="cr-head">
+    <div class="cr-head-main">
+      <span class="cr-head-icon"><i-tabler name="receipt-refund"></i-tabler></span>
+      <div class="cr-head-text">
+        <h1 class="cr-title">
+          {{ 'd3.cancellationRefunds.title' | translate }}
+          @if (!loadError && totalCount > 0) {
+            <!-- totalCount comes from the API, so it covers every page. -->
+            <span class="cr-count">{{ fmt(totalCount) }}</span>
+          }
+        </h1>
+        <p class="cr-intro">{{ 'd3.cancellationRefunds.intro' | translate }}</p>
+      </div>
+    </div>
+    <button type="button" class="cr-refresh" [disabled]="loading" (click)="load()">
+      <i-tabler name="refresh" class="cr-refresh-icon" [class.is-spinning]="loading"></i-tabler>
+      {{ 'd3.cancellationRefunds.refresh' | translate }}
     </button>
-  </div>
+  </header>
 
+  <!-- ── Table ──────────────────────────────────────────── -->
   @if (loading && rows.length === 0) {
     <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
   } @else {
-    <div class="br-table-box" [class.is-refreshing]="loading">
-      <table class="br-table">
+    <div class="cr-card" [class.is-refreshing]="loading">
+      <table class="cr-table">
         <thead>
           <tr>
             <th>{{ 'd3.cancellationRefunds.table.booking' | translate }}</th>
             <th>{{ 'd3.cancellationRefunds.table.listing' | translate }}</th>
             <th>{{ 'd3.cancellationRefunds.table.guest' | translate }}</th>
-            <th>{{ 'd3.cancellationRefunds.table.amount' | translate }}</th>
-            <th>{{ 'd3.cancellationRefunds.table.attempts' | translate }}</th>
+            <th class="cr-th-amount">{{ 'd3.cancellationRefunds.table.amount' | translate }}</th>
             <th>{{ 'd3.cancellationRefunds.table.status' | translate }}</th>
             <th>{{ 'd3.cancellationRefunds.table.date' | translate }}</th>
-            <th></th>
+            <th><span class="cr-sr-only">{{ 'd3.cancellationRefunds.table.actions' | translate }}</span></th>
           </tr>
         </thead>
         <tbody>
           @for (row of rows; track row.id) {
-            <tr class="br-row">
-              <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.booking' | translate }}</span>
-                <span class="br-booking">{{ row.bookingNumber || '—' }}</span>
+            <tr class="cr-row" [class.is-queued]="queuedIds.has(row.id)">
+              <!-- Booking -->
+              <td class="cr-td-booking">
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.booking' | translate }}</span>
+                <span class="cr-booking">{{ row.bookingNumber || '—' }}</span>
+                <span class="cr-sub">{{ 'd3.cancellationRefunds.cancelledAt' | translate: { date: fmtDate(row.createdAtUtc) } }}</span>
               </td>
+
+              <!-- Listing -->
               <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.listing' | translate }}</span>
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.listing' | translate }}</span>
                 @if (propertyLabel(row); as property) {
-                  <span class="br-property" [title]="property">{{ property }}</span>
+                  <span class="cr-property" [title]="property">{{ property }}</span>
                 } @else {
-                  <span class="br-text">—</span>
+                  <span class="cr-muted">—</span>
                 }
                 @if (unitLabel(row); as unit) {
-                  <span class="br-unit">{{ unit }}</span>
+                  <span class="cr-sub">{{ unit }}</span>
                 }
               </td>
+
+              <!-- Guest -->
               <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.guest' | translate }}</span>
-                <span class="br-text">{{ row.guestName || '—' }}</span>
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.guest' | translate }}</span>
+                @if (row.guestName?.trim()) {
+                  <span class="cr-guest">
+                    <span class="cr-avatar" aria-hidden="true">{{ initials(row.guestName) }}</span>
+                    <span class="cr-guest-name" [title]="row.guestName">{{ row.guestName }}</span>
+                  </span>
+                } @else {
+                  <span class="cr-muted">—</span>
+                }
               </td>
-              <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.amount' | translate }}</span>
-                <span class="br-amount">
+
+              <!-- Amount -->
+              <td class="cr-td-amount">
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.amount' | translate }}</span>
+                <span class="cr-amount">
                   {{ fmtAmountValue(row) }}
                   @if (isSar(row)) {
                     <span class="currency-icon" [class.currency-icon-en]="currencyIconEn"
@@ -59,82 +85,90 @@
                       [style.mask-image]="'url(' + currencyIconSrc + ')'"
                       role="img" [attr.aria-label]="'d3.cancellationRefunds.currencySar' | translate"></span>
                   } @else {
-                    {{ row.currencyCode }}
+                    <span class="cr-currency">{{ row.currencyCode }}</span>
                   }
                 </span>
               </td>
-              <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.attempts' | translate }}</span>
-                <span class="br-text">{{ fmt(row.attempts) }}</span>
-              </td>
-              <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.status' | translate }}</span>
-                <div class="br-status-cell">
+
+              <!-- Status & reason -->
+              <td class="cr-td-status">
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.status' | translate }}</span>
+                <div class="cr-status-cell">
                   @if (queuedIds.has(row.id)) {
-                    <span class="br-status st-pending">
-                      <span class="br-dot"></span>
+                    <span class="cr-badge cr-badge--pending">
+                      <span class="cr-dot"></span>
                       {{ 'd3.cancellationRefunds.status.queued' | translate }}
                     </span>
-                    <span class="br-sub">{{ 'd3.cancellationRefunds.queuedHint' | translate }}</span>
+                    <span class="cr-sub">{{ 'd3.cancellationRefunds.queuedHint' | translate }}</span>
                   } @else {
-                    <span class="br-status st-danger">
-                      <span class="br-dot"></span>
-                      {{ 'd3.cancellationRefunds.status.manualReview' | translate }}
-                    </span>
-                    @if (failureLabel(row); as reason) {
-                      <span class="br-failure">
-                        <i-tabler name="alert-circle" class="br-error-icon"></i-tabler>
-                        {{ reason }}
+                    <div class="cr-badges">
+                      <span class="cr-badge cr-badge--danger">
+                        <span class="cr-dot"></span>
+                        {{ 'd3.cancellationRefunds.status.manualReview' | translate }}
                       </span>
-                    }
-                    @if (!isRetryable(row)) {
-                      <span class="br-sub">{{ 'd3.cancellationRefunds.notRetryableHint' | translate }}</span>
+                      @if (!isRetryable(row)) {
+                        <!-- The long explanation lives in the tooltip; the chip just says why there's no "Retry". -->
+                        <span class="cr-badge cr-badge--neutral" tabindex="0"
+                          [matTooltip]="'d3.cancellationRefunds.notRetryableHint' | translate"
+                          [attr.aria-label]="'d3.cancellationRefunds.notRetryableHint' | translate">
+                          <i-tabler name="hand-stop" class="cr-badge-icon"></i-tabler>
+                          {{ 'd3.cancellationRefunds.manualOnly' | translate }}
+                        </span>
+                      }
+                    </div>
+                    @if (failureLabel(row); as reason) {
+                      <p class="cr-reason" [title]="reason">{{ reason }}</p>
                     }
                     @if (row.lastError?.trim()) {
                       <!-- The raw gateway message tells the admin whether a retry can work at all. -->
-                      <button type="button" class="br-tech-toggle"
+                      <button type="button" class="cr-tech-toggle"
                         [attr.aria-expanded]="expandedErrorIds.has(row.id)"
                         [attr.aria-controls]="'cr-tech-' + row.id"
                         (click)="toggleError(row.id)">
-                        <i-tabler [name]="expandedErrorIds.has(row.id) ? 'chevron-up' : 'chevron-down'" class="br-tech-icon"></i-tabler>
+                        <i-tabler name="code" class="cr-tech-icon"></i-tabler>
                         {{ (expandedErrorIds.has(row.id) ? 'd3.cancellationRefunds.technicalDetailsHide' : 'd3.cancellationRefunds.technicalDetails') | translate }}
+                        <i-tabler [name]="expandedErrorIds.has(row.id) ? 'chevron-up' : 'chevron-down'" class="cr-tech-icon"></i-tabler>
                       </button>
                       @if (expandedErrorIds.has(row.id)) {
-                        <code class="br-tech-details" dir="ltr" [id]="'cr-tech-' + row.id">{{ row.lastError }}</code>
+                        <code class="cr-tech-details" dir="ltr" [id]="'cr-tech-' + row.id">{{ row.lastError }}</code>
                       }
                     }
                   }
                 </div>
               </td>
+
+              <!-- Last attempt -->
               <td>
-                <span class="br-label">{{ 'd3.cancellationRefunds.table.date' | translate }}</span>
-                <span class="br-date">{{ fmtDate(row.lastAttemptAtUtc || row.createdAtUtc) }}</span>
-                <span class="br-sub">{{ 'd3.cancellationRefunds.cancelledAt' | translate: { date: fmtDate(row.createdAtUtc) } }}</span>
+                <span class="cr-label">{{ 'd3.cancellationRefunds.table.date' | translate }}</span>
+                <span class="cr-date">{{ fmtDate(row.lastAttemptAtUtc || row.createdAtUtc) }}</span>
+                <span class="cr-sub">{{ 'd3.cancellationRefunds.attemptsLine' | translate: { count: fmt(row.attempts) } }}</span>
               </td>
-              <td class="br-actions-cell">
+
+              <!-- Actions -->
+              <td class="cr-td-actions">
                 @if (canManage() && !queuedIds.has(row.id)) {
-                  <div class="br-actions">
+                  <div class="cr-actions">
+                    <button type="button" class="cr-btn cr-btn--resolve" [disabled]="busyIds.has(row.id)" (click)="resolve(row)">
+                      <i-tabler name="circle-check" class="cr-btn-icon"></i-tabler>
+                      {{ 'd3.cancellationRefunds.actions.resolve' | translate }}
+                    </button>
                     @if (isRetryable(row)) {
-                      <button type="button" class="br-btn br-btn--retry" [disabled]="busyIds.has(row.id)" (click)="retry(row)">
-                        <i-tabler name="refresh" class="br-btn-icon"></i-tabler>
+                      <button type="button" class="cr-btn cr-btn--retry" [disabled]="busyIds.has(row.id)" (click)="retry(row)">
+                        <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
                         {{ 'd3.cancellationRefunds.actions.retry' | translate }}
                       </button>
                     }
-                    <button type="button" class="br-btn br-btn--resolve" [disabled]="busyIds.has(row.id)" (click)="resolve(row)">
-                      <i-tabler name="check" class="br-btn-icon"></i-tabler>
-                      {{ 'd3.cancellationRefunds.actions.resolve' | translate }}
-                    </button>
                   </div>
                 }
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="8" class="br-empty-cell">
+              <td colspan="7" class="cr-empty-cell">
                 @if (loadError) {
                   <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.cancellationRefunds.errors.loadTitle" descKey="d3.cancellationRefunds.errors.loadDesc">
-                    <button type="button" class="br-btn br-btn--retry br-empty-retry" (click)="load()">
-                      <i-tabler name="refresh" class="br-btn-icon"></i-tabler>
+                    <button type="button" class="cr-btn cr-btn--retry cr-empty-retry" (click)="load()">
+                      <i-tabler name="refresh" class="cr-btn-icon"></i-tabler>
                       {{ 'd3.cancellationRefunds.refresh' | translate }}
                     </button>
                   </app-dashboard-empty>
@@ -146,29 +180,29 @@
           }
         </tbody>
       </table>
-    </div>
-  }
 
-  @if (!loading && totalPages > 1) {
-    <div class="br-pagination">
-      <span class="br-total">{{ fmt(totalCount) }} {{ 'd3.cancellationRefunds.pagination.total' | translate }}</span>
-      <div class="br-pages">
-        <button class="br-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
-          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
-        </button>
-        @for (item of visiblePages; track $index) {
-          @if (item === '...') {
-            <span class="br-ellipsis">...</span>
-          } @else {
-            <button class="br-page-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
-              {{ fmt($any(item)) }}
+      @if (!loading && totalPages > 1) {
+        <div class="cr-pagination">
+          <span class="cr-total">{{ fmt(totalCount) }} {{ 'd3.cancellationRefunds.pagination.total' | translate }}</span>
+          <div class="cr-pages">
+            <button class="cr-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
             </button>
-          }
-        }
-        <button class="br-page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
-          <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
-        </button>
-      </div>
+            @for (item of visiblePages; track $index) {
+              @if (item === '...') {
+                <span class="cr-ellipsis">...</span>
+              } @else {
+                <button class="cr-page-btn" [class.active]="currentPage === item" (click)="changePage($any(item))">
+                  {{ fmt($any(item)) }}
+                </button>
+              }
+            }
+            <button class="cr-page-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
+            </button>
+          </div>
+        </div>
+      }
     </div>
   }
 </div>

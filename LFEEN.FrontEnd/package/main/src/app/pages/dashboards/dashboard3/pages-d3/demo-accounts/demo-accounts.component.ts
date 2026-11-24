@@ -22,7 +22,7 @@ import {
   DemoAccount,
   DemoAccountKind,
   DemoAccountStatus,
-  DemoChannel,
+  DemoAccountChannel,
   demoKindOf,
   toLocalPhone
 } from '../../interfaces/demo-account.model';
@@ -222,7 +222,7 @@ export class DemoAccountsComponent implements OnInit {
     return label === key ? kind : label;
   }
 
-  channelLabel(channel: DemoChannel): string {
+  channelLabel(channel: DemoAccountChannel): string {
     const key = `d3.demoAccounts.channels.${channel}`;
     const label = this.translate.instant(key);
     return label === key ? channel : label;
