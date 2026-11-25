@@ -102,7 +102,8 @@
   &__spacer { flex: 1 1 auto; }
 }
 
-@media (max-width: 576px) {
+// Same breakpoint as the shared card layout in demo-accounts.component.scss.
+@media (max-width: 1024px) {
   // The shared list places cells by position for the accounts table — undo that here.
   .sl-table .da-row {
     td { grid-column: auto !important; grid-row: auto !important; border-top: none !important; text-align: start !important; }

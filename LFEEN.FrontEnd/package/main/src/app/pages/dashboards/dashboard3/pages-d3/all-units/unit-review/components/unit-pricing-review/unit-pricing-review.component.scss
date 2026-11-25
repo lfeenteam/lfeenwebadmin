@@ -478,9 +478,14 @@
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background: #111110;
+  background: #D1D5DB;
   position: relative;
   flex-shrink: 0;
+  transition: background 0.15s;
+
+  &.is-on {
+    background: #111110;
+  }
 
   &::after {
     content: '';

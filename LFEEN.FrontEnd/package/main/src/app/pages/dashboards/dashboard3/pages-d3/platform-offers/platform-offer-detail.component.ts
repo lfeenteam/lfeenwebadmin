@@ -22,7 +22,7 @@ import {
   normalizeDisplayChannel,
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
-import { happyHourWindow } from './platform-offer.validators';
+import { OFFER_DAYS, happyHourWindow, toHhmm } from './platform-offer.validators';
 import { appLocale } from 'src/app/utils/locale-format.util';
 @Component({
   selector: 'app-platform-offer-detail',
@@ -123,22 +123,59 @@ export class PlatformOfferDetailComponent implements OnInit {
   channelLabel(value: unknown): string {
     return this.enumLabel(normalizeDisplayChannel(value));
   }
-  /** "Available from 22:00 to 02:00 (next day)", or "—" with no happy hour. */
+  /**
+   * "Available from 22:00 to 02:00 (next day)". Older offers saved with only one end
+   * still show it ("From 18:00") instead of hiding the rule; "—" with no happy hour.
+   */
   happyHourLabel(o: PlatformOfferDetail): string {
     const w = happyHourWindow(o.happyHourStart, o.happyHourEnd);
-    if (!w) return '—';
-    return this.tr.instant(
-      `d3.platformOffers.happyHour.summary${w.overnight ? 'NextDay' : ''}`,
-      { start: w.start, end: w.end },
-    );
+    if (w)
+      return this.tr.instant(
+        `d3.platformOffers.happyHour.summary${w.overnight ? 'NextDay' : ''}`,
+        { start: w.start, end: w.end },
+      );
+    const start = toHhmm(o.happyHourStart);
+    const end = toHhmm(o.happyHourEnd);
+    if (start) return this.tr.instant('d3.platformOffers.happyHour.from', { start });
+    if (end) return this.tr.instant('d3.platformOffers.happyHour.until', { end });
+    return '—';
   }
+  /** "Sat,Sun" → "السبت، الأحد"; an unknown token is shown as sent so the rule is never hidden. */
+  daysLabel(value: string | number | null | undefined): string {
+    if (value === null || value === undefined || String(value).trim() === '') return '—';
+    const sep = this.dir() === 'rtl' ? '، ' : ', ';
+    return String(value)
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => {
+        const day = OFFER_DAYS.find((d) => d.toLowerCase() === p.toLowerCase());
+        return day ? this.tr.instant(`d3.platformOffers.weekDays.${day}`) : p;
+      })
+      .join(sep);
+  }
+  amount(value: number | null | undefined): string {
+    if (value === null || value === undefined) return '—';
+    return new Intl.NumberFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en')).format(value);
+  }
+  yesNo(value: boolean | null | undefined): string {
+    if (value === null || value === undefined) return '—';
+    return this.tr.instant(`d3.platformOffers.${value ? 'yes' : 'no'}`);
+  }
+  /**
+   * The form saves and reloads these dates as wall-clock values (it reads the first 16
+   * characters, never converting time zones), so they are shown in UTC to match it —
+   * "2026-09-16T00:00:00Z" is 16 Sep, not 3:00 AM Riyadh. A midnight value is a date only.
+   */
   private formatDate(value: string | null | undefined, includeTime: boolean): string {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    const options: Intl.DateTimeFormatOptions = includeTime
-      ? { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }
-      : { day: 'numeric', month: 'short', year: 'numeric' };
+    const midnight = date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
+    const options: Intl.DateTimeFormatOptions =
+      includeTime && !midnight
+        ? { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'UTC' }
+        : { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' };
     return new Intl.DateTimeFormat(appLocale(this.dir() === 'rtl' ? 'ar' : 'en'), options).format(date);
   }
 }

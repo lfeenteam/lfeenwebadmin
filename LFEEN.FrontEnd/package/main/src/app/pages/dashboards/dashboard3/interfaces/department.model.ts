@@ -114,6 +114,8 @@ export interface RolePermission {
   createdAt: string;
   updatedAt: string | null;
   impliedPermissionIds: string[];
+  /** The base (usually "view") permission of its family; the others in the family depend on it. Missing on older APIs. */
+  isBase?: boolean;
 }
 
 export interface RolePermissionsResponse {
@@ -150,6 +152,9 @@ export interface PermissionGroup {
   description?: string;
   descriptionAr?: string;
   descriptionEn?: string;
+  /** Parent group id, or null for a top-level group. Missing on older APIs. */
+  parentGroupId?: string | null;
+  sortOrder?: number;
   createdAt: string;
   updatedAt: string | null;
 }

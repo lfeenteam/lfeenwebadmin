@@ -229,6 +229,7 @@
 
   &.status-pending { background: #fffbeb; color: #b45309; border-color: #fde68a; }
   &.status-succeeded { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+  &.status-cancelled { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
   &.status-failed { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
   &.status-other { background: #f3f3ef; color: #6b6b67; border-color: #e8e8e4; }
 }

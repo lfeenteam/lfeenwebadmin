@@ -6,7 +6,7 @@
 
   <!-- Stats -->
   @if (misconfiguredServicesCount > 0) {
-    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | translate: { count: fmt(misconfiguredServicesCount) } }}</div>
+    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | appPlural: misconfiguredServicesCount }}</div>
   }
   @if (statsError) {
     <div class="m-b-24">
@@ -79,7 +79,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (account of filteredAccounts; track account.id) {
+            @for (account of accounts; track account.id) {
               <tr class="subs-row">
                 <td class="p-24">
                   <div class="d-flex align-items-center gap-12">

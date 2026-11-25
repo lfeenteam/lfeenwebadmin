@@ -53,10 +53,13 @@
   }
 }
 
+// overflow-x: auto زي باقي جداول D3 (التسويات/الاشتراكات) عشان عمود الإجراءات (⋮)
+// يفضل متاح لو الجدول أعرض من الحاوية (BUG-2729 — 1024)
 .table-responsive {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 table {
@@ -112,6 +115,25 @@ table {
 }
 
 .icon-muted { color: #9E9E9A; }
+
+// شاشات متوسطة (تابلت أفقي / لابتوب صغير): padding أقل عشان الجدول يتلم جوه الحاوية
+// بدل ما يعمل scroll في أغلب الحالات
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  table {
+    th.mat-mdc-header-cell { padding: 14px 16px; }
+    td.mat-mdc-cell { padding: 10px 16px; }
+  }
+
+  td.mat-column-employee span.text-muted {
+    display: block;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  td.mat-column-status .status-badge { white-space: nowrap; }
+}
 
 .employee-name {
   color: #111110;

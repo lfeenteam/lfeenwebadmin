@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom } from 'rxjs';
+import { translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../services/login/login.service';
 import {
   AGREEMENT_PERMISSIONS,
@@ -244,7 +245,7 @@ export class AgreementActionsService {
       title: this.translate.instant('d3.agreements.end.title', { n }),
       alertTitle: this.translate.instant('d3.agreements.end.alertTitle'),
       alertText: this.translate.instant('d3.agreements.end.alertText', { n }),
-      heading: this.translate.instant('d3.agreements.end.heading', { count: this.labels.num(version.signedCount) }),
+      heading: translatePlural(this.translate, 'd3.agreements.end.heading', version.signedCount),
       text: this.translate.instant('d3.agreements.end.text'),
       confirmLabel: this.translate.instant('d3.agreements.end.confirm'),
     });

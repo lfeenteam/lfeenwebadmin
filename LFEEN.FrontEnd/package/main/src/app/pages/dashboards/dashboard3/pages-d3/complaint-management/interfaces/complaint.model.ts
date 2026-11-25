@@ -58,7 +58,8 @@ export interface TicketQueryParams {
   propertyId?: number;
   assignedAdminUserId?: string;
   // GET /api/tickets: status/priority take numeric codes as strings ('1','2'…),
-  // department takes the enum name ('General'…). All sent verbatim.
+  // department takes the host-ticket enum name ('Technical', 'Payments'…) — see
+  // HOST_TICKET_DEPARTMENT_OPTIONS; client-ticket names (General/Payment…) are rejected. All sent verbatim.
   status?: string;
   department?: string;
   priority?: string;
@@ -82,6 +83,15 @@ export const HOST_TICKET_SOURCE_OPTIONS: { value: TicketSource; labelKey: string
 export const HOST_TICKET_STATUS_OPTIONS: { value: string; labelKey: string }[] = [
   { value: '1', labelKey: 'd3.complaints.hostFilters.status.new' },
   { value: '2', labelKey: 'd3.complaints.hostFilters.status.pendingAdminReply' },
+];
+
+// GET /api/tickets department names: Technical=1, Payments=2, Bookings=3, Other=4.
+// Host tickets have their own enum — not the client-tickets one (General/Booking/Payment/Account).
+export const HOST_TICKET_DEPARTMENT_OPTIONS: { value: string; labelKey: string }[] = [
+  { value: 'Technical', labelKey: 'd3.complaints.hostFilters.dept.technical' },
+  { value: 'Payments',  labelKey: 'd3.complaints.hostFilters.dept.payments' },
+  { value: 'Bookings',  labelKey: 'd3.complaints.hostFilters.dept.bookings' },
+  { value: 'Other',     labelKey: 'd3.complaints.hostFilters.dept.other' },
 ];
 
 // GET /api/tickets priority codes: 1=Low, 2=Normal, 3=High, 4=Urgent.

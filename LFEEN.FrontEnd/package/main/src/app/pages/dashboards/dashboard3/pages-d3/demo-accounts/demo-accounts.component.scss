@@ -317,7 +317,9 @@
   .pagination-controls { max-width: 100%; gap: 3px; overflow-x: auto; scrollbar-width: none; }
 }
 
-@media (max-width: 576px) {
+// The ten columns need ~960–1040px, wider than the card up to 1024 (sidebar open),
+// so below that the last columns would hide behind an unmarked horizontal scroll.
+@media (max-width: 1024px) {
   .mobile-field-label {
     display: block;
     font-size: 10px;
@@ -346,7 +348,7 @@
 
     // name on top, the ⋮ menu beside it
     td:nth-child(1) { grid-column: 1; grid-row: 1; padding-top: 14px !important; }
-    td:nth-child(9) { grid-column: 2; grid-row: 1; text-align: end !important; width: auto; }
+    td.da-actions-cell { grid-column: 2; grid-row: 1; text-align: end !important; width: auto; }
     td:nth-child(2) { grid-column: 1 / -1; border-top: 1px solid #F1F5F9; }
 
     .da-cell-text { white-space: normal; word-break: break-word; }

@@ -24,7 +24,7 @@
           <span class="d3-city-rank">{{ city.rank }}</span>
           <div class="d3-city-info">
             <div class="d3-city-name">{{ city.name }}</div>
-            <div class="d3-city-meta">{{ city.bookings }} {{ 'd3.insights.reservation' | translate }} • {{ city.units }} {{ 'd3.insights.unit' | translate }}</div>
+            <div class="d3-city-meta">{{ 'd3.insights.bookingsCount' | appPlural: city.bookings }} • {{ 'd3.insights.unitsCount' | appPlural: city.units }}</div>
           </div>
         </div>
       }

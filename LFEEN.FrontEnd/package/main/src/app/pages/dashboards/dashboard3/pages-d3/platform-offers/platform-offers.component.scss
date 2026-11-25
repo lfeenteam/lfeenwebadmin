@@ -952,6 +952,16 @@
 .detail-panel {
   padding: 18px;
 }
+// Section titles in the rules/content tabs: room below the title, and a clear gap
+// from the group above so each group reads on its own.
+.detail-panel h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.detail-panel h3:not(:first-child) {
+  margin-top: 28px;
+}
 .data-grid,
 .stats-grid {
   display: grid;

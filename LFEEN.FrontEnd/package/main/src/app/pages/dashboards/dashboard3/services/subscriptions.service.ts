@@ -128,8 +128,11 @@ export class SubscriptionsService {
   }
 
   /** One row per merchant (their current state, not order history), paginated by merchant. */
-  getMerchantSubscriptions(query: { pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<MerchantSubscription>> {
-    return this.http.get<unknown>(`${this.apiUrl}/merchant-subscriptions`, { params: this.pageParams(query) })
+  getMerchantSubscriptions(query: { search?: string; pageNumber?: number; pageSize?: number } = {}): Observable<SubscriptionPaginated<MerchantSubscription>> {
+    let params = this.pageParams(query);
+    // Searched by the API (merchant name, AR or EN) before paging — reaches merchants on any page.
+    if (query.search) params = params.set('search', query.search);
+    return this.http.get<unknown>(`${this.apiUrl}/merchant-subscriptions`, { params })
       .pipe(map(res => toPage<MerchantSubscription>(res)));
   }
 

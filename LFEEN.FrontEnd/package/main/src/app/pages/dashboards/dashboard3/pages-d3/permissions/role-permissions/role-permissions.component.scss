@@ -161,85 +161,7 @@
       p { font-size: 14px; font-weight: 700; }
     }
 
-    .perm-group {
-      margin: 16px 24px;
-      border: 1px solid #E8E8E4;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #fff;
-
-      .perm-group-header {
-        cursor: pointer;
-        background: #FCFCFB;
-        transition: background 0.15s;
-
-        &:hover { background: #F1F1EE; }
-        &:focus-visible {
-          outline: 2px solid #111110;
-          outline-offset: -2px;
-        }
-
-        .group-chevron { color: #6B6B67; flex-shrink: 0; }
-
-        .group-name {
-          font-size: 14px;
-          font-weight: 900;
-          color: #111110;
-        }
-
-        .group-count {
-          font-size: 12px;
-          font-weight: 700;
-          color: #9E9E9A;
-        }
-      }
-
-      .perm-group-body {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        padding: 16px;
-        border-top: 1px solid #E8E8E4;
-        background: #fff;
-
-        .perm-row {
-          border: 1px solid #ECECE8;
-          border-radius: 10px;
-          background: #FCFCFB;
-          padding: 12px 14px;
-          transition: border-color 0.15s, background 0.15s;
-
-          &:hover { background: #F7F7F5; border-color: #DBDBD5; }
-
-          &.is-locked {
-            background: #F4F4F1;
-            border-color: #E4E4E0;
-          }
-
-          .perm-lock { color: #9E9E9A; flex-shrink: 0; }
-
-          .perm-info {
-            flex: 1;
-            padding-inline-end: 12px;
-            min-width: 0;
-
-            .perm-name {
-              font-weight: 900;
-              font-size: 14px;
-              color: #111110;
-              margin-bottom: 3px;
-            }
-
-            .perm-desc {
-              font-weight: 700;
-              font-size: 12px;
-              color: #9E9E9A;
-              line-height: 16px;
-            }
-          }
-        }
-      }
-    }
+    // Group / permission styles live in the shared permission-tree component.
 
     .pagination-wrapper {
       border-top: 1px solid #E8E8E4;
@@ -355,12 +277,6 @@
 
     .perms-card {
       .perms-card-header { padding: 14px 16px !important; }
-      .perm-group { margin: 12px 14px; }
-      .perm-group .perm-group-body {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 12px;
-      }
     }
 
     > div:last-child { justify-content: stretch !important; }
@@ -393,12 +309,6 @@
         padding: 12px 14px !important;
         .role-badge     { font-size: 11px; padding: 3px 12px; }
         .selected-badge { font-size: 11px; padding: 3px 10px; }
-      }
-
-      .perm-group .perm-group-body .perm-row {
-        padding: 10px 12px;
-        .perm-info .perm-name { font-size: 13px; }
-        .perm-info .perm-desc { font-size: 11px; }
       }
     }
 

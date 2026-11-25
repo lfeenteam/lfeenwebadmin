@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { ReviewConfirmDialogComponent } from 'src/app/pages/dashboards/dashboard3/pages-d3/build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { AdditionalConditionsService } from 'src/app/pages/dashboards/dashboard3/services/additional-conditions.service';
+import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
 import {
   ADDITIONAL_CONDITION_REASON_MAX,
   AdditionalConditionDecisionItem,
@@ -19,6 +20,14 @@ import {
 // pending-review list page (showTarget) where rows belong to different targets.
 // Deciding a condition here never touches the Terms section's own decision.
 import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+
+// The permission each level's review endpoint requires (doc section 8.1). Without it
+// the conditions are shown read-only — the API answers 403 to a decision (BUG-2739).
+const REVIEW_PERMISSION: Record<AdditionalConditionScope, string> = {
+  account:  'accounts.review',
+  property: 'properties.review',
+  unit:     'units.review'
+};
 
 @Component({
   selector: 'app-additional-conditions-review',
@@ -46,6 +55,7 @@ export class AdditionalConditionsReviewComponent {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
+  private login = inject(LoginService);
 
   readonly reasonMax = ADDITIONAL_CONDITION_REASON_MAX;
   rejectingId: number | null = null;
@@ -65,9 +75,19 @@ export class AdditionalConditionsReviewComponent {
     return this.conditions.filter(c => this.isPending(c));
   }
 
+  /** Whether this admin may decide conditions of this level at all. */
+  get canReview(): boolean {
+    const required = REVIEW_PERMISSION[this.scope];
+    return !!required && this.login.permissions().some(p => p.toLowerCase() === required);
+  }
+
+  private get canDecide(): boolean {
+    return !this.readOnly && this.canReview;
+  }
+
   // Bulk approval only makes sense when every row shares one target endpoint.
   get canApproveAll(): boolean {
-    return !this.readOnly && !this.showTarget && this.pendingConditions.length > 1;
+    return this.canDecide && !this.showTarget && this.pendingConditions.length > 1;
   }
 
   isPending(c: AdminAdditionalCondition): boolean {
@@ -81,12 +101,12 @@ export class AdditionalConditionsReviewComponent {
   }
 
   canApprove(c: AdminAdditionalCondition): boolean {
-    return !this.readOnly && this.isPending(c);
+    return this.canDecide && this.isPending(c);
   }
 
   // Rejecting an already-approved condition hides it from guests (doc section 1).
   canReject(c: AdminAdditionalCondition): boolean {
-    return !this.readOnly && c.decision !== 'Rejected';
+    return this.canDecide && c.decision !== 'Rejected';
   }
 
   isBusy(c: AdminAdditionalCondition): boolean {
@@ -125,6 +145,7 @@ export class AdditionalConditionsReviewComponent {
   }
 
   startReject(c: AdminAdditionalCondition): void {
+    if (!this.canReject(c)) return;
     this.rejectingId = c.id;
     this.reasons[c.id] = this.reasons[c.id] ?? '';
   }

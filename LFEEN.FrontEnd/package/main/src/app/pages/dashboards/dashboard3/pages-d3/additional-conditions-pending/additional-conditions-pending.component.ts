@@ -11,8 +11,19 @@ import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboar
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { AdditionalConditionsService } from '../../services/additional-conditions.service';
 import { AdditionalConditionListResult, AdditionalConditionScope, AdminAdditionalCondition } from '../../interfaces/additional-condition.model';
+import { LoginService } from '../../services/login/login.service';
+import { PAGE_ACCESS, PageAccessRule, canAccessPage } from 'src/app/guards/page-access';
 
 const PAGE_SIZE = 20;
+
+// Each tab lists /api/{accounts|properties|units}/additional-conditions, which needs
+// that module's access — a tab the admin can't read would only show a 403 (BUG-2739).
+const DEFAULT_TAB_PRIORITY: AdditionalConditionScope[] = ['property', 'account', 'unit'];
+const SCOPE_ACCESS: Record<AdditionalConditionScope, PageAccessRule> = {
+  account:  PAGE_ACCESS.accounts,
+  property: PAGE_ACCESS.buildings,
+  unit:     PAGE_ACCESS.units
+};
 
 type ConditionsView = 'pending' | 'all';
 
@@ -33,11 +44,15 @@ export class AdditionalConditionsPendingComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private destroyRef = inject(DestroyRef);
+  private login = inject(LoginService);
 
   readonly views: ConditionsView[] = ['pending', 'all'];
   activeView: ConditionsView = 'pending';
-  readonly tabs: AdditionalConditionScope[] = ['account', 'property', 'unit'];
-  activeTab: AdditionalConditionScope = 'property';
+  // Display order stays account → property → unit; the property tab is still the default
+  // when the admin can open it. Should none match (page reached through another
+  // permission), every tab is kept and the API's answer decides.
+  readonly tabs: AdditionalConditionScope[] = this.allowedTabs();
+  activeTab: AdditionalConditionScope = DEFAULT_TAB_PRIORITY.find(s => this.tabs.includes(s)) ?? 'property';
   counts: Record<AdditionalConditionScope, number | null> = { account: null, property: null, unit: null };
 
   items: AdminAdditionalCondition[] = [];
@@ -64,6 +79,14 @@ export class AdditionalConditionsPendingComponent implements OnInit {
 
     this.loadCounts();
     this.load();
+  }
+
+  private allowedTabs(): AdditionalConditionScope[] {
+    const ordered: AdditionalConditionScope[] = ['account', 'property', 'unit'];
+    const permissions = this.login.permissions();
+    const sidebar = this.login.sidebar();
+    const allowed = ordered.filter(s => canAccessPage(SCOPE_ACCESS[s], permissions, sidebar));
+    return allowed.length ? allowed : ordered;
   }
 
   setView(view: ConditionsView): void {

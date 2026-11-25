@@ -34,7 +34,9 @@ export const authGuard: CanActivateFn = (
     return loginService.refreshToken().pipe(
       map(() => true),
       catchError(() => {
-        loginService.logout();
+        // Only reached with an expired access token and a refused refresh: the
+        // server has no live token of ours to revoke.
+        loginService.logout({ revokeOnServer: false });
         return of(loginUrl);
       })
     );

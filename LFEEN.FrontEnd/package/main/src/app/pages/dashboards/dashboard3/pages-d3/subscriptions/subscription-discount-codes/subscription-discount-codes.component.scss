@@ -281,7 +281,10 @@
   .footer-note { margin: 12px 16px 0; }
 }
 
-@media (max-width: 576px) {
+// ── Mobile & tablet: rows become cards ───────────────────
+// The eight columns need ~830–920px, wider than the card up to 1024 (sidebar open),
+// so below that the switch would hide behind an unmarked horizontal scroll.
+@media (max-width: 1024px) {
   .mobile-field-label {
     display: block;
     font-size: 10px;
@@ -290,7 +293,7 @@
     margin-bottom: 4px;
   }
 
-  .table-box { margin: 0 12px; border: none; box-shadow: none; padding: 0; }
+  .table-box { border: none; box-shadow: none; padding: 0; }
 
   .codes-table {
     display: block;
@@ -310,4 +313,8 @@
     td:nth-child(1) { grid-column: 1; grid-row: 1; }
     td:nth-child(8) { grid-column: 2; grid-row: 1; text-align: end; }
   }
+}
+
+@media (max-width: 576px) {
+  .table-box { margin: 0 12px; }
 }

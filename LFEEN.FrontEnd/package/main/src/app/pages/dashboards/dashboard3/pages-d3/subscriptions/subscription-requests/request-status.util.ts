@@ -1,8 +1,10 @@
-export type OrderStatusKind = 'pending' | 'succeeded' | 'failed' | 'other';
+export type OrderStatusKind = 'pending' | 'succeeded' | 'cancelled' | 'failed' | 'other';
 
+// Cancelled = the merchant withdrew the order; Failed = the payment was declined or timed out.
 const KIND_BY_STATUS: Record<string, OrderStatusKind> = {
   pending: 'pending',
   succeeded: 'succeeded',
+  cancelled: 'cancelled',
   failed: 'failed',
 };
 

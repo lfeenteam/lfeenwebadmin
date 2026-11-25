@@ -18,7 +18,7 @@ import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
-type RequestTab = 'all' | 'pending' | 'succeeded' | 'failed';
+type RequestTab = 'all' | 'pending' | 'succeeded' | 'cancelled' | 'failed';
 
 interface RequestService {
   name: string;
@@ -41,6 +41,7 @@ const STATUS_BY_TAB: Record<RequestTab, SubscriptionOrderStatus | undefined> = {
   all: undefined,
   pending: 'Pending',
   succeeded: 'Succeeded',
+  cancelled: 'Cancelled',
   failed: 'Failed',
 };
 
@@ -88,6 +89,7 @@ export class SubscriptionRequestsComponent implements OnInit {
     { value: 'all', labelKey: 'd3.subscriptionRequests.tabs.all' },
     { value: 'pending', labelKey: 'd3.subscriptionRequests.tabs.pending' },
     { value: 'succeeded', labelKey: 'd3.subscriptionRequests.tabs.succeeded' },
+    { value: 'cancelled', labelKey: 'd3.subscriptionRequests.tabs.cancelled' },
     { value: 'failed', labelKey: 'd3.subscriptionRequests.tabs.failed' },
   ];
 

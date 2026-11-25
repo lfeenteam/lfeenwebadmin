@@ -98,7 +98,7 @@
   <!-- Bulk bar: shown once a row is checked -->
   @if (canManage() && selected.size) {
     <div class="sl-bulk" role="region" [attr.aria-label]="'d3.demoAccounts.signupLinks.cancel.selected' | translate">
-      <span>{{ 'd3.demoAccounts.signupLinks.cancel.selectedCount' | translate: { count: fmt(selected.size) } }}</span>
+      <span>{{ 'd3.demoAccounts.signupLinks.cancel.selectedCount' | appPlural: selected.size }}</span>
       <button type="button" class="da-link-btn" (click)="selected.clear()">{{ 'd3.demoAccounts.signupLinks.cancel.clearSelection' | translate }}</button>
       <span class="sl-bulk__spacer"></span>
       <button type="button" class="da-btn sm danger" (click)="cancelSelected()">

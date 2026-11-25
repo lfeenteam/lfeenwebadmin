@@ -1,5 +1,5 @@
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { ReviewImageComponent } from './review-image/review-image.component';
@@ -37,6 +37,13 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   private pageBackOverride = inject(PageBackOverrideService);
   private pageTitleOverride = inject(PageTitleOverrideService);
   private pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
+  private location = inject(Location);
+  // True while the open section sits on its own history entry right after the
+  // section list's entry (opened from the list, or reached again with Forward).
+  // Leaving the section then steps back in history instead of adding a new entry.
+  // False for a section reached by deep link or reload, where nothing is known
+  // about the entry behind it.
+  private sectionPushed = false;
   private readonly sectionTitleKeys: Record<string, string> = {
     basicInfo: 'd3.buildReview.sections.basicInfoTitle',
     images:    'd3.buildReview.sections.photosTitle',
@@ -149,10 +156,23 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     this.forcedViewOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
     this.originTab = this.route.snapshot.queryParamMap.get('tab') ?? '';
 
-    const sectionParam = this.route.snapshot.queryParamMap.get('section') as SectionView | null;
-    if (sectionParam && this.validSectionViews.includes(sectionParam)) {
-      this.currentView = sectionParam;
-    }
+    // The section lives only in the query string, so the component is reused when
+    // the browser's Back/Forward changes it — follow the URL instead of reading it once.
+    let isFirstEmission = true;
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const view = this.sectionFromParam(params.get('section'));
+        if (!isFirstEmission && this.currentView === 'list' && view !== 'list') {
+          this.sectionPushed = true;
+        }
+        if (view === 'list') this.sectionPushed = false;
+        isFirstEmission = false;
+        if (view !== this.currentView) {
+          this.currentView = view;
+          this.updateHeaderForView();
+        }
+      });
 
     this.translate.onLangChange
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -162,16 +182,37 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
     this.pageBackOverride.set(this.backHandler);
   }
 
+  private sectionFromParam(param: string | null): SectionView {
+    const section = param as SectionView | null;
+    return section && this.validSectionViews.includes(section) ? section : 'list';
+  }
+
   // Keeps the open section in the URL so a browser reload lands back on the
-  // same section instead of resetting to the list view.
+  // same section instead of resetting to the list view. Opening a section from the
+  // list adds a history entry, so the browser's Back returns to the building summary.
   private setView(view: SectionView): void {
+    const fromList = this.currentView === 'list';
+    if (view === this.currentView) return;
+
+    if (view === 'list' && this.sectionPushed) {
+      // The summary is the entry right behind this one: go back to it rather than
+      // pushing a duplicate. The queryParamMap subscription keeps the view in sync.
+      this.sectionPushed = false;
+      this.currentView = 'list';
+      this.updateHeaderForView();
+      this.location.back();
+      return;
+    }
+
+    const push = fromList && view !== 'list';
     this.currentView = view;
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section: view === 'list' ? null : view },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: !push
     });
+    this.sectionPushed = push;
     this.updateHeaderForView();
   }
 

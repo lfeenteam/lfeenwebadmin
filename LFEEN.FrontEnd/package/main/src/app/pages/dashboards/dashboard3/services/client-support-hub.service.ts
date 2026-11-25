@@ -117,7 +117,11 @@ export class ClientSupportHubService {
 
   readonly connected = signal(false);
 
-  constructor(private loginService: LoginService) {}
+  constructor(private loginService: LoginService) {
+    // The login page lives inside Dashboard3Component, so its ngOnDestroy doesn't run
+    // on logout — close the hub here, or it stays open (and reconnecting) signed out.
+    this.loginService.loggingOut$.subscribe(() => this.disconnect());
+  }
 
   connect(): void {
     if (this.connection) return;

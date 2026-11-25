@@ -263,92 +263,7 @@
       }
     }
 
-    .perm-group {
-      margin: 16px 24px;
-      border: 1px solid #E8E8E4;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #fff;
-
-      .perm-group-header {
-        cursor: pointer;
-        background: #FCFCFB;
-        transition: background 0.15s;
-
-        &:hover { background: #F1F1EE; }
-        &:focus-visible {
-          outline: 2px solid #111110;
-          outline-offset: -2px;
-        }
-
-        .group-chevron { color: #6B6B67; flex-shrink: 0; }
-
-        .group-name {
-          font-size: 14px;
-          font-weight: 900;
-          color: #111110;
-        }
-
-        .group-count {
-          font-size: 12px;
-          font-weight: 700;
-          color: #9E9E9A;
-        }
-      }
-
-      .perm-group-body {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        padding: 16px;
-        border-top: 1px solid #E8E8E4;
-        background: #fff;
-
-        .perm-row {
-          border: 1px solid #ECECE8;
-          border-radius: 10px;
-          background: #FCFCFB;
-          padding: 12px 14px;
-          transition: border-color 0.15s, background 0.15s;
-
-          &:hover { background: #F7F7F5; border-color: #DBDBD5; }
-
-          &.is-locked {
-            background: #F4F4F1;
-            border-color: #E4E4E0;
-          }
-
-          .perm-lock { color: #9E9E9A; flex-shrink: 0; }
-        }
-      }
-    }
-
-    .perm-row {
-      border-bottom: 1px solid #F1F1EE;
-      transition: background 0.15s;
-
-      &:last-child { border-bottom: none; }
-      &:hover { background: #FCFCFB; }
-
-      .perm-info {
-        flex: 1;
-        padding-inline-end: 16px;
-
-        .perm-name {
-          font-weight: 900;
-          font-size: 14px;
-          color: #111110;
-          margin-bottom: 3px;
-        }
-
-        .perm-desc {
-          font-weight: 700;
-          font-size: 12px;
-          color: #9E9E9A;
-          line-height: 16px;
-        }
-      }
-    }
+    // Group / permission styles live in the shared permission-tree component.
   }
 
   // ── Alert Box ──────────────────────────────
@@ -427,13 +342,6 @@
     // perms card
     .perms-card {
       .perms-card-header { padding: 14px 16px !important; }
-      .perm-group { margin: 12px 14px; }
-      .perm-group .perm-group-body {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 12px;
-      }
-      .perm-group .perm-group-body .perm-row { padding: 12px 14px; }
     }
 
     // alert
@@ -484,16 +392,6 @@
         .section-title  { font-size: 14px; }
         .selected-badge { font-size: 11px; padding: 3px 10px; }
       }
-
-      .perm-row {
-        padding: 10px 14px !important;
-
-        .perm-info {
-          padding-inline-end: 10px;
-          .perm-name { font-size: 13px; }
-          .perm-desc { font-size: 11px; }
-        }
-      }
     }
 
     .alert-box {
@@ -523,8 +421,6 @@
     .page-title-block h1 { font-size: 16px !important; }
 
     .info-card mat-card-content { padding: 12px !important; }
-
-    .perms-card .perm-row { padding: 9px 12px !important; }
   }
 }
 

@@ -256,7 +256,10 @@
           "done": "{{cancelled}} links cancelled, {{skipped}} skipped (used or expired)",
           "batchButton": "Cancel all unused links",
           "selected": "Cancel selected",
-          "selectedCount": "{{count}} links selected",
+          "selectedCount": {
+            "one": "{{count}} link selected",
+            "other": "{{count}} links selected"
+          },
           "clearSelection": "Clear selection",
           "selectPage": "Select every cancellable link on this page",
           "selectRow": "Select link",
@@ -831,6 +834,8 @@
       "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
     },
     "emptyState": {
+      "defaultTitle": "No data",
+      "defaultDesc": "There is no data to show right now.",
       "noResults": {
         "title": "No results match your search",
         "desc": "Try a different search term or change the selected filters.",
@@ -1148,7 +1153,11 @@
         "title": "End version {{n}}?",
         "alertTitle": "This action can't be undone",
         "alertText": "Version {{n}} will end immediately, and no new user will be able to sign it.",
-        "heading": "{{count}} signers will be affected",
+        "heading": {
+          "zero": "No signers will be affected",
+          "one": "{{count}} signer will be affected",
+          "other": "{{count}} signers will be affected"
+        },
         "text": "Signers will need to sign the current available version. If there's no published version, publish a new one so signing is possible.",
         "confirm": "End version"
       },
@@ -1811,7 +1820,14 @@
       "topCities": "Top 6 Saudi Cities",
       "revenueSources": "Revenue Sources",
       "needsCeoDecision": "Needs CEO Decision",
-      "reservation": "booking",
+      "bookingsCount": {
+        "one": "{{count}} booking",
+        "other": "{{count}} bookings"
+      },
+      "unitsCount": {
+        "one": "{{count}} unit",
+        "other": "{{count}} units"
+      },
       "host": "host",
       "statusExcellent": "Excellent",
       "statusGrowth": "Growth",
@@ -1838,7 +1854,6 @@
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
       "cityKhobar": "Khobar",
-      "unit": "unit",
       "noCities": "No bookings are linked to cities in this period",
       "noDecisions": "No decisions required right now",
       "severityCritical": "Critical",
@@ -2242,6 +2257,19 @@
       "roleCreatedPermsFailed": "The role was created, but assigning permissions failed. You can edit them from the role page.",
       "selectedOfTotal": "{{count}} of {{total}} permissions",
       "lockedHint": "Required by another selected permission — deselect the dependent one first",
+      "groupCount": "{{count}} of {{total}}",
+      "baseBadge": "Base",
+      "filterAll": "All",
+      "filterSelected": "Selected only",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "viewOnly": "View only",
+      "clearGroup": "Clear",
+      "noResults": "No permissions match your search",
+      "noSelected": "No permissions selected yet",
+      "clearSearch": "Clear search",
+      "searchPermissions": "Search permissions… e.g. cancel, bookings",
+      "selectGroup": "Select all",
       "pagination": {
         "total": "{{count}} permission groups"
       },
@@ -2664,6 +2692,7 @@
         "exteriorTitle": "Exterior Building Images",
         "interiorTitle": "Interior Property Images",
         "imagesCount": "{{count}} images",
+        "photoPosition": "{{label}} {{index}} of {{total}}",
         "statusRejected": "Rejected",
         "statusAccepted": "Accepted",
         "statusPending": "Awaiting Decision",
@@ -2732,7 +2761,7 @@
         "viewTypesLabel": "Available Views",
         "spokenLanguagesLabel": "Languages spoken by the host team",
         "businessTypeLabel": "Business Type",
-        "districtLabel": "Facade Direction",
+        "districtLabel": "District",
         "organizationLabel": "Operating Organization",
         "totalUnitsLabel": "Total Units",
         "controlTitle": "Features & Controls",
@@ -2982,8 +3011,9 @@
         "earlyArrivalTitle": "Early Arrival Registration",
         "earlyArrivalDesc": "Allow guests to arrive before the official time",
         "availableLabel": "Available",
+        "earlyArrivalNotAllowed": "Not allowed",
         "earlyArrivalTime": "07:00 AM",
-        "generalRulesTitle": "General Flexible Unit Rules",
+        "generalRulesTitle": "House Rules",
         "customRulesTitle": "Additional Host Conditions",
         "emptyTitle": "No terms or rules",
         "emptyDescription": "The host has not added any terms or rules for this unit.",
@@ -3112,7 +3142,11 @@
       "imagesView": {
         "pageTitle": "Unit Photos Review",
         "heading": "Review Unit Photos",
-        "reviewState": "Review status: {{count}} photos uploaded",
+        "reviewState": {
+          "zero": "Review status: no photos uploaded",
+          "one": "Review status: {{count}} photo uploaded",
+          "other": "Review status: {{count}} photos uploaded"
+        },
         "mainPhoto": {
           "badge": "Main Unit Photo",
           "name": "Main unit photo",
@@ -3153,7 +3187,8 @@
         "suggestedSolutionPlaceholder": "Suggested correction for host...",
         "rejectionSummaryTitle": "Rejection Reasons Summary",
         "rejectionSummarySubtitle": "Notes found in the uploaded photos. Please review before approval.",
-        "defaultRejectionReason": "Photo needs to be replaced or clarified.",
+        "photoLabel": "Photo {{index}} — {{group}}",
+        "rejectionReasonMissing": "No rejection reason yet — click to jump to the photo and add one.",
         "emptyTitle": "No images uploaded",
         "emptyDescription": "The host has not added any images for this unit yet.",
         "noImageLabel": "No image",
@@ -3177,6 +3212,7 @@
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Cancellation Policy",
+        "unnamedPolicy": "Unnamed policy",
         "percentSuffix": "% of booking value",
         "yes": "Yes",
         "no": "No",
@@ -3491,6 +3527,12 @@
         "notAssigned": "Not assigned",
         "allPriorities": "All priorities",
         "allDepartments": "All departments",
+        "dept": {
+          "technical": "Technical",
+          "payments": "Payments",
+          "bookings": "Bookings",
+          "other": "Other"
+        },
         "status": {
           "new": "New",
           "pendingAdminReply": "Awaiting admin reply"
@@ -5007,7 +5049,10 @@
         "title": "No subscribers yet",
         "desc": "No subscriber accounts have been registered yet."
       },
-      "configurationWarning": "{{count}} services need configuration. Review service pricing.",
+      "configurationWarning": {
+        "one": "{{count}} service needs configuration. Review service pricing.",
+        "other": "{{count}} services need configuration. Review service pricing."
+      },
       "pagination": {
         "total": "subscriber",
         "prev": "Previous page",
@@ -5391,6 +5436,7 @@
         "all": "All",
         "pending": "Pending",
         "succeeded": "Succeeded",
+        "cancelled": "Cancelled",
         "failed": "Failed"
       },
       "table": {
@@ -5816,10 +5862,13 @@
       "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
       "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
       "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red.", "maxLength": "Maximum {{max}} characters.", "notNegative": "Value cannot be negative.", "wholeNumber": "Value must be a whole number.", "invalidValue": "This value is not valid.", "serverFieldErrors": "The offer was not saved. Check the fields highlighted in red.","maxValue": "Value must not exceed {{max}}.", "codePattern": "Use English letters, numbers, - and _ only, with no spaces.", "days": "Use comma-separated weekdays only: Sat,Sun,Mon,Tue,Wed,Thu,Fri", "time": "Offer time must be between 00:00 and 23:59.", "happyHourBoth": "Set both the offer start and end time.", "happyHourSame": "Offer start time must differ from the end time.", "endBeforeStart": "End date must be after the start date.", "endInPast": "End date cannot be in the past.", "tooFar": "Date cannot be more than {{years}} years from today.", "minGtMax": "Maximum stay must be greater than or equal to the minimum stay.", "dailyGtTotal": "Daily limit cannot exceed the total limit.", "userGtTotal": "Per-customer total cannot exceed the total usage limit.", "unitsRequired": "Select at least one unit.", "exclusionRange": "Exclusion end must be after its start.", "exclusionOutside": "Exclusion period must be inside the offer period." },
-      "happyHour": { "hint": "From {{start}} to {{end}}", "hintNextDay": "From {{start}} to {{end}} (next day)", "summary": "Available from {{start}} to {{end}}", "summaryNextDay": "Available from {{start}} to {{end}} (next day)" },
+      "happyHour": { "hint": "From {{start}} to {{end}}", "hintNextDay": "From {{start}} to {{end}} (next day)", "summary": "Available from {{start}} to {{end}}", "summaryNextDay": "Available from {{start}} to {{end}} (next day)", "from": "From {{start}}", "until": "Until {{end}}" },
+      "weekDays": { "Sat": "Saturday", "Sun": "Sunday", "Mon": "Monday", "Tue": "Tuesday", "Wed": "Wednesday", "Thu": "Thursday", "Fri": "Friday" },
+      "yes": "Yes",
+      "no": "No",
       "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
       "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
-      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
+      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "bookingDiscount": "Booking & Discount", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
       "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "happyHour": "Offer Time", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
       "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
       "unitPicker": { "search": "Search units…", "clear": "Clear search", "loading": "Loading units…", "error": "Unable to load units.", "retry": "Retry", "empty": "No matching units", "loadMore": "Show more ({{shown}} of {{total}})", "count": "{{count}} units", "selected": "{{count}} units selected" },
