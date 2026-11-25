@@ -15,6 +15,7 @@ import {
   ApexTooltip,
   ApexMarkers,
 } from 'ng-apexcharts';
+import { AppPluralPipe } from '../../../pipes/app-plural.pipe';
 import { DashboardService } from '../../../pages/dashboards/dashboard3/services/dashboard.service';
 import { createDashboardPanel } from '../../../pages/dashboards/dashboard3/services/dashboard-panel';
 import { DashboardGrowth, DashboardSummary } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/interfaces/dashboard.model';
@@ -82,7 +83,7 @@ function bucketDate(point: GrowthPoint, growth: DashboardGrowth, lang: string, l
 @Component({
   selector: 'app-dashboard3-chart',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, TranslateModule],
+  imports: [CommonModule, NgApexchartsModule, TranslateModule, AppPluralPipe],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.scss'
 })

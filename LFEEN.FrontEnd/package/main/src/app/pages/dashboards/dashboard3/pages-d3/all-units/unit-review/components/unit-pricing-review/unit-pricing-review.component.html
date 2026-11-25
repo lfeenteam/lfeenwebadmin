@@ -1,5 +1,9 @@
 <div class="unit-pricing-review" [dir]="currentDir">
 
+  @if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="retryLoad()"></app-unit-load-state>
+  } @else {
+
   <!-- Header -->
   <div class="pricing-header">
     <div class="price-badge">
@@ -218,15 +222,21 @@
     <div class="calendar-box">
       <div class="calendar-grid">
         <div class="day-header-row">
-          @for (dayKey of dayHeaders; track dayKey) {
-            <div class="day-header">{{ dayKey | translate }}</div>
+          @for (dayKey of dayHeaders; track dayKey; let i = $index) {
+            <div class="day-header" [class.day-header--weekend]="i >= 5">{{ dayKey | translate }}</div>
           }
         </div>
 
         @for (week of calendarWeeks; track $index) {
           <div class="week-row">
             @for (cell of week; track $index) {
-              <div class="day-cell" [class.day-cell--empty]="!cell.day" [class.day-cell--available]="cell.available">
+              <div
+                class="day-cell"
+                [class.day-cell--empty]="!cell.day"
+                [class.day-cell--available]="cell.day && cell.available"
+                [class.day-cell--unavailable]="cell.day && !cell.available"
+                [class.day-cell--weekend]="cell.isWeekend"
+                [class.day-cell--today]="cell.isToday">
                 @if (cell.day) {
                   <span class="day-number">{{ cell.day }}</span>
                   @if (cell.price) {
@@ -240,6 +250,12 @@
             }
           </div>
         }
+      </div>
+
+      <div class="calendar-legend">
+        <span class="legend-item"><i class="legend-swatch legend-swatch--available"></i>{{ 'd3.unitReview.pricingView.legend.available' | translate }}</span>
+        <span class="legend-item"><i class="legend-swatch legend-swatch--unavailable"></i>{{ 'd3.unitReview.pricingView.legend.unavailable' | translate }}</span>
+        <span class="legend-item"><i class="legend-swatch legend-swatch--today"></i>{{ 'd3.unitReview.pricingView.legend.today' | translate }}</span>
       </div>
     </div>
 
@@ -275,4 +291,5 @@
     </div>
   }
 
+  } <!-- end loadState @else -->
 </div>

@@ -14,6 +14,8 @@ import { UnitLicenseResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { formatAppDate } from 'src/app/utils/locale-format.util';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 interface LicenseDetailItem {
   labelKey: string;
@@ -26,7 +28,7 @@ interface LicenseDetailItem {
 @Component({
   selector: 'app-unit-license-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, UnitLoadStateComponent],
   templateUrl: './unit-license-review.component.html',
   styleUrl: './unit-license-review.component.scss'
 })
@@ -41,6 +43,8 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
   license: UnitLicenseResponse | null = null;
   isLoading   = false;
   isReadOnly  = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
 
   constructor(
     private route: ActivatedRoute,
@@ -124,21 +128,37 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
     this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
-    if (!this.unitId) return;
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
+    }
+    this.loadLicense();
+    this.unitsService.getUnitBasicData(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        },
+        // Breadcrumb only — the license request drives the not-found state.
+        error: () => {}
+      });
+  }
+
+  loadLicense(): void {
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitLicense(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next:  (data) => { this.license = data; this.isLoading = false; },
-        error: ()     => { this.isLoading = false; }
-      });
-    this.unitsService.getUnitBasicData(this.unitId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
+        error: (err)  => {
+          this.license   = null;
+          this.loadState = classifyLoadError(err);
+          this.isLoading = false;
+        }
       });
   }
 

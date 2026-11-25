@@ -1,9 +1,9 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subject, Subscription, catchError, debounceTime, distinctUntilChanged, forkJoin, map, of } from 'rxjs';
+import { Observable, Subject, Subscription, catchError, debounceTime, distinctUntilChanged, firstValueFrom, forkJoin, map, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -37,6 +37,7 @@ import { BillingFormValue, billingFieldsError, billingRequestFields } from '../i
 import { MatDialog } from '@angular/material/dialog';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { HasUnsavedChanges } from 'src/app/guards/unsaved-changes.guard';
 
 // The catalog only has two flags, so only three states exist:
 //   active    = isActive && isAvailable
@@ -66,7 +67,7 @@ const SUBSCRIBERS_PAGE_SIZE = 10;
   templateUrl: './subscription-service-settings.component.html',
   styleUrl: './subscription-service-settings.component.scss'
 })
-export class SubscriptionServiceSettingsComponent implements OnInit {
+export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedChanges {
   private readonly destroyRef = inject(DestroyRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -908,6 +909,63 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
     });
   }
 
+  // ── Unsaved inline drafts (BUG-2271) ───────────────────────
+  // A new feature / tier has its own Save (its own endpoint); the page's Save doesn't send it.
+  // So a typed but unsaved one is asked about instead of being dropped silently.
+
+  /** A new feature or tier form is open with something typed in it. */
+  get hasUnsavedDraft(): boolean {
+    const f = this.newFeature;
+    const t = this.newTier;
+    return (this.addingFeature && !!(f.textAr.trim() || f.textEn.trim()))
+      || (this.addingTier && !!(t.key.trim() || t.nameAr.trim() || t.nameEn.trim()));
+  }
+
+  private discardDrafts(): void {
+    this.addingFeature = false;
+    this.newFeature = { textAr: '', textEn: '' };
+    this.addingTier = false;
+    this.newTier = this.emptyTier();
+  }
+
+  private confirmDraftDiscard(messageKey: string, confirmKey: string): Promise<boolean> {
+    return firstValueFrom(this.dialog.open(OfferConfirmDialogComponent, {
+      width: '440px',
+      maxWidth: '95vw',
+      panelClass: 'custom-confirm-dialog',
+      data: {
+        title: 'd3.subscriptions.serviceSettings.unsavedDraft.title',
+        message: messageKey,
+        confirmLabel: confirmKey,
+        icon: 'alert-triangle',
+        tone: 'warning',
+      } as OfferConfirmDialogData,
+    }).afterClosed()).then(confirmed => !!confirmed);
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.hasUnsavedDraft;
+  }
+
+  /** Leaving the page (back, cancel, breadcrumb…) with a typed draft. */
+  confirmDiscard(): Promise<boolean> {
+    return this.confirmDraftDiscard(
+      'd3.subscriptions.serviceSettings.unsavedDraft.leaveMessage',
+      'd3.subscriptions.serviceSettings.unsavedDraft.leaveConfirm',
+    ).then(leave => {
+      if (leave) this.discardDrafts();
+      return leave;
+    });
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedDraft) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  }
+
   // ── Save (state + billing via PUT /catalog, then the message pack price) ──
   goBack(): void {
     const lang = this.router.url.split('/')[1] || 'ar';
@@ -1022,14 +1080,28 @@ export class SubscriptionServiceSettingsComponent implements OnInit {
       this.toastr.error(this.translate.instant('d3.subscriptions.serviceSettings.errors.invalidPrice'));
       return;
     }
-    this.confirmBillingChange(() => this.runSave());
+    if (!this.hasUnsavedDraft) {
+      this.confirmBillingChange(() => this.runSave());
+      return;
+    }
+    // The draft isn't part of this save — ask before it's lost, and stay on the page if kept.
+    const savedId = this.catalogItem.id;
+    this.confirmDraftDiscard(
+      'd3.subscriptions.serviceSettings.unsavedDraft.message',
+      'd3.subscriptions.serviceSettings.unsavedDraft.confirm',
+    ).then(discard => {
+      if (!discard || this.catalogItem?.id !== savedId) return;
+      this.discardDrafts();
+      this.confirmBillingChange(() => this.runSave());
+    });
   }
 
   private runSave(): void {
     const catalog$ = this.catalogRequest();
     const pack$ = this.packPricingRequest();
     if (!catalog$ && !pack$) {
-      this.goBack();
+      // Nothing to send: say so rather than leaving as if something was saved.
+      this.toastr.info(this.translate.instant('d3.subscriptions.serviceSettings.noChanges'));
       return;
     }
 

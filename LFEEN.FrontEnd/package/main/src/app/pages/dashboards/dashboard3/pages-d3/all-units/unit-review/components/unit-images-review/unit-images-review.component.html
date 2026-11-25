@@ -1,5 +1,9 @@
 <div class="unit-images-review" [dir]="currentDir">
 
+  @if (!isLoading && loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadPhotos()"></app-unit-load-state>
+  } @else {
+
   <section class="review-context">
     <div>
       <h2>{{ 'd3.unitReview.imagesView.heading' | translate }}</h2>
@@ -195,4 +199,6 @@
     }
 
   }
+
+  } <!-- end loadState @else -->
 </div>

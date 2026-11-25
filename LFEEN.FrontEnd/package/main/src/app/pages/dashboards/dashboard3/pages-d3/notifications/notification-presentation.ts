@@ -63,10 +63,13 @@ export interface NotificationDestination {
   queryParams?: Record<string, string>;
 }
 
-// Reference types without a matching admin screen (SupportTicket, ClientInquiry, Payment)
+// Reference types without a matching admin screen (ClientInquiry, Payment)
 // stay on the notifications page.
 const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> = {
   Complaint:         id => ({ commands: ['complaints', id] }),
+  // SupportTicketCreated: referenceId is the merchant ticket's externalId, which the
+  // complaints/:id detail page loads directly (GET /api/tickets/{externalId}).
+  SupportTicket:     id => ({ commands: ['complaints', id] }),
   // Property and Unit notifications carry the GUID (externalId), but the review pages and
   // their section/decision endpoints work with the numeric id, so NotificationsComponent
   // resolves the GUID first (see REFERENCE_RESOLVED_TYPES). These lists are only the

@@ -13,6 +13,8 @@ import { UnitReviewDecision, UnitsService } from '../../../../../services/units.
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 type AccessPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -50,7 +52,7 @@ const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
 @Component({
   selector: 'app-unit-access-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, DashboardLoadingComponent, UnitLoadStateComponent],
   templateUrl: './unit-access-review.component.html',
   styleUrl: './unit-access-review.component.scss'
 })
@@ -66,6 +68,8 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
   rejectionNote = '';
   isLoading = false;
   isReadOnly = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   hasStartedReview = false;
   accessData: UnitAccessResponse | null = null;
   accessPhotos: AccessPhoto[] = [];
@@ -135,32 +139,45 @@ export class UnitAccessReviewComponent implements OnInit, OnDestroy {
     if (this.unitId) {
       this.unitsService.getUnitById(this.unitId)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(detail => { this.unitDetail = detail; });
+        // Header details only — the access request below drives the not-found state.
+        .subscribe({ next: detail => { this.unitDetail = detail; }, error: () => {} });
     }
 
-    if (this.unitId) {
-      this.isLoading = true;
-      this.unitsService.getUnitAccess(this.unitId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (data) => {
-            this.accessData   = data;
-            this.accessPhotos = data.photos.map(p => ({
-              category:          p.category,
-              image:             p.imageUrl,
-              titleKey:          CATEGORY_MAP[p.category]?.titleKey ?? p.category,
-              tagKey:            CATEGORY_MAP[p.category]?.tagKey   ?? '',
-              note:              p.note?.trim() || null,
-              decision:          this.mapApiPhotoDecision(p.decision),
-              rejectionReason:   p.rejectionReason ?? '',
-              canReview:         this.canReviewPhoto(p.decision),
-              loadFailed:        !p.imageUrl,
-            }));
-            this.isLoading = false;
-          },
-          error: () => { this.isLoading = false; }
-        });
+    this.loadAccess();
+  }
+
+  loadAccess(): void {
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
     }
+    this.isLoading = true;
+    this.loadState = 'loaded';
+    this.unitsService.getUnitAccess(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.accessData   = data;
+          this.accessPhotos = data.photos.map(p => ({
+            category:          p.category,
+            image:             p.imageUrl,
+            titleKey:          CATEGORY_MAP[p.category]?.titleKey ?? p.category,
+            tagKey:            CATEGORY_MAP[p.category]?.tagKey   ?? '',
+            note:              p.note?.trim() || null,
+            decision:          this.mapApiPhotoDecision(p.decision),
+            rejectionReason:   p.rejectionReason ?? '',
+            canReview:         this.canReviewPhoto(p.decision),
+            loadFailed:        !p.imageUrl,
+          }));
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.accessData   = null;
+          this.accessPhotos = [];
+          this.loadState    = classifyLoadError(err);
+          this.isLoading    = false;
+        }
+      });
   }
 
   ngOnDestroy(): void {

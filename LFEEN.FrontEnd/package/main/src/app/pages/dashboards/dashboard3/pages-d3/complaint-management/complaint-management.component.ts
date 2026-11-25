@@ -225,6 +225,17 @@ export class ComplaintManagementComponent implements OnDestroy {
     agent: this.customerAssignedAgentUserId() ?? 'all',
   }));
 
+  /** Page size the active tab requests from the API — the table needs it to compute
+   * "showing X of Y" on pages after the first (each tab pages the server differently). */
+  readonly activeServerPageSize = computed<number | null>(() => {
+    switch (this.activeTab()) {
+      case 'customers': return CLIENT_TICKETS_PAGE_SIZE;
+      case 'hosts':     return HOST_TICKETS_PAGE_SIZE;
+      case 'resolved':  return RESOLVED_TICKETS_PAGE_SIZE;
+      default:          return null;
+    }
+  });
+
   readonly resolvedTypeOptions = RESOLVED_TYPE_OPTIONS;
   resolvedTotalCount  = signal<number | null>(null);
   resolvedTotalPages  = signal(1);

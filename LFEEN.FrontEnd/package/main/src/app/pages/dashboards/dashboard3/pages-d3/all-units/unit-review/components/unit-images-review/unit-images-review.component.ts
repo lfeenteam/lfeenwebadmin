@@ -14,6 +14,8 @@ import { UnitReviewDecision, UnitsService } from '../../../../../services/units.
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 type UnitPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -53,7 +55,7 @@ const GROUP_ICON_MAP: Record<string, string> = {
 @Component({
   selector: 'app-unit-images-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AppPluralPipe],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AppPluralPipe, UnitLoadStateComponent],
   templateUrl: './unit-images-review.component.html',
   styleUrl: './unit-images-review.component.scss'
 })
@@ -66,6 +68,8 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   finalNotes = '';
   isLoading = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   isSubmitting = false;
   isReadOnly = false;
   totalPhotoCount = 0;
@@ -153,9 +157,13 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     this.pageBreadcrumbTrail.clear();
   }
 
-  private loadPhotos(): void {
-    if (!this.unitId) return;
+  loadPhotos(): void {
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
+    }
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitPhotos(this.unitId).subscribe({
       next: (response) => {
         this.isLoading = false;
@@ -173,7 +181,10 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
         }));
         this.mainPhoto = this.photoGroups.flatMap(g => g.photos).find(p => p.isMainPhoto) ?? null;
       },
-      error: () => { this.isLoading = false; }
+      error: (err) => {
+        this.loadState = classifyLoadError(err);
+        this.isLoading = false;
+      }
     });
   }
 

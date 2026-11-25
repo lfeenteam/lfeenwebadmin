@@ -14,6 +14,8 @@ import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../../interfaces/additional-condition.model';
 import { formatTimeOfDay } from 'src/app/utils/date-format.util';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 interface UnitRule {
   icon: string;
@@ -24,7 +26,7 @@ interface UnitRule {
 @Component({
   selector: 'app-unit-terms-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent, UnitLoadStateComponent],
   templateUrl: './unit-terms-review.component.html',
   styleUrl: './unit-terms-review.component.scss'
 })
@@ -36,6 +38,8 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   earlyCheckInEnabled = false;
   isLoading = false;
   isReadOnly = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   mappedConditions: UnitRule[] = [];
   additionalConditions: AdminAdditionalCondition[] = [];
 
@@ -71,17 +75,24 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
 
     if (this.unitId) {
       this.loadTerms();
-      this.unitsService.getUnitBasicData(this.unitId).subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
+      this.unitsService.getUnitBasicData(this.unitId).subscribe({
+        next: data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        },
+        // Breadcrumb only — the terms request below drives the not-found state.
+        error: () => {}
       });
+    } else {
+      this.loadState = 'notFound';
     }
   }
 
   loadTerms(): void {
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitTerms(this.unitId).subscribe({
       next: (data) => {
         this.termsData            = data;
@@ -94,7 +105,11 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
         this.additionalConditions = data.additionalConditions ?? [];
         this.isLoading = false;
       },
-      error: () => { this.isLoading = false; }
+      error: (err) => {
+        this.termsData = null;
+        this.loadState = classifyLoadError(err);
+        this.isLoading = false;
+      }
     });
   }
 

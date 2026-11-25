@@ -14,11 +14,16 @@ import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcr
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 interface CalendarDay {
   day: number | null;
   price: number | null;
   available: boolean;
+  isToday?: boolean;
+  /** Friday / Saturday — the Saudi weekend, usually priced differently. */
+  isWeekend?: boolean;
 }
 
 interface SeasonalPeriod {
@@ -58,7 +63,7 @@ interface PlatformPricingRow {
 @Component({
   selector: 'app-unit-pricing-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, UnitLoadStateComponent],
   templateUrl: './unit-pricing-review.component.html',
   styleUrl: './unit-pricing-review.component.scss'
 })
@@ -74,6 +79,8 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   safetyFloorPrice: number | null = null;
   currentLang = 'ar';
   isReadOnly = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
 
   seasonalPeriods: SeasonalPeriod[] = [];
 
@@ -146,12 +153,18 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     for (let i = 0; i < startDow; i++) {
       cells.push({ day: null, price: null, available: false });
     }
+    const today = new Date();
+    const isCurrentMonth =
+      today.getFullYear() === firstDay.getFullYear() && today.getMonth() === firstDay.getMonth();
     for (let d = 1; d <= totalDays; d++) {
       const dayData = this.calendarDaysMap.get(d);
+      const dow = (startDow + d - 1) % 7;
       cells.push({
         day: d,
         price: dayData?.price ?? null,
         available: dayData?.isEnabled ?? false,
+        isToday: isCurrentMonth && today.getDate() === d,
+        isWeekend: dow === 5 || dow === 6,
       });
     }
     while (cells.length % 7 !== 0) {
@@ -192,13 +205,24 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
       this.loadCalendar();
       this.unitsService.getUnitBasicData(this.unitId)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(data => {
-          const lang = this.translate.currentLang || 'ar';
-          this.pageBreadcrumbTrail.set([
-            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-          ]);
+        .subscribe({
+          next: data => {
+            const lang = this.translate.currentLang || 'ar';
+            this.pageBreadcrumbTrail.set([
+              { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+            ]);
+          },
+          // Breadcrumb only — the pricing request drives the not-found state.
+          error: () => {}
         });
+    } else {
+      this.loadState = 'notFound';
     }
+  }
+
+  retryLoad(): void {
+    this.loadPricing();
+    this.loadCalendar();
   }
 
   ngOnDestroy(): void {
@@ -206,27 +230,31 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   }
 
   private loadPricing(): void {
+    this.loadState = 'loaded';
     this.unitsService.getUnitPricing(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        this.basePrice = data.basePricePerNight ?? null;
-        this.safetyFloorPrice = data.minimumPricePerNight ?? null;
-        this.occupancyPrices = this.mapOccupancyPrices(data);
-        this.applyPricingPolicies(data);
-        const locale = this.currentLang === 'en' ? enUS : ar;
-        this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
-          const start = p.startDate
-            ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
-            : '-';
-          const end = p.endDate
-            ? format(new Date(p.endDate), 'd MMMM yyyy', { locale })
-            : '-';
-          return {
-            label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
-            name: p.name || '-',
-            dates: `${start} - ${end}`,
-          };
-        });
+      .subscribe({
+        next: data => {
+          this.basePrice = data.basePricePerNight ?? null;
+          this.safetyFloorPrice = data.minimumPricePerNight ?? null;
+          this.occupancyPrices = this.mapOccupancyPrices(data);
+          this.applyPricingPolicies(data);
+          const locale = this.currentLang === 'en' ? enUS : ar;
+          this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
+            const start = p.startDate
+              ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
+              : '-';
+            const end = p.endDate
+              ? format(new Date(p.endDate), 'd MMMM yyyy', { locale })
+              : '-';
+            return {
+              label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
+              name: p.name || '-',
+              dates: `${start} - ${end}`,
+            };
+          });
+        },
+        error: (err) => { this.loadState = classifyLoadError(err); }
       });
   }
 
@@ -290,10 +318,14 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     const date = format(this.currentMonth, 'yyyy-MM-dd');
     this.unitsService.getUnitPricingCalendar(this.unitId, date)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        this.calendarDaysMap = new Map(
-          data.days.map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
-        );
+      .subscribe({
+        next: data => {
+          this.calendarDaysMap = new Map(
+            data.days.map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
+          );
+        },
+        // A missing unit is surfaced by loadPricing(); an empty calendar is enough here.
+        error: () => { this.calendarDaysMap = new Map(); }
       });
   }
 

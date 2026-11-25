@@ -1160,10 +1160,10 @@ background: #FFFFFF;
 
   .status-progress-row {
     width: 100%;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px 10px;
   }
 
   .status-badge {
@@ -1181,6 +1181,7 @@ background: #FFFFFF;
   .progress-section {
     gap: 6px;
     min-width: 0;
+    margin-inline-start: auto;
   }
 
   .progress-title,
@@ -1189,7 +1190,9 @@ background: #FFFFFF;
   }
 
   .progress-bar-wrap {
-    width: 60px;
+    width: auto;
+    flex: 1 1 40px;
+    max-width: 60px;
     height: 7px;
   }
 

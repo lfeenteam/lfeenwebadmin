@@ -33,6 +33,8 @@ export class ComplaintsTableComponent implements OnChanges {
   @Input() serverTotalCount: number | null = null;
   @Input() serverTotalPages: number | null = null;
   @Input() serverCurrentPage: number | null = null;
+  /** Page size the parent requests from the API. Falls back to the local `pageSize` when not provided. */
+  @Input() serverPageSize: number | null = null;
   @Input() statusFilterValue: number | string | null = null;
   @Input() statusOptions: { value: number | string; labelKey: string }[] = [];
   @Input() allOptionLabelKey = 'd3.complaints.table.allStatuses';
@@ -169,7 +171,8 @@ export class ComplaintsTableComponent implements OnChanges {
 
     if (this.serverMode) {
       const totalCount = this.serverTotalCount ?? 0;
-      const shownCount = Math.min(((this.currentPage - 1) * this.pageSize) + this.complaints.length, totalCount);
+      const pageSize = this.serverPageSize ?? this.pageSize;
+      const shownCount = Math.min(((this.currentPage - 1) * pageSize) + this.complaints.length, totalCount);
       const total = formatter.format(totalCount);
       const shown = formatter.format(shownCount);
       return this.currentDir === 'rtl'

@@ -520,11 +520,20 @@
 
   .log-row {
     display: grid;
-    grid-template-columns: 1fr auto;
+    // Both tracks may shrink below their content (BUG-2347): a plain `1fr auto` kept the
+    // merchant column at its one-line width and the badge/date column at its full width,
+    // so the pair (358px) overflowed the 296px card and the end column got clipped.
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-rows: auto auto auto auto;
     border: 1px solid #E2E8F0 !important;
     border-radius: 16px;
     background: #fff;
+
+    td { min-width: 0; }
+
+    // The badge and date wrap between words instead of taking more than half the card.
+    td:nth-child(2),
+    td:nth-child(5) { max-width: 50vw; }
 
     // ref number → top start
     td:nth-child(1) {

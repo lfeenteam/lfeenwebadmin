@@ -115,7 +115,7 @@
           </div>
           @if (gd.hasUnknownField) {
             <div class="d3-distribution-note">
-              {{ 'd3.chart.genderBasis' | translate: { known: formatCount(gd.knownCount), total: formatCount(gd.totalCount) } }}
+              {{ 'd3.chart.genderBasis' | appPlural: gd.knownCount : { total: formatCount(gd.totalCount) } }}
             </div>
           } @else if (gd.verifiedOnlyNote) {
             <div class="d3-distribution-note">{{ 'd3.chart.genderBasisVerifiedOnly' | translate }}</div>

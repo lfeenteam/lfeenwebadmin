@@ -1,4 +1,5 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, computed, inject } from '@angular/core';
+import { CoreService } from 'src/app/services/core.service';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -56,6 +57,10 @@ export class AddFaqDialogComponent {
   readonly titleMax = FAQ_TITLE_MAX_LENGTH;
   readonly bodyMax = FAQ_BODY_MAX_LENGTH;
   readonly orderMax = FAQ_ORDER_MAX;
+
+  // Follows the page language, also when it changes without a reload (BUG-2511).
+  private readonly coreService = inject(CoreService);
+  readonly dir = computed(() => (this.coreService.getOptionsSignal()().language === 'ar' ? 'rtl' : 'ltr'));
 
   selectedDept: FaqDepartmentOption | null = null;
   saving = false;

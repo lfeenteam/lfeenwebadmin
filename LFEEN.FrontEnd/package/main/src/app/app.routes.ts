@@ -9,6 +9,7 @@ import { settingsViewGuard } from './guards/settings-view.guard';
 import { cancellationRefundsViewGuard } from './guards/cancellation-refunds-view.guard';
 import { settlementDebtsRedirectGuard } from './guards/settlement-debts-redirect.guard';
 import { pageAccessGuard } from './guards/page-access.guard';
+import { unsavedChangesGuard } from './guards/unsaved-changes.guard';
 import {
   agreementsViewGuard,
   unsavedAgreementGuard,
@@ -1014,6 +1015,7 @@ export const routes: Routes = [
               {
                 path: 'subscriptions/settings/:id',
                 canActivate: [authGuard, pageAccessGuard('subscriptions')],
+                canDeactivate: [unsavedChangesGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-service-settings/subscription-service-settings.component'

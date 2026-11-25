@@ -17,6 +17,8 @@ import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-tr
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../utils/api-error.util';
 
 interface UnitReviewSection {
   key: string;
@@ -29,7 +31,7 @@ interface UnitReviewSection {
 @Component({
   selector: 'app-unit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent, ListingBanBannerComponent, BanListingButtonComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent, ListingBanBannerComponent, BanListingButtonComponent, UnitLoadStateComponent],
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
@@ -46,6 +48,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
   isLoading = false;
+  // The page body (section cards, final notes, approve/reject) renders only once this is
+  // 'loaded', so an unknown or deleted unit never shows an empty review with decision buttons.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   private forcedViewOnly = false;
   private originTab = '';
 
@@ -191,10 +196,19 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
         this.pageBreadcrumbTrail.set([{ label: 'd3.unitReview.unitCrumbLabel', translate: true }]);
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
+        // A reload that fails (after a ban change) keeps the page already shown.
+        if (this.unitDetail) return;
+        this.loadState = classifyLoadError(err);
       }
     });
+  }
+
+  retryLoad(): void {
+    this.isLoading = true;
+    this.loadState = 'loaded';
+    this.loadUnit();
   }
 
   // Same statuses the list cards allow a ban from (see UnitsService.mapToUnitCard).

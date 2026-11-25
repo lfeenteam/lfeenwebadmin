@@ -17,6 +17,8 @@ import {
 } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError } from '../../../../../utils/api-error.util';
 
 interface PeriodView {
   windowKey: string;
@@ -46,7 +48,7 @@ interface SetView {
 @Component({
   selector: 'app-cancel-policy-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, UnitLoadStateComponent],
   templateUrl: './cancel-policy-review.component.html',
   styleUrl: './cancel-policy-review.component.scss'
 })
@@ -60,6 +62,8 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   policy: UnitCancellationPolicyResponse | null = null;
   isLoading = false;
   loadError = false;
+  // The unit doesn't exist (404 / malformed id) — the page body and its buttons stay hidden.
+  notFound = false;
   isReadOnly = false;
   currentLang = 'ar';
 
@@ -131,15 +135,22 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
     this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
 
-    if (!this.unitId) return;
+    if (!this.unitId) {
+      this.notFound = true;
+      return;
+    }
     this.loadPolicy(true);
     this.unitsService.getUnitBasicData(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
+      .subscribe({
+        next: data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        },
+        // Breadcrumb only — the policy request drives the not-found state.
+        error: () => {}
       });
   }
 
@@ -151,6 +162,7 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   private loadPolicy(showSpinner: boolean): void {
     if (!this.unitId) return;
     this.loadError = false;
+    this.notFound = false;
     if (showSpinner) this.isLoading = true;
     this.unitsService.getUnitCancellationPolicy(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -160,8 +172,15 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
           this.rebuildViews();
           this.isLoading = false;
         },
-        error: () => {
-          this.loadError = true;
+        error: (err) => {
+          // A missing unit gets the shared "unit not found" state instead of a retry box —
+          // retrying can't bring it back.
+          if (classifyLoadError(err) === 'notFound') {
+            this.policy   = null;
+            this.notFound = true;
+          } else {
+            this.loadError = true;
+          }
           this.isLoading = false;
         }
       });

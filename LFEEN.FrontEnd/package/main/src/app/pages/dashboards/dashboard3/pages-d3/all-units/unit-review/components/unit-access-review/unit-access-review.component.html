@@ -2,6 +2,8 @@
 
   @if (isLoading) {
     <app-dashboard-loading variant="review" [rows]="3"></app-dashboard-loading>
+  } @else if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadAccess()"></app-unit-load-state>
   } @else {
 
   <section class="unit-summary-card">

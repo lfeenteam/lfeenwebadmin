@@ -1,4 +1,4 @@
-<div class="faq-dialog" dir="rtl">
+<div class="faq-dialog" [dir]="dir()">
 
   <div class="faq-dialog-header">
     <span class="title-accent"></span>
@@ -17,7 +17,7 @@
         <div class="bilingual-row">
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
-            <input class="faq-input" type="text" formControlName="titleAr" [maxlength]="titleMax"
+            <input class="faq-input" type="text" dir="rtl" formControlName="titleAr" [maxlength]="titleMax"
               [class.is-invalid]="showError('titleAr')" [placeholder]="'d3.faq.dialog.titleArPlaceholder' | translate">
             <div class="field-meta">
               <span class="field-error-msg">{{ showError('titleAr') ? fieldError('titleAr') : '' }}</span>
@@ -41,7 +41,7 @@
         <div class="bilingual-row">
           <div class="bilingual-col">
             <label class="lang-label">{{ 'd3.faq.dialog.arabicLabel' | translate }}</label>
-            <textarea class="faq-textarea" rows="4" formControlName="contentAr" [maxlength]="bodyMax"
+            <textarea class="faq-textarea" rows="4" dir="rtl" formControlName="contentAr" [maxlength]="bodyMax"
               [class.is-invalid]="showError('contentAr')" [placeholder]="'d3.faq.dialog.contentArPlaceholder' | translate"></textarea>
             <div class="field-meta">
               <span class="field-error-msg">{{ showError('contentAr') ? fieldError('contentAr') : '' }}</span>

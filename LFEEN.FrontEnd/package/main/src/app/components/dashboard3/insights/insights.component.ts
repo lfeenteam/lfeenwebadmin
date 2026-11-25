@@ -39,6 +39,8 @@ const ACTION_PATH_SEGMENT_MAP: Record<string, string> = {
   team: 'team-management',
   properties: 'units',
   listings: 'units',
+  tickets: 'complaints',
+  dashboard: 'ceo',
 };
 
 @Component({

@@ -773,7 +773,16 @@
         "currentPasswordPlaceholder": "Enter your current password",
         "newPassword": "New Password",
         "confirmPassword": "Confirm Password",
-        "hint": "Make sure to use a strong password with uppercase, lowercase, numbers and special characters",
+        "rulesTitle": "Your new password must contain:",
+        "rules": {
+          "minLength": "At least 8 characters",
+          "uppercase": "An uppercase letter (A-Z)",
+          "lowercase": "A lowercase letter (a-z)",
+          "number": "A number (0-9)",
+          "special": "A special character (e.g. ! @ # $)"
+        },
+        "required": "This field is required",
+        "sameAsCurrent": "The new password must be different from the current password",
         "mismatch": "Passwords do not match",
         "save": "Save Changes",
         "saving": "Saving...",
@@ -1845,7 +1854,10 @@
       "segMale": "Male",
       "segFemale": "Female",
       "segUnknown": "Unspecified",
-      "genderBasis": "Based on {{known}} guests with a known (verified) gender out of {{total}}",
+      "genderBasis": {
+        "one": "Based on 1 guest with a known (verified) gender out of {{total}}",
+        "other": "Based on {{count}} guests with a known (verified) gender out of {{total}}"
+      },
       "genderNoData": "Not enough gender data (no verified guests)",
       "genderBasisVerifiedOnly": "Based on verified guests only; the rest have an unspecified gender"
     },
@@ -2895,6 +2907,14 @@
       "title": "Unit Review",
       "reviewRequestsBC": "Review Requests",
       "unitCrumbLabel": "Unit",
+      "loadState": {
+        "notFoundTitle": "Unit not found",
+        "notFoundDescription": "The unit may have been deleted, or the link is incorrect.",
+        "backToUnits": "Back to units",
+        "errorTitle": "Couldn't load the unit",
+        "errorDescription": "Check your connection and try again.",
+        "retry": "Try again"
+      },
       "unitInfo": {
         "unitNumberLabel": "Unit Number"
       },
@@ -3157,6 +3177,11 @@
         },
         "calendarTitle": "Availability & Daily Prices Calendar",
         "calendarSubtitle": "Review available prices for each day independently",
+        "legend": {
+          "available": "Available",
+          "unavailable": "Unavailable",
+          "today": "Today"
+        },
         "days": {
           "sun": "Sun",
           "mon": "Mon",
@@ -5213,6 +5238,14 @@
         "confirm": "Confirm change",
         "needsPrice": "The service will become paid: set a monthly or yearly price above zero, or it won't accept new subscriptions."
       },
+      "unsavedDraft": {
+        "title": "Unsaved addition",
+        "message": "You typed a new feature or tier but didn't press its own Save, so it won't be saved with the service settings. Discard it?",
+        "confirm": "Discard it",
+        "leaveMessage": "You typed a new feature or tier but didn't press its own Save. If you leave the page, it won't be saved.",
+        "leaveConfirm": "Leave without saving"
+      },
+      "noChanges": "Nothing was changed",
       "loading": "Loading...",
       "notFound": "Service not found.",
       "saved": "Service settings saved",
@@ -5742,7 +5775,7 @@
         "invalidUnifiedNumberHint": "Enable this if the rejection reason is an invalid facility unified number",
         "rejectBtn": "Reject Request",
         "approveBtn": "Accept and Activate Account",
-        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",
+        "lockNotice": "This decision is final: once you accept or reject, it can't be undone from this screen, and the account owner will be notified.",
         "acceptSuccess": "Account has been accepted and activated successfully",
         "rejectSuccess": "Account request has been rejected successfully",
         "rejectionRequired": "Please enter a rejection reason before proceeding",

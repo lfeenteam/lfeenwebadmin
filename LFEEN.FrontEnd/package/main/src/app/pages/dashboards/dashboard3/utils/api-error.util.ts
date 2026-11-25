@@ -6,6 +6,18 @@ export function extractApiErrorMessage(err: any, fallback: string): string {
   return err?.error?.message || fallback;
 }
 
+export type LoadFailure = 'notFound' | 'error';
+
+/**
+ * Sorts a failed page load into "the record doesn't exist" vs. anything else.
+ * 404 / *_NOT_FOUND is a missing record; 400 is what the API returns for a
+ * malformed id (e.g. "xyz"), which is just as missing from the user's view.
+ */
+export function classifyLoadError(err: any): LoadFailure {
+  const code = String(err?.error?.code ?? err?.error?.errorCode ?? '');
+  return err?.status === 404 || err?.status === 400 || code.endsWith('NOT_FOUND') ? 'notFound' : 'error';
+}
+
 export interface ApiFieldError {
   /** Lower-cased field name without the JSON "$." prefix, e.g. "displayorder". */
   field: string;
