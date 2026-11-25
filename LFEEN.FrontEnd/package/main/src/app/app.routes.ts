@@ -135,7 +135,6 @@ export const routes: Routes = [
                   breadcrumbRoute: 'buildings',
                   showBack: true,
                   recreateOnParamChange: true,
-                  statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
               },
               {

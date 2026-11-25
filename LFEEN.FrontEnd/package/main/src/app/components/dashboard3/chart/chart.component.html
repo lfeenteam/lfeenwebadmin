@@ -107,12 +107,9 @@
                 {{ seg.label | translate }} ({{ formatPercent(seg.value) }})
               </span>
             }
-            @if (gd.hasUnknownField) {
-              <span class="d3-legend-item d3-legend-unknown">
-                {{ 'd3.chart.segUnknown' | translate }}: {{ formatCount(gd.unknownCount) }} ({{ formatPercent(gd.unknownPercentage) }})
-              </span>
-            }
           </div>
+          <!-- Male/female above are shares of the known guests only; the unknown count is
+               given in this sentence (out of the total) so the two bases are never mixed. -->
           @if (gd.hasUnknownField) {
             <div class="d3-distribution-note">
               {{ 'd3.chart.genderBasis' | appPlural: gd.knownCount : { total: formatCount(gd.totalCount) } }}
