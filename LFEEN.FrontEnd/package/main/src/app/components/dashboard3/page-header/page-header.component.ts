@@ -6,11 +6,12 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { PageBreadcrumbCrumb } from '../../../pages/dashboards/dashboard3/services/page-breadcrumb-trail.service';
 import { CoreService } from '../../../services/core.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { TextDirPipe } from 'src/app/pipes/text-dir.pipe';
 
 @Component({
   selector: 'app-dashboard3-page-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, TablerIconsModule],
+  imports: [CommonModule, RouterModule, TranslateModule, TablerIconsModule, TextDirPipe],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
 })

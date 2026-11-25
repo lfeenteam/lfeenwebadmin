@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,10 +8,11 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplaintService } from '../../services/complaint.service';
-import { AR_DATE_LOCALE, TicketAttachment, TicketDetail, TicketMessage } from '../../interfaces/complaint.model';
+import { AR_DATE_LOCALE, ComplaintStatus, TicketAttachment, TicketDetail, TicketMessage, isClosedTicketStatus } from '../../interfaces/complaint.model';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 import { LoginService } from '../../../../services/login/login.service';
 import { DashboardEmptyComponent } from '../../../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
+import { TextDirPipe } from '../../../../../../../pipes/text-dir.pipe';
 
 type LoadState = 'loading' | 'ready' | 'notFound' | 'error';
 
@@ -22,7 +23,7 @@ type LoadResult =
 @Component({
   selector: 'app-host-complaint-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, TextDirPipe],
   templateUrl: './host-complaint-detail.component.html',
   styleUrl: './host-complaint-detail.component.scss'
 })
@@ -48,6 +49,23 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   loadState       = signal<LoadState>('loading');
   viewOnly        = signal(false);
 
+  /** The ticket itself is finished (Resolved / Closed) — decided by its own status,
+   * not by the link it was opened from (?mode=view), so a closed ticket can never be
+   * replied to or closed again however it was reached. */
+  isClosed = computed(() => {
+    const t = this.ticket();
+    return !!t && isClosedTicketStatus(t.status, t.closedAtUtc);
+  });
+
+  /** Read-only when opened from the resolved tab or when the ticket is already finished. */
+  readOnly = computed(() => this.viewOnly() || this.isClosed());
+
+  /** Mapped status for the badge, e.g. 'closed' → d3.complaints.status.closed. */
+  statusKey = computed<ComplaintStatus | null>(() => {
+    const t = this.ticket();
+    return t ? this.service.mapTicketStatus(t.status) : null;
+  });
+
   /** Id of the ticket currently in the URL — every write targets this, and
    * async results are dropped if it changed while they were in flight. */
   private ticketId = '';
@@ -63,6 +81,9 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
         this.openCloseDialog();
       }
     });
+
+    // Tell the page header (outside this component) to hide "Close & resolve" on a finished ticket.
+    effect(() => this.service.detailReadOnly.set(this.isClosed()));
   }
 
   ngOnInit(): void {
@@ -122,11 +143,12 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   private get canWrite(): boolean {
-    return this.loadState() === 'ready' && !!this.ticket() && !!this.ticketId && !this.viewOnly();
+    return this.loadState() === 'ready' && !!this.ticket() && !!this.ticketId && !this.readOnly();
   }
 
   ngOnDestroy(): void {
     this.pageTitleOverride.clear();
+    this.service.detailReadOnly.set(false);
   }
 
   get currentDir(): 'rtl' | 'ltr' {

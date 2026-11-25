@@ -1,14 +1,12 @@
 import type { DemoAccountKind, DemoAccountStatus, InvitationLanguage } from './demo-account.model';
 
-// Demo sign-up links (MUL-0004): the admin makes a batch of one-use links, each person
-// opens one on the client web and gets a demo account. Admin API: /api/admin/demo-signup-links.
+// Demo links (MUL-0004, "open the link and get the account"): the admin makes one-use-per-account
+// links; the first time a link is opened the demo account is created and its sign-in data is
+// shown on the page. Nothing is sent by SMS or email. Admin API: /api/admin/demo-signup-links.
 
 export type DemoSignupLinkState = 'Open' | 'InProgress' | 'Used' | 'Cancelled' | 'Expired';
-/** How the person chose to get their sign-in data. */
-export type DemoSignupChannel = 'Sms' | 'Email';
 
-export const DEMO_SIGNUP_STATES: DemoSignupLinkState[] = ['Open', 'InProgress', 'Used', 'Cancelled', 'Expired'];
-export const DEMO_SIGNUP_CHANNELS: DemoSignupChannel[] = ['Sms', 'Email'];
+export const DEMO_SIGNUP_STATES: DemoSignupLinkState[] = ['Open', 'Used', 'InProgress', 'Cancelled', 'Expired'];
 
 export const DEMO_SIGNUP_LIMITS = {
   minCount: 1,
@@ -17,50 +15,22 @@ export const DEMO_SIGNUP_LIMITS = {
   minLinkDays: 1,
   maxLinkDays: 90,
   defaultLinkDays: 7,
+  /** The organisation name becomes the account name. */
+  label: 150,
 } as const;
 
-// ── Channels (GET channels / POST channels/test) ──────────────────────
+/** `<` and `>` are refused in the organisation name (DEMO_SIGNUP_LABEL_INVALID). */
+export const DEMO_SIGNUP_LABEL_FORBIDDEN = /[<>]/;
 
-export type DemoChannelReason = 'SMS_DISABLED' | 'SMS_NOT_CONFIGURED' | 'SENDING_SIMULATED' | 'EMAIL_NOT_CONFIGURED' | string;
-
-export interface DemoChannelState {
-  ready: boolean;
-  reason?: DemoChannelReason | null;
-  messageAr?: string | null;
-  messageEn?: string | null;
-}
-
-export interface DemoSignupChannels {
-  sms: DemoChannelState;
-  email: DemoChannelState;
-  anyReady: boolean;
-}
-
-export interface DemoChannelTestRequest {
-  channel: DemoSignupChannel;
-  recipient: string;
-}
-
-export interface DemoChannelTestResult {
-  sent: boolean;
-  channel?: DemoSignupChannel;
-  recipient?: string;
-  errorCode?: string | null;
-  error?: string | null;
-}
-
-// ── Links and batches ─────────────────────────────────────────────────
-
-/** Every field is optional on the server; the form always sends the four main ones. */
+/** Every field is optional on the server; the form always sends the main ones. */
 export interface CreateDemoSignupLinksRequest {
   count: number;
   kind: DemoAccountKind;
   durationDays: number;
   linkValidDays?: number;
+  label?: string;
   invitationMessage?: string;
   invitationLanguage?: InvitationLanguage;
-  invitationSubject?: string;
-  attachmentIds?: string[];
   note?: string;
 }
 
@@ -68,28 +38,27 @@ export interface DemoSignupLink {
   id: string;
   batchId: string;
   code: string;
-  /** null when Demo:SelfSignup:PageUrl is not set on the server — build it from the code. */
+  /** null when Demo:SelfSignup:PageUrl is not set on the server. */
   url: string | null;
   state: DemoSignupLinkState;
   stateLabelAr?: string | null;
   stateLabelEn?: string | null;
   canCancel: boolean;
   kind: DemoAccountKind;
+  label: string | null;
   durationDays: number;
+  /** The window for the FIRST open only (matters while the link is still unopened). */
   expiresAt: string | null;
   createdAt: string | null;
-  fullName: string | null;
-  channel: DemoSignupChannel | null;
-  contact: string | null;
-  usedAt: string | null;
+  firstOpenedAt: string | null;
+  lastOpenedAt: string | null;
+  openCount: number;
   demoAccountId: string | null;
+  /** e.g. "فندق الريم 2" — the label numbered when a batch has several links. */
+  demoAccountName: string | null;
   demoAccountStatus: DemoAccountStatus | null;
   loginPhone: string | null;
   demoAccountExpiresAt: string | null;
-  /** null = nothing sent yet (the link is not used). */
-  invitationSent: boolean | null;
-  deliveryErrorCode: string | null;
-  deliveryError: string | null;
   cancelledAt: string | null;
   cancelledByAdminName: string | null;
 }
@@ -98,7 +67,7 @@ export interface DemoSignupBatch {
   id: string;
   kind: DemoAccountKind;
   durationDays: number;
-  invitationSubject: string | null;
+  label: string | null;
   invitationMessage: string | null;
   invitationLanguage: InvitationLanguage | null;
   note: string | null;
@@ -110,7 +79,6 @@ export interface DemoSignupBatch {
   usedLinks: number;
   cancelledLinks: number;
   expiredLinks: number;
-  attachments?: { id: string; fileName: string; sizeBytes: number }[];
   /** Only on create and GET batches/{id}; the batches list has none. */
   links?: DemoSignupLink[];
 }
@@ -132,6 +100,9 @@ export interface DemoSignupLinksQuery {
 
 export interface DemoSignupCancelResult {
   cancelled: number;
+  /** Opened links whose demo account was stopped with them. */
+  accountsStopped: number;
+  /** Already cancelled / expired, or still being set up (InProgress). */
   skipped: number;
   cancelledIds: string[];
 }

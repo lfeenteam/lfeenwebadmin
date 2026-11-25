@@ -31,8 +31,8 @@ const TYPE_PRESENTATION: Record<string, TypePresentation> = {
   SystemAlert:                   { category: 'system',     icon: 'alert-circle',     severity: 'neutral' },
   // A demo host asked for a real account (name, bookings, payments and interest in the text).
   DemoActivationRequested:       { category: 'reviews',    icon: 'user-star',        severity: 'warning' },
-  // Someone signed up from a demo sign-up link; the text says when the sign-in data could not be sent.
-  DemoSignupCompleted:           { category: 'reviews',    icon: 'link',             severity: 'info' },
+  // A demo link was opened for the first time: its account was created and the trial started.
+  DemoSignupOpened:              { category: 'reviews',    icon: 'link',             severity: 'info' },
 };
 
 const DEFAULT_PRESENTATION = { icon: 'bell', severity: 'neutral' as NotificationSeverity };
@@ -81,7 +81,7 @@ const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> 
   Booking:           () => ({ commands: ['bookings'] }),
   // Opens the activation-requests tab with this request open (no single-request endpoint).
   DemoActivationRequest: id => ({ commands: ['demo-accounts', 'activation-requests', id] }),
-  // referenceId = the demo account's id (DemoSignupCompleted) — its page has resend / new PIN.
+  // referenceId = the demo account's id (DemoSignupOpened) — its page has new PIN / extend / stop.
   DemoInvitation:        id => ({ commands: ['demo-accounts', id] }),
 };
 

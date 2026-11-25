@@ -4,42 +4,29 @@ import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   CreateDemoSignupLinksRequest,
-  DemoChannelTestRequest,
-  DemoChannelTestResult,
   DemoSignupBatch,
   DemoSignupCancelResult,
-  DemoSignupChannels,
   DemoSignupLink,
   DemoSignupLinksQuery,
   DemoSignupPage
 } from '../interfaces/demo-signup-link.model';
 
 /**
- * The Admin API passes eqamatik's body as is — some answers come inside { data }
- * (e.g. channels/test). None of these DTOs has a field named "data", so it is safe to unwrap.
+ * The Admin API passes eqamatik's body as is — some answers may come inside { data }.
+ * None of these DTOs has a field named "data", so it is safe to unwrap.
  */
 function unwrap<T>(res: any): T {
   return res && typeof res === 'object' && res.data != null && typeof res.data === 'object' ? res.data as T : res as T;
 }
 
-// Demo sign-up links (MUL-0004). Like DemoAccountsService, the Admin API takes the admin
-// from the token, so adminId/adminName are never sent. Writes are never retried automatically.
+// Demo links (MUL-0004). Like DemoAccountsService, the Admin API takes the admin from the
+// token, so adminId/adminName are never sent. Writes are never retried automatically.
 @Injectable({ providedIn: 'root' })
 export class DemoSignupLinksService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/admin/demo-signup-links`;
 
-  /** Whether SMS / Email can really send now (anyReady=false → create is off). */
-  channels(): Observable<DemoSignupChannels> {
-    return this.http.get(`${this.baseUrl}/channels`).pipe(map(r => unwrap<DemoSignupChannels>(r)));
-  }
-
-  /** 200 { sent: true } or 400 DEMO_CHANNEL_TEST_FAILED with the reason. Rate limited. */
-  testChannel(body: DemoChannelTestRequest): Observable<DemoChannelTestResult> {
-    return this.http.post(`${this.baseUrl}/channels/test`, body).pipe(map(r => unwrap<DemoChannelTestResult>(r)));
-  }
-
-  /** 201 with the batch and all its new links. */
+  /** 201 with the batch and all its new links. No account exists until a link is opened. */
   create(body: CreateDemoSignupLinksRequest): Observable<DemoSignupBatch> {
     return this.http.post(this.baseUrl, body).pipe(map(r => unwrap<DemoSignupBatch>(r)));
   }
@@ -63,12 +50,12 @@ export class DemoSignupLinksService {
     return this.http.get(`${this.baseUrl}/batches/${batchId}`).pipe(map(r => unwrap<DemoSignupBatch>(r)));
   }
 
-  /** Links already used or expired are skipped and counted. */
+  /** Opened links are cancelled too — their demo account is stopped for good (accountsStopped). */
   cancel(linkIds: string[]): Observable<DemoSignupCancelResult> {
     return this.http.post(`${this.baseUrl}/cancel`, { linkIds }).pipe(map(r => unwrap<DemoSignupCancelResult>(r)));
   }
 
-  /** Cancels only the batch's Open links. */
+  /** Every link of the batch, opened or not; already cancelled / expired ones are skipped. */
   cancelBatch(batchId: string): Observable<DemoSignupCancelResult> {
     return this.http.post(`${this.baseUrl}/batches/${batchId}/cancel`, {}).pipe(map(r => unwrap<DemoSignupCancelResult>(r)));
   }

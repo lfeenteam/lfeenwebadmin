@@ -730,9 +730,12 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   openHostComplaint(complaint: Complaint): void {
+    // A finished ticket opens read-only from any tab, so the header never offers
+    // "Close & resolve" on it (the detail page also checks the status itself).
+    const finished = complaint.status === 'closed' || complaint.status === 'resolved';
     const queryParams = this.activeTab() === 'resolved'
       ? { mode: 'view', tab: 'resolved' }
-      : { tab: 'hosts' };
+      : finished ? { mode: 'view', tab: 'hosts' } : { tab: 'hosts' };
     this.router.navigate(
       [this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id],
       { queryParams }

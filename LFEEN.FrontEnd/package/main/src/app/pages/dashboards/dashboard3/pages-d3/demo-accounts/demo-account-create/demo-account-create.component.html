@@ -1,4 +1,4 @@
-<form class="da-root da-page da-create" novalidate autocomplete="off" (ngSubmit)="submit()" [dir]="lang === 'en' ? 'ltr' : 'rtl'">
+<form class="da-root da-page da-create" novalidate autocomplete="off" (ngSubmit)="submit()" [dir]="dir">
   <!-- Header: breadcrumb, title and the actions (sticky while the form scrolls) -->
   <header class="dc-head">
     <div class="dc-head__text">
@@ -150,7 +150,7 @@
               <div class="dc-chips" role="group">
                 @for (d of dayPresets; track d) {
                   <button type="button" class="dc-chip" [class.active]="durationDays === d" [disabled]="submitting" (click)="setDays(d)">
-                    <span class="da-ltr" dir="ltr">{{ d }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+                    {{ 'd3.demoAccounts.days' | appPlural: d }}
                   </button>
                 }
               </div>

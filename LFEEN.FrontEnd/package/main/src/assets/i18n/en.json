@@ -132,7 +132,10 @@
       "subtitle": "Trial host accounts for prospective hosts to try Lfeen",
       "detailsTitle": "Demo account details",
       "searchPlaceholder": "Search by name, email, phone, login number or ID number",
-      "dayUnit": "days",
+      "days": {
+        "one": "{{count}} day",
+        "other": "{{count}} days"
+      },
       "ended": "Ended",
       "copied": "Copied",
       "copyFailed": "Could not copy, please copy the value manually",
@@ -142,124 +145,149 @@
       "tabs": {
         "accounts": "Demo accounts",
         "activationRequests": "Activation requests",
-        "signupLinks": "Sign-up links"
+        "signupLinks": "Demo links"
       },
       "signupLinks": {
-        "channels": {
-          "title": "Sending status",
-          "help": "Sign-in data reaches people only through the channels that are ready",
-          "checking": "Checking the sending channels…",
-          "refresh": "Refresh channel status",
-          "readySms": "Ready",
-          "readyEmail": "Ready",
-          "notReadySms": "Not enabled",
-          "notReadyEmail": "Not enabled",
-          "noneReady": "Nothing can be sent right now. Check the messaging settings."
-        },
-        "test": {
-          "open": "Try sending",
-          "title": "Try sending",
-          "help": "Send a real test message to your own number or email to make sure messages arrive before you share the links.",
-          "channel": "Channel",
-          "send": "Send",
-          "sent": "Sent ✅ — check that the message arrived.",
-          "failed": "The test message could not be sent."
+        "count": {
+          "link": {
+            "one": "1 link",
+            "two": "2 links",
+            "few": "{{count}} links",
+            "many": "{{count}} links",
+            "other": "{{count}} links"
+          },
+          "account": {
+            "one": "1 account",
+            "two": "2 accounts",
+            "few": "{{count}} accounts",
+            "many": "{{count}} accounts",
+            "other": "{{count}} accounts"
+          }
         },
         "create": {
-          "title": "Demo sign-up links",
-          "help": "These are links, not accounts: each link becomes a demo account when someone signs up with it, and works only once.",
+          "title": "Create demo links",
+          "help": "The organisation opens the link and sees its sign-in data right away, without typing anything. The account is created the first time the link is opened.",
           "steps": {
             "create": "Create links",
-            "createHelp": "Count, settings and message",
-            "share": "Share them",
-            "shareHelp": "WhatsApp, an event, anywhere",
-            "signup": "People sign up",
-            "signupHelp": "They enter their details and get sign-in data",
+            "createHelp": "Count, trial and organisation name",
+            "send": "Send it",
+            "sendHelp": "Only to the person in charge",
+            "open": "They open it",
+            "openHelp": "Sign-in data shows at once",
             "track": "Track",
-            "trackHelp": "Who signed up and whether it arrived"
+            "trackHelp": "Opens and account status"
           },
-          "submitOne": "Create 1 link",
-          "submitCount": "Create {{count}} links",
-          "linksSection": "Links and account",
-          "linksSectionHelp": "Number of links, the account kind they create and the trial length",
-          "messageSection": "Invitation message",
-          "messageSectionHelp": "The message the person gets after signing up, with their sign-in data",
-          "linkValidShort": "Link validity",
-          "filesCount": "{{count}} files",
-          "count": "Number of links",
-          "countHelp": "1 to {{max}} links, all with the same settings.",
-          "durationHelp": "The trial starts on the day the person signs up.",
-          "extras": "Extra settings",
-          "extrasHelp": "Link validity, email subject, attachments and an internal note",
-          "linkValidDays": "Link validity (days)",
-          "linksExpire": "The links expire on",
-          "attachmentsHelp": "Attachments are sent only to people who choose email.",
-          "attachmentsEmailOff": "Email is not enabled right now, so attachments and the subject won't be sent. People can sign up by SMS only.",
           "submit": "Create links",
-          "created": "{{count}} links created",
-          "resultTitle": "{{count}} links created ✅",
-          "noPageUrl": "The sign-up page URL is not set on the server (Demo:SelfSignup:PageUrl), so only the link code is shown. Set it, then copy the links from the tracking table.",
+          "submitCount": "Create {{links}}",
+          "secureNote": "Anyone with the link can sign in to the account. Send it only to the person in charge.",
+          "linksSection": "Links and account",
+          "linksSectionHelp": "Number of links, account kind and trial length",
+          "count": "Number of links",
+          "countHelp": "1 to {{max}}. Each link creates one demo account when it is opened.",
+          "durationHelp": "The trial starts the first time the link is opened, not now.",
+          "welcomeSection": "Organisation name and welcome message",
+          "welcomeSectionHelp": "The account name and the message shown on the link page",
+          "label": "Organisation name",
+          "labelPlaceholder": "Hotel or company name, e.g. Al Reem Hotel or Elite Properties",
+          "labelHelp": "This is the account name: {{names}}",
+          "welcome": "Welcome message (optional)",
+          "welcomePlaceholder": "Leave it empty to show the standard welcome message.",
+          "welcomeHelp": "Shown on the link page and copied with “Copy all”. Missing sign-in data is added at the end automatically.",
+          "extras": "Extra settings",
+          "extrasHelp": "Link validity and an internal note",
+          "linkValidDays": "Link validity (days)",
+          "linkValidHelp": "How long the link can be opened for the first time. After the first open the data stays visible until the trial ends.",
+          "openBefore": "Must be opened before",
+          "linkValidSummary": "Open within {{days}} days",
+          "hasNote": "Has a note",
+          "noLabel": "No organisation name",
+          "standardWelcome": "Standard welcome message",
+          "trialDays": "{{days}}-day trial",
+          "created": "{{links}} created",
+          "resultTitle": "{{links}} created ✅",
+          "noPageUrl": "The link page URL is not set on the server (Demo:SelfSignup:PageUrl), so only the link code is shown. Set it, then copy the links from the tracking table.",
           "again": "Create another batch",
           "track": "Track links",
-          "copiedAll": "{{count}} links copied"
+          "copiedAll": "{{links}} copied"
+        },
+        "preview": {
+          "title": "Link page preview",
+          "subtitle": "What the organisation sees when it opens the link",
+          "ready": "Your demo account is ready",
+          "daysLeft": "{{days}} days left",
+          "copyAll": "Copy all details",
+          "signIn": "Sign in now →",
+          "keep": "Keep this link: your details are here any time until the trial ends.",
+          "welcome": "Welcome message",
+          "examples": "The sign-in data are example values. The real ones are created the first time the link is opened.",
+          "defaultName": "Demo account"
         },
         "list": {
           "title": "Track links",
-          "subtitle": "One row per link: who signed up, how the sign-in data was sent and whether it arrived",
+          "subtitle": "One row per link: opened or not, how often, and the state of its account",
           "create": "Create links",
           "emptyTitle": "No links yet",
-          "emptyDesc": "Create a batch of links and share them — every sign-up shows up here.",
-          "total": "links"
+          "emptyDesc": "Create links and send them to organisations — every open shows up here."
         },
         "filters": {
-          "search": "Search by name, number, email or link code",
+          "search": "Search by organisation, link code or login number",
           "batch": "Batch",
           "allBatches": "All batches",
-          "oneBatch": "Selected batch",
-          "linksUnit": "links"
+          "oneBatch": "Selected batch"
         },
         "batch": {
           "createdBy": "Created by"
         },
         "table": {
+          "name": "Organisation / account",
+          "noName": "No name",
+          "loginPhone": "Login no.",
           "link": "Link",
           "state": "Status",
-          "name": "Name",
-          "channel": "Signed up by",
-          "contact": "Number / email",
-          "usedAt": "Date",
-          "delivered": "Delivered?",
-          "deliveredYes": "Sign-in data sent",
-          "notDelivered": "The sign-in data could not be sent — resend it from the account page",
+          "opens": {
+            "title": "Opens",
+            "zero": "Not opened",
+            "one": "Opened once",
+            "two": "Opened twice",
+            "few": "Opened {{count}} times",
+            "many": "Opened {{count}} times"
+          },
+          "firstOpen": "First",
+          "lastOpen": "Last",
+          "notOpened": "Not opened yet",
           "account": "Account",
-          "openAccount": "Open account",
-          "expiresAt": "Expires on",
+          "noAccount": "Created on first open",
+          "trialEnds": "Trial ends",
+          "linkValid": "Open before",
           "cancelledBy": "Cancelled by"
         },
         "states": {
-          "Open": "Not used yet",
-          "InProgress": "Signing up",
-          "Used": "Used",
+          "Open": "Not opened yet",
+          "Used": "Opened",
+          "InProgress": "Setting up",
           "Cancelled": "Cancelled",
           "Expired": "Expired"
         },
+        "accountStatus": {
+          "Active": "Active",
+          "Expired": "Trial ended",
+          "Disabled": "Stopped"
+        },
         "cancel": {
           "title": "Cancel links",
-          "batchTitle": "Cancel the batch's links",
-          "bodyOne": "This link will be cancelled; anyone who opens it will see it is no longer available.",
-          "bodyMany": "{{count}} links will be cancelled; anyone who opens one will see it is no longer available.",
-          "batchBody": "Every unused link in this batch will be cancelled ({{count}} links).",
-          "batchBodyNoCount": "Every unused link in this batch will be cancelled.",
-          "note": "Used or expired links are not affected, and accounts already created keep working.",
+          "batchTitle": "Cancel the batch links",
+          "body": "{{links}} will be cancelled. Links that were opened will have their demo account stopped, and no one can sign in with them.",
+          "batchBodyNoCount": "Every link of the batch will be cancelled. Links that were opened will have their demo account stopped, and no one can sign in with them.",
+          "stopTitle": "{{accounts}} will be stopped for good",
+          "stopBody": "The organisation can no longer sign in, and this can't be undone: create a new link if they need to try again.",
           "keep": "Back",
           "confirm": "Cancel links",
-          "done": "{{cancelled}} links cancelled, {{skipped}} skipped (used or expired)",
-          "batchButton": "Cancel all unused links",
+          "done": "{{links}} cancelled",
+          "doneStopped": ", {{accounts}} stopped",
+          "doneSkipped": " ({{links}} skipped: already cancelled, expired or setting up)",
+          "batchButton": "Cancel all batch links",
           "selected": "Cancel selected",
-          "selectedCount": {
-            "one": "{{count}} link selected",
-            "other": "{{count}} links selected"
-          },
+          "selectedCount": "{{links}} selected",
           "clearSelection": "Clear selection",
           "selectPage": "Select every cancellable link on this page",
           "selectRow": "Select link",
@@ -268,11 +296,15 @@
         "validation": {
           "count": "The number of links must be {{min}} to {{max}}.",
           "durationDays": "The trial must be {{min}} to {{max}} days.",
-          "linkValidDays": "The link validity must be {{min}} to {{max}} days."
+          "linkValidDays": "The link validity must be {{min}} to {{max}} days.",
+          "labelMax": "The organisation name can be up to {{max}} characters.",
+          "labelChars": "The organisation name can't contain < or >."
         },
         "errors": {
-          "disabled": "Demo sign-up links are turned off on the server right now.",
-          "rateLimited": "Too many requests in a short time, try again in a minute."
+          "disabled": "Demo links are turned off on the server right now.",
+          "rateLimited": "Too many requests in a short time, try again in a minute.",
+          "DEMO_SIGNUP_PIN_KEY_MISSING": "A server setting is missing (PinKey), so links can't be created now. Tell the backend team.",
+          "DEMO_SIGNUP_LABEL_INVALID": "The organisation name is too long or contains < or >."
         }
       },
       "activation": {
@@ -1555,6 +1587,7 @@
         "allTypes": "All Types",
         "newest": "Newest",
         "moreFilters": "More filters",
+        "filterSearchPlaceholder": "Search...",
         "options": {
           "all": "All",
           "riyadh": "Riyadh",
@@ -5848,7 +5881,7 @@
         "RefundRequested": "Refund request",
         "BookingIssueReported": "Booking issue",
         "SystemAlert": "System alert",
-        "DemoSignupCompleted": "New sign-up from a demo link",
+        "DemoSignupOpened": "Demo link opened for the first time",
         "default": "Notification"
       }
     },

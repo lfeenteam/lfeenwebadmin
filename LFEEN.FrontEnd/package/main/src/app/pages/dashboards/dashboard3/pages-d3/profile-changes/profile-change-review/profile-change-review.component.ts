@@ -116,9 +116,13 @@ export class ProfileChangeReviewComponent implements OnInit {
     return !!view?.requested && (view.status === 'PendingReview' || view.status === 'Rejected');
   }
 
-  // Empty and null both mean "no value" — clearing a name counts as a change.
+  // Empty, blank and null all mean "no value" — clearing a name counts as a change,
+  // but leading/trailing spaces alone don't (they're invisible to the admin).
   differs(a: unknown, b: unknown): boolean {
-    const norm = (v: unknown) => (v === '' || v === undefined ? null : v);
+    const norm = (v: unknown) => {
+      const s = typeof v === 'string' ? v.trim() : v;
+      return s === '' || s === undefined ? null : s;
+    };
     return norm(a) !== norm(b);
   }
 

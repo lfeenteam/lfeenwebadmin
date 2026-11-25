@@ -61,6 +61,10 @@ export class ComplaintService {
 
   readonly closeDialogTrigger = signal(0);
 
+  /** True while the open host ticket detail shows a finished (Resolved/Closed) ticket —
+   * the page header hides its "Close & resolve" button on it. */
+  readonly detailReadOnly = signal(false);
+
   emitCloseDialog(): void {
     this.closeDialogTrigger.update(n => n + 1);
   }
@@ -580,7 +584,7 @@ export class ComplaintService {
     return 'resolvedByAgent';
   }
 
-  private mapTicketStatus(status: string | number): ComplaintStatus {
+  mapTicketStatus(status: string | number): ComplaintStatus {
     const byName: Record<string, ComplaintStatus> = {
       'New':                'new',
       'PendingAdminReply':  'pending',

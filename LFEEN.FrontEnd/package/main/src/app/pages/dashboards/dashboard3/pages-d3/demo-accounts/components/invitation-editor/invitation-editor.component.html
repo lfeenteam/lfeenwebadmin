@@ -1,5 +1,4 @@
 <div class="da-root ie" [class.ie--bare]="bare">
-  @if (showMain) {
   <div class="ie-head">
     @if (bare) {
       <span class="ie-hint">{{ 'd3.demoAccounts.invitation.language' | translate }}</span>
@@ -32,7 +31,7 @@
   <!-- Ready-made templates -->
   @if (store.presets.length) {
     <div class="ie-block">
-      <span class="ie-hint"><i-tabler name="template" class="icon-14"></i-tabler>{{ 'd3.demoAccounts.invitation.presets' | translate }}</span>
+      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.presets' | translate }}</span>
       <div class="ie-chips">
         @for (p of store.presets; track p.id) {
           <button type="button" class="ie-preset" [class.active]="store.activePreset === p.id" [disabled]="disabled"
@@ -43,14 +42,13 @@
       </div>
     </div>
   }
-  }
 
   <!-- Variables: insert the token at the cursor of the last focused field -->
-  @if (chipVariables.length && (showMain || showSubject)) {
+  @if (store.variables.length) {
     <div class="ie-block">
-      <span class="ie-hint"><i-tabler name="braces" class="icon-14"></i-tabler>{{ 'd3.demoAccounts.invitation.variablesHint' | translate }}</span>
+      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.variablesHint' | translate }}</span>
       <div class="ie-chips">
-        @for (v of chipVariables; track v.number) {
+        @for (v of store.variables; track v.number) {
           <button type="button" class="ie-chip" [disabled]="!canInsert(v)"
                   [matTooltip]="store.tokenOf(v) + ' · ' + store.variableExample(v)"
                   (mousedown)="$event.preventDefault()" (click)="insert(v)">
@@ -62,8 +60,8 @@
     </div>
   }
 
-  <!-- Subject: Email only (and not in 'message' mode) -->
-  @if (showSubject) {
+  <!-- Subject: Email only -->
+  @if (store.isEmail) {
     <div class="da-field">
       <label for="ie-subject" (click)="subjectField.focus()">{{ 'd3.demoAccounts.create.subject' | translate }}</label>
       <app-token-field #subjectField fieldId="ie-subject"
@@ -91,18 +89,17 @@
     </div>
   }
 
-  <!-- Message: every channel (not in 'subject' mode) -->
-  @if (showMain) {
+  <!-- Message: every channel -->
   <div class="da-field">
-    <label for="ie-message" (click)="messageField.focus()">{{ 'd3.demoAccounts.invitation.message' | translate }}</label>
+    <label for="ie-message" (click)="messageField.focus()">{{ messageLabelKey | translate }}</label>
     <app-token-field #messageField fieldId="ie-message" [multiline]="true"
                      [value]="store.message" (valueChange)="store.setMessage($event)"
                      [variables]="store.variables" [english]="store.uiEnglish" [issues]="store.issues('Message')"
-                     [placeholder]="'d3.demoAccounts.invitation.messagePlaceholder' | translate" [disabled]="disabled"
+                     [placeholder]="messagePlaceholderKey | translate" [disabled]="disabled"
                      [invalid]="!!(store.issues('Message').length || store.fieldErrors.message)"
                      (focused)="focusedField = 'Message'"></app-token-field>
     <p class="da-helper">
-      <span>{{ 'd3.demoAccounts.invitation.messageHelp' | translate }}</span>
+      <span>{{ messageHelpKey | translate }}</span>
       <span class="da-ltr" dir="ltr" [class.over]="store.message.length > store.messageMax">{{ store.message.length }}/{{ store.messageMax }}</span>
     </p>
     @for (i of store.issues('Message'); track $index) {
@@ -118,6 +115,5 @@
     }
     @if (store.fieldErrors.message) { <p class="da-error">{{ store.fieldErrors.message }}</p> }
   </div>
-  }
 </div>
 

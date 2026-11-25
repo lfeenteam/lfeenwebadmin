@@ -24,11 +24,11 @@
   flex-shrink: 0;
   background: #fff;
 
+  // Follows the panel's direction: client at the start side, close button at the end.
   .chat-header-top {
     display: flex;
     align-items: center;
     width: 100%;
-    direction: ltr;
   }
 
   .client-summary {
@@ -36,8 +36,6 @@
     align-items: center;
     gap: 14px;
     min-width: 0;
-    margin-left: auto;
-    direction: rtl;
   }
 
   .client-meta {
@@ -74,6 +72,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    order: 1;
+    margin-inline-start: auto;
 
     &:hover {
       background: #F7F7F5;
@@ -369,7 +369,7 @@
     font-size: 13px;
     font-weight: 500;
     line-height: 1.75;
-    text-align: right;
+    text-align: start; // the <p> carries its own dir from its content (textDir)
     word-break: break-word;
   }
 
@@ -429,7 +429,6 @@
 
   .msg-text {
     color: #fff;
-    text-align: right;
   }
 }
 
@@ -493,8 +492,7 @@
     font-family: 'Cairo', sans-serif;
     font-size: 13px;
     font-weight: 500;
-    text-align: right;
-    direction: rtl;
+    text-align: start; // dir set in the template: typed text by content, placeholder by language
 
     &::placeholder {
       color: #9E9E9A;
@@ -523,11 +521,6 @@
   .msg-support {
     direction: rtl;
     justify-content: flex-start;
-  }
-
-  .msg-text,
-  .msg-input {
-    text-align: left;
   }
 
   .bubble-support {

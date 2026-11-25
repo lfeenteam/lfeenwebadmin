@@ -1,8 +1,8 @@
-// The tracking table reuses the demo-accounts list styles (filters, table, pager); this adds
-// the link states, the batch strip and the bulk bar.
+// The tracking table reuses the demo-accounts list styles (filters, table, pager); this adds the
+// link states, the compact cells that keep the table inside its card, the batch strip and the bulk bar.
 @use '../../demo-accounts';
 
-// ── Link state badge: green used, grey open, red cancelled, orange expired, blue in progress ──
+// ── Link state: green opened, grey not opened, red cancelled, orange expired, blue setting up ──
 .da-status.sl-state,
 .sl-count {
   &.ls-used       { color: #16a34a; background: #f0fdf4; border-color: #dcfce7; }
@@ -12,45 +12,98 @@
   &.ls-inprogress { color: #1d4ed8; background: #eff6ff; border-color: #dbeafe; }
 }
 
-.sl-sub { display: block; margin-top: 4px; font-size: 11px; color: #9E9E9A; }
+.sl-sub { display: block; margin-top: 3px; font-size: 11px; font-weight: 500; color: #9E9E9A; line-height: 1.5; white-space: nowrap; }
+.sl-small { font-size: 12px; }
 
 .sl-batch-select { min-width: 240px; max-width: 100%; }
+.sl-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
 
+// ── Table: compact cells so all columns fit the card (no hidden horizontal scroll) ──
 .sl-table {
-  .sl-check { width: 40px; text-align: center !important; }
+  width: 100%;
+
+  th, td { padding-inline: 10px !important; vertical-align: middle; }
+  th { white-space: nowrap; }
+
+  .sl-check { width: 36px; text-align: center !important; padding-inline: 6px !important; }
   .sl-check input { width: 16px; height: 16px; accent-color: #111110; cursor: pointer; vertical-align: middle; }
+  .sl-actions { width: 1%; white-space: nowrap; text-align: end !important; }
+
   .da-row:not(.sl-clickable) { cursor: default; }
-  .da-actions-cell { width: auto; white-space: nowrap; }
+  .da-row.sl-selected { background: #F8FAFC; }
+}
+
+.sl-name-cell { min-width: 160px; }
+
+.sl-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 240px;
+
+  strong { font-size: 13px; font-weight: 800; color: #0F172B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+// Host / guest as a small icon badge (the full word is in the tooltip).
+.sl-kind {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.kind-merchant { background: #EEF2FF; color: #3730A3; }
+  &.kind-client { background: #ECFDF5; color: #047857; }
 }
 
 .sl-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  max-width: 260px;
+  gap: 2px;
+  max-width: 170px;
 
   &__text {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 12px;
     font-weight: 600;
     color: #45556C;
   }
 }
 
-.sl-sent { font-size: 14px; cursor: default; &.bad { cursor: help; } }
+.sl-opens {
+  display: flex;
+  flex-direction: column;
+  strong { font-size: 13px; font-weight: 800; color: #111110; white-space: nowrap; }
+}
 
 .sl-account {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1d4ed8;
+  gap: 6px;
   text-decoration: none;
+  color: #1d4ed8;
+  &:hover .sl-acc-status { filter: brightness(0.96); }
+}
+
+.sl-acc-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
   white-space: nowrap;
-  &:hover { text-decoration: underline; }
+
+  &.as-active   { color: #15803d; background: #f0fdf4; border-color: #dcfce7; }
+  &.as-expired  { color: #b45309; background: #fffbeb; border-color: #fef3c7; }
+  &.as-disabled { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
 }
 
 // ── Chosen batch strip ──────────────────────────────────────
@@ -65,9 +118,10 @@
   border: 1px solid #E2E8F0;
   background: #fff;
 
-  &__info { display: flex; flex-direction: column; gap: 2px; flex: 1 1 240px; min-width: 0;
-    strong { font-size: 13px; font-weight: 800; color: #111110; }
-    span { font-size: 12px; font-weight: 600; }
+  &__info {
+    display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; min-width: 0;
+    strong { font-size: 14px; font-weight: 800; color: #111110; }
+    span { font-size: 12px; font-weight: 600; color: #9E9E9A; }
   }
   &__counts { display: flex; flex-wrap: wrap; gap: 6px; }
 }
@@ -104,11 +158,14 @@
 
 // Same breakpoint as the shared card layout in demo-accounts.component.scss.
 @media (max-width: 1024px) {
-  // The shared list places cells by position for the accounts table — undo that here.
+  // The shared list places cells by position for the accounts table — lay this card out on its own:
+  // the checkbox and the name across the top, two fields per row, the cancel button at the bottom.
   .sl-table .da-row {
     td { grid-column: auto !important; grid-row: auto !important; border-top: none !important; text-align: start !important; }
-    td.sl-check { grid-column: 1 / -1 !important; text-align: start !important; padding-top: 12px !important; }
-    td:last-child { grid-column: 1 / -1 !important; }
+    td.sl-check { grid-column: 1 / -1 !important; padding-top: 12px !important; padding-bottom: 0 !important; }
+    td.sl-name-cell { grid-column: 1 / -1 !important; border-bottom: 1px solid #F1F5F9; }
+    td.sl-actions { grid-column: 1 / -1 !important; width: auto; .da-btn { width: 100%; } }
   }
-  .sl-link { max-width: 100%; }
+  .sl-name, .sl-link { max-width: 100%; }
+  .sl-sub { white-space: normal; }
 }

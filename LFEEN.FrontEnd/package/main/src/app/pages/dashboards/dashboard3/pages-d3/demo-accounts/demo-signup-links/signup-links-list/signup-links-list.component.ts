@@ -13,10 +13,9 @@ import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { formatLocalizedNumber, getVisiblePages } from 'src/app/utils/pagination.util';
-import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../../services/login/login.service';
 import { DemoSignupLinksService } from '../../../../services/demo-signup-links.service';
-import { DEMO_CHANNEL_ICONS, DEMO_KIND_ICONS, DEMO_LIMITS, DEMO_PERMISSIONS, toLocalPhone } from '../../../../interfaces/demo-account.model';
+import { DEMO_KIND_ICONS, DEMO_LIMITS, DEMO_PERMISSIONS, toLocalPhone } from '../../../../interfaces/demo-account.model';
 import {
   DEMO_SIGNUP_STATES,
   DemoSignupBatch,
@@ -24,21 +23,30 @@ import {
   DemoSignupLink,
   DemoSignupLinkState
 } from '../../../../interfaces/demo-signup-link.model';
-import { deliveryErrorText, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
+import { formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
 import { DEMO_DEFAULT_PAGE_SIZE, DEMO_PAGE_SIZES } from '../../demo-list-state';
 import { DemoTabsComponent } from '../../components/demo-tabs/demo-tabs.component';
 import { CancelLinksDialogComponent, CancelLinksDialogData } from '../components/cancel-links-dialog.component';
-import { shortLink, signupErrorMessage, signupLinkUrl, signupStateClass, signupStateLabel } from '../demo-signup-links.util';
+import {
+  accountStatusKey,
+  countText,
+  shortLink,
+  signupErrorMessage,
+  signupLinkUrl,
+  signupStateClass,
+  signupStateLabel
+} from '../demo-signup-links.util';
 
 const EMPTY = '—';
 
-// /demo-accounts/signup-links — "Track links": one row per link with who signed up, how the
-// data was sent and whether it arrived; cancel one link, the checked ones or a whole batch.
+// /demo-accounts/signup-links — "Track links" (guide §4): one row per link — the organisation /
+// account, whether and how often it was opened, the account's state and the first-open window.
+// Cancel one link, the checked ones or a whole batch; an opened link's account stops with it.
 // The filters live in the URL (?state=&batchId=&search=&page=&size=).
 @Component({
   selector: 'app-signup-links-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent, AppPluralPipe],
+  imports: [CommonModule, RouterLink, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
   templateUrl: './signup-links-list.component.html',
   styleUrls: ['../../demo-accounts.component.scss', './signup-links-list.component.scss']
 })
@@ -59,13 +67,13 @@ export class SignupLinksListComponent implements OnInit {
 
   readonly states = DEMO_SIGNUP_STATES;
   readonly all = 'all';
-  readonly channelIcons = DEMO_CHANNEL_ICONS;
   readonly kindIcons = DEMO_KIND_ICONS;
   readonly searchMax = DEMO_LIMITS.search;
   readonly emptyValue = EMPTY;
   readonly pageSizes = DEMO_PAGE_SIZES;
   readonly shortLink = shortLink;
   readonly stateClass = signupStateClass;
+  readonly accountStatus = accountStatusKey;
 
   currentLang = this.translate.currentLang || 'ar';
 
@@ -84,8 +92,8 @@ export class SignupLinksListComponent implements OnInit {
   featureDisabled = false;
 
   batches: DemoSignupBatch[] = [];
-  /** Checked rows (ids), kept across pages until a cancel or a filter change. */
-  readonly selected = new Set<string>();
+  /** Checked links (kept across pages until a cancel or a filter change). */
+  private readonly selectedLinks = new Map<string, DemoSignupLink>();
   copiedId: string | null = null;
 
   private readonly searchInput$ = new Subject<string>();
@@ -112,7 +120,7 @@ export class SignupLinksListComponent implements OnInit {
       this.batchId = params.get('batchId') || null;
       this.page = Number.isInteger(page) && page > 0 ? page : 1;
       this.pageSize = (DEMO_PAGE_SIZES as readonly number[]).includes(size) ? size : DEMO_DEFAULT_PAGE_SIZE;
-      if (filtersChanged) this.selected.clear();
+      if (filtersChanged) this.selectedLinks.clear();
       this.load();
     });
 
@@ -142,6 +150,12 @@ export class SignupLinksListComponent implements OnInit {
   /** The batch picked in the filter (its counters come from GET batches). */
   get batch(): DemoSignupBatch | null {
     return this.batchId ? this.batches.find(b => b.id === this.batchId) ?? null : null;
+  }
+
+  /** Links of the batch that can still be cancelled (not opened yet + opened). */
+  get batchCancellable(): number | null {
+    const b = this.batch;
+    return b ? (b.openLinks ?? 0) + (b.usedLinks ?? 0) : null;
   }
 
   // ── Loading ───────────────────────────────────────────────
@@ -220,7 +234,7 @@ export class SignupLinksListComponent implements OnInit {
 
   // ── Rows ──────────────────────────────────────────────────
 
-  /** A used row opens the demo account (resend, new PIN and extend live there). */
+  /** An opened link opens its demo account (new PIN, extend, stop live there). */
   canOpen(link: DemoSignupLink): boolean {
     return !!link.demoAccountId;
   }
@@ -243,30 +257,42 @@ export class SignupLinksListComponent implements OnInit {
 
   // ── Selection ─────────────────────────────────────────────
 
+  get selectedCount(): number {
+    return this.selectedLinks.size;
+  }
+
+  isSelected(link: DemoSignupLink): boolean {
+    return this.selectedLinks.has(link.id);
+  }
+
   get cancellableOnPage(): DemoSignupLink[] {
     return this.items.filter(l => l.canCancel);
   }
 
   get allOnPageSelected(): boolean {
     const rows = this.cancellableOnPage;
-    return rows.length > 0 && rows.every(l => this.selected.has(l.id));
+    return rows.length > 0 && rows.every(l => this.selectedLinks.has(l.id));
   }
 
   get someOnPageSelected(): boolean {
-    return this.cancellableOnPage.some(l => this.selected.has(l.id)) && !this.allOnPageSelected;
+    return this.cancellableOnPage.some(l => this.selectedLinks.has(l.id)) && !this.allOnPageSelected;
   }
 
   toggle(link: DemoSignupLink, checked: boolean): void {
     if (!link.canCancel) return;
-    if (checked) this.selected.add(link.id);
-    else this.selected.delete(link.id);
+    if (checked) this.selectedLinks.set(link.id, link);
+    else this.selectedLinks.delete(link.id);
   }
 
   toggleAll(checked: boolean): void {
     for (const l of this.cancellableOnPage) {
-      if (checked) this.selected.add(l.id);
-      else this.selected.delete(l.id);
+      if (checked) this.selectedLinks.set(l.id, l);
+      else this.selectedLinks.delete(l.id);
     }
+  }
+
+  clearSelection(): void {
+    this.selectedLinks.clear();
   }
 
   // ── Cancelling ────────────────────────────────────────────
@@ -274,36 +300,49 @@ export class SignupLinksListComponent implements OnInit {
   cancelOne(link: DemoSignupLink, event?: Event): void {
     event?.stopPropagation();
     if (!link.canCancel) return;
-    this.confirmCancel({ mode: 'links', linkIds: [link.id] });
+    this.confirmCancel({ mode: 'links', linkIds: [link.id], openedCount: link.demoAccountId ? 1 : 0 });
   }
 
   cancelSelected(): void {
-    if (!this.selected.size) return;
-    this.confirmCancel({ mode: 'links', linkIds: [...this.selected] });
+    const links = [...this.selectedLinks.values()];
+    if (!links.length) return;
+    this.confirmCancel({ mode: 'links', linkIds: links.map(l => l.id), openedCount: links.filter(l => !!l.demoAccountId).length });
   }
 
   cancelBatch(): void {
     if (!this.batchId) return;
-    this.confirmCancel({ mode: 'batch', batchId: this.batchId, openLinks: this.batch?.openLinks ?? null });
+    const b = this.batch;
+    this.confirmCancel({
+      mode: 'batch',
+      batchId: this.batchId,
+      total: this.batchCancellable,
+      openedCount: b ? b.usedLinks ?? 0 : null,
+    });
   }
 
   private confirmCancel(data: CancelLinksDialogData): void {
     if (!this.canManage()) return;
     this.dialog.open<CancelLinksDialogComponent, CancelLinksDialogData, DemoSignupCancelResult>(CancelLinksDialogComponent, {
-      width: '460px',
+      width: '480px',
       maxWidth: '94vw',
       direction: this.dir,
       data,
     }).afterClosed().subscribe(result => {
       if (!result) return;
-      this.toastr.success(this.translate.instant('d3.demoAccounts.signupLinks.cancel.done', {
-        cancelled: formatLocalizedNumber(result.cancelled ?? 0, this.currentLang),
-        skipped: formatLocalizedNumber(result.skipped ?? 0, this.currentLang),
-      }));
-      this.selected.clear();
+      this.toastr.success(this.cancelDoneMessage(result));
+      this.selectedLinks.clear();
       this.load();
       this.loadBatches();
     });
+  }
+
+  /** "تم إلغاء 3 روابط، وإيقاف حساب واحد" (+ skipped when some were already closed). */
+  private cancelDoneMessage(r: DemoSignupCancelResult): string {
+    const t = (key: string, params?: object) => this.translate.instant(`d3.demoAccounts.signupLinks.cancel.${key}`, params);
+    let text = t('done', { links: countText(r.cancelled ?? 0, 'link', this.translate) });
+    if (r.accountsStopped) text += t('doneStopped', { accounts: countText(r.accountsStopped, 'account', this.translate) });
+    if (r.skipped) text += t('doneSkipped', { links: countText(r.skipped, 'link', this.translate) });
+    return text;
   }
 
   // ── Display helpers ───────────────────────────────────────
@@ -316,32 +355,20 @@ export class SignupLinksListComponent implements OnInit {
     return this.translate.instant(`d3.demoAccounts.signupLinks.states.${state}`);
   }
 
+  /** The account's name, else the organisation name typed on the batch. */
+  name(link: DemoSignupLink): string | null {
+    return link.demoAccountName || link.label || null;
+  }
+
   batchLabel(b: DemoSignupBatch): string {
-    const kind = this.translate.instant(`d3.demoAccounts.kinds.${b.kind}`);
     const date = formatRiyadhDate(b.createdAt, this.currentLang) ?? '';
-    return `${date} · ${kind} · ${this.fmt(b.totalLinks ?? 0)} ${this.translate.instant('d3.demoAccounts.signupLinks.filters.linksUnit')}`;
+    const kind = this.translate.instant(`d3.demoAccounts.kinds.${b.kind}`);
+    const head = b.label?.trim() ? `${b.label.trim()} · ${date}` : date;
+    return `${head} · ${kind} · ${countText(b.totalLinks ?? 0, 'link', this.translate)}`;
   }
 
   url(link: DemoSignupLink): string | null {
     return signupLinkUrl(link);
-  }
-
-  channelLabel(channel: string | null): string {
-    if (!channel) return EMPTY;
-    const key = `d3.demoAccounts.channels.${channel}`;
-    const label = this.translate.instant(key);
-    return label === key ? channel : label;
-  }
-
-  /** A phone is shown as 05…; an email as is. */
-  contact(link: DemoSignupLink): string {
-    if (!link.contact) return EMPTY;
-    return link.channel === 'Sms' ? (toLocalPhone(link.contact) ?? link.contact) : link.contact;
-  }
-
-  deliveryError(link: DemoSignupLink): string {
-    return deliveryErrorText(link.deliveryError, this.translate)
-      ?? this.translate.instant('d3.demoAccounts.signupLinks.table.notDelivered');
   }
 
   phone(value: string | null): string {
@@ -350,6 +377,20 @@ export class SignupLinksListComponent implements OnInit {
 
   date(value: string | null, withTime = true): string {
     return formatRiyadhDate(value, this.currentLang, withTime) ?? EMPTY;
+  }
+
+  /** "3 مرات" / "مرة واحدة" — how often the link was opened. */
+  opens(link: DemoSignupLink): string {
+    const n = link.openCount ?? 0;
+    const key = n === 0 ? 'zero' : n === 1 ? 'one' : n === 2 ? 'two' : (n % 100 >= 3 && n % 100 <= 10) ? 'few' : 'many';
+    return this.translate.instant(`d3.demoAccounts.signupLinks.table.opens.${this.currentLang === 'en' && n > 1 ? 'many' : key}`, {
+      count: this.fmt(n),
+    });
+  }
+
+  /** "3 روابط" / "رابطين" — counted links with the right Arabic plural. */
+  count(n: number): string {
+    return countText(n, 'link', this.translate);
   }
 
   fmt(value: number | null | undefined): string {

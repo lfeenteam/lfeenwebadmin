@@ -1,4 +1,5 @@
 import { Component, ElementRef, Injector, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AppPluralPipe, translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
 import {
@@ -47,7 +49,7 @@ const TRIAL_FIELDS: CreateField[] = ['durationDays', 'pin', 'note'];
   standalone: true,
   imports: [
     CommonModule, FormsModule, TablerIconsModule, TranslateModule,
-    DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent,
+    DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent, AppPluralPipe,
   ],
   providers: [InvitationEditorStore],
   templateUrl: './demo-account-create.component.html',
@@ -75,7 +77,18 @@ export class DemoAccountCreateComponent implements OnInit {
   readonly kinds = DEMO_KINDS;
   readonly kindIcons = DEMO_KIND_ICONS;
   readonly limits = DEMO_LIMITS;
-  readonly lang = this.translate.currentLang || 'ar';
+  /** Follows the sidebar language switch (the route reuses this component, so it isn't re-created). */
+  lang = this.translate.currentLang || 'ar';
+
+  constructor() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(event => { this.lang = event.lang; });
+  }
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.lang === 'en' ? 'ltr' : 'rtl';
+  }
 
   /** Which app the account opens: host (default) or guest. */
   kind: DemoAccountKind = DEFAULT_DEMO_KIND;
@@ -159,7 +172,7 @@ export class DemoAccountCreateComponent implements OnInit {
 
   /** Folded trial header: days · PIN auto/custom. */
   get trialSummary(): string {
-    const days = `${Number(this.durationDays) || 0} ${this.translate.instant('d3.demoAccounts.dayUnit')}`;
+    const days = translatePlural(this.translate, 'd3.demoAccounts.days', Number(this.durationDays) || 0);
     const pin = this.translate.instant(this.pin ? 'd3.demoAccounts.create.pinCustom' : 'd3.demoAccounts.create.pinAuto');
     return `${days} · ${pin}`;
   }
@@ -306,7 +319,7 @@ export class DemoAccountCreateComponent implements OnInit {
           width: '560px',
           maxWidth: '94vw',
           disableClose: true,
-          direction: this.lang === 'en' ? 'ltr' : 'rtl',
+          direction: this.dir,
           data: { credentials, mode: 'create', recipient, invitationRequested: send } as CredentialsDialogData,
         }).afterClosed().subscribe(() => {
           this.router.navigate(['/', this.lang, 'd3', 'demo-accounts', credentials.account.id], { replaceUrl: true });

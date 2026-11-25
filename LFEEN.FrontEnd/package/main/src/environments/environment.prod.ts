@@ -6,7 +6,7 @@ export const environment = {
   googleMapsApiKey: '__GOOGLE_MAPS_API_KEY__',
   // Client web demo sign-up page (= Demo:SelfSignup:PageUrl on the server). Used only when a
   // link comes back with url = null; null = show the code alone.
-  demoSignupPageUrl: 'https://lfeen.com.sa/demo-signup' as string | null,
+  demoSignupPageUrl: 'https://lfeen.com/demo-signup' as string | null,
   // Flow "report an issue" button; null turns it off. To enable it for customers set
   // { key: '<Production flw_rep_ key>', project: '<row code>' } (the row's channel must
   // be set to "All channels" in Flow).

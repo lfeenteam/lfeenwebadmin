@@ -150,7 +150,7 @@
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.table.daysLeft' | translate }}</span>
                   @if (daysLeft(item); as days) {
-                    <span class="da-cell-text"><span class="da-ltr" dir="ltr">{{ days }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}</span>
+                    <span class="da-cell-text">{{ days }}</span>
                   } @else {
                     <span class="da-muted">{{ emptyValue }}</span>
                   }

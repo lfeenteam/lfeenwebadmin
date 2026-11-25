@@ -21,9 +21,9 @@ export class AppComponent implements OnInit {
   title = 'Modernize Angular Admin Tempplate';
   options = this.settings.getOptions();
 
-  // Bound to a [dir] host so Angular CDK's Directionality service (used by
-  // mat-menu/select/tooltip overlays) reacts live to language switches —
-  // its root singleton otherwise only reads dir once at bootstrap.
+  // Bound to a [dir] host so components inside the app (mat-menu/select/tooltip triggers)
+  // get a Directionality that reacts live to language switches. Overlays opened from
+  // services (MatDialog…) use the root one, which AppDirectionality keeps in sync.
   dir = computed(() => this.settings.getOptionsSignal()().dir);
 
   // Mirror the active language onto <html> (index.html ships lang="en" and no dir), so

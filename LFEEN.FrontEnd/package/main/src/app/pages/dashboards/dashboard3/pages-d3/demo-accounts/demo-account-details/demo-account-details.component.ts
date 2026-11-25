@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
-import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
@@ -73,6 +73,7 @@ async function parseBlobError(err: any): Promise<any> {
   imports: [
     CommonModule, MatTooltipModule, TablerIconsModule, TranslateModule,
     DashboardLoadingComponent, DashboardEmptyComponent, ActivationRequestPanelComponent, InvitationTextComponent,
+    AppPluralPipe,
   ],
   templateUrl: './demo-account-details.component.html',
   styleUrl: './demo-account-details.component.scss'
@@ -335,10 +336,6 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
 
   date(value: string | null, withTime = true): string | null {
     return formatRiyadhDate(value, this.currentLang, withTime);
-  }
-
-  num(value: number): string {
-    return formatLocalizedNumber(value, this.currentLang);
   }
 
   // ── Internals ──────────────────────────────────────────────

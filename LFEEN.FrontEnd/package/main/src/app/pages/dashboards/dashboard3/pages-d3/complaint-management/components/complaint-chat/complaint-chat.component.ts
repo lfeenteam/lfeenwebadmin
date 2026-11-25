@@ -10,11 +10,12 @@ import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { TextDirPipe } from 'src/app/pipes/text-dir.pipe';
 
 @Component({
   selector: 'app-complaint-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, TextDirPipe],
   templateUrl: './complaint-chat.component.html',
   styleUrl: './complaint-chat.component.scss'
 })

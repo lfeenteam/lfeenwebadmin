@@ -104,10 +104,12 @@
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.title' | translate }}</span>
-                  <span class="ag-row-title">{{ labels.title(v) }}</span>
-                  @if (labels.subtitle(v)) {
-                    <span class="ag-sub" [attr.dir]="labels.lang === 'en' ? 'rtl' : 'ltr'">{{ labels.subtitle(v) }}</span>
-                  }
+                  <span class="ag-cell-value">
+                    <span class="ag-row-title">{{ labels.title(v) }}</span>
+                    @if (labels.subtitle(v)) {
+                      <span class="ag-sub" [attr.dir]="labels.lang === 'en' ? 'rtl' : 'ltr'">{{ labels.subtitle(v) }}</span>
+                    }
+                  </span>
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.status' | translate }}</span>
@@ -123,21 +125,23 @@
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.clauses' | translate }}</span>
-                  {{ labels.num(v.clauseCount) }}
+                  <span class="ag-cell-value">{{ labels.num(v.clauseCount) }}</span>
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.signers' | translate }}</span>
-                  {{ labels.num(v.signedCount) }}
+                  <span class="ag-cell-value">{{ labels.num(v.signedCount) }}</span>
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.published' | translate }}</span>
-                  @if (v.publishedAtUtc) {
-                    <span class="ag-date">{{ labels.date(v.publishedAtUtc) }}</span>
-                    @if (labels.actor(v.publishedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.publishedBy">{{ by }}</span> }
-                  } @else {
-                    <span class="ag-dash">—</span>
-                    @if (v.status === 'Draft') { <span class="ag-sub">{{ 'd3.agreements.notPublished' | translate }}</span> }
-                  }
+                  <span class="ag-cell-value">
+                    @if (v.publishedAtUtc) {
+                      <span class="ag-date">{{ labels.date(v.publishedAtUtc) }}</span>
+                      @if (labels.actor(v.publishedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.publishedBy">{{ by }}</span> }
+                    } @else {
+                      <span class="ag-dash">—</span>
+                      @if (v.status === 'Draft') { <span class="ag-sub">{{ 'd3.agreements.notPublished' | translate }}</span> }
+                    }
+                  </span>
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.expires' | translate }}</span>
@@ -149,12 +153,14 @@
                 </td>
                 <td>
                   <span class="ag-cell-label">{{ 'd3.agreements.table.ended' | translate }}</span>
-                  @if (v.endedAtUtc) {
-                    <span class="ag-date">{{ labels.date(v.endedAtUtc) }}</span>
-                    @if (labels.actor(v.endedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.endedBy">{{ by }}</span> }
-                  } @else {
-                    <span class="ag-dash">—</span>
-                  }
+                  <span class="ag-cell-value">
+                    @if (v.endedAtUtc) {
+                      <span class="ag-date">{{ labels.date(v.endedAtUtc) }}</span>
+                      @if (labels.actor(v.endedBy); as by) { <span class="ag-sub ag-sub--clip" [title]="v.endedBy">{{ by }}</span> }
+                    } @else {
+                      <span class="ag-dash">—</span>
+                    }
+                  </span>
                 </td>
                 <td class="ag-actions-cell" (click)="$event.stopPropagation()">
                   <button type="button" class="ag-kebab" [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ v: v }"

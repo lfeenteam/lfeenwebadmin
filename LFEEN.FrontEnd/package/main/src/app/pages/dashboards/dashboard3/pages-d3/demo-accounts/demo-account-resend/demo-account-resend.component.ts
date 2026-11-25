@@ -1,4 +1,5 @@
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -68,8 +69,19 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
 
   readonly channels = DEMO_CHANNELS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
-  readonly lang = this.translate.currentLang || 'ar';
+  /** Follows the sidebar language switch (the route reuses this component, so it isn't re-created). */
+  lang = this.translate.currentLang || 'ar';
   readonly limits = DEMO_LIMITS;
+
+  constructor() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(event => { this.lang = event.lang; });
+  }
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.lang === 'en' ? 'ltr' : 'rtl';
+  }
 
   id = '';
   account: DemoAccount | null = null;
@@ -296,7 +308,7 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
       width: '560px',
       maxWidth: '94vw',
       disableClose: true,
-      direction: this.lang === 'en' ? 'ltr' : 'rtl',
+      direction: this.dir,
       data: {
         credentials: {
           account: account as DemoAccount,

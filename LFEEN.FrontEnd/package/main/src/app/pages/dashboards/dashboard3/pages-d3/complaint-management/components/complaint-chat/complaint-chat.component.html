@@ -88,7 +88,7 @@
               }
             }
             @if (displayMessageContent(msg)) {
-              <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+              <p class="msg-text" [attr.dir]="displayMessageContent(msg) | textDir">{{ displayMessageContent(msg) }}</p>
             }
           </div>
           <span class="msg-time">{{ displayMessageTime(msg) }}</span>
@@ -119,6 +119,7 @@
       <input
         type="text"
         class="msg-input"
+        [attr.dir]="messageText.trim() ? (messageText | textDir) : dialogDir"
         [(ngModel)]="messageText"
         [placeholder]="composerPlaceholder"
         (keydown)="onKeydown($event)"

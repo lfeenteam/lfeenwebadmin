@@ -8,7 +8,8 @@ import { Subscription, catchError, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { getVisiblePages, getCompactVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus } from '../interfaces/subscription.model';
@@ -61,6 +62,10 @@ export class SubscriptionRequestsComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private service = inject(SubscriptionsService);
+  private breakpoints = inject(BreakpointObserver);
+
+  /** Phone width (same 576px breakpoint as the card layout): the pager shows fewer numbers. */
+  private compactPager = false;
 
   readonly maxServiceIcons = MAX_SERVICE_ICONS;
 
@@ -94,6 +99,10 @@ export class SubscriptionRequestsComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.breakpoints.observe('(max-width: 576px)')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(state => this.compactPager = state.matches);
+
     // The catalog supplies service logos and names — the list still works without it.
     this.service.getCatalog()
       .pipe(catchError(() => of([] as SubscriptionCatalogItem[])), takeUntilDestroyed(this.destroyRef))
@@ -129,7 +138,9 @@ export class SubscriptionRequestsComponent implements OnInit {
   }
 
   get visiblePages(): (number | '...')[] {
-    return getVisiblePages(this.currentPage, this.totalPages);
+    return this.compactPager
+      ? getCompactVisiblePages(this.currentPage, this.totalPages)
+      : getVisiblePages(this.currentPage, this.totalPages);
   }
 
   fmt(value: number): string {

@@ -7,16 +7,17 @@ import { Observable } from 'rxjs';
 import { DemoSignupLinksService } from '../../../../services/demo-signup-links.service';
 import { DemoSignupCancelResult } from '../../../../interfaces/demo-signup-link.model';
 import { readDemoError } from '../../demo-accounts.util';
-import { signupErrorMessage } from '../demo-signup-links.util';
+import { countText, signupErrorMessage } from '../demo-signup-links.util';
 
 export type CancelLinksDialogData =
-  /** One row's button, or the checked rows. */
-  | { mode: 'links'; linkIds: string[] }
-  /** Every Open link of a batch. openLinks = what the batch counted when shown. */
-  | { mode: 'batch'; batchId: string; openLinks?: number | null };
+  /** One row's button, or the checked rows. openedCount = how many of them were opened. */
+  | { mode: 'links'; linkIds: string[]; openedCount: number }
+  /** Every link of a batch (opened or not). The numbers come from the batch counters when known. */
+  | { mode: 'batch'; batchId: string; total: number | null; openedCount: number | null };
 
-// The in-page confirmation before cancelling (never window.confirm). The dialog owns the call:
-// its buttons turn off while it runs, an error stays inside it, and it never retries on its own.
+// The in-page confirmation before cancelling (never window.confirm). Cancelling an opened link
+// stops its demo account for good, so the dialog says so. It owns the call: its buttons turn off
+// while it runs, an error stays inside it, and it never retries on its own.
 @Component({
   selector: 'app-cancel-links-dialog',
   standalone: true,
@@ -29,7 +30,17 @@ export type CancelLinksDialogData =
       </div>
       <div class="da-dialog__body">
         <p>{{ message }}</p>
-        <p class="cl-note">{{ 'd3.demoAccounts.signupLinks.cancel.note' | translate }}</p>
+
+        @if (openedCount) {
+          <div class="cl-stop">
+            <i-tabler name="user-off" class="icon-18"></i-tabler>
+            <div>
+              <strong>{{ 'd3.demoAccounts.signupLinks.cancel.stopTitle' | translate: { accounts: accountsText } }}</strong>
+              <span>{{ 'd3.demoAccounts.signupLinks.cancel.stopBody' | translate }}</span>
+            </div>
+          </div>
+        }
+
         @if (error) {
           <div class="da-alert danger" role="alert">
             <i-tabler name="alert-circle" class="icon-18"></i-tabler>
@@ -48,7 +59,14 @@ export type CancelLinksDialogData =
   `,
   styles: [`
     @use '../../demo-accounts';
-    .cl-note { color: #9E9E9A !important; font-size: 12px !important; }
+    .cl-stop {
+      display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 12px;
+      background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b;
+      i-tabler { flex-shrink: 0; margin-top: 2px; }
+      div { display: flex; flex-direction: column; gap: 2px; }
+      strong { font-size: 13px; font-weight: 800; }
+      span { font-size: 12px; font-weight: 600; line-height: 1.7; }
+    }
   `]
 })
 export class CancelLinksDialogComponent {
@@ -61,16 +79,21 @@ export class CancelLinksDialogComponent {
   submitting = false;
   error: string | null = null;
 
+  /** How many opened links (= running accounts) this would stop; null when unknown. */
+  get openedCount(): number | null {
+    return this.data.openedCount;
+  }
+
+  get accountsText(): string {
+    return countText(this.openedCount ?? 0, 'account', this.translate);
+  }
+
+  /** The guide's sentence: «سيتم إلغاء {n} رابط. الروابط التي فُتحت سيتوقف حسابها التجريبي…». */
   get message(): string {
     const key = 'd3.demoAccounts.signupLinks.cancel';
-    if (this.data.mode === 'batch') {
-      return this.data.openLinks != null
-        ? this.translate.instant(`${key}.batchBody`, { count: this.data.openLinks })
-        : this.translate.instant(`${key}.batchBodyNoCount`);
-    }
-    return this.data.linkIds.length === 1
-      ? this.translate.instant(`${key}.bodyOne`)
-      : this.translate.instant(`${key}.bodyMany`, { count: this.data.linkIds.length });
+    const total = this.data.mode === 'batch' ? this.data.total : this.data.linkIds.length;
+    if (this.data.mode === 'batch' && total == null) return this.translate.instant(`${key}.batchBodyNoCount`);
+    return this.translate.instant(`${key}.body`, { links: countText(total ?? 0, 'link', this.translate) });
   }
 
   close(): void {
@@ -87,7 +110,7 @@ export class CancelLinksDialogComponent {
     request.subscribe({
       next: res => {
         this.submitting = false;
-        this.dialogRef.close(res ?? { cancelled: 0, skipped: 0, cancelledIds: [] });
+        this.dialogRef.close(res ?? { cancelled: 0, accountsStopped: 0, skipped: 0, cancelledIds: [] });
       },
       error: err => {
         this.submitting = false;

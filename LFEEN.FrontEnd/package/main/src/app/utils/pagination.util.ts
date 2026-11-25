@@ -24,6 +24,21 @@ export function getVisiblePages(
   return [...leftEdge, '...', c, '...', ...rightEdge];
 }
 
+/**
+ * Phone-width pager list: at most five slots, so it fits next to the prev/next arrows
+ * even at 320px, e.g. [1, 2, 3, '...', 11], [1, '...', 6, '...', 11], [1, '...', 9, 10, 11].
+ */
+export function getCompactVisiblePages(currentPage: number, totalPages: number): (number | '...')[] {
+  const n = totalPages;
+  const c = Math.min(Math.max(currentPage, 1), n);
+
+  if (n <= 5) return Array.from({ length: n }, (_, i) => i + 1);
+  if (c <= 2) return [1, 2, 3, '...', n];
+  if (c >= n - 1) return [1, '...', n - 2, n - 1, n];
+
+  return [1, '...', c, '...', n];
+}
+
 /** Thousands grouping with Latin digits, e.g. 12345 -> "12,345" (same in both languages). */
 export function formatNumber(value: number): string {
   return value.toLocaleString(appLocale('en'));

@@ -197,7 +197,7 @@
                 @case ('Expired') { {{ 'd3.demoAccounts.ended' | translate }} }
                 @case ('Disabled') { <span class="da-muted">{{ emptyValue }}</span> }
                 @default {
-                  <span class="da-ltr" dir="ltr">{{ num(account.daysLeft) }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+                  {{ 'd3.demoAccounts.days' | appPlural: account.daysLeft }}
                 }
               }
             </dd>
