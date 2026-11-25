@@ -9,7 +9,7 @@ interface CalendarDay {
   inCurrentMonth: boolean;
   isToday: boolean;
   isSelected: boolean;
-  /** Before `minDate` — shown greyed out and not selectable. */
+  /** Before `minDate` or after `maxDate` — shown greyed out and not selectable. */
   isBlocked: boolean;
 }
 
@@ -26,6 +26,8 @@ export class SingleDateCalendarComponent implements OnChanges {
   @Input() value: string | null = null;
   /** Optional 'YYYY-MM-DD' lower bound; earlier days, months and years can't be picked. */
   @Input() minDate: string | null = null;
+  /** Optional 'YYYY-MM-DD' upper bound; later days, months and years can't be picked. */
+  @Input() maxDate: string | null = null;
   @Output() dateSelected = new EventEmitter<string>();
 
   private translate = inject(TranslateService);
@@ -77,6 +79,7 @@ export class SingleDateCalendarComponent implements OnChanges {
     const startOffset = new Date(year, m, 1).getDay();
     const today = this.stripTime(new Date());
     const min = this.min;
+    const max = this.max;
 
     return Array.from({ length: 42 }, (_, i) => {
       const date = new Date(year, m, 1 - startOffset + i);
@@ -85,7 +88,7 @@ export class SingleDateCalendarComponent implements OnChanges {
         inCurrentMonth: date.getMonth() === m,
         isToday: this.stripTime(date).getTime() === today.getTime(),
         isSelected: this.isSameDay(date, this.selected),
-        isBlocked: !!min && date < min,
+        isBlocked: (!!min && date < min) || (!!max && date > max),
       };
     });
   }
@@ -94,15 +97,22 @@ export class SingleDateCalendarComponent implements OnChanges {
     return this.minDate ? this.parseIsoDate(this.minDate) : null;
   }
 
-  /** A whole month is blocked only when its last day is still before the minimum. */
+  private get max(): Date | null {
+    return this.maxDate ? this.parseIsoDate(this.maxDate) : null;
+  }
+
+  /** A whole month is blocked only when it lies entirely before the minimum or after the maximum. */
   isMonthBlocked(index: number): boolean {
     const min = this.min;
-    return !!min && new Date(this.viewMonth.getFullYear(), index + 1, 0) < min;
+    const max = this.max;
+    const year = this.viewMonth.getFullYear();
+    return (!!min && new Date(year, index + 1, 0) < min) || (!!max && new Date(year, index, 1) > max);
   }
 
   isYearBlocked(year: number): boolean {
     const min = this.min;
-    return !!min && year < min.getFullYear();
+    const max = this.max;
+    return (!!min && year < min.getFullYear()) || (!!max && year > max.getFullYear());
   }
 
   selectDay(day: CalendarDay): void {

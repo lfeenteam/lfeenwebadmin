@@ -145,7 +145,7 @@ export class UnitsService {
           id:                  String(u.propertyId),
           name:                u.propertyName,
           location:            '',
-          publishedUnits:      0,
+          unitsCount:          0,
           image:               this.getBuildingImage(u),
           units:               [],
     needsPropertyReview: !['Approved'].includes(u.propertyAdminReviewStatus ?? ''),
@@ -165,7 +165,7 @@ export class UnitsService {
         g.image = candidateImage;
       }
       g.units.push(this.mapToUnitCard(u));
-      g.publishedUnits = g.units.length;
+      g.unitsCount = g.units.length;
     }
     return Array.from(groups.values());
   });
@@ -429,6 +429,18 @@ export class UnitsService {
     return this.http.post<void>(`${this.apiUrl}/${unitId}/photos/review`, body);
   }
 
+  /** "سعة فرد واحد / فردين / ٣ أفراد / ١١ فردًا" — "1 guest / 2 guests" (BUG-2421). */
+  private capacityLabel(n: number, lang: string): string {
+    if (lang !== 'ar') return n === 1 ? '1 guest' : `${n} guests`;
+    switch (new Intl.PluralRules('ar').select(n)) {
+      case 'one': return 'سعة فرد واحد';
+      case 'two': return 'سعة فردين';
+      case 'few': return `سعة ${n} أفراد`;
+      case 'many': return `سعة ${n} فردًا`;
+      default:    return `سعة ${n} فرد`;
+    }
+  }
+
   private mapToUnitCard(u: UnitApiItem): UnitCardItem {
     const lang = this.coreService.getOptionsSignal()().language;
     return {
@@ -436,9 +448,7 @@ export class UnitsService {
       unitNumber:  String(u.apartmentNumberInFloor),
       title:       u.name ?? `${u.unitTypeName} ${u.apartmentNumberInFloor}`,
       floor:       lang === 'ar' ? `الدور ${u.floorNumber}` : `Floor ${u.floorNumber}`,
-      capacity:    u.maxGuests != null
-        ? (lang === 'ar' ? `سعة ${u.maxGuests} أفراد` : `${u.maxGuests} guests`)
-        : '—',
+      capacity:    u.maxGuests != null ? this.capacityLabel(u.maxGuests, lang) : '—',
       status:      this.resolveUnitStatus(u),
       type:        u.unitTypeName,
       typeIconKey: u.unitTypeIconKey ?? null,

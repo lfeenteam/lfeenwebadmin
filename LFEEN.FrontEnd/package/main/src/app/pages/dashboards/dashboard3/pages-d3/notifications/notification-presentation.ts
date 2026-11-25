@@ -31,6 +31,8 @@ const TYPE_PRESENTATION: Record<string, TypePresentation> = {
   SystemAlert:                   { category: 'system',     icon: 'alert-circle',     severity: 'neutral' },
   // A demo host asked for a real account (name, bookings, payments and interest in the text).
   DemoActivationRequested:       { category: 'reviews',    icon: 'user-star',        severity: 'warning' },
+  // Someone signed up from a demo sign-up link; the text says when the sign-in data could not be sent.
+  DemoSignupCompleted:           { category: 'reviews',    icon: 'link',             severity: 'info' },
 };
 
 const DEFAULT_PRESENTATION = { icon: 'bell', severity: 'neutral' as NotificationSeverity };
@@ -79,6 +81,8 @@ const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> 
   Booking:           () => ({ commands: ['bookings'] }),
   // Opens the activation-requests tab with this request open (no single-request endpoint).
   DemoActivationRequest: id => ({ commands: ['demo-accounts', 'activation-requests', id] }),
+  // referenceId = the demo account's id (DemoSignupCompleted) — its page has resend / new PIN.
+  DemoInvitation:        id => ({ commands: ['demo-accounts', id] }),
 };
 
 /** Reference types whose GUID must be looked up to reach the item itself. */

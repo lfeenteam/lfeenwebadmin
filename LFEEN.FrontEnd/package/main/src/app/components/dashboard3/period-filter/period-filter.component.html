@@ -20,6 +20,7 @@
         <app-single-date-calendar
           (click)="$event.stopPropagation()"
           [value]="customFrom()"
+          [maxDate]="today()"
           (dateSelected)="onFromSelect($event); fromMenuTrigger.closeMenu()">
         </app-single-date-calendar>
       </ng-template>
@@ -35,6 +36,8 @@
         <app-single-date-calendar
           (click)="$event.stopPropagation()"
           [value]="customTo()"
+          [minDate]="customFrom()"
+          [maxDate]="today()"
           (dateSelected)="onToSelect($event); toMenuTrigger.closeMenu()">
         </app-single-date-calendar>
       </ng-template>

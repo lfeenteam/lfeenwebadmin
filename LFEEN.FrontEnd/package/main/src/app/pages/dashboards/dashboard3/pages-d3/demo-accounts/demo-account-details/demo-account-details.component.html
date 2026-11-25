@@ -39,7 +39,8 @@
           @for (a of actions; track a.action) {
             <button type="button" class="da-btn sm" [disabled]="busy" (click)="openAction(a.action)">
               <i-tabler [name]="a.icon" class="icon-16"></i-tabler>
-              {{ a.labelKey | translate }}
+              <!-- Nothing was ever sent (made by name only): it is a first send, not a resend -->
+              {{ (a.action === 'resend' && notSentYet ? 'd3.demoAccounts.actions.sendInvitation' : a.labelKey) | translate }}
             </button>
           }
           <span class="dd-actions__sep" aria-hidden="true"></span>
@@ -63,6 +64,20 @@
         <div class="da-alert danger">
           <i-tabler name="ban" class="icon-18"></i-tabler>
           <p>{{ 'd3.demoAccounts.banners.disabled' | translate }}</p>
+        </div>
+      }
+      <!-- Made by name only: no invitation yet — point to the send page (it asks for the email/phone) -->
+      @if (notSentYet && account.status !== 'Expired' && account.status !== 'Disabled') {
+        <div class="da-alert info">
+          <i-tabler name="send-off" class="icon-18"></i-tabler>
+          <p>
+            {{ 'd3.demoAccounts.banners.notSentYet' | translate }}
+            @if (showActions) {
+              <button type="button" class="da-link-btn" [disabled]="busy" (click)="openAction('resend')">
+                {{ 'd3.demoAccounts.actions.sendInvitation' | translate }}
+              </button>
+            }
+          </p>
         </div>
       }
       @if (account.status === 'SendFailed') {

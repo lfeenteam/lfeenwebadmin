@@ -5,13 +5,15 @@
   width: 100%;
   border-radius: 12px;
   border: 1px solid #E2E8F0;
-  background: #F8FAFC;
+  background: #fff;
   font-family: 'Cairo', sans-serif;
   font-size: 14px;
   color: #111110;
   outline: none;
   cursor: text;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:focus):not(.disabled) { border-color: #CBD5E1; }
 
   // Single line (subject): one row, scrolls sideways.
   min-height: 44px;
@@ -22,8 +24,8 @@
   overflow-y: hidden;
   scrollbar-width: none;
 
-  &:focus { border-color: #94a3b8; background: #fff; }
-  &.invalid { border-color: #fca5a5; background: #fff; }
+  &:focus { border-color: #111110; box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.08); }
+  &.invalid { border-color: #f87171; box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08); }
   &.disabled { opacity: 0.6; cursor: not-allowed; }
 
   // Message: wraps and grows, scrolls past a height.

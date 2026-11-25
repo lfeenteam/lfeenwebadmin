@@ -22,12 +22,33 @@ export class InvitationEditorComponent {
   @Input() disabled = false;
   /** No frame or own title — for pages that wrap the editor in their own card. */
   @Input() bare = false;
+  /**
+   * Which part to show. 'full' (default) = everything. A page that puts the subject elsewhere
+   * (sign-up links: the subject is an extra setting) shows 'message' in one place and 'subject'
+   * in the other — both share the page's InvitationEditorStore.
+   */
+  @Input() set mode(value: 'full' | 'message' | 'subject') {
+    this._mode = value;
+    this.focusedField = value === 'subject' ? 'Subject' : 'Message';
+  }
+  get mode(): 'full' | 'message' | 'subject' { return this._mode; }
+  private _mode: 'full' | 'message' | 'subject' = 'full';
 
   @ViewChild('subjectField') private subjectField?: TokenFieldComponent;
   @ViewChild('messageField') private messageField?: TokenFieldComponent;
 
   /** Where a chip inserts: the last focused field (the message by default). */
   focusedField: InvitationField = 'Message';
+
+  /** Language, presets and the message. */
+  get showMain(): boolean { return this._mode !== 'subject'; }
+  /** The subject goes only with Email. */
+  get showSubject(): boolean { return this._mode !== 'message' && this.store.isEmail; }
+
+  /** Subject-only mode lists just the variables a subject may hold. */
+  get chipVariables(): InvitationVariable[] {
+    return this._mode === 'subject' ? this.store.variables.filter(v => v.allowedInSubject) : this.store.variables;
+  }
 
   canInsert(v: InvitationVariable): boolean {
     return !this.disabled && (this.focusedField === 'Message' || v.allowedInSubject);
@@ -36,7 +57,7 @@ export class InvitationEditorComponent {
   /** Puts the variable at the caret of the last focused field, as one locked chip. */
   insert(v: InvitationVariable): void {
     if (!this.canInsert(v)) return;
-    const field = this.focusedField === 'Subject' && this.store.isEmail ? this.subjectField : this.messageField;
+    const field = this.focusedField === 'Subject' && this.showSubject ? this.subjectField : this.messageField;
     field?.insert(this.store.tokenOf(v));
   }
 }

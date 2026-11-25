@@ -1,14 +1,18 @@
 <aside class="da-root ip" [attr.aria-label]="'d3.demoAccounts.invitation.preview' | translate">
   <div class="ip-head">
-    <i-tabler name="eye" class="icon-16"></i-tabler>
-    <span>{{ 'd3.demoAccounts.invitation.preview' | translate }}</span>
-    @if (store.previewLoading) { <span class="da-spin ip-spin"></span> }
+    <span class="ip-head__icon"><i-tabler name="eye" class="icon-16"></i-tabler></span>
+    <span class="ip-head__title">{{ 'd3.demoAccounts.invitation.preview' | translate }}</span>
+    <span class="ip-live" [class.loading]="store.previewLoading">
+      @if (store.previewLoading) { <span class="da-spin"></span> } @else { <span class="ip-live__dot"></span> }
+      {{ (store.previewLoading ? 'd3.demoAccounts.invitation.updating' : 'd3.demoAccounts.invitation.live') | translate }}
+    </span>
   </div>
 
-  <div class="da-segmented ip-tabs" role="tablist">
+  <div class="ip-tabs" role="tablist">
     @for (t of tabs; track t) {
-      <button type="button" role="tab" [class.active]="tab === t" [attr.aria-selected]="tab === t" (click)="pick(t)">
-        <i-tabler [name]="channelIcons[t]" class="icon-14"></i-tabler>
+      <button type="button" role="tab" [ngClass]="'ch-' + t.toLowerCase()" [class.active]="tab === t"
+              [attr.aria-selected]="tab === t" (click)="pick(t)">
+        <i-tabler [name]="channelIcons[t]" class="icon-16"></i-tabler>
         {{ ('d3.demoAccounts.channels.' + t) | translate }}
       </button>
     }
@@ -30,65 +34,94 @@
         @case ('Email') {
           @if (p.email; as mail) {
             <div class="ip-mail">
+              <div class="ip-mail__bar" aria-hidden="true"><span></span><span></span><span></span></div>
               <div class="ip-mail__subject">
-                <span class="ip-key">{{ 'd3.demoAccounts.invitation.subjectLabel' | translate }}</span>
-                <strong dir="auto">{{ mail.subject }}</strong>
-                <span class="ip-count da-ltr" dir="ltr">{{ mail.subjectLength }}</span>
+                <span class="ip-avatar">L</span>
+                <div class="ip-mail__meta">
+                  <span class="ip-key">{{ 'd3.demoAccounts.invitation.subjectLabel' | translate }}</span>
+                  <strong dir="auto">{{ mail.subject }}</strong>
+                </div>
+                <span class="ip-pill da-ltr" dir="ltr" [title]="'d3.demoAccounts.invitation.characters' | translate">{{ mail.subjectLength }}</span>
               </div>
               @if (emailHtml; as html) {
                 <iframe class="ip-frame" sandbox="" [srcdoc]="html" [title]="'d3.demoAccounts.invitation.preview' | translate"></iframe>
               } @else {
-                <div class="ip-text" dir="auto">{{ mail.body }}</div>
+                <div class="ip-text">{{ mail.body }}</div>
               }
             </div>
           } @else {
-            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+            <p class="ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
           }
         }
         @case ('WhatsApp') {
           @if (p.whatsApp; as wa) {
-            <div class="ip-chat"><div class="ip-bubble" dir="auto">{{ wa.body }}</div></div>
-            <p class="da-helper"><span>{{ 'd3.demoAccounts.invitation.characters' | translate }}</span><span class="da-ltr" dir="ltr">{{ wa.characters }}</span></p>
+            <div class="ip-phone ip-phone--wa">
+              <div class="ip-phone__top">
+                <span class="ip-avatar">L</span>
+                <strong>Lfeen</strong>
+              </div>
+              <div class="ip-chat"><div class="ip-bubble">{{ wa.body }}</div></div>
+            </div>
+            <div class="ip-stats">
+              <span class="ip-pill">{{ 'd3.demoAccounts.invitation.characters' | translate }} <b class="da-ltr" dir="ltr">{{ wa.characters }}</b></span>
+            </div>
           } @else {
-            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+            <p class="ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
           }
         }
         @case ('Sms') {
           @if (p.sms; as sms) {
-            <div class="ip-chat ip-chat--sms"><div class="ip-bubble" dir="auto">{{ sms.body }}</div></div>
-            <p class="da-helper">
-              <span>{{ 'd3.demoAccounts.invitation.smsStats' | translate: { characters: sms.characters, segments: sms.segments } }}</span>
-              <span class="da-ltr" dir="ltr" [title]="('d3.demoAccounts.invitation.encoding.' + sms.encoding) | translate">{{ sms.encoding }}</span>
-            </p>
+            <div class="ip-phone ip-phone--sms">
+              <div class="ip-phone__top">
+                <span class="ip-avatar">L</span>
+                <strong>Lfeen</strong>
+              </div>
+              <div class="ip-chat"><div class="ip-bubble">{{ sms.body }}</div></div>
+            </div>
+            <div class="ip-stats">
+              <span class="ip-pill" [class.warn]="sms.segments > 3">
+                {{ 'd3.demoAccounts.invitation.smsStats' | translate: { characters: sms.characters, segments: sms.segments } }}
+              </span>
+              <span class="ip-pill da-ltr" dir="ltr" [title]="('d3.demoAccounts.invitation.encoding.' + sms.encoding) | translate">{{ sms.encoding }}</span>
+            </div>
           } @else {
-            <p class="da-muted ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
+            <p class="ip-empty">{{ 'd3.demoAccounts.invitation.noPreview' | translate }}</p>
           }
         }
       }
     </div>
 
-    @if (!p.usesAccountValues) {
-      <p class="da-helper">
-        {{ (store.usesTypedValues ? 'd3.demoAccounts.invitation.typedValues' : 'd3.demoAccounts.invitation.exampleValues') | translate }}
-      </p>
-    }
+    <div class="ip-notes">
+      @if (!p.usesAccountValues) {
+        <p class="ip-hint">
+          <i-tabler name="info-circle" class="icon-14"></i-tabler>
+          {{ (store.usesTypedValues ? 'd3.demoAccounts.invitation.typedValues' : 'd3.demoAccounts.invitation.exampleValues') | translate }}
+        </p>
+      }
 
-    <!-- Warnings never block anything -->
-    @for (w of p.warnings; track $index) {
-      <div class="da-alert info ip-note">
-        <i-tabler name="info-circle" class="icon-16"></i-tabler>
-        <p>{{ w.message }}</p>
-      </div>
-    }
+      <!-- Warnings never block anything -->
+      @for (w of p.warnings; track $index) {
+        <div class="da-alert soft ip-note">
+          <i-tabler name="alert-triangle" class="icon-16"></i-tabler>
+          <p>{{ w.message }}</p>
+        </div>
+      }
 
-    @if (!p.isValid && !store.previewLoading) {
-      <div class="da-alert danger ip-note">
-        <i-tabler name="alert-circle" class="icon-16"></i-tabler>
-        <p>{{ 'd3.demoAccounts.invitation.invalid' | translate }}</p>
-      </div>
-    }
+      @if (!p.isValid && !store.previewLoading) {
+        <div class="da-alert danger ip-note">
+          <i-tabler name="alert-circle" class="icon-16"></i-tabler>
+          <p>{{ 'd3.demoAccounts.invitation.invalid' | translate }}</p>
+        </div>
+      }
+    </div>
   } @else if (!store.previewError) {
-    <div class="ip-loading"><span class="da-spin"></span></div>
+    <div class="ip-loading">
+      <div class="ip-skel w60"></div>
+      <div class="ip-skel"></div>
+      <div class="ip-skel"></div>
+      <div class="ip-skel w80"></div>
+      <div class="ip-skel w40"></div>
+    </div>
   }
 
   <!-- Test copy to the signed-in admin's own email -->
@@ -98,7 +131,7 @@
         @if (store.testSending) { <span class="da-spin"></span> } @else { <i-tabler name="mail-forward" class="icon-16"></i-tabler> }
         {{ 'd3.demoAccounts.invitation.sendTest' | translate }}
       </button>
-      @if (store.testResult) { <p class="ip-test__ok">{{ store.testResult }}</p> }
+      @if (store.testResult) { <p class="ip-test__ok"><i-tabler name="circle-check" class="icon-14"></i-tabler> {{ store.testResult }}</p> }
       @if (store.testError) { <p class="da-error">{{ store.testError }}</p> }
     </div>
   }

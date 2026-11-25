@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-// "Demo accounts · Activation requests" tabs, shown on top of both screens.
+// "Demo accounts · Activation requests · Sign-up links" tabs, shown on top of those screens.
 @Component({
   selector: 'app-demo-tabs',
   standalone: true,
@@ -19,6 +19,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
          routerLinkActive="active" ariaCurrentWhenActive="page">
         <i-tabler name="user-star" class="icon-16"></i-tabler>
         {{ 'd3.demoAccounts.tabs.activationRequests' | translate }}
+      </a>
+      <a class="dt__tab" [routerLink]="['/', lang, 'd3', 'demo-accounts', 'signup-links']"
+         routerLinkActive="active" ariaCurrentWhenActive="page">
+        <i-tabler name="link" class="icon-16"></i-tabler>
+        {{ 'd3.demoAccounts.tabs.signupLinks' | translate }}
       </a>
     </nav>
   `,

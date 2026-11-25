@@ -381,8 +381,10 @@ $line:   #E2E8F0;
   color: #9E9E9A;
 }
 
-// ── Mobile: rows become cards ────────────────────────────
-@media (max-width: 767px) {
+// ── Mobile & tablet: rows become cards ───────────────────
+// The eight columns need ~940px minimum, wider than the box up to 1024 (sidebar open),
+// so below that the table would hide the actions behind an unmarked horizontal scroll.
+@media (max-width: 1024px) {
   .br-table-box { border: none; box-shadow: none; background: transparent; padding: 0; }
 
   .br-table {
@@ -417,4 +419,15 @@ $line:   #E2E8F0;
   .br-actions { flex-direction: row; gap: 12px; .br-btn { flex: 1; } }
 
   .br-pagination { justify-content: center; }
+}
+
+// Tablet: three fields per line so cards stay short; buttons keep their natural width.
+@media (min-width: 768px) and (max-width: 1024px) {
+  // dense: the full-width status cell would otherwise leave a gap after "attempts" — the date fills it.
+  .br-row { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; }
+
+  .br-actions {
+    justify-content: flex-end;
+    .br-btn { flex: 0 0 auto; }
+  }
 }

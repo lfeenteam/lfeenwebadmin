@@ -263,6 +263,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     return !!this.account; // the message and language apply to every channel
   }
 
+  /** Made by name only (channel "None"): no invitation has ever been sent. */
+  get notSentYet(): boolean {
+    return this.account?.channel === 'None';
+  }
+
   /** The delivery log gets a subject column once any attempt carries one. */
   get hasDeliverySubjects(): boolean {
     return !!this.account?.deliveries.some(d => d.renderedSubject);

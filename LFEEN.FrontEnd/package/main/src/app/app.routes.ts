@@ -397,6 +397,37 @@ export const routes: Routes = [
                   showDate: true
                 },
               })),
+              // Demo sign-up links (MUL-0004) — also above 'demo-accounts/:id'.
+              {
+                path: 'demo-accounts/signup-links',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-signup-links/signup-links-list/signup-links-list.component'
+                  ).then((m) => m.SignupLinksListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.signupLinks.list.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showDate: true
+                },
+              },
+              {
+                path: 'demo-accounts/signup-links/new',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-signup-links/signup-links-create/signup-links-create.component'
+                  ).then((m) => m.SignupLinksCreateComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.signupLinks.create.title',
+                  breadcrumbKey: 'd3.demoAccounts.signupLinks.list.title',
+                  breadcrumbRoute: 'demo-accounts/signup-links',
+                  showBack: true
+                },
+              },
               {
                 path: 'demo-accounts/new',
                 canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],

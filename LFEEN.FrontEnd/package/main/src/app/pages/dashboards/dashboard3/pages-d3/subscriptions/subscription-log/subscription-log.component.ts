@@ -76,6 +76,7 @@ const ACTION_TONES: Record<string, ActionTone> = {
   DiscountCodeRedeemed: 'renew',
   DiscountCodeDeactivated: 'cancel',
   DiscountCodeActivated: 'add',
+  DiscountCodeDeleted: 'cancel',
   UsageChargeGenerated: 'neutral',
 };
 

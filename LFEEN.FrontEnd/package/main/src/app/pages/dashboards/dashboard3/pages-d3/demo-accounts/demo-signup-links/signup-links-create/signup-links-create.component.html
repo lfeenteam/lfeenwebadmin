@@ -1,0 +1,359 @@
+<div class="da-root da-page da-create sl-create" [dir]="lang === 'en' ? 'ltr' : 'rtl'">
+  <app-demo-tabs></app-demo-tabs>
+
+  @if (batch) {
+    <!-- After 201: the new links, ready to copy and share -->
+    <section class="da-card sl-result" aria-live="polite">
+      <div class="sl-result__head">
+        <span class="sl-result__icon"><i-tabler name="circle-check" class="icon-22"></i-tabler></span>
+        <div class="sl-result__titles">
+          <h3>{{ 'd3.demoAccounts.signupLinks.create.resultTitle' | translate: { count: links.length } }}</h3>
+          <p>
+            {{ ('d3.demoAccounts.kinds.' + batch.kind) | translate }} ·
+            <span class="da-ltr" dir="ltr">{{ batch.durationDays }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+            @if (batch.linksExpireAt) {
+              · {{ 'd3.demoAccounts.signupLinks.create.linksExpire' | translate }}
+              <span class="da-ltr" dir="ltr">{{ date(batch.linksExpireAt) }}</span>
+            }
+          </p>
+        </div>
+        <div class="sl-result__actions">
+          <button type="button" class="da-btn primary" [disabled]="!links.length" (click)="copyAll()">
+            <i-tabler name="copy" class="icon-16"></i-tabler>
+            {{ 'd3.demoAccounts.actions.copyAll' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (missingUrls) {
+        <div class="da-alert warning">
+          <i-tabler name="alert-triangle" class="icon-16"></i-tabler>
+          <p>{{ 'd3.demoAccounts.signupLinks.create.noPageUrl' | translate }}</p>
+        </div>
+      }
+
+      <div class="table-responsive">
+        <table class="table sl-links m-0">
+          <thead>
+            <tr>
+              <th class="sl-links__n">#</th>
+              <th>{{ 'd3.demoAccounts.signupLinks.table.link' | translate }}</th>
+              <th class="sl-links__copy"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (link of links; track link.id; let i = $index) {
+              <tr>
+                <td class="sl-links__n da-ltr" dir="ltr">{{ i + 1 }}</td>
+                <td>
+                  <span class="sl-url da-ltr" dir="ltr" [title]="url(link) ?? link.code">{{ url(link) ?? link.code }}</span>
+                </td>
+                <td class="sl-links__copy">
+                  <button type="button" class="da-btn sm" [class.copied]="copiedId === link.id" (click)="copy(link)">
+                    <i-tabler [name]="copiedId === link.id ? 'check' : 'copy'" class="icon-16"></i-tabler>
+                    {{ (copiedId === link.id ? 'd3.demoAccounts.copied' : 'd3.demoAccounts.actions.copy') | translate }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sl-result__footer">
+        <button type="button" class="da-btn" (click)="again()">
+          <i-tabler name="plus" class="icon-16"></i-tabler>
+          {{ 'd3.demoAccounts.signupLinks.create.again' | translate }}
+        </button>
+        <button type="button" class="da-btn primary" (click)="track()">
+          <i-tabler name="list-details" class="icon-16"></i-tabler>
+          {{ 'd3.demoAccounts.signupLinks.create.track' | translate }}
+        </button>
+      </div>
+    </section>
+  } @else {
+    <form class="da-page sl-form" novalidate autocomplete="off" (ngSubmit)="submit()">
+      <!-- Header: title, help and the actions -->
+      <header class="dc-head">
+        <div class="dc-head__text">
+          <h2>{{ 'd3.demoAccounts.signupLinks.create.title' | translate }}</h2>
+          <p>{{ 'd3.demoAccounts.signupLinks.create.help' | translate }}</p>
+        </div>
+        <div class="da-page__actions">
+          <button type="button" class="da-btn" [disabled]="submitting" (click)="goToList()">
+            {{ 'd3.demoAccounts.actions.cancel' | translate }}
+          </button>
+          <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
+            @if (submitting) { <span class="da-spin"></span> } @else { <i-tabler name="link-plus" class="icon-16"></i-tabler> }
+            {{ submitLabel }}
+          </button>
+        </div>
+      </header>
+
+      <!-- How it works: these are links, not accounts — an account exists only once someone signs up -->
+      <ol class="sl-steps">
+        @for (s of steps; track s.key; let i = $index) {
+          <li class="sl-steps__item" [class.current]="i === 0">
+            <span class="sl-steps__icon"><i-tabler [name]="s.icon" class="icon-16"></i-tabler></span>
+            <span class="sl-steps__text">
+              <strong>{{ ('d3.demoAccounts.signupLinks.create.steps.' + s.key) | translate }}</strong>
+              <small>{{ ('d3.demoAccounts.signupLinks.create.steps.' + s.key + 'Help') | translate }}</small>
+            </span>
+          </li>
+        }
+      </ol>
+
+      <!-- A. Can SMS / Email really send now? -->
+      <app-signup-channels-bar [canTest]="canManage()" (loaded)="onChannels($event)" (failed)="onChannelsFailed($event)"></app-signup-channels-bar>
+
+      @if (featureDisabled) {
+        <div class="da-alert info" role="status">
+          <i-tabler name="info-circle" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.signupLinks.errors.disabled' | translate }}</p>
+        </div>
+      } @else if (noChannel) {
+        <div class="da-alert warning" role="alert">
+          <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
+          <p>{{ 'd3.demoAccounts.signupLinks.channels.noneReady' | translate }}</p>
+        </div>
+      }
+
+      @if (formError) {
+        <div class="da-alert danger" role="alert">
+          <i-tabler name="alert-circle" class="icon-18"></i-tabler>
+          <p>{{ formError }}</p>
+        </div>
+      }
+
+      <div class="da-page__grid">
+        <div class="da-page__main">
+          <!-- ① Account kind, trial length and how many links -->
+          <section class="da-card da-acc dc-card" [class.collapsed]="!open.links">
+            <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="open.links" aria-controls="sl-acc-links"
+                    (click)="open.links = !open.links">
+              <span class="da-step" [class.invalid]="linksHaveErrors">1</span>
+              <span class="dc-card__titles">
+                <span class="da-acc__title">{{ 'd3.demoAccounts.signupLinks.create.linksSection' | translate }}</span>
+                @if (open.links) {
+                  <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.linksSectionHelp' | translate }}</span>
+                } @else {
+                  <span class="da-acc__summary" dir="auto">{{ linksSummary }}</span>
+                }
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+            </button>
+
+            <div class="da-acc__body" id="sl-acc-links" [hidden]="!open.links">
+              <!-- Number of links first: it is what this page makes -->
+              <div class="sl-count-hero" [class.invalid]="errors.count">
+                <div class="sl-count-hero__text">
+                  <label for="sl-count">{{ 'd3.demoAccounts.signupLinks.create.count' | translate }}<span class="req">*</span></label>
+                  <span>{{ 'd3.demoAccounts.signupLinks.create.countHelp' | translate: { max: linkLimits.maxCount } }}</span>
+                </div>
+                <div class="sl-count-hero__controls">
+                  <div class="dc-stepper sl-stepper-lg" [class.invalid]="errors.count" dir="ltr">
+                    <button type="button" [disabled]="submitting || (count ?? 0) <= linkLimits.minCount"
+                            [attr.aria-label]="'d3.demoAccounts.create.decrease' | translate" (click)="step('count', -1)">
+                      <i-tabler name="minus" class="icon-16"></i-tabler>
+                    </button>
+                    <input id="sl-count" name="count" type="number" inputmode="numeric"
+                           [min]="linkLimits.minCount" [max]="linkLimits.maxCount" step="1"
+                           [disabled]="submitting" [(ngModel)]="count" (blur)="onBlur('count')" (ngModelChange)="onInput('count')" />
+                    <button type="button" [disabled]="submitting || (count ?? 0) >= linkLimits.maxCount"
+                            [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="step('count', 1)">
+                      <i-tabler name="plus" class="icon-16"></i-tabler>
+                    </button>
+                  </div>
+                  <div class="dc-chips" role="group" [attr.aria-label]="'d3.demoAccounts.signupLinks.create.count' | translate">
+                    @for (n of countPresets; track n) {
+                      <button type="button" class="dc-chip" [class.active]="count === n" [disabled]="submitting" (click)="setCount(n)">
+                        <span class="da-ltr" dir="ltr">{{ n }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+              @if (errors.count) { <p class="da-error">{{ errors.count }}</p> }
+
+              <div class="dc-divider"></div>
+
+              <!-- Account kind: full width, so both options read in full -->
+              <div class="da-field">
+                <span class="da-label" id="sl-kind-label">{{ 'd3.demoAccounts.create.kind' | translate }}<span class="req">*</span></span>
+                <div class="dc-options dc-options--2" role="radiogroup" aria-labelledby="sl-kind-label">
+                  @for (k of kinds; track k) {
+                    <button type="button" role="radio" class="dc-option dc-option--compact" [class.active]="kind === k" [attr.aria-checked]="kind === k"
+                            [disabled]="submitting" (click)="setKind(k)">
+                      <span class="dc-option__icon"><i-tabler [name]="kindIcons[k]" class="icon-18"></i-tabler></span>
+                      <span class="dc-option__text"><strong>{{ ('d3.demoAccounts.create.kindOptions.' + k) | translate }}</strong></span>
+                    </button>
+                  }
+                </div>
+                <p class="da-helper">{{ ('d3.demoAccounts.create.kindHelp.' + kind) | translate }}</p>
+              </div>
+
+              <div class="dc-divider"></div>
+
+              <!-- Trial length -->
+              <div class="da-field">
+                <label for="sl-days">{{ 'd3.demoAccounts.create.duration' | translate }}<span class="req">*</span></label>
+                <div class="dc-duration">
+                  <div class="dc-stepper" [class.invalid]="errors.durationDays" dir="ltr">
+                    <button type="button" [disabled]="submitting || (durationDays ?? 0) <= limits.minDays"
+                            [attr.aria-label]="'d3.demoAccounts.create.decrease' | translate" (click)="step('durationDays', -1)">
+                      <i-tabler name="minus" class="icon-16"></i-tabler>
+                    </button>
+                    <input id="sl-days" name="durationDays" type="number" inputmode="numeric"
+                           [min]="limits.minDays" [max]="limits.maxDays" step="1"
+                           [disabled]="submitting" [(ngModel)]="durationDays"
+                           (blur)="onBlur('durationDays')" (ngModelChange)="onInput('durationDays')" />
+                    <button type="button" [disabled]="submitting || (durationDays ?? 0) >= limits.maxDays"
+                            [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="step('durationDays', 1)">
+                      <i-tabler name="plus" class="icon-16"></i-tabler>
+                    </button>
+                  </div>
+                  <div class="dc-chips" role="group">
+                    @for (d of dayPresets; track d) {
+                      <button type="button" class="dc-chip" [class.active]="durationDays === d" [disabled]="submitting" (click)="setDays(d)">
+                        <span class="da-ltr" dir="ltr">{{ d }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+                      </button>
+                    }
+                  </div>
+                </div>
+                @if (errors.durationDays) {
+                  <p class="da-error">{{ errors.durationDays }}</p>
+                } @else {
+                  <p class="da-helper">{{ 'd3.demoAccounts.signupLinks.create.durationHelp' | translate }}</p>
+                }
+              </div>
+            </div>
+          </section>
+
+          <!-- ② The invitation the person receives after signing up -->
+          <section class="da-card da-acc dc-card" [class.collapsed]="!open.message">
+            <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="open.message" aria-controls="sl-acc-message"
+                    (click)="open.message = !open.message">
+              <span class="da-step" [class.invalid]="messageHasErrors">2</span>
+              <span class="dc-card__titles">
+                <span class="da-acc__title">{{ 'd3.demoAccounts.signupLinks.create.messageSection' | translate }}</span>
+                @if (open.message) {
+                  <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.messageSectionHelp' | translate }}</span>
+                } @else {
+                  <span class="da-acc__summary" dir="auto">{{ messageSummary }}</span>
+                }
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+            </button>
+
+            <div class="da-acc__body" id="sl-acc-message" [hidden]="!open.message">
+              <!-- Presets, language, variables and the text. The subject is an extra setting (section ③). -->
+              <app-invitation-editor [bare]="true" mode="message" [disabled]="submitting"></app-invitation-editor>
+            </div>
+          </section>
+
+          <!-- ③ Extra settings, folded -->
+          <section class="da-card da-acc dc-card" [class.collapsed]="!extrasOpen">
+            <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="extrasOpen" aria-controls="sl-acc-extras"
+                    (click)="extrasOpen = !extrasOpen">
+              <span class="da-step" [class.invalid]="extrasHaveErrors">3</span>
+              <span class="dc-card__titles">
+                <span class="da-acc__title">
+                  {{ 'd3.demoAccounts.signupLinks.create.extras' | translate }}
+                  <span class="dc-tag">{{ 'd3.demoAccounts.create.optional' | translate }}</span>
+                </span>
+                @if (extrasOpen) {
+                  <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.extrasHelp' | translate }}</span>
+                } @else {
+                  <span class="da-acc__summary" dir="auto">{{ extrasSummary }}</span>
+                }
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+            </button>
+
+            <div class="da-acc__body" id="sl-acc-extras" [hidden]="!extrasOpen">
+              <div class="da-field">
+                <label for="sl-link-days">{{ 'd3.demoAccounts.signupLinks.create.linkValidDays' | translate }}</label>
+                <div class="dc-duration">
+                  <div class="dc-stepper" [class.invalid]="errors.linkValidDays" dir="ltr">
+                    <button type="button" [disabled]="submitting || (linkValidDays ?? 0) <= linkLimits.minLinkDays"
+                            [attr.aria-label]="'d3.demoAccounts.create.decrease' | translate" (click)="step('linkValidDays', -1)">
+                      <i-tabler name="minus" class="icon-16"></i-tabler>
+                    </button>
+                    <input id="sl-link-days" name="linkValidDays" type="number" inputmode="numeric"
+                           [min]="linkLimits.minLinkDays" [max]="linkLimits.maxLinkDays" step="1"
+                           [disabled]="submitting" [(ngModel)]="linkValidDays"
+                           (blur)="onBlur('linkValidDays')" (ngModelChange)="onInput('linkValidDays')" />
+                    <button type="button" [disabled]="submitting || (linkValidDays ?? 0) >= linkLimits.maxLinkDays"
+                            [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="step('linkValidDays', 1)">
+                      <i-tabler name="plus" class="icon-16"></i-tabler>
+                    </button>
+                  </div>
+                  @if (!errors.linkValidDays && linksEndDate) {
+                    <p class="dc-hint">
+                      <i-tabler name="calendar-event" class="icon-14"></i-tabler>
+                      {{ 'd3.demoAccounts.signupLinks.create.linksExpire' | translate }}
+                      <strong class="da-ltr" dir="ltr">{{ linksEndDate | date: 'dd-MM-yyyy' }}</strong>
+                    </p>
+                  }
+                </div>
+                @if (errors.linkValidDays) { <p class="da-error">{{ errors.linkValidDays }}</p> }
+              </div>
+
+              <div class="dc-divider"></div>
+
+              <!-- Email subject (invitationSubject) — same store as the message, so the preview and checks follow it -->
+              @if (emailReady) {
+                <app-invitation-editor [bare]="true" mode="subject" [disabled]="submitting"></app-invitation-editor>
+
+                <div class="dc-divider"></div>
+              }
+
+              <!-- Sent only to people who choose Email. [hidden] (not @if) keeps the files if email comes back. -->
+              <div class="da-field" [hidden]="!emailReady">
+                <app-demo-attachments [disabled]="submitting" inputId="sl-files"></app-demo-attachments>
+                <p class="da-helper">{{ 'd3.demoAccounts.signupLinks.create.attachmentsHelp' | translate }}</p>
+              </div>
+              @if (!emailReady) {
+                <div class="da-alert soft">
+                  <i-tabler name="mail-off" class="icon-16"></i-tabler>
+                  <p>{{ 'd3.demoAccounts.signupLinks.create.attachmentsEmailOff' | translate }}</p>
+                </div>
+              }
+
+              <div class="dc-divider"></div>
+
+              <div class="da-field">
+                <label for="sl-note">
+                  {{ 'd3.demoAccounts.create.note' | translate }}
+                  <span class="dc-tag">{{ 'd3.demoAccounts.create.noteHelp' | translate }}</span>
+                </label>
+                <textarea id="sl-note" name="note" class="da-input" rows="2"
+                          [placeholder]="'d3.demoAccounts.create.notePlaceholder' | translate"
+                          [class.invalid]="errors.note" [disabled]="submitting"
+                          [(ngModel)]="note" (blur)="onBlur('note')" (ngModelChange)="onInput('note')"></textarea>
+                <p class="da-helper dc-counter">
+                  @if (errors.note) { <span class="da-error">{{ errors.note }}</span> } @else { <span></span> }
+                  <span class="da-ltr" dir="ltr">{{ note.length }}/{{ limits.note }}</span>
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Live preview: SMS (with segments) and Email, with example values -->
+        <app-invitation-preview class="da-page__aside" [tabs]="previewTabs" [canSendTest]="false" [disabled]="submitting"></app-invitation-preview>
+      </div>
+
+      <!-- Small screens: the actions stay at the bottom -->
+      <div class="da-page__footer">
+        <button type="button" class="da-btn" [disabled]="submitting" (click)="goToList()">
+          {{ 'd3.demoAccounts.actions.cancel' | translate }}
+        </button>
+        <button type="submit" class="da-btn primary" [disabled]="!canSubmit">
+          @if (submitting) { <span class="da-spin"></span> }
+          {{ submitLabel }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

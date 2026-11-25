@@ -180,7 +180,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           id:             String(data.propertyId),
           name:           data.propertyName,
           location:       data.propertyName,
-          publishedUnits: 0,
+          unitsCount:     0,
           image:          data.mainPhotoUrl ?? 'assets/images/products/review_image.png',
           units:          []
         };

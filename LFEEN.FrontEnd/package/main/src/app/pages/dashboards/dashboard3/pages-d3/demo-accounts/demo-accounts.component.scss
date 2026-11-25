@@ -133,7 +133,12 @@
     transition: background 0.2s ease;
     outline: none;
 
-    &:hover, &:focus-visible { background: #F8FAFC; }
+    // #F8FAFC matched the header and barely differed from the white box, so the
+    // clickable row gave no feedback (BUG-2396).
+    @media (hover: hover) {
+      &:hover { background: #F1F5F9; }
+    }
+    &:focus-visible { background: #F1F5F9; }
   }
 }
 

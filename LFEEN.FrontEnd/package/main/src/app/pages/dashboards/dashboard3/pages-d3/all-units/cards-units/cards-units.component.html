@@ -88,7 +88,7 @@
          <p class="building-meta">
   <i-tabler name="map-pin" class="meta-icon"></i-tabler>
   {{ getLocationLabel(building) }} · 
-  {{ 'd3.allUnits.cardsUnits.publishedUnits' | translate: { count: building.publishedUnits } }}
+  {{ unitsCountKey | appPlural: building.unitsCount }}
 </p>
             <ng-container *ngTemplateOutlet="accountLine; context: { $implicit: building }"></ng-container>
           </div>

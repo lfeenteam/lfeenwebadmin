@@ -141,7 +141,136 @@
       "standardInvitation": "Standard invitation",
       "tabs": {
         "accounts": "Demo accounts",
-        "activationRequests": "Activation requests"
+        "activationRequests": "Activation requests",
+        "signupLinks": "Sign-up links"
+      },
+      "signupLinks": {
+        "channels": {
+          "title": "Sending status",
+          "help": "Sign-in data reaches people only through the channels that are ready",
+          "checking": "Checking the sending channels…",
+          "refresh": "Refresh channel status",
+          "readySms": "Ready",
+          "readyEmail": "Ready",
+          "notReadySms": "Not enabled",
+          "notReadyEmail": "Not enabled",
+          "noneReady": "Nothing can be sent right now. Check the messaging settings."
+        },
+        "test": {
+          "open": "Try sending",
+          "title": "Try sending",
+          "help": "Send a real test message to your own number or email to make sure messages arrive before you share the links.",
+          "channel": "Channel",
+          "send": "Send",
+          "sent": "Sent ✅ — check that the message arrived.",
+          "failed": "The test message could not be sent."
+        },
+        "create": {
+          "title": "Demo sign-up links",
+          "help": "These are links, not accounts: each link becomes a demo account when someone signs up with it, and works only once.",
+          "steps": {
+            "create": "Create links",
+            "createHelp": "Count, settings and message",
+            "share": "Share them",
+            "shareHelp": "WhatsApp, an event, anywhere",
+            "signup": "People sign up",
+            "signupHelp": "They enter their details and get sign-in data",
+            "track": "Track",
+            "trackHelp": "Who signed up and whether it arrived"
+          },
+          "submitOne": "Create 1 link",
+          "submitCount": "Create {{count}} links",
+          "linksSection": "Links and account",
+          "linksSectionHelp": "Number of links, the account kind they create and the trial length",
+          "messageSection": "Invitation message",
+          "messageSectionHelp": "The message the person gets after signing up, with their sign-in data",
+          "linkValidShort": "Link validity",
+          "filesCount": "{{count}} files",
+          "count": "Number of links",
+          "countHelp": "1 to {{max}} links, all with the same settings.",
+          "durationHelp": "The trial starts on the day the person signs up.",
+          "extras": "Extra settings",
+          "extrasHelp": "Link validity, email subject, attachments and an internal note",
+          "linkValidDays": "Link validity (days)",
+          "linksExpire": "The links expire on",
+          "attachmentsHelp": "Attachments are sent only to people who choose email.",
+          "attachmentsEmailOff": "Email is not enabled right now, so attachments and the subject won't be sent. People can sign up by SMS only.",
+          "submit": "Create links",
+          "created": "{{count}} links created",
+          "resultTitle": "{{count}} links created ✅",
+          "noPageUrl": "The sign-up page URL is not set on the server (Demo:SelfSignup:PageUrl), so only the link code is shown. Set it, then copy the links from the tracking table.",
+          "again": "Create another batch",
+          "track": "Track links",
+          "copiedAll": "{{count}} links copied"
+        },
+        "list": {
+          "title": "Track links",
+          "subtitle": "One row per link: who signed up, how the sign-in data was sent and whether it arrived",
+          "create": "Create links",
+          "emptyTitle": "No links yet",
+          "emptyDesc": "Create a batch of links and share them — every sign-up shows up here.",
+          "total": "links"
+        },
+        "filters": {
+          "search": "Search by name, number, email or link code",
+          "batch": "Batch",
+          "allBatches": "All batches",
+          "oneBatch": "Selected batch",
+          "linksUnit": "links"
+        },
+        "batch": {
+          "createdBy": "Created by"
+        },
+        "table": {
+          "link": "Link",
+          "state": "Status",
+          "name": "Name",
+          "channel": "Signed up by",
+          "contact": "Number / email",
+          "usedAt": "Date",
+          "delivered": "Delivered?",
+          "deliveredYes": "Sign-in data sent",
+          "notDelivered": "The sign-in data could not be sent — resend it from the account page",
+          "account": "Account",
+          "openAccount": "Open account",
+          "expiresAt": "Expires on",
+          "cancelledBy": "Cancelled by"
+        },
+        "states": {
+          "Open": "Not used yet",
+          "InProgress": "Signing up",
+          "Used": "Used",
+          "Cancelled": "Cancelled",
+          "Expired": "Expired"
+        },
+        "cancel": {
+          "title": "Cancel links",
+          "batchTitle": "Cancel the batch's links",
+          "bodyOne": "This link will be cancelled; anyone who opens it will see it is no longer available.",
+          "bodyMany": "{{count}} links will be cancelled; anyone who opens one will see it is no longer available.",
+          "batchBody": "Every unused link in this batch will be cancelled ({{count}} links).",
+          "batchBodyNoCount": "Every unused link in this batch will be cancelled.",
+          "note": "Used or expired links are not affected, and accounts already created keep working.",
+          "keep": "Back",
+          "confirm": "Cancel links",
+          "done": "{{cancelled}} links cancelled, {{skipped}} skipped (used or expired)",
+          "batchButton": "Cancel all unused links",
+          "selected": "Cancel selected",
+          "selectedCount": "{{count}} links selected",
+          "clearSelection": "Clear selection",
+          "selectPage": "Select every cancellable link on this page",
+          "selectRow": "Select link",
+          "one": "Cancel"
+        },
+        "validation": {
+          "count": "The number of links must be {{min}} to {{max}}.",
+          "durationDays": "The trial must be {{min}} to {{max}} days.",
+          "linkValidDays": "The link validity must be {{min}} to {{max}} days."
+        },
+        "errors": {
+          "disabled": "Demo sign-up links are turned off on the server right now.",
+          "rateLimited": "Too many requests in a short time, try again in a minute."
+        }
       },
       "activation": {
         "title": "Activation requests",
@@ -213,6 +342,8 @@
       "noAttachments": "No attachments.",
       "invitation": {
         "title": "Invitation message",
+        "live": "Live",
+        "updating": "Updating",
         "language": "Message language",
         "languages": { "Ar": "العربية", "En": "English" },
         "presets": "Ready-made templates — pick one, then edit freely",
@@ -265,7 +396,7 @@
         "Email": "Email",
         "WhatsApp": "WhatsApp",
         "Sms": "SMS",
-        "None": "Not sent yet"
+        "None": "No sending"
       },
       "table": {
         "name": "Name",
@@ -304,6 +435,7 @@
         "hide": "Hide",
         "resend": "Resend invitation",
         "resendShort": "Resend",
+        "sendInvitation": "Send invitation",
         "resetPin": "New PIN",
         "extend": "Extend",
         "unlock": "Unlock",
@@ -316,6 +448,24 @@
         "title": "Create demo account",
         "pageHelp": "Pick the account type and enter the person's details, then write the invitation and check it before sending.",
         "accountSection": "Account details",
+        "accountSectionHelp": "The account type and the person who will try Lfeen",
+        "trialSection": "Trial settings",
+        "trialSectionHelp": "Trial length, PIN and your internal notes",
+        "inviteSection": "Invitation",
+        "inviteSectionHelp": "Pick how to send it, write the message and check it before sending",
+        "fullNamePlaceholder": "e.g. Mohammed Alotaibi",
+        "notePlaceholder": "e.g. Interested in managing 5 chalets in Riyadh",
+        "endsOn": "Trial ends on",
+        "generatePin": "Generate",
+        "pinAuto": "Automatic PIN",
+        "pinCustom": "Custom PIN",
+        "noChannel": "Don't send",
+        "noChannelHint": "Create, then copy the invitation",
+        "channelHints": {
+          "Email": "Needs an email",
+          "WhatsApp": "Needs a phone number",
+          "Sms": "Needs a phone number"
+        },
         "noName": "No name",
         "kind": "Account type",
         "kindOptions": {
@@ -348,7 +498,7 @@
         "submit": "Create and send invitation",
         "submitCreateOnly": "Create account",
         "optional": "(optional)",
-        "createOnlyHelp": "No channel chosen: the account is created by name only and nothing is sent; then copy the invitation message and send it yourself. To send the invitation now, choose a channel."
+        "createOnlyHelp": "The account is created and nothing is sent; then copy the invitation message from the result window and send it yourself."
       },
       "credentials": {
         "titleCreated": "Demo account created",
@@ -411,6 +561,7 @@
         "deliveries": "Invitation log"
       },
       "banners": {
+        "notSentYet": "This account was created without sending, and no invitation has been sent yet.",
         "expired": "The trial has ended. The account is read-only for the host until it is extended.",
         "disabled": "The account is disabled and cannot be signed in to. To reopen it, create a new trial with the same email or phone.",
         "sendFailed": "The last invitation attempt failed."
@@ -1518,7 +1669,15 @@
       "cardsUnits": {
         "awaitingReviewMeta": "Awaiting property review first",
         "reviewPropertyBtn": "Review Property First",
-        "publishedUnits": "{{count}} published units",
+        "unitsCount": {
+          "draft": { "one": "1 draft unit", "other": "{{count}} draft units" },
+          "published": { "one": "1 published unit", "other": "{{count}} published units" },
+          "new": { "one": "1 new unit", "other": "{{count}} new units" },
+          "underReview": { "one": "1 unit under review", "other": "{{count}} units under review" },
+          "rejected": { "one": "1 rejected unit", "other": "{{count}} rejected units" },
+          "pendingChanges": { "one": "1 unit with pending changes", "other": "{{count}} units with pending changes" },
+          "banned": { "one": "1 banned unit", "other": "{{count}} banned units" }
+        },
         "approvedBadge": "Approved",
         "activationNotice": {
           "title": "Activation System Notice",
@@ -1598,9 +1757,11 @@
     },
     "cards": {
       "monthlyRevenue": "Monthly Platform Revenue",
+      "revenue": "Platform Revenue",
       "completedBookings": "Completed Bookings",
       "avgBookingValue": "Average Booking Value",
       "monthlyCancelRate": "Monthly Cancellation Rate",
+      "cancelRate": "Cancellation Rate",
       "registeredGuests": "Registered Guests",
       "returningGuestsRate": "Returning Guests Rate",
       "appDownloads": "App Downloads",
@@ -1610,6 +1771,7 @@
       "avgOccupancy": "Average Occupancy Rate",
       "hostRetention": "Host Retention Rate",
       "trendUpLastMonth": "vs last month",
+      "vsPreviousPeriod": "vs previous period",
       "stable": "Stable",
       "concerningIncrease": "concerning increase",
       "unavailable": "Unavailable",
@@ -5144,6 +5306,7 @@
         "DiscountCodeRedeemed": "Discount code redeemed",
         "DiscountCodeDeactivated": "Discount code deactivated",
         "DiscountCodeActivated": "Discount code activated",
+        "DiscountCodeDeleted": "Discount code deleted",
         "UsageChargeGenerated": "Usage charge"
       },
       "moreDetails": "+{{count}} more",
@@ -5639,6 +5802,7 @@
         "RefundRequested": "Refund request",
         "BookingIssueReported": "Booking issue",
         "SystemAlert": "System alert",
+        "DemoSignupCompleted": "New sign-up from a demo link",
         "default": "Notification"
       }
     },

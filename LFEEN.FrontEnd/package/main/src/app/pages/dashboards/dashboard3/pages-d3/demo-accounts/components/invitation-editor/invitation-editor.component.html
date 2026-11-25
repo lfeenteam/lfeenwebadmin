@@ -1,4 +1,5 @@
 <div class="da-root ie" [class.ie--bare]="bare">
+  @if (showMain) {
   <div class="ie-head">
     @if (bare) {
       <span class="ie-hint">{{ 'd3.demoAccounts.invitation.language' | translate }}</span>
@@ -31,7 +32,7 @@
   <!-- Ready-made templates -->
   @if (store.presets.length) {
     <div class="ie-block">
-      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.presets' | translate }}</span>
+      <span class="ie-hint"><i-tabler name="template" class="icon-14"></i-tabler>{{ 'd3.demoAccounts.invitation.presets' | translate }}</span>
       <div class="ie-chips">
         @for (p of store.presets; track p.id) {
           <button type="button" class="ie-preset" [class.active]="store.activePreset === p.id" [disabled]="disabled"
@@ -42,13 +43,14 @@
       </div>
     </div>
   }
+  }
 
   <!-- Variables: insert the token at the cursor of the last focused field -->
-  @if (store.variables.length) {
+  @if (chipVariables.length && (showMain || showSubject)) {
     <div class="ie-block">
-      <span class="ie-hint">{{ 'd3.demoAccounts.invitation.variablesHint' | translate }}</span>
+      <span class="ie-hint"><i-tabler name="braces" class="icon-14"></i-tabler>{{ 'd3.demoAccounts.invitation.variablesHint' | translate }}</span>
       <div class="ie-chips">
-        @for (v of store.variables; track v.number) {
+        @for (v of chipVariables; track v.number) {
           <button type="button" class="ie-chip" [disabled]="!canInsert(v)"
                   [matTooltip]="store.tokenOf(v) + ' · ' + store.variableExample(v)"
                   (mousedown)="$event.preventDefault()" (click)="insert(v)">
@@ -60,8 +62,8 @@
     </div>
   }
 
-  <!-- Subject: Email only -->
-  @if (store.isEmail) {
+  <!-- Subject: Email only (and not in 'message' mode) -->
+  @if (showSubject) {
     <div class="da-field">
       <label for="ie-subject" (click)="subjectField.focus()">{{ 'd3.demoAccounts.create.subject' | translate }}</label>
       <app-token-field #subjectField fieldId="ie-subject"
@@ -89,7 +91,8 @@
     </div>
   }
 
-  <!-- Message: every channel -->
+  <!-- Message: every channel (not in 'subject' mode) -->
+  @if (showMain) {
   <div class="da-field">
     <label for="ie-message" (click)="messageField.focus()">{{ 'd3.demoAccounts.invitation.message' | translate }}</label>
     <app-token-field #messageField fieldId="ie-message" [multiline]="true"
@@ -115,5 +118,6 @@
     }
     @if (store.fieldErrors.message) { <p class="da-error">{{ store.fieldErrors.message }}</p> }
   </div>
+  }
 </div>
 

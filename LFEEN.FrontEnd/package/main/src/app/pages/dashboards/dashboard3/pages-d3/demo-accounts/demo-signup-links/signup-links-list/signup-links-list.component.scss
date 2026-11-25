@@ -1,0 +1,113 @@
+// The tracking table reuses the demo-accounts list styles (filters, table, pager); this adds
+// the link states, the batch strip and the bulk bar.
+@use '../../demo-accounts';
+
+// ── Link state badge: green used, grey open, red cancelled, orange expired, blue in progress ──
+.da-status.sl-state,
+.sl-count {
+  &.ls-used       { color: #16a34a; background: #f0fdf4; border-color: #dcfce7; }
+  &.ls-open       { color: #475569; background: #F1F5F9; border-color: #E2E8F0; }
+  &.ls-cancelled  { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+  &.ls-expired    { color: #ea580c; background: #fff7ed; border-color: #ffedd5; }
+  &.ls-inprogress { color: #1d4ed8; background: #eff6ff; border-color: #dbeafe; }
+}
+
+.sl-sub { display: block; margin-top: 4px; font-size: 11px; color: #9E9E9A; }
+
+.sl-batch-select { min-width: 240px; max-width: 100%; }
+
+.sl-table {
+  .sl-check { width: 40px; text-align: center !important; }
+  .sl-check input { width: 16px; height: 16px; accent-color: #111110; cursor: pointer; vertical-align: middle; }
+  .da-row:not(.sl-clickable) { cursor: default; }
+  .da-actions-cell { width: auto; white-space: nowrap; }
+}
+
+.sl-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 260px;
+
+  &__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+    color: #45556C;
+  }
+}
+
+.sl-sent { font-size: 14px; cursor: default; &.bad { cursor: help; } }
+
+.sl-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d4ed8;
+  text-decoration: none;
+  white-space: nowrap;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Chosen batch strip ──────────────────────────────────────
+.sl-batch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+
+  &__info { display: flex; flex-direction: column; gap: 2px; flex: 1 1 240px; min-width: 0;
+    strong { font-size: 13px; font-weight: 800; color: #111110; }
+    span { font-size: 12px; font-weight: 600; }
+  }
+  &__counts { display: flex; flex-wrap: wrap; gap: 6px; }
+}
+
+.sl-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  b { font-weight: 800; }
+}
+
+// ── Bulk bar ────────────────────────────────────────────────
+.sl-bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #111110;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+
+  .da-link-btn { color: #cbd5e1; font-size: 12px; }
+  &__spacer { flex: 1 1 auto; }
+}
+
+@media (max-width: 576px) {
+  // The shared list places cells by position for the accounts table — undo that here.
+  .sl-table .da-row {
+    td { grid-column: auto !important; grid-row: auto !important; border-top: none !important; text-align: start !important; }
+    td.sl-check { grid-column: 1 / -1 !important; text-align: start !important; padding-top: 12px !important; }
+    td:last-child { grid-column: 1 / -1 !important; }
+  }
+  .sl-link { max-width: 100%; }
+}

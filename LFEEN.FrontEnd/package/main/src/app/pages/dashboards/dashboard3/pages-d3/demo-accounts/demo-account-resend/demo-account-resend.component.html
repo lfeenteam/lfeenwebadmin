@@ -13,7 +13,7 @@
     <!-- Title bar with the actions -->
     <div class="da-page__bar">
       <div>
-        <h2>{{ 'd3.demoAccounts.dialogs.resend.title' | translate }}</h2>
+        <h2>{{ (account.channel === 'None' ? 'd3.demoAccounts.actions.sendInvitation' : 'd3.demoAccounts.dialogs.resend.title') | translate }}</h2>
         <p>{{ account.fullName }}</p>
       </div>
       <div class="da-page__actions">

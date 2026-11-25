@@ -81,7 +81,8 @@ export interface BuildingWithUnits {
   id: string;
   name: string;
   location: string;
-  publishedUnits: number;
+  /** Units of this building in the loaded page of the current tab — not the building's published total. */
+  unitsCount: number;
   image: string;
   units: UnitCardItem[];
   needsPropertyReview?: boolean;

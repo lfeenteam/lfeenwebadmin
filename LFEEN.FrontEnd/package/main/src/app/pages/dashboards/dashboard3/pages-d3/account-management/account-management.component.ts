@@ -53,7 +53,9 @@ export class AccountManagementComponent implements OnInit {
     ? 'profile_changes'
     : this.accountService.activeTab();
   profileChangesCount: number | null = null;
-  searchQuery = '';
+  // The service keeps the search across navigation (like the tab and page) — start from it
+  // so the box matches the list after coming back (BUG-2655).
+  searchQuery = this.accountService.searchQuery();
 
   accounts: Account[] = [];
   totalPages  = 1;

@@ -5,7 +5,6 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { finalize } from 'rxjs/operators';
 import {
   FAQ_BODY_MAX_LENGTH,
   FAQ_DEPARTMENT_OPTIONS,
@@ -177,17 +176,16 @@ export class AddFaqDialogComponent {
 
     this.saving = true;
     this.dialogRef.disableClose = true;
-    request$
-      .pipe(
-        finalize(() => {
-          this.saving = false;
-          this.dialogRef.disableClose = false;
-        })
-      )
-      .subscribe({
-        next: dto => this.dialogRef.close(dto),
-        error: err => this.applySaveError(err)
-      });
+    request$.subscribe({
+      // Stays saving on success: the dialog is still on screen during its close
+      // animation, and re-enabling the buttons there would allow a second save.
+      next: dto => this.dialogRef.close(dto),
+      error: err => {
+        this.saving = false;
+        this.dialogRef.disableClose = false;
+        this.applySaveError(err);
+      }
+    });
   }
 
   private applySaveError(err: unknown): void {

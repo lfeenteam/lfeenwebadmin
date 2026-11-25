@@ -24,7 +24,8 @@ export class InvitationPreviewComponent {
   @Input() canSendTest = true;
   @Input() disabled = false;
 
-  readonly tabs: DemoChannel[] = ['Email', 'WhatsApp', 'Sms'];
+  /** The channels shown; sign-up links send only by SMS or Email. */
+  @Input() tabs: DemoChannel[] = ['Email', 'WhatsApp', 'Sms'];
   readonly channelIcons = DEMO_CHANNEL_ICONS;
 
   /** null = follow the chosen channel. */
@@ -38,7 +39,8 @@ export class InvitationPreviewComponent {
       this.lastChannel = this.store.channel;
       this.pickedTab = null;
     }
-    return this.pickedTab ?? this.store.channel;
+    const tab = this.pickedTab ?? this.store.channel;
+    return this.tabs.includes(tab) ? tab : this.tabs[0];
   }
 
   pick(tab: DemoChannel): void {
