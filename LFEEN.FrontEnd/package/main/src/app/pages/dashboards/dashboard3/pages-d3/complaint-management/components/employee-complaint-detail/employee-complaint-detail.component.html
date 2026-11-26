@@ -1,0 +1,139 @@
+<div class="host-detail-page" [dir]="currentDir">
+
+  @if (loadState() === 'notFound') {
+  <app-dashboard-empty variant="empty" icon="file-off"
+    titleKey="d3.complaints.employeeDetail.notFoundTitle"
+    descKey="d3.complaints.employeeDetail.notFoundDesc"
+    actionKey="d3.complaints.hostDetail.backToList" actionIcon="arrow-back-up"
+    (action)="backToList()">
+  </app-dashboard-empty>
+  } @else if (loadState() === 'error') {
+  <app-dashboard-empty variant="error"
+    titleKey="d3.state.loadError" descKey="d3.state.loadErrorDesc"
+    actionKey="d3.state.retry" actionIcon="refresh"
+    (action)="retryLoad()">
+  </app-dashboard-empty>
+  } @else {
+
+  @let c = complaint();
+
+  <!-- Status -->
+  @if (c) {
+    <div class="ticket-meta">
+      @if (c.status) {
+        <span class="ticket-status-badge" [attr.data-status]="statusAttr(c.status)">
+          {{ enumLabel('status', c.status) }}
+        </span>
+      }
+    </div>
+  }
+
+  <!-- Summary strip -->
+  <section class="summary-strip">
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="calendar" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.hostDetail.submittedAt' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-md"></span>
+      } @else {
+        <strong>{{ c ? createdAt(c) : '-' }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="tag" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.employeeDetail.reasonLabel' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ enumLabel('reason', c?.reasonCategory) }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="user-search" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.employeeDetail.investigatorLabel' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ c?.assignedInvestigatorName?.trim() || ('d3.complaints.employeeDetail.noInvestigator' | translate) }}</strong>
+      }
+    </div>
+
+    <div class="summary-item">
+      <span class="summary-heading">
+        <i-tabler name="flag" class="icon-16"></i-tabler>
+        <span class="summary-label">{{ 'd3.complaints.employeeDetail.priorityLabel' | translate }}</span>
+      </span>
+      @if (loading()) {
+        <span class="skel skel-text skel-sm"></span>
+      } @else {
+        <strong>{{ enumLabel('priority', c?.priority) }}</strong>
+      }
+    </div>
+  </section>
+
+  <!-- Complainant + accused employee -->
+  <section class="host-profile">
+    @if (loading()) {
+      @for (_ of [1, 2]; track $index) {
+        <div class="host-profile-item">
+          <div class="host-avatar skel-avatar"></div>
+          <div class="skel-profile-lines">
+            <span class="skel skel-text skel-lg"></span>
+            <span class="skel skel-text skel-sm" style="margin-top:6px"></span>
+          </div>
+        </div>
+      }
+    } @else if (c) {
+      <div class="host-profile-item">
+        <div class="host-avatar">{{ getInitials(c.complainantName) }}</div>
+        <div>
+          <h2>{{ c.complainantName || '-' }}</h2>
+          <p>{{ 'd3.complaints.employeeDetail.complainant' | translate }} · {{ enumLabel('complainantType', c.complainantType) }}</p>
+          @if (c.complainantContact?.trim()) {
+            <p><bdi dir="ltr">{{ c.complainantContact }}</bdi></p>
+          }
+        </div>
+      </div>
+      <div class="host-profile-item">
+        <div class="host-avatar host-avatar-alt">{{ getInitials(c.accusedEmployeeName) }}</div>
+        <div>
+          <h2>{{ c.accusedEmployeeName || '-' }}</h2>
+          <p>{{ 'd3.complaints.employeeDetail.accusedEmployee' | translate }}</p>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Description (only when the API sends one) -->
+  @if (loading()) {
+    <section class="message-card">
+      <span class="skel skel-text skel-md" style="margin-bottom:14px"></span>
+      <span class="skel skel-text" style="width:100%;margin-bottom:8px"></span>
+      <span class="skel skel-text" style="width:60%"></span>
+    </section>
+  } @else if (c?.description?.trim()) {
+    <section class="message-card">
+      <h3>{{ 'd3.complaints.employeeDetail.descriptionTitle' | translate }}</h3>
+      <p [attr.dir]="c!.description! | textDir">{{ c!.description }}</p>
+    </section>
+  }
+
+  <!-- How it was resolved (only once the API sends it) -->
+  @if (!loading() && c?.resolutionSummary?.trim()) {
+    <section class="message-card">
+      <h3>{{ 'd3.complaints.employeeDetail.resolutionTitle' | translate }}</h3>
+      <p [attr.dir]="c!.resolutionSummary! | textDir">{{ c!.resolutionSummary }}</p>
+    </section>
+  }
+
+  }
+
+</div>

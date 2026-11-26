@@ -25,6 +25,7 @@ import {
 import {
   RefundRetryDialogComponent, RefundRetryDialogData,
 } from '../ban-refunds/refund-retry-dialog/refund-retry-dialog.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const PAGE_SIZE = 20;
 // The backend picks a re-queued job up within ~30s, so check back a little after that.
@@ -49,7 +50,7 @@ const FAILURE_REASON_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-cancellation-refunds',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './cancellation-refunds.component.html',
   styleUrl: './cancellation-refunds.component.scss'
 })

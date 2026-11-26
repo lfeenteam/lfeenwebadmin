@@ -379,8 +379,9 @@
           "status": "Status",
           "lastActivity": "Last activity"
         },
-        "bookingsPayments": "{{bookings}} bookings · {{payments}} payments",
-        "total": "requests",
+        "bookingsCount": { "one": "{{count}} booking", "other": "{{count}} bookings" },
+        "paymentsCount": { "one": "{{count}} payment", "other": "{{count}} payments" },
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" },
         "errorTitle": "Could not load activation requests",
         "emptyTitle": "No activation requests yet",
         "emptyDesc": "When a demo host asks for a real account, the request shows up here.",
@@ -435,7 +436,8 @@
         "subjectLabel": "Subject:",
         "noPreview": "No preview for this channel.",
         "characters": "Characters",
-        "smsStats": "{{characters}} characters · {{segments}} parts",
+        "charactersCount": { "one": "{{count}} character", "other": "{{count}} characters" },
+        "segmentsCount": { "one": "{{count}} part", "other": "{{count}} parts" },
         "encoding": {
           "UCS2": "Arabic or emoji: 70 characters per part",
           "GSM7": "160 characters per part"
@@ -489,7 +491,7 @@
         "createdBy": "Created by"
       },
       "pagination": {
-        "total": "accounts",
+        "total": { "one": "{{count}} account", "other": "{{count}} accounts" },
         "pageSize": "Rows",
         "perPage": "page"
       },
@@ -1069,7 +1071,7 @@
         "desc": "There are no refunds with this status right now."
       },
       "pagination": {
-        "total": "refunds"
+        "total": { "one": "{{count}} refund", "other": "{{count}} refunds" }
       },
       "errors": {
         "notInManualReview": "This refund was already handled or is being processed right now — the list has been refreshed",
@@ -1093,7 +1095,7 @@
         "Expired": "Expired"
       },
       "versionN": "Version {{n}}",
-      "signersN": "{{n}} signers",
+      "signersN": { "one": "{{count}} signer", "other": "{{count}} signers" },
       "clauseCount": {
         "zero": "No clauses",
         "one": "{{n}} clause",
@@ -1102,7 +1104,7 @@
         "many": "{{n}} clauses",
         "other": "{{n}} clauses"
       },
-      "versionsCount": "{{n}} versions",
+      "versionsCount": { "one": "{{count}} version", "other": "{{count}} versions" },
       "current": "Current",
       "currentVersion": "Current version",
       "signaturesValid": "Signatures valid",
@@ -1254,8 +1256,14 @@
       },
       "validation": {
         "required": "{{field}} is required",
-        "bannerFields": "{{n}} error(s) — review the highlighted fields.",
-        "bannerClause": "{{n}} error(s) — review clause {{clause}}.",
+        "bannerFields": {
+          "one": "1 error — review the highlighted field.",
+          "other": "{{count}} errors — review the highlighted fields."
+        },
+        "bannerClause": {
+          "one": "1 error — review clause {{clause}}.",
+          "other": "{{count}} errors — review clause {{clause}}."
+        },
         "noClauses": "Add at least one clause before publishing"
       },
       "form": {
@@ -1283,7 +1291,7 @@
     "cancellationRefunds": {
       "title": "Stalled Cancellation Refunds",
       "currencySar": "SAR",
-      "intro": "Guest refunds for cancelled bookings that failed automatically 6 times and stopped for review. “Retry” puts the refund back in the queue; the system picks it up within about 30 seconds.",
+      "intro": "Guest refunds for cancelled bookings that stopped for review: either the automatic refund failed after several attempts, or it needs a manual refund (cash or bank transfer with no payment gateway). “Retry” puts the refund back in the queue.",
       "refresh": "Refresh",
       "cancelledAt": "Opened {{date}}",
       "technicalDetails": "Technical details",
@@ -1346,7 +1354,7 @@
         "desc": "Every cancellation refund is going through normally."
       },
       "pagination": {
-        "total": "refunds"
+        "total": { "one": "{{count}} refund", "other": "{{count}} refunds" }
       },
       "errors": {
         "notInManualReview": "This refund was already retried, completed, or is being processed right now — the list has been refreshed",
@@ -1622,7 +1630,7 @@
         "banned": "Banned Buildings"
       },
       "pagination": {
-        "total": "property"
+        "total": { "one": "{{count}} property", "other": "{{count}} properties" }
       },
       "underReview": {
         "statusLabel": "Under Review",
@@ -1806,7 +1814,7 @@
         "banned": "Banned Units"
       },
       "pagination": {
-        "total": "unit"
+        "total": { "one": "{{count}} unit", "other": "{{count}} units" }
       },
       "autoApproval": {
         "openBtn": "Auto-approval settings",
@@ -2032,7 +2040,8 @@
         "phone": "Phone Number",
         "role": "Job Role",
         "departmentRole": "Department / Role",
-        "status": "Status"
+        "status": "Status",
+        "employeeActionsAria": "Employee options: {{name}}"
       },
       "deptCard": {
         "active": "Active",
@@ -2072,12 +2081,12 @@
           "emailRequired": "Email is required",
           "emailInvalid": "Invalid email format",
           "phoneRequired": "Phone number is required",
-          "phonePattern": "Enter a valid phone number",
+          "phonePattern": "Enter a Saudi mobile number as 05XXXXXXXX or +9665XXXXXXXX",
           "roleRequired": "Job role is required"
         }
       },
       "pagination": {
-        "total": "employees"
+        "total": { "one": "{{count}} employee", "other": "{{count}} employees" }
       },
       "opsLog": {
         "filters": {
@@ -2248,7 +2257,7 @@
           }
         },
         "pagination": {
-          "total": "operations"
+          "total": { "one": "{{count}} operation", "other": "{{count}} operations" }
         },
         "empty": "No matching operations",
         "loadFailed": "Could not load data",
@@ -2406,7 +2415,7 @@
         "actions": "Actions"
       },
       "pagination": {
-        "total": "Role"
+        "total": { "one": "{{count}} role", "other": "{{count}} roles" }
       }
     },
     "addPermissionGroupDialog": {
@@ -2438,10 +2447,11 @@
       "table": {
         "name": "Group Name",
         "description": "Description",
-        "actions": "Actions"
+        "actions": "Actions",
+        "rowActionsAria": "Group options: {{name}}"
       },
       "pagination": {
-        "total": "Group"
+        "total": { "one": "{{count}} group", "other": "{{count}} groups" }
       }
     },
     "addPermissionDialog": {
@@ -2479,6 +2489,7 @@
       "title": "Permissions",
       "description": "The master catalog of every atomic permission in the system, and how they depend on one another.",
       "noPermissions": "No permissions added yet",
+      "rowActionsAria": "Permission options: {{name}}",
       "addPermissionBtn": "Add New Permission",
       "table": {
         "name": "Permission Name",
@@ -2488,7 +2499,7 @@
         "dependenciesTooltip": "Manage Dependencies"
       },
       "pagination": {
-        "total": "Permission"
+        "total": { "one": "{{count}} permission", "other": "{{count}} permissions" }
       }
     },
     "permissionDependenciesPage": {
@@ -2542,6 +2553,8 @@
         "actions": "Actions",
         "viewTooltip": "View",
         "actionsMenu": "Role actions",
+        "viewRoleAria": "View role: {{name}}",
+        "roleActionsAria": "Role options: {{name}}",
         "editBtn": "Edit",
         "deleteBtn": "Delete",
         "addRoleBtn": "Add a Role or new permission to the department",
@@ -2780,7 +2793,7 @@
         "mainPhotoBadge": "Main Building Photo",
         "exteriorTitle": "Exterior Building Images",
         "interiorTitle": "Interior Property Images",
-        "imagesCount": "{{count}} images",
+        "imagesCount": { "one": "{{count}} image", "other": "{{count}} images" },
         "photoPosition": "{{label}} {{index}} of {{total}}",
         "statusRejected": "Rejected",
         "statusAccepted": "Accepted",
@@ -3562,7 +3575,7 @@
           "closedBy": "Closed by: {{by}}",
           "noAgent": "No agent (bot)",
           "viewChat": "View chat",
-          "total": "ratings"
+          "total": { "one": "{{count}} rating", "other": "{{count}} ratings" }
         },
         "closedBy": {
           "client": "Client",
@@ -3742,6 +3755,42 @@
         "notFoundTitle": "Ticket not found",
         "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
         "backToList": "Back to complaints"
+      },
+      "employeeDetail": {
+        "title": "Complaint against an employee",
+        "complainant": "Complainant",
+        "accusedEmployee": "Employee complained about",
+        "reasonLabel": "Reason",
+        "priorityLabel": "Priority",
+        "investigatorLabel": "Investigator",
+        "noInvestigator": "Not assigned",
+        "descriptionTitle": "Complaint details",
+        "resolutionTitle": "Resolution summary",
+        "priority": {
+          "Low": "Low",
+          "Normal": "Normal",
+          "High": "High",
+          "Urgent": "Urgent"
+        },
+        "notFoundTitle": "Complaint not found",
+        "notFoundDesc": "We couldn't find this complaint. It may have been deleted, or the link is incorrect.",
+        "status": {
+          "New": "New",
+          "UnderInvestigation": "Under investigation",
+          "InProgress": "In progress",
+          "Resolved": "Resolved",
+          "Closed": "Closed",
+          "Rejected": "Rejected"
+        },
+        "complainantType": {
+          "MerchantHost": "Host",
+          "Client": "Client",
+          "Guest": "Guest",
+          "Worker": "Worker"
+        },
+        "reason": {
+          "Other": "Other"
+        }
       },
       "assignDialog": {
         "title": "Assign Complaint to Employee",
@@ -4052,7 +4101,7 @@
         "viewAccountAction": "View account"
       },
       "pagination": {
-        "total": "account"
+        "total": { "one": "{{count}} account", "other": "{{count}} accounts" }
       }
     },
     "controlCenter": {
@@ -4632,7 +4681,7 @@
         "desc": "There are no settlement requests matching your search"
       },
       "pagination": {
-        "total": "requests"
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" }
       },
       "detail": {
         "title": "Settlement Request Details",
@@ -4817,7 +4866,7 @@
         "desc": "There are no wallet transactions matching your search"
       },
       "pagination": {
-        "total": "transactions"
+        "total": { "one": "{{count}} transaction", "other": "{{count}} transactions" }
       },
       "adjust": {
         "title": "Manual Balance Adjustment",
@@ -5161,7 +5210,7 @@
         "other": "{{count}} services need configuration. Review service pricing."
       },
       "pagination": {
-        "total": "subscriber",
+        "total": { "one": "{{count}} subscriber", "other": "{{count}} subscribers" },
         "prev": "Previous page",
         "next": "Next page",
         "page": "Page"
@@ -5537,7 +5586,7 @@
         "desc": "No subscription operations have been recorded yet."
       },
       "pagination": {
-        "total": "operation",
+        "total": { "one": "{{count}} operation", "other": "{{count}} operations" },
         "prev": "Previous page",
         "next": "Next page",
         "page": "Page"
@@ -5573,7 +5622,7 @@
         "desc": "Something went wrong while fetching subscription requests. Please try again."
       },
       "pagination": {
-        "total": "requests"
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" }
       },
       "detail": {
         "title": "Request details",
@@ -5733,6 +5782,14 @@
       "Compounds": "Residential Compounds"
     },
     "reviewAccount": {
+      "loadState": {
+        "notFoundTitle": "Account not found",
+        "notFoundDescription": "We couldn't find this account. It may have been deleted, or the link is wrong.",
+        "backToAccounts": "Back to account management",
+        "errorTitle": "Couldn't load the account",
+        "errorDescription": "Something went wrong while loading the account. Please try again.",
+        "retry": "Retry"
+      },
       "facilityInfo": {
         "cardTitle": "Facility Information",
         "unifiedNumber": "Unified Number",
@@ -6101,7 +6158,8 @@
         "order": "Order",
         "status": "Status",
         "actions": "Actions",
-        "empty": "No articles found"
+        "empty": "No articles found",
+        "rowActionsAria": "Question options: {{name}}"
       },
       "status": {
         "active": "Active",
@@ -6189,7 +6247,8 @@
         "updated": "Last Updated",
         "status": "Status",
         "actions": "Actions",
-        "empty": "No call scripts yet"
+        "empty": "No call scripts yet",
+        "rowActionsAria": "Script options: {{name}}"
       },
       "status": {
         "active": "Active",

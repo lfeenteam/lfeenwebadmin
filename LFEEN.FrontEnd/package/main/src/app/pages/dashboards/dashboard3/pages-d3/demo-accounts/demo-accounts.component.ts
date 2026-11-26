@@ -30,13 +30,14 @@ import {
 import { demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
 import { DEMO_DEFAULT_PAGE_SIZE, DEMO_PAGE_SIZES, demoListState } from './demo-list-state';
 import { DemoTabsComponent } from './components/demo-tabs/demo-tabs.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const EMPTY = '—';
 
 @Component({
   selector: 'app-demo-accounts',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent, AppPluralPipe],
   templateUrl: './demo-accounts.component.html',
   styleUrl: './demo-accounts.component.scss'
 })

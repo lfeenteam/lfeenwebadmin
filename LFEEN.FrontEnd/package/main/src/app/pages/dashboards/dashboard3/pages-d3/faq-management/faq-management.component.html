@@ -140,7 +140,8 @@
           <div class="col-actions">
             <!-- BUG-2739: the menu holds only write actions, so view-only admins get none -->
             @if (canManage()) {
-            <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+            <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu"
+              [attr.aria-label]="'d3.faq.table.rowActionsAria' | translate: { name: isEn() ? (article.titleEn || article.titleAr) : (article.titleAr || article.titleEn) }">
               <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
             </button>
             <mat-menu #rowMenu="matMenu" class="faq-row-menu">

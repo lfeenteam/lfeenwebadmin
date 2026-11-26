@@ -12,6 +12,7 @@ import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
 import { forkJoin } from 'rxjs';
 import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-all-builds',
@@ -24,7 +25,8 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
     DashboardEmptyComponent,
-    CardsBuildsComponent
+    CardsBuildsComponent,
+    AppPluralPipe
   ],
   templateUrl: './all-builds.component.html',
   styleUrl: './all-builds.component.scss'

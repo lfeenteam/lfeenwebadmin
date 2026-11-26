@@ -10,6 +10,7 @@ import { AgreementsService } from '../../services/agreements.service';
 import { fieldKey, parseAgreementError } from '../../utils/agreement-errors.util';
 import { AgreementLabelsService } from '../../services/agreement-labels.service';
 import { AgreementDialogResult, dialogErrorText } from '../dialog-result';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 export interface NewDraftDialogData {
   type: AgreementType;
@@ -21,7 +22,7 @@ export interface NewDraftDialogData {
 @Component({
   selector: 'app-new-draft-dialog',
   standalone: true,
-  imports: [NgClass, FormsModule, MatSelectModule, TranslateModule, TablerIconsModule],
+  imports: [NgClass, FormsModule, MatSelectModule, TranslateModule, TablerIconsModule, AppPluralPipe],
   templateUrl: './new-draft-dialog.component.html',
   styleUrl: '../agreement-dialog.scss',
 })

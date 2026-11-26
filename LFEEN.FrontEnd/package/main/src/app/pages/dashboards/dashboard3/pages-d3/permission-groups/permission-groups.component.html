@@ -65,7 +65,7 @@
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
                       <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissionGroupsPage.table.rowActionsAria' | translate: { name: displayName(group) }">
                           <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
                         </button>
                       </div>
@@ -95,7 +95,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
           <span class="f-s-13 text-muted">
-            {{ totalCount }} {{ 'd3.permissionGroupsPage.pagination.total' | translate }}
+            {{ 'd3.permissionGroupsPage.pagination.total' | appPlural: totalCount }}
           </span>
           <div class="d-flex align-items-center gap-4">
             <button mat-icon-button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"

@@ -4,6 +4,16 @@
     <div class="pcr-state">
       <i-tabler name="loader-2" class="pcr-spin"></i-tabler>
     </div>
+  } @else if (notFound && !profile) {
+    <!-- BUG-2744: 404 won't change on retry, so only offer the way back. -->
+    <app-review-empty-state
+      icon="user-off"
+      titleKey="d3.reviewAccount.loadState.notFoundTitle"
+      descKey="d3.reviewAccount.loadState.notFoundDescription">
+    </app-review-empty-state>
+    <div class="pcr-state-actions">
+      <button type="button" class="pcr-btn pcr-btn--approve" (click)="goToAccounts()">{{ 'd3.reviewAccount.loadState.backToAccounts' | translate }}</button>
+    </div>
   } @else if (isError && !profile) {
     <div class="pcr-state">
       <p>{{ 'd3.profileChanges.loadError' | translate }}</p>

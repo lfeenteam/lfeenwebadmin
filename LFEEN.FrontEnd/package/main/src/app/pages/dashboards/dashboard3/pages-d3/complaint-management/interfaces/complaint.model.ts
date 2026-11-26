@@ -523,3 +523,32 @@ export interface AssignTicketRequest {
 export interface AssignClientTicketRequest {
   agentUserId: string;
 }
+
+/**
+ * A complaint filed against an employee — GET /api/complaints/{id} (BUG-2813). Not a ticket:
+ * its id never resolves on /api/tickets or /api/client-tickets.
+ */
+export interface EmployeeComplaintDetail {
+  id: string;
+  /** e.g. "MerchantHost". */
+  complainantType: string;
+  complainantName: string | null;
+  complainantExternalId?: string | null;
+  complainantContact?: string | null;
+  accusedEmployeeUserId?: string | null;
+  accusedEmployeeName: string | null;
+  /** e.g. "Other". */
+  reasonCategory: string;
+  description?: string | null;
+  /** e.g. "New". */
+  status: string;
+  /** e.g. "Normal". */
+  priority?: string | null;
+  assignedInvestigatorUserId?: string | null;
+  assignedInvestigatorName?: string | null;
+  resolutionSummary?: string | null;
+  /** Shape not confirmed yet (only seen empty) — not shown. */
+  notes?: unknown[];
+  /** Offset-aware ISO-8601. */
+  createdAt: string;
+}

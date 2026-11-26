@@ -48,7 +48,7 @@
   @if (!isLoading && !loadError && totalCount > 0) {
     <div class="pagination-wrapper">
       <span class="pagination-total">
-        {{ totalCount }} {{ 'd3.allUnits.pagination.total' | translate }}
+        {{ 'd3.allUnits.pagination.total' | appPlural: totalCount }}
       </span>
 
       @if (totalPages > 1) {

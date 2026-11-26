@@ -62,7 +62,8 @@
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">
             <button mat-icon-button [matMenuTriggerFor]="menu" #trigger="matMenuTrigger"
-                    class="action-btn" [class.menu-open]="trigger.menuOpen">
+                    class="action-btn" [class.menu-open]="trigger.menuOpen"
+                    [attr.aria-label]="'d3.teamManagement.table.employeeActionsAria' | translate: { name: element.fullName }">
               <i-tabler name="dots-vertical" class="icon-18 icon-muted"></i-tabler>
             </button>
             <mat-menu #menu="matMenu" xPosition="before">

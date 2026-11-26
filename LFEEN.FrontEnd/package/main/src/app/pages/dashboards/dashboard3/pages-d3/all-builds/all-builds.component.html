@@ -29,7 +29,7 @@
 @if (!isLoading && !loadError && totalPages > 1) {
   <div class="pagination-wrapper">
     <span class="pagination-total">
-      {{ totalCount }} {{ 'd3.allBuilds.pagination.total' | translate }}
+      {{ 'd3.allBuilds.pagination.total' | appPlural: totalCount }}
     </span>
     <div class="pagination-controls">
       <button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"

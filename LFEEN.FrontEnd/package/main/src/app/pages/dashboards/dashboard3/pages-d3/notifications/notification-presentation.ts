@@ -66,7 +66,9 @@ export interface NotificationDestination {
 // Reference types without a matching admin screen (ClientInquiry, Payment)
 // stay on the notifications page.
 const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> = {
-  Complaint:         id => ({ commands: ['complaints', id] }),
+  // ComplaintCreated: referenceId is a complaint against an employee (GET /api/complaints/{id}),
+  // not a ticket — it has its own page; complaints/:id only loads tickets (BUG-2813).
+  Complaint:         id => ({ commands: ['complaints', 'employee', id] }),
   // SupportTicketCreated: referenceId is the merchant ticket's externalId, which the
   // complaints/:id detail page loads directly (GET /api/tickets/{externalId}).
   SupportTicket:     id => ({ commands: ['complaints', id] }),

@@ -226,7 +226,7 @@
     <div class="pagination-wrapper">
       <div class="pagination-meta">
         <span class="pagination-total">
-          {{ fmt(totalCount) }} {{ 'd3.demoAccounts.pagination.total' | translate }}
+          {{ 'd3.demoAccounts.pagination.total' | appPlural: totalCount }}
         </span>
         <label class="page-size">
           <span>{{ 'd3.demoAccounts.pagination.pageSize' | translate }}</span>

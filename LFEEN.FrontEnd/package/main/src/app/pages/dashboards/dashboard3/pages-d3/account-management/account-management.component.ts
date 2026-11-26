@@ -19,6 +19,7 @@ import { StatItem } from '../../interfaces/stats.model';
 import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 export type { Account } from '../../interfaces/account.model';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-account-management',
@@ -35,6 +36,7 @@ export type { Account } from '../../interfaces/account.model';
     DashboardEmptyComponent,
     TranslateModule,
     ProfileChangesComponent,
+    AppPluralPipe
   ],
   templateUrl: './account-management.component.html',
   styleUrl: './account-management.component.scss'

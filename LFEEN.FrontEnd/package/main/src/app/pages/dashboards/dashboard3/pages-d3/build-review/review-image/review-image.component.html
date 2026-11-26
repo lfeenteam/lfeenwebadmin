@@ -56,7 +56,7 @@
       <div class="section-title-wrapper">
         <span class="section-indicator"></span>
         <span class="section-title">{{ group.groupLabel }}</span>
-        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: group.photos.length } }}</span>
+        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | appPlural: group.photos.length }}</span>
       </div>
 
       <div class="image-grid">

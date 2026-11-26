@@ -24,6 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
+import { translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { HasUnsavedChanges } from './guards/agreement-guards';
 import {
   AgreementVersion,
@@ -102,15 +103,16 @@ export class AgreementPageComponent implements OnInit, HasUnsavedChanges {
     const errors = this.fieldErrors();
     const count = Object.keys(errors).length;
     if (!count) return '';
-    const n = this.labels.num(count);
     const firstClause = Object.keys(errors)
       .map((k) => /^clauses\[(\d+)\]/.exec(k))
       .filter((m): m is RegExpExecArray => !!m)
       .map((m) => +m[1])
       .sort((a, b) => a - b)[0];
     return firstClause === undefined
-      ? this.translate.instant('d3.agreements.validation.bannerFields', { n })
-      : this.translate.instant('d3.agreements.validation.bannerClause', { n, clause: this.labels.num(firstClause + 1) });
+      ? translatePlural(this.translate, 'd3.agreements.validation.bannerFields', count)
+      : translatePlural(this.translate, 'd3.agreements.validation.bannerClause', count, {
+          clause: this.labels.num(firstClause + 1),
+        });
   });
 
   /** The editor header is pinned to the top of the scroll area (adds its shadow). */

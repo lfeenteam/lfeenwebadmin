@@ -18,11 +18,12 @@ import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboar
 import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
 
 import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-review-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe, ReviewEmptyStateComponent],
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })
@@ -45,7 +46,8 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
 
   account: AccountDetail | null = null;
   isLoading    = true;
-  isError      = false;
+  /** BUG-2744: a missing account (404 / malformed id) gets its own state, without a retry. */
+  loadState: 'loaded' | 'notFound' | 'error' = 'loaded';
   isSubmitting = false;
   rejectionReason = '';
   isUnifiedNumberInvalid = false;
@@ -104,7 +106,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     if (!id) return;
     this.loadSub?.unsubscribe();
     this.isLoading = true;
-    this.isError = false;
+    this.loadState = 'loaded';
     this.loadSub = this.service.getAccountById(id).subscribe({
       next: data => {
         this.account = data;
@@ -118,12 +120,24 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.pageTitleOverride.set(this.tradeName !== '—' ? this.tradeName : null);
       },
-      error: ()  => {
+      error: (err) => {
         this.isLoading = false;
-        this.isError   = true;
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        // The API answers 404 for an unknown or malformed id; that won't change on retry,
+        // so the page shows its own "not found" state instead of a generic toast.
+        if (err?.status === 404 || err?.status === 400) {
+          this.account = null;
+          this.loadState = 'notFound';
+          return;
+        }
+        this.loadState = 'error';
+        // A failed reload (e.g. on a language switch) keeps the account on screen, so say why.
+        if (this.account) this.toastr.error(this.translate.instant('d3.toast.errorOp'));
       }
     });
+  }
+
+  goToAccounts(): void {
+    this.navigateBack();
   }
 
   ngOnDestroy(): void {

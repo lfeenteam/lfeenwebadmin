@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -27,11 +27,12 @@ type AnySectionView = ProfileSectionView<BrandingValues> | ProfileSectionView<Co
 // One account's pending settings changes: each section shows current vs requested
 // and is approved / rejected on its own with the section's changeId (guide sections 5–7).
 import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-profile-change-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AppDatePipe],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AppDatePipe, ReviewEmptyStateComponent],
   templateUrl: './profile-change-review.component.html',
   styleUrl: './profile-change-review.component.scss'
 })
@@ -39,6 +40,7 @@ export class ProfileChangeReviewComponent implements OnInit {
   private service = inject(AccountProfileChangesService);
   private login = inject(LoginService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
@@ -51,6 +53,8 @@ export class ProfileChangeReviewComponent implements OnInit {
   profile: AccountProfile | null = null;
   isLoading = false;
   isError = false;
+  /** BUG-2744: the account doesn't exist (404) — shown without a retry, since it won't change. */
+  notFound = false;
 
   rejecting: ProfileSection | null = null;
   // Keyed by ProfileSection; string-keyed so the template context (untyped) can index it.
@@ -80,6 +84,7 @@ export class ProfileChangeReviewComponent implements OnInit {
     if (!this.accountId) return;
     this.isLoading = true;
     this.isError = false;
+    this.notFound = false;
     this.service.getProfile(this.accountId).subscribe({
       next: (profile) => {
         this.profile = profile;
@@ -87,12 +92,21 @@ export class ProfileChangeReviewComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
+        if (err?.status === 404 || err?.status === 400) {
+          // The page itself says the account is missing; no toast on top of it.
+          this.profile = null;
+          this.notFound = true;
+          return;
+        }
         this.isError = true;
-        this.toastr.error(this.translate.instant(
-          err?.status === 404 ? 'd3.profileChanges.errors.accountNotFound' : 'd3.toast.errorOp'
-        ));
+        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
       }
     });
+  }
+
+  goToAccounts(): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.router.navigate([lang, 'd3', 'account-management'], { queryParams: { tab: 'profile-changes' } });
   }
 
   businessTypeLabel(type: string | null | undefined): string {

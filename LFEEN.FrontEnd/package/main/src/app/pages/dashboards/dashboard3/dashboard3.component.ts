@@ -195,7 +195,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     window.history.back();
   }
 
-  /** The route's action button, minus "Close & resolve" while the open ticket is already finished. */
+  /** The route's action button, minus "Close & resolve" while the open ticket can't be closed
+   * (still loading, not found, failed, already finished, or a view-only admin). */
   get headerActionButton() {
     const btn = this.pageActionButton;
     if (btn?.action === 'resolveComplaint' && this.complaintService.detailReadOnly()) return null;

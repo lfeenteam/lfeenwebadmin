@@ -18,6 +18,7 @@ import { AgreementActionOutcome, AgreementActionsService } from './services/agre
 import { AgreementLabelsService } from './services/agreement-labels.service';
 import { AgreementsService } from './services/agreements.service';
 import { AgreementApiError, parseAgreementError } from './utils/agreement-errors.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const PAGE_SIZE = 10;
 
@@ -32,6 +33,7 @@ const PAGE_SIZE = 10;
     TablerIconsModule,
     DashboardEmptyComponent,
     DashboardLoadingComponent,
+    AppPluralPipe
   ],
   templateUrl: './agreements-list.component.html',
   styleUrl: './agreements.component.scss',

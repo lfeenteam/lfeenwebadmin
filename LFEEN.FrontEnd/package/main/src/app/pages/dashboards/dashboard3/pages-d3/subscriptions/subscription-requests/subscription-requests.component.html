@@ -115,7 +115,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper">
           <span class="pagination-total">
-            {{ fmt(totalCount) }} {{ 'd3.subscriptionRequests.pagination.total' | translate }}
+            {{ 'd3.subscriptionRequests.pagination.total' | appPlural: totalCount }}
           </span>
           <div class="pagination-controls">
             <button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">

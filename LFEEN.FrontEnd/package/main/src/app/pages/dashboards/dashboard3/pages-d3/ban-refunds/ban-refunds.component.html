@@ -157,7 +157,7 @@
 
   @if (!loading && totalPages > 1) {
     <div class="br-pagination">
-      <span class="br-total">{{ fmt(totalCount) }} {{ 'd3.banRefunds.pagination.total' | translate }}</span>
+      <span class="br-total">{{ 'd3.banRefunds.pagination.total' | appPlural: totalCount }}</span>
       <div class="br-pages">
         <button class="br-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
           <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>

@@ -17,6 +17,7 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface RoleRow {
   id: string;
@@ -31,7 +32,7 @@ interface RoleRow {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent, AppPluralPipe],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss'
 })

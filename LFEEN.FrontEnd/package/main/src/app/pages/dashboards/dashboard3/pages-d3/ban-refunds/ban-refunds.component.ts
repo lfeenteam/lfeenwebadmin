@@ -19,6 +19,7 @@ import { ListingBanRefund, RefundStatus } from '../../interfaces/listing-ban.mod
 import { RefundResolveDialogComponent, RefundResolveDialogData } from './refund-resolve-dialog/refund-resolve-dialog.component';
 import { RefundRetryDialogComponent, RefundRetryDialogData } from './refund-retry-dialog/refund-retry-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type RefundTab = RefundStatus | 'All';
 
@@ -50,7 +51,7 @@ const ERROR_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-ban-refunds',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './ban-refunds.component.html',
   styleUrl: './ban-refunds.component.scss'
 })

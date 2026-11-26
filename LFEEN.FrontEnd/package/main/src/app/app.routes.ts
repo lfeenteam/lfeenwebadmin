@@ -767,6 +767,25 @@ export const routes: Routes = [
                 },
               },
               {
+                // A complaint against an employee (api/complaints) — not a ticket, so it
+                // has its own read-only page and no "Close & resolve" button (BUG-2813).
+                path: 'complaints/employee/:id',
+                canActivate: [authGuard, pageAccessGuard('complaints')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/employee-complaint-detail/employee-complaint-detail.component'
+                  ).then((m) => m.EmployeeComplaintDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.employeeDetail.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: true,
+                },
+              },
+              {
                 path: 'complaints/:id',
                 canActivate: [authGuard, pageAccessGuard('complaints')],
                 loadComponent: () =>

@@ -71,7 +71,7 @@
     @if (totalPages > 1) {
       <div class="pagination-wrapper">
         <span class="pagination-total">
-          {{ totalCount }} {{ 'd3.accountManagement.pagination.total' | translate }}
+          {{ 'd3.accountManagement.pagination.total' | appPlural: totalCount }}
         </span>
         <div class="pagination-controls">
           <button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"

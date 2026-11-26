@@ -390,8 +390,9 @@
           "status": "الحالة",
           "lastActivity": "آخر نشاط"
         },
-        "bookingsPayments": "{{bookings}} حجز · {{payments}} دفع",
-        "total": "طلبًا",
+        "bookingsCount": { "one": "حجز واحد", "two": "حجزان", "few": "{{count}} حجوزات", "many": "{{count}} حجزًا", "other": "{{count}} حجز" },
+        "paymentsCount": { "one": "دفعة واحدة", "two": "دفعتان", "few": "{{count}} دفعات", "many": "{{count}} دفعة", "other": "{{count}} دفعة" },
+        "total": { "one": "طلب واحد", "two": "طلبان", "few": "{{count}} طلبات", "many": "{{count}} طلبًا", "other": "{{count}} طلب" },
         "errorTitle": "تعذر تحميل طلبات التفعيل",
         "emptyTitle": "لا توجد طلبات تفعيل بعد",
         "emptyDesc": "عندما يطلب مضيف تجريبي حسابًا حقيقيًا سيظهر طلبه هنا.",
@@ -449,7 +450,8 @@
         "subjectLabel": "الموضوع:",
         "noPreview": "لا توجد معاينة لهذه الطريقة.",
         "characters": "عدد الحروف",
-        "smsStats": "{{characters}} حرف · {{segments}} جزء",
+        "charactersCount": { "one": "حرف واحد", "two": "حرفان", "few": "{{count}} أحرف", "many": "{{count}} حرفًا", "other": "{{count}} حرف" },
+        "segmentsCount": { "one": "جزء واحد", "two": "جزآن", "few": "{{count}} أجزاء", "many": "{{count}} جزءًا", "other": "{{count}} جزء" },
         "encoding": {
           "UCS2": "عربي أو إيموجي: 70 حرفًا لكل جزء",
           "GSM7": "160 حرفًا لكل جزء"
@@ -503,7 +505,7 @@
         "createdBy": "أنشئ بواسطة"
       },
       "pagination": {
-        "total": "حسابًا",
+        "total": { "one": "حساب واحد", "two": "حسابان", "few": "{{count}} حسابات", "many": "{{count}} حسابًا", "other": "{{count}} حساب" },
         "pageSize": "عدد الصفوف",
         "perPage": "صفحة"
       },
@@ -1083,7 +1085,7 @@
         "desc": "لا توجد استردادات بهذه الحالة حاليًا."
       },
       "pagination": {
-        "total": "استرداد"
+        "total": { "one": "استرداد واحد", "two": "استردادان", "few": "{{count}} استردادات", "many": "{{count}} استردادًا", "other": "{{count}} استرداد" }
       },
       "errors": {
         "notInManualReview": "تم التعامل مع هذا الاسترداد أو عليه عملية جارية الآن، تم تحديث القائمة",
@@ -1107,7 +1109,7 @@
         "Expired": "منتهية الصلاحية"
       },
       "versionN": "النسخة {{n}}",
-      "signersN": "{{n}} موقّعًا",
+      "signersN": { "one": "موقّع واحد", "two": "موقّعان", "few": "{{count}} موقّعين", "many": "{{count}} موقّعًا", "other": "{{count}} موقّع" },
       "clauseCount": {
         "zero": "لا توجد بنود",
         "one": "بند واحد",
@@ -1116,7 +1118,7 @@
         "many": "{{n}} بندًا",
         "other": "{{n}} بند"
       },
-      "versionsCount": "{{n}} نسخ",
+      "versionsCount": { "one": "نسخة واحدة", "two": "نسختان", "few": "{{count}} نسخ", "many": "{{count}} نسخة", "other": "{{count}} نسخة" },
       "current": "الحالية",
       "currentVersion": "النسخة الحالية",
       "signaturesValid": "التوقيعات سارية",
@@ -1271,20 +1273,32 @@
       },
       "validation": {
         "required": "{{field}} مطلوب",
-        "bannerFields": "في {{n}} خطأ — راجع الحقول المحددة.",
-        "bannerClause": "في {{n}} خطأ — راجع البند {{clause}}.",
+        "bannerFields": {
+          "one": "في خطأ واحد — راجع الحقل المحدد.",
+          "two": "في خطآن — راجع الحقلين المحددين.",
+          "few": "في {{count}} أخطاء — راجع الحقول المحددة.",
+          "many": "في {{count}} خطأً — راجع الحقول المحددة.",
+          "other": "في {{count}} خطأ — راجع الحقول المحددة."
+        },
+        "bannerClause": {
+          "one": "في خطأ واحد — راجع البند {{clause}}.",
+          "two": "في خطآن — راجع البند {{clause}}.",
+          "few": "في {{count}} أخطاء — راجع البند {{clause}}.",
+          "many": "في {{count}} خطأً — راجع البند {{clause}}.",
+          "other": "في {{count}} خطأ — راجع البند {{clause}}."
+        },
         "noClauses": "أضف بندًا واحدًا على الأقل قبل النشر"
       },
       "form": {
         "dataTitle": "بيانات الاتفاقية",
         "titleAr": "العنوان بالعربية",
-        "titleEn": "Title in English",
+        "titleEn": "العنوان بالإنجليزية",
         "descriptionAr": "الوصف بالعربية",
-        "descriptionEn": "Description in English",
+        "descriptionEn": "الوصف بالإنجليزية",
         "clause_titleAr": "عنوان البند بالعربية",
-        "clause_titleEn": "Clause title in English",
+        "clause_titleEn": "عنوان البند بالإنجليزية",
         "clause_contentAr": "محتوى البند بالعربية",
-        "clause_contentEn": "Clause content in English",
+        "clause_contentEn": "محتوى البند بالإنجليزية",
         "clausesTitle": "البنود",
         "clausesHint": "{{n}} · اسحب لإعادة الترتيب",
         "clausesOrdered": "{{n}} · بالترتيب",
@@ -1300,7 +1314,7 @@
     "cancellationRefunds": {
       "title": "استردادات الإلغاء المتوقفة",
       "currencySar": "ر.س",
-      "intro": "مبالغ الضيوف عن الحجوزات الملغاة التي فشل استردادها تلقائيًا ٦ مرات وتوقفت للمراجعة. «إعادة المحاولة» تعيد الاسترداد إلى قائمة الانتظار، ويلتقطه النظام خلال ٣٠ ثانية تقريبًا.",
+      "intro": "مبالغ الضيوف عن الحجوزات الملغاة التي توقف استردادها للمراجعة: إما فشل تلقائيًا بعد عدة محاولات، أو يحتاج استردادًا يدويًا (دفعة نقدية أو تحويل بنكي بدون بوابة دفع). «إعادة المحاولة» تعيد الاسترداد إلى قائمة الانتظار.",
       "refresh": "تحديث",
       "cancelledAt": "أُنشئ {{date}}",
       "technicalDetails": "تفاصيل فنية",
@@ -1355,7 +1369,7 @@
         }
       },
       "toast": {
-        "retryQueued": "تمت إعادة الاسترداد لقائمة الانتظار، وستتحدث القائمة خلال ٤٠ ثانية تقريبًا",
+        "retryQueued": "تمت إعادة الاسترداد لقائمة الانتظار، وستتحدث القائمة خلال 40 ثانية تقريبًا",
         "resolved": "تم إغلاق الحالة كمستردة يدويًا"
       },
       "empty": {
@@ -1363,7 +1377,7 @@
         "desc": "كل استردادات الإلغاء تسير بشكل طبيعي."
       },
       "pagination": {
-        "total": "استرداد"
+        "total": { "one": "استرداد واحد", "two": "استردادان", "few": "{{count}} استردادات", "many": "{{count}} استردادًا", "other": "{{count}} استرداد" }
       },
       "errors": {
         "notInManualReview": "تمت إعادة محاولة هذا الاسترداد أو اكتمل أو عليه عملية جارية الآن، تم تحديث القائمة",
@@ -1639,7 +1653,7 @@
         "banned": "مباني محظورة"
       },
       "pagination": {
-        "total": "مبنى"
+        "total": { "one": "مبنى واحد", "two": "مبنيان", "few": "{{count}} مبانٍ", "many": "{{count}} مبنى", "other": "{{count}} مبنى" }
       },
       "underReview": {
         "statusLabel": "تحت المراجعة",
@@ -1823,7 +1837,7 @@
         "banned": "وحدات محظورة"
       },
       "pagination": {
-        "total": "وحدة"
+        "total": { "one": "وحدة واحدة", "two": "وحدتان", "few": "{{count}} وحدات", "many": "{{count}} وحدة", "other": "{{count}} وحدة" }
       },
       "autoApproval": {
         "openBtn": "إعدادات الموافقة التلقائية",
@@ -2057,7 +2071,8 @@
         "phone": "رقم الهاتف",
         "role": "الدور الوظيفي",
         "departmentRole": "القسم / الدور",
-        "status": "الحالة"
+        "status": "الحالة",
+        "employeeActionsAria": "خيارات الموظف: {{name}}"
       },
       "deptCard": {
         "active": "نشط",
@@ -2245,7 +2260,7 @@
           }
         },
         "pagination": {
-          "total": "عملية"
+          "total": { "one": "عملية واحدة", "two": "عمليتان", "few": "{{count}} عمليات", "many": "{{count}} عملية", "other": "{{count}} عملية" }
         },
         "empty": "لا توجد عمليات مطابقة",
         "loadFailed": "تعذر تحميل البيانات",
@@ -2273,12 +2288,12 @@
           "emailRequired": "البريد الإلكتروني مطلوب",
           "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
           "phoneRequired": "رقم الهاتف مطلوب",
-          "phonePattern": "أدخل رقم هاتف صحيح",
+          "phonePattern": "أدخل رقم جوال سعودي بالصيغة 05XXXXXXXX أو 9665XXXXXXXX+",
           "roleRequired": "الدور الوظيفي مطلوب"
         }
       },
       "pagination": {
-        "total": "موظف"
+        "total": { "one": "موظف واحد", "two": "موظفان", "few": "{{count}} موظفين", "many": "{{count}} موظفًا", "other": "{{count}} موظف" }
       }
     },
     "addDepartment": {
@@ -2431,7 +2446,7 @@
         "actions": "الإجراءات"
       },
       "pagination": {
-        "total": "دور وظيفي"
+        "total": { "one": "دور وظيفي واحد", "two": "دوران وظيفيان", "few": "{{count}} أدوار وظيفية", "many": "{{count}} دورًا وظيفيًا", "other": "{{count}} دور وظيفي" }
       }
     },
     "addPermissionGroupDialog": {
@@ -2463,10 +2478,11 @@
       "table": {
         "name": "اسم المجموعة",
         "description": "الوصف",
-        "actions": "الإجراءات"
+        "actions": "الإجراءات",
+        "rowActionsAria": "خيارات المجموعة: {{name}}"
       },
       "pagination": {
-        "total": "مجموعة"
+        "total": { "one": "مجموعة واحدة", "two": "مجموعتان", "few": "{{count}} مجموعات", "many": "{{count}} مجموعة", "other": "{{count}} مجموعة" }
       }
     },
     "addPermissionDialog": {
@@ -2504,6 +2520,7 @@
       "title": "الصلاحيات",
       "description": "الكتالوج الأساسي لكل الصلاحيات الذرية في النظام، وربطها باعتماديات بعضها البعض.",
       "noPermissions": "لا توجد صلاحيات مضافة حالياً",
+      "rowActionsAria": "خيارات الصلاحية: {{name}}",
       "addPermissionBtn": "إضافة صلاحية جديدة",
       "table": {
         "name": "اسم الصلاحية",
@@ -2513,7 +2530,7 @@
         "dependenciesTooltip": "إدارة الاعتماديات"
       },
       "pagination": {
-        "total": "صلاحية"
+        "total": { "one": "صلاحية واحدة", "two": "صلاحيتان", "few": "{{count}} صلاحيات", "many": "{{count}} صلاحية", "other": "{{count}} صلاحية" }
       }
     },
     "permissionDependenciesPage": {
@@ -2567,6 +2584,8 @@
         "actions": "الإجراءات",
         "viewTooltip": "عرض",
         "actionsMenu": "إجراءات الدور",
+        "viewRoleAria": "عرض الدور: {{name}}",
+        "roleActionsAria": "خيارات الدور: {{name}}",
         "editBtn": "تعديل",
         "deleteBtn": "حذف",
         "addRoleBtn": "إضافة دور (Role) أو صلاحية جديدة للقسم",
@@ -2709,7 +2728,7 @@
         },
         "summary": {
           "average": "متوسط التقييم",
-          "outOf": "من ٥",
+          "outOf": "من 5",
           "total": "إجمالي التقييمات",
           "distribution": "توزيع التقييمات"
         },
@@ -2719,16 +2738,16 @@
           "min": {
             "1": "من نجمة",
             "2": "من نجمتين",
-            "3": "من ٣ نجوم",
-            "4": "من ٤ نجوم",
-            "5": "من ٥ نجوم"
+            "3": "من 3 نجوم",
+            "4": "من 4 نجوم",
+            "5": "من 5 نجوم"
           },
           "max": {
             "1": "حتى نجمة",
             "2": "حتى نجمتين",
-            "3": "حتى ٣ نجوم",
-            "4": "حتى ٤ نجوم",
-            "5": "حتى ٥ نجوم"
+            "3": "حتى 3 نجوم",
+            "4": "حتى 4 نجوم",
+            "5": "حتى 5 نجوم"
           },
           "from": "من",
           "to": "إلى",
@@ -2744,7 +2763,7 @@
           "closedBy": "أغلقها: {{by}}",
           "noAgent": "بدون موظف (بوت)",
           "viewChat": "عرض المحادثة",
-          "total": "تقييم"
+          "total": { "one": "تقييم واحد", "two": "تقييمان", "few": "{{count}} تقييمات", "many": "{{count}} تقييمًا", "other": "{{count}} تقييم" }
         },
         "closedBy": {
           "client": "العميل",
@@ -2924,6 +2943,42 @@
         "notFoundTitle": "التذكرة غير موجودة",
         "notFoundDesc": "تعذّر العثور على هذه التذكرة، ربما تم حذفها أو أن الرابط غير صحيح.",
         "backToList": "العودة إلى الشكاوى"
+      },
+      "employeeDetail": {
+        "title": "شكوى على موظف",
+        "complainant": "المشتكي",
+        "accusedEmployee": "الموظف المشكو منه",
+        "reasonLabel": "سبب الشكوى",
+        "priorityLabel": "الأولوية",
+        "investigatorLabel": "المحقق",
+        "noInvestigator": "لم يتم التعيين",
+        "descriptionTitle": "تفاصيل الشكوى",
+        "resolutionTitle": "ملخص الحل",
+        "priority": {
+          "Low": "منخفضة",
+          "Normal": "عادية",
+          "High": "عالية",
+          "Urgent": "عاجلة"
+        },
+        "notFoundTitle": "الشكوى غير موجودة",
+        "notFoundDesc": "تعذّر العثور على هذه الشكوى، ربما تم حذفها أو أن الرابط غير صحيح.",
+        "status": {
+          "New": "جديدة",
+          "UnderInvestigation": "قيد التحقيق",
+          "InProgress": "قيد المعالجة",
+          "Resolved": "تم الحل",
+          "Closed": "مغلقة",
+          "Rejected": "مرفوضة"
+        },
+        "complainantType": {
+          "MerchantHost": "مضيف",
+          "Client": "عميل",
+          "Guest": "ضيف",
+          "Worker": "عامل"
+        },
+        "reason": {
+          "Other": "أخرى"
+        }
       },
       "assignDialog": {
         "title": "تعيين الشكوى لموظف",
@@ -3240,7 +3295,7 @@
         "viewAccountAction": "عرض الحساب"
       },
       "pagination": {
-        "total": "حساب"
+        "total": { "one": "حساب واحد", "two": "حسابان", "few": "{{count}} حسابات", "many": "{{count}} حسابًا", "other": "{{count}} حساب" }
       }
     },
     "controlCenter": {
@@ -3820,7 +3875,7 @@
         "desc": "لا توجد طلبات تسوية مطابقة لبحثك حاليًا"
       },
       "pagination": {
-        "total": "طلب تسوية"
+        "total": { "one": "طلب تسوية واحد", "two": "طلبا تسوية", "few": "{{count}} طلبات تسوية", "many": "{{count}} طلب تسوية", "other": "{{count}} طلب تسوية" }
       },
       "detail": {
         "title": "تفاصيل طلب التسوية",
@@ -4005,7 +4060,7 @@
         "desc": "لا توجد حركات في المحفظة مطابقة لبحثك حاليًا"
       },
       "pagination": {
-        "total": "حركة"
+        "total": { "one": "حركة واحدة", "two": "حركتان", "few": "{{count}} حركات", "many": "{{count}} حركة", "other": "{{count}} حركة" }
       },
       "adjust": {
         "title": "تعديل يدوي للرصيد",
@@ -4353,7 +4408,7 @@
         "other": "يوجد {{count}} خدمة إعدادها ناقص، راجع أسعار الخدمات."
       },
       "pagination": {
-        "total": "مشترك",
+        "total": { "one": "مشترك واحد", "two": "مشتركان", "few": "{{count}} مشتركين", "many": "{{count}} مشتركًا", "other": "{{count}} مشترك" },
         "prev": "الصفحة السابقة",
         "next": "الصفحة التالية",
         "page": "صفحة"
@@ -4729,7 +4784,7 @@
         "desc": "لم يتم تسجيل أي عمليات على الاشتراكات بعد."
       },
       "pagination": {
-        "total": "عملية",
+        "total": { "one": "عملية واحدة", "two": "عمليتان", "few": "{{count}} عمليات", "many": "{{count}} عملية", "other": "{{count}} عملية" },
         "prev": "الصفحة السابقة",
         "next": "الصفحة التالية",
         "page": "صفحة"
@@ -4765,7 +4820,7 @@
         "desc": "حدث خطأ أثناء جلب طلبات الاشتراك، حاول مرة أخرى."
       },
       "pagination": {
-        "total": "طلب"
+        "total": { "one": "طلب واحد", "two": "طلبان", "few": "{{count}} طلبات", "many": "{{count}} طلبًا", "other": "{{count}} طلب" }
       },
       "detail": {
         "title": "تفاصيل الطلب",
@@ -4925,6 +4980,14 @@
       "Compounds": "مجمعات سكنية"
     },
     "reviewAccount": {
+      "loadState": {
+        "notFoundTitle": "الحساب غير موجود",
+        "notFoundDescription": "تعذّر العثور على هذا الحساب، ربما تم حذفه أو أن الرابط غير صحيح.",
+        "backToAccounts": "العودة إلى إدارة الحسابات",
+        "errorTitle": "تعذّر تحميل الحساب",
+        "errorDescription": "حدث خطأ أثناء تحميل بيانات الحساب، حاول مرة أخرى.",
+        "retry": "إعادة المحاولة"
+      },
       "facilityInfo": {
         "cardTitle": "معلومات المنشأة",
         "unifiedNumber": "الرقم الموحد",
@@ -5144,7 +5207,7 @@
         "mainPhotoBadge": "الصورة الرئيسية للمبنى",
         "exteriorTitle": "الصور الخارجية للمبنى",
         "interiorTitle": "الصور الداخلية للمبنى",
-        "imagesCount": "{{count}} صور",
+        "imagesCount": { "one": "صورة واحدة", "two": "صورتان", "few": "{{count}} صور", "many": "{{count}} صورة", "other": "{{count}} صورة" },
         "photoPosition": "{{label}} {{index}} من {{total}}",
         "statusRejected": "مرفوضة",
         "statusAccepted": "مقبولة",
@@ -6138,7 +6201,8 @@
         "order": "الترتيب",
         "status": "الحالة",
         "actions": "إجراءات",
-        "empty": "لا توجد مقالات"
+        "empty": "لا توجد مقالات",
+        "rowActionsAria": "خيارات السؤال: {{name}}"
       },
       "status": {
         "active": "نشط",
@@ -6226,7 +6290,8 @@
         "updated": "آخر تحديث",
         "status": "الحالة",
         "actions": "إجراءات",
-        "empty": "لا توجد سكريبتات مكالمات بعد"
+        "empty": "لا توجد سكريبتات مكالمات بعد",
+        "rowActionsAria": "خيارات السكريبت: {{name}}"
       },
       "status": {
         "active": "نشط",

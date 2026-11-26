@@ -81,11 +81,11 @@
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
                       <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
+                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate" [attr.aria-label]="'d3.permissions.table.viewRoleAria' | translate: { name: role.name }">
                           <i-tabler name="eye" class="icon-18"></i-tabler>
                         </button>
                         @if (canManage()) {
-                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.roleActionsAria' | translate: { name: role.name }">
                             <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
                           </button>
                         }

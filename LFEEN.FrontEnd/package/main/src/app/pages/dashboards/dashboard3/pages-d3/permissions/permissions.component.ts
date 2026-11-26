@@ -149,7 +149,7 @@ editRole(role: RoleRow): void {
     maxWidth: '600px',
     maxHeight: '100vh',
     panelClass: 'role-dialog-panel',
-    data: { departmentId: this.deptId, role: role.raw, deptName: this.deptName }
+    data: { departmentId: this.deptId, role: role.raw, deptName: this.currentLang === 'ar' ? this.deptName : this.deptEnglishName }
   });
   ref.afterClosed().subscribe(result => {
     if (result) {

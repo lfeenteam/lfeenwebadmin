@@ -14,7 +14,7 @@
   @if (totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-32 p-y-16">
       <span class="f-s-13 text-muted">
-        {{ totalCount }} {{ 'd3.teamManagement.pagination.total' | translate }}
+        {{ 'd3.teamManagement.pagination.total' | appPlural: totalCount }}
       </span>
       <div class="d-flex align-items-center gap-4">
         <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"

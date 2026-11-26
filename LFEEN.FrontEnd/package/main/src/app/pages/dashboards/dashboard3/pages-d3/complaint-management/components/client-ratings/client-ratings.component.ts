@@ -24,6 +24,7 @@ import {
   RATING_STARS
 } from '../../interfaces/ratings.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type RatingsView = 'list' | 'agents';
 
@@ -36,7 +37,7 @@ const CLOSED_BY_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-client-ratings',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MaterialModule, TabsFilterComponent, SingleDateCalendarComponent, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MaterialModule, TabsFilterComponent, SingleDateCalendarComponent, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './client-ratings.component.html',
   styleUrl: './client-ratings.component.scss'
 })

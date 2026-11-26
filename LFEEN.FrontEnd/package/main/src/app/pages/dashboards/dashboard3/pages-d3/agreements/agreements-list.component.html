@@ -37,7 +37,7 @@
     </div>
   } @else if (!versions().length) {
     <div class="ag-card ag-empty-card">
-      <span class="ag-pill">{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(0) } }}</span>
+      <span class="ag-pill">{{ 'd3.agreements.versionsCount' | appPlural: 0 }}</span>
       <h2 class="ag-empty-title">{{ 'd3.agreements.empty.title' | translate: { type: labels.typeLabel(type()) } }}</h2>
       <p class="ag-empty-desc">{{ 'd3.agreements.empty.desc' | translate }}</p>
       @if (canEdit()) {
@@ -76,7 +76,7 @@
 
       <div class="ag-section-head">
         <h2>{{ 'd3.agreements.allVersions' | translate }}</h2>
-        <span>{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(versions().length) } }}</span>
+        <span>{{ 'd3.agreements.versionsCount' | appPlural: versions().length }}</span>
       </div>
 
       <div class="ag-table-box">

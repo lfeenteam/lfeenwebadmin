@@ -33,6 +33,7 @@ import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboa
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-team-management',
@@ -51,7 +52,8 @@ import { PermissionService } from '../../services/permission.service';
     ManagerCardComponent,
     LogsFilterComponent,
     OpsLogTableComponent,
-    DashboardLoadingComponent
+    DashboardLoadingComponent,
+    AppPluralPipe
   ],
   // Scoped here so audit rows are discarded with the page (never shared across sign-ins).
   providers: [OperationAuditsService],

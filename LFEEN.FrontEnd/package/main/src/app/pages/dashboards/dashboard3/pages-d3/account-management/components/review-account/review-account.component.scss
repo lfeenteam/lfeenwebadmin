@@ -3,6 +3,33 @@
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
+// Not-found / error states shown instead of the review body (BUG-2744).
+.review-account-state {
+  padding: 24px;
+
+  .state-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .state-action-btn {
+    height: 44px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 12px;
+    background: #111110;
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s;
+
+    &:hover { filter: brightness(1.25); }
+  }
+}
+
 .review-account {
   padding: 24px;
   display: flex;

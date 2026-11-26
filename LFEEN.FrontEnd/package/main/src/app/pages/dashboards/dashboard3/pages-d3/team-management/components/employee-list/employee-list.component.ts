@@ -8,11 +8,12 @@ import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { AllEmployeesComponent } from '../all-employees/all-employees.component';
 import { Employee } from '../../../../interfaces/department.model';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AllEmployeesComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AllEmployeesComponent, AppPluralPipe],
   templateUrl: './employee-list.component.html',
   styleUrl: './employee-list.component.scss'
 })

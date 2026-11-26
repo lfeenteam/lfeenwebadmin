@@ -87,9 +87,11 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Tell the page header (outside this component) to hide "Close & resolve" on a finished
+    // Tell the page header (outside this component) to hide "Close & resolve" unless a ticket
+    // is actually on screen (not while loading, not found or failed — BUG-2813), on a finished
     // ticket, or for an admin who can't write tickets (BUG-2739).
-    effect(() => this.service.detailReadOnly.set(this.isClosed() || !this.canManage()));
+    effect(() => this.service.detailReadOnly.set(
+      this.loadState() !== 'ready' || this.isClosed() || !this.canManage()));
   }
 
   ngOnInit(): void {

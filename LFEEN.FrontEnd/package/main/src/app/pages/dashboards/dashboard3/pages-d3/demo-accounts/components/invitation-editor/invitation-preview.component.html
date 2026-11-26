@@ -80,7 +80,7 @@
             </div>
             <div class="ip-stats">
               <span class="ip-pill" [class.warn]="sms.segments > 3">
-                {{ 'd3.demoAccounts.invitation.smsStats' | translate: { characters: sms.characters, segments: sms.segments } }}
+                {{ 'd3.demoAccounts.invitation.charactersCount' | appPlural: sms.characters }} · {{ 'd3.demoAccounts.invitation.segmentsCount' | appPlural: sms.segments }}
               </span>
               <span class="ip-pill da-ltr" dir="ltr" [title]="('d3.demoAccounts.invitation.encoding.' + sms.encoding) | translate">{{ sms.encoding }}</span>
             </div>

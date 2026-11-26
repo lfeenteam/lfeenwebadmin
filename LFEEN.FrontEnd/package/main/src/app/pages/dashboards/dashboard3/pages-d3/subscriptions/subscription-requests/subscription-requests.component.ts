@@ -18,6 +18,7 @@ import { RequestDetailDrawerComponent } from './request-detail-drawer/request-de
 import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type RequestTab = 'all' | 'pending' | 'succeeded' | 'cancelled' | 'failed';
 
@@ -53,7 +54,7 @@ const STATUS_BY_TAB: Record<RequestTab, SubscriptionOrderStatus | undefined> = {
 @Component({
   selector: 'app-subscription-requests',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, RequestDetailDrawerComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, RequestDetailDrawerComponent, AppPluralPipe],
   templateUrl: './subscription-requests.component.html',
   styleUrl: './subscription-requests.component.scss'
 })

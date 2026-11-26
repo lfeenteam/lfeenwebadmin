@@ -32,7 +32,7 @@
     @if (mode === 'copy' && sources.length) {
       <div class="agd-source-head">
         <span class="agd-label" id="agd-source-label">{{ 'd3.agreements.newDraft.source' | translate }} *</span>
-        <span class="agd-source-count">{{ 'd3.agreements.versionsCount' | translate: { n: labels.num(sources.length) } }}</span>
+        <span class="agd-source-count">{{ 'd3.agreements.versionsCount' | appPlural: sources.length }}</span>
       </div>
       <mat-select class="agd-mselect" [class.is-invalid]="!!sourceError()" [ngModel]="sourceId"
         (ngModelChange)="selectSource($event)" [disabled]="saving()" panelClass="agd-select-panel"

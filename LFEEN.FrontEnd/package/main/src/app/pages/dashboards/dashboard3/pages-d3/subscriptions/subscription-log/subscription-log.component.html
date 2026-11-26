@@ -134,7 +134,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between">
           <span class="pagination-total">
-            {{ fmt(totalCount) }} {{ 'd3.subscriptionLog.pagination.total' | translate }}
+            {{ 'd3.subscriptionLog.pagination.total' | appPlural: totalCount }}
           </span>
           <div class="pagination-controls d-flex align-items-center gap-4">
             <button class="page-nav-btn"

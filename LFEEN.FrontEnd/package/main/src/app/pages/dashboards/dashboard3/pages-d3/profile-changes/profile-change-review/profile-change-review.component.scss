@@ -221,6 +221,12 @@
   &--sm      { height: 36px; font-size: 12px; align-self: flex-start; }
 }
 
+.pcr-state-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
 .pcr-state {
   display: flex;
   flex-direction: column;
