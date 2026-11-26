@@ -2,6 +2,32 @@
   <div class="d-flex justify-content-center align-items-center p-48">
     <mat-spinner diameter="40"></mat-spinner>
   </div>
+} @else if (!account && loadState === 'notFound') {
+  <div class="review-account-state" [attr.dir]="dir">
+    <app-review-empty-state
+      icon="user-off"
+      titleKey="d3.reviewAccount.loadState.notFoundTitle"
+      descKey="d3.reviewAccount.loadState.notFoundDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button class="state-action-btn" type="button" (click)="goToAccounts()">
+        {{ 'd3.reviewAccount.loadState.backToAccounts' | translate }}
+      </button>
+    </div>
+  </div>
+} @else if (!account && loadState === 'error') {
+  <div class="review-account-state" [attr.dir]="dir">
+    <app-review-empty-state
+      icon="alert-circle"
+      titleKey="d3.reviewAccount.loadState.errorTitle"
+      descKey="d3.reviewAccount.loadState.errorDescription">
+    </app-review-empty-state>
+    <div class="state-actions">
+      <button class="state-action-btn" type="button" (click)="reloadAccount()">
+        {{ 'd3.reviewAccount.loadState.retry' | translate }}
+      </button>
+    </div>
+  </div>
 }
 
 @if (!isLoading && account) {
@@ -334,6 +360,16 @@
           <span class="field-label">{{ 'd3.reviewAccount.accountOverview.createdAt' | translate }}</span>
           <span class="field-value">{{ account.createdAt | appDate: 'mediumDate' }}</span>
         </div>
+        <div class="field-col">
+          <span class="field-label">{{ 'd3.reviewAccount.accountOverview.submittedAt' | translate }}</span>
+          <span class="field-value">
+            @if (account.submittedForReviewAtUtc) {
+              {{ account.submittedForReviewAtUtc | appDate: 'mediumDate' }}
+            } @else {
+              {{ 'd3.reviewAccount.accountOverview.notSubmitted' | translate }}
+            }
+          </span>
+        </div>
         @if (account.updatedAt) {
           <div class="field-col">
             <span class="field-label">{{ 'd3.reviewAccount.accountOverview.updatedAt' | translate }}</span>
@@ -379,7 +415,19 @@
     </div>
   }
 
-  @if (isPending) {
+  @if (isDraft) {
+    <!-- BUG-2530: a draft isn't a request — no accept/reject until the host submits it -->
+    <div class="not-submitted-notice">
+      <i-tabler name="info-circle" class="icon-20"></i-tabler>
+      <div>
+        <p class="notice-title">{{ 'd3.reviewAccount.notSubmittedNotice.title' | translate }}</p>
+        <p class="notice-desc">{{ 'd3.reviewAccount.notSubmittedNotice.desc' | translate }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- BUG-2739: decision form only for admins who can write accounts -->
+  @if (isPending && canManage()) {
     <div class="decision-section">
       <div class="decision-header">
         <div class="card-icon-box">

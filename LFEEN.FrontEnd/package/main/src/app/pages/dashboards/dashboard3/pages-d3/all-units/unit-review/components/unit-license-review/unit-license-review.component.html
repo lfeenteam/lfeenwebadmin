@@ -1,5 +1,9 @@
 <div class="unit-license-review" [dir]="currentDir">
 
+  @if (!isLoading && loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadLicense()"></app-unit-load-state>
+  } @else {
+
   @if (!isLoading && license && !hasLicenseData) {
     <app-review-empty-state
       icon="file-off"
@@ -124,4 +128,5 @@
     </div>
   }
 
+  } <!-- end loadState @else -->
 </div>

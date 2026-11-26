@@ -17,7 +17,9 @@ import { transportErrorMessage } from '../../utils/transport-error.util';
 import { LoginService } from '../../services/login/login.service';
 import { ListingBanRefund, RefundStatus } from '../../interfaces/listing-ban.model';
 import { RefundResolveDialogComponent, RefundResolveDialogData } from './refund-resolve-dialog/refund-resolve-dialog.component';
+import { RefundRetryDialogComponent, RefundRetryDialogData } from './refund-retry-dialog/refund-retry-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type RefundTab = RefundStatus | 'All';
 
@@ -49,7 +51,7 @@ const ERROR_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-ban-refunds',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './ban-refunds.component.html',
   styleUrl: './ban-refunds.component.scss'
 })
@@ -83,6 +85,7 @@ export class BanRefundsComponent implements OnInit {
   retryingIds = new Set<number>();
 
   private loadSub?: Subscription;
+  private refreshSub?: Subscription;
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
@@ -142,17 +145,35 @@ export class BanRefundsComponent implements OnInit {
       });
   }
 
+  /** Re-sends the refund to the gateway, so it asks first. The row stays locked until the dialog closes. */
   retry(row: ListingBanRefund): void {
-    if (this.busyIds.has(row.id)) return;
+    if (this.busyIds.has(row.id) || this.retryingIds.has(row.id)) return;
     this.busyIds.add(row.id);
+    this.dialog
+      .open<RefundRetryDialogComponent, RefundRetryDialogData, true | undefined>(RefundRetryDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        panelClass: 'refund-resolve-dialog-panel',
+        data: { bookingNumber: row.bookingNumber, guestName: row.guestName, amount: this.fmtAmount(row) },
+      })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) this.sendRetry(row);
+        else this.busyIds.delete(row.id);
+      });
+  }
+
+  /** One request per confirmation; the backend rejects a second one with REFUND_NOT_IN_MANUAL_REVIEW. */
+  private sendRetry(row: ListingBanRefund): void {
     this.banService.retryRefund(row.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: updated => {
-        this.busyIds.delete(row.id);
+        // Mark it retrying before freeing it, so the buttons never come back in between.
         this.retryingIds.add(row.id);
+        this.busyIds.delete(row.id);
         this.replaceRow(updated);
         this.toastr.info(this.translate.instant('d3.banRefunds.toast.retryQueued'));
-        // Check back once the background attempt has had time to run.
-        timer(RETRY_REFRESH_DELAY_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.load());
+        this.scheduleRefresh();
       },
       error: err => {
         this.busyIds.delete(row.id);
@@ -187,6 +208,14 @@ export class BanRefundsComponent implements OnInit {
           },
         });
       });
+  }
+
+  /** Check back once the background attempt has had time to run; one pending refresh covers every retry. */
+  private scheduleRefresh(): void {
+    this.refreshSub?.unsubscribe();
+    this.refreshSub = timer(RETRY_REFRESH_DELAY_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.load());
   }
 
   private replaceRow(updated: ListingBanRefund): void {

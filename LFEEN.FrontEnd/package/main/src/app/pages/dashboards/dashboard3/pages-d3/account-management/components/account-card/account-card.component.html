@@ -28,7 +28,7 @@
       <div class="info-rows">
         <div class="info-row">
           <span class="info-label">{{ 'd3.accountManagement.card.requestDate' | translate }}</span>
-          <span class="info-value">{{ account.joinDate }}</span>
+          <span class="info-value">{{ account.joinDate || '—' }}</span>
         </div>
       </div>
 
@@ -38,7 +38,7 @@
             <i-tabler name="wallet" class="icon-18"></i-tabler>
           </button>
         }
-        <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
+        <button mat-icon-button class="icon-action-btn" [attr.aria-label]="'d3.accountManagement.card.viewAccountAction' | translate" (click)="goToReview()">
           <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-18"></i-tabler>
         </button>
       </div>
@@ -75,7 +75,7 @@
         <div class="info-rows">
           <div class="info-row d-flex justify-content-between align-items-center">
             <span class="info-label">{{ idFieldLabel }}</span>
-            <span class="info-value">{{ account.status === 'under_review' ? '—' : (account.idNumber || '—') }}</span>
+            <span class="info-value">{{ (account.status === 'under_review' || account.status === 'incomplete') ? '—' : (account.idNumber || '—') }}</span>
           </div>
           <div class="info-row d-flex justify-content-between align-items-center">
             <span class="info-label">{{ 'd3.accountManagement.card.requestDate' | translate }}</span>
@@ -83,7 +83,7 @@
           </div>
           <div class="info-row d-flex justify-content-between align-items-center">
             <span class="info-label">{{ 'd3.accountManagement.card.propertyCount' | translate }}</span>
-            <span class="info-value">{{ account.status === 'under_review' ? '—' : (account.propertyCount != null ? account.propertyCount + ' ' + ('d3.accountManagement.card.propertiesUnit' | translate) : '—') }}</span>
+            <span class="info-value">{{ (account.status === 'under_review' || account.status === 'incomplete') ? '—' : (account.propertyCount != null ? account.propertyCount + ' ' + ('d3.accountManagement.card.propertiesUnit' | translate) : '—') }}</span>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
               <i-tabler name="wallet" class="icon-18"></i-tabler>
             </button>
           }
-          <button mat-icon-button class="icon-action-btn" (click)="goToReview()">
+          <button mat-icon-button class="icon-action-btn" [attr.aria-label]="'d3.accountManagement.card.viewAccountAction' | translate" (click)="goToReview()">
             <i-tabler name="eye" class="icon-18"></i-tabler>
           </button>
         </div>

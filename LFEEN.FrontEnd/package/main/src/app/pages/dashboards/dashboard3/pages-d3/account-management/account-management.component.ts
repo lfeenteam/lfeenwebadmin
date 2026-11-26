@@ -19,6 +19,7 @@ import { StatItem } from '../../interfaces/stats.model';
 import { getVisiblePages } from 'src/app/utils/pagination.util';
 
 export type { Account } from '../../interfaces/account.model';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-account-management',
@@ -35,6 +36,7 @@ export type { Account } from '../../interfaces/account.model';
     DashboardEmptyComponent,
     TranslateModule,
     ProfileChangesComponent,
+    AppPluralPipe
   ],
   templateUrl: './account-management.component.html',
   styleUrl: './account-management.component.scss'
@@ -53,7 +55,9 @@ export class AccountManagementComponent implements OnInit {
     ? 'profile_changes'
     : this.accountService.activeTab();
   profileChangesCount: number | null = null;
-  searchQuery = '';
+  // The service keeps the search across navigation (like the tab and page) — start from it
+  // so the box matches the list after coming back (BUG-2655).
+  searchQuery = this.accountService.searchQuery();
 
   accounts: Account[] = [];
   totalPages  = 1;

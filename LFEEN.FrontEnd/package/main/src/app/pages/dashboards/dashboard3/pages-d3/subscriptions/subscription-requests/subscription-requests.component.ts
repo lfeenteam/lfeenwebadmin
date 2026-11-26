@@ -8,17 +8,19 @@ import { Subscription, catchError, of } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { getVisiblePages, getCompactVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
 import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
-import { SubscriptionCatalogItem, SubscriptionOrder } from '../interfaces/subscription.model';
+import { SubscriptionCatalogItem, SubscriptionOrder, SubscriptionOrderStatus } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { RequestDetailDrawerComponent } from './request-detail-drawer/request-detail-drawer.component';
 import { orderStatusKind, OrderStatusKind } from './request-status.util';
 import { serviceVisual } from '../interfaces/service-visual.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
-type RequestTab = 'all' | 'pending' | 'succeeded' | 'failed';
+type RequestTab = 'all' | 'pending' | 'succeeded' | 'cancelled' | 'failed';
 
 interface RequestService {
   name: string;
@@ -37,14 +39,22 @@ interface RequestRow {
 const PAGE_SIZE = 10;
 const MAX_SERVICE_ICONS = 3;
 
+const STATUS_BY_TAB: Record<RequestTab, SubscriptionOrderStatus | undefined> = {
+  all: undefined,
+  pending: 'Pending',
+  succeeded: 'Succeeded',
+  cancelled: 'Cancelled',
+  failed: 'Failed',
+};
+
 /**
  * Read-only order history (GET /requests). Orders activate on payment — there's no admin
- * review — so the list is loaded once and the tabs only filter it.
+ * review. The server paginates and filters by status: each tab or page change loads one page.
  */
 @Component({
   selector: 'app-subscription-requests',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, RequestDetailDrawerComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, RequestDetailDrawerComponent, AppPluralPipe],
   templateUrl: './subscription-requests.component.html',
   styleUrl: './subscription-requests.component.scss'
 })
@@ -53,6 +63,10 @@ export class SubscriptionRequestsComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private service = inject(SubscriptionsService);
+  private breakpoints = inject(BreakpointObserver);
+
+  /** Phone width (same 576px breakpoint as the card layout): the pager shows fewer numbers. */
+  private compactPager = false;
 
   readonly maxServiceIcons = MAX_SERVICE_ICONS;
 
@@ -61,14 +75,19 @@ export class SubscriptionRequestsComponent implements OnInit {
   activeTab: RequestTab = 'all';
   currentPage = 1;
 
-  /** Every order, newest first. */
-  private rows: RequestRow[] = [];
+  /** The current page's orders, in the server's order (newest first). */
+  rows: RequestRow[] = [];
   private orders: SubscriptionOrder[] = [];
+  totalCount = 0;
+  totalPages = 1;
+  /** Orders still waiting on payment, across every page (fetched separately). */
+  pendingCount = 0;
   /** Logos and both-language names; the order's own serviceName is always Arabic. */
   catalogById = new Map<number, SubscriptionCatalogItem>();
   /** Logo URLs that failed to load — shown as the fallback icon instead of a broken image. */
   readonly brokenLogos = new Set<string>();
   private listRequest?: Subscription;
+  private pendingRequest?: Subscription;
 
   selectedOrder: SubscriptionOrder | null = null;
 
@@ -76,10 +95,15 @@ export class SubscriptionRequestsComponent implements OnInit {
     { value: 'all', labelKey: 'd3.subscriptionRequests.tabs.all' },
     { value: 'pending', labelKey: 'd3.subscriptionRequests.tabs.pending' },
     { value: 'succeeded', labelKey: 'd3.subscriptionRequests.tabs.succeeded' },
+    { value: 'cancelled', labelKey: 'd3.subscriptionRequests.tabs.cancelled' },
     { value: 'failed', labelKey: 'd3.subscriptionRequests.tabs.failed' },
   ];
 
   ngOnInit(): void {
+    this.breakpoints.observe('(max-width: 576px)')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(state => this.compactPager = state.matches);
+
     // The catalog supplies service logos and names — the list still works without it.
     this.service.getCatalog()
       .pipe(catchError(() => of([] as SubscriptionCatalogItem[])), takeUntilDestroyed(this.destroyRef))
@@ -88,6 +112,7 @@ export class SubscriptionRequestsComponent implements OnInit {
         this.rebuildRows();
       });
     this.load();
+    this.loadPendingCount();
 
     // Service names are picked per language when the rows are built.
     this.translate.onLangChange
@@ -113,30 +138,10 @@ export class SubscriptionRequestsComponent implements OnInit {
     return this.currentLang === 'en';
   }
 
-  /** Orders still waiting on payment. */
-  get pendingCount(): number {
-    return this.rows.filter(r => r.kind === 'pending').length;
-  }
-
-  private get filteredRows(): RequestRow[] {
-    return this.activeTab === 'all' ? this.rows : this.rows.filter(r => r.kind === this.activeTab);
-  }
-
-  get pagedRows(): RequestRow[] {
-    const start = (this.currentPage - 1) * PAGE_SIZE;
-    return this.filteredRows.slice(start, start + PAGE_SIZE);
-  }
-
-  get totalCount(): number {
-    return this.filteredRows.length;
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.totalCount / PAGE_SIZE));
-  }
-
   get visiblePages(): (number | '...')[] {
-    return getVisiblePages(this.currentPage, this.totalPages);
+    return this.compactPager
+      ? getCompactVisiblePages(this.currentPage, this.totalPages)
+      : getVisiblePages(this.currentPage, this.totalPages);
   }
 
   fmt(value: number): string {
@@ -164,19 +169,33 @@ export class SubscriptionRequestsComponent implements OnInit {
     return formatApiDateLocal(row.order.requestedAt, this.currentLang) ?? '-';
   }
 
+  /** Loads the current page of the active tab; a newer call cancels one still in flight. */
   load(): void {
     this.listRequest?.unsubscribe();
     this.loading = true;
     this.loadError = false;
-    this.listRequest = this.service.getRequests().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: orders => {
-        this.orders = orders ?? [];
+    const query = { status: STATUS_BY_TAB[this.activeTab], pageNumber: this.currentPage, pageSize: PAGE_SIZE };
+    this.listRequest = this.service.getRequests(query).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: page => {
+        this.totalCount = page.totalCount;
+        this.totalPages = Math.max(1, page.totalPages);
+        // The page we asked for no longer exists (orders dropped out) — go to the last one.
+        if (!page.data.length && this.totalCount > 0 && this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages;
+          this.load();
+          return;
+        }
+        this.orders = page.data;
         this.loading = false;
         this.rebuildRows();
+        // The pending badge counts every page, so the "pending" tab's own total keeps it fresh.
+        if (this.activeTab === 'pending') this.pendingCount = this.totalCount;
       },
       error: err => {
         this.orders = [];
         this.rows = [];
+        this.totalCount = 0;
+        this.totalPages = 1;
         this.loading = false;
         this.loadError = true;
         this.toastr.error(resolveSubscriptionError(err, this.translate));
@@ -184,26 +203,36 @@ export class SubscriptionRequestsComponent implements OnInit {
     });
   }
 
+  /** Only totalCount is needed, so a single-row page is enough. */
+  private loadPendingCount(): void {
+    this.pendingRequest?.unsubscribe();
+    this.pendingRequest = this.service.getRequests({ status: 'Pending', pageNumber: 1, pageSize: 1 })
+      .pipe(catchError(() => of(null)), takeUntilDestroyed(this.destroyRef))
+      .subscribe(page => {
+        if (page) this.pendingCount = page.totalCount;
+      });
+  }
+
   reload(): void {
     this.load();
+    this.loadPendingCount();
   }
 
   setTab(tab: RequestTab): void {
     if (tab === this.activeTab) return;
     this.activeTab = tab;
     this.currentPage = 1;
+    this.load();
   }
 
   private rebuildRows(): void {
-    this.rows = this.orders
-      .map(o => this.toRow(o))
-      .sort((a, b) => (b.requestedAt?.getTime() ?? 0) - (a.requestedAt?.getTime() ?? 0));
-    this.currentPage = Math.min(this.currentPage, this.totalPages);
+    this.rows = this.orders.map(o => this.toRow(o));
   }
 
   changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
+    if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.currentPage = page;
+    this.load();
   }
 
   openDetail(row: RequestRow): void {

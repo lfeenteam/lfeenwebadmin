@@ -22,6 +22,10 @@ import { CancellationRefundsService } from './cancellation-refunds.service';
 import {
   CancellationResolveDialogComponent, CancellationResolveDialogData, CancellationResolveResult,
 } from './cancellation-resolve-dialog/cancellation-resolve-dialog.component';
+import {
+  RefundRetryDialogComponent, RefundRetryDialogData,
+} from '../ban-refunds/refund-retry-dialog/refund-retry-dialog.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const PAGE_SIZE = 20;
 // The backend picks a re-queued job up within ~30s, so check back a little after that.
@@ -46,10 +50,9 @@ const FAILURE_REASON_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-cancellation-refunds',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MatTooltipModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './cancellation-refunds.component.html',
-  // Same table as Ban Refunds (classes prefixed "br-").
-  styleUrl: '../ban-refunds/ban-refunds.component.scss'
+  styleUrl: './cancellation-refunds.component.scss'
 })
 export class CancellationRefundsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
@@ -91,7 +94,6 @@ export class CancellationRefundsComponent implements OnInit {
   get visiblePages(): (number | '...')[] {
     return getVisiblePages(this.currentPage, this.totalPages);
   }
-
   ngOnInit(): void {
     this.load();
     // Error messages come back localized (Accept-Language), so refetch on language change.
@@ -133,14 +135,35 @@ export class CancellationRefundsComponent implements OnInit {
       });
   }
 
-  /** One request per click; never retried automatically (a second send just gets REFUND_NOT_IN_MANUAL_REVIEW). */
+  /** Re-sends the refund to the gateway, so it asks first. The row stays locked until the dialog closes. */
   retry(row: CancellationRefund): void {
     if (this.busyIds.has(row.id) || this.queuedIds.has(row.id)) return;
     this.busyIds.add(row.id);
+    this.dialog
+      .open<RefundRetryDialogComponent, RefundRetryDialogData, true | undefined>(RefundRetryDialogComponent, {
+        width: '480px',
+        maxWidth: '95vw',
+        data: {
+          bookingNumber: row.bookingNumber,
+          guestName: row.guestName,
+          amount: `${this.fmtAmountValue(row)} ${this.currencyLabel(row)}`.trim(),
+        },
+      })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) this.sendRetry(row);
+        else this.busyIds.delete(row.id);
+      });
+  }
+
+  /** One request per confirmation; never retried automatically (a second send just gets REFUND_NOT_IN_MANUAL_REVIEW). */
+  private sendRetry(row: CancellationRefund): void {
     this.service.retry(row.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: updated => {
-        this.busyIds.delete(row.id);
+        // Mark it queued before freeing it, so the buttons never come back in between.
         this.queuedIds.add(row.id);
+        this.busyIds.delete(row.id);
         this.rows = this.rows.map(r => (r.id === updated.id ? { ...r, ...updated } : r));
         this.toastr.info(this.translate.instant('d3.cancellationRefunds.toast.retryQueued'));
         this.scheduleRefresh();
@@ -254,6 +277,12 @@ export class CancellationRefundsComponent implements OnInit {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
+  }
+
+  /** "محمد علاء الدين" → "مع"; one word → its first letter. */
+  initials(name: string | null): string {
+    const words = (name ?? '').trim().split(/\s+/).filter(Boolean);
+    return words.slice(0, 2).map(w => w.charAt(0)).join('').toUpperCase();
   }
 
   isSar(row: CancellationRefund): boolean {

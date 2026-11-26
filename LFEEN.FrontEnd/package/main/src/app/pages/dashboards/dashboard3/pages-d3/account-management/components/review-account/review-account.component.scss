@@ -3,6 +3,33 @@
   font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
+// Not-found / error states shown instead of the review body (BUG-2744).
+.review-account-state {
+  padding: 24px;
+
+  .state-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .state-action-btn {
+    height: 44px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 12px;
+    background: #111110;
+    color: #FFFFFF;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s;
+
+    &:hover { filter: brightness(1.25); }
+  }
+}
+
 .review-account {
   padding: 24px;
   display: flex;
@@ -689,6 +716,23 @@
   &:hover { opacity: 0.85; }
 
   ::ng-deep svg { width: 18px; height: 18px; stroke-width: 2.5; }
+}
+
+// BUG-2530: shown instead of the decision actions for a draft account
+.not-submitted-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 20px;
+  color: #475569;
+
+  ::ng-deep svg { stroke: #64748B; }
+
+  .notice-title { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: #111110; }
+  .notice-desc  { margin: 0; font-size: 13px; line-height: 1.6; }
 }
 
 .lock-notice {

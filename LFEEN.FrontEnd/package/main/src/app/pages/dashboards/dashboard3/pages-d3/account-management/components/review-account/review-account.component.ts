@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,18 +10,20 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AccountService } from '../../../../services/account.service';
-import { AccountDetail } from '../../../../interfaces/account.model';
+import { AccountDetail, isSubmittedForReview } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
 
 import { AppDatePipe } from 'src/app/pipes/app-date.pipe';
+import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 
 @Component({
   selector: 'app-review-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, AdditionalConditionsReviewComponent, AppDatePipe, ReviewEmptyStateComponent],
   templateUrl: './review-account.component.html',
   styleUrl: './review-account.component.scss'
 })
@@ -34,13 +36,18 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   private dialog     = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private pageTitleOverride = inject(PageTitleOverrideService);
+  private perms = inject(PermissionService);
+
+  /** BUG-2739: a view-only admin sees the account but not the accept/reject decision. */
+  readonly canManage = computed(() => this.perms.canWrite('accounts'));
 
   private accountId: string | null = null;
   private loadSub?: Subscription;
 
   account: AccountDetail | null = null;
   isLoading    = true;
-  isError      = false;
+  /** BUG-2744: a missing account (404 / malformed id) gets its own state, without a retry. */
+  loadState: 'loaded' | 'notFound' | 'error' = 'loaded';
   isSubmitting = false;
   rejectionReason = '';
   isUnifiedNumberInvalid = false;
@@ -99,7 +106,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
     if (!id) return;
     this.loadSub?.unsubscribe();
     this.isLoading = true;
-    this.isError = false;
+    this.loadState = 'loaded';
     this.loadSub = this.service.getAccountById(id).subscribe({
       next: data => {
         this.account = data;
@@ -113,12 +120,24 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.pageTitleOverride.set(this.tradeName !== '—' ? this.tradeName : null);
       },
-      error: ()  => {
+      error: (err) => {
         this.isLoading = false;
-        this.isError   = true;
-        this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        // The API answers 404 for an unknown or malformed id; that won't change on retry,
+        // so the page shows its own "not found" state instead of a generic toast.
+        if (err?.status === 404 || err?.status === 400) {
+          this.account = null;
+          this.loadState = 'notFound';
+          return;
+        }
+        this.loadState = 'error';
+        // A failed reload (e.g. on a language switch) keeps the account on screen, so say why.
+        if (this.account) this.toastr.error(this.translate.instant('d3.toast.errorOp'));
       }
     });
+  }
+
+  goToAccounts(): void {
+    this.navigateBack();
   }
 
   ngOnDestroy(): void {
@@ -127,7 +146,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   accept(): void {
-    if (!this.account || this.isSubmitting) return;
+    if (!this.canManage() || !this.account || this.isSubmitting) return;
     // Both languages are required: never copy one into the other, or the approved name is saved in the wrong language
     const basicNameAr = this.basicNameAr.trim();
     const basicNameEn = this.basicNameEn.trim();
@@ -149,7 +168,13 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
         tone:              'approve',
         successTitleKey:   'common.done',
         successMessageKey: 'd3.reviewAccount.decision.acceptSuccess',
-        onConfirm: () => this.service.acceptAccount(accountId, { basicNameAr, basicNameEn })
+        onConfirm: () => this.service.acceptAccount(accountId, { basicNameAr, basicNameEn }),
+        errorKeyFor: (err: any) => {
+          const key = this.decisionErrorKey(err);
+          // The screen showed a stale state — reload so the decision actions disappear
+          if (key) this.reloadAccount();
+          return key;
+        }
       }
     });
     dialogRef.afterClosed().subscribe(confirmed => {
@@ -160,7 +185,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   reject(): void {
-    if (!this.account || this.isSubmitting) return;
+    if (!this.canManage() || !this.account || this.isSubmitting) return;
     if (!this.rejectionReason.trim()) {
       this.toastr.warning(this.translate.instant('d3.reviewAccount.decision.rejectionRequired'));
       return;
@@ -188,9 +213,11 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
           this.service.setTab('rejected');
           this.navigateBack();
         },
-        error: () => {
-          this.toastr.error(this.translate.instant('d3.toast.errorOp'));
+        error: (err) => {
+          const key = this.decisionErrorKey(err);
+          this.toastr.error(this.translate.instant(key ?? 'd3.toast.errorOp'));
           this.isSubmitting = false;
+          if (key) this.reloadAccount();
         }
       });
     });
@@ -202,9 +229,21 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   // Draft accounts haven't been submitted for review yet, so there's nothing to
-  // accept/reject — only PendingReview should show the decision actions.
+  // accept/reject. A draft also has onboardingStatus=PendingReview, so the decision
+  // actions need submittedForReviewAtUtc too (BUG-2530).
   get isPending(): boolean {
-    return this.account?.onboardingStatus === 'PendingReview';
+    return isSubmittedForReview(this.account);
+  }
+
+  /** Created but never submitted: show a notice instead of the decision actions. */
+  get isDraft(): boolean {
+    return this.account?.onboardingStatus === 'PendingReview' && !this.account.submittedForReviewAtUtc;
+  }
+
+  /** Backend errorCode → translation key; null = fall back to the generic error. */
+  private decisionErrorKey(err: any): string | null {
+    const code: string | undefined = err?.error?.errorCode ?? err?.error?.code;
+    return code === 'ACCOUNT_NOT_SUBMITTED' ? 'd3.reviewAccount.decision.errors.notSubmitted' : null;
   }
 
   get tradeName(): string {

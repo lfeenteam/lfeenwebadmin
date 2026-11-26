@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { Subscription, combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, startWith, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,8 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { resolveBilingualText } from '../../utils/bilingual.util';
+import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface RoleRow {
   id: string;
@@ -28,12 +30,15 @@ interface RoleRow {
 @Component({
   selector: 'app-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, AppPluralPipe],
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss'
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
   private dataSub!: Subscription;
+  private perms = inject(PermissionService);
+  /** Add/edit/delete role need a Roles write permission (BUG-2739). */
+  readonly canManage = computed(() => this.perms.canWrite('roles'));
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -87,6 +92,8 @@ export class PermissionsComponent implements OnInit, OnDestroy {
         const dept = result.department;
         this.deptName = resolveBilingualText('ar', dept.nameAr, dept.nameEn, dept.name);
         this.deptEnglishName = resolveBilingualText('en', dept.nameAr, dept.nameEn, dept.name);
+        this.deptDescAr = dept.descriptionAr ?? '';
+        this.deptDescEn = dept.descriptionEn ?? '';
         this.managers = dept.managers?.length
           ? dept.managers
           : (dept.managerFullName ? [{ id: '', fullName: dept.managerFullName, avatar: dept.managerAvatar }] : []);
@@ -127,6 +134,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
   }
 
 openAddRoleDialog(): void {
+  if (!this.canManage()) return;
   this.router.navigate([`/${this.translate.currentLang || 'ar'}/d3/permissions/${this.deptId}/add-role`]);
 }
 
@@ -136,12 +144,13 @@ viewPermissions(role: RoleRow): void {
 }
 
 editRole(role: RoleRow): void {
+  if (!this.canManage()) return;
   const ref = this.dialog.open(AddRoleDialogComponent, {
     width: '560px',
     maxWidth: '600px',
     maxHeight: '100vh',
     panelClass: 'role-dialog-panel',
-    data: { departmentId: this.deptId, role: role.raw, deptName: this.deptName }
+    data: { departmentId: this.deptId, role: role.raw, deptName: this.currentLang === 'ar' ? this.deptName : this.deptEnglishName }
   });
   ref.afterClosed().subscribe(result => {
     if (result) {
@@ -155,6 +164,7 @@ editRole(role: RoleRow): void {
 
 
   deleteRole(role: RoleRow): void {
+    if (!this.canManage()) return;
     this.departmentService.getEmployeeCountForRole(role.id).subscribe({
       next: (count) => this.confirmDeleteRole(role, count),
       error: () => this.confirmDeleteRole(role, 0)

@@ -100,161 +100,158 @@
     @if (loading) {
       <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
     } @else {
-      <div class="es-table-wrap">
-        <table class="es-table">
-          <thead>
-            <tr>
-              <th>{{ 'd3.esim.table.user' | translate }}</th>
-              <th>{{ 'd3.esim.table.coverage' | translate }}</th>
-              <th>{{ 'd3.esim.table.planType' | translate }}</th>
-              <th>{{ 'd3.esim.table.network' | translate }}</th>
-              <th>{{ 'd3.esim.table.plan' | translate }}</th>
-              <th>{{ 'd3.esim.table.price' | translate }}</th>
-              <th>{{ 'd3.esim.table.status' | translate }}</th>
-              <th class="es-col-action">{{ 'd3.esim.table.action' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of pagedRows; track row.id; let i = $index) {
+      <!-- States live outside the scrolling table: inside a 980px row they were centered off-screen on mobile. -->
+      @if (loadError) {
+        <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.esim.errors.loadTitle" descKey="d3.esim.errors.network">
+          <button type="button" class="es-retry-btn" (click)="load()">
+            <i-tabler name="refresh" class="icon-16"></i-tabler>
+            {{ 'd3.esim.errors.retry' | translate }}
+          </button>
+        </app-dashboard-empty>
+      } @else if (!pagedRows.length && (hasActiveFilters || searchQuery.trim())) {
+        <app-dashboard-empty variant="search" titleKey="d3.esim.noResults.title" descKey="d3.esim.noResults.desc"
+          actionKey="d3.esim.noResults.clear" actionIcon="filter-off" (action)="clearFilters()"></app-dashboard-empty>
+      } @else if (!pagedRows.length) {
+        <app-dashboard-empty icon="device-sim" titleKey="d3.esim.empty.title" descKey="d3.esim.empty.desc"></app-dashboard-empty>
+      } @else {
+        <div class="es-table-wrap">
+          <table class="es-table">
+            <thead>
               <tr>
-                <td>
-                  <div class="es-user">
-                    <span class="es-avatar" [class]="'es-avatar tone-' + (i % 5)">{{ row.initials }}</span>
-                    <div class="es-user-copy">
-                      <strong>{{ row.userName }}</strong>
-                      <small>{{ row.email }}</small>
-                      <small>{{ 'd3.esim.table.purchased' | translate }} {{ fmtDate(row.purchasedAt) }}</small>
+                <th>{{ 'd3.esim.table.user' | translate }}</th>
+                <th>{{ 'd3.esim.table.coverage' | translate }}</th>
+                <th>{{ 'd3.esim.table.planType' | translate }}</th>
+                <th>{{ 'd3.esim.table.network' | translate }}</th>
+                <th>{{ 'd3.esim.table.plan' | translate }}</th>
+                <th>{{ 'd3.esim.table.price' | translate }}</th>
+                <th>{{ 'd3.esim.table.status' | translate }}</th>
+                <th class="es-col-action">{{ 'd3.esim.table.action' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of pagedRows; track row.id; let i = $index) {
+                <tr>
+                  <td>
+                    <div class="es-user">
+                      <span class="es-avatar" [class]="'es-avatar tone-' + (i % 5)">{{ row.initials }}</span>
+                      <div class="es-user-copy">
+                        <strong>{{ row.userName }}</strong>
+                        <small>{{ row.email }}</small>
+                        <small>{{ 'd3.esim.table.purchased' | translate }} {{ fmtDate(row.purchasedAt) }}</small>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="es-coverage">
-                    <span class="es-code">{{ row.coverageCode }}</span>
+                  </td>
+                  <td>
+                    <div class="es-coverage">
+                      <span class="es-code">{{ row.coverageCode }}</span>
+                      <div class="es-stack">
+                        <strong>{{ row.coverageName }}</strong>
+                        <small>{{ 'd3.esim.scope.' + row.scope.toLowerCase() | translate }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="es-plan-pill" [class.is-unlimited]="row.isUnlimited">{{ row.planLabel }}</span>
+                  </td>
+                  <td>
+                    <div class="es-coverage">
+                      <span class="es-network-icon"><i-tabler name="antenna-bars-5" class="icon-16"></i-tabler></span>
+                      <div class="es-stack">
+                        <strong dir="ltr">{{ row.networkType }}</strong>
+                        <small>{{ row.carrier }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
                     <div class="es-stack">
-                      <strong>{{ row.coverageName }}</strong>
-                      <small>{{ 'd3.esim.scope.' + row.scope.toLowerCase() | translate }}</small>
+                      <strong>{{ row.volumeText }}</strong>
+                      <small>{{ durationKey(row) | translate:{ count: fmt(row.duration), unit: row.durationUnit } }}</small>
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <span class="es-plan-pill" [class.is-unlimited]="row.isUnlimited">{{ row.planLabel }}</span>
-                </td>
-                <td>
-                  <div class="es-coverage">
-                    <span class="es-network-icon"><i-tabler name="antenna-bars-5" class="icon-16"></i-tabler></span>
-                    <div class="es-stack">
-                      <strong dir="ltr">{{ row.networkType }}</strong>
-                      <small>{{ row.carrier }}</small>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="es-stack">
-                    <strong>{{ row.volumeText }}</strong>
-                    <small>{{ durationKey(row) | translate:{ count: fmt(row.duration), unit: row.durationUnit } }}</small>
-                  </div>
-                </td>
-                <td>
-                  <span class="es-price">
-                    {{ fmtAmount(row.price) }}
-                    <img [src]="currencyIconSrc" alt="" class="es-riyal-sm" [class.is-text-currency]="currentLang === 'en'">
-                  </span>
-                </td>
-                <td>
-                  <div class="es-status-cell">
-                    <span class="es-status" [class]="'es-status status-' + statusKey(row.status)">
-                      {{ 'd3.esim.status.' + statusKey(row.status) | translate }}
-                      <span class="dot"></span>
+                  </td>
+                  <td>
+                    <span class="es-price">
+                      {{ fmtAmount(row.price) }}
+                      <img [src]="currencyIconSrc" alt="" class="es-riyal-sm" [class.is-text-currency]="currentLang === 'en'">
                     </span>
-                    @if (row.needsAttention) {
-                      <span class="es-attention" [title]="'d3.esim.attention.hint' | translate">
-                        <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
-                        {{ 'd3.esim.attention.badge' | translate }}
+                  </td>
+                  <td>
+                    <div class="es-status-cell">
+                      <span class="es-status" [class]="'es-status status-' + statusKey(row.status)">
+                        {{ 'd3.esim.status.' + statusKey(row.status) | translate }}
+                        <span class="dot"></span>
                       </span>
-                    }
-                    <!-- The list has no activation date; it's only shown in the detail drawer. -->
-                    @if (row.status === 'PendingActivation') {
-                      <small>{{ 'd3.esim.dates.activation' | translate }}: {{ 'd3.esim.dates.activationSoon' | translate }}</small>
-                    }
-                    <small>
-                      {{ 'd3.esim.dates.expiry' | translate }}:
-                      {{ row.expiresAt ? fmtDate(row.expiresAt) : ('d3.esim.dates.afterActivation' | translate) }}
-                    </small>
-                  </div>
-                </td>
-                <td class="es-col-action">
-                  <button type="button" class="es-action-btn" [matMenuTriggerFor]="rowMenu"
-                    [disabled]="actingId === row.id" [attr.aria-label]="'d3.esim.table.action' | translate">
-                    @if (actingId === row.id) {
-                      <mat-spinner diameter="16"></mat-spinner>
-                    } @else {
-                      <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
-                    }
-                  </button>
-                  <mat-menu #rowMenu="matMenu">
-                    <button mat-menu-item type="button" (click)="onView(row)">
-                      <span class="es-menu-item">
-                        {{ 'd3.esim.table.viewDetails' | translate }}
-                        <i-tabler name="eye" class="icon-16"></i-tabler>
-                      </span>
+                      @if (row.needsAttention) {
+                        <span class="es-attention" [title]="'d3.esim.attention.hint' | translate">
+                          <i-tabler name="alert-triangle" class="icon-14"></i-tabler>
+                          {{ 'd3.esim.attention.badge' | translate }}
+                        </span>
+                      }
+                      <!-- The list has no activation date; it's only shown in the detail drawer. -->
+                      @if (row.status === 'PendingActivation') {
+                        <small>{{ 'd3.esim.dates.activation' | translate }}: {{ 'd3.esim.dates.activationSoon' | translate }}</small>
+                      }
+                      <small>
+                        {{ 'd3.esim.dates.expiry' | translate }}:
+                        {{ row.expiresAt ? fmtDate(row.expiresAt) : ('d3.esim.dates.afterActivation' | translate) }}
+                      </small>
+                    </div>
+                  </td>
+                  <td class="es-col-action">
+                    <button type="button" class="es-action-btn" [matMenuTriggerFor]="rowMenu"
+                      [disabled]="actingId === row.id" [attr.aria-label]="'d3.esim.table.action' | translate">
+                      @if (actingId === row.id) {
+                        <mat-spinner diameter="16"></mat-spinner>
+                      } @else {
+                        <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                      }
                     </button>
-                    @if (canManageState) {
-                      @if (canSuspend(row)) {
-                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'suspend')">
-                          <span class="es-menu-item">
-                            {{ 'd3.esim.actions.suspend' | translate }}
-                            <i-tabler name="player-pause" class="icon-16"></i-tabler>
-                          </span>
-                        </button>
-                      }
-                      @if (canUnsuspend(row)) {
-                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'unsuspend')">
-                          <span class="es-menu-item">
-                            {{ 'd3.esim.actions.unsuspend' | translate }}
-                            <i-tabler name="player-play" class="icon-16"></i-tabler>
-                          </span>
-                        </button>
-                      }
-                      @if (canRevoke(row)) {
-                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'revoke')">
-                          <span class="es-menu-item is-danger">
-                            {{ 'd3.esim.actions.revoke' | translate }}
-                            <i-tabler name="ban" class="icon-16"></i-tabler>
-                          </span>
-                        </button>
-                      }
-                      <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onRefundRow(row)">
+                    <mat-menu #rowMenu="matMenu">
+                      <button mat-menu-item type="button" (click)="onView(row)">
                         <span class="es-menu-item">
-                          {{ 'd3.esim.refund.action' | translate }}
-                          <i-tabler name="receipt-refund" class="icon-16"></i-tabler>
+                          {{ 'd3.esim.table.viewDetails' | translate }}
+                          <i-tabler name="eye" class="icon-16"></i-tabler>
                         </span>
                       </button>
-                    }
-                  </mat-menu>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="8" class="p-0">
-                  @if (loadError) {
-                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.esim.errors.loadTitle" descKey="d3.esim.errors.network">
-                      <button type="button" class="es-retry-btn" (click)="load()">
-                        <i-tabler name="refresh" class="icon-16"></i-tabler>
-                        {{ 'd3.esim.errors.retry' | translate }}
-                      </button>
-                    </app-dashboard-empty>
-                  } @else if (hasActiveFilters || searchQuery.trim()) {
-                    <app-dashboard-empty variant="search" titleKey="d3.esim.noResults.title" descKey="d3.esim.noResults.desc"
-                      actionKey="d3.esim.noResults.clear" actionIcon="filter-off" (action)="clearFilters()"></app-dashboard-empty>
-                  } @else {
-                    <app-dashboard-empty icon="device-sim" titleKey="d3.esim.empty.title" descKey="d3.esim.empty.desc"></app-dashboard-empty>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                      @if (canManageState) {
+                        @if (canSuspend(row)) {
+                          <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'suspend')">
+                            <span class="es-menu-item">
+                              {{ 'd3.esim.actions.suspend' | translate }}
+                              <i-tabler name="player-pause" class="icon-16"></i-tabler>
+                            </span>
+                          </button>
+                        }
+                        @if (canUnsuspend(row)) {
+                          <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'unsuspend')">
+                            <span class="es-menu-item">
+                              {{ 'd3.esim.actions.unsuspend' | translate }}
+                              <i-tabler name="player-play" class="icon-16"></i-tabler>
+                            </span>
+                          </button>
+                        }
+                        @if (canRevoke(row)) {
+                          <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onChangeState(row, 'revoke')">
+                            <span class="es-menu-item is-danger">
+                              {{ 'd3.esim.actions.revoke' | translate }}
+                              <i-tabler name="ban" class="icon-16"></i-tabler>
+                            </span>
+                          </button>
+                        }
+                        <button mat-menu-item type="button" [disabled]="!!actingId" (click)="onRefundRow(row)">
+                          <span class="es-menu-item">
+                            {{ 'd3.esim.refund.action' | translate }}
+                            <i-tabler name="receipt-refund" class="icon-16"></i-tabler>
+                          </span>
+                        </button>
+                      }
+                    </mat-menu>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
 
       @if (totalCount > 0) {
         <footer class="es-pagination">

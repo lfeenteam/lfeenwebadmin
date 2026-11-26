@@ -72,12 +72,7 @@
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.discountCodes.table.appliesTo' | translate }}</span>
-                    <span class="cell-muted">
-                      @if (row.code.appliesToSubscriptionFee) { {{ 'd3.discountCodes.subscriptionFee' | translate }} }
-                      @if (row.code.appliesToSubscriptionFee && row.code.appliesToSetupFee) { {{ 'd3.discountCodes.separator' | translate }} }
-                      @if (row.code.appliesToSetupFee) { {{ 'd3.discountCodes.setupFee' | translate }} }
-                      @if (!row.code.appliesToSubscriptionFee && !row.code.appliesToSetupFee) { - }
-                    </span>
+                    <span class="cell-muted">{{ appliesToLabel(row.code) }}</span>
                   </td>
                   <td>
                     <span class="mobile-field-label">{{ 'd3.discountCodes.table.usage' | translate }}</span>
@@ -87,7 +82,7 @@
                         <span class="usage-track"><span class="usage-fill" [style.width.%]="row.usagePercent"></span></span>
                       </div>
                     } @else {
-                      <span class="cell-muted">{{ 'd3.discountCodes.usedTimes' | translate: { count: fmt(row.code.redemptionCount) } }}</span>
+                      <span class="cell-muted">{{ 'd3.discountCodes.usedTimes' | appPlural: row.code.redemptionCount }}</span>
                     }
                   </td>
                   <td>

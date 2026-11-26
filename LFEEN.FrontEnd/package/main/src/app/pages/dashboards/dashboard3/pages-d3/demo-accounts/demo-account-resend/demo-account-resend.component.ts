@@ -1,7 +1,9 @@
 import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -11,11 +13,17 @@ import { PageTitleOverrideService } from '../../../services/page-title-override.
 import {
   DEMO_CHANNELS,
   DEMO_CHANNEL_ICONS,
+  DEMO_EMAIL_PATTERN,
+  DEMO_LIMITS,
   DEMO_PERMISSIONS,
   DemoAccount,
   DemoChannel,
+  DemoResendResult,
   ResendDemoRequest,
-  demoKindOf
+  SAUDI_MOBILE_PATTERN,
+  demoKindOf,
+  normalizePhoneInput,
+  toLocalPhone
 } from '../../../interfaces/demo-account.model';
 import { DEMO_FIELD_ALIASES, DemoApiError, demoActionToast, demoErrorMessage, readDemoError } from '../demo-accounts.util';
 import { scrollToFirstError } from '../scroll-to-error';
@@ -24,14 +32,16 @@ import { DemoAttachmentsComponent } from '../components/demo-attachments/demo-at
 import { InvitationEditorStore } from '../components/invitation-editor/invitation-editor.store';
 import { InvitationEditorComponent } from '../components/invitation-editor/invitation-editor.component';
 import { InvitationPreviewComponent } from '../components/invitation-editor/invitation-preview.component';
+import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
 
 // /demo-accounts/:id/resend — pick the channel, edit the saved invitation and send it
-// again. Every resend issues a new PIN the admin never sees.
+// again. Every resend issues a new PIN, shown once in the credentials dialog afterwards.
+// An account made by name only (channel "None") gets its email/phone typed here.
 @Component({
   selector: 'app-demo-account-resend',
   standalone: true,
   imports: [
-    CommonModule, MatTooltipModule, TablerIconsModule, TranslateModule,
+    CommonModule, FormsModule, TablerIconsModule, TranslateModule,
     DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent,
   ],
   providers: [InvitationEditorStore],
@@ -41,6 +51,7 @@ import { InvitationPreviewComponent } from '../components/invitation-editor/invi
 export class DemoAccountResendComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
   private readonly service = inject(DemoAccountsService);
   private readonly translate = inject(TranslateService);
   private readonly toastr = inject(ToastrService);
@@ -58,13 +69,32 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
 
   readonly channels = DEMO_CHANNELS;
   readonly channelIcons = DEMO_CHANNEL_ICONS;
-  readonly lang = this.translate.currentLang || 'ar';
+  /** Follows the sidebar language switch (the route reuses this component, so it isn't re-created). */
+  lang = this.translate.currentLang || 'ar';
+  readonly limits = DEMO_LIMITS;
+
+  constructor() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(event => { this.lang = event.lang; });
+  }
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.lang === 'en' ? 'ltr' : 'rtl';
+  }
 
   id = '';
   account: DemoAccount | null = null;
   channel: DemoChannel = 'Email';
   loading = true;
   loadError: string | null = null;
+
+  /** Typed only when the account has no email / phone for the chosen channel. */
+  email = '';
+  phoneNumber = '';
+  contactTouched = false;
+  /** Server error about the recipient (DEMO_RECIPIENT_REQUIRED / EMAIL / PHONE). */
+  contactServerError: string | null = null;
 
   submitting = false;
   error: string | null = null;
@@ -87,7 +117,32 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
 
   get canSubmit(): boolean {
     return !!this.account && !this.submitting && !this.attachments?.uploading
-      && !this.invitation.blocked && this.hasContact(this.channel);
+      && !this.invitation.blocked && (this.hasContact(this.channel) || !this.contactError(true));
+  }
+
+  /** The account has no saved contact for the chosen channel → the page asks for it. */
+  get needsContact(): boolean {
+    return !!this.account && !this.hasContact(this.channel);
+  }
+
+  /** Message under the typed email/phone; `force` checks even before the field was left. */
+  contactError(force = false): string | null {
+    if (!this.needsContact) return null;
+    if (this.contactServerError) return this.contactServerError;
+    if (!force && !this.contactTouched) return null;
+    const t = (key: string) => this.translate.instant(`d3.demoAccounts.validation.${key}`);
+    if (this.isEmail) {
+      const v = this.email.trim();
+      if (!v) return t('emailRequired');
+      return v.length > DEMO_LIMITS.email || !DEMO_EMAIL_PATTERN.test(v) ? t('emailInvalid') : null;
+    }
+    const v = normalizePhoneInput(this.phoneNumber);
+    if (!v) return t('phoneRequired');
+    return SAUDI_MOBILE_PATTERN.test(v) ? null : t('phoneInvalid');
+  }
+
+  onContactInput(): void {
+    this.contactServerError = null;
   }
 
   /** Fetches the account with its saved texts and files, so the form is pre-filled with them. */
@@ -103,12 +158,16 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
           return;
         }
         this.account = { ...account, attachments: account.attachments ?? [], deliveries: account.deliveries ?? [] };
-        this.channel = account.channel;
+        // "None" (made by name only): start on a channel it has a contact for, else Email.
+        this.channel = account.channel !== 'None' ? account.channel
+          : account.email ? 'Email'
+          : account.contactPhone ? 'WhatsApp'
+          : 'Email';
         this.pageTitle.set(account.fullName);
         // The preview uses this account's real values.
         // Variables and presets follow the account's own kind ({{9}} / guest-* for guest accounts).
         this.invitation.init({
-          channel: account.channel,
+          channel: this.channel,
           kind: demoKindOf(account),
           demoAccountId: account.id,
           subject: account.invitationSubject,
@@ -133,18 +192,14 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
     return channel === 'Email' ? !!this.account.email : !!this.account.contactPhone;
   }
 
-  noContactTip(channel: DemoChannel): string {
-    if (this.hasContact(channel)) return '';
-    return this.translate.instant(channel === 'Email'
-      ? 'd3.demoAccounts.dialogs.resend.noEmail'
-      : 'd3.demoAccounts.dialogs.resend.noPhone');
-  }
-
+  /** Every channel can be picked: without a saved contact the page asks for it. */
   setChannel(channel: DemoChannel): void {
-    if (this.submitting || !this.hasContact(channel)) return;
+    if (this.submitting || channel === this.channel) return;
     this.channel = channel;
     this.invitation.setChannel(channel);
     this.error = null;
+    this.contactServerError = null;
+    this.contactTouched = false;
   }
 
   // ── Send ──────────────────────────────────────────────────
@@ -155,16 +210,25 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
   }
 
   submit(): void {
-    if (!this.canSubmit || !this.account) return;
+    this.contactTouched = true;
+    if (!this.canSubmit || !this.account) {
+      if (this.contactError(true)) this.scrollToFirstError();
+      return;
+    }
     this.error = null;
     this.attachments?.setError(null);
     this.submitting = true;
 
     this.service.resend(this.account.id, this.resendBody()).subscribe({
-      next: account => {
+      next: result => {
         this.submitting = false;
-        // 200 even when delivery failed — the toast reads deliveries[0].succeeded.
-        const toast = demoActionToast('resend', account, this.translate, this.lang);
+        // The new PIN came back: show it once with the message as sent, then the account page.
+        if (result.pin) {
+          this.showCredentials(result);
+          return;
+        }
+        // Older server (no PIN in the answer): 200 even when delivery failed — the toast reads deliveries[0].succeeded.
+        const toast = demoActionToast('resend', result, this.translate, this.lang);
         if (toast) toast.ok ? this.toastr.success(toast.message) : this.toastr.error(toast.message);
         this.goToDetails(true);
       },
@@ -174,6 +238,13 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
         if (this.handlePageError(e)) return;
         // Wherever the message lands below, bring it into view (runs after it renders).
         this.scrollToFirstError();
+        // No email/phone for this channel → under the contact field (the old PIN still works).
+        if (e.code === 'DEMO_RECIPIENT_REQUIRED' || e.code === 'DEMO_EMAIL_REQUIRED' || e.code === 'DEMO_PHONE_REQUIRED') {
+          if (this.needsContact) {
+            this.contactServerError = demoErrorMessage(e, this.translate);
+            return;
+          }
+        }
         // DEMO_SUBJECT_INVALID / DEMO_MESSAGE_INVALID → fresh preview marks the text.
         if (this.invitation.handleError(e)) return;
         // DEMO_ATTACHMENTS_EMAIL_ONLY / TOO_LARGE / INVALID → under the file picker.
@@ -212,7 +283,12 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
   private resendBody(): ResendDemoRequest {
     const inv = this.invitation;
     const body: ResendDemoRequest = {};
+    // A "None" account always differs, so its channel is always sent.
     if (this.account && this.channel !== this.account.channel) body.channel = this.channel;
+    if (this.needsContact) {
+      if (this.isEmail) body.email = this.email.trim();
+      else body.phoneNumber = normalizePhoneInput(this.phoneNumber);
+    }
     if (inv.messageChanged) body.invitationMessage = inv.message.trim() ? inv.message : '';
     if (inv.languageChanged) body.invitationLanguage = inv.language;
     if (this.isEmail) {
@@ -220,6 +296,32 @@ export class DemoAccountResendComponent implements OnInit, OnDestroy {
       if (this.attachments?.touched) body.attachmentIds = this.attachments.ids; // full list; [] removes all
     }
     return body;
+  }
+
+  /** The new PIN, code and message are shown once; closing opens the account page (replacing this form). */
+  private showCredentials(result: DemoResendResult): void {
+    const { pin, verificationCode, renderedMessage, ...account } = result;
+    // 200 even when delivery failed — the newest attempt says whether it arrived.
+    const sent = account.deliveries?.[0]?.succeeded === true;
+    const recipient = account.channel === 'Email' ? account.email : toLocalPhone(account.contactPhone);
+    this.dialog.open(CredentialsDialogComponent, {
+      width: '560px',
+      maxWidth: '94vw',
+      disableClose: true,
+      direction: this.dir,
+      data: {
+        credentials: {
+          account: account as DemoAccount,
+          pin: pin ?? '',
+          verificationCode,
+          renderedMessage,
+          invitationSent: sent,
+          reopened: false,
+        },
+        mode: 'resend',
+        recipient,
+      } as CredentialsDialogData,
+    }).afterClosed().subscribe(() => this.goToDetails(true));
   }
 
   /** Not found → back to the list; disabled meanwhile → its page. Returns true when handled. */

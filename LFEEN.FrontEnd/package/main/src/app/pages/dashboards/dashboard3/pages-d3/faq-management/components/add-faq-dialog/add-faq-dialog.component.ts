@@ -1,11 +1,11 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, computed, inject } from '@angular/core';
+import { CoreService } from 'src/app/services/core.service';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { finalize } from 'rxjs/operators';
 import {
   FAQ_BODY_MAX_LENGTH,
   FAQ_DEPARTMENT_OPTIONS,
@@ -57,6 +57,10 @@ export class AddFaqDialogComponent {
   readonly titleMax = FAQ_TITLE_MAX_LENGTH;
   readonly bodyMax = FAQ_BODY_MAX_LENGTH;
   readonly orderMax = FAQ_ORDER_MAX;
+
+  // Follows the page language, also when it changes without a reload (BUG-2511).
+  private readonly coreService = inject(CoreService);
+  readonly dir = computed(() => (this.coreService.getOptionsSignal()().language === 'ar' ? 'rtl' : 'ltr'));
 
   selectedDept: FaqDepartmentOption | null = null;
   saving = false;
@@ -177,17 +181,16 @@ export class AddFaqDialogComponent {
 
     this.saving = true;
     this.dialogRef.disableClose = true;
-    request$
-      .pipe(
-        finalize(() => {
-          this.saving = false;
-          this.dialogRef.disableClose = false;
-        })
-      )
-      .subscribe({
-        next: dto => this.dialogRef.close(dto),
-        error: err => this.applySaveError(err)
-      });
+    request$.subscribe({
+      // Stays saving on success: the dialog is still on screen during its close
+      // animation, and re-enabling the buttons there would allow a second save.
+      next: dto => this.dialogRef.close(dto),
+      error: err => {
+        this.saving = false;
+        this.dialogRef.disableClose = false;
+        this.applySaveError(err);
+      }
+    });
   }
 
   private applySaveError(err: unknown): void {

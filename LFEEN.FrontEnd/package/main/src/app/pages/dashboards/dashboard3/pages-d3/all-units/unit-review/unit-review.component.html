@@ -1,6 +1,8 @@
 <div class="unit-review" [dir]="currentDir">
   @if (isLoading) {
     <app-dashboard-loading variant="review" [rows]="4"></app-dashboard-loading>
+  } @else if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="retryLoad()"></app-unit-load-state>
   } @else {
 
   <div class="review-header">
@@ -156,21 +158,21 @@
       <span class="input-label">
         {{ (unitDetail?.overallStatus === 'Rejected' ? 'd3.unitReview.finalNotes.rejectionReasonLabel' : 'd3.unitReview.finalNotes.label') | translate }}
       </span>
-      @if (!isViewMode) {
+      @if (!isReadOnly) {
         <small class="notes-hint">{{ (unitDetail?.isDisplayed ? 'd3.unitReview.finalNotes.requiredHint' : 'd3.unitReview.finalNotes.optionalHint') | translate }}</small>
       }
     </div>
     <textarea
       [(ngModel)]="finalNotes"
-      [readonly]="isViewMode"
-      [class.is-readonly]="isViewMode"
+      [readonly]="isReadOnly"
+      [class.is-readonly]="isReadOnly"
       [placeholder]="'d3.unitReview.finalNotes.placeholder' | translate"
       rows="3">
     </textarea>
   </div>
   }
 
-  @if (!isViewMode) {
+  @if (!isReadOnly) {
   <div class="action-buttons">
     <button
       class="btn btn-approve"

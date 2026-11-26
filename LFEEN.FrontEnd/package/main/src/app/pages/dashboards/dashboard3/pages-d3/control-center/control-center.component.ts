@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
-import { ControlCenterSummary, ControlCenterTab, SummaryPlatform } from './interfaces/control-center.model';
+import { API_APP, ControlCenterSummary, ControlCenterTab, SummaryPlatform } from './interfaces/control-center.model';
 import { parseControlCenterError } from './interfaces/control-center-error.util';
 import { formatRiyadh } from './interfaces/riyadh-time.util';
 import { ControlCenterService } from './services/control-center.service';
@@ -90,10 +90,11 @@ export class ControlCenterComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /** The design covers the client and merchant apps on Android + iOS only. */
+  /** The managed apps (client, merchant, service) on Android + iOS only. */
   get platforms(): SummaryPlatform[] {
+    const apps = Object.values(API_APP);
     return (this.summary?.platforms ?? []).filter(
-      p => (p.app === 'Client' || p.app === 'Host') && (p.platform === 'Android' || p.platform === 'Ios'),
+      p => apps.includes(p.app) && (p.platform === 'Android' || p.platform === 'Ios'),
     );
   }
 

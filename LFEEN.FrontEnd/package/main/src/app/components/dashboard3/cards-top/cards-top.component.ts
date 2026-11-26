@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { map } from 'rxjs';
 import { DashboardService } from '../../../pages/dashboards/dashboard3/services/dashboard.service';
 import { createDashboardPanel } from '../../../pages/dashboards/dashboard3/services/dashboard-panel';
 import { DashboardSummary, UnavailableMetric } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/interfaces/dashboard.model';
@@ -26,6 +27,8 @@ interface MetricCard {
   invertTrend?: boolean;
   /** rate cards show absolute points instead of relative % */
   trendIsPoints?: boolean;
+  /** i18n key for what the trend is compared against ("vs last month" / "vs previous period") */
+  comparisonLabel?: string;
   alert?: boolean;
   currency?: boolean;
   valueTone?: 'up' | 'blue';
@@ -43,10 +46,22 @@ export class CardsTopComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dashboard = inject(DashboardService);
 
-  readonly summary = createDashboardPanel(this.dashboard.filters, (f) => this.dashboard.getSummary(f));
+  // Tags each response with the period it was fetched for, so the card wording
+  // follows the numbers on screen (previous data stays visible while refetching).
+  // No from/to = "this month" (the backend picks the current Riyadh month and
+  // compares it with last month); any other range is compared by the backend
+  // with the same-length period right before it.
+  private readonly panel = createDashboardPanel(this.dashboard.filters, (f) =>
+    this.dashboard.getSummary(f).pipe(map((summary) => ({ summary, isCurrentMonth: !f.from || !f.to })))
+  );
+  readonly summary = {
+    ...this.panel,
+    data: computed(() => this.panel.data()?.summary ?? null),
+  };
+  private readonly isCurrentMonth = computed(() => this.panel.data()?.isCurrentMonth ?? true);
   readonly lang = signal('ar');
 
-  readonly platformCards = computed(() => this.buildPlatformCards(this.summary.data(), this.lang()));
+  readonly platformCards = computed(() => this.buildPlatformCards(this.summary.data(), this.lang(), this.isCurrentMonth()));
   readonly hostsCards = computed(() => this.buildMerchantCards(this.summary.data(), this.lang()));
   readonly guestsCards = computed(() => this.buildGuestCards(this.summary.data(), this.lang()));
   readonly dataQuality = computed(() => this.summary.data()?.dataQuality ?? []);
@@ -80,14 +95,15 @@ export class CardsTopComponent {
     return good ? 'up' : 'warn';
   }
 
-  private buildPlatformCards(s: DashboardSummary | null, lang: string): MetricCard[] {
+  private buildPlatformCards(s: DashboardSummary | null, lang: string, isCurrentMonth: boolean): MetricCard[] {
     if (!s) return [];
     const p = s.platform;
+    const comparisonLabel = isCurrentMonth ? 'd3.cards.trendUpLastMonth' : 'd3.cards.vsPreviousPeriod';
     return [
-      { title: 'd3.cards.monthlyRevenue', value: formatMoney(p.revenue.value, lang), iconName: 'device-tablet', currency: true, trend: relativeTrend(p.revenue, lang) },
-      { title: 'd3.cards.completedBookings', value: formatInteger(p.completedBookings.value, lang), iconName: 'calendar-event', trend: relativeTrend(p.completedBookings, lang) },
-      { title: 'd3.cards.avgBookingValue', value: formatMoney(p.averageBookingValue.value, lang), iconName: 'trending-down', currency: true, trend: relativeTrend(p.averageBookingValue, lang) },
-      { title: 'd3.cards.monthlyCancelRate', value: formatRate(p.cancellationRate.value, lang), alert: true, invertTrend: true, trendIsPoints: true, trend: pointsTrend(p.cancellationRate, lang) },
+      { title: isCurrentMonth ? 'd3.cards.monthlyRevenue' : 'd3.cards.revenue', value: formatMoney(p.revenue.value, lang), iconName: 'device-tablet', currency: true, comparisonLabel, trend: relativeTrend(p.revenue, lang) },
+      { title: 'd3.cards.completedBookings', value: formatInteger(p.completedBookings.value, lang), iconName: 'calendar-event', comparisonLabel, trend: relativeTrend(p.completedBookings, lang) },
+      { title: 'd3.cards.avgBookingValue', value: formatMoney(p.averageBookingValue.value, lang), iconName: 'trending-down', currency: true, comparisonLabel, trend: relativeTrend(p.averageBookingValue, lang) },
+      { title: isCurrentMonth ? 'd3.cards.monthlyCancelRate' : 'd3.cards.cancelRate', value: formatRate(p.cancellationRate.value, lang), alert: true, invertTrend: true, trendIsPoints: true, comparisonLabel, trend: pointsTrend(p.cancellationRate, lang) },
     ];
   }
 

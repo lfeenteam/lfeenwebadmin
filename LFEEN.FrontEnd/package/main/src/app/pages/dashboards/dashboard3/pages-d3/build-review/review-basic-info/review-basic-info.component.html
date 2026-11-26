@@ -100,7 +100,7 @@
           <div class="floors-row">
             <span class="floor-number">{{ floor.number }}</span>
             <span class="floor-name">{{ floor.name }}</span>
-            <span class="floor-units">{{ floor.units }} {{ 'd3.buildReview.basicInfo.unitsSuffix' | translate }}</span>
+            <span class="floor-units">{{ 'd3.buildReview.basicInfo.unitsSuffix' | appPlural: floor.units }}</span>
           </div>
         }
       </div>

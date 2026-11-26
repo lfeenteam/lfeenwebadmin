@@ -22,6 +22,13 @@ export class InvitationEditorComponent {
   @Input() disabled = false;
   /** No frame or own title — for pages that wrap the editor in their own card. */
   @Input() bare = false;
+  /**
+   * Translation keys for the message field's label, placeholder and help. The demo links page
+   * calls it a "welcome message" shown on the link's page; the defaults are the invitation's.
+   */
+  @Input() messageLabelKey = 'd3.demoAccounts.invitation.message';
+  @Input() messagePlaceholderKey = 'd3.demoAccounts.invitation.messagePlaceholder';
+  @Input() messageHelpKey = 'd3.demoAccounts.invitation.messageHelp';
 
   @ViewChild('subjectField') private subjectField?: TokenFieldComponent;
   @ViewChild('messageField') private messageField?: TokenFieldComponent;

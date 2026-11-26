@@ -28,6 +28,8 @@ import { AuthInterceptor } from './guards/auth.interceptor';
 import { ServiceBusyInterceptor } from './guards/service-busy.interceptor';
 import { ChunkLoadErrorHandler } from './guards/chunk-load-error.handler';
 import { ParamAwareRouteReuseStrategy } from './guards/param-aware-route-reuse.strategy';
+import { Directionality } from '@angular/cdk/bidi';
+import { AppDirectionality } from './services/app-directionality';
 
 // icons
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -58,6 +60,9 @@ export const appConfig: ApplicationConfig = {
     provideToastr(), // Toastr providers
     provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: ErrorHandler, useClass: ChunkLoadErrorHandler },
+    // Overlays (dialogs, snackbars, datepickers…) follow the current language even when it
+    // changes without a reload; the CDK default reads <html dir> only once (BUG-2511).
+    { provide: Directionality, useClass: AppDirectionality },
     provideHighlightOptions({
       coreLibraryLoader: () => import('highlight.js/lib/core'),
       lineNumbersLoader: () => import('ngx-highlightjs/line-numbers'), // Optional, add line numbers if needed

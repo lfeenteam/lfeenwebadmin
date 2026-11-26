@@ -165,7 +165,8 @@ export function auditEntityRoute(item: AdminOperationAuditItem): AuditEntityRout
     // Unit review pages also need the building id, which the audit row doesn't carry.
     Unit: () => ({ path: ['units'] }),
     Property: () => ({ path: ['buildings'] }),
-    Complaint: () => ({ path: ['complaints'] }),
+    // A complaint against an employee — its own page, not a ticket (BUG-2813).
+    Complaint: id => ({ path: id ? ['complaints', 'employee', id] : ['complaints'] }),
     // Ticket ids are TicketExternalId strings, which is what the complaints pages take.
     Ticket: id => ({ path: id ? ['complaints', id] : ['complaints'] }),
     ClientTicket: id => ({

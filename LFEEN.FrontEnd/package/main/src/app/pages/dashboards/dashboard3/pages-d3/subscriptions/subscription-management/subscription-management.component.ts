@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { isForbiddenError } from '../../../utils/transport-error.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,6 +17,7 @@ import { serviceVisual } from '../interfaces/service-visual.util';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
 import { periodText } from '../interfaces/period-text.util';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface SubscriptionStatCard {
   labelKey: string;
@@ -35,7 +36,7 @@ const MAX_SERVICE_ICONS = 2;
 @Component({
   selector: 'app-subscription-management',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './subscription-management.component.html',
   styleUrl: './subscription-management.component.scss'
 })
@@ -67,6 +68,8 @@ export class SubscriptionManagementComponent implements OnInit {
   accounts: SubscriberAccount[] = [];
   misconfiguredServicesCount = 0;
   private pageRequest?: Subscription;
+  /** Typed search, debounced into one server request (back to page 1). */
+  private search$ = new Subject<string>();
 
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
@@ -113,6 +116,12 @@ export class SubscriptionManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.search$
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.loadPage();
+      });
     this.loadOverview();
     this.loadPage();
   }
@@ -153,7 +162,11 @@ export class SubscriptionManagementComponent implements OnInit {
     this.listLoading = true;
     this.listError = false;
     this.listForbidden = false;
-    this.pageRequest = this.subscriptionsService.getMerchantSubscriptions({ pageNumber: this.currentPage, pageSize: PAGE_SIZE })
+    this.pageRequest = this.subscriptionsService.getMerchantSubscriptions({
+        search: this.searchQuery.trim() || undefined,
+        pageNumber: this.currentPage,
+        pageSize: PAGE_SIZE,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: page => {
@@ -213,13 +226,6 @@ export class SubscriptionManagementComponent implements OnInit {
     };
   }
 
-  // The endpoint has no search parameter, so the box filters the merchants on the current page.
-  get filteredAccounts(): SubscriberAccount[] {
-    const q = this.searchQuery.trim().toLowerCase();
-    if (!q) return this.accounts;
-    return this.accounts.filter(a => a.facilityName.toLowerCase().includes(q));
-  }
-
   get currentDir(): 'rtl' | 'ltr' {
     return this.currentLang === 'en' ? 'ltr' : 'rtl';
   }
@@ -232,8 +238,16 @@ export class SubscriptionManagementComponent implements OnInit {
     this.expandedId = this.expandedId === account.id ? null : account.id;
   }
 
+  /** Searched on the server across all merchants, not just the page on screen (BUG-2405). */
   onSearchChange(value: string): void {
     this.searchQuery = value;
+    this.search$.next(value.trim());
+  }
+
+  /** "Clear search" on the no-results state — empties the box via its [value] binding and reloads the full list. */
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.search$.next('');
   }
 
   changePage(page: number): void {

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { EMPTY, Observable, delay, expand, map, of, reduce } from 'rxjs';
-import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChatMessageOption, ClientChatMessageOptions, ClientChat,ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, Ticket, TicketActionResult, TicketDetail, TicketListResponse, ResolvedOutcome, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
+import { AssignableEmployee, AssignableEmployeePage, AssignClientTicketRequest, AssignTicketRequest, ChatMessage, ClientChatMessageOption, ClientChatMessageOptions, ClientChat,ClientChatMessage, ClientTicket, ClientTicketDetail, ClientTicketListResponse, ClientTicketMessage, ClientTicketMessagesPage, ClientTicketMessageAttachment, ClientTicketQueryParams, ClientTicketQueueQueryParams, Complaint, ComplaintStatus, AR_DATE_LOCALE, EmployeeComplaintDetail, Ticket, TicketActionResult, TicketDetail, TicketListResponse, ResolvedOutcome, TicketPropertyFilterItem, TicketQueryParams, TicketsOverviewItem, TicketsOverviewQueryParams, TicketsOverviewResponse, UpdateClientTicketStatusRequest, UpdateStatusRequest } from '../interfaces/complaint.model';
 import { ClientRatingByAgentItem, ClientRatingByAgentQueryParams, ClientRatingListResponse, ClientRatingQueryParams } from '../interfaces/ratings.model';
 import { PaginatedEmployeeResponse } from '../../../interfaces/department.model';
 import { PaginatedPropertyResponse } from '../../../interfaces/building-card.model';
@@ -59,7 +59,17 @@ export class ComplaintService {
     return this.http.get<TicketDetail>(`${environment.apiBaseUrl}/api/tickets/${externalId}`);
   }
 
+  /** A complaint against an employee (ComplaintCreated notifications) — not a ticket. */
+  getEmployeeComplaintById(id: string): Observable<EmployeeComplaintDetail> {
+    return this.http.get<EmployeeComplaintDetail>(`${environment.apiBaseUrl}/api/complaints/${id}`);
+  }
+
   readonly closeDialogTrigger = signal(0);
+
+  /** True while the open host ticket detail can't be closed from the header — it is still
+   * loading, wasn't found / failed to load, is already finished (Resolved/Closed), or the
+   * admin can't write tickets. The page header hides its "Close & resolve" button then. */
+  readonly detailReadOnly = signal(false);
 
   emitCloseDialog(): void {
     this.closeDialogTrigger.update(n => n + 1);
@@ -580,7 +590,7 @@ export class ComplaintService {
     return 'resolvedByAgent';
   }
 
-  private mapTicketStatus(status: string | number): ComplaintStatus {
+  mapTicketStatus(status: string | number): ComplaintStatus {
     const byName: Record<string, ComplaintStatus> = {
       'New':                'new',
       'PendingAdminReply':  'pending',

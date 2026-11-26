@@ -1,0 +1,40 @@
+<div class="rr" [dir]="currentDir">
+  <div class="rr-header">
+    <div class="rr-heading">
+      <span class="rr-icon rr-icon--retry"><i-tabler name="refresh"></i-tabler></span>
+      <h2 class="rr-title">{{ 'd3.banRefunds.retryDialog.title' | translate }}</h2>
+    </div>
+    <button type="button" class="rr-close" (click)="close()" [attr.aria-label]="'d3.listingBan.dialog.cancelBtn' | translate">
+      <i-tabler name="x"></i-tabler>
+    </button>
+  </div>
+
+  <p class="rr-desc">{{ 'd3.banRefunds.retryDialog.desc' | translate }}</p>
+
+  <dl class="rt-summary">
+    <div class="rt-summary-row">
+      <dt>{{ 'd3.banRefunds.table.booking' | translate }}</dt>
+      <dd>{{ data.bookingNumber || '—' }}</dd>
+    </div>
+    @if (data.guestName?.trim()) {
+      <div class="rt-summary-row">
+        <dt>{{ 'd3.banRefunds.table.guest' | translate }}</dt>
+        <dd>{{ data.guestName }}</dd>
+      </div>
+    }
+    <div class="rt-summary-row">
+      <dt>{{ 'd3.banRefunds.table.amount' | translate }}</dt>
+      <dd class="rt-amount">{{ data.amount }}</dd>
+    </div>
+  </dl>
+
+  <div class="rt-warning" role="note">
+    <i-tabler name="alert-triangle" class="rt-warning-icon"></i-tabler>
+    <span>{{ 'd3.banRefunds.retryDialog.warning' | translate }}</span>
+  </div>
+
+  <div class="rr-actions">
+    <button type="button" class="rr-cancel" (click)="close()">{{ 'd3.listingBan.dialog.cancelBtn' | translate }}</button>
+    <button type="button" class="rr-confirm rr-confirm--retry" (click)="confirm()">{{ 'd3.banRefunds.retryDialog.confirmBtn' | translate }}</button>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CoreService } from 'src/app/services/core.service';
 import { Observable, Subject, throwError } from 'rxjs';
 import { finalize, shareReplay, tap } from 'rxjs/operators';
@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
 export class LoginService {
   private apiUrl = `${environment.apiBaseUrl}/api/auth/Login`;
   private refreshUrl = `${environment.apiBaseUrl}/api/auth/refresh-token`;
+  private logoutUrl = `${environment.apiBaseUrl}/api/auth/logout`;
   private changePasswordUrl = `${environment.apiBaseUrl}/api/auth/change-password`;
   private forgotPasswordUrl = `${environment.apiBaseUrl}/api/auth/forgot-password`;
   private resetPasswordUrl = `${environment.apiBaseUrl}/api/auth/reset-password`;
@@ -35,6 +36,10 @@ export class LoginService {
   // The backend rotates the refresh token, so a second call with the same one would
   // be rejected — parallel 401s must wait on this one instead of starting their own.
   private refreshInFlight$: Observable<LoginResponse> | null = null;
+
+  // Bumped on every logout, so a refresh that was already out when the admin signed
+  // out can't write its tokens back into storage when it comes back.
+  private sessionEpoch = 0;
 
   loading = signal<boolean>(false);
   isLoggedIn = signal<boolean>(this.checkAuthentication());
@@ -73,12 +78,18 @@ export class LoginService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    this.refreshInFlight$ = this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
-      tap((response) => this.handleAuthentication(response)),
-      finalize(() => this.refreshInFlight$ = null),
+    const epoch = this.sessionEpoch;
+    const inFlight$: Observable<LoginResponse> = this.http.post<LoginResponse>(this.refreshUrl, { refreshToken }).pipe(
+      tap((response) => {
+        if (epoch === this.sessionEpoch) this.handleAuthentication(response);
+      }),
+      finalize(() => {
+        if (this.refreshInFlight$ === inFlight$) this.refreshInFlight$ = null;
+      }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
-    return this.refreshInFlight$;
+    this.refreshInFlight$ = inFlight$;
+    return inFlight$;
   }
 
   /**
@@ -234,10 +245,34 @@ export class LoginService {
     return url.includes(this.refreshUrl);
   }
 
-  logout(): void {
+  isLogoutRequestUrl(url: string): boolean {
+    return url.includes(this.logoutUrl);
+  }
+
+  /**
+   * Ends the session here and, unless told otherwise, on the server too: the
+   * server revokes the session the current token belongs to (its refresh token
+   * and every access token from it). Pass revokeOnServer: false when the server
+   * has already rejected the session (a failed refresh, a second 401) — there's
+   * nothing left to revoke and the call would only come back 401.
+   */
+  logout(options: { revokeOnServer?: boolean } = {}): void {
+    const { revokeOnServer = true } = options;
+    const token = this.getToken();
+
     this.loggingOutSubject.next();
+    this.sessionEpoch++;
+    this.refreshInFlight$ = null;
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
+    }
+
+    // Fire and forget: signing out must not wait on the network or fail with it.
+    // The token goes in the header explicitly since storage is cleared right below.
+    if (revokeOnServer && token) {
+      this.http
+        .post(this.logoutUrl, {}, { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) })
+        .subscribe({ error: () => undefined });
     }
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);

@@ -7,10 +7,12 @@
         <p>{{ "d3.platformOffers.subtitle" | translate }}</p>
       </div>
     </div>
-    <a class="primary-btn" [routerLink]="createLink()">
-      <i-tabler name="plus"></i-tabler>
-      {{ "d3.platformOffers.add" | translate }}
-    </a>
+    @if (canManage()) {
+      <a class="primary-btn" [routerLink]="createLink()">
+        <i-tabler name="plus"></i-tabler>
+        {{ "d3.platformOffers.add" | translate }}
+      </a>
+    }
   </header>
   <article class="panel">
     <div class="filters">
@@ -192,41 +194,44 @@
                   <i-tabler name="eye"></i-tabler>
                   <span>{{ "d3.platformOffers.viewDetails" | translate }}</span>
                 </button>
-                <button mat-menu-item [routerLink]="editLink(item.id)">
-                  <i-tabler name="edit"></i-tabler>
-                  <span>{{ "d3.platformOffers.edit" | translate }}</span>
-                </button>
-                <mat-divider></mat-divider>
-                @if (item.isActive) {
+                <!-- BUG-2739: edit/activate/delete only for admins who can manage offers -->
+                @if (canManage()) {
+                  <button mat-menu-item [routerLink]="editLink(item.id)">
+                    <i-tabler name="edit"></i-tabler>
+                    <span>{{ "d3.platformOffers.edit" | translate }}</span>
+                  </button>
+                  <mat-divider></mat-divider>
+                  @if (item.isActive) {
+                    <button
+                      mat-menu-item
+                      class="text-danger"
+                      (click)="toggle(item)"
+                    >
+                      <i-tabler name="player-pause"></i-tabler>
+                      <span>{{
+                        "d3.platformOffers.deactivate" | translate
+                      }}</span>
+                    </button>
+                  } @else {
+                    <button
+                      mat-menu-item
+                      class="text-success"
+                      (click)="toggle(item)"
+                    >
+                      <i-tabler name="player-play"></i-tabler>
+                      <span>{{ "d3.platformOffers.activate" | translate }}</span>
+                    </button>
+                  }
+                  <mat-divider></mat-divider>
                   <button
                     mat-menu-item
                     class="text-danger"
-                    (click)="toggle(item)"
+                    (click)="remove(item)"
                   >
-                    <i-tabler name="player-pause"></i-tabler>
-                    <span>{{
-                      "d3.platformOffers.deactivate" | translate
-                    }}</span>
-                  </button>
-                } @else {
-                  <button
-                    mat-menu-item
-                    class="text-success"
-                    (click)="toggle(item)"
-                  >
-                    <i-tabler name="player-play"></i-tabler>
-                    <span>{{ "d3.platformOffers.activate" | translate }}</span>
+                    <i-tabler name="trash"></i-tabler>
+                    <span>{{ "d3.platformOffers.delete" | translate }}</span>
                   </button>
                 }
-                <mat-divider></mat-divider>
-                <button
-                  mat-menu-item
-                  class="text-danger"
-                  (click)="remove(item)"
-                >
-                  <i-tabler name="trash"></i-tabler>
-                  <span>{{ "d3.platformOffers.delete" | translate }}</span>
-                </button>
               </mat-menu>
             </div>
           </article>
@@ -234,7 +239,7 @@
       </div>
       <footer class="pagination-wrapper">
         <span class="pagination-total">
-          {{ total() }} {{ "d3.platformOffers.total" | translate }}
+          {{ "d3.platformOffers.total" | appPlural: total() }}
         </span>
         <nav class="pagination-controls" aria-label="Pagination">
           <button

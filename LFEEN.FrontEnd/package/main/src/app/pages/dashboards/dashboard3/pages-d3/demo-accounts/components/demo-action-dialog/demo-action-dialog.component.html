@@ -33,10 +33,14 @@
           @if (fieldError) { <p class="da-error">{{ fieldError }}</p> }
         </div>
 
-        <label class="da-check">
-          <input type="checkbox" name="sendInvitation" [disabled]="submitting" [(ngModel)]="sendInvitation" />
-          {{ 'd3.demoAccounts.dialogs.resetPin.sendInvitation' | translate }}
-        </label>
+        @if (canSendInvitation) {
+          <label class="da-check">
+            <input type="checkbox" name="sendInvitation" [disabled]="submitting" [(ngModel)]="sendInvitation" />
+            {{ 'd3.demoAccounts.dialogs.resetPin.sendInvitation' | translate }}
+          </label>
+        } @else {
+          <p class="da-helper">{{ 'd3.demoAccounts.dialogs.resetPin.noChannel' | translate }}</p>
+        }
       }
 
       <!-- Extend -->

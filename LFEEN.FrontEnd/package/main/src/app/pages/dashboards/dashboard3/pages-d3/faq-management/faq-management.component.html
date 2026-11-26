@@ -52,10 +52,12 @@
           <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
         </span>
       </div>
-      <button class="add-article-btn" type="button" (click)="openAddDialog()">
-        <i-tabler name="plus" class="icon-18"></i-tabler>
-        {{ 'd3.faq.addArticle' | translate }}
-      </button>
+      @if (canManage()) {
+        <button class="add-article-btn" type="button" (click)="openAddDialog()">
+          <i-tabler name="plus" class="icon-18"></i-tabler>
+          {{ 'd3.faq.addArticle' | translate }}
+        </button>
+      }
 
     
     </div>
@@ -104,8 +106,17 @@
         <div class="table-row">
 
           <div class="col-title">
-            <span class="row-title">{{ article.titleEn }}</span>
-            <span class="row-subtitle">{{ article.titleAr }}</span>
+            @if (isEn()) {
+              <span class="row-title" dir="ltr">{{ article.titleEn || article.titleAr }}</span>
+              @if (article.titleEn && article.titleAr) {
+                <span class="row-subtitle" dir="rtl">{{ article.titleAr }}</span>
+              }
+            } @else {
+              <span class="row-title" dir="rtl">{{ article.titleAr || article.titleEn }}</span>
+              @if (article.titleAr && article.titleEn) {
+                <span class="row-subtitle" dir="ltr">{{ article.titleEn }}</span>
+              }
+            }
           </div>
 
           <div class="col-dept">
@@ -127,7 +138,10 @@
           </div>
 
           <div class="col-actions">
-            <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+            <!-- BUG-2739: the menu holds only write actions, so view-only admins get none -->
+            @if (canManage()) {
+            <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu"
+              [attr.aria-label]="'d3.faq.table.rowActionsAria' | translate: { name: isEn() ? (article.titleEn || article.titleAr) : (article.titleAr || article.titleEn) }">
               <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
             </button>
             <mat-menu #rowMenu="matMenu" class="faq-row-menu">
@@ -151,6 +165,7 @@
                 </button>
               }
             </mat-menu>
+            }
           </div>
 
         </div>

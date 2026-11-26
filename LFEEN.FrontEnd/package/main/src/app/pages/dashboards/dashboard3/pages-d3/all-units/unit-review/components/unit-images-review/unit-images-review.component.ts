@@ -11,8 +11,12 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 type UnitPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -28,6 +32,9 @@ interface UnitReviewPhoto {
   isPendingDeletion: boolean;
   pendingIsMain: boolean | null;
   loadFailed: boolean;
+  /** 1-based position inside its group — what the admin sees on the card, unlike the DB mediaId. */
+  displayIndex: number;
+  groupTitle: string;
 }
 
 interface UnitPhotoGroup {
@@ -49,7 +56,7 @@ const GROUP_ICON_MAP: Record<string, string> = {
 @Component({
   selector: 'app-unit-images-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AppPluralPipe, UnitLoadStateComponent],
   templateUrl: './unit-images-review.component.html',
   styleUrl: './unit-images-review.component.scss'
 })
@@ -62,8 +69,11 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   finalNotes = '';
   isLoading = false;
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   isSubmitting = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
   totalPhotoCount = 0;
   minRequired = 0;
 
@@ -118,7 +128,9 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     // Fetched by id rather than looked up in getBuildingsWithUnits(): that list only
     // holds the units page currently loaded in the list view, so a direct link or a
@@ -149,9 +161,13 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     this.pageBreadcrumbTrail.clear();
   }
 
-  private loadPhotos(): void {
-    if (!this.unitId) return;
+  loadPhotos(): void {
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
+    }
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitPhotos(this.unitId).subscribe({
       next: (response) => {
         this.isLoading = false;
@@ -165,11 +181,14 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
           key: group.groupKey,
           title: group.groupLabel,
           icon: GROUP_ICON_MAP[group.groupKey] ?? 'photo',
-          photos: group.photos.map(p => this.mapPhoto(p))
+          photos: group.photos.map((p, i) => this.mapPhoto(p, i + 1, group.groupLabel))
         }));
         this.mainPhoto = this.photoGroups.flatMap(g => g.photos).find(p => p.isMainPhoto) ?? null;
       },
-      error: () => { this.isLoading = false; }
+      error: (err) => {
+        this.loadState = classifyLoadError(err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -181,6 +200,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId || !this.allReviewed) return;
     if (decision === 'rejected' && !this.hasNoPhotos && !this.hasRejections) return;
 
@@ -254,7 +274,20 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['../'], { relativeTo: this.route });
   }
 
-  private mapPhoto(apiPhoto: UnitPhotoItem): UnitReviewPhoto {
+  photoCardId(photo: UnitReviewPhoto): string {
+    return `unit-photo-card-${photo.id}`;
+  }
+
+  /** Jumps from a rejection-summary row back to its card and focuses the reason input. */
+  scrollToPhoto(photo: UnitReviewPhoto): void {
+    const card = document.getElementById(this.photoCardId(photo));
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const input = card.querySelector<HTMLInputElement>('.rejection-fields input');
+    input?.focus({ preventScroll: true });
+  }
+
+  private mapPhoto(apiPhoto: UnitPhotoItem, displayIndex: number, groupTitle: string): UnitReviewPhoto {
     const normalizedDecision = apiPhoto.decision?.trim().toLowerCase() ?? 'pending';
     const isApproved = normalizedDecision === 'approved';
     const hasPendingPhotoChange =
@@ -275,6 +308,8 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
       isPendingDeletion: apiPhoto.isPendingDeletion,
       pendingIsMain: apiPhoto.pendingIsMain,
       loadFailed: !apiPhoto.url,
+      displayIndex,
+      groupTitle,
     };
   }
 

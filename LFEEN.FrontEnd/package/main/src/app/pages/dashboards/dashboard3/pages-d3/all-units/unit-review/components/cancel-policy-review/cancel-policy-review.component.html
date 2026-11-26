@@ -1,6 +1,8 @@
 <div class="cancel-policy-review" [dir]="currentDir">
 
-  @if (loadError) {
+  @if (notFound) {
+    <app-unit-load-state [state]="'notFound'"></app-unit-load-state>
+  } @else if (loadError) {
     <div class="load-error">
       <i-tabler name="alert-circle" class="load-error-icon"></i-tabler>
       <div class="load-error-text">

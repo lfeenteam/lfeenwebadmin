@@ -23,6 +23,7 @@ import { LoginService } from '../../services/login/login.service';
 import { ReviewReportsComponent, ReviewReportsCount } from './components/review-reports/review-reports.component';
 import { BOOKING_REVIEW_PERMISSIONS, hasBookingPermission } from './interfaces/review-report.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { PermissionService } from '../../services/permission.service';
 
 /** Page-level view; the reported-reviews queue lives at ?tab=reviews. */
 type BookingsView = 'bookings' | 'reviews';
@@ -54,6 +55,9 @@ export class AllBookingsComponent implements OnInit {
   private route     = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
   private loginService = inject(LoginService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: change unit / cancel need a Bookings write permission, not just Bookings.View. */
+  readonly canManageBookings = computed(() => this.perms.canWrite('bookings'));
 
   // ── Reported reviews tab ──────────────────────────────────────────────────
   readonly canViewReviews = computed(() =>
@@ -124,6 +128,7 @@ export class AllBookingsComponent implements OnInit {
 
   // ── Change unit dialog ────────────────────────────────────────────────────
   openChangeUnit(booking: Booking): void {
+    if (!this.canManageBookings()) return;
     const dialogRef = this.dialog.open(ChangeUnitDialogComponent, {
       width: '512px',
       maxWidth: '95vw',
@@ -147,6 +152,7 @@ export class AllBookingsComponent implements OnInit {
 
   // ── Cancel booking dialog ────────────────────────────────────────────────
   openCancelBooking(booking: Booking): void {
+    if (!this.canManageBookings()) return;
     const dialogRef = this.dialog.open(CancelBookingDialogComponent, {
       width: '512px',
       maxWidth: '95vw',

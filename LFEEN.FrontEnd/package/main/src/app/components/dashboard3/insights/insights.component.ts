@@ -6,7 +6,8 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '../../../pages/dashboards/dashboard3/services/dashboard.service';
 import { createDashboardPanel } from '../../../pages/dashboards/dashboard3/services/dashboard-panel';
-import { formatInteger, formatRate } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/dashboard-format';
+import { AppPluralPipe } from '../../../pipes/app-plural.pipe';
+import { formatRate } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/dashboard-format';
 
 // Severity is never shown by color alone: each level also has an icon and a text label.
 const SEVERITY_META: Record<string, { icon: string; type: string; labelKey: string }> = {
@@ -38,12 +39,14 @@ const ACTION_PATH_SEGMENT_MAP: Record<string, string> = {
   team: 'team-management',
   properties: 'units',
   listings: 'units',
+  tickets: 'complaints',
+  dashboard: 'ceo',
 };
 
 @Component({
   selector: 'app-dashboard3-insights',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, AppPluralPipe],
   templateUrl: './insights.component.html',
   styleUrl: './insights.component.scss'
 })
@@ -65,8 +68,9 @@ export class InsightsComponent {
       rank: c.rank,
       // Names come from the API; fall back to `city`, never a hardcoded translation map.
       name: (this.lang() === 'en' ? c.cityEn : c.cityAr) || c.city,
-      bookings: formatInteger(c.bookings, this.lang()),
-      units: formatInteger(c.units, this.lang()),
+      // Raw counts: appPlural picks the noun form by the number and formats it itself.
+      bookings: c.bookings,
+      units: c.units,
     }))
   );
 

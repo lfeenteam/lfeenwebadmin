@@ -44,7 +44,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of pagedRows; track row.order.orderId) {
+              @for (row of rows; track row.order.orderId) {
                 <tr class="request-row">
                   <td>
                     <span class="merchant-name">{{ row.merchantName }}</span>
@@ -113,12 +113,12 @@
       </div>
 
       @if (totalPages > 1) {
-        <div class="pagination-wrapper d-flex align-items-center justify-content-between">
+        <div class="pagination-wrapper">
           <span class="pagination-total">
-            {{ fmt(totalCount) }} {{ 'd3.subscriptionRequests.pagination.total' | translate }}
+            {{ 'd3.subscriptionRequests.pagination.total' | appPlural: totalCount }}
           </span>
-          <div class="pagination-controls d-flex align-items-center gap-4">
-            <button class="page-nav-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+          <div class="pagination-controls">
+            <button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
               <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
             </button>
             @for (item of visiblePages; track $index) {
@@ -130,7 +130,7 @@
                 </button>
               }
             }
-            <button class="page-nav-btn" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+            <button class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
               <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
             </button>
           </div>

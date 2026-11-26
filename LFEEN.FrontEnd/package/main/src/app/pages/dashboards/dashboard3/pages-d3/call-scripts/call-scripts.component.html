@@ -63,7 +63,9 @@
           <div class="table-row">
 
             <div class="col-scenario">
-              <span class="scenario-chip">{{ scenarioName(script) }}</span>
+              <span class="scenario-chip" [matTooltip]="scenarioName(script)" matTooltipPosition="above">
+                <span class="scenario-chip-text">{{ scenarioName(script) }}</span>
+              </span>
             </div>
 
             <div class="col-audio">
@@ -89,7 +91,8 @@
 
             <div class="col-actions">
               @if (canManage()) {
-                <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+                <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu"
+                  [attr.aria-label]="'d3.callScripts.table.rowActionsAria' | translate: { name: scenarioName(script) }">
                   <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
                 </button>
                 <mat-menu #rowMenu="matMenu" class="cs-row-menu">

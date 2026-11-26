@@ -36,26 +36,26 @@
     <!-- Header -->
     @if (resolvedMode) {
       <div class="table-head resolved-head">
-        <div class="col-r-user">المستخدم</div>
-        <div class="col-r-type">النوع</div>
-        <div class="col-r-ticket">رقم التذكرة</div>
-        <div class="col-r-subject">الموضوع</div>
-        <div class="col-r-status">الحالة</div>
+        <div class="col-r-user">{{ 'd3.complaints.table.user' | translate }}</div>
+        <div class="col-r-type">{{ 'd3.complaints.table.type' | translate }}</div>
+        <div class="col-r-ticket">{{ 'd3.complaints.table.ticket' | translate }}</div>
+        <div class="col-r-subject">{{ 'd3.complaints.table.resolvedSubject' | translate }}</div>
+        <div class="col-r-status">{{ 'd3.complaints.table.status' | translate }}</div>
         @if (!compact) {
-          <div class="col-r-date">تاريخ الرد</div>
+          <div class="col-r-date">{{ 'd3.complaints.table.replyDate' | translate }}</div>
         }
-        <div class="col-r-action">الإجراء</div>
+        <div class="col-r-action">{{ 'd3.complaints.table.action' | translate }}</div>
       </div>
     } @else if (hostSupportMode) {
       <div class="table-head host-head">
-        <div class="col-host-client">المضيف</div>
-        <div class="col-subject">موضوع المشكلة</div>
+        <div class="col-host-client">{{ 'd3.complaints.table.host' | translate }}</div>
+        <div class="col-subject">{{ 'd3.complaints.table.subject' | translate }}</div>
         <div class="col-property">{{ 'd3.complaints.hostFilters.property' | translate }}</div>
         <div class="col-department">{{ 'd3.complaints.hostFilters.department' | translate }}</div>
-        <div class="col-status">الحالة</div>
-        <div class="col-date">التاريخ</div>
+        <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
+        <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
         <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
-        <div class="col-action">الإجراء</div>
+        <div class="col-action">{{ 'd3.complaints.table.action' | translate }}</div>
       </div>
     } @else {
       <div class="table-head">
@@ -94,7 +94,7 @@
           <!-- Type badge -->
           <div class="col-r-type">
             <span class="type-badge" [class.type-customer]="c.type === 'customer'" [class.type-host]="c.type === 'host'">
-              {{ c.type === 'customer' ? 'عميل' : 'مضيف' }}
+              {{ (c.type === 'customer' ? 'd3.complaints.table.typeClient' : 'd3.complaints.table.typeMerchant') | translate }}
             </span>
           </div>
 
@@ -168,6 +168,7 @@
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
+              [disabled]="!canManage()"
               [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
@@ -221,6 +222,7 @@
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
+              [disabled]="!canManage()"
               [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
@@ -252,7 +254,7 @@
   <div class="table-footer">
     <div class="pagination-controls">
       <button
-        class="page-nav-btn"
+        class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
         [disabled]="currentPage === 1"
         (click)="changePage(currentPage - 1)">
         <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
@@ -272,7 +274,7 @@
       }
 
       <button
-        class="page-nav-btn"
+        class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
         [disabled]="currentPage === totalPages"
         (click)="changePage(currentPage + 1)">
         <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>

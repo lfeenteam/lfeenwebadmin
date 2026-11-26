@@ -135,13 +135,22 @@ export class AddRoleDialogComponent implements OnInit {
     request.subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        this.toastr.success(
-          this.translate.instant(this.data.role ? 'd3.toast.editRoleSuccess' : 'd3.toast.addRoleSuccess')
-        );
+        // Trust what the server saved, not what the form sent, so the table never shows
+        // a manager flag that wasn't stored (BUG-2691).
+        const savedIsManager: boolean =
+          typeof response?.isManagerRole === 'boolean' ? response.isManagerRole : v.isManagerRole;
+        if (savedIsManager !== v.isManagerRole) {
+          this.toastr.warning(this.translate.instant('d3.toast.roleManagerNotSaved'));
+        } else {
+          this.toastr.success(
+            this.translate.instant(this.data.role ? 'd3.toast.editRoleSuccess' : 'd3.toast.addRoleSuccess')
+          );
+        }
         // بعتت البيانات المحدثة للـ parent component
         const updatedData = {
           ...this.data.role,
           ...v,
+          isManagerRole: savedIsManager,
           id: this.data.role?.id || response?.id
         };
         this.dialogRef.close(updatedData);

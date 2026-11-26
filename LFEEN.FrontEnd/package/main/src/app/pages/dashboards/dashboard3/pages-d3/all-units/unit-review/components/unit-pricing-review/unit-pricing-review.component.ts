@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, map, of, Subject, switchMap, tap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,16 +10,23 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { AdminOccupancyPrice, UnitPricingResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 interface CalendarDay {
   day: number | null;
   price: number | null;
-  available: boolean;
+  /** null = no data for this day yet (loading / failed) — never shown as "unavailable". */
+  available: boolean | null;
+  isToday?: boolean;
+  /** Friday / Saturday — the Saudi weekend, usually priced differently. */
+  isWeekend?: boolean;
 }
 
 interface SeasonalPeriod {
@@ -58,7 +66,7 @@ interface PlatformPricingRow {
 @Component({
   selector: 'app-unit-pricing-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, UnitLoadStateComponent],
   templateUrl: './unit-pricing-review.component.html',
   styleUrl: './unit-pricing-review.component.scss'
 })
@@ -74,6 +82,9 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   safetyFloorPrice: number | null = null;
   currentLang = 'ar';
   isReadOnly = false;
+  private perms = inject(PermissionService);
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
 
   seasonalPeriods: SeasonalPeriod[] = [];
 
@@ -114,6 +125,10 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   };
 
   private calendarDaysMap = new Map<number, { price: number | null; isEnabled: boolean }>();
+  calendarState: 'loading' | 'loaded' | 'error' = 'loading';
+  // BUG-2761: one request stream for the calendar — switchMap drops a slower reply for a
+  // month the reviewer already navigated away from.
+  private readonly calendarMonth$ = new Subject<Date>();
 
   get currencyIconSrc(): string {
     return this.currentLang === 'en'
@@ -146,12 +161,18 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     for (let i = 0; i < startDow; i++) {
       cells.push({ day: null, price: null, available: false });
     }
+    const today = new Date();
+    const isCurrentMonth =
+      today.getFullYear() === firstDay.getFullYear() && today.getMonth() === firstDay.getMonth();
     for (let d = 1; d <= totalDays; d++) {
       const dayData = this.calendarDaysMap.get(d);
+      const dow = (startDow + d - 1) % 7;
       cells.push({
         day: d,
         price: dayData?.price ?? null,
-        available: dayData?.isEnabled ?? false,
+        available: dayData ? dayData.isEnabled : null,
+        isToday: isCurrentMonth && today.getDate() === d,
+        isWeekend: dow === 5 || dow === 6,
       });
     }
     while (cells.length % 7 !== 0) {
@@ -185,20 +206,34 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     if (this.unitId) {
+      this.initCalendarStream();
       this.loadPricing();
       this.loadCalendar();
       this.unitsService.getUnitBasicData(this.unitId)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(data => {
-          const lang = this.translate.currentLang || 'ar';
-          this.pageBreadcrumbTrail.set([
-            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-          ]);
+        .subscribe({
+          next: data => {
+            const lang = this.translate.currentLang || 'ar';
+            this.pageBreadcrumbTrail.set([
+              { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+            ]);
+          },
+          // Breadcrumb only — the pricing request drives the not-found state.
+          error: () => {}
         });
+    } else {
+      this.loadState = 'notFound';
     }
+  }
+
+  retryLoad(): void {
+    this.loadPricing();
+    this.loadCalendar();
   }
 
   ngOnDestroy(): void {
@@ -206,27 +241,31 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   }
 
   private loadPricing(): void {
+    this.loadState = 'loaded';
     this.unitsService.getUnitPricing(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        this.basePrice = data.basePricePerNight ?? null;
-        this.safetyFloorPrice = data.minimumPricePerNight ?? null;
-        this.occupancyPrices = this.mapOccupancyPrices(data);
-        this.applyPricingPolicies(data);
-        const locale = this.currentLang === 'en' ? enUS : ar;
-        this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
-          const start = p.startDate
-            ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
-            : '-';
-          const end = p.endDate
-            ? format(new Date(p.endDate), 'd MMMM yyyy', { locale })
-            : '-';
-          return {
-            label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
-            name: p.name || '-',
-            dates: `${start} - ${end}`,
-          };
-        });
+      .subscribe({
+        next: data => {
+          this.basePrice = data.basePricePerNight ?? null;
+          this.safetyFloorPrice = data.minimumPricePerNight ?? null;
+          this.occupancyPrices = this.mapOccupancyPrices(data);
+          this.applyPricingPolicies(data);
+          const locale = this.currentLang === 'en' ? enUS : ar;
+          this.seasonalPeriods = (data.customPeriods ?? []).map((p, i) => {
+            const start = p.startDate
+              ? format(new Date(p.startDate), 'd MMMM yyyy', { locale })
+              : '-';
+            const end = p.endDate
+              ? format(new Date(p.endDate), 'd MMMM yyyy', { locale })
+              : '-';
+            return {
+              label: this.currentLang === 'en' ? `Period ${i + 1}` : `الفترة ${i + 1}`,
+              name: p.name || '-',
+              dates: `${start} - ${end}`,
+            };
+          });
+        },
+        error: (err) => { this.loadState = classifyLoadError(err); }
       });
   }
 
@@ -286,15 +325,41 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private loadCalendar(): void {
-    const date = format(this.currentMonth, 'yyyy-MM-dd');
-    this.unitsService.getUnitPricingCalendar(this.unitId, date)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        this.calendarDaysMap = new Map(
-          data.days.map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
-        );
+  private initCalendarStream(): void {
+    this.calendarMonth$
+      .pipe(
+        // Clear the previous month at once so its prices never show under the new month's label.
+        tap(() => {
+          this.calendarDaysMap = new Map();
+          this.calendarState = 'loading';
+        }),
+        switchMap(month =>
+          this.unitsService.getUnitPricingCalendar(this.unitId, format(month, 'yyyy-MM-dd')).pipe(
+            map(data => ({ ok: true as const, data })),
+            // Caught per request so one failure doesn't end the stream.
+            catchError(() => of({ ok: false as const, data: null }))
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(result => {
+        if (result.ok) {
+          this.calendarDaysMap = new Map(
+            (result.data.days ?? []).map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
+          );
+          this.calendarState = 'loaded';
+        } else {
+          this.calendarState = 'error';
+        }
       });
+  }
+
+  private loadCalendar(): void {
+    this.calendarMonth$.next(this.currentMonth);
+  }
+
+  retryCalendar(): void {
+    this.loadCalendar();
   }
 
   prevMonth(): void {
@@ -308,6 +373,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

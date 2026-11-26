@@ -28,6 +28,7 @@ import { resolveSettlementError } from './interfaces/settlement-error.util';
 import { SettlementsService } from './services/settlements.service';
 import { MerchantDebtsComponent } from './merchant-debts/merchant-debts.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 /** Kept in the URL as `?tab=` (absent = current) so a link can open the debts tab directly. */
 type SettlementTab = 'current' | 'previous' | 'debts';
@@ -72,7 +73,7 @@ const STATUS_META: Record<string, { key: string; cls: StatusClass }> = {
 @Component({
   selector: 'app-settlements',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, MerchantDebtsComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, MerchantDebtsComponent, AppPluralPipe],
   templateUrl: './settlements.component.html',
   styleUrl: './settlements.component.scss'
 })

@@ -4,6 +4,8 @@
     <div class="loading-wrap">
       <i-tabler name="loader-2" class="spin-icon"></i-tabler>
     </div>
+  } @else if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadDeposit()"></app-unit-load-state>
   } @else {
 
   @if (!hasDepositData) {

@@ -26,7 +26,7 @@
            [class.accepted]="mainPhoto.decision === 'Approved'">
         <div class="image-wrapper image-wrapper--main">
           @if (!mainPhoto.loadFailed) {
-            <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.fileName" (error)="mainPhoto.loadFailed = true">
+            <img class="image-main" [src]="mainPhoto.url" [alt]="mainPhoto.classificationLabel || ('d3.buildReview.images.mainImageTitle' | translate)" (error)="mainPhoto.loadFailed = true">
           } @else {
             <div class="photo-load-error">
               <i-tabler name="photo-off"></i-tabler>
@@ -37,8 +37,8 @@
         </div>
         <div class="card-footer-main">
           <div class="text-info">
-            <span class="image-name">{{ mainPhoto.fileName }}</span>
-            <span class="image-category">{{ mainPhoto.classificationLabel }}</span>
+            <!-- The uploaded file name means nothing to a reviewer; it stays as a tooltip only. -->
+            <span class="image-name" [title]="mainPhoto.fileName">{{ mainPhoto.classificationLabel || ('d3.buildReview.images.mainImageTitle' | translate) }}</span>
             @if (mainPhoto.isPendingDeletion) {
               <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
             } @else if (mainPhoto.pendingIsMain !== null) {
@@ -56,17 +56,18 @@
       <div class="section-title-wrapper">
         <span class="section-indicator"></span>
         <span class="section-title">{{ group.groupLabel }}</span>
-        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | translate: { count: group.photos.length } }}</span>
+        <span class="section-count">{{ 'd3.buildReview.images.imagesCount' | appPlural: group.photos.length }}</span>
       </div>
 
       <div class="image-grid">
-        @for (img of group.photos; track img.mediaId) {
+        @for (img of group.photos; track img.mediaId; let i = $index) {
+          @let photoTitle = 'd3.buildReview.images.photoPosition' | translate: { label: img.classificationLabel || group.groupLabel, index: i + 1, total: group.photos.length };
           <div class="image-card"
                [class.rejected]="img.decision === 'Rejected'"
                [class.accepted]="img.decision === 'Approved'">
             <div class="image-wrapper">
               @if (!img.loadFailed) {
-                <img class="image-main" [src]="img.url" [alt]="img.fileName" (error)="img.loadFailed = true">
+                <img class="image-main" [src]="img.url" [alt]="photoTitle" (error)="img.loadFailed = true">
               } @else {
                 <div class="photo-load-error">
                   <i-tabler name="photo-off"></i-tabler>
@@ -97,8 +98,7 @@
             </div>
             <div class="card-footer">
               <div class="text-info">
-                <span class="image-name">{{ img.fileName }}</span>
-                <span class="image-category">{{ img.classificationLabel }}</span>
+                <span class="image-name" [title]="img.fileName">{{ photoTitle }}</span>
                 @if (img.isPendingDeletion) {
                   <span class="pending-change-label">{{ 'd3.buildReview.images.pendingDeleteReview' | translate }}</span>
                 } @else if (img.pendingIsMain !== null) {

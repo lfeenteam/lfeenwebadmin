@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
@@ -13,26 +13,27 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { extractApiErrorMessage } from '../../../utils/api-error.util';
 import { resolveBilingualText } from '../../../utils/bilingual.util';
 import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
+import { buildPermissionTree, PermissionTreeGroup } from '../../../utils/permission-tree.util';
 import { MatDialog } from '@angular/material/dialog';
+import { PermissionService } from '../../../services/permission.service';
 import {
   OfferConfirmDialogComponent,
   OfferConfirmDialogData,
 } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
+import {
+  PermissionTreeComponent,
+  PermissionGroupAction,
+  SelectablePermission
+} from '../components/permission-tree/permission-tree.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
-interface PermissionRow extends RolePermission {
-  selected: boolean;
-}
-
-interface PermissionGroupSection {
-  id: string;
-  name: string;
-  perms: PermissionRow[];
-}
+type PermissionRow = SelectablePermission;
+type PermissionGroupSection = PermissionTreeGroup<PermissionRow>;
 
 @Component({
   selector: 'app-role-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule, PermissionTreeComponent, AppPluralPipe],
   templateUrl: './role-permissions.component.html',
   styleUrl: './role-permissions.component.scss'
 })
@@ -40,6 +41,9 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   private readonly subs = new Subscription();
   /** Reload the same role (retry, language change, failed save) — keeps in-progress edits. */
   private readonly reload$ = new Subject<void>();
+  private perms = inject(PermissionService);
+  /** This page both views and edits a role: without a Roles write permission it is read-only (BUG-2739). */
+  readonly canManage = computed(() => this.perms.canWrite('roles'));
   deptId: string | null = null;
   roleId: string | null = null;
 
@@ -57,10 +61,6 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   permissions: PermissionRow[] = [];
   private originalSelectedIds = new Set<string>();
   groupedPermissions: PermissionGroupSection[] = [];
-  collapsedGroups = new Set<string>();
-  private collapseInitialized = false;
-  currentPage = 1;
-  readonly groupsPerPage = 10;
 
   constructor(
     private route: ActivatedRoute,
@@ -118,9 +118,6 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     this.permissions = [];
     this.originalSelectedIds = new Set<string>();
     this.groupedPermissions = [];
-    this.collapsedGroups.clear();
-    this.collapseInitialized = false;
-    this.currentPage = 1;
     this.deptName = '';
     this.managers = [];
     this.employeeCount = 0;
@@ -199,71 +196,14 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   // ── Grouping ────────────────────────────────────────────────
+  /** Top-level groups, each holding its sub-groups. */
   private buildGroups(groups: PermissionGroup[]): void {
-    const order = new Map<string, number>();
-    const nameById = new Map<string, string>();
-    groups.forEach((g, i) => {
-      order.set(g.id, i);
-      nameById.set(g.id, resolveBilingualText(this.currentLang, g.nameAr, g.nameEn, g.name));
-    });
-
-    const sections = new Map<string, PermissionGroupSection>();
-    for (const perm of this.permissions) {
-      const gid = perm.permissionGroupId || '__ungrouped__';
-      let section = sections.get(gid);
-      if (!section) {
-        section = {
-          id: gid,
-          name: nameById.get(gid)
-            || perm.permissionGroupName
-            || this.translate.instant('d3.addRolePage.ungrouped'),
-          perms: []
-        };
-        sections.set(gid, section);
-      }
-      section.perms.push(perm);
-    }
-
-    this.groupedPermissions = Array.from(sections.values()).sort((a, b) => {
-      const oa = order.has(a.id) ? order.get(a.id)! : Number.MAX_SAFE_INTEGER;
-      const ob = order.has(b.id) ? order.get(b.id)! : Number.MAX_SAFE_INTEGER;
-      return oa !== ob ? oa - ob : a.name.localeCompare(b.name, this.currentLang);
-    });
-
-    if (!this.collapseInitialized) {
-      this.groupedPermissions.forEach(s => this.collapsedGroups.add(s.id));
-      this.collapseInitialized = true;
-    }
-  }
-
-  // ── Pagination (by group) ──────────────────────────────────
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.groupedPermissions.length / this.groupsPerPage));
-  }
-
-  get pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  get pagedGroups(): PermissionGroupSection[] {
-    const page = Math.min(this.currentPage, this.totalPages);
-    const start = (page - 1) * this.groupsPerPage;
-    return this.groupedPermissions.slice(start, start + this.groupsPerPage);
-  }
-
-  changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-  }
-
-  // ── Collapse ───────────────────────────────────────────────
-  isGroupCollapsed(id: string): boolean {
-    return this.collapsedGroups.has(id);
-  }
-
-  toggleGroupCollapse(id: string): void {
-    if (this.collapsedGroups.has(id)) this.collapsedGroups.delete(id);
-    else this.collapsedGroups.add(id);
+    this.groupedPermissions = buildPermissionTree(
+      this.permissions,
+      groups,
+      this.currentLang,
+      this.translate.instant('d3.addRolePage.ungrouped')
+    );
   }
 
   // ── Selection ──────────────────────────────────────────────
@@ -276,44 +216,40 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   toggleSelectAll(): void {
+    if (!this.canManage()) return;
     const selectAll = !this.allPermissionsSelected;
     this.permissions.forEach(p => p.selected = selectAll);
-    if (selectAll) {
-      this.collapsedGroups.clear();
-    } else {
-      this.groupedPermissions.forEach(g => this.collapsedGroups.add(g.id));
-    }
   }
 
-  selectedInGroup(section: PermissionGroupSection): number {
-    return section.perms.filter(p => p.selected).length;
-  }
+  /**
+   * Group actions (the group checkbox and its quick links) cover the group and its sub-groups:
+   * all = pick everything, none = clear, base = keep only the base (view) permissions.
+   */
+  applyGroupAction({ group, action }: PermissionGroupAction): void {
+    if (!this.canManage()) return;
+    const perms = group.allPerms;
+    const keep = action === 'all' ? perms : action === 'base' ? perms.filter(p => p.isBase === true) : [];
+    keep.forEach(p => { if (!p.selected) this.togglePermission(p, true); });
 
-  groupState(section: PermissionGroupSection): 'all' | 'some' | 'none' {
-    const n = this.selectedInGroup(section);
-    if (n === 0) return 'none';
-    return n === section.perms.length ? 'all' : 'some';
-  }
-
-  toggleGroup(section: PermissionGroupSection): void {
-    const select = this.groupState(section) !== 'all';
-
-    if (select) {
-      this.collapsedGroups.delete(section.id);
-      section.perms.forEach(p => { if (!p.selected) this.togglePermission(p, true); });
-      return;
+    // Clear the rest, dependents before what they depend on; anything still needed by a
+    // permission outside the group stays on and is named in one combined warning.
+    const pending = new Set(perms.filter(p => p.selected && !keep.includes(p)));
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const p of [...pending]) {
+        if (this.blockingDependents(p).length === 0) {
+          p.selected = false;
+          pending.delete(p);
+          changed = true;
+        }
+      }
     }
-
-    const blocked: string[] = [];
-    for (const p of section.perms) {
-      if (!p.selected) continue;
-      const outsideDependents = this.blockingDependents(p).filter(d => !section.perms.includes(d));
-      if (outsideDependents.length > 0) blocked.push(this.permName(p));
-      else p.selected = false;
-    }
-    if (blocked.length > 0) {
+    if (pending.size > 0) {
       this.toastr.warning(
-        this.translate.instant('d3.addRolePage.dependencyBlocked', { names: blocked.join('، ') })
+        this.translate.instant('d3.addRolePage.dependencyBlocked', {
+          names: [...pending].map(p => this.permName(p)).join('، ')
+        })
       );
     }
   }
@@ -328,19 +264,16 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
     );
   }
 
-  isLocked(perm: PermissionRow): boolean {
-    return perm.selected && this.blockingDependents(perm).length > 0;
-  }
+  /** Arrow function so the tree component can call it with this page as `this`. */
+  readonly isLocked = (perm: PermissionRow): boolean =>
+    perm.selected && this.blockingDependents(perm).length > 0;
 
   permName(perm: RolePermission): string {
     return resolveBilingualText(this.currentLang, perm.nameAr, perm.nameEn, perm.name);
   }
 
-  permDescription(perm: RolePermission): string {
-    return resolveBilingualText(this.currentLang, perm.descriptionAr, perm.descriptionEn, perm.description);
-  }
-
   togglePermission(perm: PermissionRow, checked: boolean): void {
+    if (!this.canManage()) return;
     if (checked) {
       perm.selected = true;
       this.impliedIdsOf(perm.id).forEach(id => {
@@ -371,6 +304,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
+    if (!this.canManage()) return;
     if (!this.roleId || !this.isDirty || this.isSaving || this.isLoading || this.loadError) return;
     // Pin the role the admin is looking at now; the URL may change while the dialog is open.
     const roleId = this.roleId;
@@ -397,7 +331,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
 
   private persist(roleId: string): void {
     // The URL moved to another role (or it failed to load) since save was pressed — don't write anything.
-    if (this.isSaving || this.isLoading || this.loadError || roleId !== this.roleId) return;
+    if (!this.canManage() || this.isSaving || this.isLoading || this.loadError || roleId !== this.roleId) return;
 
     const backRoute = this.backRoute;
     const currentIds = new Set(this.permissions.filter(p => p.selected).map(p => p.id));

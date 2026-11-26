@@ -9,14 +9,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { UnitDepositResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 @Component({
   selector: 'app-unit-deposit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, UnitLoadStateComponent],
   templateUrl: './unit-deposit-review.component.html',
   styleUrl: './unit-deposit-review.component.scss'
 })
@@ -30,6 +33,9 @@ export class UnitDepositReviewComponent implements OnInit, OnDestroy {
   deposit: UnitDepositResponse | null = null;
   isLoading = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   currentLang = 'ar';
 
   get depositAmount(): number {
@@ -66,23 +72,41 @@ export class UnitDepositReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
-    if (!this.unitId) return;
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
+    }
+    this.loadDeposit();
+    this.unitsService.getUnitBasicData(this.unitId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        },
+        // Breadcrumb only — the deposit request drives the not-found state.
+        error: () => {}
+      });
+  }
+
+  loadDeposit(): void {
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitDeposit(this.unitId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data) => { this.deposit = data; this.isLoading = false; },
-        error: () => { this.isLoading = false; }
-      });
-    this.unitsService.getUnitBasicData(this.unitId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
+        error: (err) => {
+          this.deposit   = null;
+          this.loadState = classifyLoadError(err);
+          this.isLoading = false;
+        }
       });
   }
 
@@ -91,6 +115,7 @@ export class UnitDepositReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

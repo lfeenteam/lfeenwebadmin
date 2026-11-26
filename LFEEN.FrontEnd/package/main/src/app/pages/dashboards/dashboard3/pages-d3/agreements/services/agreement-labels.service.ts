@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { formatAppNumber } from 'src/app/utils/locale-format.util';
+import { translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { AgreementType, AgreementVersion, isExpiredPublished } from '../interfaces/agreement.model';
 import { formatRiyadhDate } from '../utils/agreement-date.util';
 
@@ -65,7 +66,7 @@ export class AgreementLabelsService {
   }
 
   signers(count: number | null | undefined): string {
-    return this.translate.instant('d3.agreements.signersN', { n: this.num(count) });
+    return translatePlural(this.translate, 'd3.agreements.signersN', count);
   }
 
   /**

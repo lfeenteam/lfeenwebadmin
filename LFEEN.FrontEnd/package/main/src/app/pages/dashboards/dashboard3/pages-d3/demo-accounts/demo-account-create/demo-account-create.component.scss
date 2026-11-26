@@ -4,16 +4,355 @@
 
 [hidden] { display: none !important; }
 
-.da-acc__summary + .da-acc__chevron { margin-inline-start: 0; }
+// Palette used only on this page (kept close to the shared demo-accounts tokens).
+$ink: #111110;
+$muted: #6B6B67;
+$faint: #9E9E9A;
+$line: #E2E8F0;
+$soft: #F8FAFC;
+$ring: rgba(17, 17, 16, 0.08);
+
+.da-create { gap: 20px; }
+
+// ── Header ──────────────────────────────────────────────────
+.dc-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #F1F5F9;
+
+  h2 { margin: 2px 0 0; font-size: 22px; font-weight: 800; color: $ink; letter-spacing: -0.2px; }
+  p { margin: 4px 0 0; font-size: 13px; font-weight: 500; color: $muted; }
+
+  @media (max-width: 1100px) {
+    .da-page__actions { display: none; }
+  }
+}
+
+.dc-crumb {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $faint;
+  transition: color 0.2s ease;
+
+  &:hover:not(:disabled) { color: $ink; }
+  &:focus-visible { outline: 2px solid #94a3b8; outline-offset: 2px; border-radius: 4px; }
+}
+
+// ── Section cards ───────────────────────────────────────────
+.dc-card {
+  padding: 20px 22px;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.04);
+  transition: box-shadow 0.2s ease;
+
+  &:focus-within { box-shadow: 0 4px 16px rgba(16, 24, 40, 0.06); }
+
+  .da-acc__body { gap: 20px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #F1F5F9; }
+  .da-step { width: 28px; height: 28px; font-size: 13px; border-radius: 9px; }
+
+  @media (max-width: 576px) { padding: 16px; }
+}
+
+.dc-card__head { align-items: center; gap: 12px; }
+
+.dc-card__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dc-card__sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: $faint;
+}
+
+.dc-divider { height: 1px; background: #F1F5F9; margin: 0; }
 
 // Two fields side by side.
 .da-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 16px 20px;
   align-items: start;
 
   @media (max-width: 576px) { grid-template-columns: 1fr; }
+}
+
+// ── Inputs ──────────────────────────────────────────────────
+.da-field { gap: 8px; }
+
+.da-input {
+  background: #fff;
+  border-color: $line;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:disabled):not(:focus) { border-color: #CBD5E1; }
+  &:focus { border-color: $ink; box-shadow: 0 0 0 4px $ring; }
+  &.invalid { border-color: #f87171; box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08); }
+  &:disabled { background: $soft; color: $faint; }
+}
+
+// Browser autofill paints inputs blue; keep them white.
+.da-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  -webkit-text-fill-color: $ink;
+}
+
+// Input with a leading icon.
+.dc-input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  > i-tabler {
+    position: absolute;
+    inset-inline-start: 14px;
+    color: $faint;
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  .da-input { padding-inline-start: 42px; }
+  &:focus-within > i-tabler { color: $ink; }
+}
+
+// An LTR input (email, phone) inside the RTL page: its own inline-start padding is on the
+// left, so the icon moves to the left too.
+[dir='rtl'] .dc-input-icon:has(.da-input[dir='ltr']) > i-tabler {
+  inset-inline-start: auto;
+  inset-inline-end: 14px;
+}
+
+.da-helper { font-weight: 500; line-height: 1.6; }
+
+.dc-tag {
+  margin-inline-start: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: $muted;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dc-counter { align-items: baseline; }
+
+// ── Option cards (account kind, channel) ────────────────────
+.dc-options {
+  display: grid;
+  gap: 10px;
+
+  &--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  &--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  &--4 { gap: 8px; }
+  @media (max-width: 1280px) { &--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  &--2 { gap: 8px; }
+  @media (max-width: 576px) { &--2, &--4 { grid-template-columns: 1fr; } }
+}
+
+.dc-option {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1.5px solid $line;
+  background: #fff;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:disabled):not(.active) { border-color: #CBD5E1; background: $soft; }
+  &:focus-visible { box-shadow: 0 0 0 4px $ring; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #F1F5F9;
+    color: $muted;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1 1 auto;
+
+    strong { font-size: 13px; font-weight: 800; color: $ink; }
+    small { font-size: 11.5px; font-weight: 500; color: $faint; line-height: 1.6; }
+  }
+
+  // Radio dot (account kind)
+  &__radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid #CBD5E1;
+    flex-shrink: 0;
+    margin-top: 2px;
+    box-sizing: border-box;
+    transition: border 0.2s ease;
+  }
+
+  &.active {
+    border-color: $ink;
+    background: #fff;
+    box-shadow: 0 0 0 4px $ring;
+
+    .dc-option__icon { background: $ink; color: #fff; }
+    .dc-option__radio { border: 5px solid $ink; }
+  }
+
+  // Channel pick: one slim row, the hint lives in the tooltip.
+  &--compact {
+    height: 44px;
+    padding: 0 12px;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border-width: 1px;
+
+    .dc-option__icon { width: auto; height: auto; background: none; color: $faint; }
+    .dc-option__text { flex: 0 1 auto; strong { font-size: 12.5px; white-space: nowrap; } small { display: none; } }
+
+    &.active {
+      box-shadow: none;
+      background: $ink;
+      .dc-option__icon { background: none; color: #fff; }
+      .dc-option__text strong { color: #fff; }
+    }
+  }
+}
+
+.dc-note { padding: 10px 12px; font-size: 12px; font-weight: 500; }
+
+// ── Trial length ────────────────────────────────────────────
+.dc-duration {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dc-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  height: 44px;
+  border: 1px solid $line;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus-within { border-color: $ink; box-shadow: 0 0 0 4px $ring; }
+  &.invalid { border-color: #f87171; }
+
+  button {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $muted;
+    background: $soft;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) { background: #F1F5F9; color: $ink; }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  input {
+    width: 64px;
+    border: 0;
+    border-inline: 1px solid $line;
+    outline: none;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: $ink;
+    background: #fff;
+  }
+}
+
+.dc-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.dc-chip {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid $line;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $muted;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled):not(.active) { border-color: #CBD5E1; color: $ink; }
+  &.active { background: $ink; border-color: $ink; color: #fff; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.dc-hint {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #F1F5F9;
+  color: $muted;
+  font-size: 12px;
+  font-weight: 600;
+
+  strong { font-weight: 800; color: $ink; }
+}
+
+// ── PIN ─────────────────────────────────────────────────────
+.dc-pin {
+  display: flex;
+  gap: 8px;
+
+  .da-input-wrap { flex: 1 1 auto; min-width: 0; }
+  .da-input { letter-spacing: 4px; }
+}
+
+.dc-pin__gen {
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0 14px;
 }
 
 // Hide the native number spinners; the stepper buttons replace them.

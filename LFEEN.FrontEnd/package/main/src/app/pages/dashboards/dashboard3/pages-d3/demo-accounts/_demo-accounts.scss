@@ -468,17 +468,34 @@ textarea.da-input {
     gap: 10px;
     position: sticky;
     bottom: 0;
-    padding: 12px 0;
+    z-index: 5; // over the form, under the chat FAB (150)
+    // Bleed over .page-content's side padding so the bar spans the screen edge to edge.
+    margin-inline: -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
     // The buttons sit at the inline end — the chat FAB's corner (28px + 56px). Keep them
     // clear of it, since this bar never scrolls out from under the button.
     padding-inline-end: 96px;
-    background: linear-gradient(to top, #fff 75%, rgba(255, 255, 255, 0));
+    background: #fff;
+    border-top: 1px solid #ECECEA;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  @media (max-width: 768px) {
+    margin-inline: -12px;
+    padding-inline-start: 12px;
   }
 
   // Phones: the FAB is 16px + 56px from the corner and the buttons stack full width.
   @media (max-width: 576px) {
     padding-inline-end: 80px;
   }
+}
+
+// Sticky bottom: 0 sticks to .page-content's padding edge, and that padding (88–96px of
+// room for the chat FAB) left the bar floating mid-screen with the form showing under it.
+// Pages with this bar drop it: the bar itself keeps the buttons clear of the FAB.
+@media (max-width: 1100px) {
+  ::ng-deep .page-content:has(.da-page__footer) { padding-bottom: 0 !important; }
 }
 
 @media (max-width: 1100px) {

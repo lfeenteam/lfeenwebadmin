@@ -305,31 +305,65 @@
   border-bottom: 1px dashed #CBD5E1;
 }
 
-// Fixed column shares: the table always fits its card, and long text wraps in place.
+// Fixed column shares, so long text wraps inside its own column instead of pushing into the next.
 .log-table {
   table-layout: fixed;
 
   th, td.p-24 { padding: 16px 14px !important; }
 
   // Details gets the most room: it is the only cell with more than a word or two.
-  th:nth-child(1), td:nth-child(1) { width: 13%; }
-  th:nth-child(2), td:nth-child(2) { width: 13%; }
+  th:nth-child(1), td:nth-child(1) { width: 14%; }
+  th:nth-child(2), td:nth-child(2) { width: 14%; }
   th:nth-child(3), td:nth-child(3) { width: 17%; }
-  th:nth-child(4), td:nth-child(4) { width: 9%; }
-  th:nth-child(5), td:nth-child(5) { width: 16%; }
-  th:nth-child(6), td:nth-child(6) { width: 32%; }
+  th:nth-child(4), td:nth-child(4) { width: 11%; }
+  th:nth-child(5), td:nth-child(5) { width: 14%; }
+  th:nth-child(6), td:nth-child(6) { width: 30%; }
 
-  td { vertical-align: middle; overflow-wrap: anywhere; }
+  // The global `.table-responsive td { white-space: nowrap }` would let text run out of its
+  // fixed-width cell and under the next column (BUG-2149) — wrap at word boundaries instead.
+  td {
+    vertical-align: middle;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
 
-  .action-badge { white-space: normal; text-align: center; }
-  .service-name-text { min-width: 0; line-height: 1.5; }
+  // Long names: up to two lines, then "…" at the end; the full name is in the title.
+  .ref-number,
+  .service-name-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-width: 0;
+    line-height: 1.5;
+  }
+
+  // Breaks between words only — never mid-word ("Servic|e updat|ed").
+  .action-badge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .actor-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .ref-number.is-empty { color: #CBD5E1; }
 }
 
-// Below tablet width six columns can't share the row; scroll then, never on desktop.
-@media (max-width: 991px) and (min-width: 577px) {
+// Six columns need room: below this width the table scrolls sideways rather than
+// squeezing the columns into each other.
+@media (min-width: 577px) {
   .table-box .table-responsive { overflow-x: auto; }
-  .log-table { min-width: 760px; }
+  .log-table { min-width: 960px; }
 }
 
 .log-status {
@@ -486,11 +520,20 @@
 
   .log-row {
     display: grid;
-    grid-template-columns: 1fr auto;
+    // Both tracks may shrink below their content (BUG-2347): a plain `1fr auto` kept the
+    // merchant column at its one-line width and the badge/date column at its full width,
+    // so the pair (358px) overflowed the 296px card and the end column got clipped.
+    grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
     grid-template-rows: auto auto auto auto;
     border: 1px solid #E2E8F0 !important;
     border-radius: 16px;
     background: #fff;
+
+    td { min-width: 0; }
+
+    // The badge and date wrap between words instead of taking more than half the card.
+    td:nth-child(2),
+    td:nth-child(5) { max-width: 50vw; }
 
     // ref number → top start
     td:nth-child(1) {

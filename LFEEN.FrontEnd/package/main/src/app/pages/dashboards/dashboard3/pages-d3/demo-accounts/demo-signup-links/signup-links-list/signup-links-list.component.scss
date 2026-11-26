@@ -1,0 +1,252 @@
+// The tracking table reuses the demo-accounts list styles (filters, table, pager); this adds the
+// link states, calm two-line cells that keep the table inside its card, the batch strip and the bulk bar.
+@use '../../demo-accounts';
+
+// ── Link state: green opened, grey not opened, red cancelled, orange expired, blue setting up ──
+.da-status.sl-state,
+.sl-count {
+  &.ls-used       { color: #16a34a; background: #f0fdf4; border-color: #dcfce7; }
+  &.ls-open       { color: #475569; background: #F1F5F9; border-color: #E2E8F0; }
+  &.ls-cancelled  { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+  &.ls-expired    { color: #ea580c; background: #fff7ed; border-color: #ffedd5; }
+  &.ls-inprogress { color: #1d4ed8; background: #eff6ff; border-color: #dbeafe; }
+}
+
+.sl-batch-select { min-width: 240px; max-width: 100%; }
+.sl-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+
+// ── Table ───────────────────────────────────────────────────
+.sl-table {
+  width: 100%;
+
+  th, td { padding: 12px 10px !important; vertical-align: middle; }
+  th { white-space: nowrap; }
+
+  .sl-check { width: 36px; text-align: center !important; padding-inline: 6px !important; }
+  .sl-check input { width: 16px; height: 16px; accent-color: #111110; cursor: pointer; vertical-align: middle; }
+  .sl-actions { width: 44px; text-align: center !important; padding-inline: 4px !important; }
+
+  .da-row { height: 64px; }
+  .da-row:not(.sl-clickable) { cursor: default; }
+  .da-row.sl-selected { background: #F8FAFC; }
+}
+
+// An empty cell: one quiet dash, never a repeated sentence.
+.sl-dash { color: #CBD5E1; font-weight: 700; }
+
+// Two short lines: a strong first line and a muted second one.
+.sl-two {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+
+  strong { font-size: 13px; font-weight: 800; color: #111110; white-space: nowrap; }
+  small { font-size: 11.5px; font-weight: 600; color: #9E9E9A; white-space: nowrap; }
+}
+
+.sl-date { font-size: 12.5px; font-weight: 600; color: #45556C; white-space: nowrap; }
+
+// ── Area / notes ────────────────────────────────────────────
+.sl-name-cell { min-width: 170px; }
+
+.sl-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 260px;
+
+  &__text { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+  strong { font-size: 13px; font-weight: 800; color: #0F172B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+// Host / guest as a small icon badge (the full word is in the tooltip).
+.sl-kind {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.kind-merchant { background: #EEF2FF; color: #3730A3; }
+  &.kind-client { background: #ECFDF5; color: #047857; }
+}
+
+// "From the batch" — the link has no own value and follows its batch.
+.sl-from-batch {
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #ede9fe;
+  white-space: nowrap;
+}
+
+// Notes: one short line under the area, the full text in the tooltip.
+.sl-notes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  margin-inline-start: 34px;
+  max-width: 226px;
+  color: #9E9E9A;
+
+  i-tabler { flex-shrink: 0; }
+
+  &__text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #6B6B67;
+    cursor: help;
+  }
+}
+
+// ── Link code: a quiet monospace pill with its copy button ──
+.sl-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 170px;
+  padding: 2px 2px 2px 10px;
+  border-radius: 8px;
+  background: #F8FAFC;
+  border: 1px solid #F1F5F9;
+  cursor: default;
+
+  &__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #45556C;
+  }
+
+  &__copy {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &:hover { background: #fff; color: #111110; }
+    &.copied { color: #16a34a; }
+    &:focus-visible { outline: 2px solid #94a3b8; }
+  }
+}
+
+[dir='rtl'] .sl-code { padding: 2px 10px 2px 2px; }
+
+// ── Account ─────────────────────────────────────────────────
+.sl-acc-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &.as-active   { color: #15803d; background: #f0fdf4; border-color: #dcfce7; }
+  &.as-expired  { color: #b45309; background: #fffbeb; border-color: #fef3c7; }
+  &.as-disabled { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+}
+
+// The row menu's cancel item (the menu renders in an overlay, outside this component).
+::ng-deep .sl-menu-danger.mat-mdc-menu-item,
+::ng-deep .sl-menu-danger.mat-mdc-menu-item .menu-item-row { color: #dc2626; }
+
+// ── Chosen batch strip ──────────────────────────────────────
+.sl-batch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid #E2E8F0;
+  background: #fff;
+
+  &__info {
+    display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; min-width: 0;
+    strong { font-size: 14px; font-weight: 800; color: #111110; }
+    span { font-size: 12px; font-weight: 600; color: #9E9E9A; }
+  }
+  &__counts { display: flex; flex-wrap: wrap; gap: 6px; }
+  &__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  &__notes {
+    margin-top: 2px;
+    color: #6B6B67 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 520px;
+  }
+}
+
+.sl-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  b { font-weight: 800; }
+}
+
+// ── Bulk bar ────────────────────────────────────────────────
+.sl-bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #111110;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+
+  .da-link-btn { color: #cbd5e1; font-size: 12px; }
+  &__spacer { flex: 1 1 auto; }
+}
+
+// Same breakpoint as the shared card layout in demo-accounts.component.scss.
+@media (max-width: 1024px) {
+  // The shared list places cells by position for the accounts table — lay this card out on its own:
+  // checkbox and ⋮ on the top line, the area across, then two fields per row.
+  .sl-table .da-row {
+    height: auto;
+    td { grid-column: auto !important; grid-row: auto !important; border-top: none !important; text-align: start !important; }
+    td.sl-check { grid-column: 1 !important; grid-row: 1 !important; padding-top: 12px !important; padding-bottom: 0 !important; width: auto; }
+    td.sl-actions { grid-column: 2 !important; grid-row: 1 !important; text-align: end !important; width: auto; padding-top: 8px !important; }
+    td.sl-name-cell { grid-column: 1 / -1 !important; border-bottom: 1px solid #F1F5F9; }
+  }
+  .sl-name, .sl-code, .sl-notes { max-width: 100%; }
+}

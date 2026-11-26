@@ -10,11 +10,14 @@ import { UnitCardReviewComponent } from './unit-card-review/unit-card-review.com
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { BannedListingCardComponent } from 'src/app/components/dashboard3/ban-listing/banned-listing-card/banned-listing-card.component';
 import { UnitsService } from '../../../services/units.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+
+const UNIT_COUNT_TABS = ['draft', 'published', 'new', 'underReview', 'rejected', 'pendingChanges', 'banned'];
 
 @Component({
   selector: 'app-cards-units',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, UnitCardComponent, UnitCardReviewComponent, DashboardEmptyComponent, BannedListingCardComponent],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, UnitCardComponent, UnitCardReviewComponent, DashboardEmptyComponent, BannedListingCardComponent, AppPluralPipe],
   templateUrl: './cards-units.component.html',
   styleUrl: './cards-units.component.scss'
 })
@@ -45,6 +48,12 @@ export class CardsUnitsComponent {
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  /** The building header counts this tab's units, so it names their status — not always "published" (BUG-2421). */
+  get unitsCountKey(): string {
+    const tab = UNIT_COUNT_TABS.includes(this.activeTab) ? this.activeTab : 'published';
+    return `d3.allUnits.cardsUnits.unitsCount.${tab}`;
   }
 
   get emptyTitleKey(): string {

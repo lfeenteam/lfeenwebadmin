@@ -50,6 +50,13 @@ function riyadhNow(): { year: number; month0: number; day: number } {
 // SingleDateCalendarComponent emits/accepts plain "YYYY-MM-DD" strings that
 // already carry the exact calendar day the admin clicked — parse them
 // directly instead of going through a Date + local/UTC getters round-trip.
+// Riyadh "today" as a plain "YYYY-MM-DD" — the calendar's upper bound, since
+// a range reaching into the future has no data yet and reads as a -100% drop.
+function riyadhTodayPlain(): string {
+  const { year, month0, day } = riyadhNow();
+  return `${year}-${pad(month0 + 1)}-${pad(day)}`;
+}
+
 function parsePlainDate(plain: string): { year: number; month0: number; day: number } {
   const [year, month, day] = plain.split('-').map(Number);
   return { year, month0: month - 1, day };
@@ -99,6 +106,11 @@ export class PeriodFilterComponent {
   // Plain "YYYY-MM-DD" strings, same shape SingleDateCalendarComponent works with.
   readonly customFrom = signal<string | null>(null);
   readonly customTo = signal<string | null>(null);
+
+  // Recomputed each time a calendar opens, so a page left open past midnight still allows the new day.
+  today(): string {
+    return riyadhTodayPlain();
+  }
 
   // Only the two most recently *applied* dates, kept for the "current period" label —
   // display-only, not the source of truth (that's dashboard.filters).
@@ -166,6 +178,8 @@ export class PeriodFilterComponent {
     const from = this.customFrom();
     const to = this.customTo();
     if (!from || !to) return;
+    // Defensive: the calendar already blocks future days.
+    if (to > riyadhTodayPlain()) return;
 
     const fromIso = isoFromPlainDate(from);
     const toIso = nextDayIso(to);

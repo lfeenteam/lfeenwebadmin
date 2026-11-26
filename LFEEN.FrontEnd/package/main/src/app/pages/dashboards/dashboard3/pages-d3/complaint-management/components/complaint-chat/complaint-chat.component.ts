@@ -1,20 +1,22 @@
-import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { CLIENT_TICKET_STATUS, COMPLAINT_PERMISSION_PREFIXES, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { PermissionService } from '../../../../services/permission.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { TextDirPipe } from 'src/app/pipes/text-dir.pipe';
 
 @Component({
   selector: 'app-complaint-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, TextDirPipe],
   templateUrl: './complaint-chat.component.html',
   styleUrl: './complaint-chat.component.scss'
 })
@@ -35,6 +37,9 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   private toastr = inject(ToastrService);
   private hub = inject(ClientSupportHubService);
   private loginService = inject(LoginService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: view-only admins can read the chat but not reply to or close it. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private hubSubs = new Subscription();
   private ticketScopedSubs = new Subscription();
 
@@ -240,6 +245,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   onResolve(): void {
+    if (!this.canManage()) return;
     this.closeError.set(null);
     this.showCloseDialog.set(true);
   }
@@ -251,7 +257,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   confirmClose(): void {
-    if (this.closingTicket() || !this.complaint) return;
+    if (this.closingTicket() || !this.complaint || !this.canManage()) return;
     this.closingTicket.set(true);
     this.closeError.set(null);
     const note = this.closeNote.trim() || undefined;
@@ -274,7 +280,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
   send(): void {
     const text = this.messageText.trim();
-    if (!text || this.sending()) return;
+    if (!text || this.sending() || !this.canManage()) return;
 
     this.messageText = '';
     this.hub.sendTyping(this.complaint.chatExternalId, false);
@@ -327,12 +333,33 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
       : this.complaint.clientName;
   }
 
-  get dateSeparatorLabel(): string {
-    const firstMessage = this.complaint?.messages?.[0];
-    if (!firstMessage) return '';
+  /** BUG-2721: a date separator goes before the first message of every local day, not just
+   * once at the top — otherwise later days' messages read as if they were the first day's.
+   * Messages with an unparseable date never open a day; they're compared against the last
+   * valid date before them. */
+  startsNewDay(index: number): boolean {
+    const messages = this.complaint?.messages ?? [];
+    const day = this.messageDayKey(messages[index]);
+    if (!day) return false;
+    for (let i = index - 1; i >= 0; i--) {
+      const previousDay = this.messageDayKey(messages[i]);
+      if (previousDay) return previousDay !== day;
+    }
+    return true;
+  }
+
+  private messageDayKey(message: ChatMessage | undefined): string | null {
+    if (!message?.createdAtUtc) return null;
+    const createdAt = new Date(message.createdAtUtc);
+    return isNaN(createdAt.getTime()) ? null : createdAt.toDateString();
+  }
+
+  dateSeparatorLabel(message: ChatMessage): string {
+    if (!message?.createdAtUtc) return '';
 
     const isEn = this.translate.currentLang === 'en';
-    const createdAt = new Date(firstMessage.createdAtUtc);
+    const createdAt = new Date(message.createdAtUtc);
+    if (isNaN(createdAt.getTime())) return '';
     const time = createdAt.toLocaleTimeString(appLocale(isEn ? 'en' : 'ar'), { hour: '2-digit', minute: '2-digit' });
 
     if (createdAt.toDateString() === new Date().toDateString()) {
@@ -341,6 +368,10 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
     const day = createdAt.toLocaleDateString(appLocale(isEn ? 'en' : 'ar'), { year: 'numeric', month: 'short', day: 'numeric' });
     return `${day} - ${time}`;
+  }
+
+  get dialogDir(): 'rtl' | 'ltr' {
+    return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
 
   get resolveButtonLabel(): string {

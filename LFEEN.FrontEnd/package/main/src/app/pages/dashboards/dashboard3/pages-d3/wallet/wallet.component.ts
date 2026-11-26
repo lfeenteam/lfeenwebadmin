@@ -40,6 +40,7 @@ import {
 import { resolveWalletError } from './interfaces/wallet-error.util';
 import { WalletService } from './services/wallet.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type TypeFilter = 'all' | WalletEntryType;
 type TypeClass = 'type-topup' | 'type-charge' | 'type-refund' | 'type-adjustment' | '';
@@ -81,7 +82,7 @@ const TYPE_META: Record<string, { key: string; icon: string; cls: TypeClass }> =
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './wallet.component.html',
   styleUrl: './wallet.component.scss'
 })

@@ -289,7 +289,7 @@
         }
 
         <!-- Final Action Buttons -->
-        @if (!isFinalApproved) {
+        @if (!isFinalApproved && canManage()) {
         <div class="action-buttons-final">
             @if (showApproveButton) {
             <button class="btn-approve-final" [disabled]="isApproveDisabled || isFinalSubmitting" (click)="onApprove()">

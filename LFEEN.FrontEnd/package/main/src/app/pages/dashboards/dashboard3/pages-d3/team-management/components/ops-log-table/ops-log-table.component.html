@@ -110,10 +110,10 @@
 @if (totalPages > 1) {
   <div class="pagination-wrapper d-flex align-items-center justify-content-between m-t-16 m-b-16">
     <span class="f-s-13 text-muted">
-      {{ totalCount }} {{ 'd3.teamManagement.opsLog.pagination.total' | translate }}
+      {{ 'd3.teamManagement.opsLog.pagination.total' | appPlural: totalCount }}
     </span>
     <div class="d-flex align-items-center gap-4">
-      <button type="button" class="page-nav-btn"
+      <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
         [disabled]="currentPage === 1 || isLoading"
         (click)="pageChange.emit(currentPage - 1)">
         <i-tabler name="chevron-left" class="icon-18 dir-icon"></i-tabler>
@@ -126,7 +126,7 @@
           {{ p }}
         </button>
       }
-      <button type="button" class="page-nav-btn"
+      <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
         [disabled]="currentPage === totalPages || isLoading"
         (click)="pageChange.emit(currentPage + 1)">
         <i-tabler name="chevron-right" class="icon-18 dir-icon"></i-tabler>

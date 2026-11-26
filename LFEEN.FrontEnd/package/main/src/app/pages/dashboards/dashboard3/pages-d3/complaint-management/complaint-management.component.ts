@@ -12,7 +12,8 @@ import { ComplaintChatComponent } from './components/complaint-chat/complaint-ch
 import { ClientRatingsComponent } from './components/client-ratings/client-ratings.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
+import { PermissionService } from '../../services/permission.service';
+import { AssignableEmployee, COMPLAINT_PERMISSION_PREFIXES, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_DEPARTMENT_OPTIONS, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
@@ -41,6 +42,9 @@ export class ComplaintManagementComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private hub = inject(ClientSupportHubService);
   private toastr = inject(ToastrService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: the "a reply assigns it to you" hint only matters to admins who can reply. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private hubSubs = new Subscription();
   private hostSearchSub?: Subscription;
   private hostSearchSubject = new Subject<string>();
@@ -109,8 +113,9 @@ export class ComplaintManagementComponent implements OnDestroy {
   customerError   = signal(false);
   resolvedError   = signal(false);
 
-  readonly hostStatusOptions   = HOST_TICKET_STATUS_OPTIONS;
-  readonly hostPriorityOptions = HOST_TICKET_PRIORITY_OPTIONS;
+  readonly hostStatusOptions     = HOST_TICKET_STATUS_OPTIONS;
+  readonly hostDepartmentOptions = HOST_TICKET_DEPARTMENT_OPTIONS;
+  readonly hostPriorityOptions   = HOST_TICKET_PRIORITY_OPTIONS;
   readonly hostSourceOptions   = HOST_TICKET_SOURCE_OPTIONS;
 
   hostProperties  = signal<TicketPropertyFilterItem[]>([]);
@@ -142,7 +147,7 @@ export class ComplaintManagementComponent implements OnDestroy {
       {
         id: 'department',
         labelKey: 'd3.complaints.hostFilters.allDepartments',
-        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...CLIENT_TICKET_DEPARTMENT_OPTIONS],
+        items: [allItem('d3.complaints.hostFilters.allDepartments'), ...this.hostDepartmentOptions],
       },
       {
         id: 'source',
@@ -223,6 +228,17 @@ export class ComplaintManagementComponent implements OnDestroy {
     priority: this.customerPriority() ?? 'all',
     agent: this.customerAssignedAgentUserId() ?? 'all',
   }));
+
+  /** Page size the active tab requests from the API — the table needs it to compute
+   * "showing X of Y" on pages after the first (each tab pages the server differently). */
+  readonly activeServerPageSize = computed<number | null>(() => {
+    switch (this.activeTab()) {
+      case 'customers': return CLIENT_TICKETS_PAGE_SIZE;
+      case 'hosts':     return HOST_TICKETS_PAGE_SIZE;
+      case 'resolved':  return RESOLVED_TICKETS_PAGE_SIZE;
+      default:          return null;
+    }
+  });
 
   readonly resolvedTypeOptions = RESOLVED_TYPE_OPTIONS;
   resolvedTotalCount  = signal<number | null>(null);
@@ -729,9 +745,12 @@ export class ComplaintManagementComponent implements OnDestroy {
   }
 
   openHostComplaint(complaint: Complaint): void {
+    // A finished ticket opens read-only from any tab, so the header never offers
+    // "Close & resolve" on it (the detail page also checks the status itself).
+    const finished = complaint.status === 'closed' || complaint.status === 'resolved';
     const queryParams = this.activeTab() === 'resolved'
       ? { mode: 'view', tab: 'resolved' }
-      : { tab: 'hosts' };
+      : finished ? { mode: 'view', tab: 'hosts' } : { tab: 'hosts' };
     this.router.navigate(
       [this.translate.currentLang || 'ar', 'd3', 'complaints', complaint.id],
       { queryParams }

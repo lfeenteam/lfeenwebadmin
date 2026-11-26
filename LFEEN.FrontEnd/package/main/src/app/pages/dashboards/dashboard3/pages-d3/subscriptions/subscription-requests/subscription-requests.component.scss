@@ -229,6 +229,7 @@
 
   &.status-pending { background: #fffbeb; color: #b45309; border-color: #fde68a; }
   &.status-succeeded { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+  &.status-cancelled { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
   &.status-failed { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
   &.status-other { background: #f3f3ef; color: #6b6b67; border-color: #e8e8e4; }
 }
@@ -260,12 +261,25 @@
 }
 
 // ── Pagination ──────────────────────────────────────────────
+// Utility classes (d-flex / justify-content-between) are kept out of the markup on purpose:
+// Bootstrap's !important would override the phone layout below.
 .pagination-wrapper {
   margin-top: 16px;
   border-top: 1px solid #E8E8E4;
   padding: 16px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pagination-total {
@@ -330,6 +344,29 @@
 }
 
 @media (max-width: 576px) {
+  // The card clips overflow (rounded corners), so the pager must fit inside it:
+  // fewer numbers (see visiblePages), smaller buttons, and wrapping as a last resort.
+  .pagination-wrapper {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-nav-btn,
+  .page-number-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .page-ellipsis {
+    width: 20px;
+    height: 32px;
+  }
+
   .mobile-field-label {
     display: block;
     font-size: 10px;

@@ -8,7 +8,9 @@ import { appRuntimeViewGuard } from './guards/app-runtime-view.guard';
 import { settingsViewGuard } from './guards/settings-view.guard';
 import { cancellationRefundsViewGuard } from './guards/cancellation-refunds-view.guard';
 import { settlementDebtsRedirectGuard } from './guards/settlement-debts-redirect.guard';
-import { pageAccessGuard } from './guards/page-access.guard';
+import { pageAccessGuard, pageWriteGuard, permissionGuard } from './guards/page-access.guard';
+import { canOpenDemoSignupLinks, canOpenWalletApprovals, hasPermission } from './guards/page-access';
+import { unsavedChangesGuard } from './guards/unsaved-changes.guard';
 import {
   agreementsViewGuard,
   unsavedAgreementGuard,
@@ -134,7 +136,6 @@ export const routes: Routes = [
                   breadcrumbRoute: 'buildings',
                   showBack: true,
                   recreateOnParamChange: true,
-                  statusBadge: { text: 'd3.buildReview.urgentRequest', color: '#DC2626' }
                 },
               },
               {
@@ -314,7 +315,7 @@ export const routes: Routes = [
               },
               {
                 path: 'team-management/add',
-                canActivate: [authGuard, pageFlagGuard('add-department'), pageAccessGuard('teamManagement')],
+                canActivate: [authGuard, pageFlagGuard('add-department'), pageAccessGuard('teamManagement'), pageWriteGuard('departments')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/team-management/components/add-department/add-department.component'
@@ -397,9 +398,40 @@ export const routes: Routes = [
                   showDate: true
                 },
               })),
+              // Demo sign-up links (MUL-0004) — also above 'demo-accounts/:id'.
+              {
+                path: 'demo-accounts/signup-links',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts'), permissionGuard(canOpenDemoSignupLinks)],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-signup-links/signup-links-list/signup-links-list.component'
+                  ).then((m) => m.SignupLinksListComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.signupLinks.list.title',
+                  breadcrumbKey: 'd3.demoAccounts.title',
+                  breadcrumbRoute: 'demo-accounts',
+                  showDate: true
+                },
+              },
+              {
+                path: 'demo-accounts/signup-links/new',
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts'), permissionGuard(canOpenDemoSignupLinks)],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-signup-links/signup-links-create/signup-links-create.component'
+                  ).then((m) => m.SignupLinksCreateComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.demoAccounts.signupLinks.create.title',
+                  breadcrumbKey: 'd3.demoAccounts.signupLinks.list.title',
+                  breadcrumbRoute: 'demo-accounts/signup-links',
+                  showBack: true
+                },
+              },
               {
                 path: 'demo-accounts/new',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts'), permissionGuard(p => hasPermission(p, 'demoaccounts.manage'))],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-create/demo-account-create.component'
@@ -414,7 +446,7 @@ export const routes: Routes = [
               },
               {
                 path: 'demo-accounts/:id/resend',
-                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts')],
+                canActivate: [authGuard, pageFlagGuard('demo-accounts'), pageAccessGuard('demoAccounts'), permissionGuard(p => hasPermission(p, 'demoaccounts.manage'))],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/demo-accounts/demo-account-resend/demo-account-resend.component'
@@ -597,7 +629,7 @@ export const routes: Routes = [
               },
               {
                 path: 'wallet-approvals',
-                canActivate: [authGuard, pageFlagGuard('wallet-approvals'), pageAccessGuard('wallet')],
+                canActivate: [authGuard, pageFlagGuard('wallet-approvals'), pageAccessGuard('wallet'), permissionGuard(canOpenWalletApprovals)],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/wallet/wallet-approvals/wallet-approvals.component'
@@ -641,7 +673,7 @@ export const routes: Routes = [
               },
               {
                 path: 'permissions/:id/add-role',
-                canActivate: [authGuard, pageFlagGuard('permissions'), pageAccessGuard('permissions')],
+                canActivate: [authGuard, pageFlagGuard('permissions'), pageAccessGuard('permissions'), pageWriteGuard('roles')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
@@ -689,7 +721,7 @@ export const routes: Routes = [
               // Components kept on disk under pages-d3/all-permissions & pages-d3/permission-groups.
               {
                 path: 'roles/add',
-                canActivate: [authGuard, pageAccessGuard('roles')],
+                canActivate: [authGuard, pageAccessGuard('roles'), pageWriteGuard('roles')],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/permissions/add-role/add-role.component'
@@ -719,7 +751,7 @@ export const routes: Routes = [
               },
               {
                 path: 'complaints/:id/assign',
-                canActivate: [authGuard, pageAccessGuard('complaints')],
+                canActivate: [authGuard, pageAccessGuard('complaints'), pageWriteGuard(['complaints', 'clienttickets', 'hosttickets', 'tickets'])],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/complaint-management/components/assign-employee-page/assign-employee-page.component'
@@ -732,6 +764,25 @@ export const routes: Routes = [
                   showBack: true,
                   showLive: false,
                   showDate: false,
+                },
+              },
+              {
+                // A complaint against an employee (api/complaints) — not a ticket, so it
+                // has its own read-only page and no "Close & resolve" button (BUG-2813).
+                path: 'complaints/employee/:id',
+                canActivate: [authGuard, pageAccessGuard('complaints')],
+                loadComponent: () =>
+                  import(
+                    './pages/dashboards/dashboard3/pages-d3/complaint-management/components/employee-complaint-detail/employee-complaint-detail.component'
+                  ).then((m) => m.EmployeeComplaintDetailComponent),
+                data: {
+                  header: 'page',
+                  titleKey: 'd3.complaints.employeeDetail.title',
+                  breadcrumbKey: 'd3.complaints.title',
+                  breadcrumbRoute: 'complaints',
+                  showBack: true,
+                  showLive: false,
+                  showDate: true,
                 },
               },
               {
@@ -819,7 +870,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers/create',
-                canActivate: [authGuard, pageAccessGuard('platformOffers')],
+                canActivate: [authGuard, pageAccessGuard('platformOffers'), pageWriteGuard(['platformoffers', 'offers'])],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
@@ -853,7 +904,7 @@ export const routes: Routes = [
               },
               {
                 path: 'platform-offers/:id/edit',
-                canActivate: [authGuard, pageAccessGuard('platformOffers')],
+                canActivate: [authGuard, pageAccessGuard('platformOffers'), pageWriteGuard(['platformoffers', 'offers'])],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/platform-offers/platform-offer-form.component'
@@ -983,6 +1034,7 @@ export const routes: Routes = [
               {
                 path: 'subscriptions/settings/:id',
                 canActivate: [authGuard, pageAccessGuard('subscriptions')],
+                canDeactivate: [unsavedChangesGuard],
                 loadComponent: () =>
                   import(
                     './pages/dashboards/dashboard3/pages-d3/subscriptions/subscription-service-settings/subscription-service-settings.component'

@@ -25,14 +25,16 @@
     </div>
 
     @if (!viewOnly) {
-      <button class="resolve-chat-btn" type="button" (click)="onResolve()">
-        <i-tabler name="circle-check" class="icon-18"></i-tabler>
-        {{ resolveButtonLabel }}
-      </button>
+      @if (canManage()) {
+        <button class="resolve-chat-btn" type="button" (click)="onResolve()">
+          <i-tabler name="circle-check" class="icon-18"></i-tabler>
+          {{ resolveButtonLabel }}
+        </button>
+      }
     } @else {
       <span class="resolved-label">
         <i-tabler name="circle-check" class="icon-16"></i-tabler>
-        تم الرد والحل
+        {{ 'd3.complaints.closeDialog.resolvedLabel' | translate }}
       </span>
     }
   </div>
@@ -45,12 +47,6 @@
       </div>
     }
 
-    @if (complaint.messages.length > 0) {
-      <div class="date-separator">
-        {{ dateSeparatorLabel }}
-      </div>
-    }
-
     @if (complaint.messages.length === 0) {
       <div class="no-messages">
         <i-tabler name="message-2" class="icon-32"></i-tabler>
@@ -58,7 +54,12 @@
       </div>
     }
 
-    @for (msg of complaint.messages; track msg.id) {
+    @for (msg of complaint.messages; track msg.id; let i = $index) {
+      @if (startsNewDay(i)) {
+        <div class="date-separator">
+          {{ dateSeparatorLabel(msg) }}
+        </div>
+      }
       <div
         class="msg-row"
         [class.msg-client]="msg.senderRole === 'client'"
@@ -88,7 +89,7 @@
               }
             }
             @if (displayMessageContent(msg)) {
-              <p class="msg-text">{{ displayMessageContent(msg) }}</p>
+              <p class="msg-text" [attr.dir]="displayMessageContent(msg) | textDir">{{ displayMessageContent(msg) }}</p>
             }
           </div>
           <span class="msg-time">{{ displayMessageTime(msg) }}</span>
@@ -109,8 +110,8 @@
     <div #messagesEnd></div>
   </div>
 
-  <!-- Input -->
-  @if (!viewOnly) {
+  <!-- Input (BUG-2739: hidden from view-only admins too) -->
+  @if (!viewOnly && canManage()) {
   <div class="chat-composer">
     <div class="chat-footer">
       <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">
@@ -119,6 +120,7 @@
       <input
         type="text"
         class="msg-input"
+        [attr.dir]="messageText.trim() ? (messageText | textDir) : dialogDir"
         [(ngModel)]="messageText"
         [placeholder]="composerPlaceholder"
         (keydown)="onKeydown($event)"
@@ -131,23 +133,23 @@
   <!-- Close & resolve dialog -->
   @if (showCloseDialog()) {
     <div class="dialog-backdrop" (click)="cancelClose()">
-      <div class="close-dialog" (click)="$event.stopPropagation()">
+      <div class="close-dialog" [dir]="dialogDir" (click)="$event.stopPropagation()">
 
         <div class="close-dialog-header">
           <span class="close-dialog-icon">
             <i-tabler name="alert-circle" class="icon-24"></i-tabler>
           </span>
           <div>
-            <h2>إغلاق الشكوى ومعالجتها</h2>
-            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+            <h2>{{ 'd3.complaints.closeDialog.title' | translate }}</h2>
+            <p>{{ 'd3.complaints.closeDialog.desc' | translate }}</p>
           </div>
         </div>
 
         <div class="close-dialog-note">
-          <label>ملاحظة <span>(اختياري)</span></label>
+          <label>{{ 'd3.complaints.closeDialog.noteLabel' | translate }} <span>{{ 'd3.complaints.closeDialog.optional' | translate }}</span></label>
           <textarea
             [(ngModel)]="closeNote"
-            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+            [placeholder]="'d3.complaints.closeDialog.notePlaceholder' | translate"></textarea>
         </div>
 
         @if (closeError()) {
@@ -156,7 +158,7 @@
 
         <div class="close-dialog-actions">
           <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
-            إلغاء
+            {{ 'd3.complaints.closeDialog.cancel' | translate }}
           </button>
           <button
             class="dialog-confirm-btn"
@@ -168,7 +170,7 @@
             } @else {
               <i-tabler name="circle-check" class="icon-16"></i-tabler>
             }
-            تأكيد الإغلاق
+            {{ 'd3.complaints.closeDialog.confirm' | translate }}
           </button>
         </div>
 

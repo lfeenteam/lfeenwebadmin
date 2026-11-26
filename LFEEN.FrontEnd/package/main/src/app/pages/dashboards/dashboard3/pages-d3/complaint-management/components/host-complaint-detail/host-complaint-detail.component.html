@@ -15,6 +15,20 @@
   </app-dashboard-empty>
   } @else {
 
+  <!-- Ticket number + status -->
+  @if (ticket(); as t) {
+    <div class="ticket-meta">
+      @if (t.ticketNumber) {
+        <span class="ticket-number">#{{ t.ticketNumber }}</span>
+      }
+      @if (statusKey(); as s) {
+        <span class="ticket-status-badge" [attr.data-status]="s">
+          {{ 'd3.complaints.status.' + (s === 'in_progress' ? 'inProgress' : s) | translate }}
+        </span>
+      }
+    </div>
+  }
+
   <!-- Summary strip -->
   <section class="summary-strip">
     <div class="summary-item">
@@ -142,8 +156,8 @@
       <span class="skel skel-text" style="width:85%;margin-bottom:8px"></span>
       <span class="skel skel-text" style="width:60%"></span>
     } @else if (ticket()) {
-      <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}: {{ ticket()!.subject }}</h3>
-      <p>{{ ticket()!.initialMessage.body }}</p>
+      <h3>{{ 'd3.complaints.hostDetail.problemTitle' | translate }}: <bdi [attr.dir]="ticket()!.subject | textDir">{{ ticket()!.subject }}</bdi></h3>
+      <p [attr.dir]="ticket()!.initialMessage.body | textDir">{{ ticket()!.initialMessage.body }}</p>
       @if (ticket()!.initialMessage.attachment) {
         <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: ticket()!.initialMessage.attachment }"></ng-container>
       }
@@ -221,7 +235,7 @@
           <time>{{ formatDate(msg.createdAt) }}</time>
         </div>
 
-        <p>{{ msg.body }}</p>
+        <p [attr.dir]="msg.body | textDir">{{ msg.body }}</p>
 
         @if (msg.attachment) {
           <ng-container [ngTemplateOutlet]="attachmentCard" [ngTemplateOutletContext]="{ att: msg.attachment }"></ng-container>
@@ -243,7 +257,7 @@
   }
 
   <!-- Reply input -->
-  @if (!viewOnly()) {
+  @if (!readOnly() && canManage()) {
     <section class="reply-section">
       <h3>
         <i-tabler name="corner-up-left" class="icon-16"></i-tabler>
@@ -295,12 +309,12 @@
     </section>
   }
 
-  @if (viewOnly()) {
+  @if (readOnly()) {
     <div class="resolved-notice-bar">
       <i-tabler name="circle-check" class="icon-16"></i-tabler>
-      تم الرد على هذه الشكوى وإغلاقها بنجاح
+      {{ 'd3.complaints.closeDialog.closedBanner' | translate }}
     </div>
-  } @else {
+  } @else if (canManage()) {
     <div class="notice-bar">
       <i-tabler name="info-circle" class="icon-14"></i-tabler>
       {{ 'd3.complaints.hostDetail.notice' | translate }}
@@ -319,16 +333,16 @@
             <i-tabler name="alert-circle" class="icon-24"></i-tabler>
           </span>
           <div>
-            <h2>إغلاق الشكوى ومعالجتها</h2>
-            <p>سيتم إغلاق هذه الشكوى ونقلها إلى قسم الشكاوى المحلولة</p>
+            <h2>{{ 'd3.complaints.closeDialog.title' | translate }}</h2>
+            <p>{{ 'd3.complaints.closeDialog.desc' | translate }}</p>
           </div>
         </div>
 
         <div class="close-dialog-note">
-          <label>ملاحظة <span>(اختياري)</span></label>
+          <label>{{ 'd3.complaints.closeDialog.noteLabel' | translate }} <span>{{ 'd3.complaints.closeDialog.optional' | translate }}</span></label>
           <textarea
             [(ngModel)]="closeNote"
-            placeholder="أضف ملاحظة قبل الإغلاق..."></textarea>
+            [placeholder]="'d3.complaints.closeDialog.notePlaceholder' | translate"></textarea>
         </div>
 
         @if (closeError()) {
@@ -337,7 +351,7 @@
 
         <div class="close-dialog-actions">
           <button class="dialog-cancel-btn" type="button" (click)="cancelClose()">
-            إلغاء
+            {{ 'd3.complaints.closeDialog.cancel' | translate }}
           </button>
           <button
             class="dialog-confirm-btn"
@@ -349,7 +363,7 @@
             } @else {
               <i-tabler name="circle-check" class="icon-16"></i-tabler>
             }
-            تأكيد الإغلاق
+            {{ 'd3.complaints.closeDialog.confirm' | translate }}
           </button>
         </div>
 

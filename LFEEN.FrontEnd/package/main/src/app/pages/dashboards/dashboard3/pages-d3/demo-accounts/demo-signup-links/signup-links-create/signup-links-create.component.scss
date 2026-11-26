@@ -1,0 +1,237 @@
+// The create page reuses the demo-account create form styles (dc-*); this adds what is specific
+// to demo links: the steps, the big count, the "link is the key" note and the links result.
+@use '../../demo-accounts';
+
+.sl-create { gap: 0; }
+
+// Header → steps → form, with the same rhythm as the demo-account create page.
+.sl-form { gap: 20px; }
+
+// A stepper is a fixed-size control; inside a column field it must not stretch to the full width.
+.dc-stepper { align-self: flex-start; }
+.dc-duration .dc-stepper { align-self: center; }
+
+// ── Header: actions, with the security note right under them ──
+.sl-head { align-items: flex-start; }
+
+.sl-head__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 420px;
+
+  @media (max-width: 1100px) { align-items: flex-start; max-width: none; }
+}
+
+.sl-secure-line {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #92400e;
+  line-height: 1.6;
+  text-align: start;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+}
+
+.sl-secure {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #92400e;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+  p { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.7; }
+}
+
+// "Admin only — never shown to the organisation" over the area / notes.
+.sl-private {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #45556C;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; }
+  p { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.7; }
+}
+
+.sl-area { color: #111110; font-weight: 800; }
+
+// Help line with a leading icon (never space-between like .da-helper).
+.sl-help {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #6B6B67;
+  line-height: 1.6;
+
+  i-tabler { flex-shrink: 0; margin-top: 2px; color: #9E9E9A; }
+}
+
+// ── How it works: create → send → they open → track ───────
+.sl-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px dashed #E2E8F0;
+    background: #fff;
+    min-width: 0;
+
+    &.current {
+      border-style: solid;
+      border-color: #111110;
+      .sl-steps__icon { background: #111110; color: #fff; }
+    }
+  }
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #F1F5F9;
+    color: #45556C;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    strong { font-size: 12.5px; font-weight: 800; color: #111110; }
+    small { font-size: 11px; font-weight: 500; color: #9E9E9A; line-height: 1.5; }
+  }
+}
+
+// ── Number of links: the first and biggest control on the page ──
+.sl-count-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-radius: 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+
+  &.invalid { border-color: #fecaca; background: #fef2f2; }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1 1 200px;
+
+    label { font-size: 14px; font-weight: 800; color: #111110; .req { color: #dc2626; margin-inline-start: 2px; } }
+    span { font-size: 12px; font-weight: 500; color: #6B6B67; line-height: 1.6; }
+  }
+
+  &__controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+}
+
+.sl-stepper-lg {
+  height: 52px;
+  border-radius: 14px;
+
+  button { width: 48px; }
+  input { width: 80px; font-size: 20px; }
+}
+
+// ── Result: the new links ───────────────────────────────────
+.sl-result {
+  gap: 16px;
+
+  &__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+  &__icon {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #f0fdf4; color: #16a34a;
+  }
+
+  &__titles {
+    flex: 1 1 240px; min-width: 0;
+    h3 { margin: 0; font-size: 17px; font-weight: 800; color: #111110; }
+    p { margin: 4px 0 0; font-size: 13px; font-weight: 600; color: #6B6B67; }
+  }
+
+  &__footer {
+    display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;
+    padding-top: 12px; border-top: 1px solid #F1F5F9;
+  }
+}
+
+.sl-links {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid #F1F5F9;
+    &:first-child { border-top: none; }
+
+    .da-btn.copied { color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; }
+  }
+
+  &__n {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #F1F5F9; color: #6B6B67; font-size: 12px; font-weight: 800;
+  }
+
+  &__text {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto;
+    strong { font-size: 13px; font-weight: 800; color: #111110; }
+  }
+}
+
+.sl-url {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B6B67;
+  text-align: start;
+}

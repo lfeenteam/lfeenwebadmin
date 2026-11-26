@@ -15,6 +15,7 @@ import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { SubscriptionAuditLog, SubscriptionCatalogItem } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type ActionTone = 'add' | 'renew' | 'cancel' | 'neutral';
 
@@ -76,13 +77,14 @@ const ACTION_TONES: Record<string, ActionTone> = {
   DiscountCodeRedeemed: 'renew',
   DiscountCodeDeactivated: 'cancel',
   DiscountCodeActivated: 'add',
+  DiscountCodeDeleted: 'cancel',
   UsageChargeGenerated: 'neutral',
 };
 
 @Component({
   selector: 'app-subscription-log',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './subscription-log.component.html',
   styleUrl: './subscription-log.component.scss'
 })

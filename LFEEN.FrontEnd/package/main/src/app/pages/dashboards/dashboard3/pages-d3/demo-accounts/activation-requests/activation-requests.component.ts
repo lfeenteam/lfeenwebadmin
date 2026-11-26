@@ -27,6 +27,7 @@ import {
   ActivationRequestDialogData,
   ActivationRequestDialogResult
 } from '../components/activation-request-dialog/activation-request-dialog.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const PAGE_SIZE = 20;
 /** Pages of 100 to scan when a notification opens a request that isn't on the current page. */
@@ -39,7 +40,7 @@ const FIND_MAX_PAGES = 10;
 @Component({
   selector: 'app-activation-requests',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent, AppPluralPipe],
   templateUrl: './activation-requests.component.html',
   styleUrls: ['../demo-accounts.component.scss', './activation-requests.component.scss']
 })

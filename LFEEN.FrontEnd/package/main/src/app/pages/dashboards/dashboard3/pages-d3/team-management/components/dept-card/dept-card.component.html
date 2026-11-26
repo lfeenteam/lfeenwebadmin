@@ -54,7 +54,8 @@
       </button>
       <button mat-flat-button
         class="view-btn icon-40 p-0 min-width-40 d-flex align-items-center justify-content-center"
-        [routerLink]="[dept.id]">
+        [routerLink]="[dept.id]"
+        [attr.aria-label]="'d3.teamManagement.deptCard.view' | translate">
         <i-tabler name="eye" class="icon-20"></i-tabler>
       </button>
     </div>

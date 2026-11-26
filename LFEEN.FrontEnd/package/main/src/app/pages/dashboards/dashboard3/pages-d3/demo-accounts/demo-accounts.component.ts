@@ -10,6 +10,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { formatLocalizedNumber, getVisiblePages } from 'src/app/utils/pagination.util';
+import { translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../services/login/login.service';
 import { DemoAccountsService } from '../../services/demo-accounts.service';
 import {
@@ -22,20 +23,21 @@ import {
   DemoAccount,
   DemoAccountKind,
   DemoAccountStatus,
-  DemoChannel,
+  DemoAccountChannel,
   demoKindOf,
   toLocalPhone
 } from '../../interfaces/demo-account.model';
 import { demoErrorMessage, formatRiyadhDate, readDemoError } from './demo-accounts.util';
 import { DEMO_DEFAULT_PAGE_SIZE, DEMO_PAGE_SIZES, demoListState } from './demo-list-state';
 import { DemoTabsComponent } from './components/demo-tabs/demo-tabs.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 const EMPTY = '—';
 
 @Component({
   selector: 'app-demo-accounts',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent, AppPluralPipe],
   templateUrl: './demo-accounts.component.html',
   styleUrl: './demo-accounts.component.scss'
 })
@@ -222,7 +224,7 @@ export class DemoAccountsComponent implements OnInit {
     return label === key ? kind : label;
   }
 
-  channelLabel(channel: DemoChannel): string {
+  channelLabel(channel: DemoAccountChannel): string {
     const key = `d3.demoAccounts.channels.${channel}`;
     const label = this.translate.instant(key);
     return label === key ? channel : label;
@@ -236,9 +238,10 @@ export class DemoAccountsComponent implements OnInit {
     return formatRiyadhDate(value, this.currentLang) ?? EMPTY;
   }
 
+  /** "يوم واحد" / "يومان" / "6 أيام" / "14 يومًا" — or null when the account has no days left to show. */
   daysLeft(item: DemoAccount): string | null {
     if (item.status === 'Expired' || item.status === 'Disabled') return null;
-    return formatLocalizedNumber(Math.max(0, item.daysLeft ?? 0), this.currentLang);
+    return translatePlural(this.translate, 'd3.demoAccounts.days', Math.max(0, item.daysLeft ?? 0));
   }
 
   fmt(value: number): string {

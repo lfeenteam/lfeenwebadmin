@@ -7,7 +7,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { LoginService } from '../../../../services/login/login.service';
-import { extractApiErrorMessage } from '../../../../utils/api-error.util';
+import { extractApiErrorMessage, extractApiFieldErrors } from '../../../../utils/api-error.util';
+import { PASSWORD_RULES, PasswordRuleKey, passwordComplexityValidator } from '../../../../utils/password-rules.util';
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
   const newPassword = control.get('newPassword')?.value;
@@ -16,6 +17,21 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
     ? { passwordsMismatch: true }
     : null;
 }
+
+function notSameAsCurrentValidator(control: AbstractControl): ValidationErrors | null {
+  const currentPassword = control.get('currentPassword')?.value;
+  const newPassword = control.get('newPassword')?.value;
+  return currentPassword && newPassword && currentPassword === newPassword
+    ? { sameAsCurrent: true }
+    : null;
+}
+
+/** API field names (lower-cased, see normalizeApiField) shown under their own input. */
+const FIELD_CONTROLS: Record<string, 'currentPassword' | 'newPassword' | 'confirmPassword'> = {
+  currentpassword: 'currentPassword',
+  newpassword: 'newPassword',
+  confirmpassword: 'confirmPassword',
+};
 
 @Component({
   selector: 'app-change-password-dialog',
@@ -31,6 +47,8 @@ export class ChangePasswordDialogComponent {
   private toastr = inject(ToastrService);
   public dialogRef = inject(MatDialogRef<ChangePasswordDialogComponent>);
 
+  readonly passwordRules = PASSWORD_RULES;
+
   showCurrent = false;
   showNew = false;
   showConfirm = false;
@@ -39,14 +57,29 @@ export class ChangePasswordDialogComponent {
   form: FormGroup = this.fb.group(
     {
       currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [Validators.required, passwordComplexityValidator]],
       confirmPassword: ['', Validators.required]
     },
-    { validators: passwordsMatchValidator }
+    { validators: [passwordsMatchValidator, notSameAsCurrentValidator] }
   );
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
+  }
+
+  /** Show validation feedback for a control once the user has typed in it or left it. */
+  showErrors(name: string): boolean {
+    const control = this.form.get(name);
+    return !!control && (control.dirty || control.touched);
+  }
+
+  isRuleMet(key: PasswordRuleKey): boolean {
+    const value: string = this.form.get('newPassword')?.value ?? '';
+    return PASSWORD_RULES.find((rule) => rule.key === key)!.test(value);
+  }
+
+  serverErrors(name: string): string[] {
+    return this.form.get(name)?.errors?.['server'] ?? [];
   }
 
   save(): void {
@@ -66,6 +99,7 @@ export class ChangePasswordDialogComponent {
       },
       error: (err) => {
         this.saving = false;
+        if (this.showFieldErrors(err)) return;
         const message = extractApiErrorMessage(
           err,
           this.translate.instant('d3.profile.changePasswordDialog.error')
@@ -73,5 +107,24 @@ export class ChangePasswordDialogComponent {
         this.toastr.error(message);
       }
     });
+  }
+
+  /**
+   * Puts the server's field errors under their inputs (cleared as soon as the user edits
+   * the field, since Angular re-runs the validators). Returns false when none matched a field.
+   */
+  private showFieldErrors(err: any): boolean {
+    const messages = new Map<string, string[]>();
+    for (const { field, message } of extractApiFieldErrors(err)) {
+      const controlName = FIELD_CONTROLS[field];
+      if (!controlName || !message) continue;
+      messages.set(controlName, [...(messages.get(controlName) ?? []), message]);
+    }
+    messages.forEach((list, controlName) => {
+      const control = this.form.get(controlName)!;
+      control.setErrors({ ...(control.errors ?? {}), server: list });
+      control.markAsTouched();
+    });
+    return messages.size > 0;
   }
 }

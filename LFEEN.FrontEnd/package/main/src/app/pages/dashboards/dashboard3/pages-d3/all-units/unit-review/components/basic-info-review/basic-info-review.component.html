@@ -4,6 +4,8 @@
     <div style="display:flex; justify-content:center; align-items:center; padding:4rem;">
       <i-tabler name="loader-2" style="animation:spin 1s linear infinite;"></i-tabler>
     </div>
+  } @else if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadData()"></app-unit-load-state>
   } @else {
 
   <section class="unit-hero">

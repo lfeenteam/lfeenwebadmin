@@ -446,6 +446,15 @@
   }
 }
 
+// .page-content pads 12px from 768px down; the grid row's -15px gutter overflowed it
+// by 3px at exactly 768px and the page scrolled sideways. ≤767px is handled below.
+@media (max-width: 768px) {
+  .m-b-24.row {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+
 @media (max-width: 767px) {
   .m-b-24.row {
     margin-left: -5px !important;

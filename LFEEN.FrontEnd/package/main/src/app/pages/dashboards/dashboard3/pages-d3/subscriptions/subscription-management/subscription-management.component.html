@@ -6,7 +6,7 @@
 
   <!-- Stats -->
   @if (misconfiguredServicesCount > 0) {
-    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | translate: { count: fmt(misconfiguredServicesCount) } }}</div>
+    <div class="configuration-warning m-b-16"><i-tabler name="alert-triangle" class="icon-20"></i-tabler>{{ 'd3.subscriptions.configurationWarning' | appPlural: misconfiguredServicesCount }}</div>
   }
   @if (statsError) {
     <div class="m-b-24">
@@ -79,7 +79,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (account of filteredAccounts; track account.id) {
+            @for (account of accounts; track account.id) {
               <tr class="subs-row">
                 <td class="p-24">
                   <div class="d-flex align-items-center gap-12">
@@ -88,7 +88,7 @@
                     </div>
                     <div>
                       <span class="f-s-14 f-w-800 d-block">{{ account.facilityName }}</span>
-                      <span class="facility-classification">{{ 'd3.subscriptions.table.servicesCount' | translate: { count: fmt(account.services.length) } }}</span>
+                      <span class="facility-classification">{{ 'd3.subscriptions.table.servicesCount' | appPlural: account.services.length }}</span>
                     </div>
                   </div>
                 </td>
@@ -234,6 +234,11 @@
                       [titleKey]="listForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="listForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
                       actionKey="d3.state.retry" actionIcon="refresh" (action)="loadPage()">
                     </app-dashboard-empty>
+                  } @else if (searchQuery.trim()) {
+                    <app-dashboard-empty variant="search"
+                      titleKey="d3.emptyState.noResults.title" descKey="d3.emptyState.noResults.desc"
+                      actionKey="d3.emptyState.noResults.clear" actionIcon="x" (action)="clearSearch()">
+                    </app-dashboard-empty>
                   } @else {
                     <app-dashboard-empty icon="users" titleKey="d3.subscriptions.empty.title" descKey="d3.subscriptions.empty.desc"></app-dashboard-empty>
                   }
@@ -247,7 +252,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between">
           <span class="pagination-total">
-            {{ fmt(totalCount) }} {{ 'd3.subscriptions.pagination.total' | translate }}
+            {{ 'd3.subscriptions.pagination.total' | appPlural: totalCount }}
           </span>
           <div class="pagination-controls d-flex align-items-center gap-4">
             <button class="page-nav-btn"

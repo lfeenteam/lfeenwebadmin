@@ -13,11 +13,12 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
 import { AddPermissionGroupDialogComponent } from './components/add-permission-group-dialog/add-permission-group-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-permission-groups',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule, AppPluralPipe],
   templateUrl: './permission-groups.component.html',
   styleUrl: './permission-groups.component.scss'
 })

@@ -219,18 +219,27 @@ $line:   #E2E8F0;
   &.st-neutral { color: #475569; background: #F1F5F9; border: 1px solid #E2E8F0; }
 }
 
-// Localized failure reason — the readable one, shown inline.
+// Localized failure reason. The badge already says "stopped" in red, so the text stays calm
+// and is clamped to two lines; the full text is in the title.
 .br-failure {
   display: inline-flex;
   align-items: flex-start;
-  gap: 4px;
-  max-width: 200px;
+  gap: 6px;
+  max-width: 280px;
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.5;
-  color: #B91C1C;
+  font-weight: 500;
+  line-height: 1.6;
+  color: $muted;
 
-  .br-error-icon { display: flex; flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; }
+  .br-error-icon { display: flex; flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px; color: #DC2626; }
+}
+
+.br-failure-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 // Raw gateway error, collapsed by default.
@@ -287,7 +296,8 @@ $line:   #E2E8F0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
+  // Retry re-sends money to the gateway; keep it clear of "resolve".
+  gap: 12px;
 
   .br-btn { justify-content: center; }
 }
@@ -314,7 +324,8 @@ $line:   #E2E8F0;
 
 .br-btn-icon { display: flex; width: 16px; height: 16px; }
 
-.br-btn--retry   { background: #F1F5F9; color: $text; }
+// Outlined, so it doesn't read as a twin of the filled "resolve" button.
+.br-btn--retry   { background: #fff; color: $text; border: 1px solid #CAD5E2; }
 .br-btn--resolve { background: #F0FDF4; color: #008236; }
 
 .br-empty-cell { padding: 0 !important; }
@@ -370,8 +381,10 @@ $line:   #E2E8F0;
   color: #9E9E9A;
 }
 
-// ── Mobile: rows become cards ────────────────────────────
-@media (max-width: 767px) {
+// ── Mobile & tablet: rows become cards ───────────────────
+// The eight columns need ~940px minimum, wider than the box up to 1024 (sidebar open),
+// so below that the table would hide the actions behind an unmarked horizontal scroll.
+@media (max-width: 1024px) {
   .br-table-box { border: none; box-shadow: none; background: transparent; padding: 0; }
 
   .br-table {
@@ -403,7 +416,18 @@ $line:   #E2E8F0;
   }
 
   .br-actions-cell { width: auto; }
-  .br-actions { flex-direction: row; gap: 8px; .br-btn { flex: 1; } }
+  .br-actions { flex-direction: row; gap: 12px; .br-btn { flex: 1; } }
 
   .br-pagination { justify-content: center; }
+}
+
+// Tablet: three fields per line so cards stay short; buttons keep their natural width.
+@media (min-width: 768px) and (max-width: 1024px) {
+  // dense: the full-width status cell would otherwise leave a gap after "attempts" — the date fills it.
+  .br-row { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-flow: dense; }
+
+  .br-actions {
+    justify-content: flex-end;
+    .br-btn { flex: 0 0 auto; }
+  }
 }

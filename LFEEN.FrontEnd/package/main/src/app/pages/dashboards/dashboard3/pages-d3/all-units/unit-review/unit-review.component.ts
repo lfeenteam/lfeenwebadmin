@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,10 +13,13 @@ import { UnitReviewDecision, UnitsService } from '../../../services/units.servic
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem, totalGuests } from '../../../interfaces/unit-card.model';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
+import { PermissionService } from '../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
 import { formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../utils/api-error.util';
 
 interface UnitReviewSection {
   key: string;
@@ -29,7 +32,7 @@ interface UnitReviewSection {
 @Component({
   selector: 'app-unit-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent, ListingBanBannerComponent, BanListingButtonComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, DashboardLoadingComponent, ListingBanBannerComponent, BanListingButtonComponent, UnitLoadStateComponent],
   templateUrl: './unit-review.component.html',
   styleUrl: './unit-review.component.scss'
 })
@@ -37,6 +40,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly pageTitleOverride = inject(PageTitleOverrideService);
   private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
+  private readonly perms = inject(PermissionService);
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   unitDetail: UnitApiDetailItem | undefined;
@@ -46,6 +50,9 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   reviewDecisions: Record<string, UnitReviewDecision> = {};
   isLoading = false;
+  // The page body (section cards, final notes, approve/reject) renders only once this is
+  // 'loaded', so an unknown or deleted unit never shows an empty review with decision buttons.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   private forcedViewOnly = false;
   private originTab = '';
 
@@ -138,6 +145,13 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       || status === 'Rejected';
   }
 
+  // BUG-2739: an admin who can't write units views the review without decisions.
+  readonly canManage = computed(() => this.perms.canWrite('units'));
+
+  get isReadOnly(): boolean {
+    return this.isViewMode || !this.canManage();
+  }
+
   get isBanned(): boolean {
     return this.unitDetail?.overallStatus?.trim() === 'Banned';
   }
@@ -180,7 +194,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
           id:             String(data.propertyId),
           name:           data.propertyName,
           location:       data.propertyName,
-          publishedUnits: 0,
+          unitsCount:     0,
           image:          data.mainPhotoUrl ?? 'assets/images/products/review_image.png',
           units:          []
         };
@@ -191,10 +205,19 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
         this.pageBreadcrumbTrail.set([{ label: 'd3.unitReview.unitCrumbLabel', translate: true }]);
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
+        // A reload that fails (after a ban change) keeps the page already shown.
+        if (this.unitDetail) return;
+        this.loadState = classifyLoadError(err);
       }
     });
+  }
+
+  retryLoad(): void {
+    this.isLoading = true;
+    this.loadState = 'loaded';
+    this.loadUnit();
   }
 
   // Same statuses the list cards allow a ban from (see UnitsService.mapToUnitCard).
@@ -314,7 +337,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onApprove(): void {
-    if (this.isApproveDisabled) return;
+    if (this.isReadOnly || this.isApproveDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -343,7 +366,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onReject(): void {
-    if (this.isRejectDisabled) return;
+    if (this.isReadOnly || this.isRejectDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -437,7 +460,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   shouldOpenSectionInViewMode(sectionKey: string): boolean {
-    return this.isViewMode || this.isSectionApproved(sectionKey);
+    return this.isReadOnly || this.isSectionApproved(sectionKey);
   }
 
   private getApiSectionDecision(sectionKey: string): string {

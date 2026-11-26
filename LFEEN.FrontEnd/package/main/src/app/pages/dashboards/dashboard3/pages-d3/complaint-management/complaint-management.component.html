@@ -11,7 +11,7 @@
   <div class="content-area" [class.chat-open]="chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')">
 
     <div class="table-column">
-      @if (activeTab() === 'customers' || activeTab() === 'hosts') {
+      @if ((activeTab() === 'customers' || activeTab() === 'hosts') && canManage()) {
         <div class="assign-warning">
           <i-tabler name="info-circle" class="icon-16"></i-tabler>
           <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>
@@ -23,7 +23,7 @@
           <app-tabs-filter
             class="host-tabs-filter"
             [tabs]="[]"
-            [showMoreFiltersButton]="false"
+            [showMoreFiltersButton]="hostFilterOptions().length > 0"
             [filterOptions]="hostFilterOptions()"
             [activeFilters]="hostActiveFiltersSnapshot()"
             [searchQuery]="hostSearch()"
@@ -39,7 +39,7 @@
           <app-tabs-filter
             class="host-tabs-filter"
             [tabs]="[]"
-            [showMoreFiltersButton]="false"
+            [showMoreFiltersButton]="customerFilterOptions().length > 0"
             [filterOptions]="customerFilterOptions()"
             [activeFilters]="customerActiveFiltersSnapshot()"
             [searchQuery]="customerSearch()"
@@ -78,6 +78,7 @@
           [serverTotalCount]="activeTab() === 'customers' ? customerTotalCount() : (activeTab() === 'hosts' ? hostTotalCount() : (activeTab() === 'resolved' ? resolvedTotalCount() : null))"
           [serverTotalPages]="activeTab() === 'customers' ? customerTotalPages() : (activeTab() === 'hosts' ? hostTotalPages() : (activeTab() === 'resolved' ? resolvedTotalPages() : null))"
           [serverCurrentPage]="activeTab() === 'customers' ? customerPage() : (activeTab() === 'hosts' ? hostPage() : (activeTab() === 'resolved' ? resolvedPage() : null))"
+          [serverPageSize]="activeServerPageSize()"
           [statusFilterValue]="activeTab() === 'customers' ? customerStatus() : (activeTab() === 'hosts' ? null : resolvedType())"
           [statusOptions]="activeTab() === 'customers' ? clientStatusOptions : resolvedTypeOptions"
           [allOptionLabelKey]="activeTab() === 'resolved' ? 'd3.complaints.table.allTypes' : 'd3.complaints.table.allStatuses'"

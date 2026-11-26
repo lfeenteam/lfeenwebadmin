@@ -4,6 +4,8 @@
     <div style="display:flex; justify-content:center; align-items:center; padding:4rem;">
       <i-tabler name="loader-2" style="animation:spin 1s linear infinite;"></i-tabler>
     </div>
+  } @else if (loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadTerms()"></app-unit-load-state>
   } @else {
 
   <section class="terms-heading">
@@ -46,8 +48,12 @@
     </div>
 
     <div class="early-arrival-time">
-      <span>{{ 'd3.unitReview.termsView.availableLabel' | translate }}</span>
-      <strong>{{ formatTime(termsData?.earlyCheckInFrom) }}</strong>
+      @if (earlyCheckInEnabled) {
+        <span>{{ 'd3.unitReview.termsView.availableLabel' | translate }}</span>
+        <strong>{{ formatTime(termsData?.earlyCheckInFrom) || '—' }}</strong>
+      } @else {
+        <strong class="early-arrival-time--off">{{ 'd3.unitReview.termsView.earlyArrivalNotAllowed' | translate }}</strong>
+      }
     </div>
 
     <span class="time-icon">

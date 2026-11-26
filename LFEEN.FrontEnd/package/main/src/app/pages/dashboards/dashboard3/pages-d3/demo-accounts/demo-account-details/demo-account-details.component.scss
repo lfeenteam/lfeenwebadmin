@@ -99,6 +99,50 @@
 
 .dd-request h3 { display: flex; align-items: center; gap: 8px; }
 
+// "Made from a demo link" — admin-only area / notes and the open count.
+// "From the batch" next to an area / notes the link inherits.
+.dd-from-batch {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #ede9fe;
+  vertical-align: middle;
+}
+
+.dd-link {
+  border-color: #ede9fe;
+  background: linear-gradient(#faf9ff, #fff 60px);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+
+    h3 { margin: 0; display: flex; align-items: center; gap: 8px; i-tabler { color: #6d28d9; } }
+  }
+
+  &__hint {
+    margin: 10px 0 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9E9E9A;
+    line-height: 1.6;
+
+    i-tabler { flex-shrink: 0; margin-top: 2px; }
+  }
+}
+
 // Saved invitation text: kept exactly as typed.
 .dd-message {
   white-space: pre-wrap;

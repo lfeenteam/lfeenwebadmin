@@ -1,0 +1,501 @@
+// Stuck cancellation refunds. Classes prefixed "cr-".
+// Black, white and grey; status badges are the only coloured elements.
+$ink:    #111110;
+$body:   #3F3F3C;
+$muted:  #6B6B67;
+$label:  #9E9E9A;
+$line:   #E8E8E4;
+$soft:   #F7F7F5;
+$white:  #FFFFFF;
+
+.cr {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Cairo', sans-serif;
+
+  * { font-family: 'Cairo', sans-serif !important; }
+}
+
+.cr-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ── Header ───────────────────────────────────────────────
+.cr-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cr-head-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.cr-head-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: $ink;
+  color: $white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler { display: flex; width: 22px; height: 22px; }
+}
+
+.cr-head-text { min-width: 0; }
+
+.cr-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: $ink;
+}
+
+.cr-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: $soft;
+  border: 1px solid $line;
+  font-size: 12px;
+  font-weight: 800;
+  color: $ink;
+  font-variant-numeric: tabular-nums;
+}
+
+.cr-intro {
+  margin: 0;
+  max-width: 760px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: $muted;
+}
+
+.cr-refresh {
+  all: unset;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  cursor: pointer;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid $line;
+  background: $white;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  transition: background 0.18s ease, border-color 0.18s ease;
+
+  &:hover:not(:disabled) { background: $soft; border-color: #D4D4CF; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+.cr-refresh-icon {
+  display: flex;
+  width: 16px;
+  height: 16px;
+
+  &.is-spinning { animation: cr-spin 0.9s linear infinite; }
+}
+
+@keyframes cr-spin { to { transform: rotate(360deg); } }
+
+// ── Table card ───────────────────────────────────────────
+.cr-card {
+  background: $white;
+  border: 1px solid $line;
+  border-radius: 16px;
+  overflow-x: auto;
+  transition: opacity 0.2s ease;
+
+  &.is-refreshing { opacity: 0.6; }
+}
+
+.cr-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead th {
+    padding: 12px 16px;
+    background: $soft;
+    border-bottom: 1px solid $line;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: start;
+    color: $muted;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 18px 16px;
+    text-align: start;
+    vertical-align: top;
+  }
+}
+
+.cr-th-amount { text-align: end !important; }
+
+.cr-row {
+  border-bottom: 1px solid $line;
+  transition: background 0.15s ease;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: #FBFBFA; }
+  &.is-queued { background: $soft; }
+}
+
+.cr-label { display: none; }
+
+.cr-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: $label;
+}
+
+.cr-muted { font-size: 13px; color: $label; }
+
+// Booking number: digits only, reads fine in RTL without forcing direction.
+.cr-booking {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+}
+
+.cr-property {
+  display: block;
+  max-width: 170px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cr-guest {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 180px;
+}
+
+.cr-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $soft;
+  border: 1px solid $line;
+  color: $ink;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cr-guest-name {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: $body;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cr-td-amount { text-align: end !important; }
+
+.cr-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 800;
+  color: $ink;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cr-currency { font-size: 12px; font-weight: 700; color: $muted; }
+
+.currency-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &.currency-icon-en { width: 28px; height: 12px; }
+}
+
+.cr-date {
+  display: block;
+  min-width: 110px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $body;
+}
+
+// ── Status ───────────────────────────────────────────────
+.cr-td-status { min-width: 260px; }
+
+.cr-status-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cr-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  // Status badges are the one place colour is used, so the state reads at a glance.
+  &--danger  { color: #B91C1C; background: #FEF2F2; box-shadow: inset 0 0 0 1px #FECACA; }
+  &--pending { color: #B45309; background: #FFFBEB; box-shadow: inset 0 0 0 1px #FDE68A; }
+  // "Manual only" is a note, not a state: grey.
+  &--neutral {
+    color: $body;
+    background: $soft;
+    box-shadow: inset 0 0 0 1px $line;
+    cursor: help;
+
+    &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+  }
+}
+
+.cr-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.cr-badge-icon { display: flex; width: 14px; height: 14px; }
+
+// Readable failure reason, clamped to two lines; full text in the title.
+.cr-reason {
+  margin: 0;
+  max-width: 320px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: $muted;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.cr-tech-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #D4D4CF;
+
+  &:hover { text-decoration-color: $ink; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; border-radius: 4px; }
+}
+
+.cr-tech-icon { display: flex; width: 14px; height: 14px; }
+
+.cr-tech-details {
+  display: block;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: $soft;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 11px;
+  line-height: 1.6;
+  color: $body;
+  text-align: start;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+}
+
+// ── Actions ──────────────────────────────────────────────
+.cr-td-actions { width: 1%; }
+
+.cr-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  // Retry re-sends money to the gateway; keep it clear of "resolve".
+  gap: 12px;
+}
+
+.cr-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease;
+
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+.cr-btn-icon { display: flex; width: 16px; height: 16px; }
+
+// Primary path for these rows: refund outside the system, then close.
+.cr-btn--resolve {
+  background: $ink;
+  color: $white;
+
+  &:hover:not(:disabled) { background: #2B2B29; }
+}
+
+// Re-sends money to the gateway — secondary, outlined, and behind a confirmation.
+.cr-btn--retry {
+  background: $white;
+  color: $ink;
+  border: 1px solid #D4D4CF;
+
+  &:hover:not(:disabled) { background: $soft; border-color: $label; }
+}
+
+.cr-empty-cell { padding: 0 !important; }
+.cr-empty-retry { margin-top: 16px; }
+
+// ── Pagination ───────────────────────────────────────────
+.cr-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid $line;
+}
+
+.cr-total { font-size: 13px; font-weight: 600; color: $muted; }
+
+.cr-pages { display: flex; align-items: center; gap: 4px; }
+
+.cr-page-btn {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid $line;
+  background: $white;
+  color: $body;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &:not(:disabled):hover { background: $soft; }
+  &.active { background: $ink; color: $white; border-color: $ink; }
+}
+
+.cr-ellipsis { width: 28px; text-align: center; font-weight: 700; color: $label; }
+
+// ── Mobile: rows become cards ────────────────────────────
+@media (max-width: 767px) {
+  .cr-head { flex-direction: column; align-items: stretch; }
+  .cr-refresh { align-self: flex-start; }
+
+  .cr-card { border: none; background: transparent; overflow: visible; }
+
+  .cr-table {
+    display: block;
+
+    thead { display: none; }
+    tbody { display: flex; flex-direction: column; gap: 12px; }
+  }
+
+  .cr-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid $line !important;
+    border-radius: 16px;
+    background: $white;
+
+    td { padding: 12px 14px; }
+    .cr-td-amount { text-align: start !important; }
+    // Status and actions take the full width.
+    .cr-td-status, .cr-td-actions { grid-column: 1 / -1; min-width: 0; width: auto; }
+    .cr-td-actions:empty { display: none; }
+  }
+
+  .cr-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: $label;
+  }
+
+  .cr-actions { flex-direction: row; gap: 10px; .cr-btn { flex: 1; } }
+
+  .cr-pagination { justify-content: center; border-top: none; }
+}

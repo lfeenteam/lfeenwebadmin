@@ -208,6 +208,9 @@ $danger: #d70a0a;
 .ag-date { display: block; white-space: nowrap; }
 .ag-dash { color: $soft; }
 .ag-cell-label { display: none; }
+// Everything a cell shows besides its phone label (value + optional sub line), kept in
+// one box so the phone card row stays "label | value" however many lines the value has.
+.ag-cell-value { display: block; min-width: 0; }
 .ag-actions-cell { width: 64px; text-align: center; cursor: default; }
 .ag-kebab {
   display: inline-flex;
@@ -496,6 +499,9 @@ $danger: #d70a0a;
 @media (max-width: 768px) {
   .ag-head { flex-direction: column; align-items: stretch; }
   .ag-title, .agv-title { font-size: 22px; }
+  // Two type tabs share the width and wrap their label rather than being clipped
+  // off the screen edge ("Service level agreement" in English).
+  .ag-tab { flex: 1 1 0; min-width: 0; padding: 12px 8px 14px; white-space: normal; text-align: center; }
   .agv-head-meta { padding-inline-start: 0; }
   .ag-stats, .ag-stats--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .agv-grid { grid-template-columns: 1fr; }
@@ -527,7 +533,23 @@ $danger: #d70a0a;
   }
   .ag-table td:last-child { border-bottom: 0; }
   .ag-cell-label { display: inline; flex-shrink: 0; color: $muted; font-size: 12px; }
-  .ag-actions-cell { position: absolute; top: 4px; inset-inline-end: 4px; width: auto; padding: 0 !important; border: 0 !important; }
+  // Value and its sub line stacked on the end side, whatever dir the sub line has.
+  .ag-cell-value { display: flex; flex-direction: column; align-items: flex-end; }
+  .ag-cell-value > * { max-width: 100%; }
+  .ag-row-title, .ag-sub:not(.ag-sub--clip) { white-space: normal; }
+  // The ⋮ button sits in the card's top end corner. The selector must beat
+  // `.ag-table td` (width: 100%, flex) or the cell spans the whole card and the button
+  // lands at its start, over the first label. The first row keeps clear of it.
+  .ag-table td.ag-actions-cell {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+  .ag-table td:first-child { padding-inline-end: 32px; }
   .ag-pagination { flex-direction: column; align-items: stretch; }
   .ag-pages { justify-content: center; }
 }

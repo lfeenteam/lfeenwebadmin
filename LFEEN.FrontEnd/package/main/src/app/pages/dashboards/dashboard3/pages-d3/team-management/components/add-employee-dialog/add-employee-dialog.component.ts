@@ -4,8 +4,10 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
+  ValidationErrors,
   Validators,
   ReactiveFormsModule
 } from '@angular/forms';
@@ -16,6 +18,24 @@ import { DepartmentService } from '../../../../services/department.service';
 import { Department, DepartmentRole, Employee } from '../../../../interfaces/department.model';
 import intlTelInput from 'intl-tel-input';
 import type { Iti, SomeOptions, UiTranslations } from 'intl-tel-input';
+
+/** Same formats the API accepts: 05XXXXXXXX, 5XXXXXXXX or +9665XXXXXXXX. */
+const SAUDI_MOBILE_REGEX = /^(?:05\d{8}|5\d{8}|\+9665\d{8})$/;
+
+/** Drops the spaces/dashes/brackets intl-tel-input or the user may add, and maps Arabic-Indic digits to 0-9. */
+function normalizeEmployeePhone(value: unknown): string {
+  return String(value ?? '')
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/[\s\-().]/g, '');
+}
+
+/** Empty is left to Validators.required; anything else must be a Saudi mobile number. */
+function saudiMobileValidator(control: AbstractControl): ValidationErrors | null {
+  const value = normalizeEmployeePhone(control.value);
+  if (!value) return null;
+  return SAUDI_MOBILE_REGEX.test(value) ? null : { pattern: true };
+}
 
 @Component({
   selector: 'app-add-employee-dialog',
@@ -101,7 +121,7 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
     this.employeeForm = this.fb.group({
       fullName: [this.data.employee?.fullName || '', [Validators.required, Validators.minLength(2)]],
       email: [this.data.employee?.email || '', [Validators.required, Validators.email]],
-      phoneNumber: [this.data.employee?.phoneNumber || '', [Validators.required, Validators.pattern(/^[\d\s+\-().]+$/)]],
+      phoneNumber: [this.data.employee?.phoneNumber || '', [Validators.required, saudiMobileValidator]],
       roleId: [this.data.employee?.roles?.[0]?.roleId || '', Validators.required],
     });
 
@@ -249,7 +269,7 @@ export class AddEmployeeDialogComponent implements OnInit, AfterViewInit, OnDest
       const submissionData = {
         fullName: formData.fullName,
         email: formData.email,
-        phoneNumber: formData.phoneNumber,
+        phoneNumber: normalizeEmployeePhone(formData.phoneNumber),
         roleIds: [formData.roleId]
       };
 

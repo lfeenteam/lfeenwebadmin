@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,11 +9,14 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitTermsResponse } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../../interfaces/additional-condition.model';
 import { formatTimeOfDay } from 'src/app/utils/date-format.util';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
 
 interface UnitRule {
   icon: string;
@@ -24,7 +27,7 @@ interface UnitRule {
 @Component({
   selector: 'app-unit-terms-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, AdditionalConditionsReviewComponent, UnitLoadStateComponent],
   templateUrl: './unit-terms-review.component.html',
   styleUrl: './unit-terms-review.component.scss'
 })
@@ -36,6 +39,9 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   earlyCheckInEnabled = false;
   isLoading = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
   mappedConditions: UnitRule[] = [];
   additionalConditions: AdminAdditionalCondition[] = [];
 
@@ -67,21 +73,30 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     if (this.unitId) {
       this.loadTerms();
-      this.unitsService.getUnitBasicData(this.unitId).subscribe(data => {
-        const lang = this.translate.currentLang || 'ar';
-        this.pageBreadcrumbTrail.set([
-          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-        ]);
+      this.unitsService.getUnitBasicData(this.unitId).subscribe({
+        next: data => {
+          const lang = this.translate.currentLang || 'ar';
+          this.pageBreadcrumbTrail.set([
+            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+          ]);
+        },
+        // Breadcrumb only — the terms request below drives the not-found state.
+        error: () => {}
       });
+    } else {
+      this.loadState = 'notFound';
     }
   }
 
   loadTerms(): void {
     this.isLoading = true;
+    this.loadState = 'loaded';
     this.unitsService.getUnitTerms(this.unitId).subscribe({
       next: (data) => {
         this.termsData            = data;
@@ -94,7 +109,11 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
         this.additionalConditions = data.additionalConditions ?? [];
         this.isLoading = false;
       },
-      error: () => { this.isLoading = false; }
+      error: (err) => {
+        this.termsData = null;
+        this.loadState = classifyLoadError(err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -103,6 +122,7 @@ export class UnitTermsReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

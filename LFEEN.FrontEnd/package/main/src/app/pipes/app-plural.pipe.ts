@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { appLocale } from '../utils/locale-format.util';
+import { appLocale, formatAppNumber } from '../utils/locale-format.util';
 
 const rulesCache = new Map<string, Intl.PluralRules>();
 
@@ -11,6 +11,34 @@ function pluralRules(locale: string): Intl.PluralRules {
     rulesCache.set(locale, rules);
   }
   return rules;
+}
+
+/**
+ * Translates `baseKey` in the plural form that fits `count`, for code that can't use the pipe
+ * (services building dialog text, toasts…). See {@link AppPluralPipe} for the key shape.
+ * `{{count}}` is the formatted number (thousands separators, the app's digits).
+ */
+export function translatePlural(
+  translate: TranslateService,
+  baseKey: string,
+  count: number | null | undefined,
+  params?: Record<string, unknown>
+): string {
+  const n = count ?? 0;
+  const lang = translate.currentLang || translate.defaultLang || 'ar';
+  const interpolate = { ...params, count: formatAppNumber(n, lang) };
+
+  const candidates = [
+    ...(n === 0 ? ['zero'] : []),
+    pluralRules(appLocale(lang)).select(n),
+    'other',
+  ];
+  for (const category of candidates) {
+    const key = `${baseKey}.${category}`;
+    const text = translate.instant(key, interpolate);
+    if (text !== key) return text;
+  }
+  return `${baseKey}.other`;
 }
 
 /**
@@ -29,20 +57,6 @@ export class AppPluralPipe implements PipeTransform {
   private translate = inject(TranslateService);
 
   transform(baseKey: string, count: number | null | undefined, params?: Record<string, unknown>): string {
-    const n = count ?? 0;
-    const lang = this.translate.currentLang || this.translate.defaultLang || 'ar';
-    const interpolate = { ...params, count: n };
-
-    const candidates = [
-      ...(n === 0 ? ['zero'] : []),
-      pluralRules(appLocale(lang)).select(n),
-      'other',
-    ];
-    for (const category of candidates) {
-      const key = `${baseKey}.${category}`;
-      const text = this.translate.instant(key, interpolate);
-      if (text !== key) return text;
-    }
-    return `${baseKey}.other`;
+    return translatePlural(this.translate, baseKey, count, params);
   }
 }

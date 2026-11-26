@@ -12,6 +12,7 @@ import { BuildingReviewService } from '../../services/building-review.service';
 import { MaterialModule } from 'src/app/material.module';
 import { forkJoin } from 'rxjs';
 import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-all-builds',
@@ -24,7 +25,8 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
     DashboardEmptyComponent,
-    CardsBuildsComponent
+    CardsBuildsComponent,
+    AppPluralPipe
   ],
   templateUrl: './all-builds.component.html',
   styleUrl: './all-builds.component.scss'
@@ -35,14 +37,16 @@ export class AllBuildsComponent implements OnInit {
   private translate       = inject(TranslateService);
 
   activeTab: string          = this.buildingService.activeTab();
-  searchQuery                = '';
+  // The service keeps search / city / type / sort across navigation (like the tab and page),
+  // so start from it — otherwise coming back shows an empty box over a still-filtered list (BUG-2655).
+  searchQuery                = this.buildingService.searchQuery();
   selectedFilters: Record<string, string> = {
     status: 'all',
-    city: 'all',
-    type: 'all',
-    sort: 'newest'
+    city: this.buildingService.city() || 'all',
+    type: this.buildingService.propertyTypeId() || 'all',
+    sort: this.buildingService.newestFirst() ? 'newest' : 'oldest'
   };
-  activeFilters: Record<string, string> | undefined;
+  activeFilters: Record<string, string> | undefined = { ...this.selectedFilters };
   viewMode: ViewMode         = 'list';
   allBuildings: BuildingCardItem[] = [];
   isLoading                  = false;
@@ -58,8 +62,9 @@ export class AllBuildsComponent implements OnInit {
   metrics: MetricCard[] = [
     { titleKey: 'd3.allBuilds.cards.totalBuildings',        value: '—', icon: 'building',     tone: 'black'  },
     { titleKey: 'd3.allBuilds.cards.activeBuildings',      value: '—', icon: 'circle-check', tone: 'green'  },
-    { titleKey: 'd3.allBuilds.cards.inactiveBuildings',    value: '—', icon: 'player-pause', tone: 'gray'   },
-    { titleKey: 'd3.allBuilds.cards.unpublishedBuildings', value: '—', icon: 'clock-hour-3', tone: 'orange' }
+    // Same order, icons and tones as the units page; the API has no "inactive" figure (BUG-2413).
+    { titleKey: 'd3.allBuilds.cards.unpublishedBuildings', value: '—', icon: 'player-pause', tone: 'gray'   },
+    { titleKey: 'd3.allBuilds.cards.underReviewBuildings', value: '—', icon: 'clock-hour-3', tone: 'orange' }
   ];
 
   tabs: TabOption[] = [
@@ -134,8 +139,8 @@ export class AllBuildsComponent implements OnInit {
         this.metrics = [
           { ...this.metrics[0], value: formatNumber(s.total)              },
           { ...this.metrics[1], value: formatNumber(s.activeOrPublished)  },
-          { ...this.metrics[2], value: formatNumber(s.underReview)        },
-          { ...this.metrics[3], value: formatNumber(s.pendingOrRejected)  },
+          { ...this.metrics[2], value: formatNumber(s.pendingOrRejected)  },
+          { ...this.metrics[3], value: formatNumber(s.underReview)        },
         ];
         // stats aren't affected by the active filter, so this count holds on every tab.
         this.tabs = this.tabs.map(t => t.id === 'banned' ? { ...t, count: s.banned ?? null } : t);

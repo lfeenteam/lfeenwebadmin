@@ -1,4 +1,5 @@
 import { Component, ElementRef, Injector, OnInit, ViewChild, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AppPluralPipe, translatePlural } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
 import {
@@ -32,9 +34,13 @@ import { InvitationEditorComponent } from '../components/invitation-editor/invit
 import { InvitationPreviewComponent } from '../components/invitation-editor/invitation-preview.component';
 import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
 
-type CreateField = 'fullName' | 'channel' | 'email' | 'phoneNumber' | 'durationDays' | 'pin' | 'note';
+type CreateSection = 'account' | 'trial' | 'message';
+type CreateField ='fullName' | 'channel' | 'email' | 'phoneNumber' | 'durationDays' | 'pin' | 'note';
 
 const FIELDS: CreateField[] = ['fullName', 'channel', 'email', 'phoneNumber', 'durationDays', 'pin', 'note'];
+/** Which accordion section holds each field (the channel lives in the invitation section). */
+const ACCOUNT_FIELDS: CreateField[] = ['fullName', 'email', 'phoneNumber'];
+const TRIAL_FIELDS: CreateField[] = ['durationDays', 'pin', 'note'];
 
 // /demo-accounts/new — account details on the start side, the invitation editor under
 // them, and the server-rendered preview fixed on the end side.
@@ -43,7 +49,7 @@ const FIELDS: CreateField[] = ['fullName', 'channel', 'email', 'phoneNumber', 'd
   standalone: true,
   imports: [
     CommonModule, FormsModule, TablerIconsModule, TranslateModule,
-    DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent,
+    DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent, AppPluralPipe,
   ],
   providers: [InvitationEditorStore],
   templateUrl: './demo-account-create.component.html',
@@ -71,12 +77,27 @@ export class DemoAccountCreateComponent implements OnInit {
   readonly kinds = DEMO_KINDS;
   readonly kindIcons = DEMO_KIND_ICONS;
   readonly limits = DEMO_LIMITS;
-  readonly lang = this.translate.currentLang || 'ar';
+  /** Follows the sidebar language switch (the route reuses this component, so it isn't re-created). */
+  lang = this.translate.currentLang || 'ar';
+
+  constructor() {
+    this.translate.onLangChange
+      .pipe(takeUntilDestroyed())
+      .subscribe(event => { this.lang = event.lang; });
+  }
+
+  get dir(): 'rtl' | 'ltr' {
+    return this.lang === 'en' ? 'ltr' : 'rtl';
+  }
 
   /** Which app the account opens: host (default) or guest. */
   kind: DemoAccountKind = DEFAULT_DEMO_KIND;
   fullName = '';
-  channel: DemoChannel = 'Email';
+  /**
+   * No channel picked (the default) = create by name only: nothing is sent and the admin copies
+   * the message from the result dialog. Picking a channel = send the invitation that way.
+   */
+  channel: DemoChannel | null = null;
   email = '';
   phoneNumber = '';
   durationDays: number | null = DEMO_LIMITS.defaultDays;
@@ -103,13 +124,19 @@ export class DemoAccountCreateComponent implements OnInit {
     // No account yet: the preview fills the text with example values.
     // The preview shows what's typed (name, days → expiry) before anything is sent.
     this.invitation.typedValues = () => ({ name: this.fullName, days: Number(this.durationDays) || undefined });
-    this.invitation.init({ channel: this.channel, kind: this.kind });
+    // The preview opens on Email until a channel is picked.
+    this.invitation.init({ channel: this.channel ?? 'Email', kind: this.kind });
     this.invitation.attachmentIds = () => this.attachments?.ids ?? [];
   }
 
+  /** A channel is picked → the invitation is sent now. */
+  get sendInvitation(): boolean { return this.channel !== null; }
   get isEmail(): boolean { return this.channel === 'Email'; }
-  get emailRequired(): boolean { return this.isEmail; }
-  get phoneRequired(): boolean { return !this.isEmail; }
+  /** Email subject and files go only with an email that is actually sent. */
+  get sendsEmail(): boolean { return this.isEmail; }
+  // Without a channel, both are optional (checked and saved when typed).
+  get emailRequired(): boolean { return this.channel === 'Email'; }
+  get phoneRequired(): boolean { return this.channel === 'WhatsApp' || this.channel === 'Sms'; }
 
   /** Off while files upload or the invitation text is invalid / being checked. */
   get canSubmit(): boolean {
@@ -118,33 +145,82 @@ export class DemoAccountCreateComponent implements OnInit {
 
   // ── Accordion ─────────────────────────────────────────────
 
-  /** Both sections start open; each folds on its own. */
-  open = { account: true, message: true };
+  /** All sections start open; each folds on its own. */
+  open: Record<CreateSection, boolean> = { account: true, trial: true, message: true };
 
-  toggle(section: 'account' | 'message'): void {
+  toggle(section: CreateSection): void {
     this.open[section] = !this.open[section];
   }
 
   get accountHasErrors(): boolean {
-    return FIELDS.some(f => this.errors[f]);
+    return ACCOUNT_FIELDS.some(f => this.errors[f]);
   }
 
-  /** One line shown on the folded header: kind · name · channel · days. */
+  get trialHasErrors(): boolean {
+    return TRIAL_FIELDS.some(f => this.errors[f]);
+  }
+
+  /** One line shown on the folded header: kind · name · contact. */
   get accountSummary(): string {
     const parts = [
       this.translate.instant(`d3.demoAccounts.kinds.${this.kind}`),
       this.fullName.trim() || this.translate.instant('d3.demoAccounts.create.noName'),
-      this.translate.instant(`d3.demoAccounts.channels.${this.channel}`),
-      `${Number(this.durationDays) || 0} ${this.translate.instant('d3.demoAccounts.dayUnit')}`,
-    ];
+      this.email.trim() || this.phoneNumber.trim(),
+    ].filter(Boolean);
     return parts.join(' · ');
   }
 
-  /** The subject (Email) or the first line of the message, else "standard invitation". */
+  /** Folded trial header: days · PIN auto/custom. */
+  get trialSummary(): string {
+    const days = translatePlural(this.translate, 'd3.demoAccounts.days', Number(this.durationDays) || 0);
+    const pin = this.translate.instant(this.pin ? 'd3.demoAccounts.create.pinCustom' : 'd3.demoAccounts.create.pinAuto');
+    return `${days} · ${pin}`;
+  }
+
+  /** Channel · the subject (Email) or the first line of the message, else "standard invitation". */
   get messageSummary(): string {
     const inv = this.invitation;
-    const text = (this.isEmail && inv.subject.trim()) || inv.message.trim().split('\n')[0];
-    return text || this.translate.instant('d3.demoAccounts.standardInvitation');
+    const channel = this.channel
+      ? this.translate.instant(`d3.demoAccounts.channels.${this.channel}`)
+      : this.translate.instant('d3.demoAccounts.create.noChannel');
+    const text = (this.sendsEmail && inv.subject.trim()) || inv.message.trim().split('\n')[0];
+    return `${channel} · ${text || this.translate.instant('d3.demoAccounts.standardInvitation')}`;
+  }
+
+  // ── Trial length ──────────────────────────────────────────
+
+  /** Quick picks shown next to the stepper. */
+  readonly dayPresets = [7, 14, 30, 60].filter(d => d >= DEMO_LIMITS.minDays && d <= DEMO_LIMITS.maxDays);
+
+  /** The trial's last day if it were created now (the server sets the real one). */
+  get endDate(): Date | null {
+    const days = Number(this.durationDays);
+    if (!Number.isInteger(days) || days < DEMO_LIMITS.minDays || days > DEMO_LIMITS.maxDays) return null;
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  setDays(days: number): void {
+    if (this.submitting) return;
+    this.durationDays = days;
+    this.onBlur('durationDays');
+    this.invitation.refresh();
+  }
+
+  /** A random 6-digit PIN that passes the strength rule (no repeats or runs). */
+  generatePin(): void {
+    if (this.submitting) return;
+    const buf = new Uint32Array(1);
+    let pin = '';
+    do {
+      crypto.getRandomValues(buf);
+      pin = String(buf[0] % 1_000_000).padStart(6, '0');
+    } while (!isStrongDemoPin(pin));
+    this.pin = pin;
+    this.showPin = true;
+    this.touched.add('pin');
+    this.errors.pin = null;
   }
 
   // ── Form ──────────────────────────────────────────────────
@@ -157,10 +233,12 @@ export class DemoAccountCreateComponent implements OnInit {
     this.invitation.setKind(kind);
   }
 
-  setChannel(channel: DemoChannel): void {
+  /** Picks a channel; null = "don't send" (create by name only). */
+  setChannel(channel: DemoChannel | null): void {
     if (this.submitting || channel === this.channel) return;
     this.channel = channel;
-    this.invitation.setChannel(channel);
+    if (this.channel) this.invitation.setChannel(this.channel);
+    this.formError = null;
     // The other fields keep their values; only the required star moves.
     this.revalidate(['email', 'phoneNumber']);
   }
@@ -209,6 +287,8 @@ export class DemoAccountCreateComponent implements OnInit {
     const fullName = this.fullName.trim();
     const { subject, message, language } = this.invitation;
     const attachmentIds = this.attachments?.ids ?? [];
+    const send = this.sendInvitation;
+    const channel = this.channel;
     this.submitting = true;
     this.attachments?.setError(null);
 
@@ -217,27 +297,30 @@ export class DemoAccountCreateComponent implements OnInit {
       fullName,
       email: this.email.trim() || null,
       phoneNumber: phone || null,
-      channel: this.channel,
+      // Create only: no channel (the account gets "None"); never send "None" ourselves.
+      ...(channel ? { channel } : {}),
+      sendInvitation: send,
       durationDays: Number(this.durationDays),
       pin: this.pin || null,
       note: this.note.trim() || null,
       // Empty = the defaults. The message is sent exactly as typed (lines and spaces kept).
-      ...(this.isEmail && subject.trim() ? { invitationSubject: subject } : {}),
+      // It also builds the message to copy when nothing is sent.
+      ...(this.sendsEmail && subject.trim() ? { invitationSubject: subject } : {}),
       ...(message.trim() ? { invitationMessage: message } : {}),
       invitationLanguage: language,
-      // Files are for Email only — never sent for WhatsApp/SMS.
-      ...(this.isEmail && attachmentIds.length ? { attachmentIds } : {}),
+      // Files are for a sent Email only — never for WhatsApp/SMS or create only.
+      ...(this.sendsEmail && attachmentIds.length ? { attachmentIds } : {}),
     }, this.idempotencyKey).subscribe({
       next: credentials => {
         this.submitting = false;
-        const recipient = this.isEmail ? this.email.trim() : (toLocalPhone(phone) ?? phone);
+        const recipient = !channel ? null : channel === 'Email' ? this.email.trim() : (toLocalPhone(phone) ?? phone);
         // The PIN is shown once, then the account page opens (replacing this form in history).
         this.dialog.open(CredentialsDialogComponent, {
-          width: '520px',
+          width: '560px',
           maxWidth: '94vw',
           disableClose: true,
-          direction: this.lang === 'en' ? 'ltr' : 'rtl',
-          data: { credentials, mode: 'create', recipient } as CredentialsDialogData,
+          direction: this.dir,
+          data: { credentials, mode: 'create', recipient, invitationRequested: send } as CredentialsDialogData,
         }).afterClosed().subscribe(() => {
           this.router.navigate(['/', this.lang, 'd3', 'demo-accounts', credentials.account.id], { replaceUrl: true });
         });
@@ -306,7 +389,8 @@ export class DemoAccountCreateComponent implements OnInit {
   /** A long page: open the section that holds an error and bring the first message into view. */
   private scrollToFirstError(): void {
     if (this.accountHasErrors) this.open.account = true;
-    if (this.invitation.preview?.isValid === false || this.attachments?.error) this.open.message = true;
+    if (this.trialHasErrors) this.open.trial = true;
+    if (this.errors.channel || this.invitation.preview?.isValid === false || this.attachments?.error) this.open.message = true;
     scrollToFirstError(this.host.nativeElement, this.injector);
   }
 

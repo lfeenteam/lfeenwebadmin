@@ -29,7 +29,7 @@
         }
         <i-tabler [name]="isRtl() ? 'chevron-left' : 'chevron-right'" class="d3-breadcrumb-arrow"></i-tabler>
       }
-      <h1 class="d3-page-title">{{ titleOverride || (titleKey | translate) }}</h1>
+      <h1 class="d3-page-title" [attr.dir]="titleOverride ? (titleOverride | textDir) : null">{{ titleOverride || (titleKey | translate) }}</h1>
     </div>
   </div>
 

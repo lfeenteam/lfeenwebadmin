@@ -17,6 +17,17 @@ export class AllEmployeesComponent {
   @Input() employees: Employee[] = [];
   /** A search or filter is applied, so an empty table means "no matches", not "no employees". */
   @Input() hasFilters = false;
+  /** False for view-only admins: the actions column and "add first" are hidden (BUG-2739). */
+  @Input() set canManage(value: boolean) {
+    this._canManage = value;
+    this.displayedColumns = value
+      ? ['employee', 'phone', 'role', 'status', 'action']
+      : ['employee', 'phone', 'role', 'status'];
+  }
+  get canManage(): boolean {
+    return this._canManage;
+  }
+  private _canManage = true;
   @Output() clearFilters = new EventEmitter<void>();
   @Output() edit = new EventEmitter<Employee>();
   @Output() delete = new EventEmitter<Employee>();

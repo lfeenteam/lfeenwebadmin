@@ -5,7 +5,7 @@
     <app-tabs-filter
       class="cr-tabs-filter"
       [tabs]="[]"
-      [showMoreFiltersButton]="false"
+      [showMoreFiltersButton]="filterOptions.length > 0"
       [filterOptions]="filterOptions"
       [activeFilters]="activeFilters"
       (filtersChange)="onFiltersChange($event)">
@@ -198,7 +198,7 @@
 
       @if (!loading && totalPages > 1) {
         <div class="cr-pagination">
-          <span class="cr-total">{{ fmt(totalCount) }} {{ 'd3.complaints.ratings.table.total' | translate }}</span>
+          <span class="cr-total">{{ 'd3.complaints.ratings.table.total' | appPlural: totalCount }}</span>
           <div class="cr-pages">
             <button class="cr-page-btn" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
               <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>

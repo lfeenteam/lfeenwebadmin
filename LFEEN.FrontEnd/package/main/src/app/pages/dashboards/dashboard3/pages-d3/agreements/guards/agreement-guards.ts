@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, CanDeactivateFn } from '@angular/router';
 import { LoginService } from '../../../services/login/login.service';
 import { forbiddenRedirect } from '../../../../../../guards/page-access.guard';
+import { HasUnsavedChanges, unsavedChangesGuard } from '../../../../../../guards/unsaved-changes.guard';
 
 // Kept free of component/dialog imports: app.routes.ts loads this file eagerly.
 
@@ -15,16 +16,7 @@ export const agreementsViewGuard: CanActivateFn = (_route, state) => {
   return forbiddenRedirect(state);
 };
 
-export interface HasUnsavedChanges {
-  hasUnsavedChanges(): boolean;
-  /** Asks the admin whether to drop the unsaved edits. */
-  confirmDiscard(): Promise<boolean>;
-}
+export type { HasUnsavedChanges } from '../../../../../../guards/unsaved-changes.guard';
 
 /** Asks before leaving the draft editor with unsaved edits (in-app navigation; tab close uses beforeunload). */
-export const unsavedAgreementGuard: CanDeactivateFn<HasUnsavedChanges> = (component) => {
-  if (!component?.hasUnsavedChanges()) return true;
-  // The session ended (401 → login redirect): nothing could be saved anyway.
-  if (!inject(LoginService).isLoggedIn()) return true;
-  return component.confirmDiscard();
-};
+export const unsavedAgreementGuard: CanDeactivateFn<HasUnsavedChanges> = unsavedChangesGuard;

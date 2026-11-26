@@ -211,8 +211,17 @@
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 100%;
+  min-width: 0;
+}
+
+// The chip is a flex container, so text-overflow on it has no effect;
+// the ellipsis has to live on the inner text element.
+.scenario-chip-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .audio-link {

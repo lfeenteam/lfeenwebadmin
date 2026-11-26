@@ -15,7 +15,7 @@ import { SingleDateCalendarComponent } from '../../all-bookings/components/singl
 import { TimeSelectComponent } from '../../platform-offers/components/time-select/time-select.component';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
 import {
-  ControlCenterApp, MaintenanceTarget, ReleaseConfig, SaveMaintenanceRequest,
+  API_APP, CONTROL_CENTER_APP_OPTIONS, ControlCenterApp, MaintenanceTarget, ReleaseConfig, SaveMaintenanceRequest,
 } from '../interfaces/control-center.model';
 import { ControlCenterError, parseControlCenterError } from '../interfaces/control-center-error.util';
 import { APP_RUNTIME_PERMISSIONS, hasAppRuntimePermission } from '../interfaces/control-center-permissions';
@@ -79,10 +79,7 @@ export class MaintenanceComponent implements OnInit {
   private releases: ReleaseConfig[] = [];
   private request?: Subscription;
 
-  readonly appOptions: { value: ControlCenterApp; labelKey: string }[] = [
-    { value: 'client', labelKey: 'd3.controlCenter.apps.Client' },
-    { value: 'host', labelKey: 'd3.controlCenter.apps.Host' },
-  ];
+  readonly appOptions = CONTROL_CENTER_APP_OPTIONS;
 
   readonly targetOptions: { value: MaintenanceTarget; labelKey: string }[] = [
     { value: 'All', labelKey: 'd3.controlCenter.maintenance.targets.all' },
@@ -325,7 +322,7 @@ export class MaintenanceComponent implements OnInit {
     const data: OfferConfirmDialogData = {
       title: 'd3.controlCenter.maintenance.confirm.title',
       message: this.translate.instant(scheduled ? 'd3.controlCenter.maintenance.confirm.scheduledMessage' : 'd3.controlCenter.maintenance.confirm.message', {
-        app: this.translate.instant(`d3.controlCenter.apps.${this.selectedApp === 'client' ? 'Client' : 'Host'}`),
+        app: this.translate.instant(`d3.controlCenter.apps.${API_APP[this.selectedApp]}`),
         platforms: this.translate.instant(`d3.controlCenter.maintenance.targets.${target.toLowerCase()}`),
       }),
       confirmLabel: 'd3.controlCenter.maintenance.confirm.action',

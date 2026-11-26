@@ -298,7 +298,7 @@
                                 } @else {
                                   <span>{{
                                     "d3.platformOffers.unitPicker.count"
-                                      | translate: { count: unitResults().length }
+                                      | appPlural: unitResults().length
                                   }}</span>
                                 }
                               </div>
@@ -306,7 +306,7 @@
                             @if (selectedUnitCount()) {
                               <small class="field-hint">{{
                                 "d3.platformOffers.unitPicker.selected"
-                                  | translate: { count: selectedUnitCount() }
+                                  | appPlural: selectedUnitCount()
                               }}</small>
                             }
                             @if (fieldError("unitIds"); as msg) {
@@ -1000,15 +1000,17 @@
         <a class="secondary-btn" [routerLink]="listLink()">
           {{ "d3.platformOffers.cancel" | translate }}
         </a>
-        <button class="primary-btn" type="submit" [disabled]="saving()">
-          <span *ngIf="saving()" class="spinner small"></span>
-          {{
-            (saving()
-              ? "d3.platformOffers.form.saving"
-              : "d3.platformOffers.form.save"
-            ) | translate
-          }}
-        </button>
+        @if (canManage()) {
+          <button class="primary-btn" type="submit" [disabled]="saving()">
+            <span *ngIf="saving()" class="spinner small"></span>
+            {{
+              (saving()
+                ? "d3.platformOffers.form.saving"
+                : "d3.platformOffers.form.save"
+              ) | translate
+            }}
+          </button>
+        }
       </footer>
     </form>
   }

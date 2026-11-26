@@ -16,6 +16,7 @@ import { CardsUnitsComponent } from './cards-units/cards-units.component';
 import { AutoApprovalSettingsDialogComponent } from './auto-approval-settings-dialog/auto-approval-settings-dialog.component';
 import { LoginService } from '../../services/login/login.service';
 import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-all-units',
@@ -28,7 +29,8 @@ import { formatNumber, getVisiblePages } from 'src/app/utils/pagination.util';
     DashboardSubHeaderComponent,
     DashboardLoadingComponent,
     DashboardEmptyComponent,
-    CardsUnitsComponent
+    CardsUnitsComponent,
+    AppPluralPipe
   ],
   templateUrl: './all-units.component.html',
   styleUrl: './all-units.component.scss'

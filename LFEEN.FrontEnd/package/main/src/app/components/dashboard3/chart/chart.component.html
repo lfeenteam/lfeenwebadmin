@@ -92,21 +92,39 @@
       }
     </div>
 
-    @if (distributionSegments().length) {
+    @if (genderDistribution(); as gd) {
       <div class="d3-distribution">
         <div class="d3-distribution-title">{{ 'd3.chart.distributionTitle' | translate }}</div>
-        <div class="d3-distribution-bar">
-          @for (seg of distributionSegments(); track seg.label) {
-            <div class="d3-seg" [style.width.%]="seg.value" [style.background-color]="seg.color"></div>
+        @if (gd.hasKnownData) {
+          <div class="d3-distribution-bar">
+            @for (seg of gd.segments; track seg.label) {
+              <div class="d3-seg" [style.width.%]="seg.value" [style.background-color]="seg.color"></div>
+            }
+          </div>
+          <div class="d3-distribution-legend">
+            @for (seg of gd.segments; track seg.label) {
+              <span class="d3-legend-item">
+                {{ seg.label | translate }} ({{ formatPercent(seg.value) }})
+              </span>
+            }
+          </div>
+          <!-- Male/female above are shares of the known guests only; the unknown count is
+               given in this sentence (out of the total) so the two bases are never mixed. -->
+          @if (gd.hasUnknownField) {
+            <div class="d3-distribution-note">
+              {{ 'd3.chart.genderBasis' | appPlural: gd.knownCount : { total: formatCount(gd.totalCount) } }}
+            </div>
+          } @else if (gd.verifiedOnlyNote) {
+            <div class="d3-distribution-note">{{ 'd3.chart.genderBasisVerifiedOnly' | translate }}</div>
           }
-        </div>
-        <div class="d3-distribution-legend">
-          @for (seg of distributionSegments(); track seg.label) {
-            <span class="d3-legend-item">
-              {{ seg.label | translate }} ({{ formatPercent(seg.value) }})
-            </span>
-          }
-        </div>
+        } @else {
+          <div class="d3-distribution-note">
+            {{ 'd3.chart.genderNoData' | translate }}
+            @if (gd.hasUnknownField && gd.unknownCount > 0) {
+              · {{ 'd3.chart.segUnknown' | translate }}: {{ formatCount(gd.unknownCount) }} ({{ formatPercent(gd.unknownPercentage) }})
+            }
+          </div>
+        }
       </div>
     }
   </div>

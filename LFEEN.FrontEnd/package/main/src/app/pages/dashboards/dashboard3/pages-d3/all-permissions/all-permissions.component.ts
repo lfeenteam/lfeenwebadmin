@@ -13,11 +13,12 @@ import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-all-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, RouterModule, TranslateModule, AppPluralPipe],
   templateUrl: './all-permissions.component.html',
   styleUrl: './all-permissions.component.scss'
 })

@@ -256,12 +256,21 @@
   color: #D97706;
 }
 
+.early-arrival-time strong.early-arrival-time--off {
+  color: #6B7280;
+}
+
 .switch {
   width: 44px;
   height: 24px;
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+
+  // Read-only display switch on the review page
+  &:has(input:disabled) {
+    cursor: default;
+  }
 
   input {
     display: none;
@@ -271,7 +280,7 @@
     width: 44px;
     height: 24px;
     border-radius: 999px;
-    background: #111110;
+    background: #D1D5DB;
     position: relative;
     transition: background 0.2s ease;
 
@@ -286,6 +295,10 @@
       inset-inline-start: 2px;
       transition: transform 0.2s ease;
     }
+  }
+
+  input:checked + span {
+    background: #111110;
   }
 
   input:checked + span::after {

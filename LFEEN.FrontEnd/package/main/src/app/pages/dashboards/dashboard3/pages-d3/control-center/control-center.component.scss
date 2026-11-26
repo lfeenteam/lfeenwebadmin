@@ -117,7 +117,8 @@
 
 .cc-apps-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  // 3 apps × 2 platforms → 2 rows of 3.
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .cc-app-cell {
@@ -129,6 +130,8 @@
   min-width: 0;
 
   & + & { border-inline-start: 1px solid #F1F5F9; }
+  &:nth-child(3n + 1) { border-inline-start: 0; }
+  &:nth-child(n + 4) { border-top: 1px solid #F1F5F9; }
 }
 
 .cc-app-info {
@@ -311,7 +314,8 @@
 // ── Responsive ──────────────────────────────────────────────
 @media (max-width: 1199px) {
   .cc-apps-grid { grid-template-columns: repeat(2, 1fr); }
-  .cc-app-cell:nth-child(3) { border-inline-start: 0; }
+  .cc-app-cell:nth-child(n) { border-inline-start: 1px solid #F1F5F9; border-top: 0; }
+  .cc-app-cell:nth-child(odd) { border-inline-start: 0; }
   .cc-app-cell:nth-child(n + 3) { border-top: 1px solid #F1F5F9; }
 }
 

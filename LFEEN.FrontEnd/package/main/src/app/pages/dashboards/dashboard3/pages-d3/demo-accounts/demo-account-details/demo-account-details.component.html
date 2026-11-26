@@ -39,7 +39,8 @@
           @for (a of actions; track a.action) {
             <button type="button" class="da-btn sm" [disabled]="busy" (click)="openAction(a.action)">
               <i-tabler [name]="a.icon" class="icon-16"></i-tabler>
-              {{ a.labelKey | translate }}
+              <!-- Nothing was ever sent (made by name only): it is a first send, not a resend -->
+              {{ (a.action === 'resend' && notSentYet ? 'd3.demoAccounts.actions.sendInvitation' : a.labelKey) | translate }}
             </button>
           }
           <span class="dd-actions__sep" aria-hidden="true"></span>
@@ -65,6 +66,20 @@
           <p>{{ 'd3.demoAccounts.banners.disabled' | translate }}</p>
         </div>
       }
+      <!-- Made by name only: no invitation yet — point to the send page (it asks for the email/phone) -->
+      @if (notSentYet && account.status !== 'Expired' && account.status !== 'Disabled') {
+        <div class="da-alert info">
+          <i-tabler name="send-off" class="icon-18"></i-tabler>
+          <p>
+            {{ 'd3.demoAccounts.banners.notSentYet' | translate }}
+            @if (showActions) {
+              <button type="button" class="da-link-btn" [disabled]="busy" (click)="openAction('resend')">
+                {{ 'd3.demoAccounts.actions.sendInvitation' | translate }}
+              </button>
+            }
+          </p>
+        </div>
+      }
       @if (account.status === 'SendFailed') {
         <div class="da-alert warning">
           <i-tabler name="alert-triangle" class="icon-18"></i-tabler>
@@ -81,6 +96,53 @@
     </div>
 
     <div class="dd-grid">
+      <!-- Made from a demo link: who it was for (area / notes, admin only) and how often it was opened -->
+      <!-- From the account response, else from the links table (fallback while the Admin API drops it) -->
+      @if (signupLink; as sl) {
+        <section class="dd-card dd-card--wide dd-link">
+          <div class="dd-link__head">
+            <h3><i-tabler name="link" class="icon-18"></i-tabler>{{ 'd3.demoAccounts.signupLinkInfo.title' | translate }}</h3>
+            <button type="button" class="da-btn sm" (click)="openSignupLink(sl.batchId, sl.code)">
+              <i-tabler name="list-details" class="icon-16"></i-tabler>
+              {{ 'd3.demoAccounts.signupLinkInfo.track' | translate }}
+            </button>
+          </div>
+          <dl class="dd-list dd-list--cols dd-link__list">
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.area' | translate }}</dt>
+              <!-- <bdi>, not dir="auto": a name starting with Latin letters must not pull the line to the left -->
+              <dd>
+                <bdi>{{ sl.area || emptyValue }}</bdi>
+                @if (sl.area && sl.areaFromBatch) { <span class="dd-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.notes' | translate }}</dt>
+              <dd class="dd-note">
+                <bdi>{{ sl.additionalNotes || emptyValue }}</bdi>
+                @if (sl.additionalNotes && sl.additionalNotesFromBatch) { <span class="dd-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.firstOpen' | translate }}</dt>
+              <dd><span class="da-ltr" dir="ltr">{{ date(sl.firstOpenedAt) || emptyValue }}</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.opens' | translate }}</dt>
+              <dd>{{ 'd3.demoAccounts.signupLinkInfo.opensCount' | appPlural: sl.openCount }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.code' | translate }}</dt>
+              <dd><span class="da-ltr da-mono" dir="ltr">{{ sl.code }}</span></dd>
+            </div>
+          </dl>
+          <p class="dd-link__hint">
+            <i-tabler name="info-circle" class="icon-14"></i-tabler>
+            {{ 'd3.demoAccounts.signupLinkInfo.hint' | translate }}
+          </p>
+        </section>
+      }
+
       <!-- Section 1: person -->
       <section class="dd-card">
         <h3>{{ 'd3.demoAccounts.sections.person' | translate }}</h3>
@@ -101,10 +163,18 @@
           <div>
             <dt>{{ 'd3.demoAccounts.fields.channel' | translate }}</dt>
             <dd>
-              <span class="da-channel" [class.ch-whatsapp]="account.channel === 'WhatsApp'">
-                <i-tabler [name]="channelIcons[account.channel] || 'send'" class="icon-16"></i-tabler>
-                {{ channelLabel(account.channel) }}
-              </span>
+              @if (fromSignupLink && account.channel === 'None') {
+                <!-- Sign-in data is shown on the demo link's page, not sent -->
+                <span class="da-channel">
+                  <i-tabler name="link" class="icon-16"></i-tabler>
+                  {{ 'd3.demoAccounts.signupLinkInfo.channel' | translate }}
+                </span>
+              } @else {
+                <span class="da-channel" [class.ch-whatsapp]="account.channel === 'WhatsApp'">
+                  <i-tabler [name]="channelIcons[account.channel] || 'send'" class="icon-16"></i-tabler>
+                  {{ channelLabel(account.channel) }}
+                </span>
+              }
             </dd>
           </div>
           <div>
@@ -182,7 +252,7 @@
                 @case ('Expired') { {{ 'd3.demoAccounts.ended' | translate }} }
                 @case ('Disabled') { <span class="da-muted">{{ emptyValue }}</span> }
                 @default {
-                  <span class="da-ltr" dir="ltr">{{ num(account.daysLeft) }}</span> {{ 'd3.demoAccounts.dayUnit' | translate }}
+                  {{ 'd3.demoAccounts.days' | appPlural: account.daysLeft }}
                 }
               }
             </dd>
@@ -199,6 +269,9 @@
             <dd>
               @if (date(account.lastSentAt); as sent) {
                 <span class="da-ltr" dir="ltr">{{ sent }}</span>
+              } @else if (fromSignupLink) {
+                <!-- Nothing is sent for a link account: the data is on the link's page -->
+                <span class="da-muted">{{ 'd3.demoAccounts.signupLinkInfo.viaPage' | translate }}</span>
               } @else {
                 <span class="da-muted">{{ 'd3.demoAccounts.neverDelivered' | translate }}</span>
               }
@@ -339,7 +412,8 @@
                     </td>
                     <td>
                       @if (!d.succeeded && d.error) {
-                        <span class="dd-reason" [matTooltip]="d.error">{{ d.error }}</span>
+                        <!-- Readable text; the raw server reason stays in the tooltip for support -->
+                        <span class="dd-reason" [matTooltip]="d.error">{{ deliveryError(d.error) }}</span>
                       }
                     </td>
                     <td>{{ d.adminName || emptyValue }}</td>

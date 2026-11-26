@@ -16,11 +16,12 @@ import { BuildingReviewService } from '../../../services/building-review.service
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-review-basic-info',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent, CatalogIconComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, ReviewEmptyStateComponent, CatalogIconComponent, AppPluralPipe],
   templateUrl: './review-basic-info.component.html',
   styleUrl: './review-basic-info.component.scss'
 })

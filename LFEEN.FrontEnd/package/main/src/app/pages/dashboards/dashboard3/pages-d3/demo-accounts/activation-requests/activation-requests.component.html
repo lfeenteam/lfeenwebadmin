@@ -83,7 +83,7 @@
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.activation.table.bookingsPayments' | translate }}</span>
                   <span class="da-cell-text">
-                    {{ 'd3.demoAccounts.activation.bookingsPayments' | translate: { bookings: fmt(r.trial.bookingsCount), payments: fmt(r.trial.paymentsCount) } }}
+                    {{ 'd3.demoAccounts.activation.bookingsCount' | appPlural: r.trial.bookingsCount }} · {{ 'd3.demoAccounts.activation.paymentsCount' | appPlural: r.trial.paymentsCount }}
                   </span>
                 </td>
                 <td>
@@ -130,10 +130,10 @@
   @if (!loading && totalPages > 1) {
     <div class="pagination-wrapper">
       <span class="pagination-total">
-        {{ fmt(totalCount) }} {{ 'd3.demoAccounts.activation.total' | translate }}
+        {{ 'd3.demoAccounts.activation.total' | appPlural: totalCount }}
       </span>
       <div class="pagination-controls">
-        <button type="button" class="page-nav-btn" [disabled]="page === 1" (click)="changePage(page - 1)">
+        <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate" [disabled]="page === 1" (click)="changePage(page - 1)">
           <i-tabler [name]="dir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
         </button>
         @for (p of visiblePages; track $index) {
@@ -145,7 +145,7 @@
             </button>
           }
         }
-        <button type="button" class="page-nav-btn" [disabled]="page === totalPages" (click)="changePage(page + 1)">
+        <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate" [disabled]="page === totalPages" (click)="changePage(page + 1)">
           <i-tabler [name]="dir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
         </button>
       </div>

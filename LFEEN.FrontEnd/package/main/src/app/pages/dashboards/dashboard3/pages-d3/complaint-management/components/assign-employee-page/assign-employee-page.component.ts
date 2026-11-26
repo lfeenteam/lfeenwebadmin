@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { isForbiddenError } from '../../../../utils/transport-error.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -12,7 +12,8 @@ import {
   distinctUntilChanged, finalize, map, of, startWith, switchMap, tap,
 } from 'rxjs';
 import { ComplaintService } from '../../services/complaint.service';
-import { AssignableEmployee, isClosedTicketStatus, isInactiveEmployee } from '../../interfaces/complaint.model';
+import { AssignableEmployee, COMPLAINT_PERMISSION_PREFIXES, isClosedTicketStatus, isInactiveEmployee } from '../../interfaces/complaint.model';
+import { PermissionService } from '../../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../../services/page-breadcrumb-trail.service';
 import { DashboardEmptyComponent } from '../../../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
@@ -51,6 +52,9 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
   private toastr = inject(ToastrService);
   private breadcrumbTrail = inject(PageBreadcrumbTrailService);
   private destroyRef = inject(DestroyRef);
+  private perms = inject(PermissionService);
+  /** BUG-2739: assigning needs a tickets write permission, not just a view one. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private search$ = new Subject<string>();
   private reload$ = new Subject<void>();
   private employeesSub?: Subscription;
@@ -213,7 +217,7 @@ export class AssignEmployeePageComponent implements OnInit, OnDestroy {
   }
 
   get canAssign(): boolean {
-    return this.loadState() === 'ready' && !this.ticketClosed() && !!this.ticketExternalId;
+    return this.loadState() === 'ready' && !this.ticketClosed() && !!this.ticketExternalId && this.canManage();
   }
 
   onSearchChange(term: string): void {

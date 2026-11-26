@@ -8,7 +8,9 @@
         </div>
         <div class="department-details">
           <h2 class="f-s-20 f-w-900 m-b-4">{{ currentLang === 'ar' ? deptName : deptEnglishName }}</h2>
-          <p class="permissions-description m-0">{{ 'd3.permissions.description' | translate }}</p>
+          @if ((currentLang === 'ar' ? deptDescAr : deptDescEn); as desc) {
+            <p class="permissions-description m-0">{{ desc }}</p>
+          }
         </div>
       </div>
       <div class="header-stats">
@@ -79,12 +81,14 @@
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
                       <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
+                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate" [attr.aria-label]="'d3.permissions.table.viewRoleAria' | translate: { name: role.name }">
                           <i-tabler name="eye" class="icon-18"></i-tabler>
                         </button>
-                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
-                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                        </button>
+                        @if (canManage()) {
+                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.roleActionsAria' | translate: { name: role.name }">
+                            <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                          </button>
+                        }
                       </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
                         <button mat-menu-item (click)="editRole(role)">
@@ -103,6 +107,7 @@
             }
           </tbody>
           <!-- Add Role Row -->
+      @if (canManage()) {
       <tfoot>
   <tr class="add-role-row">
     <td colspan="3" class="p-16">
@@ -113,6 +118,7 @@
     </td>
   </tr>
 </tfoot>
+      }
         </table>
       </div>
     </mat-card-content>
@@ -123,7 +129,7 @@
     <i-tabler name="alert-triangle" class="icon-24 text-warning"></i-tabler>
     <div>
       <h4>{{ 'd3.permissions.alert.title' | translate }}</h4>
-      <p>{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
+      <p>{{ 'd3.permissions.alert.message' | appPlural: employeeCount : { dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
     </div>
   </div>
 </div>

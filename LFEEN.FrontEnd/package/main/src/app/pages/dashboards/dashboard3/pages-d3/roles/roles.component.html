@@ -27,12 +27,14 @@
           </mat-select>
         </div>
 
-        <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
-          <div class="d-flex align-items-center justify-content-center gap-8">
-            <i-tabler name="plus" class="icon-18"></i-tabler>
-            {{ 'd3.rolesPage.addRoleBtn' | translate }}
-          </div>
-        </button>
+        @if (canManage()) {
+          <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
+            <div class="d-flex align-items-center justify-content-center gap-8">
+              <i-tabler name="plus" class="icon-18"></i-tabler>
+              {{ 'd3.rolesPage.addRoleBtn' | translate }}
+            </div>
+          </button>
+        }
       </div>
     </mat-card-content>
   </mat-card>
@@ -103,12 +105,14 @@
                       <mat-spinner diameter="20" class="m-auto"></mat-spinner>
                     } @else {
                       <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
+                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate" [attr.aria-label]="'d3.permissions.table.viewRoleAria' | translate: { name: role.name }">
                           <i-tabler name="eye" class="icon-18"></i-tabler>
                         </button>
-                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
-                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                        </button>
+                        @if (canManage()) {
+                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.roleActionsAria' | translate: { name: role.name }">
+                            <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                          </button>
+                        }
                       </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
                         <button mat-menu-item (click)="editRole(role)">
@@ -136,10 +140,10 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
           <span class="f-s-13 text-muted">
-            {{ roles.length }} {{ 'd3.rolesPage.pagination.total' | translate }}
+            {{ 'd3.rolesPage.pagination.total' | appPlural: roles.length }}
           </span>
           <div class="d-flex align-items-center gap-4">
-            <button type="button" class="page-nav-btn"
+            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
               [disabled]="currentPage === 1"
               (click)="changePage(currentPage - 1)">
               <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
@@ -151,7 +155,7 @@
                 {{ p }}
               </button>
             }
-            <button type="button" class="page-nav-btn"
+            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
               [disabled]="currentPage === totalPages"
               (click)="changePage(currentPage + 1)">
               <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>

@@ -17,10 +17,11 @@ import { LoginService } from '../../services/login/login.service';
 import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
 import { ContactUsService } from './services/contact-us.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-contact-us-management', standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, DashboardEmptyComponent, A11yModule],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, DashboardEmptyComponent, A11yModule, AppPluralPipe],
   templateUrl: './contact-us-management.component.html', styleUrl: './contact-us-management.component.scss'
 })
 export class ContactUsManagementComponent implements OnInit, OnDestroy {
@@ -118,7 +119,7 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   readonly closeNoteMax = 2000;
   get closeNoteLength(): number { return this.closeNote.trim().length; }
   get closeNoteTooLong(): boolean { return this.closeNoteLength > this.closeNoteMax; }
-  showCloseDialog(): void { this.closeNote = ''; this.closeDialogOpen.set(true); }
+  showCloseDialog(): void { if (!this.canClose()) return; this.closeNote = ''; this.closeDialogOpen.set(true); }
   dismissCloseDialog(): void { if (!this.closing()) this.closeDialogOpen.set(false); }
   isImage(file: ContactUsAttachment): boolean { return file.contentType?.toLowerCase().startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|avif)$/i.test(file.fileName); }
   openPreview(file: ContactUsAttachment, event: Event): void { this.previewTrigger = event.currentTarget as HTMLElement; this.previewAttachment.set(file); }
@@ -126,7 +127,8 @@ export class ContactUsManagementComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown.escape')
   onEscape(): void { if (this.previewAttachment()) this.closePreview(); else if (this.closeDialogOpen()) this.dismissCloseDialog(); else if (this.detailLoading() || this.selected() || this.detailError()) this.closePanel(); }
   confirmClose(): void {
-    const detail = this.selected(); if (!detail || this.closing() || this.closeNoteTooLong) return;
+    // BUG-2739: the button is already hidden without ContactUs.Close; guard the handler too.
+    const detail = this.selected(); if (!detail || !this.canClose() || this.closing() || this.closeNoteTooLong) return;
     this.closing.set(true);
     this.service.closeRequest(detail.externalId, this.closeNote.trim() || undefined).subscribe({
       next: () => {

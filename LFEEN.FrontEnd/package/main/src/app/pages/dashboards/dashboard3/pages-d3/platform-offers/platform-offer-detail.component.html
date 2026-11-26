@@ -42,10 +42,12 @@
             </span>
           </div>
         </div>
-        <a class="primary-btn offer-hero-edit" [routerLink]="editLink()">
-          <i-tabler name="edit"></i-tabler>
-          {{ "d3.platformOffers.edit" | translate }}
-        </a>
+        @if (canManage()) {
+          <a class="primary-btn offer-hero-edit" [routerLink]="editLink()">
+            <i-tabler name="edit"></i-tabler>
+            {{ "d3.platformOffers.edit" | translate }}
+          </a>
+        }
       </header>
       <nav class="detail-tabs">
         @for (
@@ -104,6 +106,52 @@
             </div>
           }
           @case ("rules") {
+            <h3>{{ "d3.platformOffers.sections.bookingDiscount" | translate }}</h3>
+            <div class="data-grid">
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.minBooking" | translate }}
+                </small>
+                <strong>{{ amount(o.minBookingAmount) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.maxDiscount" | translate }}
+                </small>
+                <strong>{{ amount(o.maxDiscountAmount) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.payment" | translate }}
+                </small>
+                <strong>{{ o.allowedPaymentMethods || "—" }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.combined" | translate }}
+                </small>
+                <strong>{{ yesNo(o.canBeCombined) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.points" | translate }}
+                </small>
+                <strong>
+                  {{
+                    o.loyaltyPointsMultiplier == null
+                      ? "—"
+                      : "×" + (o.loyaltyPointsMultiplier | number)
+                  }}
+                </strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.expiration" | translate }}
+                </small>
+                <strong>{{ enumLabel(o.expirationPolicy) }}</strong>
+              </div>
+            </div>
+            <h3>{{ "d3.platformOffers.sections.usage" | translate }}</h3>
             <div class="data-grid">
               <div>
                 <small>
@@ -119,6 +167,58 @@
               </div>
               <div>
                 <small>
+                  {{ "d3.platformOffers.fields.maxTotalUser" | translate }}
+                </small>
+                <strong>{{ o.maxTotalUsagePerUser ?? "—" }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.maxDailyUser" | translate }}
+                </small>
+                <strong>{{ o.maxDailyUsagePerUser ?? "—" }}</strong>
+              </div>
+            </div>
+            <h3>{{ "d3.platformOffers.sections.timing" | translate }}</h3>
+            <div class="data-grid">
+              <div>
+                <small>{{ "d3.platformOffers.fields.days" | translate }}</small>
+                <strong>{{ daysLabel(o.offerDaysOfWeek) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.happyHour" | translate }}
+                </small>
+                <strong>{{ happyHourLabel(o) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.minArrival" | translate }}
+                </small>
+                <strong>{{ o.minDaysBeforeArrival ?? "—" }}</strong>
+              </div>
+            </div>
+            <h3>{{ "d3.platformOffers.sections.stay" | translate }}</h3>
+            <div class="data-grid">
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.stayStart" | translate }}
+                </small>
+                <strong>{{ formatDateTime(o.stayStartDate) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.stayEnd" | translate }}
+                </small>
+                <strong>{{ formatDateTime(o.stayEndDate) }}</strong>
+              </div>
+              <div>
+                <small>
+                  {{ "d3.platformOffers.fields.stayDays" | translate }}
+                </small>
+                <strong>{{ daysLabel(o.stayDaysOfWeek) }}</strong>
+              </div>
+              <div>
+                <small>
                   {{ "d3.platformOffers.fields.minStay" | translate }}
                 </small>
                 <strong>{{ o.minStayDays ?? "—" }}</strong>
@@ -128,24 +228,6 @@
                   {{ "d3.platformOffers.fields.maxStay" | translate }}
                 </small>
                 <strong>{{ o.maxStayDays ?? "—" }}</strong>
-              </div>
-              <div>
-                <small>
-                  {{ "d3.platformOffers.fields.payment" | translate }}
-                </small>
-                <strong>{{ o.allowedPaymentMethods || "—" }}</strong>
-              </div>
-              <div>
-                <small>
-                  {{ "d3.platformOffers.fields.expiration" | translate }}
-                </small>
-                <strong>{{ enumLabel(o.expirationPolicy) }}</strong>
-              </div>
-              <div>
-                <small>
-                  {{ "d3.platformOffers.fields.happyHour" | translate }}
-                </small>
-                <strong>{{ happyHourLabel(o) }}</strong>
               </div>
             </div>
           }

@@ -1,0 +1,141 @@
+<!-- ── Toolbar ─────────────────────────────────────────── -->
+<div class="pt-toolbar">
+  <div class="pt-search">
+    <i-tabler name="search" class="icon-18"></i-tabler>
+    <input type="search" [(ngModel)]="query"
+      [placeholder]="'d3.addRolePage.searchPermissions' | translate"
+      [attr.aria-label]="'d3.addRolePage.searchPermissions' | translate">
+    @if (query) {
+      <button type="button" class="pt-clear" (click)="query = ''" [attr.aria-label]="'d3.addRolePage.clearSearch' | translate">
+        <i-tabler name="x" class="icon-16"></i-tabler>
+      </button>
+    }
+  </div>
+
+  <div class="pt-segment" role="radiogroup">
+    <button type="button" role="radio" [attr.aria-checked]="!selectedOnly" [class.is-on]="!selectedOnly"
+      (click)="selectedOnly = false">{{ 'd3.addRolePage.filterAll' | translate }}</button>
+    <button type="button" role="radio" [attr.aria-checked]="selectedOnly" [class.is-on]="selectedOnly"
+      (click)="selectedOnly = true">{{ 'd3.addRolePage.filterSelected' | translate }}</button>
+  </div>
+
+  <button type="button" class="pt-btn" (click)="toggleAllOpen()" [disabled]="filtering">
+    <i-tabler [name]="allOpen ? 'chevrons-up' : 'chevrons-down'" class="icon-16"></i-tabler>
+    {{ (allOpen ? 'd3.addRolePage.collapseAll' : 'd3.addRolePage.expandAll') | translate }}
+  </button>
+</div>
+
+<!-- ── Groups ──────────────────────────────────────────── -->
+<div class="pt-scroll">
+  @for (group of groups; track group.id) {
+    @if (visible(group)) {
+      <ng-container *ngTemplateOutlet="groupTpl; context: { $implicit: group, depth: 0 }"></ng-container>
+    }
+  }
+  @if (!hasResults) {
+    <div class="pt-empty">
+      <i-tabler name="search-off" class="icon-32"></i-tabler>
+      <p>{{ (selectedOnly && !query ? 'd3.addRolePage.noSelected' : 'd3.addRolePage.noResults') | translate }}</p>
+    </div>
+  }
+</div>
+
+<ng-template #groupTpl let-group let-depth="depth">
+  <div class="pt-group" [class.is-sub]="depth > 0" [class.is-open]="isOpen(group)">
+    <div class="pt-head" (click)="toggleOpen(group)">
+      <mat-checkbox class="pt-head-check"
+        [checked]="stateOf(group) === 'all'"
+        [indeterminate]="stateOf(group) === 'some'"
+        [disabled]="readonly"
+        [attr.aria-label]="group.name"
+        (click)="$event.stopPropagation()"
+        (change)="onGroupCheck(group)">
+      </mat-checkbox>
+      <button type="button" class="pt-head-btn" [attr.aria-expanded]="isOpen(group)"
+        (click)="$event.stopPropagation(); toggleOpen(group)">
+        <span class="pt-head-name">{{ group.name }}</span>
+        <span class="pt-head-count" [class.has-selection]="selectedIn(group) > 0">
+          {{ 'd3.addRolePage.groupCount' | translate: { count: selectedIn(group), total: group.allPerms.length } }}
+        </span>
+        <i-tabler name="chevron-down" class="icon-18 pt-chevron"></i-tabler>
+      </button>
+    </div>
+
+    @if (isOpen(group)) {
+      <div class="pt-body">
+        @if (blocks(group); as list) {
+          @if (list.length > 0) {
+            @if (!readonly && showActions(group)) {
+            <div class="pt-actions">
+              @if (hasBase(group)) {
+                <button type="button" (click)="groupAction.emit({ group: group, action: 'base' })">
+                  {{ 'd3.addRolePage.viewOnly' | translate }}
+                </button>
+              }
+              <button type="button" (click)="groupAction.emit({ group: group, action: 'all' })">
+                {{ 'd3.addRolePage.filterAll' | translate }}
+              </button>
+              <button type="button" class="is-quiet" (click)="groupAction.emit({ group: group, action: 'none' })">
+                {{ 'd3.addRolePage.clearGroup' | translate }}
+              </button>
+            </div>
+            }
+
+            @for (block of list; track block.key) {
+              @if (block.kind === 'family') {
+                <!-- Base permission on its own row, the permissions that depend on it under it -->
+                <div class="pt-family">
+                  <ng-container *ngTemplateOutlet="permTpl; context: { $implicit: block.base, base: true }"></ng-container>
+                  @if (block.subs.length > 0) {
+                    <div class="pt-subs" [class.is-muted]="!block.base.selected">
+                      @for (sub of block.subs; track sub.id) {
+                        <ng-container *ngTemplateOutlet="permTpl; context: { $implicit: sub, base: false }"></ng-container>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="pt-grid">
+                  @for (perm of block.perms; track perm.id) {
+                    <ng-container *ngTemplateOutlet="permTpl; context: { $implicit: perm, base: perm.isBase === true }"></ng-container>
+                  }
+                </div>
+              }
+            }
+          }
+        }
+
+        @for (child of group.children; track child.id) {
+          @if (visible(child)) {
+            <ng-container *ngTemplateOutlet="groupTpl; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+          }
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+<ng-template #permTpl let-perm let-base="base">
+  <mat-checkbox class="pt-check"
+    [class.is-base]="base"
+    [class.is-locked]="isLocked(perm)"
+    [checked]="perm.selected"
+    [disabled]="readonly || isLocked(perm)"
+    (change)="permissionToggle.emit({ perm: perm, checked: $event.checked })">
+    <span class="pt-text">
+      <span class="pt-name">
+        {{ permName(perm) }}
+        @if (base) {
+          <span class="pt-tag">{{ 'd3.addRolePage.baseBadge' | translate }}</span>
+        }
+        @if (isLocked(perm)) {
+          <i-tabler name="lock" class="icon-14 pt-lock"
+            [matTooltip]="'d3.addRolePage.lockedHint' | translate"></i-tabler>
+        }
+      </span>
+      @if (permDescription(perm)) {
+        <span class="pt-desc">{{ permDescription(perm) }}</span>
+      }
+    </span>
+  </mat-checkbox>
+</ng-template>

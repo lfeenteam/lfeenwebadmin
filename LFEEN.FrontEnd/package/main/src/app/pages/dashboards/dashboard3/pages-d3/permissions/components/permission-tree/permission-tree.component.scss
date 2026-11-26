@@ -1,0 +1,387 @@
+// Class names are prefixed with "pt-" because the app has global classes
+// (e.g. .spacer in _landingpage.scss) that would otherwise leak in.
+
+$ink: #111110;
+$ink-2: #3F3F3C;
+$muted: #8A8A85;
+$line: #E8E8E4;
+$line-soft: #F0F0EC;
+$surface: #FFFFFF;
+$surface-2: #FAFAF8;
+$surface-3: #F2F2EF;
+
+:host {
+  display: block;
+  padding: 16px 24px 20px;
+
+  // Dark checkboxes to match the page
+  --mdc-checkbox-selected-icon-color: #{$ink};
+  --mdc-checkbox-selected-hover-icon-color: #{$ink};
+  --mdc-checkbox-selected-focus-icon-color: #{$ink};
+  --mdc-checkbox-selected-pressed-icon-color: #{$ink};
+  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-focus-state-layer-color: #{$ink};
+  --mdc-checkbox-selected-hover-state-layer-color: #{$ink};
+  --mdc-checkbox-selected-pressed-state-layer-color: #{$ink};
+  --mdc-checkbox-unselected-icon-color: #BDBDB7;
+  --mdc-checkbox-unselected-hover-icon-color: #8A8A85;
+  --mdc-checkbox-disabled-selected-icon-color: #6B6B67;
+  --mdc-checkbox-disabled-selected-checkmark-color: #fff;
+
+  // Checkbox labels use the page font (Material falls back to its own font otherwise)
+  --mat-checkbox-label-text-font: inherit;
+  --mat-checkbox-label-text-size: inherit;
+  --mat-checkbox-label-text-weight: inherit;
+  --mat-checkbox-label-text-line-height: inherit;
+  --mat-checkbox-label-text-tracking: normal;
+  --mat-checkbox-label-text-color: inherit;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ── Toolbar ──────────────────────────────────────────
+.pt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pt-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid $line;
+  border-radius: 999px;
+  background: $surface;
+  color: $muted;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus-within { border-color: $ink-2; box-shadow: 0 0 0 3px rgba(17, 17, 16, 0.06); }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: $ink;
+
+    &::placeholder { color: #A8A8A3; }
+    &::-webkit-search-cancel-button { display: none; }
+  }
+}
+
+.pt-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: $surface-3;
+  color: $ink-2;
+  cursor: pointer;
+}
+
+.pt-segment {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: 999px;
+  background: $surface-3;
+
+  button {
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: $muted;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+
+    &.is-on {
+      background: $surface;
+      color: $ink;
+      box-shadow: 0 1px 3px rgba(17, 17, 16, 0.1);
+    }
+  }
+}
+
+.pt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid $line;
+  border-radius: 999px;
+  background: $surface;
+  color: $ink;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover:not(:disabled) { background: $surface-2; border-color: #D6D6D0; }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ── Groups list (scrolls with the page — one scrollbar only) ──
+.pt-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// ── Group ────────────────────────────────────────────
+.pt-group {
+  flex-shrink: 0;
+  border: 1px solid $line;
+  border-radius: 14px;
+  background: $surface;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &.is-open { border-color: #DCDCD6; }
+
+  &.is-sub {
+    border-radius: 12px;
+    border-color: $line-soft;
+  }
+}
+
+.pt-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 56px;
+  padding-inline: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: $surface-2; }
+
+  .is-open > & { background: $surface-2; border-bottom: 1px solid $line-soft; }
+  .is-sub > & { min-height: 48px; }
+}
+
+.pt-head-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 4px; border-radius: 6px; }
+}
+
+.pt-head-name {
+  font-size: 15px;
+  font-weight: 900;
+  color: $ink;
+
+  .is-sub & { font-size: 14px; font-weight: 800; }
+}
+
+.pt-head-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: $muted;
+  white-space: nowrap;
+
+  &.has-selection { color: $ink; }
+}
+
+.pt-chevron {
+  margin-inline-start: auto;
+  color: $muted;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+
+  .is-open > .pt-head & { transform: rotate(180deg); }
+}
+
+.pt-body {
+  padding: 14px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .is-sub > & { padding: 12px 16px 14px; }
+}
+
+// Quick actions: view only · all · clear
+.pt-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: $ink;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: #CFCFC9;
+    text-underline-offset: 5px;
+    cursor: pointer;
+
+    &:hover { text-decoration-color: $ink; }
+    &.is-quiet { color: $muted; }
+  }
+}
+
+// ── Permissions grid ─────────────────────────────────
+.pt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: 2px;
+}
+
+// A base permission and the permissions that depend on it
+.pt-family {
+  & + & ,
+  & + .pt-grid,
+  .pt-grid + & {
+    padding-top: 12px;
+    border-top: 1px solid $line-soft;
+  }
+}
+
+.pt-subs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: 2px;
+  margin-top: 2px;
+  margin-inline-start: 19px; // under the base checkbox
+  padding-inline-start: 22px;
+  border-inline-start: 2px solid $line;
+  transition: opacity 0.2s;
+
+  // Not usable until the base is on — still clickable (picking one turns the base on)
+  &.is-muted { opacity: 0.75; }
+}
+
+.pt-check.is-base .pt-name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.pt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pt-name {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: $ink;
+  line-height: 1.5;
+}
+
+.pt-desc {
+  font-family: 'Cairo', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: $muted;
+  line-height: 1.6;
+}
+
+.pt-tag {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: $ink-2;
+  border: 1px solid $line;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: $surface;
+}
+
+.pt-lock { color: $muted; flex-shrink: 0; }
+
+:host ::ng-deep .pt-check {
+  display: block;
+
+  .mdc-form-field {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .mdc-checkbox { flex-shrink: 0; }
+
+  label {
+    flex: 1;
+    min-width: 0;
+    padding-block: 9px;
+    padding-inline: 0 4px;
+    cursor: pointer;
+  }
+
+  &.is-locked label { cursor: not-allowed; }
+}
+
+.pt-empty {
+  padding: 40px 0;
+  text-align: center;
+  color: $muted;
+
+  p { margin: 8px 0 0; font-size: 13px; font-weight: 700; }
+}
+
+// ── Responsive ───────────────────────────────────────
+@media (max-width: 991.98px) {
+  .pt-toolbar { flex-wrap: wrap; }
+  .pt-search { flex-basis: 100%; }
+}
+
+@media (max-width: 767.98px) {
+  :host { padding: 12px 14px 16px; }
+  .pt-grid, .pt-subs { grid-template-columns: 1fr; }
+  .pt-subs { margin-inline-start: 12px; padding-inline-start: 14px; }
+  .pt-body { padding: 12px 14px 14px; }
+  .pt-segment { flex: 1; button { flex: 1; } }
+  .pt-btn { height: 44px; padding: 0 14px; }
+}
+
+@media (max-width: 576px) {
+  .pt-head-name { font-size: 14px; }
+  .pt-name { font-size: 13px; }
+  .pt-desc { display: none; }
+}

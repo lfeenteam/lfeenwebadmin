@@ -104,6 +104,10 @@
       "networkUnstable": "Your internet connection seems unstable. Check it and try again.",
       "tooManyRequests": "Too many requests in a short time. Please wait a moment and try again."
     },
+    "pagination": {
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
+    },
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
@@ -128,7 +132,10 @@
       "subtitle": "Trial host accounts for prospective hosts to try Lfeen",
       "detailsTitle": "Demo account details",
       "searchPlaceholder": "Search by name, email, phone, login number or ID number",
-      "dayUnit": "days",
+      "days": {
+        "one": "{{count}} day",
+        "other": "{{count}} days"
+      },
       "ended": "Ended",
       "copied": "Copied",
       "copyFailed": "Could not copy, please copy the value manually",
@@ -137,7 +144,218 @@
       "standardInvitation": "Standard invitation",
       "tabs": {
         "accounts": "Demo accounts",
-        "activationRequests": "Activation requests"
+        "activationRequests": "Activation requests",
+        "signupLinks": "Demo links"
+      },
+      "signupLinks": {
+        "count": {
+          "link": {
+            "one": "1 link",
+            "two": "2 links",
+            "few": "{{count}} links",
+            "many": "{{count}} links",
+            "other": "{{count}} links"
+          },
+          "account": {
+            "one": "1 account",
+            "two": "2 accounts",
+            "few": "{{count}} accounts",
+            "many": "{{count}} accounts",
+            "other": "{{count}} accounts"
+          }
+        },
+        "create": {
+          "title": "Create demo links",
+          "help": "The organisation opens the link and sees its sign-in data right away, without typing anything. The account is created the first time the link is opened and is called “Demo account”.",
+          "steps": {
+            "create": "Create links",
+            "createHelp": "Count, trial and area",
+            "send": "Send it",
+            "sendHelp": "Only to the person in charge",
+            "open": "They open it",
+            "openHelp": "Sign-in data shows at once",
+            "track": "Track",
+            "trackHelp": "Opens and account status"
+          },
+          "submit": "Create links",
+          "submitCount": "Create {{links}}",
+          "secureNote": "Anyone with the link can sign in to the account. Send it only to the person in charge.",
+          "linksSection": "Links and account",
+          "linksSectionHelp": "Number of links, account kind and trial length",
+          "count": "Number of links",
+          "countHelp": "1 to {{max}}. Each link creates one demo account when it is opened.",
+          "durationHelp": "The trial starts the first time the link is opened, not now.",
+          "welcomeSection": "Welcome message",
+          "welcomeSectionHelp": "The message shown on the link page with the sign-in data",
+          "welcome": "Welcome message (optional)",
+          "welcomePlaceholder": "Leave it empty to show the standard welcome message.",
+          "welcomeHelp": "Shown on the link page and copied with “Copy all”. Missing sign-in data is added at the end automatically.",
+          "extras": "Extra settings",
+          "extrasHelp": "Link validity",
+          "linkValidDays": "Link validity (days)",
+          "linkValidHelp": "How long the link can be opened for the first time. After the first open the data stays visible until the trial ends.",
+          "openBefore": "Must be opened before",
+          "linkValidSummary": "Open within {{days}} days",
+          "standardWelcome": "Standard welcome message",
+          "trialDays": "{{days}}-day trial",
+          "created": "{{links}} created",
+          "resultTitle": "{{links}} created ✅",
+          "noPageUrl": "The link page URL is not set on the server (Demo:SelfSignup:PageUrl), so only the link code is shown. Set it, then copy the links from the tracking table.",
+          "again": "Create another batch",
+          "track": "Track links",
+          "copiedAll": "{{links}} copied",
+          "metaSection": "Area and notes",
+          "metaSectionHelp": "Who it is for, and any note that helps the team",
+          "metaPrivate": "Admin only: the area and notes are never shown to whoever opens the link. They apply to every link of the batch, and you can change them for any link later with “Edit”.",
+          "area": "Area (who it is for)",
+          "areaPlaceholder": "e.g. Al Reem Hotel, or Riyadh Expo",
+          "areaHelp": "Helps you tell who each link went to in the tracking table.",
+          "additionalNotes": "Additional notes",
+          "additionalNotesPlaceholder": "e.g. Contact: Mr. Khalid, met at the expo on the 25th",
+          "noArea": "No area",
+          "hasNotes": "Has notes"
+        },
+        "preview": {
+          "title": "Link page preview",
+          "subtitle": "What the organisation sees when it opens the link",
+          "ready": "Your demo account is ready",
+          "daysLeft": "{{days}} days left",
+          "copyAll": "Copy all details",
+          "signIn": "Sign in now →",
+          "keep": "Keep this link: your details are here any time until the trial ends.",
+          "welcome": "Welcome message",
+          "examples": "The sign-in data are example values. The real ones are created the first time the link is opened.",
+          "defaultName": "Demo account",
+          "showAll": "Show the whole message",
+          "showLess": "Show less"
+        },
+        "list": {
+          "title": "Track links",
+          "subtitle": "One row per link: opened or not, how often, and the state of its account",
+          "create": "Create links",
+          "emptyTitle": "No links yet",
+          "emptyDesc": "Create links and send them to organisations — every open shows up here."
+        },
+        "filters": {
+          "search": "Search by area, notes, link code or login number",
+          "batch": "Batch",
+          "allBatches": "All batches",
+          "oneBatch": "Selected batch"
+        },
+        "batch": {
+          "createdBy": "Created by",
+          "noArea": "Batch with no area"
+        },
+        "table": {
+          "loginPhone": "Login no.",
+          "link": "Link",
+          "state": "Status",
+          "opens": {
+            "title": "Opens",
+            "zero": "Not opened",
+            "one": "Opened once",
+            "two": "Opened twice",
+            "few": "Opened {{count}} times",
+            "many": "Opened {{count}} times"
+          },
+          "firstOpen": "First",
+          "lastOpen": "Last",
+          "notOpened": "Not opened yet",
+          "account": "Account",
+          "noAccount": "Created on first open",
+          "trialEnds": "Trial ends",
+          "linkValid": "Open before",
+          "cancelledBy": "Cancelled by",
+          "area": "Area / notes",
+          "noArea": "No area",
+          "fromBatch": "From batch"
+        },
+        "states": {
+          "Open": "Not opened yet",
+          "Used": "Opened",
+          "InProgress": "Setting up",
+          "Cancelled": "Cancelled",
+          "Expired": "Expired"
+        },
+        "accountStatus": {
+          "Active": "Active",
+          "Expired": "Trial ended",
+          "Disabled": "Stopped"
+        },
+        "cancel": {
+          "title": "Cancel links",
+          "batchTitle": "Cancel the batch links",
+          "body": "{{links}} will be cancelled. Links that were opened will have their demo account stopped, and no one can sign in with them.",
+          "batchBodyNoCount": "Every link of the batch will be cancelled. Links that were opened will have their demo account stopped, and no one can sign in with them.",
+          "stopTitle": "{{accounts}} will be stopped for good",
+          "stopBody": "The organisation can no longer sign in, and this can't be undone: create a new link if they need to try again.",
+          "keep": "Back",
+          "confirm": "Cancel links",
+          "done": "{{links}} cancelled",
+          "doneStopped": ", {{accounts}} stopped",
+          "doneSkipped": " ({{links}} skipped: already cancelled, expired or setting up)",
+          "batchButton": "Cancel all batch links",
+          "selected": "Cancel selected",
+          "selectedCount": "{{links}} selected",
+          "clearSelection": "Clear selection",
+          "selectPage": "Select every cancellable link on this page",
+          "selectRow": "Select link",
+          "one": "Cancel"
+        },
+        "validation": {
+          "count": "The number of links must be {{min}} to {{max}}.",
+          "durationDays": "The trial must be {{min}} to {{max}} days.",
+          "linkValidDays": "The link validity must be {{min}} to {{max}} days.",
+          "areaMax": "The area can be up to {{max}} characters.",
+          "additionalNotesMax": "The notes can be up to {{max}} characters.",
+          "textChars": "It can't contain < or >.",
+          "welcome": "The welcome message has an invalid variable. Use only the available variables.",
+          "areaRule": "The area can be up to {{max}} characters, without < or >.",
+          "additionalNotesRule": "The notes can be up to {{max}} characters, without < or >."
+        },
+        "errors": {
+          "disabled": "Demo links are turned off on the server right now.",
+          "rateLimited": "Too many requests in a short time, try again in a minute.",
+          "DEMO_SIGNUP_PIN_KEY_MISSING": "A server setting is missing (PinKey), so links can't be created now. Tell the backend team.",
+          "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "This link doesn't exist any more. Refresh the page.",
+          "validation": "Check the values you entered and try again."
+        },
+        "edit": {
+          "button": "Edit area and notes",
+          "title": "Edit area and notes",
+          "batchTitle": "Edit batch",
+          "batchButton": "Edit batch",
+          "help": "Admin only, never shown to the organisation. You can edit them any time, before or after the link is opened.",
+          "batchHelp": "Changes every link of the batch that has no value of its own. Links with their own value are not affected.",
+          "useBatch": "Use the batch value",
+          "customize": "Set for this link",
+          "batchEmpty": "The batch has no value",
+          "save": "Save",
+          "saved": "Area and notes saved",
+          "savedBatch": "Batch updated"
+        },
+        "menu": {
+          "copy": "Copy link",
+          "account": "Open demo account",
+          "cancel": "Cancel link"
+        }
+      },
+      "signupLinkInfo": {
+        "title": "Made from a demo link",
+        "track": "View link",
+        "area": "Area",
+        "notes": "Notes",
+        "firstOpen": "First opened",
+        "opens": "Opens",
+        "opensCount": {
+          "zero": "Not opened",
+          "one": "Once",
+          "other": "{{count}} times"
+        },
+        "code": "Link code",
+        "hint": "The area and notes are admin only. Any change here (new PIN, extend, stop) shows on the link page right away.",
+        "channel": "Demo link",
+        "viaPage": "Nothing is sent: the sign-in data shows on the link page"
       },
       "activation": {
         "title": "Activation requests",
@@ -155,7 +373,7 @@
           "Warm": "Warm",
           "Cold": "Cold"
         },
-        "times": "Pressed {{count}} times",
+        "times": { "one": "Pressed once", "other": "Pressed {{count}} times" },
         "timesHint": "Pressed more than once on the same open request — high interest.",
         "table": {
           "name": "Host name",
@@ -167,8 +385,9 @@
           "status": "Status",
           "lastActivity": "Last activity"
         },
-        "bookingsPayments": "{{bookings}} bookings · {{payments}} payments",
-        "total": "requests",
+        "bookingsCount": { "one": "{{count}} booking", "other": "{{count}} bookings" },
+        "paymentsCount": { "one": "{{count}} payment", "other": "{{count}} payments" },
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" },
         "errorTitle": "Could not load activation requests",
         "emptyTitle": "No activation requests yet",
         "emptyDesc": "When a demo host asks for a real account, the request shows up here.",
@@ -209,6 +428,8 @@
       "noAttachments": "No attachments.",
       "invitation": {
         "title": "Invitation message",
+        "live": "Live",
+        "updating": "Updating",
         "language": "Message language",
         "languages": { "Ar": "العربية", "En": "English" },
         "presets": "Ready-made templates — pick one, then edit freely",
@@ -221,7 +442,8 @@
         "subjectLabel": "Subject:",
         "noPreview": "No preview for this channel.",
         "characters": "Characters",
-        "smsStats": "{{characters}} characters · {{segments}} parts",
+        "charactersCount": { "one": "{{count}} character", "other": "{{count}} characters" },
+        "segmentsCount": { "one": "{{count}} part", "other": "{{count}} parts" },
         "encoding": {
           "UCS2": "Arabic or emoji: 70 characters per part",
           "GSM7": "160 characters per part"
@@ -260,7 +482,8 @@
       "channels": {
         "Email": "Email",
         "WhatsApp": "WhatsApp",
-        "Sms": "SMS"
+        "Sms": "SMS",
+        "None": "No sending"
       },
       "table": {
         "name": "Name",
@@ -274,7 +497,7 @@
         "createdBy": "Created by"
       },
       "pagination": {
-        "total": "accounts",
+        "total": { "one": "{{count}} account", "other": "{{count}} accounts" },
         "pageSize": "Rows",
         "perPage": "page"
       },
@@ -294,10 +517,12 @@
         "more": "More",
         "copy": "Copy",
         "copyAll": "Copy all",
+        "copyMessage": "Copy invitation message",
         "show": "Show",
         "hide": "Hide",
         "resend": "Resend invitation",
         "resendShort": "Resend",
+        "sendInvitation": "Send invitation",
         "resetPin": "New PIN",
         "extend": "Extend",
         "unlock": "Unlock",
@@ -310,6 +535,24 @@
         "title": "Create demo account",
         "pageHelp": "Pick the account type and enter the person's details, then write the invitation and check it before sending.",
         "accountSection": "Account details",
+        "accountSectionHelp": "The account type and the person who will try Lfeen",
+        "trialSection": "Trial settings",
+        "trialSectionHelp": "Trial length, PIN and your internal notes",
+        "inviteSection": "Invitation",
+        "inviteSectionHelp": "Pick how to send it, write the message and check it before sending",
+        "fullNamePlaceholder": "e.g. Mohammed Alotaibi",
+        "notePlaceholder": "e.g. Interested in managing 5 chalets in Riyadh",
+        "endsOn": "Trial ends on",
+        "generatePin": "Generate",
+        "pinAuto": "Automatic PIN",
+        "pinCustom": "Custom PIN",
+        "noChannel": "Don't send",
+        "noChannelHint": "Create, then copy the invitation",
+        "channelHints": {
+          "Email": "Needs an email",
+          "WhatsApp": "Needs a phone number",
+          "Sms": "Needs a phone number"
+        },
         "noName": "No name",
         "kind": "Account type",
         "kindOptions": {
@@ -322,7 +565,7 @@
         },
         "fullName": "Full name",
         "channel": "Invitation channel",
-        "channelHelp": "Only one invitation is sent this way, with the sign-in details.",
+        "channelHelp": "Only one invitation is sent this way, with the sign-in details. Click it again to create without sending.",
         "email": "Email",
         "phone": "Contact phone",
         "phoneHelp": "The person's real number, used only to send the invitation, never to sign in.",
@@ -339,12 +582,19 @@
         "chooseFiles": "Choose files",
         "uploading": "Uploading files...",
         "attachmentsHelp": "PDF, Word or PNG/JPEG images — up to 5 files and 10 MB in total.",
-        "submit": "Create and send invitation"
+        "submit": "Create and send invitation",
+        "submitCreateOnly": "Create account",
+        "optional": "(optional)",
+        "createOnlyHelp": "The account is created and nothing is sent; then copy the invitation message from the result window and send it yourself."
       },
       "credentials": {
         "titleCreated": "Demo account created",
         "titleReopened": "Demo account reopened",
         "titleNewPin": "New PIN issued",
+        "titleResent": "Invitation resent with a new PIN",
+        "notRequestedCreate": "No invitation was sent. Copy the invitation message and send it to the person yourself.",
+        "notSentResend": "The invitation was not delivered, and the previous PIN has stopped working. Copy the invitation message and send it to the person yourself.",
+        "messageTitle": "Invitation message",
         "sentPrefix": "The invitation was sent to",
         "sentVia": "via",
         "notSentCreate": "The account was created, but the invitation was not delivered. Hand the details to the person yourself, or issue a new PIN with the invitation from the account page.",
@@ -354,13 +604,17 @@
         "onceWarning": "This PIN is shown only once and can never be shown again. If it is lost, issue a new PIN.",
         "confirmClose": "I've saved the details, close",
         "copyAll": {
-          "heading": "Lfeen sign-in details (demo account)",
-          "headingClient": "Lfeen guest app sign-in details (demo account)",
+          "greeting": "Hi {{name}} 👋",
+          "greetingNoName": "Hi 👋",
+          "intro": "We've set up a demo Lfeen account for you to see for yourself how easily you can manage your units and bookings. Here are your sign-in details:",
+          "introClient": "We've set up a demo account for you in the Lfeen guest app, with sample bookings ready to explore. Here are your sign-in details:",
           "sid": "ID number",
           "birthDate": "Date of birth",
           "phone": "Phone number",
+          "verificationCode": "Verification code",
           "pin": "PIN",
-          "expires": "Trial ends"
+          "expires": "The trial is available until",
+          "signOff": "Enjoy your trial ✨\nThe Lfeen team"
         }
       },
       "fields": {
@@ -374,6 +628,7 @@
         "birthDate": "Date of birth (sign-in)",
         "loginPhone": "Phone number (sign-in)",
         "pin": "PIN",
+        "verificationCode": "Verification code (OTP)",
         "invitationSubject": "Invitation subject",
         "renderedSubject": "Subject as received",
         "invitationMessage": "Invitation text",
@@ -393,11 +648,13 @@
         "deliveries": "Invitation log"
       },
       "banners": {
+        "notSentYet": "This account was created without sending, and no invitation has been sent yet.",
         "expired": "The trial has ended. The account is read-only for the host until it is extended.",
         "disabled": "The account is disabled and cannot be signed in to. To reopen it, create a new trial with the same email or phone.",
         "sendFailed": "The last invitation attempt failed."
       },
       "deliveries": {
+        "technicalError": "Sending service error",
         "time": "Time",
         "channel": "Channel",
         "recipient": "Recipient",
@@ -413,16 +670,18 @@
         "resend": {
           "title": "Resend invitation",
           "confirm": "Send",
-          "noEmail": "This account has no email",
-          "noPhone": "This account has no phone",
+          "noEmail": "This account has no email. Enter it and it will be saved on the account.",
+          "noPhone": "This account has no phone. Enter it and it will be saved on the account.",
+          "noChannelYet": "This account was created without sending. Choose how to send the invitation.",
           "channelChanged": "This will become the account's invitation channel.",
-          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN stops working at once. You will not see the new PIN. To know the PIN, use “New PIN” instead."
+          "newPinWarning": "A new PIN will be issued and sent in the invitation, and the current PIN stops working at once. The new PIN and the invitation message are shown to you once after sending."
         },
         "resetPin": {
           "title": "Issue a new PIN",
           "confirm": "Issue",
           "text": "The host will be signed out of every device, and the current PIN will stop working.",
-          "sendInvitation": "Send the invitation with the new PIN"
+          "sendInvitation": "Send the invitation with the new PIN",
+          "noChannel": "This account has no contact details, so no invitation is sent. To send one, use “Resend invitation”."
         },
         "extend": {
           "title": "Extend trial",
@@ -491,6 +750,9 @@
         "DEMO_TEST_SEND_FAILED": "The test copy could not be sent. Try again shortly.",
         "DEMO_ACTIVATION_REQUEST_NOT_FOUND": "The request was not found.",
         "DEMO_KIND_INVALID": "Invalid account type. Choose a host account or a guest account.",
+        "DEMO_RECIPIENT_REQUIRED": "Enter the email or phone number to send the invitation.",
+        "DEMO_CHANNEL_REQUIRED": "Choose how to send the invitation.",
+        "DEMO_CHANNEL_INVALID": "Invalid invitation channel.",
         "forbidden": "You do not have permission to perform this action",
         "unexpected": "An unexpected error occurred. Try again."
       }
@@ -563,7 +825,16 @@
         "currentPasswordPlaceholder": "Enter your current password",
         "newPassword": "New Password",
         "confirmPassword": "Confirm Password",
-        "hint": "Make sure to use a strong password with uppercase, lowercase, numbers and special characters",
+        "rulesTitle": "Your new password must contain:",
+        "rules": {
+          "minLength": "At least 8 characters",
+          "uppercase": "An uppercase letter (A-Z)",
+          "lowercase": "A lowercase letter (a-z)",
+          "number": "A number (0-9)",
+          "special": "A special character (e.g. ! @ # $)"
+        },
+        "required": "This field is required",
+        "sameAsCurrent": "The new password must be different from the current password",
         "mismatch": "Passwords do not match",
         "save": "Save Changes",
         "saving": "Saving...",
@@ -625,6 +896,7 @@
       "addDeptSuccess": "Department and roles added successfully",
       "addRoleSuccess": "Role added successfully",
       "editRoleSuccess": "Role updated successfully",
+      "roleManagerNotSaved": "The role was saved, but its manager setting was not",
       "deleteRoleSuccess": "Role deleted successfully",
       "removePermTitle": "Remove Permission",
       "removePermMessage": "Remove permission \"{{permName}}\" from this role? This action cannot be undone.",
@@ -655,6 +927,8 @@
       "deleteRoleMessageWithEmployees": "This role is currently assigned to {{count}} employee(s). Deleting it will immediately remove their permissions, and this action cannot be undone."
     },
     "emptyState": {
+      "defaultTitle": "No data",
+      "defaultDesc": "There is no data to show right now.",
       "noResults": {
         "title": "No results match your search",
         "desc": "Try a different search term or change the selected filters.",
@@ -788,6 +1062,12 @@
         "notePlaceholder": "e.g. Refunded manually from the gateway dashboard",
         "confirmBtn": "Confirm"
       },
+      "retryDialog": {
+        "title": "Confirm retry",
+        "desc": "The refund will be sent to the payment gateway again within seconds.",
+        "warning": "If you already refunded the guest manually, don't retry — mark the refund as handled manually instead, so it isn't refunded twice.",
+        "confirmBtn": "Send to gateway"
+      },
       "toast": {
         "retryQueued": "Retry scheduled — the status will update in a few seconds",
         "resolved": "Refund marked as handled"
@@ -797,10 +1077,10 @@
         "desc": "There are no refunds with this status right now."
       },
       "pagination": {
-        "total": "refunds"
+        "total": { "one": "{{count}} refund", "other": "{{count}} refunds" }
       },
       "errors": {
-        "notInManualReview": "This refund was already handled — the list has been refreshed",
+        "notInManualReview": "This refund was already handled or is being processed right now — the list has been refreshed",
         "notFound": "Refund not found",
         "loadTitle": "Couldn't load refunds",
         "loadDesc": "Check your connection and try again."
@@ -821,7 +1101,7 @@
         "Expired": "Expired"
       },
       "versionN": "Version {{n}}",
-      "signersN": "{{n}} signers",
+      "signersN": { "one": "{{count}} signer", "other": "{{count}} signers" },
       "clauseCount": {
         "zero": "No clauses",
         "one": "{{n}} clause",
@@ -830,7 +1110,7 @@
         "many": "{{n}} clauses",
         "other": "{{n}} clauses"
       },
-      "versionsCount": "{{n}} versions",
+      "versionsCount": { "one": "{{count}} version", "other": "{{count}} versions" },
       "current": "Current",
       "currentVersion": "Current version",
       "signaturesValid": "Signatures valid",
@@ -966,7 +1246,11 @@
         "title": "End version {{n}}?",
         "alertTitle": "This action can't be undone",
         "alertText": "Version {{n}} will end immediately, and no new user will be able to sign it.",
-        "heading": "{{count}} signers will be affected",
+        "heading": {
+          "zero": "No signers will be affected",
+          "one": "{{count}} signer will be affected",
+          "other": "{{count}} signers will be affected"
+        },
         "text": "Signers will need to sign the current available version. If there's no published version, publish a new one so signing is possible.",
         "confirm": "End version"
       },
@@ -978,8 +1262,14 @@
       },
       "validation": {
         "required": "{{field}} is required",
-        "bannerFields": "{{n}} error(s) — review the highlighted fields.",
-        "bannerClause": "{{n}} error(s) — review clause {{clause}}.",
+        "bannerFields": {
+          "one": "1 error — review the highlighted field.",
+          "other": "{{count}} errors — review the highlighted fields."
+        },
+        "bannerClause": {
+          "one": "1 error — review clause {{clause}}.",
+          "other": "{{count}} errors — review clause {{clause}}."
+        },
         "noClauses": "Add at least one clause before publishing"
       },
       "form": {
@@ -1007,13 +1297,15 @@
     "cancellationRefunds": {
       "title": "Stalled Cancellation Refunds",
       "currencySar": "SAR",
-      "intro": "Guest refunds for cancelled bookings that failed automatically 6 times and stopped for review. “Retry” puts the refund back in the queue; the system picks it up within about 30 seconds.",
+      "intro": "Guest refunds for cancelled bookings that stopped for review: either the automatic refund failed after several attempts, or it needs a manual refund (cash or bank transfer with no payment gateway). “Retry” puts the refund back in the queue.",
       "refresh": "Refresh",
       "cancelledAt": "Opened {{date}}",
       "technicalDetails": "Technical details",
       "technicalDetailsHide": "Hide technical details",
       "queuedHint": "Leaves this list once it's picked up, and comes back here if it fails again",
       "notRetryableHint": "A retry can't fix this — refund the guest outside the system, then mark it resolved",
+      "manualOnly": "Manual only",
+      "attemptsLine": "Attempts: {{count}}",
       "failureReasons": {
         "manualRefundRequired": "Cash or bank-transfer payment with no gateway to refund it — refund it manually, then close the case",
         "gatewayError": "The payment gateway rejected the refund",
@@ -1035,7 +1327,8 @@
         "amount": "Amount",
         "attempts": "Attempts",
         "status": "Status",
-        "date": "Last attempt"
+        "date": "Last attempt",
+        "actions": "Actions"
       },
       "actions": {
         "retry": "Retry",
@@ -1067,10 +1360,10 @@
         "desc": "Every cancellation refund is going through normally."
       },
       "pagination": {
-        "total": "refunds"
+        "total": { "one": "{{count}} refund", "other": "{{count}} refunds" }
       },
       "errors": {
-        "notInManualReview": "This refund was already retried or completed — the list has been refreshed",
+        "notInManualReview": "This refund was already retried, completed, or is being processed right now — the list has been refreshed",
         "notFound": "Refund not found",
         "forbidden": "You don't have permission to retry refunds",
         "forbiddenResolve": "You don't have permission to close refunds",
@@ -1343,7 +1636,7 @@
         "banned": "Banned Buildings"
       },
       "pagination": {
-        "total": "property"
+        "total": { "one": "{{count}} property", "other": "{{count}} properties" }
       },
       "underReview": {
         "statusLabel": "Under Review",
@@ -1361,6 +1654,7 @@
         "allTypes": "All Types",
         "newest": "Newest",
         "moreFilters": "More filters",
+        "filterSearchPlaceholder": "Search...",
         "options": {
           "all": "All",
           "riyadh": "Riyadh",
@@ -1374,7 +1668,9 @@
         }
       },
       "viewToggle": {
-        "label": "View mode"
+        "label": "View mode",
+        "list": "List view",
+        "grid": "Grid view"
       },
       "buildingCard": {
         "statusRejected": "Rejected",
@@ -1482,7 +1778,15 @@
       "cardsUnits": {
         "awaitingReviewMeta": "Awaiting property review first",
         "reviewPropertyBtn": "Review Property First",
-        "publishedUnits": "{{count}} published units",
+        "unitsCount": {
+          "draft": { "one": "1 draft unit", "other": "{{count}} draft units" },
+          "published": { "one": "1 published unit", "other": "{{count}} published units" },
+          "new": { "one": "1 new unit", "other": "{{count}} new units" },
+          "underReview": { "one": "1 unit under review", "other": "{{count}} units under review" },
+          "rejected": { "one": "1 rejected unit", "other": "{{count}} rejected units" },
+          "pendingChanges": { "one": "1 unit with pending changes", "other": "{{count}} units with pending changes" },
+          "banned": { "one": "1 banned unit", "other": "{{count}} banned units" }
+        },
         "approvedBadge": "Approved",
         "activationNotice": {
           "title": "Activation System Notice",
@@ -1516,7 +1820,7 @@
         "banned": "Banned Units"
       },
       "pagination": {
-        "total": "unit"
+        "total": { "one": "{{count}} unit", "other": "{{count}} units" }
       },
       "autoApproval": {
         "openBtn": "Auto-approval settings",
@@ -1562,9 +1866,11 @@
     },
     "cards": {
       "monthlyRevenue": "Monthly Platform Revenue",
+      "revenue": "Platform Revenue",
       "completedBookings": "Completed Bookings",
       "avgBookingValue": "Average Booking Value",
       "monthlyCancelRate": "Monthly Cancellation Rate",
+      "cancelRate": "Cancellation Rate",
       "registeredGuests": "Registered Guests",
       "returningGuestsRate": "Returning Guests Rate",
       "appDownloads": "App Downloads",
@@ -1574,6 +1880,7 @@
       "avgOccupancy": "Average Occupancy Rate",
       "hostRetention": "Host Retention Rate",
       "trendUpLastMonth": "vs last month",
+      "vsPreviousPeriod": "vs previous period",
       "stable": "Stable",
       "concerningIncrease": "concerning increase",
       "unavailable": "Unavailable",
@@ -1603,13 +1910,27 @@
       "segCompanies": "Companies (20%)",
       "rowDownloads": "Downloads",
       "segMale": "Male",
-      "segFemale": "Female"
+      "segFemale": "Female",
+      "segUnknown": "Unspecified",
+      "genderBasis": {
+        "one": "Based on 1 guest with a known (verified) gender out of {{total}}",
+        "other": "Based on {{count}} guests with a known (verified) gender out of {{total}}"
+      },
+      "genderNoData": "Not enough gender data (no verified guests)",
+      "genderBasisVerifiedOnly": "Based on verified guests only; the rest have an unspecified gender"
     },
     "insights": {
       "topCities": "Top 6 Saudi Cities",
       "revenueSources": "Revenue Sources",
       "needsCeoDecision": "Needs CEO Decision",
-      "reservation": "booking",
+      "bookingsCount": {
+        "one": "{{count}} booking",
+        "other": "{{count}} bookings"
+      },
+      "unitsCount": {
+        "one": "{{count}} unit",
+        "other": "{{count}} units"
+      },
       "host": "host",
       "statusExcellent": "Excellent",
       "statusGrowth": "Growth",
@@ -1636,7 +1957,6 @@
       "cityMakkah": "Makkah",
       "cityMadinah": "Madinah",
       "cityKhobar": "Khobar",
-      "unit": "unit",
       "noCities": "No bookings are linked to cities in this period",
       "noDecisions": "No decisions required right now",
       "severityCritical": "Critical",
@@ -1726,7 +2046,8 @@
         "phone": "Phone Number",
         "role": "Job Role",
         "departmentRole": "Department / Role",
-        "status": "Status"
+        "status": "Status",
+        "employeeActionsAria": "Employee options: {{name}}"
       },
       "deptCard": {
         "active": "Active",
@@ -1734,7 +2055,8 @@
         "inactive": "Inactive",
         "manager": "Manager In Charge",
         "employees": "Employee Count",
-        "permissions": "Department Permissions"
+        "permissions": "Department Permissions",
+        "view": "View department"
       },
       "deptManagerTitle": "{{name}} Manager",
       "deptEmployees": "Department Employees List",
@@ -1765,12 +2087,12 @@
           "emailRequired": "Email is required",
           "emailInvalid": "Invalid email format",
           "phoneRequired": "Phone number is required",
-          "phonePattern": "Enter a valid phone number",
+          "phonePattern": "Enter a Saudi mobile number as 05XXXXXXXX or +9665XXXXXXXX",
           "roleRequired": "Job role is required"
         }
       },
       "pagination": {
-        "total": "employees"
+        "total": { "one": "{{count}} employee", "other": "{{count}} employees" }
       },
       "opsLog": {
         "filters": {
@@ -1941,7 +2263,7 @@
           }
         },
         "pagination": {
-          "total": "operations"
+          "total": { "one": "{{count}} operation", "other": "{{count}} operations" }
         },
         "empty": "No matching operations",
         "loadFailed": "Could not load data",
@@ -2037,8 +2359,21 @@
       "loadError": "Couldn't load permissions",
       "retry": "Retry",
       "roleCreatedPermsFailed": "The role was created, but assigning permissions failed. You can edit them from the role page.",
-      "selectedOfTotal": "{{count}} of {{total}} permissions",
+      "selectedOfTotal": { "one": "{{selected}} of {{count}} permission", "other": "{{selected}} of {{count}} permissions" },
       "lockedHint": "Required by another selected permission — deselect the dependent one first",
+      "groupCount": "{{count}} of {{total}}",
+      "baseBadge": "Base",
+      "filterAll": "All",
+      "filterSelected": "Selected only",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "viewOnly": "View only",
+      "clearGroup": "Clear",
+      "noResults": "No permissions match your search",
+      "noSelected": "No permissions selected yet",
+      "clearSearch": "Clear search",
+      "searchPermissions": "Search permissions… e.g. cancel, bookings",
+      "selectGroup": "Select all",
       "pagination": {
         "total": "{{count}} permission groups"
       },
@@ -2086,7 +2421,7 @@
         "actions": "Actions"
       },
       "pagination": {
-        "total": "Role"
+        "total": { "one": "{{count}} role", "other": "{{count}} roles" }
       }
     },
     "addPermissionGroupDialog": {
@@ -2118,10 +2453,11 @@
       "table": {
         "name": "Group Name",
         "description": "Description",
-        "actions": "Actions"
+        "actions": "Actions",
+        "rowActionsAria": "Group options: {{name}}"
       },
       "pagination": {
-        "total": "Group"
+        "total": { "one": "{{count}} group", "other": "{{count}} groups" }
       }
     },
     "addPermissionDialog": {
@@ -2159,6 +2495,7 @@
       "title": "Permissions",
       "description": "The master catalog of every atomic permission in the system, and how they depend on one another.",
       "noPermissions": "No permissions added yet",
+      "rowActionsAria": "Permission options: {{name}}",
       "addPermissionBtn": "Add New Permission",
       "table": {
         "name": "Permission Name",
@@ -2168,7 +2505,7 @@
         "dependenciesTooltip": "Manage Dependencies"
       },
       "pagination": {
-        "total": "Permission"
+        "total": { "one": "{{count}} permission", "other": "{{count}} permissions" }
       }
     },
     "permissionDependenciesPage": {
@@ -2221,6 +2558,9 @@
         "description": "Permission Description",
         "actions": "Actions",
         "viewTooltip": "View",
+        "actionsMenu": "Role actions",
+        "viewRoleAria": "View role: {{name}}",
+        "roleActionsAria": "Role options: {{name}}",
         "editBtn": "Edit",
         "deleteBtn": "Delete",
         "addRoleBtn": "Add a Role or new permission to the department",
@@ -2228,7 +2568,7 @@
       },
       "alert": {
         "title": "Important Operational Alert",
-        "message": "Any change in these permissions will be applied immediately to all current employees ({{count}} employees) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department."
+        "message": { "one": "Any change in these permissions will be applied immediately to all current employees (1 employee) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department.", "other": "Any change in these permissions will be applied immediately to all current employees ({{count}} employees) belonging to the {{dept}} department. Please ensure the changes align with the job responsibilities of each department." }
       },
       "cancelBtn": "Cancel Changes",
       "saveBtn": "Save and Update Permissions",
@@ -2374,7 +2714,7 @@
       },
       "status": {
         "adminReviewLabel": "Pending Administrative Review",
-        "adopted": "Adopted",
+        "adopted": "Approved",
         "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",
@@ -2459,7 +2799,8 @@
         "mainPhotoBadge": "Main Building Photo",
         "exteriorTitle": "Exterior Building Images",
         "interiorTitle": "Interior Property Images",
-        "imagesCount": "{{count}} images",
+        "imagesCount": { "one": "{{count}} image", "other": "{{count}} images" },
+        "photoPosition": "{{label}} {{index}} of {{total}}",
         "statusRejected": "Rejected",
         "statusAccepted": "Accepted",
         "statusPending": "Awaiting Decision",
@@ -2528,7 +2869,7 @@
         "viewTypesLabel": "Available Views",
         "spokenLanguagesLabel": "Languages spoken by the host team",
         "businessTypeLabel": "Business Type",
-        "districtLabel": "Facade Direction",
+        "districtLabel": "District",
         "organizationLabel": "Operating Organization",
         "totalUnitsLabel": "Total Units",
         "controlTitle": "Features & Controls",
@@ -2540,7 +2881,7 @@
         "floorNumberLabel": "Floor Number",
         "floorNameLabel": "Floor Name",
         "unitsCountLabel": "Unit Count",
-        "unitsSuffix": "units",
+        "unitsSuffix": { "one": "{{count}} unit", "other": "{{count}} units" },
         "emptyFloorsTitle": "No floor data",
         "emptyFloorsDescription": "The host has not added floor or unit details for this property.",
         "floorNames": {
@@ -2629,6 +2970,14 @@
       "title": "Unit Review",
       "reviewRequestsBC": "Review Requests",
       "unitCrumbLabel": "Unit",
+      "loadState": {
+        "notFoundTitle": "Unit not found",
+        "notFoundDescription": "The unit may have been deleted, or the link is incorrect.",
+        "backToUnits": "Back to units",
+        "errorTitle": "Couldn't load the unit",
+        "errorDescription": "Check your connection and try again.",
+        "retry": "Try again"
+      },
       "unitInfo": {
         "unitNumberLabel": "Unit Number"
       },
@@ -2637,7 +2986,7 @@
         "progressLabel": "Review status",
         "progressCount": "{{completed}} of {{total}}",
         "approved": "Approved",
-        "adopted": "Adopted",
+        "adopted": "Approved",
         "readyToPublish": "Ready to Publish",
         "rejected": "Rejected",
         "draftLabel": "Draft",
@@ -2778,8 +3127,9 @@
         "earlyArrivalTitle": "Early Arrival Registration",
         "earlyArrivalDesc": "Allow guests to arrive before the official time",
         "availableLabel": "Available",
+        "earlyArrivalNotAllowed": "Not allowed",
         "earlyArrivalTime": "07:00 AM",
-        "generalRulesTitle": "General Flexible Unit Rules",
+        "generalRulesTitle": "House Rules",
         "customRulesTitle": "Additional Host Conditions",
         "emptyTitle": "No terms or rules",
         "emptyDescription": "The host has not added any terms or rules for this unit.",
@@ -2831,7 +3181,7 @@
         "notesRequiredHint": "Required when rejecting",
         "notesPlaceholder": "If rejecting, please write the reasons in detail here so the host can update them...",
         "approveBtn": "Approve Access Method",
-        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "pendingPhotosWarning": { "one": "1 photo is still pending review. Please review all photos before submitting.", "other": "{{count}} photos are still pending review. Please review all photos before submitting." },
         "photosFailedToLoadWarning": "Access photos were uploaded but could not be loaded. Review each one and make your decision — it must still be submitted even if the image doesn't display."
       },
       "pricingView": {
@@ -2890,6 +3240,13 @@
         },
         "calendarTitle": "Availability & Daily Prices Calendar",
         "calendarSubtitle": "Review available prices for each day independently",
+        "calendarError": "Couldn't load this month's calendar.",
+        "calendarRetry": "Retry",
+        "legend": {
+          "available": "Available",
+          "unavailable": "Unavailable",
+          "today": "Today"
+        },
         "days": {
           "sun": "Sun",
           "mon": "Mon",
@@ -2908,7 +3265,11 @@
       "imagesView": {
         "pageTitle": "Unit Photos Review",
         "heading": "Review Unit Photos",
-        "reviewState": "Review status: {{count}} photos uploaded",
+        "reviewState": {
+          "zero": "Review status: no photos uploaded",
+          "one": "Review status: {{count}} photo uploaded",
+          "other": "Review status: {{count}} photos uploaded"
+        },
         "mainPhoto": {
           "badge": "Main Unit Photo",
           "name": "Main unit photo",
@@ -2949,14 +3310,15 @@
         "suggestedSolutionPlaceholder": "Suggested correction for host...",
         "rejectionSummaryTitle": "Rejection Reasons Summary",
         "rejectionSummarySubtitle": "Notes found in the uploaded photos. Please review before approval.",
-        "defaultRejectionReason": "Photo needs to be replaced or clarified.",
+        "photoLabel": "Photo {{index}} — {{group}}",
+        "rejectionReasonMissing": "No rejection reason yet — click to jump to the photo and add one.",
         "emptyTitle": "No images uploaded",
         "emptyDescription": "The host has not added any images for this unit yet.",
         "noImageLabel": "No image",
         "requiredOnReject": "Required on rejection",
         "optionalOnApprove": "Optional on approval",
         "approveBtn": "Approve Unit Photos",
-        "pendingPhotosWarning": "{{count}} photo(s) still pending review. Please review all photos before submitting.",
+        "pendingPhotosWarning": { "one": "1 photo is still pending review. Please review all photos before submitting.", "other": "{{count}} photos are still pending review. Please review all photos before submitting." },
         "insufficientApprovedPhotos": "At least {{required}} photos must be approved. Currently approved: {{approved}}.",
         "rejectionReasonRequired": "A rejection reason is required for every rejected photo.",
         "pendingDeleteReview": "Pending deletion review",
@@ -2973,6 +3335,7 @@
         "notesPlaceholder": "In case of rejection, please write the reasons in detail so the host can make corrections...",
         "rejectBtn": "Reject Request",
         "approveBtn": "Approve Cancellation Policy",
+        "unnamedPolicy": "Unnamed policy",
         "percentSuffix": "% of booking value",
         "yes": "Yes",
         "no": "No",
@@ -3218,7 +3581,7 @@
           "closedBy": "Closed by: {{by}}",
           "noAgent": "No agent (bot)",
           "viewChat": "View chat",
-          "total": "ratings"
+          "total": { "one": "{{count}} rating", "other": "{{count}} ratings" }
         },
         "closedBy": {
           "client": "Client",
@@ -3251,6 +3614,13 @@
         "status": "Status",
         "date": "Date",
         "assign": "Assign",
+        "host": "Host",
+        "subject": "Issue subject",
+        "action": "Action",
+        "user": "User",
+        "type": "Type",
+        "resolvedSubject": "Subject",
+        "replyDate": "Reply date",
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
         "assignDelayedMsg": "No activity from the assignee for {{hours}} hours — you can reassign this complaint",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
@@ -3280,6 +3650,12 @@
         "notAssigned": "Not assigned",
         "allPriorities": "All priorities",
         "allDepartments": "All departments",
+        "dept": {
+          "technical": "Technical",
+          "payments": "Payments",
+          "bookings": "Bookings",
+          "other": "Other"
+        },
         "status": {
           "new": "New",
           "pendingAdminReply": "Awaiting admin reply"
@@ -3337,6 +3713,18 @@
         "placeholder": "Type here...",
         "resolveBtn": "Close & Resolve"
       },
+      "closeDialog": {
+        "title": "Close and resolve complaint",
+        "desc": "This complaint will be closed and moved to Resolved",
+        "noteLabel": "Note",
+        "optional": "(optional)",
+        "notePlaceholder": "Add a note before closing...",
+        "cancel": "Cancel",
+        "confirm": "Confirm close",
+        "error": "Something went wrong while closing the complaint. Please try again.",
+        "closedBanner": "This complaint has been answered and closed successfully",
+        "resolvedLabel": "Replied & resolved"
+      },
       "hostDetail": {
         "submittedAt": "Submitted at",
         "submittedDate": "14 November 2023",
@@ -3373,6 +3761,42 @@
         "notFoundTitle": "Ticket not found",
         "notFoundDesc": "We couldn't find this ticket. It may have been deleted, or the link is incorrect.",
         "backToList": "Back to complaints"
+      },
+      "employeeDetail": {
+        "title": "Complaint against an employee",
+        "complainant": "Complainant",
+        "accusedEmployee": "Employee complained about",
+        "reasonLabel": "Reason",
+        "priorityLabel": "Priority",
+        "investigatorLabel": "Investigator",
+        "noInvestigator": "Not assigned",
+        "descriptionTitle": "Complaint details",
+        "resolutionTitle": "Resolution summary",
+        "priority": {
+          "Low": "Low",
+          "Normal": "Normal",
+          "High": "High",
+          "Urgent": "Urgent"
+        },
+        "notFoundTitle": "Complaint not found",
+        "notFoundDesc": "We couldn't find this complaint. It may have been deleted, or the link is incorrect.",
+        "status": {
+          "New": "New",
+          "UnderInvestigation": "Under investigation",
+          "InProgress": "In progress",
+          "Resolved": "Resolved",
+          "Closed": "Closed",
+          "Rejected": "Rejected"
+        },
+        "complainantType": {
+          "MerchantHost": "Host",
+          "Client": "Client",
+          "Guest": "Guest",
+          "Worker": "Worker"
+        },
+        "reason": {
+          "Other": "Other"
+        }
       },
       "assignDialog": {
         "title": "Assign Complaint to Employee",
@@ -3673,15 +4097,17 @@
         "statusPending": "Pending Review",
         "statusRejected": "Rejected",
         "statusSuspended": "Suspended",
+        "statusIncomplete": "Registration incomplete",
         "idFieldCompany": "Commercial Register",
         "idFieldIndividual": "ID Number",
         "actionCompany": "Company",
         "actionSoleProprietorship": "Sole Proprietorship",
         "actionIndividual": "Individual",
-        "walletAction": "Wallet"
+        "walletAction": "Wallet",
+        "viewAccountAction": "View account"
       },
       "pagination": {
-        "total": "account"
+        "total": { "one": "{{count}} account", "other": "{{count}} accounts" }
       }
     },
     "controlCenter": {
@@ -3693,7 +4119,7 @@
       "pendingAlertAction": "Review themes",
       "stats": {
         "platforms": "App platforms",
-        "platformsNote": "Client & merchant · iOS Android",
+        "platformsNote": "Client, merchant & service · iOS Android",
         "maintenance": "Platforms under maintenance",
         "allRunning": "All systems operational",
         "someDown": "Some platforms are paused",
@@ -4150,7 +4576,8 @@
         "amount": "Amount",
         "paymentMethod": "Payment Method",
         "requestDate": "Date & Time",
-        "status": "Status"
+        "status": "Status",
+        "viewDetails": "View settlement"
       },
       "paymentMethods": {
         "bankTransfer": "Bank Transfer",
@@ -4260,7 +4687,7 @@
         "desc": "There are no settlement requests matching your search"
       },
       "pagination": {
-        "total": "requests"
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" }
       },
       "detail": {
         "title": "Settlement Request Details",
@@ -4445,7 +4872,7 @@
         "desc": "There are no wallet transactions matching your search"
       },
       "pagination": {
-        "total": "transactions"
+        "total": { "one": "{{count}} transaction", "other": "{{count}} transactions" }
       },
       "adjust": {
         "title": "Manual Balance Adjustment",
@@ -4594,7 +5021,7 @@
       "name": "Period",
       "duration": "Duration in days",
       "days": "days",
-      "daysCount": "{{count}} days",
+      "daysCount": { "one": "{{count}} day", "other": "{{count}} days" },
       "nameAr": "Arabic name",
       "nameEn": "English name",
       "price": "Price",
@@ -4746,7 +5173,10 @@
         "status": "Status",
         "actions": "Actions",
         "others": "+{{count}} more",
-        "servicesCount": "{{count}} services",
+        "servicesCount": {
+          "one": "{{count}} service",
+          "other": "{{count}} services"
+        },
         "viewBtn": "View",
         "editBtn": "Edit",
         "expandTooltip": "Show details",
@@ -4781,9 +5211,12 @@
         "title": "No subscribers yet",
         "desc": "No subscriber accounts have been registered yet."
       },
-      "configurationWarning": "{{count}} services need configuration. Review service pricing.",
+      "configurationWarning": {
+        "one": "{{count}} service needs configuration. Review service pricing.",
+        "other": "{{count}} services need configuration. Review service pricing."
+      },
       "pagination": {
-        "total": "subscriber",
+        "total": { "one": "{{count}} subscriber", "other": "{{count}} subscribers" },
         "prev": "Previous page",
         "next": "Next page",
         "page": "Page"
@@ -4909,6 +5342,14 @@
         "confirm": "Confirm change",
         "needsPrice": "The service will become paid: set a monthly or yearly price above zero, or it won't accept new subscriptions."
       },
+      "unsavedDraft": {
+        "title": "Unsaved addition",
+        "message": "You typed a new feature or tier but didn't press its own Save, so it won't be saved with the service settings. Discard it?",
+        "confirm": "Discard it",
+        "leaveMessage": "You typed a new feature or tier but didn't press its own Save. If you leave the page, it won't be saved.",
+        "leaveConfirm": "Leave without saving"
+      },
+      "noChanges": "Nothing was changed",
       "loading": "Loading...",
       "notFound": "Service not found.",
       "saved": "Service settings saved",
@@ -5080,6 +5521,7 @@
         "DiscountCodeRedeemed": "Discount code redeemed",
         "DiscountCodeDeactivated": "Discount code deactivated",
         "DiscountCodeActivated": "Discount code activated",
+        "DiscountCodeDeleted": "Discount code deleted",
         "UsageChargeGenerated": "Usage charge"
       },
       "moreDetails": "+{{count}} more",
@@ -5115,9 +5557,12 @@
         "IsAvailable": "Available",
         "IsDefault": "Default",
         "TrialDays": "Trial days",
-        "MessagesPerPack": "Messages per pack"
+        "MessagesPerPack": "Messages per pack",
+        "Source": "Source"
       },
       "detailValues": {
+        "Wallet": "Wallet",
+        "Card": "Card",
         "Paid": "Paid",
         "Free": "Free",
         "BuiltIn": "Built-in",
@@ -5147,7 +5592,7 @@
         "desc": "No subscription operations have been recorded yet."
       },
       "pagination": {
-        "total": "operation",
+        "total": { "one": "{{count}} operation", "other": "{{count}} operations" },
         "prev": "Previous page",
         "next": "Next page",
         "page": "Page"
@@ -5161,6 +5606,7 @@
         "all": "All",
         "pending": "Pending",
         "succeeded": "Succeeded",
+        "cancelled": "Cancelled",
         "failed": "Failed"
       },
       "table": {
@@ -5182,7 +5628,7 @@
         "desc": "Something went wrong while fetching subscription requests. Please try again."
       },
       "pagination": {
-        "total": "requests"
+        "total": { "one": "{{count}} request", "other": "{{count}} requests" }
       },
       "detail": {
         "title": "Request details",
@@ -5212,7 +5658,7 @@
       "setupFee": "Setup fee",
       "separator": ",",
       "maxCap": "Up to {{amount}} SAR",
-      "usedTimes": "{{count}} uses",
+      "usedTimes": { "one": "{{count}} use", "other": "{{count}} uses" },
       "openEnded": "Open-ended",
       "copied": "Code copied",
       "immutableNote": "Codes can't be edited after creation, and can only be deleted if they haven't been used yet. To change a code, deactivate or delete it and create a new one.",
@@ -5342,6 +5788,14 @@
       "Compounds": "Residential Compounds"
     },
     "reviewAccount": {
+      "loadState": {
+        "notFoundTitle": "Account not found",
+        "notFoundDescription": "We couldn't find this account. It may have been deleted, or the link is wrong.",
+        "backToAccounts": "Back to account management",
+        "errorTitle": "Couldn't load the account",
+        "errorDescription": "Something went wrong while loading the account. Please try again.",
+        "retry": "Retry"
+      },
       "facilityInfo": {
         "cardTitle": "Facility Information",
         "unifiedNumber": "Unified Number",
@@ -5402,6 +5856,8 @@
         "propertyCount": "Property Count",
         "createdAt": "Created At",
         "updatedAt": "Last Updated",
+        "submittedAt": "Submitted At",
+        "notSubmitted": "Not submitted yet",
         "businessInfoStatus": "Business Info Status",
         "bankInfoStatus": "Bank Info Status",
         "taxInfoStatus": "Tax Info Status",
@@ -5413,6 +5869,10 @@
         "PendingReview": "Pending Review",
         "Approved": "Approved",
         "Rejected": "Rejected"
+      },
+      "notSubmittedNotice": {
+        "title": "Registration incomplete",
+        "desc": "The account owner hasn't submitted their details for review yet, so the account can't be accepted or rejected. It will appear under \"Under Review\" once it's submitted."
       },
       "decision": {
         "cardTitle": "Make Decision on Request",
@@ -5427,10 +5887,13 @@
         "invalidUnifiedNumberHint": "Enable this if the rejection reason is an invalid facility unified number",
         "rejectBtn": "Reject Request",
         "approveBtn": "Accept and Activate Account",
-        "lockNotice": "Due to the terms related to the provided facilities and the comprehensive qualification decision for the facility",
+        "lockNotice": "This decision is final: once you accept or reject, it can't be undone from this screen, and the account owner will be notified.",
         "acceptSuccess": "Account has been accepted and activated successfully",
         "rejectSuccess": "Account request has been rejected successfully",
         "rejectionRequired": "Please enter a rejection reason before proceeding",
+        "errors": {
+          "notSubmitted": "Can't decide yet: the account owner hasn't submitted it for review"
+        },
         "confirm": {
           "approveTitle": "Confirm Account Approval",
           "approveMessage": "Are you sure you want to accept and activate this account?",
@@ -5563,11 +6026,12 @@
         "RefundRequested": "Refund request",
         "BookingIssueReported": "Booking issue",
         "SystemAlert": "System alert",
+        "DemoSignupOpened": "Demo link opened for the first time",
         "default": "Notification"
       }
     },
     "platformOffers": {
-      "title": "Platform Offers", "subtitle": "Admin-owned offers that apply platform-wide, to any unit regardless of merchant", "add": "Add Offer", "cancel": "Cancel", "edit": "Edit", "viewDetails": "View Details", "activate": "Activate", "deactivate": "Deactivate", "delete": "Delete", "retry": "Try again", "total": "offers", "automatic": "Automatic", "saved": "Offer saved successfully", "deleted": "Offer deleted successfully", "confirmStatus": "Are you sure you want to change this offer's status?", "confirmDelete": "Are you sure you want to delete this offer? This cannot be undone.", "allUnits": "Applies to all units", "noData": "No data yet", "pickDate": "Pick a date", "pickTime": "Pick a time",
+      "title": "Platform Offers", "subtitle": "Admin-owned offers that apply platform-wide, to any unit regardless of merchant", "add": "Add Offer", "cancel": "Cancel", "edit": "Edit", "viewDetails": "View Details", "activate": "Activate", "deactivate": "Deactivate", "delete": "Delete", "retry": "Try again", "total": { "one": "{{count}} offer", "other": "{{count}} offers" }, "automatic": "Automatic", "saved": "Offer saved successfully", "deleted": "Offer deleted successfully", "confirmStatus": "Are you sure you want to change this offer's status?", "confirmDelete": "Are you sure you want to delete this offer? This cannot be undone.", "allUnits": "Applies to all units", "noData": "No data yet", "pickDate": "Pick a date", "pickTime": "Pick a time",
       "filters": { "search": "Search by name or code", "allTriggers": "All trigger types", "allStatuses": "All statuses", "min": "Min discount", "max": "Max discount", "reset": "Reset filters" },
       "status": { "active": "Active", "inactive": "Inactive", "expired": "Expired", "scheduled": "Scheduled" },
       "confirm": { "deleteTitle": "Delete this offer?", "deleteMessage": "This offer will be permanently deleted. This action cannot be undone.", "deleteAction": "Delete offer", "activateTitle": "Activate this offer?", "activateMessage": "The offer will become available whenever its configured rules and dates are met.", "activateAction": "Activate offer", "deactivateTitle": "Deactivate this offer?", "deactivateMessage": "The offer will stop applying to new bookings until it is activated again.", "deactivateAction": "Deactivate offer" },
@@ -5576,17 +6040,20 @@
       "empty": { "title": "No offers yet", "text": "Platform offers you create will appear here." },
       "errors": { "title": "We couldn't load the offers", "load": "Unable to load platform offers.", "detail": "Unable to load offer details.", "action": "Unable to complete this action.", "save": "Unable to save this offer." },
       "validation": { "required": "This field is required.", "positive": "Value must be greater than zero.", "rowIncomplete": "Complete every field in this row or remove it.", "fixErrors": "Please complete the required fields highlighted in red.", "maxLength": "Maximum {{max}} characters.", "notNegative": "Value cannot be negative.", "wholeNumber": "Value must be a whole number.", "invalidValue": "This value is not valid.", "serverFieldErrors": "The offer was not saved. Check the fields highlighted in red.","maxValue": "Value must not exceed {{max}}.", "codePattern": "Use English letters, numbers, - and _ only, with no spaces.", "days": "Use comma-separated weekdays only: Sat,Sun,Mon,Tue,Wed,Thu,Fri", "time": "Offer time must be between 00:00 and 23:59.", "happyHourBoth": "Set both the offer start and end time.", "happyHourSame": "Offer start time must differ from the end time.", "endBeforeStart": "End date must be after the start date.", "endInPast": "End date cannot be in the past.", "tooFar": "Date cannot be more than {{years}} years from today.", "minGtMax": "Maximum stay must be greater than or equal to the minimum stay.", "dailyGtTotal": "Daily limit cannot exceed the total limit.", "userGtTotal": "Per-customer total cannot exceed the total usage limit.", "unitsRequired": "Select at least one unit.", "exclusionRange": "Exclusion end must be after its start.", "exclusionOutside": "Exclusion period must be inside the offer period." },
-      "happyHour": { "hint": "From {{start}} to {{end}}", "hintNextDay": "From {{start}} to {{end}} (next day)", "summary": "Available from {{start}} to {{end}}", "summaryNextDay": "Available from {{start}} to {{end}} (next day)" },
+      "happyHour": { "hint": "From {{start}} to {{end}}", "hintNextDay": "From {{start}} to {{end}} (next day)", "summary": "Available from {{start}} to {{end}}", "summaryNextDay": "Available from {{start}} to {{end}} (next day)", "from": "From {{start}}", "until": "Until {{end}}" },
+      "weekDays": { "Sat": "Saturday", "Sun": "Sunday", "Mon": "Monday", "Tue": "Tuesday", "Wed": "Wednesday", "Thu": "Thursday", "Fri": "Friday" },
+      "yes": "Yes",
+      "no": "No",
       "tabs": { "overview": "Overview", "rules": "Rules", "units": "Units", "content": "Content", "statistics": "Statistics" },
       "stats": { "redemptions": "Redemptions", "sales": "Total Sales", "customers": "Unique Customers", "discounts": "Total Discounts", "growth": "Growth", "unused": "This offer hasn't been redeemed in a real booking yet." },
-      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
+      "sections": { "basics": "Basic Info", "discount": "Discount", "scope": "Scope", "timing": "Timing", "stay": "Stay Conditions", "usage": "Usage Limits", "settings": "Settings", "bookingDiscount": "Booking & Discount", "exclusions": "Exclusion Periods", "messages": "Custom Messages", "terms": "Terms & Conditions" },
       "fields": { "internalAr": "Internal Name (Arabic)", "internalEn": "Internal Name (English)", "externalAr": "Display Name (Arabic)", "externalEn": "Display Name (English)", "descriptionAr": "Description (Arabic)", "descriptionEn": "Description (English)", "banner": "Banner Image", "changeBanner": "Change Banner Image", "trigger": "Trigger Type", "code": "Coupon Code", "discountType": "Discount Type", "value": "Discount Value", "maxDiscount": "Max Discount Amount", "appliedTo": "Applied To", "unitIds": "Units", "start": "Start Date", "end": "End Date", "days": "Days of Week", "happyStart": "Happy Hour Start", "happyEnd": "Happy Hour End", "happyHour": "Offer Time", "stayStart": "Stay Start Date", "stayEnd": "Stay End Date", "stayDays": "Stay Days of Week", "minArrival": "Min Days Before Arrival", "minStay": "Min Stay Days", "maxStay": "Max Stay Days", "maxTotal": "Max Total Usage", "maxDaily": "Max Daily Usage", "maxDailyUser": "Max Daily Usage / User", "maxTotalUser": "Max Total Usage / User", "payment": "Allowed Payment Methods", "minBooking": "Min Booking Amount", "channel": "Display Channel", "expiration": "Expiration Policy", "points": "Loyalty Points Multiplier", "combined": "Can Be Combined With Other Offers", "reason": "Reason" },
       "code": { "idle": "", "checking": "Checking availability…", "ok": "Code is available", "taken": "This code is already in use" },
-      "unitPicker": { "search": "Search units…", "clear": "Clear search", "loading": "Loading units…", "error": "Unable to load units.", "retry": "Retry", "empty": "No matching units", "loadMore": "Show more ({{shown}} of {{total}})", "count": "{{count}} units", "selected": "{{count}} units selected" },
+      "unitPicker": { "search": "Search units…", "clear": "Clear search", "loading": "Loading units…", "error": "Unable to load units.", "retry": "Retry", "empty": "No matching units", "loadMore": "Show more ({{shown}} of {{total}})", "count": { "one": "{{count}} unit", "other": "{{count}} units" }, "selected": { "one": "{{count}} unit selected", "other": "{{count}} units selected" } },
       "form": { "createTitle": "Create Platform Offer", "editTitle": "Edit Platform Offer", "subtitle": "Configure an offer that applies across the platform, regardless of merchant.", "preview": "Preview", "unnamed": "Unnamed offer", "save": "Save Offer", "saving": "Saving…", "addExclusion": "Add Exclusion Period", "addMessage": "Add Message", "addTerm": "Add Term" }
     },
     "contactUs": {
-      "title": "Contact Us", "subtitle": "Review and resolve messages received from visitors", "total": "messages", "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
+      "title": "Contact Us", "subtitle": "Review and resolve messages received from visitors", "total": { "one": "message", "other": "messages" }, "search": "Search by name, phone, email or subject", "filterLabel": "Filter by status", "retry": "Try again", "closePanel": "Close details", "previousPage": "Previous page", "nextPage": "Next page", "pagination": "Showing {{from}}–{{to}} of {{total}}",
       "status": { "all": "All", "new": "New", "viewed": "Viewed", "closed": "Closed" },
       "table": { "sender": "Sender", "subject": "Subject", "attachments": "Files", "date": "Received", "status": "Status" },
       "empty": { "title": "No messages found", "text": "New contact messages will appear here." },
@@ -5697,7 +6164,8 @@
         "order": "Order",
         "status": "Status",
         "actions": "Actions",
-        "empty": "No articles found"
+        "empty": "No articles found",
+        "rowActionsAria": "Question options: {{name}}"
       },
       "status": {
         "active": "Active",
@@ -5785,7 +6253,8 @@
         "updated": "Last Updated",
         "status": "Status",
         "actions": "Actions",
-        "empty": "No call scripts yet"
+        "empty": "No call scripts yet",
+        "rowActionsAria": "Script options: {{name}}"
       },
       "status": {
         "active": "Active",

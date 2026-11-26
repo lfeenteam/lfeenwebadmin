@@ -439,7 +439,11 @@ table {
 
   tr.mat-mdc-row {
     transition: background-color 0.15s;
-    &:hover { background-color: #fafaf9; }
+    // #fafaf9 was too close to the white card to be seen (BUG-2396). Hover-capable
+    // devices only, so the colour doesn't stick after a tap on touch screens.
+    @media (hover: hover) {
+      &:hover { background-color: #f5f5f2; }
+    }
     &:last-child td.mat-mdc-cell { border-bottom: none; }
   }
 }

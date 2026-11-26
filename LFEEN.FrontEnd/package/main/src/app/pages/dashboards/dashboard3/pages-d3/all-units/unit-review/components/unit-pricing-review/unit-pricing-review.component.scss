@@ -478,9 +478,14 @@
   width: 44px;
   height: 24px;
   border-radius: 999px;
-  background: #111110;
+  background: #D1D5DB;
   position: relative;
   flex-shrink: 0;
+  transition: background 0.15s;
+
+  &.is-on {
+    background: #111110;
+  }
 
   &::after {
     content: '';
@@ -675,11 +680,14 @@
 .calendar-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
 
   .calendar-title-block {
-    text-align: end;
+    flex: 1 1 auto;
+    min-width: 0;
+    // `start` follows the direction: right in /ar, left in /en (the block now fills the row).
+    text-align: start;
 
     h3 {
       font-size: 20px;
@@ -710,6 +718,7 @@
   border: 1px solid #E8E8E4;
   border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
 
   .month-label {
     font-size: 14px;
@@ -747,30 +756,95 @@
   direction: rtl;
 }
 
+// While a month loads, cells stay blank (no prices, no strike-through) and dimmed.
+.calendar-grid--loading .day-cell:not(.day-cell--empty) {
+  background: #FAFAF8;
+  animation: calendar-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes calendar-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.calendar-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 220px;
+  padding: 24px 12px;
+  text-align: center;
+
+  .calendar-error-icon {
+    width: 32px;
+    height: 32px;
+    color: #9E9E9A;
+  }
+
+  .calendar-error-text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #3D3D3A;
+  }
+
+  .calendar-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid #E8E8E4;
+    border-radius: 10px;
+    background: #fff;
+    color: #111110;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { background: #F7F7F5; }
+
+    i-tabler { width: 16px; height: 16px; }
+  }
+}
+
+// minmax(0, 1fr): a plain 1fr can't shrink below the cell's content (price + currency),
+// which pushed the Sat column outside the card at 390px in /en (BUG-2761).
 .day-header-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #F0F0EE;
 
   .day-header {
     text-align: center;
     font-size: 12px;
-    font-weight: 600;
-    color: #888;
-    padding: 8px 4px;
+    font-weight: 700;
+    color: #9E9E9A;
+    padding: 4px;
+
+    &--weekend {
+      color: #6B6B67;
+    }
   }
 }
 
 .week-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-bottom: 4px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .day-cell {
-  min-height: 100px;
-  border: 1px solid #F0F0EE;
+  min-height: 88px;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #EDEDEA;
   border-radius: 12px;
   padding: 8px;
   position: relative;
@@ -778,6 +852,7 @@
   align-items: center;
   justify-content: center;
   background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
 
   &--empty {
     background: transparent;
@@ -785,37 +860,130 @@
   }
 
   &--available {
-    background: #F7F7F5;
-    border-color: #E8E8E4;
+    background: #fff;
+
+    &:hover {
+      border-color: #D4D4CF;
+      box-shadow: 0 2px 8px rgba(17, 17, 16, 0.06);
+    }
+  }
+
+  &--weekend.day-cell--available {
+    background: #FAFAF8;
+  }
+
+  // `&.day-cell--…` (not `&--…`) so these beat the base `.day-number` / `.day-price` rules below.
+  &.day-cell--unavailable {
+    background: repeating-linear-gradient(
+      135deg,
+      #F7F7F5 0,
+      #F7F7F5 6px,
+      #EFEFEC 6px,
+      #EFEFEC 7px
+    );
+    border-color: #EDEDEA;
+
+    .day-number { color: #B5B5B0; }
+
+    .day-price {
+      color: #B5B5B0;
+      text-decoration: line-through;
+
+      .price-riyal { opacity: 0.4; }
+    }
+  }
+
+  &.day-cell--today {
+    border-color: #111110;
+    box-shadow: inset 0 0 0 1px #111110;
+
+    .day-number {
+      background: #111110;
+      color: #fff;
+    }
   }
 
   .day-number {
     position: absolute;
-    top: 8px;
-    inset-inline-end: 8px;
+    top: 6px;
+    inset-inline-start: 6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
-    font-weight: 600;
-    color: #111110;
+    font-weight: 700;
+    color: #6B6B67;
     line-height: 1;
   }
 
   .day-price {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 800;
     color: #111110;
     display: flex;
     align-items: center;
     gap: 4px;
+    margin-top: 10px;
+    font-variant-numeric: tabular-nums;
+    max-width: 100%;
+    min-width: 0;
+
+    .day-price-value {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .price-riyal {
       width: 14px;
       height: 14px;
+      flex-shrink: 0;
       object-fit: contain;
 
       &.is-text-currency {
         width: 22px;
         height: auto;
       }
+    }
+  }
+}
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #F0F0EE;
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B6B67;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid #DADAD5;
+    background: #fff;
+
+    &--unavailable {
+      background: repeating-linear-gradient(135deg, #F7F7F5 0, #F7F7F5 3px, #E4E4E0 3px, #E4E4E0 4px);
+    }
+
+    &--today {
+      border: 2px solid #111110;
     }
   }
 }
@@ -1010,6 +1178,9 @@
   }
 
   .calendar-header-row {
+    flex-wrap: wrap;
+    row-gap: 8px;
+
     .calendar-title-block {
       h3 { font-size: 15px; }
       p  { font-size: 11px; }
@@ -1033,8 +1204,11 @@
 
     .day-number {
       font-size: 10px;
-      top: 4px;
-      inset-inline-end: 4px;
+      top: 3px;
+      inset-inline-start: 3px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 3px;
     }
 
     .day-price {
@@ -1075,9 +1249,22 @@
 @media (max-width: 480px) {
   .day-cell {
     min-height: 44px;
+    padding: 4px 2px;
 
+    // Currency under the number so a 4–5 digit price (and the wider /en "SAR" mark) fits the cell.
     .day-price {
       font-size: 9px;
+      flex-direction: column;
+      gap: 1px;
+      margin-top: 14px;
+      line-height: 1.1;
+
+      .price-riyal {
+        width: 8px;
+        height: 8px;
+
+        &.is-text-currency { width: 13px; }
+      }
     }
   }
 

@@ -15,6 +15,7 @@ import {
   ApexTooltip,
   ApexMarkers,
 } from 'ng-apexcharts';
+import { AppPluralPipe } from '../../../pipes/app-plural.pipe';
 import { DashboardService } from '../../../pages/dashboards/dashboard3/services/dashboard.service';
 import { createDashboardPanel } from '../../../pages/dashboards/dashboard3/services/dashboard-panel';
 import { DashboardGrowth, DashboardSummary } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/interfaces/dashboard.model';
@@ -56,6 +57,8 @@ const AXIS_COLOR = '#94A3B8';
 const GRID_COLOR = '#F1F5F9';
 /** Most date labels under the chart; the rest are skipped so they never overlap. */
 const MAX_X_LABELS = 6;
+/** dataQuality code: male/female percentages cover identity-verified guests only. */
+const GENDER_UNKNOWN_CODE = 'GENDER_UNKNOWN_FOR_UNVERIFIED_GUESTS';
 
 type GrowthPoint = DashboardGrowth['points'][number];
 
@@ -80,7 +83,7 @@ function bucketDate(point: GrowthPoint, growth: DashboardGrowth, lang: string, l
 @Component({
   selector: 'app-dashboard3-chart',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, TranslateModule],
+  imports: [CommonModule, NgApexchartsModule, TranslateModule, AppPluralPipe],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.scss'
 })
@@ -200,13 +203,39 @@ export class ChartComponent {
 
   readonly comparisonRows = computed<ComparisonRow[]>(() => this.buildRows(this.summary.data(), this.lang()));
 
-  readonly distributionSegments = computed(() => {
-    const g = this.summary.data()?.guestApp;
-    if (!g) return [];
-    return [
-      { label: 'd3.chart.segMale', value: g.malePercentage, color: '#0F172B' },
-      { label: 'd3.chart.segFemale', value: g.femalePercentage, color: '#3B82F6' },
-    ];
+  /**
+   * Guest gender split. Male/female percentages are shares of guests whose gender
+   * is actually known (verified), so the bar covers the known guests only and the
+   * unknown guests are reported beside it — never folded into "female".
+   */
+  readonly genderDistribution = computed(() => {
+    const s = this.summary.data();
+    const g = s?.guestApp;
+    if (!g) return null;
+
+    // The backend flags verified-only percentages through dataQuality even when the
+    // unknown-gender counts are not in the payload — still tell the admin.
+    const verifiedOnlyFlag = (s?.dataQuality ?? []).some((q) => q.code === GENDER_UNKNOWN_CODE);
+    const male = g.malePercentage ?? 0;
+    const female = g.femalePercentage ?? 0;
+    const hasUnknownField = typeof g.unknownGenderCount === 'number';
+    const unknownCount = hasUnknownField ? (g.unknownGenderCount as number) : 0;
+    const knownCount = hasUnknownField ? Math.max(0, g.registeredGuests - unknownCount) : null;
+
+    return {
+      segments: [
+        { label: 'd3.chart.segMale', value: male, color: '#0F172B' },
+        { label: 'd3.chart.segFemale', value: female, color: '#3B82F6' },
+      ],
+      // No known-gender guests → a 0%/0% bar would be meaningless, show a note instead.
+      hasKnownData: knownCount !== 0 && male + female > 0,
+      hasUnknownField,
+      verifiedOnlyNote: !hasUnknownField && verifiedOnlyFlag,
+      knownCount: knownCount ?? 0,
+      totalCount: g.registeredGuests,
+      unknownCount,
+      unknownPercentage: g.unknownGenderPercentage ?? 0,
+    };
   });
 
   constructor() {

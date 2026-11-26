@@ -309,6 +309,10 @@
   .settlement-row {
     border-bottom: 1px solid #f1f5f9;
     transition: background 0.2s ease;
+
+    @media (hover: hover) {
+      &:hover { background: #F8FAFC; }
+    }
   }
 }
 

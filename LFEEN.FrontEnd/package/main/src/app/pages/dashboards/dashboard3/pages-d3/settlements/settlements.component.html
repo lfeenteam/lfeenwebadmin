@@ -192,7 +192,7 @@
                       <span>{{ 'd3.settlements.recalc.openBtn' | translate }}</span>
                     </button>
                   }
-                  <button type="button" class="view-btn" [disabled]="viewingId !== null" (click)="onView(row)">
+                  <button type="button" class="view-btn" [attr.aria-label]="'d3.settlements.table.viewDetails' | translate" [disabled]="viewingId !== null" (click)="onView(row)">
                     <i-tabler name="eye" class="icon-18"></i-tabler>
                   </button>
                 </div>
@@ -224,10 +224,10 @@
   @if (!loading && totalPages > 1) {
     <div class="pagination-wrapper d-flex align-items-center justify-content-between">
       <span class="pagination-total">
-        {{ fmt(totalCount) }} {{ 'd3.settlements.pagination.total' | translate }}
+        {{ 'd3.settlements.pagination.total' | appPlural: totalCount }}
       </span>
       <div class="pagination-controls d-flex align-items-center gap-4">
-        <button class="page-nav-btn"
+        <button class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
           [disabled]="currentPage === 1"
           (click)="changePage(currentPage - 1)">
           <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
@@ -243,7 +243,7 @@
             </button>
           }
         }
-        <button class="page-nav-btn"
+        <button class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
           [disabled]="currentPage === totalPages"
           (click)="changePage(currentPage + 1)">
           <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>

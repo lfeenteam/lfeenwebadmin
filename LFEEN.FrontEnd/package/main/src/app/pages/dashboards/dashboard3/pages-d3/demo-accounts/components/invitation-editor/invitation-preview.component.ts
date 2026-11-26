@@ -5,6 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { DEMO_CHANNEL_ICONS, DemoChannel } from '../../../../interfaces/demo-account.model';
 import { InvitationEditorStore } from './invitation-editor.store';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 // The server-rendered invitation in three tabs (Email · WhatsApp · SMS), plus the
 // "send a copy to my email" button. The email HTML is shown only inside an iframe
@@ -12,7 +13,7 @@ import { InvitationEditorStore } from './invitation-editor.store';
 @Component({
   selector: 'app-invitation-preview',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, AppPluralPipe],
   templateUrl: './invitation-preview.component.html',
   styleUrl: './invitation-preview.component.scss'
 })
@@ -24,7 +25,8 @@ export class InvitationPreviewComponent {
   @Input() canSendTest = true;
   @Input() disabled = false;
 
-  readonly tabs: DemoChannel[] = ['Email', 'WhatsApp', 'Sms'];
+  /** The channels shown; sign-up links send only by SMS or Email. */
+  @Input() tabs: DemoChannel[] = ['Email', 'WhatsApp', 'Sms'];
   readonly channelIcons = DEMO_CHANNEL_ICONS;
 
   /** null = follow the chosen channel. */
@@ -38,7 +40,8 @@ export class InvitationPreviewComponent {
       this.lastChannel = this.store.channel;
       this.pickedTab = null;
     }
-    return this.pickedTab ?? this.store.channel;
+    const tab = this.pickedTab ?? this.store.channel;
+    return this.tabs.includes(tab) ? tab : this.tabs[0];
   }
 
   pick(tab: DemoChannel): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import {
   UnitBasicDataFacility,
   UnitBasicDataResponse,
@@ -22,11 +23,14 @@ import {
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { CatalogIconComponent } from 'src/app/components/dashboard3/catalog-icon/catalog-icon.component';
+import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
+import { classifyLoadError, extractApiErrorMessage, LoadFailure } from '../../../../../utils/api-error.util';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-basic-info-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, CatalogIconComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, CatalogIconComponent, UnitLoadStateComponent],
   templateUrl: './basic-info-review.component.html',
   styleUrl: './basic-info-review.component.scss'
 })
@@ -39,6 +43,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   unitId = '';
   isLoading = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
+  // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
+  loadState: 'loaded' | LoadFailure = 'loaded';
 
   constructor(
     private route: ActivatedRoute,
@@ -46,7 +53,8 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
     private unitsService: UnitsService,
     private translate: TranslateService,
     private dialog: MatDialog,
-    private pageBreadcrumbTrail: PageBreadcrumbTrailService
+    private pageBreadcrumbTrail: PageBreadcrumbTrailService,
+    private toastr: ToastrService
   ) {}
 
   get currentDir(): 'rtl' | 'ltr' {
@@ -106,27 +114,40 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
-    if (this.unitId) {
-      this.isLoading = true;
-      this.unitsService.getUnitBasicData(this.unitId).subscribe({
-        next: (data) => {
-          this.unitData     = data;
-          this.dynamicRooms = this.mapRooms(data.rooms);
-          this.isLoading    = false;
-          const lang = this.translate.currentLang || 'ar';
-          this.pageBreadcrumbTrail.set([
-            { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
-          ]);
-        },
-        error: () => { this.isLoading = false; }
-      });
-    }
+    this.loadData();
 
     this.langSub = this.translate.onLangChange.subscribe(() => {
       if (this.unitData) {
         this.dynamicRooms = this.mapRooms(this.unitData.rooms);
+      }
+    });
+  }
+
+  loadData(): void {
+    if (!this.unitId) {
+      this.loadState = 'notFound';
+      return;
+    }
+    this.isLoading = true;
+    this.loadState = 'loaded';
+    this.unitsService.getUnitBasicData(this.unitId).subscribe({
+      next: (data) => {
+        this.unitData     = data;
+        this.dynamicRooms = this.mapRooms(data.rooms);
+        this.isLoading    = false;
+        const lang = this.translate.currentLang || 'ar';
+        this.pageBreadcrumbTrail.set([
+          { label: data.title ?? '', translate: false, route: ['/', lang, 'd3', 'unit-review', this.buildingId, this.unitId] }
+        ]);
+      },
+      error: (err) => {
+        this.unitData  = null;
+        this.loadState = classifyLoadError(err);
+        this.isLoading = false;
       }
     });
   }
@@ -149,6 +170,7 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
@@ -173,6 +195,9 @@ export class BasicInfoReviewComponent implements OnInit, OnDestroy {
             this.unitsService.setReviewDecision(this.buildingId, this.unitId, 'basicInfo', decision);
           }
           this.onBack();
+        },
+        error: (err) => {
+          this.toastr.error(extractApiErrorMessage(err, this.translate.instant('d3.toast.errorOp')));
         }
       });
     });

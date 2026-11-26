@@ -12,6 +12,7 @@ import { ReviewConfirmDialogComponent } from '../review-confirm-dialog/review-co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface LocalPhoto {
   mediaId: number;
@@ -37,7 +38,7 @@ interface LocalGroup {
 @Component({
   selector: 'app-review-image',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, DashboardLoadingComponent, ReviewEmptyStateComponent, AppPluralPipe],
   templateUrl: './review-image.component.html',
   styleUrl: './review-image.component.scss'
 })

@@ -12,11 +12,12 @@ import {
   auditStatusKey,
   formatAuditDate
 } from './audit-presentation';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-ops-log-table',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, AppPluralPipe],
   templateUrl: './ops-log-table.component.html',
   styleUrl: './ops-log-table.component.scss'
 })

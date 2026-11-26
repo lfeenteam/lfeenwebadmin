@@ -33,6 +33,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (
           error.status !== 401 ||
           this.loginService.isRefreshRequestUrl(req.url) ||
+          this.loginService.isLogoutRequestUrl(req.url) ||
           this.loginService.isAnonymousAuthUrl(req.url)
         ) {
           return throwError(() => error);
@@ -96,7 +97,8 @@ export class AuthInterceptor implements HttpInterceptor {
   private logoutAndRedirect(error: unknown): Observable<never> {
     // Several requests can fail together: log out and redirect once.
     if (this.loginService.isLoggedIn()) {
-      this.loginService.logout();
+      // The server already refused this session — nothing left to revoke there.
+      this.loginService.logout({ revokeOnServer: false });
       const lang = this.coreService.getLanguage() === 'en' ? 'en' : 'ar';
       // Keep the current page so the admin lands back on it after signing in again.
       const returnUrl = safeReturnUrl(this.router.url);

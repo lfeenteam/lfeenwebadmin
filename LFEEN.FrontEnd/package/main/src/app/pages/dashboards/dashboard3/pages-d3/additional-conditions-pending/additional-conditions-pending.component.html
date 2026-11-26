@@ -40,6 +40,11 @@
       <p>{{ 'd3.additionalConditions.loadError' | translate }}</p>
       <button type="button" class="acp-more" (click)="load()">{{ 'd3.additionalConditions.actions.retry' | translate }}</button>
     </div>
+  } @else if (!items.length && search.trim()) {
+    <app-dashboard-empty variant="search"
+      titleKey="d3.emptyState.noResults.title" descKey="d3.emptyState.noResults.desc"
+      actionKey="d3.emptyState.noResults.clear" actionIcon="x" (action)="clearSearch()">
+    </app-dashboard-empty>
   } @else if (!items.length) {
     <div class="acp-state">
       <i-tabler name="circle-check"></i-tabler>

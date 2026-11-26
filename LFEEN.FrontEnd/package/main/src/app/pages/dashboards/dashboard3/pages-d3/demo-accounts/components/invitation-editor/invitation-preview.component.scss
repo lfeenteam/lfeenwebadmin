@@ -2,36 +2,101 @@
 
 :host { display: block; }
 
+$ink: #111110;
+$muted: #6B6B67;
+$faint: #9E9E9A;
+$line: #E2E8F0;
+
 .ip {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 14px;
-  background: #F8FAFC;
-  border: 1px solid #F1F5F9;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid $line;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 
+// ── Header ──────────────────────────────────────────────────
 .ip-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 800;
-  color: #111110;
+  gap: 10px;
+
+  &__icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: #F1F5F9;
+    color: $ink;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__title { font-size: 14px; font-weight: 800; color: $ink; }
 }
 
-.ip-spin { margin-inline-start: auto; color: #9E9E9A; width: 14px; height: 14px; }
+.ip-live {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: $muted;
+  font-size: 11px;
+  font-weight: 700;
 
-.ip-tabs button { height: 32px; font-size: 11px; }
+  .da-spin { width: 10px; height: 10px; border-width: 1.5px; }
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $ink;
+    box-shadow: 0 0 0 3px rgba(17, 17, 16, 0.12);
+  }
+}
+
+// ── Channel tabs (underline style) ──────────────────────────
+.ip-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid $line;
+
+  button {
+    all: unset;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: $faint;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+
+    &:hover { color: $ink; }
+    &:focus-visible { outline: 2px solid #94a3b8; outline-offset: -2px; border-radius: 6px; }
+    &.active { color: $ink; border-bottom-color: $ink; }
+  }
+}
 
 // On the create / resend pages the panel is as tall as the screen and the message
 // fills the free space. The email iframe can't be sized to its content (sandbox=""
 // blocks reading it), so filling the panel is what avoids a scroll inside the scroll.
 :host(.da-page__aside) {
-  .ip { height: calc(100vh - 120px); min-height: 520px; }
-  .ip-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .ip-mail { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .ip { height: calc(100vh - 120px); min-height: 540px; }
+  .ip-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+  .ip-mail, .ip-phone { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
   .ip-frame { flex: 1 1 auto; height: auto; min-height: 0; }
   .ip-text, .ip-chat { flex: 1 1 auto; min-height: 0; max-height: none; }
 
@@ -43,30 +108,65 @@
 }
 
 .ip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   transition: opacity 0.2s ease;
   &.stale { opacity: 0.55; }
 }
 
+.ip-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $ink;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ── Email: a mail-client window ─────────────────────────────
 .ip-mail {
   background: #fff;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
+  border: 1px solid $line;
+  border-radius: 14px;
   overflow: hidden;
+
+  &__bar {
+    display: flex;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #F1F5F9;
+    direction: ltr;
+
+    span { width: 9px; height: 9px; border-radius: 50%; background: #E2E8F0; }
+  }
 
   &__subject {
     display: flex;
-    align-items: baseline;
-    gap: 6px;
-    padding: 10px 12px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
     border-bottom: 1px solid #F1F5F9;
-    font-size: 12px;
+  }
 
-    strong { flex: 1 1 auto; min-width: 0; font-weight: 800; color: #111110; overflow-wrap: anywhere; }
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1 1 auto;
+
+    strong { font-size: 13px; font-weight: 800; color: $ink; overflow-wrap: anywhere; line-height: 1.5; }
   }
 }
 
-.ip-key { color: #9E9E9A; font-weight: 700; flex-shrink: 0; }
-.ip-count { font-size: 11px; color: #9E9E9A; flex-shrink: 0; }
+.ip-key { color: $faint; font-size: 11px; font-weight: 700; }
 
 .ip-frame {
   display: block;
@@ -76,59 +176,149 @@
   background: #fff;
 }
 
+// Plain text keeps each line's own direction, like mail and chat apps do.
+.ip-text, .ip-bubble { unicode-bidi: plaintext; text-align: start; }
+
 .ip-text {
-  padding: 12px;
+  padding: 14px;
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.9;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-height: 360px;
   overflow-y: auto;
 }
 
+// ── WhatsApp / SMS: a phone conversation ────────────────────
+.ip-phone {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid $line;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: $ink;
+
+    strong { font-weight: 800; }
+  }
+
+  &--wa {
+    .ip-phone__top { background: $ink; color: #fff; .ip-avatar { background: #fff; color: $ink; } }
+    .ip-chat { background: #F1F5F9; }
+    .ip-bubble { background: #fff; }
+  }
+
+  &--sms {
+    .ip-phone__top { background: #F8FAFC; border-bottom: 1px solid #F1F5F9; justify-content: center; flex-direction: column; gap: 4px; }
+    .ip-chat { background: #fff; }
+    .ip-bubble { background: #E9E9EB; border-radius: 18px 18px 18px 4px; }
+  }
+}
+
 .ip-chat {
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f0fdf4;
-  border: 1px solid #dcfce7;
+  align-items: flex-start;
+  padding: 14px 12px;
   max-height: 380px;
   overflow-y: auto;
-
-  &--sms { background: #F1F5F9; border-color: #E2E8F0; }
 }
 
 .ip-bubble {
-  background: #fff;
-  border-radius: 12px 12px 12px 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  padding: 10px 12px;
+  max-width: 92%;
+  border-radius: 4px 12px 12px 12px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  padding: 9px 12px;
   font-size: 13px;
-  line-height: 1.8;
-  color: #111110;
+  line-height: 1.85;
+  color: $ink;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-.ip-empty { margin: 0; font-size: 12px; font-weight: 600; padding: 12px 0; text-align: center; }
+// ── Stats / notes ───────────────────────────────────────────
+.ip-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.ip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: $muted;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  b { color: $ink; font-weight: 800; }
+  &.warn { background: $ink; color: #fff; }
+}
+
+.ip-notes { display: flex; flex-direction: column; gap: 8px; }
+.ip-notes:empty { display: none; }
+
+.ip-hint {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: $faint;
+  line-height: 1.6;
+
+  i-tabler { margin-top: 2px; flex-shrink: 0; }
+}
+
+.ip-empty {
+  margin: 0;
+  padding: 32px 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: $faint;
+  border: 1px dashed $line;
+  border-radius: 14px;
+}
 
 .ip-loading {
   display: flex;
-  justify-content: center;
-  padding: 24px 0;
-  color: #9E9E9A;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #F1F5F9;
+  border-radius: 14px;
 }
+
+.ip-skel {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  background-size: 200% 100%;
+  animation: ip-shimmer 1.2s ease-in-out infinite;
+
+  &.w40 { width: 40%; }
+  &.w60 { width: 60%; }
+  &.w80 { width: 80%; }
+}
+
+@keyframes ip-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 .ip-note { padding: 8px 10px; font-size: 12px; }
 
 .ip-test {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding-top: 10px;
-  border-top: 1px solid #E2E8F0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  padding-top: 12px;
+  border-top: 1px solid #F1F5F9;
 
-  &__ok { margin: 0; font-size: 12px; font-weight: 700; color: #16a34a; }
+  &__ok { margin: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: $ink; }
 }

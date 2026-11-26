@@ -54,7 +54,7 @@
             @for (entry of entries; track entry.id) {
               <tr class="log-row">
                 <td class="p-24">
-                  <span class="f-s-13 f-w-800 ref-number" [class.is-empty]="entry.merchantName === '-'">{{ entry.merchantName === '-' ? '—' : entry.merchantName }}</span>
+                  <span class="f-s-13 f-w-800 ref-number" dir="auto" [class.is-empty]="entry.merchantName === '-'" [attr.title]="entry.merchantName === '-' ? null : entry.merchantName">{{ entry.merchantName === '-' ? '—' : entry.merchantName }}</span>
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actionType' | translate }}</span>
@@ -68,14 +68,14 @@
                     <span class="service-mini-icon d-flex align-items-center justify-content-center">
                       <i-tabler name="apps" class="icon-14"></i-tabler>
                     </span>
-                    <span class="f-s-13 f-w-700 service-name-text">{{ entry.serviceName === '-' ? '—' : entry.serviceName }}</span>
+                    <span class="f-s-13 f-w-700 service-name-text" dir="auto" [attr.title]="entry.serviceName === '-' ? null : entry.serviceName">{{ entry.serviceName === '-' ? '—' : entry.serviceName }}</span>
                   </div>
                 </td>
                 <td class="p-24">
                   <span class="mobile-field-label">{{ 'd3.subscriptionLog.table.actor' | translate }}</span>
                   <div class="d-flex align-items-center gap-8">
                     <span class="actor-avatar d-flex align-items-center justify-content-center">{{ entry.actorInitial }}</span>
-                    <span class="f-s-13 f-w-700">{{ entry.actorLabel }}</span>
+                    <span class="f-s-13 f-w-700 actor-label" [attr.title]="entry.actorLabel">{{ entry.actorLabel }}</span>
                   </div>
                 </td>
                 <td class="p-24">
@@ -134,7 +134,7 @@
       @if (totalPages > 1) {
         <div class="pagination-wrapper d-flex align-items-center justify-content-between">
           <span class="pagination-total">
-            {{ fmt(totalCount) }} {{ 'd3.subscriptionLog.pagination.total' | translate }}
+            {{ 'd3.subscriptionLog.pagination.total' | appPlural: totalCount }}
           </span>
           <div class="pagination-controls d-flex align-items-center gap-4">
             <button class="page-nav-btn"

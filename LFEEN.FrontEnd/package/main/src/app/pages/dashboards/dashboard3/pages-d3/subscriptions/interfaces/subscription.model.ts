@@ -36,7 +36,8 @@ export interface SubscriberAccount {
 }
 
 // ── /api/subscriptions/requests (read-only history) ──────────
-export type SubscriptionOrderStatus = 'Pending' | 'Succeeded' | 'Failed';
+/** Cancelled = the merchant withdrew the order; Failed = payment declined or timed out. */
+export type SubscriptionOrderStatus = 'Pending' | 'Succeeded' | 'Cancelled' | 'Failed';
 
 export interface SubscriptionOrderItem {
   subscriptionServiceId: number;

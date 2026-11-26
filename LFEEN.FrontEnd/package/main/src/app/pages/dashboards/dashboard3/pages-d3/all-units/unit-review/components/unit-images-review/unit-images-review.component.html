@@ -1,5 +1,9 @@
 <div class="unit-images-review" [dir]="currentDir">
 
+  @if (!isLoading && loadState !== 'loaded') {
+    <app-unit-load-state [state]="loadState" (retry)="loadPhotos()"></app-unit-load-state>
+  } @else {
+
   <section class="review-context">
     <div>
       <h2>{{ 'd3.unitReview.imagesView.heading' | translate }}</h2>
@@ -8,7 +12,7 @@
         <span>{{ 'd3.unitReview.unitInfo.unitNumberLabel' | translate }}: {{ unitNumber }}</span>
       </p>
     </div>
-    <span class="review-state">{{ 'd3.unitReview.imagesView.reviewState' | translate: { count: totalPhotoCount } }}</span>
+    <span class="review-state">{{ 'd3.unitReview.imagesView.reviewState' | appPlural: totalPhotoCount }}</span>
   </section>
 
   @if (isLoading) {
@@ -22,7 +26,7 @@
     @if (pendingCount > 0) {
       <div class="validation-banner">
         <i-tabler name="alert-triangle"></i-tabler>
-        <span>{{ 'd3.unitReview.imagesView.pendingPhotosWarning' | translate : { count: pendingCount } }}</span>
+        <span>{{ 'd3.unitReview.imagesView.pendingPhotosWarning' | appPlural: pendingCount }}</span>
       </div>
     }
 
@@ -73,8 +77,9 @@
 
         <div class="photos-grid">
           @for (photo of group.photos; track photo.id) {
-            <article class="photo-card" [class.rejected]="photo.decision === 'rejected'" [class.accepted]="photo.decision === 'approved'">
+            <article class="photo-card" [attr.id]="photoCardId(photo)" [class.rejected]="photo.decision === 'rejected'" [class.accepted]="photo.decision === 'approved'">
               <div class="photo-frame">
+                <span class="photo-index-badge">{{ photo.displayIndex }}</span>
                 @if (!photo.loadFailed) {
                   <img [src]="photo.url" [alt]="photo.title" (error)="photo.loadFailed = true">
                 } @else {
@@ -133,11 +138,30 @@
 
         <div class="rejection-list">
           @for (photo of rejectedPhotos; track photo.id) {
-            <div class="rejection-item">
-              <span>{{ photo.id }}</span>
-              <div>
-                <strong>{{ photo.title }}</strong>
-                <p>{{ photo.rejectionReason || ('d3.unitReview.imagesView.defaultRejectionReason' | translate) }}</p>
+            <div
+              class="rejection-item"
+              role="button"
+              tabindex="0"
+              (click)="scrollToPhoto(photo)"
+              (keydown.enter)="scrollToPhoto(photo)">
+              <span class="rejection-index">{{ photo.displayIndex }}</span>
+              <div class="rejection-thumb">
+                @if (!photo.loadFailed) {
+                  <img [src]="photo.url" [alt]="photo.title">
+                } @else {
+                  <i-tabler name="photo-off"></i-tabler>
+                }
+              </div>
+              <div class="rejection-body">
+                <strong>{{ 'd3.unitReview.imagesView.photoLabel' | translate : { index: photo.displayIndex, group: photo.groupTitle } }}</strong>
+                @if (photo.title && photo.title !== photo.groupTitle) {
+                  <small>{{ photo.title }}</small>
+                }
+                @if (photo.rejectionReason.trim()) {
+                  <p>{{ photo.rejectionReason }}</p>
+                } @else {
+                  <p class="reason-missing">{{ 'd3.unitReview.imagesView.rejectionReasonMissing' | translate }}</p>
+                }
               </div>
             </div>
           }
@@ -175,4 +199,6 @@
     }
 
   }
+
+  } <!-- end loadState @else -->
 </div>

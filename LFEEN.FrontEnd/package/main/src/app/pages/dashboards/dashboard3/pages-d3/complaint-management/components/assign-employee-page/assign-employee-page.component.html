@@ -110,7 +110,7 @@
     <div class="assign-pagination">
       <div class="pagination-controls">
         <button
-          class="page-nav-btn"
+          class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
           type="button"
           [disabled]="currentPage() === 1"
           (click)="changePage(currentPage() - 1)">
@@ -132,7 +132,7 @@
         }
 
         <button
-          class="page-nav-btn"
+          class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
           type="button"
           [disabled]="currentPage() === totalPages()"
           (click)="changePage(currentPage() + 1)">
@@ -153,9 +153,11 @@
       } @else {
         <p class="assign-confirm-text muted">{{ 'd3.complaints.assignDialog.selectHint' | translate }}</p>
       }
-      <button class="confirm-btn" type="button" [disabled]="!selected() || submitting() || !canAssign" (click)="confirm()">
-        {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
-      </button>
+      @if (canManage()) {
+        <button class="confirm-btn" type="button" [disabled]="!selected() || submitting() || !canAssign" (click)="confirm()">
+          {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
+        </button>
+      }
     </div>
 
     }
