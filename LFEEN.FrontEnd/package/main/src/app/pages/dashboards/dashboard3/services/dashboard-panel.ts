@@ -1,4 +1,4 @@
-import { DestroyRef, Signal, computed, effect, inject, signal, untracked } from '@angular/core';
+import { DestroyRef, HostAttributeToken, Signal, computed, effect, inject, signal, untracked } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subscription } from 'rxjs';
 import { DashboardFilters } from '../pages-d3/ceo-page/interfaces/dashboard.model';
@@ -69,4 +69,31 @@ export function createDashboardPanel<T>(
     initialLoading: computed(() => loading() && data() === null),
     reload: () => trigger.update((n) => n + 1),
   };
+}
+
+/**
+ * A panel that never fetches — for a dashboard component instance that does not show
+ * that panel (see dashboardPart), so splitting a component across page sections never
+ * fires requests whose result nothing renders.
+ */
+export function inertPanel<T>(): DashboardPanel<T> {
+  const none = signal<T | null>(null).asReadonly();
+  const no = signal(false).asReadonly();
+  return {
+    data: none,
+    loading: no,
+    error: signal<HttpErrorResponse | null>(null).asReadonly(),
+    initialLoading: no,
+    reload: () => undefined,
+  };
+}
+
+/**
+ * Which part of a multi-part dashboard component this instance renders, read from its
+ * static `part="…"` host attribute (available at construction, unlike an @Input — so
+ * the panels can be created conditionally in field initializers). Missing = 'all'.
+ * Must be called in an injection context.
+ */
+export function dashboardPart<P extends string>(): P | 'all' {
+  return (inject(new HostAttributeToken('part'), { optional: true }) as P | null) ?? 'all';
 }

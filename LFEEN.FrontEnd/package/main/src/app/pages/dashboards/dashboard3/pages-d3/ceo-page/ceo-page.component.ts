@@ -1,22 +1,75 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterModule } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CardsTopComponent } from '../../../../../components/dashboard3/cards-top/cards-top.component';
 import { ChartComponent } from '../../../../../components/dashboard3/chart/chart.component';
 import { InsightsComponent } from '../../../../../components/dashboard3/insights/insights.component';
+import { RevealDirective } from '../../../../../components/dashboard3/reveal/reveal.directive';
 import { PeriodFilterComponent } from '../../../../../components/dashboard3/period-filter/period-filter.component';
+import { DashboardEmptyComponent } from '../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
+import { DashboardAccessService } from '../../services/dashboard-widgets';
+import { NavItem, SidebarService } from '../../services/sidebar.service';
+
+interface ShortcutLink {
+  link: string;
+  title?: string;
+  translationKey?: string;
+}
+
+/** How many of the admin's own pages the no-statistics state offers. */
+const MAX_SHORTCUTS = 6;
 
 @Component({
   selector: 'app-ceo-page',
   standalone: true,
-  imports: [CommonModule, PeriodFilterComponent, CardsTopComponent, ChartComponent, InsightsComponent],
+  imports: [
+    CommonModule, RouterModule, TranslateModule, RevealDirective, PeriodFilterComponent,
+    CardsTopComponent, ChartComponent, InsightsComponent, DashboardEmptyComponent,
+  ],
   templateUrl: './ceo-page.component.html',
   styleUrl: './ceo-page.component.scss'
 })
 export class CeoPageComponent {
-  constructor(private translate: TranslateService) {}
+  private readonly translate = inject(TranslateService);
+  private readonly sidebar = inject(SidebarService);
+  readonly access = inject(DashboardAccessService);
+
+  // Every flag below comes from the widget registry, so a section whose widgets the admin
+  // may not see is never rendered — its components are never created and never fetch.
+  readonly hasOverview = computed(() => this.access.inSection('overview').length > 0);
+  readonly showGrowth = computed(() => this.access.can('growthChart'));
+  readonly showDecisions = computed(() => this.access.can('executiveInsights'));
+  readonly hasAnalytics = computed(() => this.showGrowth() || this.showDecisions());
+  readonly hasApps = computed(() =>
+    this.access.inSection('hosts').length > 0 || this.access.inSection('guests').length > 0
+  );
+  readonly showRevenueSources = computed(() => this.access.can('revenueSources'));
+  readonly showComparison = computed(() => this.access.can('hostGuestComparison'));
+  readonly showCities = computed(() => this.access.can('topCities'));
+  readonly detailsCount = computed(() => this.access.inSection('details').length);
+  readonly hasAny = computed(() => this.access.visible().length > 0);
+
+  /** The admin's own pages (from the server-filtered sidebar), for the no-statistics state. */
+  readonly shortcuts = computed<ShortcutLink[]>(() =>
+    leafLinks(this.sidebar.sidebarItems()).filter((l) => l.link !== '/d3/ceo').slice(0, MAX_SHORTCUTS)
+  );
 
   get currentDir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
   }
+
+  get langPrefix(): string {
+    return this.translate.currentLang === 'en' ? '/en' : '/ar';
+  }
+}
+
+function leafLinks(items: NavItem[]): ShortcutLink[] {
+  const out: ShortcutLink[] = [];
+  for (const item of items) {
+    if (item.divider) continue;
+    if (item.children?.length) out.push(...leafLinks(item.children));
+    else if (item.link) out.push({ link: item.link, title: item.title, translationKey: item.translationKey });
+  }
+  return out;
 }

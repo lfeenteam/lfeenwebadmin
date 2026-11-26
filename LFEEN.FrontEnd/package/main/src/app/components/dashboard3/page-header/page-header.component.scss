@@ -343,3 +343,14 @@
     }
   }
 }
+
+// The shared account cluster sits at the very end of every page header.
+.d3-page-header {
+  app-d3-header-actions { flex-shrink: 0; }
+
+  @media (max-width: 767px) {
+    // Room for the account cluster on phones: the date pill and live label step aside.
+    .d3-page-date-badge,
+    .d3-page-live-text { display: none; }
+  }
+}

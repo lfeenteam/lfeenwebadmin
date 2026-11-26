@@ -1,28 +1,20 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, map } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { CoreService } from 'src/app/services/core.service';
 import { AdminNotificationsStore } from '../../services/admin-notifications-store.service';
-import { UnitsService } from '../../services/units.service';
-import { BuildingReviewService } from '../../services/building-review.service';
+import { NotificationNavigator } from '../../services/notification-navigator.service';
 import { AdminNotification, NotificationCategory } from '../../interfaces/admin-notification.model';
 import {
   NOTIFICATION_CATEGORIES,
-  NotificationDestination,
-  REFERENCE_RESOLVED_TYPES,
   categoryOf,
   iconOf,
   isKnownType,
   relativeTime,
-  routeFor,
   severityOf,
-  unitReviewDestination,
 } from './notification-presentation';
 
 @Component({
@@ -34,16 +26,14 @@ import {
 })
 export class NotificationsComponent implements OnInit {
   readonly store = inject(AdminNotificationsStore);
-  private router = inject(Router);
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private settings = inject(CoreService);
   private destroyRef = inject(DestroyRef);
-  private unitsService = inject(UnitsService);
-  private buildingService = inject(BuildingReviewService);
+  private navigator = inject(NotificationNavigator);
 
   /** The notification whose unit/property is being looked up before navigating. */
-  readonly openingId = signal<string | null>(null);
+  readonly openingId = this.navigator.openingId;
 
   readonly categories = NOTIFICATION_CATEGORIES;
   readonly activeCategory = signal<NotificationCategory>('all');
@@ -75,43 +65,8 @@ export class NotificationsComponent implements OnInit {
   }
 
   open(item: AdminNotification): void {
-    // A unit/property lookup is in flight — ignore further clicks until it lands.
-    if (this.openingId()) return;
-    // Fire-and-forget: a failed mark-as-read must not block navigation.
-    this.store.markAsRead(item.id);
-    const fallback = routeFor(item);
-    if (!fallback) return;
-
-    const lookup = this.resolveDestination(item);
-    if (!lookup) {
-      this.navigate(fallback);
-      return;
-    }
-    this.openingId.set(item.id);
-    lookup.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: destination => { this.openingId.set(null); this.navigate(destination); },
-      // Deleted or unreachable listing: land on its list rather than an empty review page.
-      error: () => { this.openingId.set(null); this.navigate(fallback); },
-    });
-  }
-
-  // The notification carries the listing's GUID; the review pages (and every section and
-  // decision call they make) need the numeric ids, which the GUID lookup returns.
-  private resolveDestination(item: AdminNotification): Observable<NotificationDestination> | null {
-    const id = item.referenceId;
-    if (!id || !item.referenceType || !REFERENCE_RESOLVED_TYPES.has(item.referenceType)) return null;
-    if (item.referenceType === 'Unit') {
-      return this.unitsService.getUnitById(id).pipe(map(unit => unitReviewDestination(unit)));
-    }
-    return this.buildingService.getPropertyById(id).pipe(
-      map(property => ({ commands: ['build-review', String(property.propertyId)] })),
-    );
-  }
-
-  private navigate(destination: NotificationDestination): void {
-    this.router.navigate([`/${this.lang()}`, 'd3', ...destination.commands], {
-      queryParams: destination.queryParams,
-    });
+    // Shared with the header's notifications dropdown (mark read → resolve → navigate).
+    this.navigator.open(item);
   }
 
   async remove(item: AdminNotification, event: Event): Promise<void> {
@@ -146,6 +101,6 @@ export class NotificationsComponent implements OnInit {
   }
 
   hasDestination(item: AdminNotification): boolean {
-    return routeFor(item) !== null;
+    return this.navigator.hasDestination(item);
   }
 }

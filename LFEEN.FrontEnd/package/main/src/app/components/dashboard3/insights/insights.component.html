@@ -1,106 +1,200 @@
-<div class="d3-insights-wrapper">
-  <!-- Top Cities Card (right in RTL) -->
-  <div class="d3-insights-card d3-cities-card">
-    <div class="d3-card-header">
-      <h3 class="d3-card-title">{{ 'd3.insights.topCities' | translate }}</h3>
-    </div>
+<div class="d3-insights-wrapper" [class.is-single]="part !== 'all'">
 
-    <div class="d3-cities-list">
-      @if (cities.error() && !cities.data()) {
-        <div class="d3-panel-error" role="alert">
-          <span>{{ 'd3.state.loadError' | translate }}</span>
-          <button type="button" class="d3-retry-btn" (click)="cities.reload()">{{ 'd3.state.retry' | translate }}</button>
-        </div>
-      } @else if (cities.initialLoading()) {
-        @for (i of skeletons; track i) {
-          <div class="d3-skeleton d3-row-skeleton"></div>
-        }
-      } @else if (cityRows().length === 0) {
-        <div class="d3-empty">{{ 'd3.insights.noCities' | translate }}</div>
-      }
-
-      @for (city of cityRows(); track city.rank) {
-        <div class="d3-city-item">
-          <span class="d3-city-rank">{{ city.rank }}</span>
-          <div class="d3-city-info">
-            <div class="d3-city-name">{{ city.name }}</div>
-            <div class="d3-city-meta">{{ 'd3.insights.bookingsCount' | appPlural: city.bookings }} • {{ 'd3.insights.unitsCount' | appPlural: city.units }}</div>
+  <!-- ───────────── Needs a CEO decision (backend insights) ───────────── -->
+  @if (showDecisions) {
+    <section class="d3-surface d3-insights-card d3-decisions-card" [attr.aria-busy]="insights.loading()">
+      <header class="d3-surface-head">
+        <h3 class="d3-surface-title">
+          <span class="d3-head-icon d3-mh is-accent"><app-d3-icon [name]="heads.decisions.icon"></app-d3-icon></span>
+          {{ heads.decisions.title | translate }}
+        </h3>
+        @if (decisions().length) {
+          <div class="d3-decision-counts">
+            @if (decisionCounts().urgent) {
+              <span class="d3-count-chip type-urgent">{{ decisionCounts().urgent }} · {{ 'd3.insights.severityCritical' | translate }}</span>
+            }
+            @if (decisionCounts().warning) {
+              <span class="d3-count-chip type-warning">{{ decisionCounts().warning }} · {{ 'd3.insights.severityWarning' | translate }}</span>
+            }
+            @if (decisionCounts().success) {
+              <span class="d3-count-chip type-success">{{ decisionCounts().success }} · {{ 'd3.insights.severityOpportunity' | translate }}</span>
+            }
           </div>
-        </div>
+        }
+      </header>
+
+      <div class="d3-decisions-list">
+        @if (insights.error() && !insights.data()) {
+          <div class="d3-panel-error" role="alert">
+            <span>{{ 'd3.state.loadError' | translate }}</span>
+            <button type="button" class="d3-retry-btn" (click)="insights.reload()">{{ 'd3.state.retry' | translate }}</button>
+          </div>
+        } @else if (insights.initialLoading()) {
+          @for (i of skeletons; track i) {
+            <div class="d3-skeleton d3-row-skeleton"></div>
+          }
+        } @else if (decisions().length === 0) {
+          <div class="d3-all-clear">
+            <span class="d3-all-clear-icon"><app-d3-icon name="check-all"></app-d3-icon></span>
+            <span>{{ 'd3.insights.noDecisions' | translate }}</span>
+          </div>
+        }
+
+        <!-- Severity is a start-side rail + a glyph on the title line + its word (never colour alone). -->
+        @for (item of shownDecisions(); track item.key; let i = $index) {
+          <article class="d3-decision-item" [ngClass]="'type-' + item.type" [style.--d3-i]="i">
+            <div class="d3-decision-title">
+              <app-d3-icon [name]="item.icon" class="d3-decision-glyph"></app-d3-icon>
+              <span class="d3-decision-name">{{ item.title }}</span>
+              <span class="d3-decision-severity">{{ item.severityLabel | translate }}</span>
+            </div>
+            <p class="d3-decision-desc">{{ item.description }}</p>
+            @if (item.actionPath) {
+              <button type="button" class="d3-decision-action" (click)="open(item.actionPath)">
+                <span>{{ 'd3.insights.viewDetails' | translate }}</span>
+                <app-d3-icon [name]="isRtl ? 'chevron-left' : 'chevron-right'" class="d3-decision-action-icon"></app-d3-icon>
+              </button>
+            }
+          </article>
+        }
+      </div>
+
+      @if (hiddenDecisions() > 0) {
+        <button type="button" class="d3-decisions-more" [attr.aria-expanded]="decisionsExpanded()"
+                (click)="decisionsExpanded.set(!decisionsExpanded())">
+          {{ decisionsExpanded()
+              ? ('d3.insights.showLess' | translate)
+              : ('d3.insights.showAll' | translate: { count: decisions().length }) }}
+          <app-d3-icon [name]="decisionsExpanded() ? 'chevron-up' : 'chevron-down'" class="d3-decisions-more-icon"></app-d3-icon>
+        </button>
       }
-    </div>
-  </div>
+    </section>
+  }
 
-  <!-- Revenue Sources Card (middle) -->
-  <div class="d3-insights-card d3-revenue-card">
-    <div class="d3-card-header">
-      <h3 class="d3-card-title">{{ 'd3.insights.revenueSources' | translate }}</h3>
-    </div>
+  <!-- ───────────── Revenue sources (donut + legend) ───────────── -->
+  @if (showRevenue) {
+    <section class="d3-surface d3-insights-card d3-revenue-card" [attr.aria-busy]="summary.loading()">
+      <header class="d3-surface-head">
+        <h3 class="d3-surface-title">
+          <span class="d3-head-icon d3-mh"><app-d3-icon [name]="heads.revenue.icon"></app-d3-icon></span>
+          {{ heads.revenue.title | translate }}
+        </h3>
+      </header>
 
-    <div class="d3-revenue-list">
       @if (summary.error() && !summary.data()) {
         <div class="d3-panel-error" role="alert">
           <span>{{ 'd3.state.loadError' | translate }}</span>
           <button type="button" class="d3-retry-btn" (click)="summary.reload()">{{ 'd3.state.retry' | translate }}</button>
         </div>
       } @else if (summary.initialLoading()) {
-        @for (i of skeletons; track i) {
+        <div class="d3-skeleton d3-donut-skeleton"></div>
+        @for (i of [0, 1, 2]; track i) {
           <div class="d3-skeleton d3-row-skeleton"></div>
         }
-      }
-
-      @for (source of revenueSources(); track source.key) {
-        <div class="d3-revenue-item">
-          <span class="d3-revenue-label">{{ source.label ? (source.label | translate) : source.fallbackLabel }}</span>
-          <span class="d3-revenue-percent" dir="ltr">{{ source.text }}</span>
-          <div class="d3-revenue-bar-wrap">
-            <div class="d3-revenue-bar" [style.width.%]="source.percent" [style.background-color]="source.color"></div>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Decisions Card (left in RTL) -->
-  <div class="d3-insights-card d3-decisions-card">
-    <div class="d3-card-header">
-      <h3 class="d3-card-title">{{ 'd3.insights.needsCeoDecision' | translate }}</h3>
-    </div>
-
-    <div class="d3-decisions-list">
-      @if (insights.error() && !insights.data()) {
-        <div class="d3-panel-error" role="alert">
-          <span>{{ 'd3.state.loadError' | translate }}</span>
-          <button type="button" class="d3-retry-btn" (click)="insights.reload()">{{ 'd3.state.retry' | translate }}</button>
-        </div>
-      } @else if (insights.initialLoading()) {
-        @for (i of skeletons; track i) {
-          <div class="d3-skeleton d3-row-skeleton"></div>
-        }
-      } @else if (decisions().length === 0) {
-        <div class="d3-empty">{{ 'd3.insights.noDecisions' | translate }}</div>
-      }
-
-      @for (item of decisions(); track item.key) {
-        <div class="d3-decision-item" [ngClass]="'type-' + item.type">
-          <div class="d3-decision-icon">
-            <i-tabler [name]="item.icon"></i-tabler>
-          </div>
-          <div class="d3-decision-body">
-            <div class="d3-decision-title">
-              {{ item.title }}
-              <span class="d3-decision-severity">{{ item.severityLabel | translate }}</span>
-            </div>
-            <div class="d3-decision-desc">{{ item.description }}</div>
-            @if (item.actionPath) {
-              <button type="button" class="d3-decision-action" (click)="open(item.actionPath)">
-                <span>{{ 'd3.insights.viewDetails' | translate }}</span>
-                <i-tabler name="chevron-left" class="d3-decision-action-icon"></i-tabler>
-              </button>
+      } @else if (summary.data()) {
+        <div class="d3-donut-wrap">
+          @if (revenueTotal() !== null) {
+            <!-- Created (and its draw animation played) only once it scrolls into view. -->
+            @defer (on viewport) {
+              <apx-chart
+                [series]="donut().series"
+                [labels]="donut().labels"
+                [colors]="donut().colors"
+                [chart]="donut().chart"
+                [plotOptions]="donut().plotOptions"
+                [dataLabels]="donut().dataLabels"
+                [legend]="donut().legend"
+                [stroke]="donut().stroke"
+                [states]="donut().states"
+                [tooltip]="donut().tooltip">
+              </apx-chart>
+            } @placeholder {
+              <div class="d3-donut-placeholder" aria-hidden="true"></div>
             }
-          </div>
+            <div class="d3-donut-center" aria-hidden="true">
+              <span class="d3-donut-caption">{{ 'd3.insights.revenueTotal' | translate }}</span>
+              <span class="d3-donut-total">
+                <span dir="ltr">{{ revenueTotalText() }}</span>
+                <img [src]="currencyIconSrc" alt="" class="d3-donut-riyal" />
+              </span>
+            </div>
+          } @else {
+            <div class="d3-donut-empty">
+              <span class="d3-donut-ring"></span>
+              <span class="d3-donut-empty-text">{{ 'd3.insights.noRevenue' | translate }}</span>
+            </div>
+          }
         </div>
+
+        <ul class="d3-revenue-list">
+          @for (source of revenueSources(); track source.key) {
+            <li class="d3-revenue-item">
+              <span class="d3-revenue-dot" [style.background-color]="source.color"></span>
+              <span class="d3-revenue-label">{{ source.label ? (source.label | translate) : source.fallbackLabel }}</span>
+              <!-- The donut already draws the shares; the rows add what it can't: the amounts. -->
+              <span class="d3-revenue-amount"><bdi dir="ltr">{{ source.amountText }}</bdi></span>
+              <span class="d3-revenue-percent" dir="ltr">{{ source.text }}</span>
+            </li>
+          }
+        </ul>
       }
-    </div>
-  </div>
+    </section>
+  }
+
+  <!-- ───────────── Top cities ───────────── -->
+  @if (showCities) {
+    <section class="d3-surface d3-insights-card d3-cities-card" [attr.aria-busy]="cities.loading()">
+      <header class="d3-surface-head">
+        <h3 class="d3-surface-title">
+          <span class="d3-head-icon d3-mh"><app-d3-icon [name]="heads.cities.icon"></app-d3-icon></span>
+          {{ heads.cities.title | translate }}
+        </h3>
+      </header>
+
+      <ol class="d3-cities-list">
+        @if (cities.error() && !cities.data()) {
+          <li class="d3-panel-error" role="alert">
+            <span>{{ 'd3.state.loadError' | translate }}</span>
+            <button type="button" class="d3-retry-btn" (click)="cities.reload()">{{ 'd3.state.retry' | translate }}</button>
+          </li>
+        } @else if (cities.initialLoading()) {
+          @for (i of skeletons; track i) {
+            <li class="d3-skeleton d3-row-skeleton"></li>
+          }
+        } @else if (cityRows().length === 0) {
+          <li class="d3-empty">{{ 'd3.insights.noCities' | translate }}</li>
+        }
+
+        @for (city of cityRows(); track city.rank) {
+          <li class="d3-city-item" [class.is-top]="city.rank === 1">
+            <span class="d3-city-rank">{{ city.rank }}</span>
+            <div class="d3-city-info">
+              <div class="d3-city-line">
+                <span class="d3-city-name">{{ city.name }}</span>
+                <span class="d3-city-share" dir="ltr">{{ city.shareText }}</span>
+              </div>
+              <span class="d3-city-bar-wrap" aria-hidden="true">
+                <span class="d3-city-bar" [style.width.%]="city.share"></span>
+              </span>
+              <div class="d3-city-meta">{{ 'd3.insights.bookingsCount' | appPlural: city.bookings }} • {{ 'd3.insights.unitsCount' | appPlural: city.units }}</div>
+            </div>
+          </li>
+        }
+      </ol>
+
+      <!-- The period's booking totals from the same response — what the shares above are out of. -->
+      @if (citiesSummary(); as sum) {
+        <dl class="d3-cities-summary">
+          <div>
+            <dt>{{ 'd3.insights.citiesTotal' | translate }}</dt>
+            <dd><bdi dir="ltr">{{ sum.total }}</bdi></dd>
+          </div>
+          <div>
+            <dt>{{ 'd3.insights.citiesUnmapped' | translate }}</dt>
+            <dd><bdi dir="ltr">{{ sum.unmapped }}</bdi></dd>
+          </div>
+        </dl>
+      }
+    </section>
+  }
 </div>

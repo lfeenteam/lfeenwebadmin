@@ -7,7 +7,7 @@ export const PAGE_FLAGS: Record<string, boolean> = {
   'call-scripts': true,             // wired to /api/call-scripts (list, create, update)
   esim: true,                       // design sample data from EsimService — no backend endpoint yet
   'control-center': true,           // wired to /api/app-runtime (summary, themes, releases, maintenance)
-  dashboard: true,                 // ceo-page: static cards/charts, nothing fetched from a service
+  dashboard: true,                 // ceo-page: wired to /api/dashboard (summary, growth, insights, top-cities)
   notifications: true,              // hardcoded fake notifications list
   settings: true,                   // wired to /api/settings (general, notifications, review-reward)
   settlements: true,                // wired to /api/settlements (list, detail, execute, fail, receipt, recalculation)

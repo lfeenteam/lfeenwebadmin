@@ -1,0 +1,131 @@
+<div class="d3-actions">
+  <button class="d3-icon-btn d3-notification-btn d3-mh" type="button"
+          [matMenuTriggerFor]="notifMenu" (menuOpened)="onNotificationsOpened()"
+          [attr.aria-label]="('d3.sidebar.notifications' | translate) + (notificationsStore.unreadCount() ? ' (' + unreadBadge() + ')' : '')">
+    <app-d3-icon name="bell"></app-d3-icon>
+    @if (notificationsStore.unreadCount() > 0) {
+      <span class="d3-notification-badge" aria-hidden="true">{{ unreadBadge() }}</span>
+    }
+  </button>
+
+  <button class="d3-icon-btn d3-lang-btn" type="button" [matMenuTriggerFor]="d3LangMenu"
+          [attr.aria-label]="selectedLanguage.language">
+    <img [src]="selectedLanguage.icon" alt="" class="d3-lang-flag" />
+  </button>
+
+  <span class="d3-vertical-divider" aria-hidden="true"></span>
+
+  <button type="button" class="d3-user-profile" [matMenuTriggerFor]="d3UserMenu"
+          [attr.aria-label]="'d3.header.account' | translate">
+    <span class="d3-user-avatar" aria-hidden="true">{{ initials() }}</span>
+    <span class="d3-user-info">
+      <span class="d3-user-name">{{ displayName() }}</span>
+      <span class="d3-user-role">{{ displayRole() }}</span>
+    </span>
+    <app-d3-icon name="chevron-down" class="d3-user-chevron"></app-d3-icon>
+  </button>
+</div>
+
+<!-- ───────────── Notifications dropdown ───────────── -->
+<mat-menu #notifMenu="matMenu" class="d3-notif-menu" xPosition="before">
+  <div class="d3-notif-panel" [attr.dir]="isRtl() ? 'rtl' : 'ltr'">
+    <div class="d3-notif-head">
+      <div class="d3-notif-head-title">
+        <span>{{ 'd3.sidebar.notifications' | translate }}</span>
+        @if (notificationsStore.unreadCount() > 0) {
+          <span class="d3-notif-count">{{ unreadBadge() }}</span>
+        }
+      </div>
+      @if (notificationsStore.unreadCount() > 0) {
+        <button type="button" class="d3-notif-link" [disabled]="notificationsStore.markingAll()" (click)="markAllAsRead($event)">
+          <app-d3-icon name="check-all"></app-d3-icon>
+          {{ 'd3.notifications.markAllRead' | translate }}
+        </button>
+      }
+    </div>
+
+    <div class="d3-notif-body">
+      @if (notificationsStore.forbidden()) {
+        <div class="d3-notif-state">{{ 'd3.notifications.forbidden' | translate }}</div>
+      } @else if (notificationsStore.listError() && !latest().length) {
+        <div class="d3-notif-state is-error">
+          <span>{{ 'd3.notifications.loadError' | translate }}</span>
+          <button type="button" class="d3-notif-retry" (click)="retryNotifications($event)">{{ 'd3.notifications.retry' | translate }}</button>
+        </div>
+      } @else if (notificationsStore.loading() && !latest().length) {
+        @for (i of [0, 1, 2]; track i) {
+          <div class="d3-notif-skeleton"><span></span><span></span></div>
+        }
+      } @else if (!latest().length) {
+        <div class="d3-notif-state">
+          <span class="d3-notif-empty-icon"><app-d3-icon name="bell"></app-d3-icon></span>
+          {{ 'd3.notifications.empty' | translate }}
+        </div>
+      } @else {
+        @for (item of latest(); track item.id) {
+          <button mat-menu-item type="button" class="d3-notif-item" [class.is-unread]="!item.isRead"
+                  [class.is-opening]="openingId() === item.id"
+                  [attr.aria-busy]="openingId() === item.id || null"
+                  (click)="openNotification(item)">
+            <span class="d3-notif-icon" [ngClass]="severityClass(item.type)">
+              <i-tabler [name]="notificationIcon(item.type)"></i-tabler>
+            </span>
+            <span class="d3-notif-text">
+              <span class="d3-notif-title">{{ item.title || (typeLabelKey(item.type) | translate) }}</span>
+              @if (item.body) {
+                <span class="d3-notif-desc">{{ item.body }}</span>
+              }
+              <span class="d3-notif-time">{{ timeLabel(item) }}</span>
+            </span>
+            @if (!item.isRead) {
+              <span class="d3-notif-unread" [attr.aria-label]="'d3.header.unread' | translate"></span>
+            }
+          </button>
+        }
+      }
+    </div>
+
+    <button mat-menu-item type="button" class="d3-notif-footer" (click)="navigateTo('notifications')">
+      {{ 'd3.header.viewAllNotifications' | translate }}
+      <i-tabler [name]="isRtl() ? 'arrow-left' : 'arrow-right'"></i-tabler>
+    </button>
+  </div>
+</mat-menu>
+
+<!-- ───────────── Language ───────────── -->
+<mat-menu #d3LangMenu="matMenu" class="d3-lang-menu d3-menu-panel">
+  @for (lang of languages; track lang.code) {
+    <button mat-menu-item (click)="changeLanguage(lang)"
+            [class.d3-lang-active]="lang.code === selectedLanguage.code">
+      <div class="d-flex align-items-center">
+        <img [src]="lang.icon" class="rounded-circle object-cover m-r-8 icon-20" alt="" />
+        <span class="f-s-14">{{ lang.language }}</span>
+      </div>
+    </button>
+  }
+</mat-menu>
+
+<!-- ───────────── Account ───────────── -->
+<mat-menu #d3UserMenu="matMenu" xPosition="before" class="d3-user-menu d3-menu-panel">
+  <div class="d3-user-menu-head" [attr.dir]="isRtl() ? 'rtl' : 'ltr'">
+    <span class="d3-user-avatar is-lg" aria-hidden="true">{{ initials() }}</span>
+    <span class="d3-user-menu-id">
+      <span class="d3-user-menu-name">{{ displayName() }}</span>
+      @if (user()?.email && user()?.email !== displayName()) {
+        <span class="d3-user-menu-mail">{{ user()?.email }}</span>
+      }
+      @if (displayRole()) {
+        <span class="d3-user-menu-role">{{ displayRole() }}</span>
+      }
+    </span>
+  </div>
+  <button mat-menu-item class="d3-user-menu-item d3-mh" (click)="navigateTo('profile')">
+    <app-d3-icon name="user"></app-d3-icon>
+    <span>{{ 'd3.profile.title' | translate }}</span>
+  </button>
+  <div class="d3-user-menu-sep" role="separator"></div>
+  <button mat-menu-item class="d3-user-menu-item d3-user-menu-logout d3-mh" (click)="logout()">
+    <app-d3-icon name="logout"></app-d3-icon>
+    <span>{{ 'd3.sidebar.logout' | translate }}</span>
+  </button>
+</mat-menu>

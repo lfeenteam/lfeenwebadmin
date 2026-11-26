@@ -1,0 +1,103 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// LFEEN Admin (d3) design tokens.
+// One source for the colors, spacing, radii, type, shadows and motion used by the
+// shell (sidebar, header) and the executive dashboard. Components read these as
+// CSS custom properties, so a value changes here once and everywhere follows.
+// Motion durations collapse to 0 under prefers-reduced-motion, which turns every
+// transition/animation built on them off without per-component media queries.
+// ─────────────────────────────────────────────────────────────────────────────
+
+:root {
+  // Brand / surfaces
+  --d3-navy-950: #0B1222;
+  --d3-navy-900: #0F172B;
+  --d3-navy-800: #1E293B;
+  --d3-navy-700: #334155;
+  --d3-surface: #FFFFFF;
+  --d3-canvas: #F5F7FB;
+  --d3-surface-muted: #F8FAFC;
+  --d3-surface-hover: #F1F5F9;
+  --d3-border: #E8EDF3;
+  --d3-border-strong: #D5DEE8;
+
+  // Text
+  --d3-text: #0F172B;
+  --d3-text-2: #45556C;
+  --d3-text-3: #62748E;
+  --d3-text-muted: #90A1B9;
+  --d3-text-inverse: #FFFFFF;
+
+  // Base UI is white / black (navy-black) / gray only. Hue is reserved for status:
+  // success (green), danger (red), warning (amber) — trends, severities, connection,
+  // errors and the unread badge. Accent (active / focus) stays navy.
+  --d3-accent: #0F172B;
+  --d3-accent-cyan: #64748B;
+  --d3-accent-soft: #F1F5F9;
+  --d3-success: #009966;
+  --d3-success-soft: #E7F8F0;
+  --d3-danger: #E7000B;
+  --d3-danger-soft: #FEF0F0;
+  --d3-warning: #D97706;
+  --d3-warning-soft: #FFF7E6;
+
+  // Focus ring
+  --d3-focus-ring: 0 0 0 3px rgba(15, 23, 43, 0.22);
+
+  // Spacing (4px scale)
+  --d3-space-1: 4px;
+  --d3-space-2: 8px;
+  --d3-space-3: 12px;
+  --d3-space-4: 16px;
+  --d3-space-5: 20px;
+  --d3-space-6: 24px;
+  --d3-space-8: 32px;
+
+  // Radius
+  --d3-radius-sm: 8px;
+  --d3-radius-md: 12px;
+  --d3-radius-lg: 16px;
+  --d3-radius-xl: 20px;
+  --d3-radius-pill: 999px;
+
+  // Type
+  --d3-font: 'Cairo', sans-serif;
+  --d3-fs-xs: 12px;
+  --d3-fs-sm: 13px;
+  --d3-fs-md: 14px;
+  --d3-fs-lg: 16px;
+  --d3-fs-xl: 20px;
+  --d3-fs-kpi: 30px;
+  --d3-fs-kpi-hero: 36px;
+
+  // Icon sizes
+  --d3-icon-sm: 16px;
+  --d3-icon-md: 20px;
+  --d3-icon-lg: 24px;
+
+  // Elevation
+  --d3-shadow-xs: 0 1px 2px rgba(15, 23, 43, 0.04);
+  --d3-shadow-sm: 0 1px 2px rgba(15, 23, 43, 0.04), 0 2px 8px rgba(15, 23, 43, 0.04);
+  --d3-shadow-md: 0 4px 12px rgba(15, 23, 43, 0.06), 0 12px 28px rgba(15, 23, 43, 0.06);
+  --d3-shadow-lg: 0 18px 40px rgba(15, 23, 43, 0.14);
+
+  // Motion
+  --d3-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --d3-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --d3-dur-tooltip: 120ms;
+  --d3-dur-fast: 160ms;
+  --d3-dur-base: 180ms;
+  --d3-dur-card: 200ms;
+  --d3-dur-panel: 220ms;
+  --d3-dur-reveal: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d3-dur-tooltip: 0ms;
+    --d3-dur-fast: 0ms;
+    --d3-dur-base: 0ms;
+    --d3-dur-card: 0ms;
+    --d3-dur-panel: 0ms;
+    --d3-dur-reveal: 0ms;
+  }
+}

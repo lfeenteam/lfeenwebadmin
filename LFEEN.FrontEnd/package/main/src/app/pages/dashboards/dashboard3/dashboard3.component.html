@@ -4,7 +4,8 @@
     <app-dashboard3-sidebar
       class="dashboard-sidebar"
       [attr.dir]="currentDir()"
-      [(collapsed)]="sidebarCollapsed"
+      [collapsed]="sidebarCollapsed"
+      (collapsedChange)="onSidebarCollapsedChange($event)"
     
       [mobileMode]="sidebarMobileOpen"
       (mobileClose)="closeMobileSidebar()"></app-dashboard3-sidebar>
@@ -16,7 +17,7 @@
   }
 
   <!-- Main Content -->
-  <div class="content-area flex-grow-1 d-flex flex-column">
+  <div class="content-area flex-grow-1 d-flex flex-column" [class.is-canvas]="!isLoginRoute && headerType === 'ceo'">
     <!-- Header -->
     @if (!isLoginRoute) {
       @if (headerType === 'ceo') {

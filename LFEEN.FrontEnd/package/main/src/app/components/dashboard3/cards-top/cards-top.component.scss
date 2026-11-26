@@ -1,408 +1,525 @@
 :host {
   display: block;
-  width: 100%;
-  font-family: 'Cairo', sans-serif;
+  min-width: 0;
 }
 
 .d3-cards-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  width: 100%;
-  font-family: 'Cairo', sans-serif;
+  gap: var(--d3-space-6);
+}
 
-  .d3-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+// Per-card shade (icon chip, meter, panel rail) — monochrome: black → gray, no hues.
+.tone-navy { --tone: #0F172B; --tone-soft: #F1F5F9; }
+.tone-blue { --tone: #1E293B; --tone-soft: #F1F5F9; }
+.tone-green { --tone: #475569; --tone-soft: #F1F5F9; }
+.tone-red { --tone: #0F172B; --tone-soft: #E2E8F0; }
+.tone-amber { --tone: #475569; --tone-soft: #F1F5F9; }
+.tone-violet { --tone: #334155; --tone-soft: #F1F5F9; }
 
-  .d3-section-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+// ───────────────────────── Executive KPI grid ─────────────────────────
+// Columns come from data-count (how many KPIs this admin may see), so a hidden KPI
+// never leaves a hole: 4 → hero + 3, 3 → hero + 2, 2 → halves, 1 → one card at a
+// readable width (not stretched across the page).
+// The KPIs read as one instrument panel, not four loose cards: cells sit on a single
+// surface and the 1px gaps show the border colour through as hairline dividers, which
+// stay correct however many cells there are and however they wrap.
+.d3-kpi-grid {
+  --kpi-cols: 4;
+  display: grid;
+  grid-template-columns: repeat(var(--kpi-cols), minmax(0, 1fr));
+  gap: 1px;
+  background: var(--d3-border);
+  border: 1px solid var(--d3-border);
+  border-radius: var(--d3-radius-lg);
+  box-shadow: var(--d3-shadow-xs);
+  overflow: hidden;
+  transition: opacity var(--d3-dur-card) ease;
 
-    .d3-section-bar {
-      width: 4px;
-      height: 24px;
-      background-color: #000000;
-      border-radius: 8px;
+  &[data-count='3'] { --kpi-cols: 3; }
+  &[data-count='2'] { --kpi-cols: 2; }
+  &[data-count='1'] { grid-template-columns: minmax(0, 420px); }
 
-      &.green {
-        background-color: #00BC7D;
-      }
+  // Equal columns even with the hero: it stands out by colour, not width, so the strip
+  // shares the page's 12-column edges (3·3·3·3) with the rows below.
 
-      &.blue {
-        background-color: #2B7FFF;
-      }
-    }
+  // A new period is loading over the old numbers — dim them so they never read as current.
+  &.is-refreshing { opacity: 0.55; }
 
-    .d3-section-title {
-      all: unset;
-      font-family: 'Cairo', sans-serif !important;
-      font-weight: 700 !important;
-      font-size: 20px !important;
-      color: #0F172B !important;
-
-      @media (max-width: 576px) {
-        font-size: 18px !important;
-      }
-    }
-  }
-
-  .d3-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    align-items: stretch;
-
-    @media (max-width: 1400px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    @media (max-width: 576px) {
-      grid-template-columns: 1fr;
+  @media (max-width: 1279px) {
+    &[data-count='4'], &.has-hero[data-count='4'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    // Three on a 2-column row: the hero (first) takes the full row above the other two.
+    &[data-count='3'], &.has-hero[data-count='3'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      > :first-child { grid-column: 1 / -1; }
     }
   }
 
-  .d3-card {
-    border: 1px solid #e1e3e5;
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-height: 150px;
-    height: 100%;
-    box-sizing: border-box;
-   
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    &.d3-card-sm {
-      min-height: 100px;
-      padding: 16px 20px;
-    }
-    .d3-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-
-      .d3-card-icon,
-      .d3-alert-icon {
-        width:40px;
-        height:40px;
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #0F172B;
-        background-color: #F8FAFC;
-        flex-shrink: 0;
-
-        ::ng-deep svg {
-          width: 20px;
-          height: 20px;
-        }
-      }
-
-      .d3-alert-icon {
-        background-color: #FEE2E2;
-        color: #FB2C36;
-
-        ::ng-deep svg {
-          width: 22px;
-          height: 22px;
-          stroke-width: 2;
-        }
-      }
-
-      .d3-card-title {
-        font-family: 'Cairo', sans-serif;
-        font-size: 15px;
-        font-weight: 500;
-        color: #62748E;
-        text-align: start;
-        flex: 1;
-
-        @media (max-width: 576px) {
-          font-size: 14px;
-        }
-      }
-    }
-
-    .d3-card-body {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 6px;
-      margin-top: 2px;
-
-      .d3-riyal-icon {
-        width: 38px;
-        height: 38px;
-        object-fit: contain;
-        color: #0F172B;
-        order: 2;
-        flex-shrink: 0;
-
-        &--en {
-          width: auto;
-          min-width: 42px;
-          height: 28px;
-        }
-      }
-
-      .d3-card-value {
-        font-family: 'Cairo', sans-serif;
-        font-size: 28px;
-        font-weight: 700;
-        color: #0F172B;
-        line-height: 1.2;
-        order: 1;
-
-        @media (max-width: 768px) {
-          font-size: 24px;
-        }
-
-        &.green {
-          color: #10B981;
-        }
-
-        &.blue {
-          color: #155DFC;
-        }
-      }
-
-      .d3-star-icon {
-        color: #FFBA00;
-        order: 2;
-        display: inline-flex;
-        align-items: center;
-
-        ::ng-deep svg {
-          width: 18px;
-          height: 18px;
-          fill: none;
-          stroke: #FFBA00;
-          stroke-width: 1.33px;
-        }
-      }
-    }
-
-    .d3-card-trend {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 4px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1;
-      margin-top: auto;
-
-      i-tabler {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 14px;
-        height: 14px;
-        line-height: 0;
-      }
-
-      ::ng-deep svg {
-        width: 14px;
-        height: 14px;
-        stroke-width: 2.2;
-        display: block;
-      }
-
-      span {
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-      }
-
-      &.up {
-        color: #10B981;
-      }
-
-      &.warn {
-        color: #EF4444;
-      }
-    }
-
-    .d3-card-note {
-      font-family: 'Cairo', sans-serif;
-      font-size: 12px;
-      color: #90A1B9;
-      text-align: start;
-      margin-top: auto;
-    }
-  }
-
-  .d3-split-section {
-    .d3-split-headers {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items: center;
-
-      .d3-section-header:last-child {
-        justify-self: start;
-      }
-
-    
-    }
-
-    .d3-split-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      align-items: stretch;
-
-      @media (max-width: 1200px) {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .d3-half-grid {
-      grid-template-columns: repeat(2, 1fr);
-
-      @media (max-width: 576px) {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .d3-n-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 8px;
-
-      .d3-n-circle {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background-color: #10B981;
-        color: #ffffff;
-        font-family: 'Cairo', sans-serif;
-        font-size: 24px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
+  @media (max-width: 575px) {
+    &[data-count], &.has-hero[data-count] { grid-template-columns: minmax(0, 1fr); }
   }
 }
 
-@media (max-width: 992px) {
-  .d3-cards-wrapper {
-    .d3-split-headers {
-      grid-template-columns: 1fr;
-      text-align: start;
-      
-      .d3-section-header:last-child {
-        justify-self: start;
-      }
-    }
+.d3-kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--d3-space-3);
+  min-width: 0;
+  min-height: 176px;
+  padding: var(--d3-space-6);
+  background: var(--d3-surface);
+  color: inherit;
+  text-decoration: none;
+  isolation: isolate;
+  overflow: hidden;
+  transition: background-color var(--d3-dur-card) var(--d3-ease);
+
+  &.d3-skeleton { min-height: 176px; border-radius: 0; }
+
+  // Accent rule that draws in along the top edge on hover (from the reading side).
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: var(--d3-navy-900);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--d3-dur-card) var(--d3-ease);
+  }
+
+  :host-context([dir='rtl']) &::after { transform-origin: right center; }
+
+  &:hover {
+    background: var(--d3-surface-muted);
+
+    &::after { transform: scaleX(1); }
+    .d3-kpi-icon { transform: translateY(-2px); }
+    .d3-kpi-value { transform: translateY(-2px); }
+  }
+
+  &.is-link {
+    cursor: pointer;
+
+    &:hover .d3-kpi-go,
+    &:focus-visible .d3-kpi-go { opacity: 1; background: var(--d3-navy-900); color: #FFFFFF; }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--d3-navy-900);
   }
 }
 
-// ---- API panel states (loading / error / empty) ----
-.d3-skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
-  background-size: 400% 100%;
-  animation: d3-shimmer 1.4s ease infinite;
-  border-radius: 12px;
-  min-height: 96px;
+.d3-kpi-head {
+  display: flex;
+  align-items: center;
+  gap: var(--d3-space-3);
+  min-width: 0;
 }
 
-.d3-row-skeleton {
-  min-height: 56px;
-  margin-bottom: 12px;
+// Outlined glyph rather than a tinted tile — lighter, so the number carries the cell.
+.d3-kpi-icon {
+  --d3-icon-size: 20px;
+  --d3-icon-fill: .16;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--d3-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--d3-surface-hover);
+  color: var(--d3-navy-800);
+  transition: transform var(--d3-dur-base) var(--d3-ease), border-color var(--d3-dur-base) ease;
 }
 
-.d3-chart-skeleton {
-  min-height: 230px;
+.d3-kpi-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--d3-fs-sm);
+  font-weight: 700;
+  color: var(--d3-text-3);
+  line-height: 1.4;
 }
 
-.d3-table-skeleton {
-  min-height: 160px;
+.d3-kpi-go {
+  --d3-icon-size: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--d3-surface-hover);
+  color: var(--d3-navy-800);
+  // Shown on hover / keyboard focus only — a permanent arrow on every cell is clutter.
+  opacity: 0;
+  transition: opacity var(--d3-dur-base) ease, background-color var(--d3-dur-base) ease, color var(--d3-dur-base) ease;
+
+  :host-context([dir='rtl']) & app-d3-icon { transform: scaleX(-1); }
 }
 
-@keyframes d3-shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
+.d3-kpi-value-row {
+  display: flex;
+  align-items: center;
+  gap: var(--d3-space-2);
+  min-width: 0;
+  margin-top: var(--d3-space-1);
 }
 
-.d3-panel-error {
+.d3-kpi-value {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--d3-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  transition: transform var(--d3-dur-card) var(--d3-ease);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.d3-riyal-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+
+  &--en {
+    width: auto;
+    min-width: 34px;
+    height: 22px;
+  }
+}
+
+.d3-kpi-trend {
+  display: flex;
+  align-items: center;
+  gap: var(--d3-space-2);
+  flex-wrap: wrap;
+}
+
+.d3-trend-chip {
+  --d3-icon-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--d3-radius-pill);
+  background: var(--d3-surface-hover);
+  color: var(--d3-text-2);
+  font-size: var(--d3-fs-xs);
+  font-weight: 700;
+  line-height: 1.4;
+
+  &.up { background: var(--d3-success-soft); color: var(--d3-success); }
+  &.warn { background: var(--d3-danger-soft); color: var(--d3-danger); }
+}
+
+.d3-kpi-compare {
+  font-size: var(--d3-fs-xs);
+  color: var(--d3-text-3);
+  font-weight: 500;
+}
+
+// Current vs previous period — the API's own values, scaled to the larger one.
+.d3-kpi-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: var(--d3-space-1);
+}
+
+.d3-meter-track {
+  display: block;
+  height: 4px;
+  border-radius: var(--d3-radius-pill);
+  background: var(--d3-surface-hover);
+  overflow: hidden;
+}
+
+.d3-meter-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  animation: d3-grow var(--d3-dur-reveal) var(--d3-ease-out) both;
+  transition: width var(--d3-dur-reveal) var(--d3-ease-out);
+
+  :host-context([dir='rtl']) & { transform-origin: right center; }
+
+  &.is-current { background: var(--tone, var(--d3-navy-900)); }
+  &.is-previous { background: var(--d3-border-strong); }
+}
+
+.d3-kpi-previous {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-  border-radius: 12px;
-  font-size: 14px;
+  gap: var(--d3-space-2);
+  margin-top: auto;
+  padding-top: var(--d3-space-3);
+  border-top: 1px solid var(--d3-border);
+  font-size: var(--d3-fs-xs);
+  color: var(--d3-text-3);
+  font-weight: 500;
 }
 
-.d3-retry-btn {
-  border: 1px solid #b91c1c;
-  background: #fff;
-  color: #b91c1c;
-  border-radius: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
+.d3-kpi-previous-value {
+  font-weight: 700;
+  color: var(--d3-text-2);
+  font-variant-numeric: tabular-nums;
+}
 
-  &:focus-visible {
-    outline: 2px solid #0f172b;
-    outline-offset: 2px;
+// ── Hero KPI (platform revenue): deep navy surface, the first thing the eye lands on.
+.d3-kpi--hero {
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(148, 163, 184, 0.22) 0%, transparent 55%),
+    linear-gradient(160deg, var(--d3-navy-800) 0%, var(--d3-navy-950) 100%);
+  color: var(--d3-text-inverse);
+
+  // Fine dot grid fading out from the top corner — texture, not decoration.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.3px);
+    background-size: 14px 14px;
+    -webkit-mask-image: linear-gradient(200deg, #000 0%, transparent 60%);
+    mask-image: linear-gradient(200deg, #000 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  &::after { background: #FFFFFF; }
+
+  &:hover {
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(148, 163, 184, 0.3) 0%, transparent 55%),
+      linear-gradient(160deg, var(--d3-navy-800) 0%, var(--d3-navy-950) 100%);
+  }
+
+  .d3-kpi-icon {
+    --d3-icon-fill: .22;
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+  }
+
+  .d3-kpi-title { color: rgba(255, 255, 255, 0.78); }
+
+  .d3-kpi-go {
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+  }
+
+  &.is-link:hover .d3-kpi-go {
+    background: #FFFFFF;
+    color: var(--d3-navy-900);
+  }
+
+  .d3-kpi-value {
+    font-size: 42px;
+    color: #FFFFFF;
+  }
+
+  // The riyal glyph ships dark — render it white on the navy card.
+  .d3-riyal-icon { filter: brightness(0) invert(1); }
+
+  .d3-trend-chip {
+    background: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+
+    &.up { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+    &.warn { background: rgba(248, 113, 113, 0.2); color: #FCA5A5; }
+  }
+
+  .d3-kpi-compare,
+  .d3-kpi-previous { color: rgba(255, 255, 255, 0.6); }
+  .d3-kpi-previous { border-top-color: rgba(255, 255, 255, 0.14); }
+  .d3-kpi-previous-value { color: rgba(255, 255, 255, 0.9); }
+
+  .d3-meter-track { background: rgba(255, 255, 255, 0.1); }
+  .d3-meter-bar.is-current { background: #FFFFFF; }
+  .d3-meter-bar.is-previous { background: rgba(255, 255, 255, 0.3); }
+
+  &.d3-skeleton { background: linear-gradient(90deg, #1E293B 25%, #263449 37%, #1E293B 63%); background-size: 400% 100%; }
+}
+
+// ───────────────────────── Host & guest app panels ─────────────────────────
+.d3-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--d3-space-4);
+
+  // Only hosts or only guests: the one panel spans the row (its tiles go 4-across).
+  &.is-solo { grid-template-columns: minmax(0, 1fr); }
+
+  @media (max-width: 991px) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.d3-empty {
-  padding: 24px 8px;
-  text-align: center;
-  color: #62748e;
-  font-size: 14px;
-}
-
-.d3-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
+// Each app is one panel: a header strip, then its metrics on hairlines (no boxes in boxes).
+.d3-app-panel {
+  background: var(--d3-surface);
+  border: 1px solid var(--d3-border);
+  border-radius: var(--d3-radius-lg);
+  box-shadow: var(--d3-shadow-xs);
+  min-width: 0;
+  position: relative;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
-.d3-data-quality {
+.d3-app-head {
   display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #92400e;
-  border-radius: 12px;
-  font-size: 13px;
+  align-items: center;
+  gap: var(--d3-space-3);
+  padding: var(--d3-space-4) var(--d3-space-6);
+  border-bottom: 1px solid var(--d3-border);
+  background: var(--d3-surface-muted);
+}
 
-  ul { margin: 0; padding: 0; list-style: none; }
+.d3-app-badge {
+  --d3-icon-size: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--d3-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  --d3-icon-fill: .16;
+  background: var(--d3-surface-hover);
+  color: var(--d3-navy-800);
+}
+
+.d3-app-title {
+  margin: 0;
+  font-size: var(--d3-fs-lg);
+  font-weight: 700;
+  color: var(--d3-text);
+}
+
+// --d3-tile-cols is set per panel from the tiles the admin may see (2 beside the other
+// panel, up to 4 when alone); an odd last tile spans the row (.is-span, set in TS).
+.d3-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--d3-tile-cols, 2), minmax(0, 1fr));
+  gap: 1px;
+  background: var(--d3-border);
+
+  > .is-span { grid-column: 1 / -1; }
+
+  // Narrow screens: as many ≥150px tiles as fit, whatever the count.
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  @media (max-width: 400px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.d3-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 108px;
+  padding: var(--d3-space-5) var(--d3-space-6);
+  background: var(--d3-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--d3-dur-card) ease;
+
+  &.d3-skeleton { min-height: 108px; }
+
+  &:hover {
+    background: var(--d3-surface-muted);
+
+    .d3-tile-icon { color: var(--d3-navy-900); transform: translateY(-2px); }
+  }
+
+  &.is-link {
+    cursor: pointer;
+    &:hover .d3-tile-go,
+    &:focus-visible .d3-tile-go { opacity: 1; color: var(--d3-text); }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--d3-navy-900);
+  }
+}
+
+.d3-tile-icon {
+  --d3-icon-size: 18px;
+  --d3-icon-fill: .16;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--d3-surface-hover);
+  color: var(--d3-navy-700);
+  transition: color var(--d3-dur-base) ease, border-color var(--d3-dur-base) ease, transform var(--d3-dur-base) var(--d3-ease);
+}
+
+.d3-tile-label {
+  font-size: var(--d3-fs-sm);
+  font-weight: 600;
+  color: var(--d3-text-3);
+  line-height: 1.4;
+}
+
+.d3-tile-value-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.d3-tile-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--d3-text);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+
+  &.green { color: var(--d3-text); }
+  &.blue { color: var(--d3-text); }
+  &.muted { font-size: var(--d3-fs-lg); color: var(--d3-text-muted); font-weight: 700; }
+}
+
+.d3-star-fill {
+  width: 18px;
+  height: 18px;
+  fill: var(--d3-navy-900);
+}
+
+.d3-tile-go {
+  --d3-icon-size: 14px;
+  position: absolute;
+  top: var(--d3-space-3);
+  inset-inline-end: var(--d3-space-3);
+  color: var(--d3-text-3);
+  opacity: 0;
+  transition: opacity var(--d3-dur-base) ease, transform var(--d3-dur-base) var(--d3-ease);
+
+  :host-context([dir='rtl']) & app-d3-icon { transform: scaleX(-1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .d3-meter-bar { animation: none; }
+  .d3-kpi::after { transition: none; }
+  .d3-kpi:hover .d3-kpi-icon,
+  .d3-kpi:hover .d3-kpi-value,
+  .d3-tile:hover .d3-tile-icon { transform: none; }
 }

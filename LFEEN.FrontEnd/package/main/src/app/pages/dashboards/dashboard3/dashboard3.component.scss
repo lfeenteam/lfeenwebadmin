@@ -29,7 +29,7 @@
     height: 100%;
     flex-shrink: 0;
     flex-grow: 0;
-    transition: width 0.25s ease, transform 0.3s ease;
+    transition: width var(--d3-dur-panel, 220ms) var(--d3-ease, ease);
   }
 
   .sidebar-overlay {
@@ -55,6 +55,7 @@
 
   &.sidebar-mobile-open {
     @media (max-width: 992px) {
+      // The drawer opens from the sidebar's own side: right in Arabic, left in English.
       .dashboard-sidebar {
         display: block !important;
         position: fixed !important;
@@ -62,11 +63,16 @@
         right: 0 !important;
         left: auto !important;
         height: 100vh !important;
-        width: 256px !important;
-        max-width: 80vw !important;
+        width: 280px !important;
+        max-width: 84vw !important;
         z-index: 1100 !important;
-        box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
-        animation: d3-slide-in 0.3s ease;
+        animation: d3-slide-in var(--d3-dur-panel, 220ms) var(--d3-ease-out, ease);
+      }
+
+      &[dir='ltr'] .dashboard-sidebar {
+        right: auto !important;
+        left: 0 !important;
+        animation-name: d3-slide-in-start;
       }
 
       .sidebar-overlay {
@@ -76,9 +82,11 @@
     }
   }
 
+  // Header on top, page below; only the page scrolls (one scrollbar), so every header
+  // stays in place whatever its height.
   .content-area {
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden;
  background: #FFFFFF;
     min-width: 0;
     flex: 1 1 auto !important;
@@ -92,15 +100,28 @@
       width: 100% !important;
       flex-shrink: 0;
     }
+
+    // Executive dashboard: white cards on a light canvas (other pages keep white).
+    &.is-canvas {
+      background: var(--d3-canvas);
+
+      .page-content {
+        padding: 28px 32px 104px;
+
+        @media (max-width: 1199px) { padding: 24px 20px 96px; }
+        @media (max-width: 576px) { padding: 16px 12px 88px; }
+      }
+    }
   }
 
   .page-content {
-    flex: 1 1 auto;
+    // Fills exactly the space under the header (any height) and is the only scroller.
+    flex: 1 1 0;
+    min-height: 0;
     overflow-y: auto;
     padding: 24px 16px;
     // Room under the last row so the fixed chat FAB (bottom corner) never covers it.
     padding-bottom: 96px;
-    min-height: calc(100vh - 80px);
     width: 100%;
 
     @media (max-width: 768px) {
@@ -121,6 +142,15 @@
 @keyframes d3-slide-in {
   from {
     transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes d3-slide-in-start {
+  from {
+    transform: translateX(-100%);
   }
   to {
     transform: translateX(0);

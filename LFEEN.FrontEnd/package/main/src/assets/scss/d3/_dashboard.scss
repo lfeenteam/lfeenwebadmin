@@ -1,0 +1,350 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Executive dashboard — building blocks shared by its parts (KPI cards, charts,
+// insights). Scoped to .d3-dash (the CEO page root) so nothing leaks into other
+// pages that happen to reuse a class name. Values come from _tokens.scss.
+// ─────────────────────────────────────────────────────────────────────────────
+
+.d3-dash {
+  font-family: var(--d3-font);
+  color: var(--d3-text);
+
+  // Section: heading + hint, then content.
+  .d3-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--d3-space-4);
+    min-width: 0;
+  }
+
+  .d3-block-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--d3-space-3);
+    flex-wrap: wrap;
+  }
+
+  // Report-style section headings: a running index (01, 02 …) beside the title, then a
+  // hairline. The index is a CSS counter, so it numbers only the sections this admin
+  // is allowed to see — hidden sections never leave a gap in the sequence.
+  counter-reset: d3-section;
+
+  .d3-block-heading {
+    min-width: 0;
+    counter-increment: d3-section;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--d3-space-3);
+    align-items: start;
+
+    // Quiet index: outlined, muted — the navy is kept for the hero KPI, the active
+    // menu item and selected filters only, so dark blocks don't compete on the page.
+    &::before {
+      content: counter(d3-section, decimal-leading-zero);
+      grid-row: 1 / span 2;
+      align-self: center;
+      min-width: 34px;
+      padding: 6px 0;
+      border-radius: var(--d3-radius-sm);
+      border: 1px solid var(--d3-border-strong);
+      color: var(--d3-text-3);
+      font-size: var(--d3-fs-xs);
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  .d3-block-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: var(--d3-text);
+    letter-spacing: -0.01em;
+  }
+
+  .d3-block-sub {
+    margin: 1px 0 0;
+    font-size: var(--d3-fs-sm);
+    font-weight: 500;
+    color: var(--d3-text-3);
+    line-height: 1.5;
+  }
+
+  // The hairline that closes each section heading row and runs to the far edge.
+  .d3-block-head,
+  .ceo-toolbar {
+    padding-bottom: var(--d3-space-3);
+    border-bottom: 1px solid var(--d3-border);
+  }
+
+  // White card on the light canvas.
+  // One card anatomy for every panel on the page (KPI strip and app panels included):
+  // same radius, border, shadow and 24px padding.
+  .d3-surface {
+    background: var(--d3-surface);
+    border: 1px solid var(--d3-border);
+    border-radius: var(--d3-radius-lg);
+    box-shadow: var(--d3-shadow-xs);
+    min-width: 0;
+  }
+
+  .d3-surface-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--d3-space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--d3-space-4);
+  }
+
+  .d3-surface-title {
+    display: flex;
+    align-items: center;
+    gap: var(--d3-space-3);
+    margin: 0;
+    font-size: var(--d3-fs-lg);
+    font-weight: 700;
+    color: var(--d3-text);
+    line-height: 1.4;
+  }
+
+  .d3-surface-sub {
+    margin: 2px 0 0;
+    font-size: var(--d3-fs-xs);
+    color: var(--d3-text-3);
+    font-weight: 500;
+  }
+
+  // Small rounded icon chip used next to panel titles.
+  .d3-head-icon {
+    --d3-icon-size: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--d3-radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    --d3-icon-fill: .16;
+    background: var(--d3-surface-hover);
+    color: var(--d3-navy-800);
+    flex-shrink: 0;
+  }
+
+  // "Updating…" pill while a new period loads over the previous numbers.
+  .d3-refreshing {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--d3-radius-pill);
+    background: var(--d3-accent-soft);
+    color: var(--d3-accent);
+    font-size: var(--d3-fs-xs);
+    font-weight: 700;
+  }
+
+  .d3-refreshing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: d3-pulse 1s ease-in-out infinite;
+  }
+
+  // Loading placeholder.
+  .d3-skeleton {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E7EDF4 37%, #F1F5F9 63%);
+    background-size: 400% 100%;
+    animation: d3-shimmer 1.4s ease infinite;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: var(--d3-radius-lg);
+    min-height: 96px;
+    pointer-events: none;
+  }
+
+  .d3-row-skeleton { min-height: 52px; margin-bottom: var(--d3-space-3); }
+  .d3-chart-skeleton { min-height: 280px; }
+  .d3-table-skeleton { min-height: 160px; }
+
+  .d3-panel-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--d3-space-3);
+    padding: var(--d3-space-3) var(--d3-space-4);
+    border: 1px solid #FECACA;
+    background: var(--d3-danger-soft);
+    color: #B91C1C;
+    border-radius: var(--d3-radius-md);
+    font-size: var(--d3-fs-md);
+    font-weight: 600;
+  }
+
+  .d3-retry-btn {
+    border: 1px solid #B91C1C;
+    background: #FFFFFF;
+    color: #B91C1C;
+    border-radius: var(--d3-radius-sm);
+    padding: 4px 12px;
+    font: inherit;
+    font-size: var(--d3-fs-sm);
+    cursor: pointer;
+    transition: background-color var(--d3-dur-fast) ease;
+
+    &:hover { background: #FFF5F5; }
+    &:focus-visible { outline: none; box-shadow: var(--d3-focus-ring); }
+  }
+
+  .d3-empty {
+    padding: var(--d3-space-6) var(--d3-space-4);
+    text-align: center;
+    color: var(--d3-text-3);
+    font-size: var(--d3-fs-md);
+    font-weight: 500;
+  }
+
+  .d3-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  // Bars grow from their start edge when they first render.
+  .d3-grow {
+    transform-origin: var(--d3-grow-origin, left) center;
+    animation: d3-grow var(--d3-dur-reveal) var(--d3-ease-out) both;
+  }
+
+  &[dir='rtl'] .d3-grow { --d3-grow-origin: right; }
+
+  // ApexCharts draws its tooltip outside Angular's style scoping — the charts' custom
+  // tooltip markup (d3-apx-tip) is styled here; Apex's own box is made invisible.
+  .apexcharts-tooltip.apexcharts-theme-light {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible;
+    transition: opacity var(--d3-dur-tooltip) ease, left var(--d3-dur-base) var(--d3-ease), top var(--d3-dur-base) var(--d3-ease);
+  }
+
+  .d3-apx-tip {
+    min-width: 150px;
+    padding: 10px 12px;
+    border-radius: var(--d3-radius-md);
+    background: var(--d3-navy-900);
+    color: #FFFFFF;
+    box-shadow: var(--d3-shadow-lg);
+    font-family: var(--d3-font);
+    text-align: start;
+  }
+
+  &[dir='rtl'] .d3-apx-tip { direction: rtl; }
+
+  .d3-apx-tip-date {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 6px;
+  }
+
+  .d3-apx-tip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--d3-fs-sm);
+  }
+
+  .d3-apx-tip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  }
+
+  .d3-apx-tip-name {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+  }
+
+  .d3-apx-tip-value {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Donut: dim the slices that aren't hovered.
+  .apexcharts-pie-series path {
+    transition: opacity var(--d3-dur-base) ease;
+  }
+
+  .apexcharts-pie:hover .apexcharts-pie-series path:not(:hover) {
+    opacity: 0.45;
+  }
+}
+
+@keyframes d3-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+@keyframes d3-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes d3-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes d3-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .d3-dash .d3-skeleton,
+  .d3-dash .d3-refreshing-dot { animation: none; }
+}
+
+// ───────────────────────── Page entrance (see RevealDirective) ─────────────────────────
+// One quiet entrance when the page opens: each section fades in with a 6px rise, 320ms,
+// sections 60ms apart (≈0.5s for the whole page). Nothing waits for scrolling and cards
+// don't animate a second time inside their section — the motion is felt, not watched.
+// Opacity/transform only, so nothing reflows; off under prefers-reduced-motion.
+.d3-dash {
+  .d3-reveal {
+    animation: d3-enter 320ms var(--d3-ease-out) both;
+  }
+
+  // Delay by position on the page (sections are direct children of .ceo-page).
+  > .d3-reveal:nth-child(2) { animation-delay: 60ms; }
+  > .d3-reveal:nth-child(3) { animation-delay: 120ms; }
+  > .d3-reveal:nth-child(4) { animation-delay: 180ms; }
+  > .d3-reveal:nth-child(n + 5) { animation-delay: 240ms; }
+
+  // The four KPIs settle left-to-right in reading order, 40ms apart.
+  .d3-kpi { animation: d3-enter 320ms var(--d3-ease-out) both; animation-delay: calc(80ms + var(--d3-i, 0) * 40ms); }
+}
+
+@keyframes d3-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .d3-dash .d3-reveal,
+  .d3-dash .d3-kpi { animation: none; }
+}
+

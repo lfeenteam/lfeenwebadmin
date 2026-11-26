@@ -7,11 +7,12 @@ import { PageBreadcrumbCrumb } from '../../../pages/dashboards/dashboard3/servic
 import { CoreService } from '../../../services/core.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { TextDirPipe } from 'src/app/pipes/text-dir.pipe';
+import { HeaderActionsComponent } from '../header-actions/header-actions.component';
 
 @Component({
   selector: 'app-dashboard3-page-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, TablerIconsModule, TextDirPipe],
+  imports: [CommonModule, RouterModule, TranslateModule, TablerIconsModule, TextDirPipe, HeaderActionsComponent],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
 })

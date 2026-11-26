@@ -1,59 +1,79 @@
 <div class="d3-period-filter" role="group" [attr.aria-label]="'d3.filters.ariaLabel' | translate">
-  <div class="d3-period-presets">
-    @for (preset of presets; track preset.key) {
-      <button
-        type="button"
-        class="d3-period-chip"
-        [class.active]="activePreset() === preset.key"
-        (click)="selectPreset(preset.key)">
-        {{ preset.labelKey | translate }}
+  <div class="d3-period-row">
+    <!-- Presets: segmented pills -->
+    <div class="d3-period-presets">
+      @for (preset of presets; track preset.key) {
+        <button
+          type="button"
+          class="d3-period-chip"
+          [class.active]="activePreset() === preset.key"
+          [attr.aria-pressed]="activePreset() === preset.key"
+          (click)="selectPreset(preset.key)">
+          {{ preset.labelKey | translate }}
+        </button>
+      }
+    </div>
+
+    <span class="d3-period-sep" aria-hidden="true"></span>
+
+    <!-- Custom range -->
+    <div class="d3-period-custom" [class.active]="activePreset() === 'custom'">
+      <button type="button" class="date-pill d3-mh" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger"
+              [class.active]="activePreset() === 'custom' && customFrom()">
+        <app-d3-icon name="calendar" class="date-icon"></app-d3-icon>
+        <span class="date-caption">{{ 'd3.filters.customFrom' | translate }}</span>
+        @if (customFrom()) {
+          <span class="date-label">{{ formatPlainDate(customFrom()!) }}</span>
+        }
       </button>
-    }
+      <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="customFrom()"
+            [maxDate]="today()"
+            (dateSelected)="onFromSelect($event); fromMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
 
-    <!-- From -->
-    <button type="button" class="date-pill" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger" [class.active]="activePreset() === 'custom' && customFrom()">
-      <i-tabler name="calendar" class="date-icon"></i-tabler>
-      <span class="date-label">{{ customFrom() ? formatPlainDate(customFrom()!) : ('d3.filters.customFrom' | translate) }}</span>
-    </button>
-    <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
-      <ng-template matMenuContent>
-        <app-single-date-calendar
-          (click)="$event.stopPropagation()"
-          [value]="customFrom()"
-          [maxDate]="today()"
-          (dateSelected)="onFromSelect($event); fromMenuTrigger.closeMenu()">
-        </app-single-date-calendar>
-      </ng-template>
-    </mat-menu>
+      <span class="d3-period-arrow" aria-hidden="true">→</span>
 
-    <!-- To -->
-    <button type="button" class="date-pill" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger" [class.active]="activePreset() === 'custom' && customTo()">
-      <i-tabler name="calendar" class="date-icon"></i-tabler>
-      <span class="date-label">{{ customTo() ? formatPlainDate(customTo()!) : ('d3.filters.customTo' | translate) }}</span>
-    </button>
-    <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
-      <ng-template matMenuContent>
-        <app-single-date-calendar
-          (click)="$event.stopPropagation()"
-          [value]="customTo()"
-          [minDate]="customFrom()"
-          [maxDate]="today()"
-          (dateSelected)="onToSelect($event); toMenuTrigger.closeMenu()">
-        </app-single-date-calendar>
-      </ng-template>
-    </mat-menu>
-
-    @if (activePreset() === 'custom') {
-      <button type="button" class="d3-period-clear" (click)="clearCustomRange()">
-        <i-tabler name="x" class="d3-period-clear-icon"></i-tabler>
-        {{ 'd3.filters.clear' | translate }}
+      <button type="button" class="date-pill d3-mh" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger"
+              [class.active]="activePreset() === 'custom' && customTo()">
+        <app-d3-icon name="calendar" class="date-icon"></app-d3-icon>
+        <span class="date-caption">{{ 'd3.filters.customTo' | translate }}</span>
+        @if (customTo()) {
+          <span class="date-label">{{ formatPlainDate(customTo()!) }}</span>
+        }
       </button>
-    }
+      <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
+        <ng-template matMenuContent>
+          <app-single-date-calendar
+            (click)="$event.stopPropagation()"
+            [value]="customTo()"
+            [minDate]="customFrom()"
+            [maxDate]="today()"
+            (dateSelected)="onToSelect($event); toMenuTrigger.closeMenu()">
+          </app-single-date-calendar>
+        </ng-template>
+      </mat-menu>
+
+      @if (activePreset() === 'custom') {
+        <button type="button" class="d3-period-clear" (click)="clearCustomRange()" [attr.aria-label]="'d3.filters.clear' | translate">
+          <app-d3-icon name="x" class="d3-period-clear-icon"></app-d3-icon>
+          <span>{{ 'd3.filters.clear' | translate }}</span>
+        </button>
+      }
+    </div>
   </div>
 
   <div class="d3-period-status">
     @if (currentRangeLabel(); as label) {
-      <span class="d3-period-current">{{ label }}</span>
+      <span class="d3-period-current">
+        <app-d3-icon name="calendar" class="d3-period-current-icon"></app-d3-icon>
+        {{ label }}
+      </span>
     }
     @if (rangeTooLong()) {
       <span class="d3-period-error" role="alert">{{ 'd3.filters.rangeTooLong' | translate }}</span>

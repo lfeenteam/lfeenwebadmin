@@ -20,6 +20,16 @@ import { Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments/environment';
 
+const SIDEBAR_COLLAPSED_KEY = 'd3.sidebarCollapsed';
+
+function readSidebarCollapsed(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 @Component({
   selector: 'app-dashboard3',
   standalone: true,
@@ -56,7 +66,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     this.document.body.classList.toggle('d3-flow-start', this.flowReportOn && this.currentDir() !== 'rtl');
   });
 
-  sidebarCollapsed = false;
+  // Remembered per browser: an admin who prefers the icon rail keeps it across reloads.
+  sidebarCollapsed = readSidebarCollapsed();
   // Test builds show the Flow "report an issue" button, kept on the sidebar side (see syncBodyDir).
   readonly flowReportOn = !!environment.flowReport;
   sidebarMobileOpen = false;
@@ -179,6 +190,15 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
     } else {
       this.pageBreadcrumbRoute = null;
       this.pageBreadcrumbQueryParams = null;
+    }
+  }
+
+  onSidebarCollapsedChange(collapsed: boolean): void {
+    this.sidebarCollapsed = collapsed;
+    try {
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
+    } catch {
+      // Storage blocked (private mode / policy) — the choice just isn't remembered.
     }
   }
 

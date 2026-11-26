@@ -1,137 +1,92 @@
-<div class="d3-sidebar">
+<nav class="d3-sidebar" [attr.aria-label]="'d3.sidebar.navLabel' | translate">
+  <!-- Brand + collapse -->
   <div class="d3-branding">
     <img src="./assets/images/logos/Layer_x0020_1.png" alt="LFEEN" class="d3-logo-img" />
     @if (mobileMode) {
-      <i-tabler
-        name="x"
-        class="d3-collapse-btn d3-mobile-close"
-        (click)="closeMobile()"></i-tabler>
+      <button type="button" class="d3-collapse-btn d3-mobile-close" (click)="closeMobile()"
+              [attr.aria-label]="'d3.sidebar.closeMenu' | translate">
+        <i-tabler name="x"></i-tabler>
+      </button>
     } @else {
-      <i-tabler
-        [name]="collapsed ? 'layout-sidebar-right-expand' : 'layout-sidebar-right-collapse'"
-        class="d3-collapse-btn"
-        (click)="toggleSidebar()"></i-tabler>
+      <button type="button" class="d3-collapse-btn" (click)="toggleSidebar()"
+              [attr.aria-expanded]="!collapsed"
+              [attr.aria-label]="(collapsed ? 'd3.sidebar.expand' : 'd3.sidebar.collapse') | translate"
+              [matTooltip]="tooltipFor('d3.sidebar.expand' | translate)" matTooltipPosition="after">
+        <i-tabler [name]="collapseIcon"></i-tabler>
+      </button>
     }
   </div>
 
-  <mat-nav-list class="d3-sidebar-list">
-    @for(item of filteredNavItems(); track trackKey(item, $index)) {
-      @if(item.divider) {
-        <div class="d3-menu-divider"></div>
-      } @else {
-        @if (item.children && item.children.length > 0) {
-          <div class="d3-submenu-container" [class.is-expanded]="isExpanded(item)" [class.has-active-child]="isChildActive(item)">
-            <a mat-list-item href="#" (click)="toggleSubmenu(item, $event)"
-              [matTooltip]="tooltipFor(getItemTitle(item))" matTooltipPosition="after"
-              class="d3-menu-item has-children">
-              <span class="d-flex align-items-center gap-12 w-100">
-                <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
-                <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                  {{ getItemTitle(item) }}
-                </span>
-                <i-tabler *ngIf="!collapsed || mobileMode" [name]="isExpanded(item) ? 'chevron-up' : 'chevron-down'" class="icon-16 ms-auto"></i-tabler>
-              </span>
-            </a>
-            @if (isExpanded(item) && (!collapsed || mobileMode)) {
-              <div class="d3-submenu">
-                @for(child of item.children; track trackKey(child, $index)) {
-                  <a mat-list-item href="#" (click)="navigateTo(child, $event)"
-                    [class.active-link]="isActive(child)"
-                    class="d3-menu-item d3-child-item">
-                    <span class="d-flex align-items-center gap-12 w-100">
-                      <i-tabler [name]="child.icon!" class="icon-18"></i-tabler>
-                      <span class="d3-menu-title sub-title">
-                        {{ getItemTitle(child) }}
-                      </span>
-                    </span>
-                  </a>
-                }
+  <!-- Main navigation (its own scroll area, so the brand and footer stay put) -->
+  <div class="d3-nav-scroll">
+    <ul class="d3-sidebar-list">
+      @for (item of filteredNavItems(); track trackKey(item, $index)) {
+        @if (item.divider) {
+          <li class="d3-menu-divider" role="separator"></li>
+        } @else if (item.children && item.children.length > 0) {
+          <li class="d3-submenu-container" [class.is-expanded]="isExpanded(item) && !isIconOnly" [class.has-active-child]="isChildActive(item)">
+            @if (isIconOnly) {
+              <!-- Icon-only sidebar: the group opens as a flyout instead of forcing the sidebar open. -->
+              <button type="button" class="d3-menu-item has-children"
+                      [class.active-link]="isChildActive(item)"
+                      [matMenuTriggerFor]="groupFlyout" [matMenuTriggerData]="{ item: item }"
+                      [matTooltip]="getItemTitle(item)" matTooltipPosition="after"
+                      [attr.aria-label]="getItemTitle(item)">
+                <span class="d3-item-icon"><i-tabler [name]="item.icon!"></i-tabler></span>
+              </button>
+            } @else {
+              <button type="button" class="d3-menu-item has-children" (click)="toggleSubmenu(item, $event)"
+                      [attr.aria-expanded]="isExpanded(item)">
+                <span class="d3-item-icon"><i-tabler [name]="item.icon!"></i-tabler></span>
+                <span class="d3-menu-title">{{ getItemTitle(item) }}</span>
+                <i-tabler name="chevron-down" class="d3-chevron"></i-tabler>
+              </button>
+              <!-- Always rendered: the grid-rows transition animates the open/close smoothly;
+                   inert keeps a closed group out of the tab order and screen readers. -->
+              <div class="d3-submenu" [attr.inert]="isExpanded(item) ? null : ''">
+                <ul class="d3-submenu-inner">
+                  @for (child of item.children; track trackKey(child, $index)) {
+                    <li>
+                      <a href="#" (click)="navigateTo(child, $event)"
+                         [class.active-link]="isActive(child)"
+                         [attr.aria-current]="isActive(child) ? 'page' : null"
+                         class="d3-menu-item d3-child-item">
+                        <span class="d3-item-icon"><i-tabler [name]="child.icon!"></i-tabler></span>
+                        <span class="d3-menu-title">{{ getItemTitle(child) }}</span>
+                      </a>
+                    </li>
+                  }
+                </ul>
               </div>
             }
-          </div>
+          </li>
         } @else {
-          <a mat-list-item href="#" (click)="navigateTo(item, $event)"
-            [class.active-link]="isActive(item)"
-            [matTooltip]="tooltipFor(getItemTitle(item))" matTooltipPosition="after"
-            class="d3-menu-item">
-            <span class="d-flex align-items-center gap-12 w-100">
-              <i-tabler [name]="item.icon!" class="icon-20"></i-tabler>
-              <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-                {{ getItemTitle(item) }}
-              </span>
-            </span>
-          </a>
+          <li>
+            <a href="#" (click)="navigateTo(item, $event)"
+               [class.active-link]="isActive(item)"
+               [attr.aria-current]="isActive(item) ? 'page' : null"
+               [matTooltip]="tooltipFor(getItemTitle(item))" matTooltipPosition="after"
+               class="d3-menu-item">
+              <span class="d3-item-icon"><i-tabler [name]="item.icon!"></i-tabler></span>
+              <span class="d3-menu-title">{{ getItemTitle(item) }}</span>
+            </a>
+          </li>
         }
       }
-    }
-  </mat-nav-list>
-
-  <div class="d3-sidebar-footer">
-    <div class="footer-items">
-      <a mat-list-item class="d3-menu-item footer-item"
-         [class.active-link]="isOnNotificationsPage"
-         [matTooltip]="tooltipFor('d3.sidebar.notifications' | translate)" matTooltipPosition="after"
-         (click)="navigateTo({link: '/d3/notifications'}, $event)">
-        <span class="d-flex align-items-center gap-12 w-100">
-          <span class="icon-wrapper">
-            <i-tabler name="bell" class="icon-20"></i-tabler>
-            @if (notificationsStore.unreadCount() > 0) {
-              <span class="notification-badge">
-                {{ notificationsStore.unreadCount() > 99 ? '99+' : notificationsStore.unreadCount() }}
-              </span>
-            }
-          </span>
-          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-            {{ 'd3.sidebar.notifications' | translate }}
-          </span>
-        </span>
-      </a>
-      <!-- On the CEO page Settings is already in the nav list above. Hidden without Settings.View. -->
-      @if (!isCeoPage() && canViewSettings()) {
-        <a mat-list-item (click)="navigateTo({link: '/d3/settings'}, $event)"
-          [class.active-link]="isOnSettingsPage"
-          [matTooltip]="tooltipFor('d3.sidebar.settings' | translate)" matTooltipPosition="after"
-          class="d3-menu-item footer-item">
-          <span class="d-flex align-items-center gap-12 w-100">
-            <i-tabler name="settings" class="icon-20"></i-tabler>
-            <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-              {{ 'd3.sidebar.settings' | translate }}
-            </span>
-          </span>
-        </a>
-      }
-      <a mat-list-item (click)="toggleLanguage()" class="d3-menu-item footer-item"
-        [matTooltip]="tooltipFor(currentLang === 'ar' ? 'English' : 'العربية')" matTooltipPosition="after">
-        <span class="d-flex align-items-center gap-12 w-100">
-          <i-tabler name="world" class="icon-20"></i-tabler>
-          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-            {{ currentLang === 'ar' ? 'English' : 'العربية' }}
-          </span>
-        </span>
-      </a>
-    </div>
-
-    <div class="footer-bottom">
-      <a mat-list-item (click)="logout()" class="d3-menu-item footer-item logout-item"
-        [matTooltip]="tooltipFor('d3.sidebar.logout' | translate)" matTooltipPosition="after">
-        <span class="d-flex align-items-center gap-12 w-100">
-          <i-tabler name="logout" class="icon-20"></i-tabler>
-          <span class="d3-menu-title" *ngIf="!collapsed || mobileMode">
-            {{ 'd3.sidebar.logout' | translate }}
-          </span>
-        </span>
-      </a>
-
-      <div class="user-profile-wrapper">
-        <div class="user-profile" (click)="navigateTo({link: '/d3/profile'}, $event)" style="cursor: pointer;"
-          [matTooltip]="tooltipFor(user()?.fullName || '')" matTooltipPosition="after">
-          <span class="profile-img profile-initials">{{ initials() }}</span>
-          <div class="user-info" *ngIf="!collapsed || mobileMode">
-            <span class="user-name">{{ user()?.fullName }}</span>
-            <span class="user-role">{{ user()?.roles?.[0] }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </ul>
   </div>
-</div>
+
+</nav>
+
+<!-- Collapsed sidebar: a group's pages as a flyout next to its icon -->
+<mat-menu #groupFlyout="matMenu" class="d3-sidebar-flyout" xPosition="after">
+  <ng-template matMenuContent let-item="item">
+    <div class="d3-flyout-title">{{ getItemTitle(item) }}</div>
+    @for (child of item.children; track trackKey(child, $index)) {
+      <button mat-menu-item type="button" (click)="navigateTo(child, $event)" [class.is-active]="isActive(child)">
+        <i-tabler [name]="child.icon!"></i-tabler>
+        <span>{{ getItemTitle(child) }}</span>
+      </button>
+    }
+  </ng-template>
+</mat-menu>

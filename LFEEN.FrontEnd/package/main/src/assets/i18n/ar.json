@@ -769,8 +769,14 @@
         "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
       }
     },
+    "access": {
+      "noStatsTitle": "ليس لديك صلاحية لعرض مؤشرات لوحة التحكم.",
+      "noStatsDesc": "يمكنك متابعة عملك من الصفحات المتاحة لك. تواصل مع مسؤول النظام إن كنت تحتاج إلى الاطلاع على هذه المؤشرات.",
+      "shortcuts": "الصفحات المتاحة لك"
+    },
     "state": {
       "loadError": "تعذر تحميل البيانات",
+      "updating": "جارٍ التحديث…",
       "loadErrorDesc": "تعذّر الاتصال بالخادم. تحقق من الاتصال ثم أعد المحاولة.",
       "forbidden": "ليس لديك صلاحية",
       "forbiddenDesc": "ليس لديك صلاحية لعرض هذه البيانات. تواصل مع مسؤول النظام إذا كنت تحتاج إليها.",
@@ -797,13 +803,19 @@
       "clear": "مسح"
     },
     "header": {
-      "title": "لوحة تحكم المدير التنفيذي",
+      "title": "لوحة التحكم",
       "platform": "منصة لفين · المملكة العربية السعودية",
       "live": "مباشر",
       "online": "متصل",
       "offline": "غير متصل",
       "teamName": "فريق لفين",
       "supervisorTitle": "مشرف لفين",
+      "openMenu": "فتح القائمة",
+      "onlineHint": "متصل بالإنترنت — البيانات والتنبيهات تصلك مباشرة",
+      "offlineHint": "لا يوجد اتصال بالإنترنت — قد لا تكون البيانات المعروضة محدّثة",
+      "account": "قائمة الحساب",
+      "unread": "غير مقروء",
+      "viewAllNotifications": "عرض كل الإشعارات",
       "userName": "حسن مغفوري",
       "userRole": "المدير التنفيذي"
     },
@@ -887,7 +899,11 @@
       "controlCenter": "مركز التحكم",
       "settings": "الإعدادات",
       "notifications": "التنبيهات",
-      "logout": "تسجيل الخروج"
+      "logout": "تسجيل الخروج",
+      "navLabel": "القائمة الرئيسية",
+      "closeMenu": "إغلاق القائمة",
+      "expand": "توسيع القائمة",
+      "collapse": "طي القائمة"
     },
     "toast": {
       "errorOp": "حدث خطأ أثناء العملية",
@@ -1882,6 +1898,13 @@
     },
     "sections": {
       "platformPerformance": "أداء المنصة الكلي",
+      "platformPerformanceHint": "أهم مؤشرات المنصة للفترة المحددة مقارنةً بالفترة السابقة",
+      "appsPerformance": "أداء التطبيقات",
+      "appsPerformanceHint": "تطبيق المضيفين وتطبيق الضيوف جنبًا إلى جنب",
+      "performance": "تحليل الأداء",
+      "performanceHint": "اتجاه النمو خلال الفترة وما يحتاج قرارك الآن",
+      "detailed": "تحليلات تفصيلية",
+      "detailedHint": "مصادر الإيرادات والمقارنات والمدن الأعلى حجوزات",
       "hostsApp": "تطبيق المضيفين",
       "guestsApp": "تطبيق الضيوف"
     },
@@ -1901,6 +1924,7 @@
       "avgOccupancy": "متوسط نسبة الإشغال",
       "hostRetention": "معدل احتفاظ المضيفين",
       "trendUpLastMonth": "عن الشهر الماضي",
+      "previousPeriod": "الفترة السابقة",
       "vsPreviousPeriod": "عن الفترة السابقة",
       "stable": "مستقر",
       "concerningIncrease": "زيادة مقلقة",
@@ -1944,9 +1968,13 @@
       "genderBasisVerifiedOnly": "النسبة محسوبة من العملاء الموثّقين فقط؛ جنس باقي العملاء غير محدد"
     },
     "insights": {
-      "topCities": "أعلى 6 مدن سعودية",
+      "topCities": "أعلى المدن حجزًا",
+      "citiesTotal": "إجمالي حجوزات الفترة",
+      "citiesUnmapped": "حجوزات بدون مدينة محددة",
       "revenueSources": "مصادر الإيرادات",
-      "needsCeoDecision": "يحتاج قرار CEO",
+      "revenueTotal": "إجمالي الإيرادات",
+      "noRevenue": "لا توجد إيرادات خلال هذه الفترة",
+      "needsCeoDecision": "يحتاج قرار المدير",
       "bookingsCount": {
         "one": "حجز واحد",
         "two": "حجزان",
@@ -1988,6 +2016,8 @@
       "cityKhobar": "الخبر",
       "noCities": "لا توجد حجوزات مرتبطة بمدن خلال الفترة",
       "noDecisions": "لا توجد قرارات مطلوبة حالياً",
+      "showAll": "عرض الكل ({{count}})",
+      "showLess": "عرض أقل",
       "severityCritical": "حرج",
       "severityWarning": "تحذير",
       "severityOpportunity": "فرصة",

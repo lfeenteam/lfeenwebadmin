@@ -7,8 +7,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavItem, SidebarService } from '../../../pages/dashboards/dashboard3/services/sidebar.service';
 import { LoginService } from '../../../pages/dashboards/dashboard3/services/login/login.service';
-import { AdminNotificationsStore } from '../../../pages/dashboards/dashboard3/services/admin-notifications-store.service';
-import { userInitials } from '../../../pages/dashboards/dashboard3/utils/user-initials.util';
 import { CoreService } from 'src/app/services/core.service';
 import { filter } from 'rxjs/operators';
 import { PAGE_FLAGS } from 'src/app/config/page-flags';
@@ -45,23 +43,18 @@ export class SidebarComponent {
   expandedItems: { [key: string]: boolean } = {};
   /** Tracks router.url so the active-link lookup is computed once per navigation. */
   private currentUrl = signal(this.router.url);
-  isCeoPage = computed(() => this.currentUrl().includes('/ceo'));
-  user = this.loginService.currentUser;
-  initials = computed(() => userInitials(this.user()?.fullName));
-  /** Footer Settings link: same rule as its route guard, so it isn't a dead link (BUG-2496). */
-  canViewSettings = computed(() =>
+  /** Settings link: same rule as its route guard, so it is never a dead link (BUG-2496). */
+  private canViewSettings = computed(() =>
     !!PAGE_FLAGS['settings'] && hasSettingsPermission(this.loginService, SETTINGS_PERMISSIONS.view)
   );
 
-  // computed: يتحدث تلقائيًا لما sidebarItems أو isCeoPage يتغيروا
+  // Settings stays in the list on every page (the sidebar footer that duplicated it is gone);
+  // it is only hidden from admins who can't open it.
   filteredNavItems = computed(() => {
-    const items = this.sidebarService.sidebarItems();
-    const visible = this.isCeoPage()
-      ? items
-      : items.filter(item =>
-          item.translationKey !== 'd3.sidebar.settings' &&
-          item.key !== 'settings'
-        );
+    const canSettings = this.canViewSettings();
+    const visible = this.sidebarService.sidebarItems().filter(item =>
+      canSettings || (item.translationKey !== 'd3.sidebar.settings' && item.key !== 'settings')
+    );
     return this.trimDividers(visible);
   });
 
@@ -76,7 +69,6 @@ export class SidebarComponent {
     private loginService: LoginService,
     private settings: CoreService,
     private el: ElementRef,
-    public notificationsStore: AdminNotificationsStore
   ) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
@@ -215,16 +207,22 @@ export class SidebarComponent {
     return item.link === this.bestMatchingLink();
   }
 
-  get isOnSettingsPage(): boolean {
-    return this.currentUrl().includes('/d3/settings');
-  }
 
-  get isOnNotificationsPage(): boolean {
-    return this.currentUrl().includes('/d3/notifications');
-  }
+
 
   isChildActive(item: NavItem): boolean {
     return !!item.children?.some(child => this.isActive(child));
+  }
+
+  /** Icon-only rail (collapsed on desktop; the mobile drawer is always full). */
+  get isIconOnly(): boolean {
+    return this.collapsed && !this.mobileMode;
+  }
+
+  /** The sidebar sits on the inline-start side, so its collapse glyph follows the language. */
+  get collapseIcon(): string {
+    const side = this.settings.getOptionsSignal()().dir === 'rtl' ? 'right' : 'left';
+    return `layout-sidebar-${side}-${this.collapsed ? 'expand' : 'collapse'}`;
   }
 
   /** Label for the icon-only (collapsed) sidebar; empty disables the tooltip otherwise. */
@@ -237,23 +235,5 @@ export class SidebarComponent {
     this.collapsedChange.emit(this.collapsed);
   }
 
-  toggleLanguage(): void {
-    const newLang = this.currentLang === 'ar' ? 'en' : 'ar';
-    const dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    this.settings.setOptions({ language: newLang, dir }, true);
-    this.translate.use(newLang);
 
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    if (urlSegments.length > 0 && ['ar', 'en'].includes(urlSegments[0])) {
-      urlSegments[0] = newLang;
-    } else {
-      urlSegments.unshift(newLang);
-    }
-    this.router.navigateByUrl('/' + urlSegments.join('/'));
-  }
-
-  logout(): void {
-    this.loginService.logout();
-    this.router.navigateByUrl(this.getLangPrefix() + '/d3/login');
-  }
 }

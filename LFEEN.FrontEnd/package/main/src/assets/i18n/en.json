@@ -757,8 +757,14 @@
         "unexpected": "An unexpected error occurred. Try again."
       }
     },
+    "access": {
+      "noStatsTitle": "You don't have permission to view the dashboard indicators.",
+      "noStatsDesc": "You can continue from the pages available to you. Contact your system administrator if you need access to these indicators.",
+      "shortcuts": "Pages available to you"
+    },
     "state": {
       "loadError": "Could not load data",
+      "updating": "Updating…",
       "loadErrorDesc": "We couldn't reach the server. Check your connection and try again.",
       "forbidden": "No permission",
       "forbiddenDesc": "You don't have permission to view this data. Contact your system administrator if you need it.",
@@ -785,13 +791,19 @@
       "clear": "Clear"
     },
     "header": {
-      "title": "CEO Dashboard",
+      "title": "Dashboard",
       "platform": "Lfeen Platform · Kingdom of Saudi Arabia",
       "live": "Live",
       "online": "Online",
       "offline": "Offline",
       "teamName": "LFEEN Team",
       "supervisorTitle": "LFEEN Supervisor",
+      "openMenu": "Open menu",
+      "onlineHint": "Online — data and alerts arrive live",
+      "offlineHint": "No internet connection — the data shown may be out of date",
+      "account": "Account menu",
+      "unread": "Unread",
+      "viewAllNotifications": "View all notifications",
       "userName": "Hassan Maghfouri",
       "userRole": "Chief Executive Officer"
     },
@@ -875,7 +887,11 @@
       "controlCenter": "Control Center",
       "settings": "Settings",
       "notifications": "Notifications",
-      "logout": "Logout"
+      "logout": "Logout",
+      "navLabel": "Main navigation",
+      "closeMenu": "Close menu",
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar"
     },
     "toast": {
       "errorOp": "Error during operation",
@@ -1861,6 +1877,13 @@
     },
     "sections": {
       "platformPerformance": "Overall Platform Performance",
+      "platformPerformanceHint": "Key platform metrics for the selected period vs the previous one",
+      "appsPerformance": "Apps Performance",
+      "appsPerformanceHint": "Hosts app and guests app side by side",
+      "performance": "Performance Analytics",
+      "performanceHint": "Growth over the period and what needs your decision now",
+      "detailed": "Detailed Analytics",
+      "detailedHint": "Revenue sources, comparisons and top booking cities",
       "hostsApp": "Hosts App",
       "guestsApp": "Guests App"
     },
@@ -1880,6 +1903,7 @@
       "avgOccupancy": "Average Occupancy Rate",
       "hostRetention": "Host Retention Rate",
       "trendUpLastMonth": "vs last month",
+      "previousPeriod": "Previous period",
       "vsPreviousPeriod": "vs previous period",
       "stable": "Stable",
       "concerningIncrease": "concerning increase",
@@ -1920,8 +1944,12 @@
       "genderBasisVerifiedOnly": "Based on verified guests only; the rest have an unspecified gender"
     },
     "insights": {
-      "topCities": "Top 6 Saudi Cities",
+      "topCities": "Top cities by bookings",
+      "citiesTotal": "Bookings in period",
+      "citiesUnmapped": "Bookings without a city",
       "revenueSources": "Revenue Sources",
+      "revenueTotal": "Total revenue",
+      "noRevenue": "No revenue in this period",
       "needsCeoDecision": "Needs CEO Decision",
       "bookingsCount": {
         "one": "{{count}} booking",
@@ -1959,6 +1987,8 @@
       "cityKhobar": "Khobar",
       "noCities": "No bookings are linked to cities in this period",
       "noDecisions": "No decisions required right now",
+      "showAll": "Show all ({{count}})",
+      "showLess": "Show less",
       "severityCritical": "Critical",
       "severityWarning": "Warning",
       "severityOpportunity": "Opportunity",

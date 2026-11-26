@@ -1,465 +1,287 @@
 :host {
   display: block;
-  width: 100%;
-  font-family: 'Cairo', sans-serif;
-}
-
-.d3-chart-wrapper {
-  margin-top: 24px;
-  display: grid;
-  grid-template-columns: 1.75fr 1fr;
-  gap: 24px;
-  width: 100%;
   min-width: 0;
-  font-family: 'Cairo', sans-serif;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+  height: 100%;
 }
 
-.d3-section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-
-
-  .d3-section-title {
-    all: unset;
-    font-family: 'Cairo', sans-serif !important;
-    font-weight: 900 !important;
-    font-size: 20px !important;
-    color: #0F172B !important;
-  }
-}
-
-.d3-comparison-card {
-  background-color: #ffffff;
-  border: 1px solid #e1e3e5;
-  border-radius: 24px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-height: 450px;
-  box-sizing: border-box;
-  min-width: 0;
-  box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
-  transition: box-shadow 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-
-  @media (max-width: 576px) {
-    padding: 16px;
-    min-height: auto;
-  }
-
-  .d3-comparison-table {
-    display: flex;
-    flex-direction: column;
-
-    .d3-comparison-head,
-    .d3-comparison-row {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
-      align-items: center;
-      padding: 10px 4px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 14px;
-    }
-
-    .d3-comparison-head {
-      border-bottom: 1px solid #F1F5F9;
-      padding-bottom: 12px;
-
-      .d3-col-label {
-        color: #62748E;
-        font-weight: 500;
-        text-align: start;
-      }
-
-      .d3-col-guests {
-        color: #155DFC;
-        font-weight: 700;
-        text-align: center;
-      }
-
-      .d3-col-hosts {
-        color: #009966;
-        font-weight: 700;
-        text-align: center;
-      }
-    }
-
-    .d3-comparison-row {
-      border-bottom: 1px solid #F8FAFC;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      .d3-col-label {
-        color: #62748E;
-        text-align: start;
-        font-weight: 500;
-      }
-
-      .d3-col-guests,
-      .d3-col-hosts {
-        font-weight: 500;
-        text-align: center;
-        color: #0F172B;
-      }
-    }
-  }
-
-  .d3-distribution {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 4px;
-
-    .d3-distribution-title {
-      font-family: 'Cairo', sans-serif;
-      font-size: 12px;
-      color: #90A1B9;
-    font-weight: 700;
-
-    }
-
-    .d3-distribution-bar {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      overflow: hidden;
-      display: flex;
-      background-color: #F1F5F9;
-
-      .d3-seg {
-        height: 100%;
-      }
-    }
-
-    .d3-distribution-note {
-      font-family: 'Cairo', sans-serif;
-      font-size: 11px;
-      color: #90A1B9;
-      line-height: 1.5;
-    }
-
-    .d3-distribution-legend {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      font-family: 'Cairo', sans-serif;
-      font-size: 11px;
-      color: #62748E;
-
-      .d3-legend-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-      }
-
-      .d3-legend-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-      }
-    }
-  }
-}
+// ───────────────────────── Growth card ─────────────────────────
 .d3-growth-card {
-  background-color: #ffffff;
-  border: 1px solid #e1e3e5;
-  border-radius: 40px;
-  padding: 32px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  min-height: 468px;
+  gap: var(--d3-space-4);
+  padding: var(--d3-space-6);
+
+  @media (max-width: 575px) {
+    padding: var(--d3-space-4);
+  }
+}
+
+.d3-growth-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--d3-space-3);
+  flex-wrap: wrap;
+}
+
+// Segmented control with a sliding indicator (transform only).
+// Series tabs: underline style — label, a dot in the series colour and the period total;
+// a 2px navy bar slides under the active tab (transform only).
+.d3-segmented {
+  --d3-seg-dir: 1;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--d3-seg-count, 3), minmax(0, 1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--d3-border);
+  isolation: isolate;
+
+  :host-context([dir="rtl"]) & { --d3-seg-dir: -1; }
+}
+
+.d3-segmented-indicator {
+  position: absolute;
+  bottom: -1px;
+  inset-inline-start: 0;
+  height: 2px;
+  width: calc(100% / var(--d3-seg-count, 3));
+  border-radius: 2px;
+  background: var(--d3-navy-900);
+  transform: translateX(calc(var(--d3-seg-idx, 0) * 100% * var(--d3-seg-dir)));
+  transition: transform var(--d3-dur-panel) var(--d3-ease-out);
+}
+
+.d3-seg-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   min-width: 0;
-  box-sizing: border-box;
-  box-shadow: 0px 1px 2px -1px #0000001A, 0px 1px 3px 0px #0000001A;
+  padding: 6px var(--d3-space-2) 14px;
+  border: 0;
+  background: transparent;
+  color: var(--d3-text-3);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: color var(--d3-dur-base) ease;
 
-  .d3-growth-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
+  &:hover { color: var(--d3-text); }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--d3-focus-ring);
+    border-radius: var(--d3-radius-sm);
   }
 
-  .d3-growth-title-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: start;
+  &.active { color: var(--d3-text); }
 
-    .d3-growth-subtitle {
-      all: unset;
-      font-family: 'Cairo', sans-serif !important;
-      font-size: 14px !important;
-      color: #62748E !important;
-      display: block;
-      padding-inline-start: 4px;
-    }
-  }
-
-  .d3-growth-tabs {
-    display: inline-flex;
-    background-color: #F8FAFC;
-    border-radius: 10px;
-    padding: 4px;
-    gap: 2px;
-
-    .d3-tab {
-      all: unset;
-      cursor: pointer;
-      font-family: 'Cairo', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: #62748E;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-
-      &.active {
-        background-color: #FFFFFF;
-        color: #0F172B;
-        font-weight: 600;
-        box-shadow: 0 1px 2px rgba(15, 23, 43, 0.08);
-      }
-
-      &:hover:not(.active) {
-        color: #0F172B;
-      }
-    }
-  }
-
-  .d3-chart-area {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-    min-height: 280px;
-    overflow: hidden;
-    direction: ltr;
-
-    apx-chart {
-      display: block;
-      width: 100%;
-    }
-  }
+  &:not(.active) .d3-seg-total { color: var(--d3-text-2); }
 }
 
-@media (max-width: 1100px) {
-  .d3-chart-wrapper {
-    grid-template-columns: 1fr;
-  }
+// The series colour as a dot beside the label (matches the line on the chart).
+.d3-seg-icon {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--d3-seg-color);
 
-  .d3-comparison-card {
-    width: 100%;
-  }
+  app-d3-icon { display: none; }
 }
 
-.d3-comparison-card {
-  width: 100%;
-
-  .d3-comparison-table {
-    width: 100%;
-
-    .d3-comparison-head,
-    .d3-comparison-row {
-      width: 100%;
-    }
-  }
+.d3-seg-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
 }
 
-@media (max-width: 576px) {
-  .d3-chart-wrapper {
-    margin-top: 16px;
-    gap: 16px;
-  }
-
-  .d3-section-header {
-    min-width: 0;
-
-    .d3-section-title {
-      font-size: 18px !important;
-      line-height: 1.5 !important;
-    }
-  }
-
-  .d3-growth-card {
-    min-height: auto;
-    padding: 16px;
-    border-radius: 24px;
-    gap: 24px;
-
-    .d3-growth-header {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 16px;
-    }
-
-    .d3-growth-title-wrap {
-      min-width: 0;
-
-      .d3-growth-subtitle {
-        padding-inline-start: 0;
-        font-size: 12px !important;
-        line-height: 1.6 !important;
-      }
-    }
-
-    .d3-growth-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      width: 100%;
-      box-sizing: border-box;
-
-      .d3-tab {
-        min-width: 0;
-        padding: 8px 4px;
-        font-size: 11px;
-        line-height: 1.4;
-        text-align: center;
-        white-space: nowrap;
-      }
-    }
-
-    .d3-chart-area {
-      min-height: 230px;
-    }
-  }
-
-  .d3-comparison-card {
-    padding: 16px;
-    border-radius: 24px;
-    gap: 16px;
-
-    .d3-comparison-table {
-      .d3-comparison-head,
-      .d3-comparison-row {
-        grid-template-columns: minmax(0, 1.35fr) minmax(56px, 1fr) minmax(56px, 1fr);
-        padding: 9px 0;
-        font-size: 12px;
-        column-gap: 4px;
-      }
-
-      .d3-col-label {
-        min-width: 0;
-        line-height: 1.5;
-        overflow-wrap: anywhere;
-      }
-    }
-
-    .d3-distribution {
-      .d3-distribution-legend {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-        font-size: 10px;
-
-        .d3-legend-item {
-          min-width: 0;
-          justify-content: center;
-          text-align: center;
-          line-height: 1.4;
-          overflow-wrap: anywhere;
-        }
-      }
-    }
-  }
+.d3-seg-label {
+  font-size: var(--d3-fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-// ---- API panel states (loading / error / empty) ----
-.d3-skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
-  background-size: 400% 100%;
-  animation: d3-shimmer 1.4s ease infinite;
-  border-radius: 12px;
-  min-height: 96px;
+.d3-seg-total {
+  font-size: var(--d3-fs-xl);
+  font-weight: 800;
+  color: var(--d3-text);
+  font-variant-numeric: tabular-nums;
 }
 
-.d3-row-skeleton {
-  min-height: 56px;
-  margin-bottom: 12px;
-}
+.d3-chart-area {
+  position: relative;
+  min-height: 300px;
+  flex: 1;
+  transition: opacity var(--d3-dur-card) ease;
 
-.d3-chart-skeleton {
-  min-height: 230px;
+  &.is-refreshing { opacity: 0.55; }
 }
 
 .d3-chart-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 230px;
-  border: 1px dashed #E2E8F0;
-  border-radius: 16px;
-  color: #90A1B9;
-  font-size: 14px;
+  gap: var(--d3-space-3);
+  color: var(--d3-text-3);
   font-weight: 600;
-  text-align: center;
-  padding: 16px;
+  font-size: var(--d3-fs-md);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(2px);
+  border-radius: var(--d3-radius-lg);
+  animation: d3-rise var(--d3-dur-panel) var(--d3-ease-out) backwards;
 }
 
-.d3-table-skeleton {
-  min-height: 160px;
-}
-
-@keyframes d3-shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
-}
-
-.d3-panel-error {
+// ───────────────────────── Comparison card ─────────────────────────
+.d3-comparison-card {
+  height: 100%;
+  padding: var(--d3-space-6);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
-  border-radius: 12px;
-  font-size: 14px;
+  flex-direction: column;
 }
 
-.d3-retry-btn {
-  border: 1px solid #b91c1c;
-  background: #fff;
-  color: #b91c1c;
-  border-radius: 8px;
-  padding: 4px 12px;
-  cursor: pointer;
+.d3-comparison-table {
+  display: flex;
+  flex-direction: column;
+}
 
-  &:focus-visible {
-    outline: 2px solid #0f172b;
-    outline-offset: 2px;
+.d3-comparison-head,
+.d3-comparison-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--d3-space-2);
+  padding: 10px var(--d3-space-3);
+}
+
+.d3-comparison-head {
+  border-radius: var(--d3-radius-md);
+  background: var(--d3-surface-muted);
+  font-size: var(--d3-fs-xs);
+  font-weight: 700;
+  color: var(--d3-text-3);
+  margin-bottom: 4px;
+}
+
+.d3-comparison-row {
+  border-radius: var(--d3-radius-md);
+  transition: background-color var(--d3-dur-fast) ease;
+
+  & + & { border-top: 1px dashed var(--d3-border); }
+
+  &:hover { background: var(--d3-surface-muted); }
+
+  .d3-col-label {
+    font-size: var(--d3-fs-md);
+    font-weight: 600;
+    color: var(--d3-text-2);
+  }
+
+  .d3-col-val {
+    font-size: var(--d3-fs-lg);
+    font-weight: 800;
+    color: var(--d3-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.is-attention .d3-col-val { color: var(--d3-warning); }
+}
+
+.d3-col-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// dir="ltr" on the numbers keeps digits in order; realign them with their header.
+:host-context([dir='rtl']) .d3-comparison-row .d3-col-val { justify-content: flex-end; }
+
+.d3-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &.is-guests { background: var(--d3-navy-900); }
+  &.is-hosts { background: #94A3B8; }
+}
+
+// Directly under the table (not pushed to the card bottom), split off by a hairline.
+.d3-distribution {
+  margin-top: var(--d3-space-5);
+  padding-top: var(--d3-space-5);
+  border-top: 1px solid var(--d3-border);
+}
+
+.d3-distribution-title {
+  font-size: var(--d3-fs-md);
+  font-weight: 700;
+  color: var(--d3-text);
+  margin-bottom: var(--d3-space-3);
+}
+
+.d3-distribution-bar {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  border-radius: var(--d3-radius-pill);
+  overflow: hidden;
+  background: var(--d3-surface-hover);
+
+  .d3-seg {
+    height: 100%;
+    border-radius: var(--d3-radius-pill);
+    transform-origin: left center;
+    animation: d3-grow var(--d3-dur-reveal) var(--d3-ease-out) both;
+    transition: width var(--d3-dur-reveal) var(--d3-ease-out);
+
+    :host-context([dir='rtl']) & { transform-origin: right center; }
   }
 }
 
-.d3-empty {
-  padding: 24px 8px;
-  text-align: center;
-  color: #62748e;
-  font-size: 14px;
+.d3-distribution-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--d3-space-4);
+  margin-top: var(--d3-space-3);
 }
 
-.d3-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.d3-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--d3-fs-sm);
+  color: var(--d3-text-2);
+  font-weight: 600;
+
+  b { color: var(--d3-text); font-weight: 800; }
 }
+
+.d3-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.d3-distribution-note {
+  margin-top: var(--d3-space-3);
+  font-size: var(--d3-fs-xs);
+  color: var(--d3-text-3);
+  line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .d3-distribution-bar .d3-seg, .d3-chart-empty { animation: none; }
+}
+
+// Same height as the chart, so deferring its creation never shifts the layout.
+.d3-chart-placeholder { height: 300px; }

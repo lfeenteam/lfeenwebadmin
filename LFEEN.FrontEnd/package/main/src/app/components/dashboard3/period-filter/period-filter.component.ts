@@ -13,6 +13,7 @@ import { DashboardFilters } from '../../../pages/dashboards/dashboard3/pages-d3/
 // it's already fully localized (Arabic month/weekday names via Intl, RTL
 // chevrons) instead of Angular Material's English-only native date adapter.
 import { SingleDateCalendarComponent } from '../../../pages/dashboards/dashboard3/pages-d3/all-bookings/components/single-date-calendar/single-date-calendar.component';
+import { D3IconComponent } from '../d3-icon/d3-icon.component';
 
 // Saudi Arabia has no DST, so Riyadh is a fixed +03:00 offset year-round —
 // no time-zone library needed to reason about it.
@@ -88,7 +89,7 @@ const PRESETS: PeriodOption[] = [
 @Component({
   selector: 'app-dashboard3-period-filter',
   standalone: true,
-  imports: [CommonModule, MatMenuModule, SingleDateCalendarComponent, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, MatMenuModule, SingleDateCalendarComponent, TablerIconsModule, TranslateModule, D3IconComponent],
   templateUrl: './period-filter.component.html',
   styleUrl: './period-filter.component.scss',
 })

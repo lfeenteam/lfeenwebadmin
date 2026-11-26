@@ -1,15 +1,166 @@
 :host {
   display: block;
   width: 100%;
-  font-family: 'Cairo', sans-serif;
+  font-family: var(--d3-font);
 }
 
 .ceo-page {
   width: 100%;
-  padding: 24px 16px;
+  max-width: 1600px;
+  margin: 0 auto;
   box-sizing: border-box;
-  font-family: 'Cairo', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--d3-space-8);
+
+  @media (max-width: 767px) {
+    gap: var(--d3-space-6);
+  }
 }
+
+// Heading on the start side, period selector on the end side; wraps under on narrow screens.
+.ceo-toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--d3-space-4);
+  flex-wrap: wrap;
+
+  app-dashboard3-period-filter {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  @media (max-width: 991px) {
+    align-items: stretch;
+    flex-direction: column;
+
+    app-dashboard3-period-filter { width: 100%; }
+  }
+}
+
+.ceo-grid {
+  display: grid;
+  gap: var(--d3-space-4);
+  align-items: stretch;
+  min-width: 0;
+
+  > * { min-width: 0; }
+}
+
+// One 12-column rhythm for the whole page, so column edges line up row to row:
+// KPIs 3·3·3·3, analytics 8·4, apps 6·6, details 4·4·4 (the 8|4 split here meets
+// the second divider of the details row below it).
+.ceo-grid--analytics {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+
+  // Only one of the two allowed: it takes the full row.
+  &.is-single { grid-template-columns: minmax(0, 1fr); }
+
+  // Both cards stretch to the row; the decisions card shows its top 3 and expands in
+  // place ("show all"), so there is no scrolling box inside it.
+
+  @media (max-width: 1199px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// Columns follow data-count (the detail panels this admin may see).
+.ceo-grid--details {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  &[data-count='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  // A single list panel stays at a readable width instead of stretching to 1600px.
+  &[data-count='1'] { grid-template-columns: minmax(0, 760px); }
+
+  @media (max-width: 1279px) {
+    &[data-count='3'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      // Three on two columns: the third spans the row so no cell is left empty.
+      > :nth-child(3) { grid-column: 1 / -1; }
+    }
+  }
+
+  @media (max-width: 767px) {
+    &[data-count] { grid-template-columns: minmax(0, 1fr); }
+  }
+}
+
+// ───────── No statistic allowed: explain, and offer the admin's own pages ─────────
+.ceo-no-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--d3-space-6);
+  padding-block: var(--d3-space-8, 48px);
+}
+
+.ceo-shortcuts {
+  width: 100%;
+  max-width: 640px;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--d3-space-3);
+  }
+}
+
+.ceo-shortcuts-label {
+  margin: 0 0 var(--d3-space-3);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--d3-text-muted);
+  text-align: center;
+}
+
+.ceo-shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--d3-space-3);
+  padding: 12px 16px;
+  border: 1px solid var(--d3-border);
+  border-radius: 12px;
+  background: var(--d3-surface);
+  color: var(--d3-text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: var(--d3-text-muted);
+    transition: transform 180ms ease;
+  }
+
+  [dir='rtl'] & svg { transform: scaleX(-1); }
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--d3-navy-800);
+    box-shadow: var(--d3-shadow-md, 0 6px 16px rgba(15, 23, 43, 0.08));
+    transform: translateY(-2px);
+
+    svg { transform: translateX(3px); }
+  }
+
+  [dir='rtl'] &:hover svg,
+  [dir='rtl'] &:focus-visible svg { transform: scaleX(-1) translateX(3px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover, &:focus-visible { transform: none; }
+  }
+}
+

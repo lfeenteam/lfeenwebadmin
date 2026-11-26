@@ -1,80 +1,37 @@
-import { Component, HostListener, ElementRef, Output, EventEmitter } from '@angular/core';
+import { Component, HostListener, Output, EventEmitter, computed, inject, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
-import { TablerIconsModule } from 'angular-tabler-icons';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CoreService } from 'src/app/services/core.service';
-import { LoginService } from 'src/app/pages/dashboards/dashboard3/services/login/login.service';
-import { AdminNotificationsStore } from 'src/app/pages/dashboards/dashboard3/services/admin-notifications-store.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
-interface AppLanguage {
-  language: string;
-  code: string;
-  icon: string;
-}
+import { D3IconComponent } from '../d3-icon/d3-icon.component';
+import { HeaderActionsComponent } from '../header-actions/header-actions.component';
 
+/**
+ * Executive dashboard header: page title + today's date + connection status on the start
+ * side; the shared account cluster (notifications, language, account) on the end side.
+ */
 @Component({
   selector: 'app-dashboard3-header',
   standalone: true,
-  imports: [MaterialModule, TablerIconsModule, CommonModule, TranslateModule],
+  imports: [MaterialModule, CommonModule, TranslateModule, D3IconComponent, HeaderActionsComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  menuOpen = false;
-  isOnline = navigator.onLine;
-  fullName = '';
-  userRole = '';
+  private readonly settings = inject(CoreService);
+
+  /** Browser connectivity (navigator.onLine + online/offline events) — a real signal, not a fixed badge. */
+  readonly isOnline = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
 
   @Output() sidebarToggle = new EventEmitter<void>();
 
-  public languages: AppLanguage[] = [
-    {
-      language: 'العربية',
-      code: 'ar',
-      icon: '/assets/images/flag/icon-flag-es.svg',
-    },
-    {
-      language: 'English',
-      code: 'en',
-      icon: '/assets/images/flag/icon-flag-en.svg',
-    },
-  ];
-
-  constructor(
-    private eRef: ElementRef,
-    private translate: TranslateService,
-    private router: Router,
-    private settings: CoreService,
-    public loginService: LoginService,
-    public notificationsStore: AdminNotificationsStore
-  ) {
-    const user = this.loginService.getUser();
-    this.fullName = user?.fullName || '';
-    this.userRole = Array.isArray(user?.roles) ? user.roles.join(', ') : user?.roles || '';
-  }
-
-  // Read live, not stored once: switching language (e.g. from the sidebar) only changes
-  // the :lang param, so Angular reuses this component and the constructor never re-runs.
-  // CoreService is updated by every language switch and by languageSyncGuard from the URL.
-  get selectedLanguage(): AppLanguage {
-    const code = this.settings.getOptionsSignal()().language;
-    return this.languages.find(l => l.code === code) || this.languages[0];
-  }
+  private readonly lang = computed(() => this.settings.getOptionsSignal()().language);
+  readonly isRtl = computed(() => this.lang() !== 'en');
 
   get currentDate(): string {
-    const locale = appLocale(this.selectedLanguage.code);
-    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
-  }
-
-  toggleMenu(event: Event): void {
-    event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
-  }
-
-  closeMenu(): void {
-    this.menuOpen = false;
+    const locale = appLocale(this.lang() === 'en' ? 'en' : 'ar');
+    return new Intl.DateTimeFormat(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date());
   }
 
   onSidebarToggle(event: Event): void {
@@ -82,60 +39,13 @@ export class HeaderComponent {
     this.sidebarToggle.emit();
   }
 
-  changeLanguage(lang: AppLanguage): void {
-
-    const dir = lang.code === 'ar' ? 'rtl' : 'ltr';
-    this.settings.setOptions({ language: lang.code, dir }, true);
-    this.translate.use(lang.code);
-
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    if (urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])) {
-      urlSegments[0] = lang.code;
-    } else {
-      urlSegments.unshift(lang.code);
-    }
-    this.router.navigateByUrl('/' + urlSegments.join('/'));
-  }
-
-  navigateToProfile(): void {
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
-      ? urlSegments[0]
-      : (this.selectedLanguage.code || 'ar');
-    this.router.navigateByUrl(`/${lang}/d3/profile`);
-  }
-
-  navigateToNotifications(): void {
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
-      ? urlSegments[0]
-      : (this.selectedLanguage.code || 'ar');
-    this.router.navigateByUrl(`/${lang}/d3/notifications`);
-  }
-
-  logout(): void {
-    const urlSegments = this.router.url.split('/').filter(Boolean);
-    const lang = urlSegments.length > 0 && this.languages.some(l => l.code === urlSegments[0])
-      ? urlSegments[0]
-      : (this.selectedLanguage.code || 'ar');
-    this.loginService.logout();
-    this.router.navigateByUrl(`/${lang}/d3/login`);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (this.menuOpen && !this.eRef.nativeElement.contains(event.target)) {
-      this.menuOpen = false;
-    }
-  }
-
   @HostListener('window:online')
   onOnline(): void {
-    this.isOnline = true;
+    this.isOnline.set(true);
   }
 
   @HostListener('window:offline')
   onOffline(): void {
-    this.isOnline = false;
+    this.isOnline.set(false);
   }
 }
