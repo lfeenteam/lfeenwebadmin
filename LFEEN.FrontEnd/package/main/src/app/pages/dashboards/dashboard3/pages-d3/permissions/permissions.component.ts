@@ -16,6 +16,7 @@ import { DeleteConfirmDialogComponent } from '../team-management/components/dele
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { resolveBilingualText } from '../../utils/bilingual.util';
 import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface RoleRow {
   id: string;
@@ -29,7 +30,7 @@ interface RoleRow {
 @Component({
   selector: 'app-permissions',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, AppPluralPipe],
   templateUrl: './permissions.component.html',
   styleUrl: './permissions.component.scss'
 })

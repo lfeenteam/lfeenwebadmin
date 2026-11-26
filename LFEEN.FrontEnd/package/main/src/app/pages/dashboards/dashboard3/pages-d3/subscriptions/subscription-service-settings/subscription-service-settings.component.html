@@ -114,7 +114,7 @@
                       <span class="operation-name d-block">{{ optionName(o) }}</span>
                     </td>
                     <td [attr.data-label]="'d3.periodOption.duration' | translate">
-                      {{ 'd3.periodOption.daysCount' | translate: { count: fmt(o.durationInDays) } }}
+                      {{ 'd3.periodOption.daysCount' | appPlural: o.durationInDays }}
                     </td>
                     @if (activeTiers.length > 1) {
                       <td [attr.data-label]="'d3.pricingRow.tier' | translate">{{ optionTierName(o) }}</td>

@@ -19,6 +19,7 @@ import { isStaleSubscriptionError, resolveSubscriptionError } from '../interface
 import { discountCodeState, isPercentageDiscount } from './discount-code.util';
 import { CreateDiscountCodeDialogComponent, CreateDiscountCodeDialogData } from './create-discount-code-dialog/create-discount-code-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 interface DiscountCodeRow {
   code: SubscriptionDiscountCode;
@@ -32,7 +33,7 @@ interface DiscountCodeRow {
 @Component({
   selector: 'app-subscription-discount-codes',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './subscription-discount-codes.component.html',
   styleUrl: './subscription-discount-codes.component.scss'
 })
@@ -90,6 +91,15 @@ export class SubscriptionDiscountCodesComponent implements OnInit {
 
   formatDate(iso: string | null): string | null {
     return formatApiDateLocal(iso, this.currentLang);
+  }
+
+  /** Fee names joined by the localized separator ("، " / ", "); a method so it follows language switches live. */
+  appliesToLabel(code: SubscriptionDiscountCode): string {
+    const parts: string[] = [];
+    if (code.appliesToSubscriptionFee) parts.push(this.translate.instant('d3.discountCodes.subscriptionFee'));
+    if (code.appliesToSetupFee) parts.push(this.translate.instant('d3.discountCodes.setupFee'));
+    if (!parts.length) return '-';
+    return parts.join(`${this.translate.instant('d3.discountCodes.separator')} `);
   }
 
   load(): void {

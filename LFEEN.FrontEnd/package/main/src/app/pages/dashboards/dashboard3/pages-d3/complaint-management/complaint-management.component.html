@@ -23,7 +23,7 @@
           <app-tabs-filter
             class="host-tabs-filter"
             [tabs]="[]"
-            [showMoreFiltersButton]="false"
+            [showMoreFiltersButton]="hostFilterOptions().length > 0"
             [filterOptions]="hostFilterOptions()"
             [activeFilters]="hostActiveFiltersSnapshot()"
             [searchQuery]="hostSearch()"
@@ -39,7 +39,7 @@
           <app-tabs-filter
             class="host-tabs-filter"
             [tabs]="[]"
-            [showMoreFiltersButton]="false"
+            [showMoreFiltersButton]="customerFilterOptions().length > 0"
             [filterOptions]="customerFilterOptions()"
             [activeFilters]="customerActiveFiltersSnapshot()"
             [searchQuery]="customerSearch()"

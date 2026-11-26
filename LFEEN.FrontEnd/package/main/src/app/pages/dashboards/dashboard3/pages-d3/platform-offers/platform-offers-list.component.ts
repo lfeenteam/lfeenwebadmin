@@ -28,6 +28,7 @@ import {
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-platform-offers-list',
@@ -41,6 +42,7 @@ import { PermissionService } from '../../services/permission.service';
     DashboardLoadingComponent,
     DashboardEmptyComponent,
     MaterialModule,
+    AppPluralPipe
   ],
   templateUrl: './platform-offers-list.component.html',
   styleUrl: './platform-offers.component.scss',

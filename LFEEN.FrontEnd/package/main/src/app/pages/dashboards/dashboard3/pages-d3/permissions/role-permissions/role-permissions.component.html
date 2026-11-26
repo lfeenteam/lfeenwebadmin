@@ -64,7 +64,7 @@
                 </button>
               }
               <span class="selected-badge">
-                {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
+                {{ 'd3.addRolePage.selectedOfTotal' | appPlural: permissions.length : { selected: selectedCount } }}
               </span>
             </div>
           }

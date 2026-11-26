@@ -16,6 +16,7 @@ import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { UnitLoadStateComponent } from 'src/app/components/dashboard3/unit-load-state/unit-load-state.component';
 import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type AccessPhotoDecision = 'pending' | 'approved' | 'rejected';
 
@@ -53,7 +54,7 @@ const CATEGORY_MAP: Record<string, { titleKey: string; tagKey: string }> = {
 @Component({
   selector: 'app-unit-access-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, DashboardLoadingComponent, UnitLoadStateComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, ReviewEmptyStateComponent, DashboardLoadingComponent, UnitLoadStateComponent, AppPluralPipe],
   templateUrl: './unit-access-review.component.html',
   styleUrl: './unit-access-review.component.scss'
 })

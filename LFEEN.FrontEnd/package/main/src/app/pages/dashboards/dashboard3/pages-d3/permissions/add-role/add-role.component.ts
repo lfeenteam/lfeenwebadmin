@@ -21,6 +21,7 @@ import {
   PermissionGroupAction,
   SelectablePermission
 } from '../components/permission-tree/permission-tree.component';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 type PermissionRow = SelectablePermission;
 type PermissionGroupSection = PermissionTreeGroup<PermissionRow>;
@@ -30,7 +31,8 @@ type PermissionGroupSection = PermissionTreeGroup<PermissionRow>;
   standalone: true,
   imports: [
     CommonModule, MaterialModule, TablerIconsModule, ReactiveFormsModule, RouterModule, TranslateModule,
-    PermissionTreeComponent
+    PermissionTreeComponent,
+    AppPluralPipe
   ],
   templateUrl: './add-role.component.html',
   styleUrl: './add-role.component.scss'

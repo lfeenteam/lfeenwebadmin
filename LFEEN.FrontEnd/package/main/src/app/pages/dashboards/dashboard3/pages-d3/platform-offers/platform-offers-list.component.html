@@ -239,7 +239,7 @@
       </div>
       <footer class="pagination-wrapper">
         <span class="pagination-total">
-          {{ total() }} {{ "d3.platformOffers.total" | translate }}
+          {{ "d3.platformOffers.total" | appPlural: total() }}
         </span>
         <nav class="pagination-controls" aria-label="Pagination">
           <button

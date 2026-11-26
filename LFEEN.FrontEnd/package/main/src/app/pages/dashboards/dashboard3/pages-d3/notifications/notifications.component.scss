@@ -374,3 +374,14 @@
     white-space: normal;
   }
 }
+
+// The bleed must equal .page-content's padding, whose breakpoints are 768px / 576px
+// (not 767px). At exactly 768px a -16px side margin against 12px of padding made the
+// page 4px wider than .page-content, so it scrolled sideways. Margins only — the
+// layout above keeps its 767px breakpoint. Must stay after the block above.
+@media (max-width: 768px) {
+  .notifications-page { margin: -16px -12px; }
+}
+@media (max-width: 576px) {
+  .notifications-page { margin-top: -20px; }
+}

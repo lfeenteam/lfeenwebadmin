@@ -432,6 +432,15 @@
   }
 }
 
+// .page-content pads 12px from 768px down; the offers row's -15px grid gutter
+// overflowed it by 3px and the page scrolled sideways.
+@media (max-width: 768px) {
+  .offers-row {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+
 @media (max-width: 767px) {
   .settings-card { padding: 20px; }
   .settings-header { flex-direction: column; align-items: stretch !important; }

@@ -122,7 +122,7 @@
                 {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
               </button>
               <span class="selected-badge">
-                {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
+                {{ 'd3.addRolePage.selectedOfTotal' | appPlural: permissions.length : { selected: selectedCount } }}
               </span>
             </div>
           }
@@ -176,7 +176,7 @@
       <i-tabler name="alert-triangle" class="icon-24 text-warning flex-shrink-0"></i-tabler>
       <div>
         <h4 class="m-b-4">{{ 'd3.permissions.alert.title' | translate }}</h4>
-        <p class="m-0">{{ 'd3.permissions.alert.message' | translate: { count: employeeCount, dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
+        <p class="m-0">{{ 'd3.permissions.alert.message' | appPlural: employeeCount : { dept: currentLang === 'ar' ? deptName : deptEnglishName } }}</p>
       </div>
     </div>
   }

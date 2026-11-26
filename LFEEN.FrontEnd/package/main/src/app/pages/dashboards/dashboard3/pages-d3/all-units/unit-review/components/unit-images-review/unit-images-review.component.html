@@ -26,7 +26,7 @@
     @if (pendingCount > 0) {
       <div class="validation-banner">
         <i-tabler name="alert-triangle"></i-tabler>
-        <span>{{ 'd3.unitReview.imagesView.pendingPhotosWarning' | translate : { count: pendingCount } }}</span>
+        <span>{{ 'd3.unitReview.imagesView.pendingPhotosWarning' | appPlural: pendingCount }}</span>
       </div>
     }
 

@@ -1,7 +1,7 @@
 <section class="contact-page" [dir]="dir()">
   <header class="page-intro">
     <div><h1><span class="title-icon"><i-tabler name="mail"></i-tabler></span>{{ 'd3.contactUs.title' | translate }}</h1><p>{{ 'd3.contactUs.subtitle' | translate }}</p></div>
-    <span class="total"><strong>{{ totalCount() }}</strong> {{ 'd3.contactUs.total' | translate }}</span>
+    <span class="total"><strong>{{ totalCount() }}</strong> {{ 'd3.contactUs.total' | appPlural: totalCount() }}</span>
   </header>
 
   <article class="inbox-card">

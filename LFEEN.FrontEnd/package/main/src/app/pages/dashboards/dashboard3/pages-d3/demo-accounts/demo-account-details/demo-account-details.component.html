@@ -155,10 +155,18 @@
           <div>
             <dt>{{ 'd3.demoAccounts.fields.channel' | translate }}</dt>
             <dd>
-              <span class="da-channel" [class.ch-whatsapp]="account.channel === 'WhatsApp'">
-                <i-tabler [name]="channelIcons[account.channel] || 'send'" class="icon-16"></i-tabler>
-                {{ channelLabel(account.channel) }}
-              </span>
+              @if (fromSignupLink && account.channel === 'None') {
+                <!-- Sign-in data is shown on the demo link's page, not sent -->
+                <span class="da-channel">
+                  <i-tabler name="link" class="icon-16"></i-tabler>
+                  {{ 'd3.demoAccounts.signupLinkInfo.channel' | translate }}
+                </span>
+              } @else {
+                <span class="da-channel" [class.ch-whatsapp]="account.channel === 'WhatsApp'">
+                  <i-tabler [name]="channelIcons[account.channel] || 'send'" class="icon-16"></i-tabler>
+                  {{ channelLabel(account.channel) }}
+                </span>
+              }
             </dd>
           </div>
           <div>
@@ -253,6 +261,9 @@
             <dd>
               @if (date(account.lastSentAt); as sent) {
                 <span class="da-ltr" dir="ltr">{{ sent }}</span>
+              } @else if (fromSignupLink) {
+                <!-- Nothing is sent for a link account: the data is on the link's page -->
+                <span class="da-muted">{{ 'd3.demoAccounts.signupLinkInfo.viaPage' | translate }}</span>
               } @else {
                 <span class="da-muted">{{ 'd3.demoAccounts.neverDelivered' | translate }}</span>
               }

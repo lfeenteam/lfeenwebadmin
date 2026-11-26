@@ -264,9 +264,17 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     return !!this.account; // the message and language apply to every channel
   }
 
-  /** Made by name only (channel "None"): no invitation has ever been sent. */
+  /**
+   * Made from a demo link: the organisation got its sign-in data on the link's page, so channel
+   * "None" here does not mean "nothing reached them yet".
+   */
+  get fromSignupLink(): boolean {
+    return !!this.account?.signupLink;
+  }
+
+  /** Made by name only (channel "None", not from a demo link): no invitation has ever been sent. */
   get notSentYet(): boolean {
-    return this.account?.channel === 'None';
+    return this.account?.channel === 'None' && !this.fromSignupLink;
   }
 
   /** The delivery log gets a subject column once any attempt carries one. */

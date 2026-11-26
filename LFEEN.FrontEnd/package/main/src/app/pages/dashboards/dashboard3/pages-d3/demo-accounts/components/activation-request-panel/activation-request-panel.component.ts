@@ -14,6 +14,7 @@ import {
   toLocalPhone
 } from '../../../../interfaces/demo-account.model';
 import { DemoApiError, demoErrorMessage, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 /** The follow-up buttons, in display order. */
 const FOLLOW_UPS: { status: ActivationRequestStatus; icon: string; primary?: boolean }[] = [
@@ -28,7 +29,7 @@ const FOLLOW_UPS: { status: ActivationRequestStatus; icon: string; primary?: boo
 @Component({
   selector: 'app-activation-request-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TablerIconsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, RouterLink, TablerIconsModule, TranslateModule, AppPluralPipe],
   templateUrl: './activation-request-panel.component.html',
   styleUrl: './activation-request-panel.component.scss'
 })

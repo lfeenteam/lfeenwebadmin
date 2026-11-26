@@ -63,7 +63,9 @@
           <div class="table-row">
 
             <div class="col-scenario">
-              <span class="scenario-chip">{{ scenarioName(script) }}</span>
+              <span class="scenario-chip" [matTooltip]="scenarioName(script)" matTooltipPosition="above">
+                <span class="scenario-chip-text">{{ scenarioName(script) }}</span>
+              </span>
             </div>
 
             <div class="col-audio">

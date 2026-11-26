@@ -5,7 +5,7 @@
     <app-tabs-filter
       class="cr-tabs-filter"
       [tabs]="[]"
-      [showMoreFiltersButton]="false"
+      [showMoreFiltersButton]="filterOptions.length > 0"
       [filterOptions]="filterOptions"
       [activeFilters]="activeFilters"
       (filtersChange)="onFiltersChange($event)">

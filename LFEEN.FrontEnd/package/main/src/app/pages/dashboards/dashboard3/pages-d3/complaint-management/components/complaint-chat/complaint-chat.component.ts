@@ -333,12 +333,33 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
       : this.complaint.clientName;
   }
 
-  get dateSeparatorLabel(): string {
-    const firstMessage = this.complaint?.messages?.[0];
-    if (!firstMessage) return '';
+  /** BUG-2721: a date separator goes before the first message of every local day, not just
+   * once at the top — otherwise later days' messages read as if they were the first day's.
+   * Messages with an unparseable date never open a day; they're compared against the last
+   * valid date before them. */
+  startsNewDay(index: number): boolean {
+    const messages = this.complaint?.messages ?? [];
+    const day = this.messageDayKey(messages[index]);
+    if (!day) return false;
+    for (let i = index - 1; i >= 0; i--) {
+      const previousDay = this.messageDayKey(messages[i]);
+      if (previousDay) return previousDay !== day;
+    }
+    return true;
+  }
+
+  private messageDayKey(message: ChatMessage | undefined): string | null {
+    if (!message?.createdAtUtc) return null;
+    const createdAt = new Date(message.createdAtUtc);
+    return isNaN(createdAt.getTime()) ? null : createdAt.toDateString();
+  }
+
+  dateSeparatorLabel(message: ChatMessage): string {
+    if (!message?.createdAtUtc) return '';
 
     const isEn = this.translate.currentLang === 'en';
-    const createdAt = new Date(firstMessage.createdAtUtc);
+    const createdAt = new Date(message.createdAtUtc);
+    if (isNaN(createdAt.getTime())) return '';
     const time = createdAt.toLocaleTimeString(appLocale(isEn ? 'en' : 'ar'), { hour: '2-digit', minute: '2-digit' });
 
     if (createdAt.toDateString() === new Date().toDateString()) {

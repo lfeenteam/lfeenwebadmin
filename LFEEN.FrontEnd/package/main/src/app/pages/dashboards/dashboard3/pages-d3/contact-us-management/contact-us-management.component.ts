@@ -17,10 +17,11 @@ import { LoginService } from '../../services/login/login.service';
 import { ContactUsAttachment, ContactUsDetail, ContactUsListItem, ContactUsStatus } from './interfaces/contact-us.model';
 import { ContactUsService } from './services/contact-us.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 @Component({
   selector: 'app-contact-us-management', standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, DashboardEmptyComponent, A11yModule],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, DashboardLoadingComponent, DashboardEmptyComponent, A11yModule, AppPluralPipe],
   templateUrl: './contact-us-management.component.html', styleUrl: './contact-us-management.component.scss'
 })
 export class ContactUsManagementComponent implements OnInit, OnDestroy {

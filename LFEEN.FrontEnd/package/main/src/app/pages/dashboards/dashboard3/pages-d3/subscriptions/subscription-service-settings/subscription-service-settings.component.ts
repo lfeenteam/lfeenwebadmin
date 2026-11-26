@@ -38,6 +38,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { OfferConfirmDialogComponent, OfferConfirmDialogData } from '../../platform-offers/components/offer-confirm-dialog/offer-confirm-dialog.component';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { HasUnsavedChanges } from 'src/app/guards/unsaved-changes.guard';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 // The catalog only has two flags, so only three states exist:
 //   active    = isActive && isAvailable
@@ -63,7 +64,7 @@ const SUBSCRIBERS_PAGE_SIZE = 10;
 @Component({
   selector: 'app-subscription-service-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, BillingFieldsComponent, DashboardLoadingComponent],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, TranslateModule, BillingFieldsComponent, DashboardLoadingComponent, AppPluralPipe],
   templateUrl: './subscription-service-settings.component.html',
   styleUrl: './subscription-service-settings.component.scss'
 })
