@@ -100,6 +100,20 @@
 .dd-request h3 { display: flex; align-items: center; gap: 8px; }
 
 // "Made from a demo link" — admin-only area / notes and the open count.
+// "From the batch" next to an area / notes the link inherits.
+.dd-from-batch {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6d28d9;
+  background: #f5f3ff;
+  border: 1px solid #ede9fe;
+  vertical-align: middle;
+}
+
 .dd-link {
   border-color: #ede9fe;
   background: linear-gradient(#faf9ff, #fff 60px);

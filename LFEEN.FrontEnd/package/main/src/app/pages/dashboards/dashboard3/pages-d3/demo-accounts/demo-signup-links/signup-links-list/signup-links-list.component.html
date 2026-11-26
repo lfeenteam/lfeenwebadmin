@@ -71,7 +71,7 @@
     <div class="sl-batch">
       @if (batch; as b) {
         <div class="sl-batch__info">
-          <strong dir="auto">{{ b.area || ('d3.demoAccounts.signupLinks.batch.noArea' | translate) }}</strong>
+          <strong><bdi>{{ b.area || ('d3.demoAccounts.signupLinks.batch.noArea' | translate) }}</bdi></strong>
           <span>
             {{ 'd3.demoAccounts.signupLinks.batch.createdBy' | translate }} {{ b.createdByAdminName || emptyValue }}
             · <span class="da-ltr" dir="ltr">{{ date(b.createdAt, false) }}</span>
@@ -79,7 +79,7 @@
             · {{ 'd3.demoAccounts.signupLinks.create.trialDays' | translate: { days: b.durationDays } }}
           </span>
           @if (b.additionalNotes) {
-            <span class="sl-batch__notes" dir="auto" [matTooltip]="b.additionalNotes">{{ b.additionalNotes }}</span>
+            <span class="sl-batch__notes" [matTooltip]="b.additionalNotes"><bdi>{{ b.additionalNotes }}</bdi></span>
           }
         </div>
         <div class="sl-batch__counts">
@@ -165,7 +165,7 @@
                     </span>
                     @if (link.area) {
                       <span class="sl-name__text">
-                        <strong dir="auto" [title]="link.area">{{ link.area }}</strong>
+                        <strong [title]="link.area"><bdi>{{ link.area }}</bdi></strong>
                         @if (link.areaFromBatch) { <span class="sl-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
                       </span>
                     } @else {
@@ -175,7 +175,7 @@
                   @if (link.additionalNotes) {
                     <span class="sl-notes">
                       <i-tabler name="note" class="icon-12"></i-tabler>
-                      <span class="sl-notes__text" dir="auto" [matTooltip]="link.additionalNotes">{{ link.additionalNotes }}</span>
+                      <span class="sl-notes__text" [matTooltip]="link.additionalNotes"><bdi>{{ link.additionalNotes }}</bdi></span>
                       @if (link.additionalNotesFromBatch) { <span class="sl-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
                     </span>
                   }

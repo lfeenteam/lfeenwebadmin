@@ -132,4 +132,7 @@ export interface DemoAccountSignupLink {
   additionalNotes: string | null;
   firstOpenedAt: string | null;
   openCount: number;
+  /** Only when taken from a links-table row (the account response doesn't carry them). */
+  areaFromBatch?: boolean;
+  additionalNotesFromBatch?: boolean;
 }

@@ -97,7 +97,8 @@
 
     <div class="dd-grid">
       <!-- Made from a demo link: who it was for (area / notes, admin only) and how often it was opened -->
-      @if (account.signupLink; as sl) {
+      <!-- From the account response, else from the links table (fallback while the Admin API drops it) -->
+      @if (signupLink; as sl) {
         <section class="dd-card dd-card--wide dd-link">
           <div class="dd-link__head">
             <h3><i-tabler name="link" class="icon-18"></i-tabler>{{ 'd3.demoAccounts.signupLinkInfo.title' | translate }}</h3>
@@ -109,11 +110,18 @@
           <dl class="dd-list dd-list--cols dd-link__list">
             <div>
               <dt>{{ 'd3.demoAccounts.signupLinkInfo.area' | translate }}</dt>
-              <dd dir="auto">{{ sl.area || emptyValue }}</dd>
+              <!-- <bdi>, not dir="auto": a name starting with Latin letters must not pull the line to the left -->
+              <dd>
+                <bdi>{{ sl.area || emptyValue }}</bdi>
+                @if (sl.area && sl.areaFromBatch) { <span class="dd-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+              </dd>
             </div>
             <div>
               <dt>{{ 'd3.demoAccounts.signupLinkInfo.notes' | translate }}</dt>
-              <dd class="dd-note" dir="auto">{{ sl.additionalNotes || emptyValue }}</dd>
+              <dd class="dd-note">
+                <bdi>{{ sl.additionalNotes || emptyValue }}</bdi>
+                @if (sl.additionalNotes && sl.additionalNotesFromBatch) { <span class="dd-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+              </dd>
             </div>
             <div>
               <dt>{{ 'd3.demoAccounts.signupLinkInfo.firstOpen' | translate }}</dt>

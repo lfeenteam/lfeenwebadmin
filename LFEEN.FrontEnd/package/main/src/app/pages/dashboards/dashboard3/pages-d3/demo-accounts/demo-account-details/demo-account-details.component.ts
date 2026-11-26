@@ -14,6 +14,8 @@ import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 import { LoginService } from '../../../services/login/login.service';
 import { DemoAccountsService } from '../../../services/demo-accounts.service';
+import { DemoSignupLinksService } from '../../../services/demo-signup-links.service';
+import { DemoAccountSignupLink } from '../../../interfaces/demo-signup-link.model';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
 import { PageBackOverrideService } from '../../../services/page-back-override.service';
 import { demoListState } from '../demo-list-state';
@@ -114,6 +116,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   copied: 'sid' | 'phone' | 'birth' | null = null;
 
   private loadRequest?: Subscription;
+  /** signupLink taken from the links table while the account response lacks it. */
+  private linkFromTable: DemoAccountSignupLink | null = null;
+  private linkLookupPending = false;
+  private linkLookup?: Subscription;
+  private readonly signupLinks = inject(DemoSignupLinksService);
   /** The kind the loaded variables belong to — asked again only when the account's kind differs. */
   private templatesKind: DemoAccountKind | null = null;
   private copiedTimer?: ReturnType<typeof setTimeout>;
@@ -162,6 +169,7 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.linkLookup?.unsubscribe();
     clearTimeout(this.copiedTimer);
     this.pageBackOverride.clear(this.backToList);
     this.pageTitle.clear();
@@ -269,12 +277,62 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
    * "None" here does not mean "nothing reached them yet".
    */
   get fromSignupLink(): boolean {
-    return !!this.account?.signupLink;
+    return !!this.signupLink;
+  }
+
+  /**
+   * The demo link this account came from: the server's own field when it is there, else the row
+   * found in the links table (see findSignupLink).
+   */
+  get signupLink(): DemoAccountSignupLink | null {
+    return this.account?.signupLink ?? this.linkFromTable;
   }
 
   /** Made by name only (channel "None", not from a demo link): no invitation has ever been sent. */
   get notSentYet(): boolean {
-    return this.account?.channel === 'None' && !this.fromSignupLink;
+    // While the links table is being asked, don't flash "nothing sent yet" for a link account.
+    return this.account?.channel === 'None' && !this.fromSignupLink && !this.linkLookupPending;
+  }
+
+  /**
+   * Fallback while GET demo-accounts/{id} lacks signupLink (dropped by the Admin backend): the links
+   * table carries the same data, searchable by the login phone. Asked only for an account that could
+   * be a link account (channel "None", no signupLink, has a login phone); tries the number as stored
+   * (+9665…) and then as 05…, and keeps the row whose demoAccountId is this account. Any failure
+   * (no permission, feature off…) just leaves the page as it is.
+   */
+  private findSignupLink(account: DemoAccount): void {
+    this.linkLookup?.unsubscribe();
+    this.linkFromTable = null;
+    this.linkLookupPending = false;
+    if (account.signupLink || account.channel !== 'None' || !account.loginPhone) return;
+
+    const local = toLocalPhone(account.loginPhone);
+    const searches = [...new Set([account.loginPhone, local].filter((s): s is string => !!s))];
+    const ask = (i: number): void => {
+      if (i >= searches.length) { this.linkLookupPending = false; return; }
+      this.linkLookup = this.signupLinks.list({ search: searches[i], pageNumber: 1, pageSize: 20 }).subscribe({
+        next: page => {
+          const row = (page?.items ?? []).find(l => l.demoAccountId === account.id);
+          if (!row) { ask(i + 1); return; }
+          this.linkLookupPending = false;
+          this.linkFromTable = {
+            linkId: row.id,
+            batchId: row.batchId,
+            code: row.code,
+            area: row.area ?? null,
+            areaFromBatch: row.areaFromBatch,
+            additionalNotes: row.additionalNotes ?? null,
+            additionalNotesFromBatch: row.additionalNotesFromBatch,
+            firstOpenedAt: row.firstOpenedAt,
+            openCount: Math.max(row.openCount ?? 0, row.firstOpenedAt ? 1 : 0),
+          };
+        },
+        error: () => (this.linkLookupPending = false),
+      });
+    };
+    this.linkLookupPending = true;
+    ask(0);
   }
 
   /** The delivery log gets a subject column once any attempt carries one. */
@@ -349,7 +407,11 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
   // ── Internals ──────────────────────────────────────────────
 
   private setAccount(account: DemoAccount): void {
+    // A fresh load (or another account) asks the links table again; an action on the same
+    // account keeps the row already found.
+    const sameAccount = this.account?.id === account.id;
     this.account = { ...account, deliveries: account.deliveries ?? [], attachments: account.attachments ?? [] };
+    if (!sameAccount || (!this.linkFromTable && !this.linkLookupPending)) this.findSignupLink(account);
     this.pageTitle.set(account.fullName);
     this.loadVariables(demoKindOf(account));
   }

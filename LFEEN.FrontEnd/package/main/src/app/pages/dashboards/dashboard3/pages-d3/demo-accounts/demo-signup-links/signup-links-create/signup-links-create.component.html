@@ -9,7 +9,7 @@
         <div class="sl-result__titles">
           <h3>{{ resultTitle }}</h3>
           <p>
-            @if (batch.area) { <strong class="sl-area" dir="auto">{{ batch.area }}</strong> · }
+            @if (batch.area) { <strong class="sl-area"><bdi>{{ batch.area }}</bdi></strong> · }
             {{ ('d3.demoAccounts.kinds.' + batch.kind) | translate }} ·
             {{ 'd3.demoAccounts.signupLinks.create.trialDays' | translate: { days: batch.durationDays } }}
             @if (batch.linksExpireAt) {
@@ -126,7 +126,7 @@
                 @if (open.links) {
                   <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.linksSectionHelp' | translate }}</span>
                 } @else {
-                  <span class="da-acc__summary" dir="auto">{{ linksSummary }}</span>
+                  <span class="da-acc__summary"><bdi>{{ linksSummary }}</bdi></span>
                 }
               </span>
               <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
@@ -231,7 +231,7 @@
                 @if (open.meta) {
                   <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.metaSectionHelp' | translate }}</span>
                 } @else {
-                  <span class="da-acc__summary" dir="auto">{{ metaSummary }}</span>
+                  <span class="da-acc__summary"><bdi>{{ metaSummary }}</bdi></span>
                 }
               </span>
               <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
@@ -291,7 +291,7 @@
                 @if (open.welcome) {
                   <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.welcomeSectionHelp' | translate }}</span>
                 } @else {
-                  <span class="da-acc__summary" dir="auto">{{ welcomeSummary }}</span>
+                  <span class="da-acc__summary"><bdi>{{ welcomeSummary }}</bdi></span>
                 }
               </span>
               <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
@@ -318,7 +318,7 @@
                 @if (open.extras) {
                   <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.extrasHelp' | translate }}</span>
                 } @else {
-                  <span class="da-acc__summary" dir="auto">{{ extrasSummary }}</span>
+                  <span class="da-acc__summary"><bdi>{{ extrasSummary }}</bdi></span>
                 }
               </span>
               <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>

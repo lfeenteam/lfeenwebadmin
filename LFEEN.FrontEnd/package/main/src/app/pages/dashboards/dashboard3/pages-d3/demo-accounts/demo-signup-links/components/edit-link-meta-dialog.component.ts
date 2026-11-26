@@ -64,7 +64,7 @@ interface FieldState {
               <!-- Follows the batch: show the batch value, offer to give this link its own -->
               <div class="em-inherit">
                 <span class="em-tag">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span>
-                <span class="em-inherit__value" dir="auto">{{ batchValue(f) || ('d3.demoAccounts.signupLinks.edit.batchEmpty' | translate) }}</span>
+                <span class="em-inherit__value"><bdi>{{ batchValue(f) || ('d3.demoAccounts.signupLinks.edit.batchEmpty' | translate) }}</bdi></span>
                 <button type="button" class="da-link-btn" [disabled]="saving" (click)="customize(f)">
                   {{ 'd3.demoAccounts.signupLinks.edit.customize' | translate }}
                 </button>
