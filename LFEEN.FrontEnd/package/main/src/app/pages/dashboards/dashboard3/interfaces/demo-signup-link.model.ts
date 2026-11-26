@@ -21,7 +21,7 @@ export const DEMO_SIGNUP_LIMITS = {
   additionalNotes: 1000,
 } as const;
 
-/** `<` and `>` are refused in the area and the notes (DEMO_SIGNUP_AREA_INVALID / DEMO_SIGNUP_NOTES_INVALID). */
+/** `<` and `>` are refused in the area and the notes (the server answers 400 VALIDATION_ERROR). */
 export const DEMO_SIGNUP_TEXT_FORBIDDEN = /[<>]/;
 
 /** Every field is optional on the server; the form always sends the main ones. */

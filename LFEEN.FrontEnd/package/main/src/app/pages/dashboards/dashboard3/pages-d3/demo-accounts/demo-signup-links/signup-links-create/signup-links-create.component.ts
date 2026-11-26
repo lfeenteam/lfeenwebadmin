@@ -24,7 +24,7 @@ import {
   DemoSignupBatch,
   DemoSignupLink
 } from '../../../../interfaces/demo-signup-link.model';
-import { DEMO_FIELD_ALIASES, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
+import { DemoFieldError, formatRiyadhDate, readDemoError } from '../../demo-accounts.util';
 import { scrollToFirstError } from '../../scroll-to-error';
 import { DemoTabsComponent } from '../../components/demo-tabs/demo-tabs.component';
 import { InvitationEditorStore } from '../../components/invitation-editor/invitation-editor.store';
@@ -37,13 +37,18 @@ const FIELDS: Field[] = ['count', 'durationDays', 'area', 'additionalNotes', 'li
 const LINKS_FIELDS: Field[] = ['count', 'durationDays'];
 const META_FIELDS: Field[] = ['area', 'additionalNotes'];
 
-/** Server codes that belong to one field (shown under it). */
-const FIELD_OF_CODE: Record<string, Field> = {
-  DEMO_SIGNUP_COUNT_INVALID: 'count',
-  DEMO_DURATION_INVALID: 'durationDays',
-  DEMO_SIGNUP_LINK_DAYS_INVALID: 'linkValidDays',
-  DEMO_SIGNUP_AREA_INVALID: 'area',
-  DEMO_SIGNUP_NOTES_INVALID: 'additionalNotes',
+/**
+ * VALIDATION_ERROR fieldErrors keys (camelCase, read lower-cased) → the form field. The server has
+ * no per-field codes; its text may be English, so the field shows our own Arabic/English message.
+ */
+const FIELD_OF_SERVER_KEY: Record<string, Field | 'welcome'> = {
+  count: 'count',
+  durationdays: 'durationDays',
+  linkvaliddays: 'linkValidDays',
+  area: 'area',
+  additionalnotes: 'additionalNotes',
+  invitationmessage: 'welcome',
+  invitationlanguage: 'welcome',
 };
 
 // /demo-accounts/signup-links/new — "Create demo links" (guide §4). Nothing is sent: the first time
@@ -283,27 +288,8 @@ export class SignupLinksCreateComponent implements OnInit {
 
         if (e.code === 'DEMO_SIGNUP_DISABLED') this.featureDisabled = true;
 
-        // An unknown variable in the welcome text → a fresh preview marks it.
-        if (this.invitation.handleError(e)) {
-          this.invitation.takeFieldErrors(e.fieldErrors);
-          this.open.welcome = true;
-          this.formError = signupErrorMessage(e, this.translate);
-          return;
-        }
-        if (e.code && FIELD_OF_CODE[e.code]) {
-          this.errors[FIELD_OF_CODE[e.code]] = signupErrorMessage(e, this.translate);
-          this.focusError();
-          return;
-        }
-        if (e.code === 'VALIDATION_ERROR' && e.fieldErrors.length) {
-          const unplaced: string[] = [];
-          for (const fe of this.invitation.takeFieldErrors(e.fieldErrors)) {
-            const name = fe.field ? (DEMO_FIELD_ALIASES[fe.field] ?? fe.field) : null;
-            const field = FIELDS.find(f => f.toLowerCase() === name);
-            if (field) this.errors[field] = fe.message;
-            else unplaced.push(fe.message);
-          }
-          this.formError = unplaced.length ? unplaced.join(' - ') : null;
+        if (e.code === 'VALIDATION_ERROR') {
+          this.showValidationError(e.fieldErrors);
           this.focusError();
           return;
         }
@@ -312,6 +298,35 @@ export class SignupLinksCreateComponent implements OnInit {
         this.focusError();
       },
     });
+  }
+
+  /**
+   * 400 VALIDATION_ERROR (the page checks first, so this is rare): each fieldErrors key goes under
+   * its field with our own text; anything without a known field → "check the values and try again".
+   */
+  private showValidationError(fieldErrors: DemoFieldError[]): void {
+    let unplaced = !fieldErrors.length;
+    for (const fe of fieldErrors) {
+      const target = fe.field ? FIELD_OF_SERVER_KEY[fe.field] : undefined;
+      if (!target) {
+        unplaced = true;
+      } else if (target === 'welcome') {
+        this.invitation.fieldErrors.message = this.translate.instant('d3.demoAccounts.signupLinks.validation.welcome');
+        this.open.welcome = true;
+      } else {
+        // Our own check if it finds the problem, else the field's rule as a sentence.
+        this.errors[target] = this.validate(target) ?? this.ruleMessage(target);
+      }
+    }
+    this.formError = unplaced ? this.translate.instant('d3.demoAccounts.signupLinks.errors.validation') : null;
+  }
+
+  /** The field's rule as one sentence, for a server refusal our own check didn't catch. */
+  private ruleMessage(field: Field): string {
+    const t = (key: string, params?: object) => this.translate.instant(`d3.demoAccounts.signupLinks.validation.${key}`, params);
+    if (field === 'area' || field === 'additionalNotes') return t(`${field}Rule`, { max: DEMO_SIGNUP_LIMITS[field] });
+    const [min, max] = this.range(field);
+    return t(field, { min, max });
   }
 
   // ── Result: the new links ─────────────────────────────────

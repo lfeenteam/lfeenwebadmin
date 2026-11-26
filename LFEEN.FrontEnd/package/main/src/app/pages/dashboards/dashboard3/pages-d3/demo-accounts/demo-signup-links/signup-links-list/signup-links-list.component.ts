@@ -121,7 +121,7 @@ export class SignupLinksListComponent implements OnInit {
       const filtersChanged = state !== this.state || params.get('batchId') !== this.batchId
         || (params.get('search') ?? '') !== this.searchText;
       this.searchText = (params.get('search') ?? '').slice(0, DEMO_LIMITS.search);
-      // Any other value would be a 400 DEMO_SIGNUP_STATE_INVALID — ignore it.
+      // Pick-list values only: anything else would be a 400 VALIDATION_ERROR — ignore it.
       this.state = state && DEMO_SIGNUP_STATES.includes(state) ? state : null;
       this.batchId = params.get('batchId') || null;
       this.page = Number.isInteger(page) && page > 0 ? page : 1;

@@ -229,10 +229,19 @@ export class EditLinkMetaDialogComponent {
       error: err => {
         this.saving = false;
         const e = readDemoError(err);
-        const message = signupErrorMessage(e, this.translate);
-        if (e.code === 'DEMO_SIGNUP_AREA_INVALID') this.state.area.error = message;
-        else if (e.code === 'DEMO_SIGNUP_NOTES_INVALID') this.state.additionalNotes.error = message;
-        else this.error = message;
+        if (e.code !== 'VALIDATION_ERROR') {
+          // DEMO_SIGNUP_LINK_ID_NOT_FOUND / DEMO_SIGNUP_BATCH_NOT_FOUND / …: the server's sentence.
+          this.error = signupErrorMessage(e, this.translate);
+          return;
+        }
+        // 400 VALIDATION_ERROR: our own text under the field it names (the server's may be English).
+        let unplaced = !e.fieldErrors.length;
+        for (const fe of e.fieldErrors) {
+          const f = FIELDS.find(x => x.toLowerCase() === fe.field);
+          if (f) this.state[f].error = this.validate(f, this.state[f].value.trim()) ?? this.ruleMessage(f);
+          else unplaced = true;
+        }
+        if (unplaced) this.error = this.translate.instant('d3.demoAccounts.signupLinks.errors.validation');
       },
     });
   }
@@ -251,6 +260,11 @@ export class EditLinkMetaDialogComponent {
       }
     }
     return body;
+  }
+
+  /** The field's rule as one sentence (up to N characters, no < or >). */
+  private ruleMessage(f: MetaField): string {
+    return this.translate.instant(`d3.demoAccounts.signupLinks.validation.${f}Rule`, { max: DEMO_SIGNUP_LIMITS[f] });
   }
 
   private validate(f: MetaField, value: string): string | null {

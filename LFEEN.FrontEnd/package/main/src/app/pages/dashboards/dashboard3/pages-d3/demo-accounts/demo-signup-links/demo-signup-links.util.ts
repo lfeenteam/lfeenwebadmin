@@ -11,6 +11,8 @@ import { DemoApiError, demoErrorMessage } from '../demo-accounts.util';
  * already translate (text, duration…) and transport errors keep their own text.
  */
 export function signupErrorMessage(e: DemoApiError, translate: TranslateService): string {
+  // Any invalid value is a plain 400 VALIDATION_ERROR whose message may be English — never show it.
+  if (e.code === 'VALIDATION_ERROR') return translate.instant('d3.demoAccounts.signupLinks.errors.validation');
   if (e.code?.startsWith('DEMO_SIGNUP_') && e.message) return e.message;
   if (e.code?.startsWith('DEMO_SIGNUP_')) {
     const key = `d3.demoAccounts.signupLinks.errors.${e.code}`;

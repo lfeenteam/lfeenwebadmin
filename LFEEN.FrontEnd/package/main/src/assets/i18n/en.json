@@ -308,15 +308,17 @@
           "linkValidDays": "The link validity must be {{min}} to {{max}} days.",
           "areaMax": "The area can be up to {{max}} characters.",
           "additionalNotesMax": "The notes can be up to {{max}} characters.",
-          "textChars": "It can't contain < or >."
+          "textChars": "It can't contain < or >.",
+          "welcome": "The welcome message has an invalid variable. Use only the available variables.",
+          "areaRule": "The area can be up to {{max}} characters, without < or >.",
+          "additionalNotesRule": "The notes can be up to {{max}} characters, without < or >."
         },
         "errors": {
           "disabled": "Demo links are turned off on the server right now.",
           "rateLimited": "Too many requests in a short time, try again in a minute.",
           "DEMO_SIGNUP_PIN_KEY_MISSING": "A server setting is missing (PinKey), so links can't be created now. Tell the backend team.",
-          "DEMO_SIGNUP_AREA_INVALID": "The area is too long or contains < or >.",
-          "DEMO_SIGNUP_NOTES_INVALID": "The notes are too long or contain < or >.",
-          "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "This link doesn't exist any more. Refresh the page."
+          "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "This link doesn't exist any more. Refresh the page.",
+          "validation": "Check the values you entered and try again."
         },
         "edit": {
           "button": "Edit area and notes",

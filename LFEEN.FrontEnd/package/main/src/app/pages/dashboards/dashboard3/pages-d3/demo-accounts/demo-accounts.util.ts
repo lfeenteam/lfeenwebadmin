@@ -122,15 +122,38 @@ export const DEMO_FIELD_ALIASES: Record<string, string> = {
 
 export function readDemoError(err: any): DemoApiError {
   const body = err?.error && typeof err.error === 'object' ? err.error : {};
-  const errors = Array.isArray(body.errors) ? body.errors : [];
   return {
     code: typeof body.errorCode === 'string' ? body.errorCode : null,
     status: typeof err?.status === 'number' ? err.status : 0,
     message: typeof body.message === 'string' ? body.message : '',
-    fieldErrors: errors
-      .filter((e: any) => e?.message)
-      .map((e: any) => ({ field: e.field ? String(e.field).toLowerCase() : null, message: String(e.message) })),
+    fieldErrors: readFieldErrors(body),
   };
+}
+
+/**
+ * Field errors in any of the server's shapes, first one found:
+ * - `errors: [{ field, message }]` (demo accounts);
+ * - `fieldErrors: { area: "…" }` or `{ area: ["…"] }` (demo links, VALIDATION_ERROR);
+ * - `validationErrors: ["…"]` — messages with no field.
+ */
+function readFieldErrors(body: any): DemoFieldError[] {
+  if (Array.isArray(body.errors) && body.errors.length) {
+    return body.errors
+      .filter((e: any) => e?.message)
+      .map((e: any) => ({ field: e.field ? String(e.field).toLowerCase() : null, message: String(e.message) }));
+  }
+  if (body.fieldErrors && typeof body.fieldErrors === 'object' && !Array.isArray(body.fieldErrors)) {
+    const list: DemoFieldError[] = [];
+    for (const [field, value] of Object.entries(body.fieldErrors)) {
+      const messages = Array.isArray(value) ? value : [value];
+      for (const m of messages) if (m) list.push({ field: field.toLowerCase(), message: String(m) });
+    }
+    if (list.length) return list;
+  }
+  if (Array.isArray(body.validationErrors)) {
+    return body.validationErrors.filter(Boolean).map((m: unknown) => ({ field: null, message: String(m) }));
+  }
+  return [];
 }
 
 /**
