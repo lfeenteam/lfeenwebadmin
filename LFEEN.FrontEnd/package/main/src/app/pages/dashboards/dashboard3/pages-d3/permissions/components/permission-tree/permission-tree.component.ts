@@ -51,6 +51,8 @@ export class PermissionTreeComponent implements OnChanges {
   @Input({ required: true }) groups: TreeGroup[] = [];
   @Input() lang = 'ar';
   @Input() isLocked: (perm: SelectablePermission) => boolean = () => false;
+  /** View-only: checkboxes disabled and group quick links hidden (BUG-2739). */
+  @Input() readonly = false;
 
   @Output() permissionToggle = new EventEmitter<{ perm: SelectablePermission; checked: boolean }>();
   @Output() groupAction = new EventEmitter<PermissionGroupAction>();
@@ -160,6 +162,7 @@ export class PermissionTreeComponent implements OnChanges {
   }
 
   onGroupCheck(group: TreeGroup): void {
+    if (this.readonly) return;
     this.groupAction.emit({ group, action: this.stateOf(group) === 'all' ? 'none' : 'all' });
   }
 

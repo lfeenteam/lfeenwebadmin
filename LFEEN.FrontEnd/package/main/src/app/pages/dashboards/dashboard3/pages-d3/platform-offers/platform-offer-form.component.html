@@ -1000,15 +1000,17 @@
         <a class="secondary-btn" [routerLink]="listLink()">
           {{ "d3.platformOffers.cancel" | translate }}
         </a>
-        <button class="primary-btn" type="submit" [disabled]="saving()">
-          <span *ngIf="saving()" class="spinner small"></span>
-          {{
-            (saving()
-              ? "d3.platformOffers.form.saving"
-              : "d3.platformOffers.form.save"
-            ) | translate
-          }}
-        </button>
+        @if (canManage()) {
+          <button class="primary-btn" type="submit" [disabled]="saving()">
+            <span *ngIf="saving()" class="spinner small"></span>
+            {{
+              (saving()
+                ? "d3.platformOffers.form.saving"
+                : "d3.platformOffers.form.save"
+              ) | translate
+            }}
+          </button>
+        }
       </footer>
     </form>
   }

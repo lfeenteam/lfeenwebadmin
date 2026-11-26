@@ -220,7 +220,17 @@
 
     <!-- White box: day headers + grid -->
     <div class="calendar-box">
-      <div class="calendar-grid">
+      @if (calendarState === 'error') {
+        <div class="calendar-error" role="alert">
+          <i-tabler name="calendar-off" class="calendar-error-icon"></i-tabler>
+          <p class="calendar-error-text">{{ 'd3.unitReview.pricingView.calendarError' | translate }}</p>
+          <button type="button" class="calendar-retry-btn" (click)="retryCalendar()">
+            <i-tabler name="refresh"></i-tabler>
+            {{ 'd3.unitReview.pricingView.calendarRetry' | translate }}
+          </button>
+        </div>
+      } @else {
+      <div class="calendar-grid" [class.calendar-grid--loading]="calendarState === 'loading'" [attr.aria-busy]="calendarState === 'loading'">
         <div class="day-header-row">
           @for (dayKey of dayHeaders; track dayKey; let i = $index) {
             <div class="day-header" [class.day-header--weekend]="i >= 5">{{ dayKey | translate }}</div>
@@ -233,15 +243,15 @@
               <div
                 class="day-cell"
                 [class.day-cell--empty]="!cell.day"
-                [class.day-cell--available]="cell.day && cell.available"
-                [class.day-cell--unavailable]="cell.day && !cell.available"
+                [class.day-cell--available]="cell.day && cell.available === true"
+                [class.day-cell--unavailable]="cell.day && cell.available === false"
                 [class.day-cell--weekend]="cell.isWeekend"
                 [class.day-cell--today]="cell.isToday">
                 @if (cell.day) {
                   <span class="day-number">{{ cell.day }}</span>
                   @if (cell.price) {
                     <span class="day-price">
-                      {{ cell.price }}
+                      <span class="day-price-value">{{ cell.price }}</span>
                       <img [src]="currencyIconSrc" alt="ريال" class="price-riyal" [class.is-text-currency]="currentLang === 'en'">
                     </span>
                   }
@@ -251,6 +261,7 @@
           </div>
         }
       </div>
+      }
 
       <div class="calendar-legend">
         <span class="legend-item"><i class="legend-swatch legend-swatch--available"></i>{{ 'd3.unitReview.pricingView.legend.available' | translate }}</span>

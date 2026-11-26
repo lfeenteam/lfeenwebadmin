@@ -27,6 +27,7 @@ import {
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-platform-offers-list',
@@ -51,6 +52,9 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
   private toastr = inject(ToastrService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private perms = inject(PermissionService);
+  /** BUG-2739: create/edit/activate/delete are hidden from view-only admins. */
+  readonly canManage = computed(() => this.perms.canWrite(['platformoffers', 'offers']));
   private search$ = new Subject<string>();
   // Every search/filter/page/refresh load goes through here; switchMap cancels the in-flight
   // request so a slow stale response can never overwrite the latest results.
@@ -195,6 +199,7 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
     return this.translate.instant(`d3.platformOffers.enums.${value}`);
   }
   toggle(item: PlatformOfferListItem) {
+    if (!this.canManage()) return;
     const activating = !item.isActive;
     const ref = this.dialog.open(OfferConfirmDialogComponent, {
       width: '440px',
@@ -232,6 +237,7 @@ export class PlatformOffersListComponent implements OnInit, OnDestroy {
     });
   }
   remove(item: PlatformOfferListItem) {
+    if (!this.canManage()) return;
     const ref = this.dialog.open(OfferConfirmDialogComponent, {
       width: '440px',
       maxWidth: '95vw',

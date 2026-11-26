@@ -17,6 +17,7 @@ import { ServiceFaqDialogComponent, ServiceFaqDialogData } from './components/se
 import { SERVICE_FAQ_CATEGORY_OPTIONS, ServiceFaqCategory, ServiceFaqDto } from './interfaces/service-faq.model';
 import { parseServiceFaqError } from './interfaces/service-faq-error.util';
 import { ServiceFaqService } from './services/service-faq.service';
+import { PermissionService } from '../../services/permission.service';
 
 /** Service (worker) app FAQ — what the admin edits here shows in the worker app right away. */
 @Component({
@@ -36,6 +37,9 @@ export class ServiceFaqManagementComponent implements OnInit {
   private translate = inject(TranslateService);
   private coreService = inject(CoreService);
   private destroyRef = inject(DestroyRef);
+  private perms = inject(PermissionService);
+  /** BUG-2739: this tab lives on the FAQ page (gated by the FAQ module), so the same prefixes. */
+  readonly canManage = computed(() => this.perms.canWrite(['clientfaq', 'faq', 'faqs']));
 
   readonly categoryOptions = SERVICE_FAQ_CATEGORY_OPTIONS;
   readonly dirSignal = computed(() => this.coreService.getOptionsSignal()().dir);
@@ -172,6 +176,7 @@ export class ServiceFaqManagementComponent implements OnInit {
   }
 
   private openDialog(data: ServiceFaqDialogData): void {
+    if (!this.canManage()) return;
     const ref = this.dialog.open(ServiceFaqDialogComponent, { width: '720px', maxWidth: '95vw', data });
     ref.afterClosed().subscribe(result => {
       if (!result) return;
@@ -187,7 +192,7 @@ export class ServiceFaqManagementComponent implements OnInit {
   }
 
   toggleActive(faq: ServiceFaqDto): void {
-    if (this.isBusy(faq.id)) return;
+    if (!this.canManage() || this.isBusy(faq.id)) return;
     this.setBusy(faq.id, true);
     this.api.setActive(faq.id, !faq.isActive).subscribe({
       next: dto => {
@@ -210,6 +215,7 @@ export class ServiceFaqManagementComponent implements OnInit {
 
   /** Confirmation is an in-page dialog, never the browser's confirm(). */
   deleteFaq(faq: ServiceFaqDto): void {
+    if (!this.canManage()) return;
     const ref = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: { title: 'd3.serviceFaq.delete.title', message: 'd3.serviceFaq.delete.message' },

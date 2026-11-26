@@ -9,6 +9,7 @@
         <div class="sl-result__titles">
           <h3>{{ resultTitle }}</h3>
           <p>
+            @if (batch.area) { <strong class="sl-area" dir="auto">{{ batch.area }}</strong> · }
             {{ ('d3.demoAccounts.kinds.' + batch.kind) | translate }} ·
             {{ 'd3.demoAccounts.signupLinks.create.trialDays' | translate: { days: batch.durationDays } }}
             @if (batch.linksExpireAt) {
@@ -40,7 +41,6 @@
           <div class="sl-links__row">
             <span class="sl-links__n da-ltr" dir="ltr">{{ i + 1 }}</span>
             <div class="sl-links__text">
-              <strong dir="auto">{{ accountNameFor(i) }}</strong>
               <span class="sl-url da-ltr" dir="ltr" [title]="url(link) ?? link.code">{{ url(link) ?? link.code }}</span>
             </div>
             <button type="button" class="da-btn sm" [class.copied]="copiedId === link.id" (click)="copy(link)">
@@ -218,11 +218,71 @@
             </div>
           </section>
 
-          <!-- ② Organisation name (= the account's name) and the welcome message shown on the page -->
+          <!-- ② Who the links are for: area + notes, admin only (never shown to the organisation) -->
+          <section class="da-card da-acc dc-card" [class.collapsed]="!open.meta">
+            <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="open.meta" aria-controls="sl-acc-meta"
+                    (click)="open.meta = !open.meta">
+              <span class="da-step" [class.invalid]="metaHasErrors">2</span>
+              <span class="dc-card__titles">
+                <span class="da-acc__title">
+                  {{ 'd3.demoAccounts.signupLinks.create.metaSection' | translate }}
+                  <span class="dc-tag">{{ 'd3.demoAccounts.create.optional' | translate }}</span>
+                </span>
+                @if (open.meta) {
+                  <span class="dc-card__sub">{{ 'd3.demoAccounts.signupLinks.create.metaSectionHelp' | translate }}</span>
+                } @else {
+                  <span class="da-acc__summary" dir="auto">{{ metaSummary }}</span>
+                }
+              </span>
+              <i-tabler name="chevron-down" class="icon-18 da-acc__chevron"></i-tabler>
+            </button>
+
+            <div class="da-acc__body" id="sl-acc-meta" [hidden]="!open.meta">
+              <div class="sl-private">
+                <i-tabler name="eye-off" class="icon-16"></i-tabler>
+                <p>{{ 'd3.demoAccounts.signupLinks.create.metaPrivate' | translate }}</p>
+              </div>
+
+              <div class="da-field">
+                <label for="sl-area">{{ 'd3.demoAccounts.signupLinks.create.area' | translate }}</label>
+                <div class="dc-input-icon">
+                  <i-tabler name="building" class="icon-18"></i-tabler>
+                  <!-- No dir="auto": an empty field would turn LTR and push the placeholder and icon to the far end -->
+                  <input id="sl-area" name="demo-link-area" type="text" class="da-input" autocomplete="off"
+                         [maxLength]="linkLimits.area + 20"
+                         [placeholder]="'d3.demoAccounts.signupLinks.create.areaPlaceholder' | translate"
+                         [class.invalid]="errors.area" [disabled]="submitting"
+                         [(ngModel)]="area" (blur)="onBlur('area')" (ngModelChange)="onInput('area')" />
+                </div>
+                <p class="da-helper dc-counter">
+                  @if (errors.area) {
+                    <span class="da-error">{{ errors.area }}</span>
+                  } @else {
+                    <span>{{ 'd3.demoAccounts.signupLinks.create.areaHelp' | translate }}</span>
+                  }
+                  <span class="da-ltr" dir="ltr">{{ area.trim().length }}/{{ linkLimits.area }}</span>
+                </p>
+              </div>
+
+              <div class="da-field">
+                <label for="sl-notes">{{ 'd3.demoAccounts.signupLinks.create.additionalNotes' | translate }}</label>
+                <textarea id="sl-notes" name="demo-link-notes" class="da-input" rows="3"
+                          [placeholder]="'d3.demoAccounts.signupLinks.create.additionalNotesPlaceholder' | translate"
+                          [class.invalid]="errors.additionalNotes" [disabled]="submitting"
+                          [(ngModel)]="additionalNotes" (blur)="onBlur('additionalNotes')" (ngModelChange)="onInput('additionalNotes')"></textarea>
+                <p class="da-helper dc-counter">
+                  @if (errors.additionalNotes) { <span class="da-error">{{ errors.additionalNotes }}</span> } @else { <span></span> }
+                  <span class="da-ltr" dir="ltr">{{ additionalNotes.trim().length }}/{{ linkLimits.additionalNotes }}</span>
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ③ The welcome message shown on the link's page -->
           <section class="da-card da-acc dc-card" [class.collapsed]="!open.welcome">
             <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="open.welcome" aria-controls="sl-acc-welcome"
                     (click)="open.welcome = !open.welcome">
-              <span class="da-step" [class.invalid]="welcomeHasErrors">2</span>
+              <span class="da-step" [class.invalid]="welcomeHasErrors">3</span>
               <span class="dc-card__titles">
                 <span class="da-acc__title">
                   {{ 'd3.demoAccounts.signupLinks.create.welcomeSection' | translate }}
@@ -238,29 +298,6 @@
             </button>
 
             <div class="da-acc__body" id="sl-acc-welcome" [hidden]="!open.welcome">
-              <div class="da-field">
-                <label for="sl-label">{{ 'd3.demoAccounts.signupLinks.create.label' | translate }}</label>
-                <div class="dc-input-icon">
-                  <i-tabler name="building" class="icon-18"></i-tabler>
-                  <!-- No dir="auto": an empty field would turn LTR and push the placeholder and icon to the far end -->
-                  <input id="sl-label" name="demo-link-label" type="text" class="da-input" autocomplete="off"
-                         [maxLength]="linkLimits.label + 20"
-                         [placeholder]="'d3.demoAccounts.signupLinks.create.labelPlaceholder' | translate"
-                         [class.invalid]="errors.label" [disabled]="submitting"
-                         [(ngModel)]="label" (blur)="onBlur('label')" (ngModelChange)="onInput('label')" />
-                </div>
-                <p class="da-helper dc-counter">
-                  @if (errors.label) {
-                    <span class="da-error">{{ errors.label }}</span>
-                  } @else {
-                    <span>{{ 'd3.demoAccounts.signupLinks.create.labelHelp' | translate: { names: namesExample } }}</span>
-                  }
-                  <span class="da-ltr" dir="ltr">{{ label.trim().length }}/{{ linkLimits.label }}</span>
-                </p>
-              </div>
-
-              <div class="dc-divider"></div>
-
               <app-invitation-editor [bare]="true" [disabled]="submitting"
                                      messageLabelKey="d3.demoAccounts.signupLinks.create.welcome"
                                      messagePlaceholderKey="d3.demoAccounts.signupLinks.create.welcomePlaceholder"
@@ -268,11 +305,11 @@
             </div>
           </section>
 
-          <!-- ③ First-open window and internal note, folded -->
+          <!-- ④ First-open window, folded -->
           <section class="da-card da-acc dc-card" [class.collapsed]="!open.extras">
             <button type="button" class="da-acc__head dc-card__head" [attr.aria-expanded]="open.extras" aria-controls="sl-acc-extras"
                     (click)="open.extras = !open.extras">
-              <span class="da-step" [class.invalid]="extrasHaveErrors">3</span>
+              <span class="da-step" [class.invalid]="extrasHaveErrors">4</span>
               <span class="dc-card__titles">
                 <span class="da-acc__title">
                   {{ 'd3.demoAccounts.signupLinks.create.extras' | translate }}
@@ -319,29 +356,12 @@
                   <p class="sl-help"><i-tabler name="info-circle" class="icon-14"></i-tabler>{{ 'd3.demoAccounts.signupLinks.create.linkValidHelp' | translate }}</p>
                 }
               </div>
-
-              <div class="dc-divider"></div>
-
-              <div class="da-field">
-                <label for="sl-note">
-                  {{ 'd3.demoAccounts.create.note' | translate }}
-                  <span class="dc-tag">{{ 'd3.demoAccounts.create.noteHelp' | translate }}</span>
-                </label>
-                <textarea id="sl-note" name="note" class="da-input" rows="2"
-                          [placeholder]="'d3.demoAccounts.create.notePlaceholder' | translate"
-                          [class.invalid]="errors.note" [disabled]="submitting"
-                          [(ngModel)]="note" (blur)="onBlur('note')" (ngModelChange)="onInput('note')"></textarea>
-                <p class="da-helper dc-counter">
-                  @if (errors.note) { <span class="da-error">{{ errors.note }}</span> } @else { <span></span> }
-                  <span class="da-ltr" dir="ltr">{{ note.length }}/{{ limits.note }}</span>
-                </p>
-              </div>
             </div>
           </section>
         </div>
 
-        <!-- What the organisation sees when it opens a link -->
-        <app-signup-page-preview class="da-page__aside" [label]="label" [kind]="kind" [days]="durationDays"></app-signup-page-preview>
+        <!-- What the organisation sees when it opens a link (always "حساب تجريبي"; the area never shows) -->
+        <app-signup-page-preview class="da-page__aside" [kind]="kind" [days]="durationDays"></app-signup-page-preview>
       </div>
 
       <!-- Small screens: the actions stay at the bottom -->

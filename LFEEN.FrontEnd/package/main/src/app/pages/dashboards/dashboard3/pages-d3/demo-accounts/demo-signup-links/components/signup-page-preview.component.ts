@@ -34,13 +34,12 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
       <div class="spp__browser">
         <div class="spp__bar" aria-hidden="true">
           <span class="spp__dots"><i></i><i></i><i></i></span>
-          <span class="spp__url" dir="ltr"><i-tabler name="lock" class="icon-12"></i-tabler> lfeen.com/demo-signup/…</span>
+          <span class="spp__url" dir="ltr"><i-tabler name="lock" class="icon-12"></i-tabler> lfeen.com/demo/…</span>
         </div>
 
         <div class="spp__page">
           <div class="spp__card">
             <div class="spp__card-head">
-              <span class="spp__party">🎉</span>
               <div>
                 <strong>{{ 'd3.demoAccounts.signupLinks.preview.ready' | translate }}</strong>
                 <span class="spp__name" dir="auto">{{ accountName }}</span>
@@ -68,7 +67,10 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
               <span class="spp__btn">{{ 'd3.demoAccounts.signupLinks.preview.copyAll' | translate }}</span>
               <span class="spp__btn primary">{{ 'd3.demoAccounts.signupLinks.preview.signIn' | translate }}</span>
             </div>
-            <p class="spp__keep">💡 {{ 'd3.demoAccounts.signupLinks.preview.keep' | translate }}</p>
+            <p class="spp__keep">
+              <i-tabler name="bookmark" class="icon-14"></i-tabler>
+              <span>{{ 'd3.demoAccounts.signupLinks.preview.keep' | translate }}</span>
+            </p>
           </div>
 
           <!-- The welcome message (copied with "copy all") -->
@@ -82,7 +84,14 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
                 <button type="button" class="da-link-btn" (click)="store.refresh()">{{ 'd3.demoAccounts.actions.retry' | translate }}</button>
               </p>
             } @else if (welcomeText) {
-              <div class="spp__text" dir="auto">{{ welcomeText }}</div>
+              <!-- No inner scroll: a long message is shown folded with a fade, and opens in full on demand -->
+              <div class="spp__text" dir="auto" [class.folded]="welcomeIsLong && !welcomeExpanded">{{ welcomeText }}</div>
+              @if (welcomeIsLong) {
+                <button type="button" class="spp__more" (click)="welcomeExpanded = !welcomeExpanded" [attr.aria-expanded]="welcomeExpanded">
+                  {{ (welcomeExpanded ? 'd3.demoAccounts.signupLinks.preview.showLess' : 'd3.demoAccounts.signupLinks.preview.showAll') | translate }}
+                  <i-tabler [name]="welcomeExpanded ? 'chevron-up' : 'chevron-down'" class="icon-14"></i-tabler>
+                </button>
+              }
             } @else {
               <div class="spp__skel"><i></i><i></i><i></i></div>
             }
@@ -143,7 +152,6 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
       > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
       strong { font-size: 14px; font-weight: 800; color: #111110; }
     }
-    .spp__party { font-size: 20px; line-height: 1; }
     .spp__name { font-size: 12px; font-weight: 700; color: #45556C; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .spp__days {
       flex-shrink: 0; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
@@ -163,7 +171,11 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
       display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #111110;
       &.primary { background: #111110; border-color: #111110; color: #fff; }
     }
-    .spp__keep { margin: 0; font-size: 11.5px; font-weight: 600; color: #6B6B67; line-height: 1.6; }
+    .spp__keep {
+      margin: 0; display: flex; align-items: flex-start; gap: 6px;
+      font-size: 11.5px; font-weight: 600; color: #6B6B67; line-height: 1.6;
+      i-tabler { flex-shrink: 0; margin-top: 2px; color: #94a3b8; }
+    }
 
     .spp__welcome {
       background: #fff; border-radius: 14px; border: 1px solid #E2E8F0; padding: 12px 14px;
@@ -172,8 +184,24 @@ import { InvitationEditorStore } from '../../components/invitation-editor/invita
     }
     .spp__welcome-label { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #6B6B67; }
     .spp__text {
+      position: relative;
       white-space: pre-wrap; word-break: break-word; font-size: 12.5px; line-height: 1.8; color: #111110;
-      max-height: 320px; overflow-y: auto;
+
+      // Folded: about 8 lines, fading out at the bottom (no scrollbar inside the card).
+      &.folded {
+        max-height: calc(1.8em * 8);
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
+        mask-image: linear-gradient(to bottom, #000 65%, transparent);
+      }
+    }
+    .spp__more {
+      all: unset; cursor: pointer; align-self: flex-start;
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; color: #111110; background: #F1F5F9;
+      transition: background 0.2s ease;
+      &:hover { background: #E2E8F0; }
+      &:focus-visible { outline: 2px solid #94a3b8; }
     }
     .spp__skel { display: flex; flex-direction: column; gap: 8px;
       i { height: 10px; border-radius: 6px; background: #F1F5F9; }
@@ -227,14 +255,21 @@ export class SignupPagePreviewComponent implements DoCheck {
     return this.serverValues.get(v.key) ?? this.store.variableExample(v);
   }
 
-  /** The organisation name typed in the form (the account's name). */
-  @Input() label = '';
   @Input() kind: DemoAccountKind = 'Merchant';
   @Input() days: number | null = null;
 
-  /** Like the account names: the label, else "Demo account". */
+  /** The welcome message opened in full (it starts folded when long). */
+  welcomeExpanded = false;
+
+  /** More than ~8 lines: fold it with a "show the whole message" button. */
+  get welcomeIsLong(): boolean {
+    const text = this.welcomeText ?? '';
+    return text.split('\n').length > 8 || text.length > 420;
+  }
+
+  /** Every link account is called "حساب تجريبي"; the area / notes are admin-only and never show here. */
   get accountName(): string {
-    return this.label.trim() || this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName');
+    return this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName');
   }
 
   /**

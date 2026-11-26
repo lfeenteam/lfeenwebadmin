@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, DestroyRef, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +13,7 @@ import { AccountService } from '../../../../services/account.service';
 import { AccountDetail, isSubmittedForReview } from '../../../../interfaces/account.model';
 import { ReviewConfirmDialogComponent } from '../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { AdditionalConditionsReviewComponent } from 'src/app/components/dashboard3/additional-conditions-review/additional-conditions-review.component';
 import { AdminAdditionalCondition } from '../../../../interfaces/additional-condition.model';
 
@@ -34,6 +35,10 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   private dialog     = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private pageTitleOverride = inject(PageTitleOverrideService);
+  private perms = inject(PermissionService);
+
+  /** BUG-2739: a view-only admin sees the account but not the accept/reject decision. */
+  readonly canManage = computed(() => this.perms.canWrite('accounts'));
 
   private accountId: string | null = null;
   private loadSub?: Subscription;
@@ -127,7 +132,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   accept(): void {
-    if (!this.account || this.isSubmitting) return;
+    if (!this.canManage() || !this.account || this.isSubmitting) return;
     // Both languages are required: never copy one into the other, or the approved name is saved in the wrong language
     const basicNameAr = this.basicNameAr.trim();
     const basicNameEn = this.basicNameEn.trim();
@@ -166,7 +171,7 @@ export class ReviewAccountComponent implements OnInit, OnDestroy {
   }
 
   reject(): void {
-    if (!this.account || this.isSubmitting) return;
+    if (!this.canManage() || !this.account || this.isSubmitting) return;
     if (!this.rejectionReason.trim()) {
       this.toastr.warning(this.translate.instant('d3.reviewAccount.decision.rejectionRequired'));
       return;

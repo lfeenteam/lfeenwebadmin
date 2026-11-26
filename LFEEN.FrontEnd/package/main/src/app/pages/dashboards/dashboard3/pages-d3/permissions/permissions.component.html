@@ -84,9 +84,11 @@
                         <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate">
                           <i-tabler name="eye" class="icon-18"></i-tabler>
                         </button>
-                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
-                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                        </button>
+                        @if (canManage()) {
+                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn">
+                            <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                          </button>
+                        }
                       </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
                         <button mat-menu-item (click)="editRole(role)">
@@ -105,6 +107,7 @@
             }
           </tbody>
           <!-- Add Role Row -->
+      @if (canManage()) {
       <tfoot>
   <tr class="add-role-row">
     <td colspan="3" class="p-16">
@@ -115,6 +118,7 @@
     </td>
   </tr>
 </tfoot>
+      }
         </table>
       </div>
     </mat-card-content>

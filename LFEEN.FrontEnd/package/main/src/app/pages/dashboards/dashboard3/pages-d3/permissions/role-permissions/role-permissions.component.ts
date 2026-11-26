@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
@@ -15,6 +15,7 @@ import { resolveBilingualText } from '../../../utils/bilingual.util';
 import { resolveTransitiveImpliedIds } from '../../../utils/permission-graph.util';
 import { buildPermissionTree, PermissionTreeGroup } from '../../../utils/permission-tree.util';
 import { MatDialog } from '@angular/material/dialog';
+import { PermissionService } from '../../../services/permission.service';
 import {
   OfferConfirmDialogComponent,
   OfferConfirmDialogData,
@@ -39,6 +40,9 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   private readonly subs = new Subscription();
   /** Reload the same role (retry, language change, failed save) — keeps in-progress edits. */
   private readonly reload$ = new Subject<void>();
+  private perms = inject(PermissionService);
+  /** This page both views and edits a role: without a Roles write permission it is read-only (BUG-2739). */
+  readonly canManage = computed(() => this.perms.canWrite('roles'));
   deptId: string | null = null;
   roleId: string | null = null;
 
@@ -211,6 +215,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   toggleSelectAll(): void {
+    if (!this.canManage()) return;
     const selectAll = !this.allPermissionsSelected;
     this.permissions.forEach(p => p.selected = selectAll);
   }
@@ -220,6 +225,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
    * all = pick everything, none = clear, base = keep only the base (view) permissions.
    */
   applyGroupAction({ group, action }: PermissionGroupAction): void {
+    if (!this.canManage()) return;
     const perms = group.allPerms;
     const keep = action === 'all' ? perms : action === 'base' ? perms.filter(p => p.isBase === true) : [];
     keep.forEach(p => { if (!p.selected) this.togglePermission(p, true); });
@@ -266,6 +272,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   togglePermission(perm: PermissionRow, checked: boolean): void {
+    if (!this.canManage()) return;
     if (checked) {
       perm.selected = true;
       this.impliedIdsOf(perm.id).forEach(id => {
@@ -296,6 +303,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
+    if (!this.canManage()) return;
     if (!this.roleId || !this.isDirty || this.isSaving || this.isLoading || this.loadError) return;
     // Pin the role the admin is looking at now; the URL may change while the dialog is open.
     const roleId = this.roleId;
@@ -322,7 +330,7 @@ export class RolePermissionsComponent implements OnInit, OnDestroy {
 
   private persist(roleId: string): void {
     // The URL moved to another role (or it failed to load) since save was pressed — don't write anything.
-    if (this.isSaving || this.isLoading || this.loadError || roleId !== this.roleId) return;
+    if (!this.canManage() || this.isSaving || this.isLoading || this.loadError || roleId !== this.roleId) return;
 
     const backRoute = this.backRoute;
     const currentIds = new Set(this.permissions.filter(p => p.selected).map(p => p.id));

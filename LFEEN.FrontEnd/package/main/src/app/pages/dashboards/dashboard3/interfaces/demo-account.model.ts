@@ -1,3 +1,5 @@
+import type { DemoAccountSignupLink } from './demo-signup-link.model';
+
 // Demo (trial) host accounts — /api/admin/demo-accounts. Plain JSON responses
 // (no success/data envelope). View needs DemoAccounts.View, every action DemoAccounts.Manage.
 
@@ -106,6 +108,8 @@ export interface DemoAccount {
   activationRequestStatus: ActivationRequestStatus | null;
   /** The latest activation request in full — details (GET /{id}) only. */
   activationRequest?: ActivationRequest | null;
+  /** The demo link it was made from (area / notes are admin-only); null when the admin made it directly. Details only. */
+  signupLink?: DemoAccountSignupLink | null;
   /** Email invitation files. Empty in list items; filled in details and action responses. */
   attachments: DemoAttachment[];
   /** Newest first, max 20. Empty in list items and in credentials responses. */

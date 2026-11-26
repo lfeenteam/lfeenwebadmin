@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -22,6 +22,7 @@ import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-lis
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PermissionService } from '../../services/permission.service';
 
 type SectionView = 'list' | 'basicInfo' | 'images' | 'location' | 'terms' | 'license' | 'final';
 
@@ -78,6 +79,8 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   bannedAt: string | null = null;
   private forcedViewOnly = false;
   private originTab = '';
+  private perms = inject(PermissionService);
+  readonly canManage = computed(() => this.perms.canWrite(['properties', 'buildings']));
 
   building: BuildingReviewInfo = {
     id: '',
@@ -441,8 +444,10 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   // "ready for final approval" apart from "already finally approved and live".
   // A banned building rejects every review/approve/reject call (LISTING_BANNED),
   // so it's locked read-only exactly like a finally-decided one.
+  // BUG-2739: an admin who can't write buildings only views the review.
   get viewOnly(): boolean {
     return this.forcedViewOnly
+      || !this.canManage()
       || this.isBanned
       || (this.overallStatus === 'Approved' && this.isDisplayed)
       || this.overallStatus === 'Rejected';
@@ -535,12 +540,12 @@ export class BuildReviewComponent implements OnInit, OnDestroy {
   }
 
   onReject(): void {
-    if (this.isRejectDisabled || !this.buildingId || this.isFinalSubmitting) return;
+    if (!this.canManage() || this.isRejectDisabled || !this.buildingId || this.isFinalSubmitting) return;
     this.confirmFinalDecision('Rejected');
   }
 
   onApprove(): void {
-    if (this.isApproveDisabled || !this.buildingId || this.isFinalSubmitting) return;
+    if (!this.canManage() || this.isApproveDisabled || !this.buildingId || this.isFinalSubmitting) return;
     this.confirmFinalDecision('Approved');
   }
 

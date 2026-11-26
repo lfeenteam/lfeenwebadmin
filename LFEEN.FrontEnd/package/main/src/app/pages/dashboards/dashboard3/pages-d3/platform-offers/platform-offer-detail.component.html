@@ -42,10 +42,12 @@
             </span>
           </div>
         </div>
-        <a class="primary-btn offer-hero-edit" [routerLink]="editLink()">
-          <i-tabler name="edit"></i-tabler>
-          {{ "d3.platformOffers.edit" | translate }}
-        </a>
+        @if (canManage()) {
+          <a class="primary-btn offer-hero-edit" [routerLink]="editLink()">
+            <i-tabler name="edit"></i-tabler>
+            {{ "d3.platformOffers.edit" | translate }}
+          </a>
+        }
       </header>
       <nav class="detail-tabs">
         @for (

@@ -40,6 +40,7 @@ import {
 } from './interfaces/platform-offer.model';
 import { PlatformOffersService } from './services/platform-offers.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { PermissionService } from '../../services/permission.service';
 import {
   OFFER_DAYS,
   OFFER_LIMITS,
@@ -86,6 +87,9 @@ export class PlatformOfferFormComponent implements OnInit {
   private code$ = new Subject<string>();
   private destroyRef = inject(DestroyRef);
   private reload$ = new Subject<void>();
+  private perms = inject(PermissionService);
+  /** BUG-2739: a view-only admin who opens /create or /edit by URL can't save. */
+  readonly canManage = computed(() => this.perms.canWrite(['platformoffers', 'offers']));
   dir =computed(() => this.core.getOptionsSignal()().dir);
   id?: number;
   loading = signal(false);
@@ -689,6 +693,7 @@ export class PlatformOfferFormComponent implements OnInit {
   }
 
   submit() {
+    if (!this.canManage()) return;
     // [disabled]="saving()" only lands on the next render, so a fast double click can
     // reach here twice before the button is actually disabled — and create two offers.
     if (this.saving()) return;

@@ -1,8 +1,9 @@
 import type { DemoAccountKind, DemoAccountStatus, InvitationLanguage } from './demo-account.model';
 
-// Demo links (MUL-0004, "open the link and get the account"): the admin makes one-use-per-account
-// links; the first time a link is opened the demo account is created and its sign-in data is
-// shown on the page. Nothing is sent by SMS or email. Admin API: /api/admin/demo-signup-links.
+// Demo links (MUL-0004, "open the link and get the account"): the admin makes links; the first
+// time a link is opened its demo account ("حساب تجريبي") is created and the sign-in data shows on
+// the page. Nothing is sent by SMS or email. The area and notes are for the admin only.
+// Admin API: /api/admin/demo-signup-links.
 
 export type DemoSignupLinkState = 'Open' | 'InProgress' | 'Used' | 'Cancelled' | 'Expired';
 
@@ -15,12 +16,13 @@ export const DEMO_SIGNUP_LIMITS = {
   minLinkDays: 1,
   maxLinkDays: 90,
   defaultLinkDays: 7,
-  /** The organisation name becomes the account name. */
-  label: 150,
+  /** Who the links are for — admin only, never shown to the organisation. */
+  area: 200,
+  additionalNotes: 1000,
 } as const;
 
-/** `<` and `>` are refused in the organisation name (DEMO_SIGNUP_LABEL_INVALID). */
-export const DEMO_SIGNUP_LABEL_FORBIDDEN = /[<>]/;
+/** `<` and `>` are refused in the area and the notes (DEMO_SIGNUP_AREA_INVALID / DEMO_SIGNUP_NOTES_INVALID). */
+export const DEMO_SIGNUP_TEXT_FORBIDDEN = /[<>]/;
 
 /** Every field is optional on the server; the form always sends the main ones. */
 export interface CreateDemoSignupLinksRequest {
@@ -28,10 +30,20 @@ export interface CreateDemoSignupLinksRequest {
   kind: DemoAccountKind;
   durationDays: number;
   linkValidDays?: number;
-  label?: string;
+  /** Who the batch is for; every link of the batch inherits it. */
+  area?: string;
+  additionalNotes?: string;
   invitationMessage?: string;
   invitationLanguage?: InvitationLanguage;
-  note?: string;
+}
+
+/**
+ * PATCH a link or a batch. A field left out stays as it is; "" clears it — a link then falls
+ * back to its batch's value.
+ */
+export interface UpdateDemoSignupMetaRequest {
+  area?: string;
+  additionalNotes?: string;
 }
 
 export interface DemoSignupLink {
@@ -45,8 +57,12 @@ export interface DemoSignupLink {
   stateLabelEn?: string | null;
   canCancel: boolean;
   kind: DemoAccountKind;
-  label: string | null;
   durationDays: number;
+  /** The link's own value, else its batch's (areaFromBatch = true). */
+  area: string | null;
+  areaFromBatch: boolean;
+  additionalNotes: string | null;
+  additionalNotesFromBatch: boolean;
   /** The window for the FIRST open only (matters while the link is still unopened). */
   expiresAt: string | null;
   createdAt: string | null;
@@ -54,7 +70,7 @@ export interface DemoSignupLink {
   lastOpenedAt: string | null;
   openCount: number;
   demoAccountId: string | null;
-  /** e.g. "فندق الريم 2" — the label numbered when a batch has several links. */
+  /** Always "حساب تجريبي". */
   demoAccountName: string | null;
   demoAccountStatus: DemoAccountStatus | null;
   loginPhone: string | null;
@@ -67,10 +83,10 @@ export interface DemoSignupBatch {
   id: string;
   kind: DemoAccountKind;
   durationDays: number;
-  label: string | null;
+  area: string | null;
+  additionalNotes: string | null;
   invitationMessage: string | null;
   invitationLanguage: InvitationLanguage | null;
-  note: string | null;
   linksExpireAt: string | null;
   createdByAdminName: string | null;
   createdAt: string | null;
@@ -79,7 +95,7 @@ export interface DemoSignupBatch {
   usedLinks: number;
   cancelledLinks: number;
   expiredLinks: number;
-  /** Only on create and GET batches/{id}; the batches list has none. */
+  /** Only on create, GET batches/{id} and PATCH batches/{id}; the batches list has none. */
   links?: DemoSignupLink[];
 }
 
@@ -105,4 +121,15 @@ export interface DemoSignupCancelResult {
   /** Already cancelled / expired, or still being set up (InProgress). */
   skipped: number;
   cancelledIds: string[];
+}
+
+/** On a demo account made from a link (GET demo-accounts/{id}); null when the admin made it directly. */
+export interface DemoAccountSignupLink {
+  linkId: string;
+  batchId: string;
+  code: string;
+  area: string | null;
+  additionalNotes: string | null;
+  firstOpenedAt: string | null;
+  openCount: number;
 }

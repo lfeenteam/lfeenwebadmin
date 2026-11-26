@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, map, of, Subject, switchMap, tap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { AdminOccupancyPrice, UnitPricingResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { startOfMonth, getDay, getDaysInMonth, addMonths, subMonths, format } from 'date-fns';
@@ -20,7 +22,8 @@ import { classifyLoadError, LoadFailure } from '../../../../../utils/api-error.u
 interface CalendarDay {
   day: number | null;
   price: number | null;
-  available: boolean;
+  /** null = no data for this day yet (loading / failed) — never shown as "unavailable". */
+  available: boolean | null;
   isToday?: boolean;
   /** Friday / Saturday — the Saudi weekend, usually priced differently. */
   isWeekend?: boolean;
@@ -79,6 +82,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   safetyFloorPrice: number | null = null;
   currentLang = 'ar';
   isReadOnly = false;
+  private perms = inject(PermissionService);
   // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
   loadState: 'loaded' | LoadFailure = 'loaded';
 
@@ -121,6 +125,10 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   };
 
   private calendarDaysMap = new Map<number, { price: number | null; isEnabled: boolean }>();
+  calendarState: 'loading' | 'loaded' | 'error' = 'loading';
+  // BUG-2761: one request stream for the calendar — switchMap drops a slower reply for a
+  // month the reviewer already navigated away from.
+  private readonly calendarMonth$ = new Subject<Date>();
 
   get currencyIconSrc(): string {
     return this.currentLang === 'en'
@@ -162,7 +170,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
       cells.push({
         day: d,
         price: dayData?.price ?? null,
-        available: dayData?.isEnabled ?? false,
+        available: dayData ? dayData.isEnabled : null,
         isToday: isCurrentMonth && today.getDate() === d,
         isWeekend: dow === 5 || dow === 6,
       });
@@ -198,9 +206,12 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     if (this.unitId) {
+      this.initCalendarStream();
       this.loadPricing();
       this.loadCalendar();
       this.unitsService.getUnitBasicData(this.unitId)
@@ -314,19 +325,41 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private loadCalendar(): void {
-    const date = format(this.currentMonth, 'yyyy-MM-dd');
-    this.unitsService.getUnitPricingCalendar(this.unitId, date)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: data => {
+  private initCalendarStream(): void {
+    this.calendarMonth$
+      .pipe(
+        // Clear the previous month at once so its prices never show under the new month's label.
+        tap(() => {
+          this.calendarDaysMap = new Map();
+          this.calendarState = 'loading';
+        }),
+        switchMap(month =>
+          this.unitsService.getUnitPricingCalendar(this.unitId, format(month, 'yyyy-MM-dd')).pipe(
+            map(data => ({ ok: true as const, data })),
+            // Caught per request so one failure doesn't end the stream.
+            catchError(() => of({ ok: false as const, data: null }))
+          )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(result => {
+        if (result.ok) {
           this.calendarDaysMap = new Map(
-            data.days.map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
+            (result.data.days ?? []).map(d => [d.dayNumber, { price: d.price, isEnabled: d.isEnabled }])
           );
-        },
-        // A missing unit is surfaced by loadPricing(); an empty calendar is enough here.
-        error: () => { this.calendarDaysMap = new Map(); }
+          this.calendarState = 'loaded';
+        } else {
+          this.calendarState = 'error';
+        }
       });
+  }
+
+  private loadCalendar(): void {
+    this.calendarMonth$.next(this.currentMonth);
+  }
+
+  retryCalendar(): void {
+    this.loadCalendar();
   }
 
   prevMonth(): void {
@@ -340,6 +373,7 @@ export class UnitPricingReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

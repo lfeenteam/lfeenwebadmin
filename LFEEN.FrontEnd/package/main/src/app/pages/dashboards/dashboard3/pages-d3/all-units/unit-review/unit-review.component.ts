@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +13,7 @@ import { UnitReviewDecision, UnitsService } from '../../../services/units.servic
 import { BuildingWithUnits, UnitApiDetailItem, UnitCardItem, totalGuests } from '../../../interfaces/unit-card.model';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../../services/page-title-override.service';
+import { PermissionService } from '../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../services/page-breadcrumb-trail.service';
 import { ListingBanBannerComponent } from 'src/app/components/dashboard3/ban-listing/listing-ban-banner/listing-ban-banner.component';
 import { BanListingButtonComponent } from 'src/app/components/dashboard3/ban-listing/ban-listing-button/ban-listing-button.component';
@@ -39,6 +40,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly pageTitleOverride = inject(PageTitleOverrideService);
   private readonly pageBreadcrumbTrail = inject(PageBreadcrumbTrailService);
+  private readonly perms = inject(PermissionService);
   building: BuildingWithUnits | undefined;
   unit: UnitCardItem | undefined;
   unitDetail: UnitApiDetailItem | undefined;
@@ -141,6 +143,13 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
       || this.isBanned
       || (status === 'Approved' && !!this.unitDetail?.isDisplayed)
       || status === 'Rejected';
+  }
+
+  // BUG-2739: an admin who can't write units views the review without decisions.
+  readonly canManage = computed(() => this.perms.canWrite('units'));
+
+  get isReadOnly(): boolean {
+    return this.isViewMode || !this.canManage();
   }
 
   get isBanned(): boolean {
@@ -328,7 +337,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onApprove(): void {
-    if (this.isApproveDisabled) return;
+    if (this.isReadOnly || this.isApproveDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -357,7 +366,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   onReject(): void {
-    if (this.isRejectDisabled) return;
+    if (this.isReadOnly || this.isRejectDisabled) return;
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {
       width: '440px',
       maxWidth: '92vw',
@@ -451,7 +460,7 @@ export class UnitReviewComponent implements OnInit, OnDestroy {
   }
 
   shouldOpenSectionInViewMode(sectionKey: string): boolean {
-    return this.isViewMode || this.isSectionApproved(sectionKey);
+    return this.isReadOnly || this.isSectionApproved(sectionKey);
   }
 
   private getApiSectionDecision(sectionKey: string): string {

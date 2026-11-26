@@ -276,6 +276,11 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
     return this.hasPermission('subscriptions.managetiers');
   }
 
+  /** The page's Save sends the catalog (state + billing) and the message pack price (BUG-2739). */
+  get canSaveSettings(): boolean {
+    return this.canManageCatalog || this.canManagePricing;
+  }
+
   // ── Service state (catalog isActive / isAvailable) ──────────
   serviceState: ServiceState = 'active';
   private originalState: ServiceState = 'active';
@@ -420,7 +425,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
 
   startAddField(): void {
     const item = this.catalogItem;
-    if (!item) return;
+    if (!item || !this.canManageCatalog) return;
     this.dialog.open(IntegrationFieldDialogComponent, {
       width: '520px',
       maxWidth: '94vw',
@@ -437,7 +442,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
 
   // There's no edit or delete endpoint — a field is deactivated and recreated to change it.
   deactivateField(field: SubscriptionIntegrationField): void {
-    if (this.deactivatingFieldId !== null) return;
+    if (this.deactivatingFieldId !== null || !this.canManageCatalog) return;
     this.deactivatingFieldId = field.id;
     this.subscriptionsService.deactivateIntegrationField(field.id).subscribe({
       next: () => {
@@ -733,7 +738,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
   // ── Service details (name, description, logo, category, order) ──
   editDetails(): void {
     const item = this.catalogItem;
-    if (!item) return;
+    if (!item || !this.canManageCatalog) return;
     this.dialog.open(ServiceFormDialogComponent, {
       width: '760px',
       maxWidth: '94vw',
@@ -780,6 +785,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
   }
 
   startAddFeature(): void {
+    if (!this.canManageCatalog) return;
     this.newFeature = { textAr: '', textEn: '' };
     this.addingFeature = true;
   }
@@ -789,7 +795,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
   }
 
   saveFeature(): void {
-    if (!this.catalogItem || !this.canSaveFeature) return;
+    if (!this.catalogItem || !this.canSaveFeature || !this.canManageCatalog) return;
     this.savingFeature = true;
     this.subscriptionsService.createFeature({
       subscriptionServiceId: this.catalogItem.id,
@@ -810,7 +816,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
 
   // No update endpoint — changing the wording means deactivating and adding a new one.
   deactivateFeature(f: SubscriptionServiceFeature): void {
-    if (this.deactivatingFeatureId !== null) return;
+    if (this.deactivatingFeatureId !== null || !this.canManageCatalog) return;
     this.deactivatingFeatureId = f.id;
     this.subscriptionsService.deactivateFeature(f.id).subscribe({
       next: () => {
@@ -876,6 +882,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
   }
 
   startAddTier(): void {
+    if (!this.canManageTiers) return;
     this.newTier = this.emptyTier();
     this.addingTier = true;
   }
@@ -886,7 +893,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
 
   saveTier(): void {
     const item = this.catalogItem;
-    if (!item || !this.canSaveTier) return;
+    if (!item || !this.canSaveTier || !this.canManageTiers) return;
     this.savingTier = true;
     const maxOrder = this.tiers.reduce((m, t) => Math.max(m, t.displayOrder), 0);
     this.subscriptionsService.createTier({
@@ -1070,7 +1077,7 @@ export class SubscriptionServiceSettingsComponent implements OnInit, HasUnsavedC
   }
 
   saveSettings(): void {
-    if (this.saving || !this.catalogItem) return;
+    if (!this.canSaveSettings || this.saving || !this.catalogItem) return;
     const billingError = this.billingError;
     if (billingError) {
       this.toastr.error(this.translate.instant(billingError));

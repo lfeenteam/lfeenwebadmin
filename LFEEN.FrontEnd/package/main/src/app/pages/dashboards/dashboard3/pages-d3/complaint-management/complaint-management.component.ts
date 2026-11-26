@@ -12,7 +12,8 @@ import { ComplaintChatComponent } from './components/complaint-chat/complaint-ch
 import { ClientRatingsComponent } from './components/client-ratings/client-ratings.component';
 import { TabsFilterComponent, BuildFilterOption } from '../all-builds/tabs-filter/tabs-filter.component';
 import { ComplaintService } from './services/complaint.service';
-import { AssignableEmployee, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_DEPARTMENT_OPTIONS, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
+import { PermissionService } from '../../services/permission.service';
+import { AssignableEmployee, COMPLAINT_PERMISSION_PREFIXES, CLIENT_TICKETS_PAGE_SIZE, CLIENT_TICKET_DEPARTMENT_OPTIONS, CLIENT_TICKET_PRIORITY_OPTIONS, CLIENT_TICKET_STATUS_OPTIONS, Complaint, ComplaintTab, HOST_TICKETS_PAGE_SIZE, HOST_TICKET_DEPARTMENT_OPTIONS, HOST_TICKET_PRIORITY_OPTIONS, HOST_TICKET_SOURCE_OPTIONS, HOST_TICKET_STATUS_OPTIONS, RESOLVED_TICKETS_PAGE_SIZE, RESOLVED_TYPE_OPTIONS, TicketPropertyFilterItem, TicketSource } from './interfaces/complaint.model';
 import { ClientSupportHubService } from '../../services/client-support-hub.service';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 
@@ -41,6 +42,9 @@ export class ComplaintManagementComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private hub = inject(ClientSupportHubService);
   private toastr = inject(ToastrService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: the "a reply assigns it to you" hint only matters to admins who can reply. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private hubSubs = new Subscription();
   private hostSearchSub?: Subscription;
   private hostSearchSubject = new Subject<string>();

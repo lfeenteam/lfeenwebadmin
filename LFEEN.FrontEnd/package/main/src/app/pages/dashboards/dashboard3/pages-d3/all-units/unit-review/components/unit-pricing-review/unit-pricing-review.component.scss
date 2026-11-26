@@ -756,9 +756,65 @@
   direction: rtl;
 }
 
+// While a month loads, cells stay blank (no prices, no strike-through) and dimmed.
+.calendar-grid--loading .day-cell:not(.day-cell--empty) {
+  background: #FAFAF8;
+  animation: calendar-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes calendar-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.calendar-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 220px;
+  padding: 24px 12px;
+  text-align: center;
+
+  .calendar-error-icon {
+    width: 32px;
+    height: 32px;
+    color: #9E9E9A;
+  }
+
+  .calendar-error-text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #3D3D3A;
+  }
+
+  .calendar-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid #E8E8E4;
+    border-radius: 10px;
+    background: #fff;
+    color: #111110;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { background: #F7F7F5; }
+
+    i-tabler { width: 16px; height: 16px; }
+  }
+}
+
+// minmax(0, 1fr): a plain 1fr can't shrink below the cell's content (price + currency),
+// which pushed the Sat column outside the card at 390px in /en (BUG-2761).
 .day-header-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 8px;
   padding-bottom: 8px;
@@ -779,13 +835,15 @@
 
 .week-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 6px;
 }
 
 .day-cell {
   min-height: 88px;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid #EDEDEA;
   border-radius: 12px;
   padding: 8px;
@@ -871,10 +929,20 @@
     gap: 4px;
     margin-top: 10px;
     font-variant-numeric: tabular-nums;
+    max-width: 100%;
+    min-width: 0;
+
+    .day-price-value {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .price-riyal {
       width: 14px;
       height: 14px;
+      flex-shrink: 0;
       object-fit: contain;
 
       &.is-text-currency {
@@ -1181,9 +1249,22 @@
 @media (max-width: 480px) {
   .day-cell {
     min-height: 44px;
+    padding: 4px 2px;
 
+    // Currency under the number so a 4–5 digit price (and the wider /en "SAR" mark) fits the cell.
     .day-price {
       font-size: 9px;
+      flex-direction: column;
+      gap: 1px;
+      margin-top: 14px;
+      line-height: 1.1;
+
+      .price-riyal {
+        width: 8px;
+        height: 8px;
+
+        &.is-text-currency { width: 13px; }
+      }
     }
   }
 

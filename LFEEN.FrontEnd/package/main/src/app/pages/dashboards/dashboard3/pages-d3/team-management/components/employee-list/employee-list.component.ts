@@ -24,6 +24,8 @@ export class EmployeeListComponent implements OnDestroy {
   @Input() currentPage = 1;
   @Input() totalCount = 0;
   @Input() hasFilters = false;
+  /** False for view-only admins: row actions and "add first" are hidden (BUG-2739). */
+  @Input() canManage = true;
 
   @Output() clearFilters = new EventEmitter<void>();
   @Output() edit = new EventEmitter<Employee>();

@@ -69,6 +69,41 @@ function sidebarHasKey(items: SidebarItem[] | null | undefined, matchers: (strin
   return false;
 }
 
+/** Exact (case-insensitive) permission check, e.g. `hasPermission(perms, 'settings.manage')`. */
+export function hasPermission(permissions: string[] | null | undefined, name: string): boolean {
+  const wanted = name.toLowerCase();
+  return (permissions ?? []).some(p => (p ?? '').toLowerCase() === wanted);
+}
+
+/**
+ * Whether the admin holds any permission of the module(s) beyond read-only ones —
+ * anything other than `<prefix>.view…` (BUG-2739). Gates create/edit/delete buttons
+ * and routes whose exact backend permission name isn't known to the frontend: a
+ * view-only admin sees none of them (the API would answer 403), while an admin holding
+ * any write permission of the module keeps them whatever that permission is called —
+ * the API still refuses an action they lack.
+ */
+export function canWriteModule(permissions: string[] | null | undefined, prefixes: string | string[]): boolean {
+  const list = (Array.isArray(prefixes) ? prefixes : [prefixes]).map(p => p.toLowerCase());
+  return (permissions ?? []).some(p => {
+    const perm = (p ?? '').toLowerCase();
+    return list.some(prefix => perm.startsWith(prefix + '.') && !perm.slice(prefix.length + 1).startsWith('view'));
+  });
+}
+
+// Pages whose data call needs more than their module's view permission (BUG-2739).
+
+/** The maker-checker queue (GET wallet/adjustments/pending) needs an approve permission. */
+export function canOpenWalletApprovals(permissions: string[] | null | undefined): boolean {
+  return (permissions ?? []).some(p => (p ?? '').toLowerCase().startsWith('wallet.approve'));
+}
+
+/** Demo sign-up links (/api/admin/demo-signup-links) aren't readable with DemoAccounts.View alone. */
+export function canOpenDemoSignupLinks(permissions: string[] | null | undefined): boolean {
+  return canAccessPage({ permissionPrefixes: ['demosignuplinks'] }, permissions, null)
+    || hasPermission(permissions, 'demoaccounts.manage');
+}
+
 export function canAccessPage(
   rule: PageAccessRule,
   permissions: string[] | null | undefined,

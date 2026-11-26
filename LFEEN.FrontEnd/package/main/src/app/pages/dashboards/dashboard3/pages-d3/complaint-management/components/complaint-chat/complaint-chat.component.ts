@@ -1,11 +1,12 @@
-import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { CLIENT_TICKET_STATUS, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { CLIENT_TICKET_STATUS, COMPLAINT_PERMISSION_PREFIXES, ChatMessage, Complaint } from '../../interfaces/complaint.model';
+import { PermissionService } from '../../../../services/permission.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { ClientSupportHubService, NewMessageEvent } from '../../../../services/client-support-hub.service';
 import { LoginService } from '../../../../services/login/login.service';
@@ -36,6 +37,9 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   private toastr = inject(ToastrService);
   private hub = inject(ClientSupportHubService);
   private loginService = inject(LoginService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: view-only admins can read the chat but not reply to or close it. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private hubSubs = new Subscription();
   private ticketScopedSubs = new Subscription();
 
@@ -241,6 +245,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   onResolve(): void {
+    if (!this.canManage()) return;
     this.closeError.set(null);
     this.showCloseDialog.set(true);
   }
@@ -252,7 +257,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
   }
 
   confirmClose(): void {
-    if (this.closingTicket() || !this.complaint) return;
+    if (this.closingTicket() || !this.complaint || !this.canManage()) return;
     this.closingTicket.set(true);
     this.closeError.set(null);
     const note = this.closeNote.trim() || undefined;
@@ -275,7 +280,7 @@ export class ComplaintChatComponent implements OnChanges, OnDestroy, AfterViewCh
 
   send(): void {
     const text = this.messageText.trim();
-    if (!text || this.sending()) return;
+    if (!text || this.sending() || !this.canManage()) return;
 
     this.messageText = '';
     this.hub.sendTyping(this.complaint.chatExternalId, false);

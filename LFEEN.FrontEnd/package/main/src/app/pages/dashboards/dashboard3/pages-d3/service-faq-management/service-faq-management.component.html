@@ -31,10 +31,12 @@
           </span>
         }
       </div>
-      <button class="add-article-btn" type="button" (click)="openAddDialog()">
-        <i-tabler name="plus" class="icon-18"></i-tabler>
-        {{ 'd3.serviceFaq.add' | translate }}
-      </button>
+      @if (canManage()) {
+        <button class="add-article-btn" type="button" (click)="openAddDialog()">
+          <i-tabler name="plus" class="icon-18"></i-tabler>
+          {{ 'd3.serviceFaq.add' | translate }}
+        </button>
+      }
     </div>
   </div>
 
@@ -119,6 +121,8 @@
             <div class="col-updated">{{ lastUpdated(f) }}</div>
 
             <div class="col-actions sfq-actions">
+              <!-- BUG-2739: edit/activate/delete only for admins who can manage FAQs -->
+              @if (canManage()) {
               <button class="row-menu-btn" type="button" [disabled]="isBusy(f.id)" (click)="openEditDialog(f)"
                 [matTooltip]="'common.edit' | translate" [attr.aria-label]="'common.edit' | translate">
                 <i-tabler name="pencil" class="icon-18"></i-tabler>
@@ -133,6 +137,7 @@
                 [matTooltip]="'d3.serviceFaq.menu.delete' | translate" [attr.aria-label]="'d3.serviceFaq.menu.delete' | translate">
                 <i-tabler name="trash" class="icon-18"></i-tabler>
               </button>
+              }
             </div>
 
           </div>

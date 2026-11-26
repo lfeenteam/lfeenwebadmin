@@ -24,6 +24,7 @@ import {
 import { PlatformOffersService } from './services/platform-offers.service';
 import { OFFER_DAYS, happyHourWindow, toHhmm } from './platform-offer.validators';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { PermissionService } from '../../services/permission.service';
 @Component({
   selector: 'app-platform-offer-detail',
   standalone: true,
@@ -37,7 +38,10 @@ export class PlatformOfferDetailComponent implements OnInit {
   private service = inject(PlatformOffersService);
   private core = inject(CoreService);
   private tr = inject(TranslateService);
+  private perms = inject(PermissionService);
   dir = computed(() => this.core.getOptionsSignal()().dir);
+  /** BUG-2739: view-only admins don't get the edit button. */
+  readonly canManage = computed(() => this.perms.canWrite(['platformoffers', 'offers']));
   id = 0;
   offer = signal<PlatformOfferDetail | null>(null);
   stats = signal<PlatformOfferStatistics | null>(null);

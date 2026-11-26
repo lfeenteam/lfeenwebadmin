@@ -71,13 +71,16 @@
     <div class="sl-batch">
       @if (batch; as b) {
         <div class="sl-batch__info">
-          <strong dir="auto">{{ b.label || ('d3.demoAccounts.signupLinks.filters.oneBatch' | translate) }}</strong>
+          <strong dir="auto">{{ b.area || ('d3.demoAccounts.signupLinks.batch.noArea' | translate) }}</strong>
           <span>
             {{ 'd3.demoAccounts.signupLinks.batch.createdBy' | translate }} {{ b.createdByAdminName || emptyValue }}
             · <span class="da-ltr" dir="ltr">{{ date(b.createdAt, false) }}</span>
             · {{ ('d3.demoAccounts.kinds.' + b.kind) | translate }}
             · {{ 'd3.demoAccounts.signupLinks.create.trialDays' | translate: { days: b.durationDays } }}
           </span>
+          @if (b.additionalNotes) {
+            <span class="sl-batch__notes" dir="auto" [matTooltip]="b.additionalNotes">{{ b.additionalNotes }}</span>
+          }
         </div>
         <div class="sl-batch__counts">
           <span class="sl-count ls-used">{{ 'd3.demoAccounts.signupLinks.states.Used' | translate }} <b>{{ fmt(b.usedLinks) }}</b></span>
@@ -89,10 +92,16 @@
         <div class="sl-batch__info"><strong>{{ 'd3.demoAccounts.signupLinks.filters.oneBatch' | translate }}</strong></div>
       }
       @if (canManage()) {
-        <button type="button" class="da-btn sm danger-outline" [disabled]="batchCancellable === 0" (click)="cancelBatch()">
-          <i-tabler name="link-off" class="icon-16"></i-tabler>
-          {{ 'd3.demoAccounts.signupLinks.cancel.batchButton' | translate }}
-        </button>
+        <div class="sl-batch__actions">
+          <button type="button" class="da-btn sm" [disabled]="!batch" (click)="editBatch()">
+            <i-tabler name="pencil" class="icon-16"></i-tabler>
+            {{ 'd3.demoAccounts.signupLinks.edit.batchButton' | translate }}
+          </button>
+          <button type="button" class="da-btn sm danger-outline" [disabled]="batchCancellable === 0" (click)="cancelBatch()">
+            <i-tabler name="link-off" class="icon-16"></i-tabler>
+            {{ 'd3.demoAccounts.signupLinks.cancel.batchButton' | translate }}
+          </button>
+        </div>
       }
     </div>
   }
@@ -125,13 +134,13 @@
                          [attr.aria-label]="'d3.demoAccounts.signupLinks.cancel.selectPage' | translate" />
                 </th>
               }
-              <th>{{ 'd3.demoAccounts.signupLinks.table.name' | translate }}</th>
+              <th>{{ 'd3.demoAccounts.signupLinks.table.area' | translate }}</th>
               <th>{{ 'd3.demoAccounts.signupLinks.table.link' | translate }}</th>
               <th>{{ 'd3.demoAccounts.signupLinks.table.state' | translate }}</th>
               <th>{{ 'd3.demoAccounts.signupLinks.table.opens.title' | translate }}</th>
               <th>{{ 'd3.demoAccounts.signupLinks.table.account' | translate }}</th>
               <th>{{ 'd3.demoAccounts.signupLinks.table.linkValid' | translate }}</th>
-              @if (canManage()) { <th class="sl-actions"></th> }
+              <th class="sl-actions"></th>
             </tr>
           </thead>
           <tbody>
@@ -147,30 +156,40 @@
                   </td>
                 }
 
-                <!-- Organisation / account + its login number -->
+                <!-- Who it's for: area + notes (admin only), each marked when it comes from the batch -->
                 <td class="sl-name-cell">
-                  <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.name' | translate }}</span>
+                  <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.area' | translate }}</span>
                   <span class="sl-name">
-                    <span class="sl-kind" [ngClass]="'kind-' + link.kind.toLowerCase()" [title]="('d3.demoAccounts.kinds.' + link.kind) | translate">
+                    <span class="sl-kind" [ngClass]="'kind-' + link.kind.toLowerCase()" [matTooltip]="('d3.demoAccounts.kinds.' + link.kind) | translate">
                       <i-tabler [name]="kindIcons[link.kind]" class="icon-14"></i-tabler>
                     </span>
-                    <strong dir="auto">{{ name(link) || ('d3.demoAccounts.signupLinks.table.noName' | translate) }}</strong>
+                    @if (link.area) {
+                      <span class="sl-name__text">
+                        <strong dir="auto" [title]="link.area">{{ link.area }}</strong>
+                        @if (link.areaFromBatch) { <span class="sl-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+                      </span>
+                    } @else {
+                      <span class="sl-dash">{{ emptyValue }}</span>
+                    }
                   </span>
-                  @if (link.loginPhone) {
-                    <small class="sl-sub">{{ 'd3.demoAccounts.signupLinks.table.loginPhone' | translate }}
-                      <span class="da-ltr" dir="ltr">{{ phone(link.loginPhone) }}</span></small>
+                  @if (link.additionalNotes) {
+                    <span class="sl-notes">
+                      <i-tabler name="note" class="icon-12"></i-tabler>
+                      <span class="sl-notes__text" dir="auto" [matTooltip]="link.additionalNotes">{{ link.additionalNotes }}</span>
+                      @if (link.additionalNotesFromBatch) { <span class="sl-from-batch">{{ 'd3.demoAccounts.signupLinks.table.fromBatch' | translate }}</span> }
+                    </span>
                   }
                 </td>
 
-                <!-- Link + copy -->
+                <!-- Link code + copy -->
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.link' | translate }}</span>
-                  <span class="sl-link">
-                    <span class="sl-link__text da-ltr" dir="ltr" [title]="url(link) ?? link.code">{{ link.code }}</span>
-                    <button type="button" class="da-icon-btn" [class.copied]="copiedId === link.id"
-                            [attr.aria-label]="'d3.demoAccounts.actions.copy' | translate" [title]="url(link) ?? link.code"
+                  <span class="sl-code" [matTooltip]="url(link) ?? link.code" (click)="$event.stopPropagation()">
+                    <span class="sl-code__text da-ltr" dir="ltr">{{ link.code }}</span>
+                    <button type="button" class="sl-code__copy" [class.copied]="copiedId === link.id"
+                            [attr.aria-label]="'d3.demoAccounts.actions.copy' | translate"
                             (click)="copy(link, $event)" (keydown.enter)="$event.stopPropagation()">
-                      <i-tabler [name]="copiedId === link.id ? 'check' : 'copy'" class="icon-16"></i-tabler>
+                      <i-tabler [name]="copiedId === link.id ? 'check' : 'copy'" class="icon-14"></i-tabler>
                     </button>
                   </span>
                 </td>
@@ -178,46 +197,41 @@
                 <!-- State (badge colour from state) -->
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.state' | translate }}</span>
-                  <span class="da-status sl-state" [ngClass]="stateClass(link.state)">
+                  <span class="da-status sl-state" [ngClass]="stateClass(link.state)"
+                        [matTooltip]="link.state === 'Cancelled' && link.cancelledByAdminName ? (('d3.demoAccounts.signupLinks.table.cancelledBy' | translate) + ' ' + link.cancelledByAdminName) : ''">
                     <span class="dot"></span>
                     {{ stateLabel(link) }}
                   </span>
-                  @if (link.state === 'Cancelled' && link.cancelledByAdminName) {
-                    <small class="sl-sub">{{ 'd3.demoAccounts.signupLinks.table.cancelledBy' | translate }} {{ link.cancelledByAdminName }}</small>
-                  }
                 </td>
 
-                <!-- Opens: count, first and last -->
+                <!-- Opens: how often + the last one (the first one in the tooltip) -->
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.opens.title' | translate }}</span>
-                  @if (link.openCount) {
-                    <span class="sl-opens">
+                  @if (wasOpened(link)) {
+                    <span class="sl-two" [matTooltip]="opensTooltip(link)">
                       <strong>{{ opens(link) }}</strong>
-                      <small class="sl-sub">{{ 'd3.demoAccounts.signupLinks.table.firstOpen' | translate }} <span class="da-ltr" dir="ltr">{{ date(link.firstOpenedAt) }}</span></small>
-                      <small class="sl-sub">{{ 'd3.demoAccounts.signupLinks.table.lastOpen' | translate }} <span class="da-ltr" dir="ltr">{{ date(link.lastOpenedAt) }}</span></small>
+                      <small><span class="da-ltr" dir="ltr">{{ shortDate(link.lastOpenedAt || link.firstOpenedAt) }}</span></small>
                     </span>
                   } @else {
-                    <span class="da-muted sl-small">{{ 'd3.demoAccounts.signupLinks.table.notOpened' | translate }}</span>
+                    <span class="sl-dash">{{ emptyValue }}</span>
                   }
                 </td>
 
-                <!-- The demo account: status + trial end, link to it -->
+                <!-- The demo account: status + login number, trial end in the tooltip -->
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.account' | translate }}</span>
                   @if (link.demoAccountId) {
                     @let st = accountStatus(link.demoAccountStatus);
-                    <a class="sl-account" [routerLink]="['/', currentLang, 'd3', 'demo-accounts', link.demoAccountId]"
-                       (click)="$event.stopPropagation()">
+                    <span class="sl-two" [matTooltip]="link.demoAccountExpiresAt ? (('d3.demoAccounts.signupLinks.table.trialEnds' | translate) + ' ' + date(link.demoAccountExpiresAt, false)) : ''">
                       @if (st) {
                         <span class="sl-acc-status" [ngClass]="'as-' + st.toLowerCase()">{{ ('d3.demoAccounts.signupLinks.accountStatus.' + st) | translate }}</span>
                       }
-                      <i-tabler name="external-link" class="icon-14"></i-tabler>
-                    </a>
-                    @if (link.demoAccountExpiresAt) {
-                      <small class="sl-sub">{{ 'd3.demoAccounts.signupLinks.table.trialEnds' | translate }} <span class="da-ltr" dir="ltr">{{ date(link.demoAccountExpiresAt, false) }}</span></small>
-                    }
+                      @if (link.loginPhone) {
+                        <small><span class="da-ltr" dir="ltr">{{ phone(link.loginPhone) }}</span></small>
+                      }
+                    </span>
                   } @else {
-                    <span class="da-muted sl-small">{{ 'd3.demoAccounts.signupLinks.table.noAccount' | translate }}</span>
+                    <span class="sl-dash">{{ emptyValue }}</span>
                   }
                 </td>
 
@@ -225,26 +239,44 @@
                 <td>
                   <span class="mobile-field-label">{{ 'd3.demoAccounts.signupLinks.table.linkValid' | translate }}</span>
                   @if (link.state === 'Open') {
-                    <span class="da-ltr da-cell-text sl-small" dir="ltr">{{ date(link.expiresAt, false) }}</span>
+                    <span class="sl-date da-ltr" dir="ltr">{{ date(link.expiresAt, false) }}</span>
                   } @else {
-                    <span class="da-muted">{{ emptyValue }}</span>
+                    <span class="sl-dash">{{ emptyValue }}</span>
                   }
                 </td>
 
-                @if (canManage()) {
-                  <td class="da-actions-cell sl-actions">
-                    @if (link.canCancel) {
-                      <button type="button" class="da-btn sm danger-outline" (click)="cancelOne(link, $event)"
-                              (keydown.enter)="$event.stopPropagation()">
-                        {{ 'd3.demoAccounts.signupLinks.cancel.one' | translate }}
+                <!-- One ⋮ menu per row, like the demo accounts list -->
+                <td class="da-actions-cell sl-actions">
+                  <button type="button" class="da-icon-btn" [matMenuTriggerFor]="rowMenu"
+                          [attr.aria-label]="'d3.demoAccounts.actions.more' | translate"
+                          (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+                    <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                  </button>
+                  <mat-menu #rowMenu="matMenu" [xPosition]="dir === 'rtl' ? 'after' : 'before'">
+                    <button mat-menu-item (click)="copy(link)">
+                      <span class="menu-item-row"><i-tabler name="copy" class="icon-16"></i-tabler><span>{{ 'd3.demoAccounts.signupLinks.menu.copy' | translate }}</span></span>
+                    </button>
+                    @if (link.demoAccountId) {
+                      <button mat-menu-item (click)="open(link)">
+                        <span class="menu-item-row"><i-tabler name="external-link" class="icon-16"></i-tabler><span>{{ 'd3.demoAccounts.signupLinks.menu.account' | translate }}</span></span>
                       </button>
                     }
-                  </td>
-                }
+                    @if (canManage()) {
+                      <button mat-menu-item (click)="editLink(link)">
+                        <span class="menu-item-row"><i-tabler name="pencil" class="icon-16"></i-tabler><span>{{ 'd3.demoAccounts.signupLinks.edit.button' | translate }}</span></span>
+                      </button>
+                      @if (link.canCancel) {
+                        <button mat-menu-item class="sl-menu-danger" (click)="cancelOne(link)">
+                          <span class="menu-item-row"><i-tabler name="link-off" class="icon-16"></i-tabler><span>{{ 'd3.demoAccounts.signupLinks.menu.cancel' | translate }}</span></span>
+                        </button>
+                      }
+                    }
+                  </mat-menu>
+                </td>
               </tr>
             } @empty {
               <tr>
-                <td [attr.colspan]="canManage() ? 8 : 6" class="p-0">
+                <td [attr.colspan]="canManage() ? 8 : 7" class="p-0">
                   @if (featureDisabled) {
                     <app-dashboard-empty icon="link-off" titleKey="d3.demoAccounts.empty.disabledTitle"
                                          descKey="d3.demoAccounts.signupLinks.errors.disabled"></app-dashboard-empty>

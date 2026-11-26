@@ -25,10 +25,12 @@
     </div>
 
     @if (!viewOnly) {
-      <button class="resolve-chat-btn" type="button" (click)="onResolve()">
-        <i-tabler name="circle-check" class="icon-18"></i-tabler>
-        {{ resolveButtonLabel }}
-      </button>
+      @if (canManage()) {
+        <button class="resolve-chat-btn" type="button" (click)="onResolve()">
+          <i-tabler name="circle-check" class="icon-18"></i-tabler>
+          {{ resolveButtonLabel }}
+        </button>
+      }
     } @else {
       <span class="resolved-label">
         <i-tabler name="circle-check" class="icon-16"></i-tabler>
@@ -109,8 +111,8 @@
     <div #messagesEnd></div>
   </div>
 
-  <!-- Input -->
-  @if (!viewOnly) {
+  <!-- Input (BUG-2739: hidden from view-only admins too) -->
+  @if (!viewOnly && canManage()) {
   <div class="chat-composer">
     <div class="chat-footer">
       <button class="send-btn" type="button" (click)="send()" [disabled]="!canSend">

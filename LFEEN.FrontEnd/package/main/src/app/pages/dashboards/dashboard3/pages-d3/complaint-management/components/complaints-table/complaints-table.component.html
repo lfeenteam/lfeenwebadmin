@@ -168,6 +168,7 @@
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
+              [disabled]="!canManage()"
               [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
@@ -221,6 +222,7 @@
               [class.is-assigned]="!!c.assignedAdminName"
               [class.is-locked]="isAssignLocked(c)"
               [class.is-delayed]="isDelayed(c)"
+              [disabled]="!canManage()"
               [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">

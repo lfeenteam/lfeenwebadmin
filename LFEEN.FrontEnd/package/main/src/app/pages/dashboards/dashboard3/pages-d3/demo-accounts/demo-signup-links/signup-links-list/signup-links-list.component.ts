@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
 import { TablerIconsModule } from 'angular-tabler-icons';
@@ -28,6 +28,11 @@ import { DEMO_DEFAULT_PAGE_SIZE, DEMO_PAGE_SIZES } from '../../demo-list-state';
 import { DemoTabsComponent } from '../../components/demo-tabs/demo-tabs.component';
 import { CancelLinksDialogComponent, CancelLinksDialogData } from '../components/cancel-links-dialog.component';
 import {
+  EditLinkMetaDialogComponent,
+  EditLinkMetaDialogData,
+  EditLinkMetaDialogResult
+} from '../components/edit-link-meta-dialog.component';
+import {
   accountStatusKey,
   countText,
   shortLink,
@@ -39,14 +44,15 @@ import {
 
 const EMPTY = '—';
 
-// /demo-accounts/signup-links — "Track links" (guide §4): one row per link — the organisation /
-// account, whether and how often it was opened, the account's state and the first-open window.
-// Cancel one link, the checked ones or a whole batch; an opened link's account stops with it.
+// /demo-accounts/signup-links — "Track links" (guide §4): one row per link — who it is for (area /
+// notes, own or from the batch), whether and how often it was opened, the account's state and the
+// first-open window. Edit a link's or a batch's area / notes; cancel one link, the checked ones or a
+// whole batch (an opened link's account stops with it).
 // The filters live in the URL (?state=&batchId=&search=&page=&size=).
 @Component({
   selector: 'app-signup-links-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, TranslateModule, DashboardEmptyComponent, DashboardLoadingComponent, DemoTabsComponent],
   templateUrl: './signup-links-list.component.html',
   styleUrls: ['../../demo-accounts.component.scss', './signup-links-list.component.scss']
 })
@@ -295,6 +301,41 @@ export class SignupLinksListComponent implements OnInit {
     this.selectedLinks.clear();
   }
 
+  // ── Area / notes (admin only) ─────────────────────────────
+
+  /** "Edit" on a row: this link's area / notes, any time (before or after it's opened). */
+  editLink(link: DemoSignupLink, event?: Event): void {
+    event?.stopPropagation();
+    const b = this.batches.find(x => x.id === link.batchId);
+    this.openEdit({ mode: 'link', link, batchValues: b ? { area: b.area, additionalNotes: b.additionalNotes } : null });
+  }
+
+  /** "Edit batch": every link without its own value follows. */
+  editBatch(): void {
+    const b = this.batch;
+    if (b) this.openEdit({ mode: 'batch', batch: b });
+  }
+
+  private openEdit(data: EditLinkMetaDialogData): void {
+    if (!this.canManage()) return;
+    this.dialog.open<EditLinkMetaDialogComponent, EditLinkMetaDialogData, EditLinkMetaDialogResult>(EditLinkMetaDialogComponent, {
+      width: '520px',
+      maxWidth: '94vw',
+      direction: this.dir,
+      data,
+    }).afterClosed().subscribe(result => {
+      if (!result) return;
+      this.toastr.success(this.translate.instant(`d3.demoAccounts.signupLinks.edit.${result.mode === 'batch' ? 'savedBatch' : 'saved'}`));
+      if (result.mode === 'link') {
+        // The row as the server returns it — no need to reload the page.
+        this.items = this.items.map(l => (l.id === result.link.id ? result.link : l));
+      } else {
+        this.batches = this.batches.map(b => (b.id === result.batch.id ? { ...b, ...result.batch, links: undefined } : b));
+        this.load();
+      }
+    });
+  }
+
   // ── Cancelling ────────────────────────────────────────────
 
   cancelOne(link: DemoSignupLink, event?: Event): void {
@@ -355,15 +396,10 @@ export class SignupLinksListComponent implements OnInit {
     return this.translate.instant(`d3.demoAccounts.signupLinks.states.${state}`);
   }
 
-  /** The account's name, else the organisation name typed on the batch. */
-  name(link: DemoSignupLink): string | null {
-    return link.demoAccountName || link.label || null;
-  }
-
   batchLabel(b: DemoSignupBatch): string {
     const date = formatRiyadhDate(b.createdAt, this.currentLang) ?? '';
     const kind = this.translate.instant(`d3.demoAccounts.kinds.${b.kind}`);
-    const head = b.label?.trim() ? `${b.label.trim()} · ${date}` : date;
+    const head = b.area?.trim() ? `${b.area.trim()} · ${date}` : date;
     return `${head} · ${kind} · ${countText(b.totalLinks ?? 0, 'link', this.translate)}`;
   }
 
@@ -379,9 +415,31 @@ export class SignupLinksListComponent implements OnInit {
     return formatRiyadhDate(value, this.currentLang, withTime) ?? EMPTY;
   }
 
-  /** "3 مرات" / "مرة واحدة" — how often the link was opened. */
+  /**
+   * Opened = it has a first open (links from the earlier flow have firstOpenedAt but openCount 0,
+   * so the count alone would say "not opened" next to an "Opened" badge).
+   */
+  wasOpened(link: DemoSignupLink): boolean {
+    return !!link.firstOpenedAt || (link.openCount ?? 0) > 0;
+  }
+
+  /** "25/11 02:49 م" — the year is the current one in practice, so it is left out of the cell. */
+  shortDate(value: string | null): string {
+    const full = formatRiyadhDate(value, this.currentLang, true);
+    return full ? full.replace(/\/\d{4}/, '') : EMPTY;
+  }
+
+  /** First and last open with the year, for the tooltip. */
+  opensTooltip(link: DemoSignupLink): string {
+    const t = (k: string) => this.translate.instant(`d3.demoAccounts.signupLinks.table.${k}`);
+    const parts = [`${t('firstOpen')}: ${this.date(link.firstOpenedAt)}`];
+    if (link.lastOpenedAt) parts.push(`${t('lastOpen')}: ${this.date(link.lastOpenedAt)}`);
+    return parts.join(' · ');
+  }
+
+  /** "3 مرات" / "مرة واحدة" — how often the link was opened (at least once when it has a first open). */
   opens(link: DemoSignupLink): string {
-    const n = link.openCount ?? 0;
+    const n = Math.max(link.openCount ?? 0, link.firstOpenedAt ? 1 : 0);
     const key = n === 0 ? 'zero' : n === 1 ? 'one' : n === 2 ? 'two' : (n % 100 >= 3 && n % 100 <= 10) ? 'few' : 'many';
     return this.translate.instant(`d3.demoAccounts.signupLinks.table.opens.${this.currentLang === 'en' && n > 1 ? 'many' : key}`, {
       count: this.fmt(n),

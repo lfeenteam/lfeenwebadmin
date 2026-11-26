@@ -166,10 +166,10 @@
         },
         "create": {
           "title": "Create demo links",
-          "help": "The organisation opens the link and sees its sign-in data right away, without typing anything. The account is created the first time the link is opened.",
+          "help": "The organisation opens the link and sees its sign-in data right away, without typing anything. The account is created the first time the link is opened and is called “Demo account”.",
           "steps": {
             "create": "Create links",
-            "createHelp": "Count, trial and organisation name",
+            "createHelp": "Count, trial and area",
             "send": "Send it",
             "sendHelp": "Only to the person in charge",
             "open": "They open it",
@@ -185,22 +185,17 @@
           "count": "Number of links",
           "countHelp": "1 to {{max}}. Each link creates one demo account when it is opened.",
           "durationHelp": "The trial starts the first time the link is opened, not now.",
-          "welcomeSection": "Organisation name and welcome message",
-          "welcomeSectionHelp": "The account name and the message shown on the link page",
-          "label": "Organisation name",
-          "labelPlaceholder": "Hotel or company name, e.g. Al Reem Hotel or Elite Properties",
-          "labelHelp": "This is the account name: {{names}}",
+          "welcomeSection": "Welcome message",
+          "welcomeSectionHelp": "The message shown on the link page with the sign-in data",
           "welcome": "Welcome message (optional)",
           "welcomePlaceholder": "Leave it empty to show the standard welcome message.",
           "welcomeHelp": "Shown on the link page and copied with “Copy all”. Missing sign-in data is added at the end automatically.",
           "extras": "Extra settings",
-          "extrasHelp": "Link validity and an internal note",
+          "extrasHelp": "Link validity",
           "linkValidDays": "Link validity (days)",
           "linkValidHelp": "How long the link can be opened for the first time. After the first open the data stays visible until the trial ends.",
           "openBefore": "Must be opened before",
           "linkValidSummary": "Open within {{days}} days",
-          "hasNote": "Has a note",
-          "noLabel": "No organisation name",
           "standardWelcome": "Standard welcome message",
           "trialDays": "{{days}}-day trial",
           "created": "{{links}} created",
@@ -208,7 +203,17 @@
           "noPageUrl": "The link page URL is not set on the server (Demo:SelfSignup:PageUrl), so only the link code is shown. Set it, then copy the links from the tracking table.",
           "again": "Create another batch",
           "track": "Track links",
-          "copiedAll": "{{links}} copied"
+          "copiedAll": "{{links}} copied",
+          "metaSection": "Area and notes",
+          "metaSectionHelp": "Who it is for, and any note that helps the team",
+          "metaPrivate": "Admin only: the area and notes are never shown to whoever opens the link. They apply to every link of the batch, and you can change them for any link later with “Edit”.",
+          "area": "Area (who it is for)",
+          "areaPlaceholder": "e.g. Al Reem Hotel, or Riyadh Expo",
+          "areaHelp": "Helps you tell who each link went to in the tracking table.",
+          "additionalNotes": "Additional notes",
+          "additionalNotesPlaceholder": "e.g. Contact: Mr. Khalid, met at the expo on the 25th",
+          "noArea": "No area",
+          "hasNotes": "Has notes"
         },
         "preview": {
           "title": "Link page preview",
@@ -230,17 +235,16 @@
           "emptyDesc": "Create links and send them to organisations — every open shows up here."
         },
         "filters": {
-          "search": "Search by organisation, link code or login number",
+          "search": "Search by area, notes, link code or login number",
           "batch": "Batch",
           "allBatches": "All batches",
           "oneBatch": "Selected batch"
         },
         "batch": {
-          "createdBy": "Created by"
+          "createdBy": "Created by",
+          "noArea": "Batch with no area"
         },
         "table": {
-          "name": "Organisation / account",
-          "noName": "No name",
           "loginPhone": "Login no.",
           "link": "Link",
           "state": "Status",
@@ -259,7 +263,10 @@
           "noAccount": "Created on first open",
           "trialEnds": "Trial ends",
           "linkValid": "Open before",
-          "cancelledBy": "Cancelled by"
+          "cancelledBy": "Cancelled by",
+          "area": "Area / notes",
+          "noArea": "No area",
+          "fromBatch": "From batch"
         },
         "states": {
           "Open": "Not opened yet",
@@ -297,15 +304,52 @@
           "count": "The number of links must be {{min}} to {{max}}.",
           "durationDays": "The trial must be {{min}} to {{max}} days.",
           "linkValidDays": "The link validity must be {{min}} to {{max}} days.",
-          "labelMax": "The organisation name can be up to {{max}} characters.",
-          "labelChars": "The organisation name can't contain < or >."
+          "areaMax": "The area can be up to {{max}} characters.",
+          "additionalNotesMax": "The notes can be up to {{max}} characters.",
+          "textChars": "It can't contain < or >."
         },
         "errors": {
           "disabled": "Demo links are turned off on the server right now.",
           "rateLimited": "Too many requests in a short time, try again in a minute.",
           "DEMO_SIGNUP_PIN_KEY_MISSING": "A server setting is missing (PinKey), so links can't be created now. Tell the backend team.",
-          "DEMO_SIGNUP_LABEL_INVALID": "The organisation name is too long or contains < or >."
+          "DEMO_SIGNUP_AREA_INVALID": "The area is too long or contains < or >.",
+          "DEMO_SIGNUP_NOTES_INVALID": "The notes are too long or contain < or >.",
+          "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "This link doesn't exist any more. Refresh the page."
+        },
+        "edit": {
+          "button": "Edit area and notes",
+          "title": "Edit area and notes",
+          "batchTitle": "Edit batch",
+          "batchButton": "Edit batch",
+          "help": "Admin only, never shown to the organisation. You can edit them any time, before or after the link is opened.",
+          "batchHelp": "Changes every link of the batch that has no value of its own. Links with their own value are not affected.",
+          "useBatch": "Use the batch value",
+          "customize": "Set for this link",
+          "batchEmpty": "The batch has no value",
+          "save": "Save",
+          "saved": "Area and notes saved",
+          "savedBatch": "Batch updated"
+        },
+        "menu": {
+          "copy": "Copy link",
+          "account": "Open demo account",
+          "cancel": "Cancel link"
         }
+      },
+      "signupLinkInfo": {
+        "title": "Made from a demo link",
+        "track": "View link",
+        "area": "Area",
+        "notes": "Notes",
+        "firstOpen": "First opened",
+        "opens": "Opens",
+        "opensCount": {
+          "zero": "Not opened",
+          "one": "Once",
+          "other": "{{count}} times"
+        },
+        "code": "Link code",
+        "hint": "The area and notes are admin only. Any change here (new PIN, extend, stop) shows on the link page right away."
       },
       "activation": {
         "title": "Activation requests",
@@ -3177,6 +3221,8 @@
         },
         "calendarTitle": "Availability & Daily Prices Calendar",
         "calendarSubtitle": "Review available prices for each day independently",
+        "calendarError": "Couldn't load this month's calendar.",
+        "calendarRetry": "Retry",
         "legend": {
           "available": "Available",
           "unavailable": "Unavailable",
@@ -5072,7 +5118,10 @@
         "status": "Status",
         "actions": "Actions",
         "others": "+{{count}} more",
-        "servicesCount": "{{count}} services",
+        "servicesCount": {
+          "one": "{{count}} service",
+          "other": "{{count}} services"
+        },
         "viewBtn": "View",
         "editBtn": "Edit",
         "expandTooltip": "Show details",

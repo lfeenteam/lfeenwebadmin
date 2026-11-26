@@ -88,7 +88,7 @@
                     </div>
                     <div>
                       <span class="f-s-14 f-w-800 d-block">{{ account.facilityName }}</span>
-                      <span class="facility-classification">{{ 'd3.subscriptions.table.servicesCount' | translate: { count: fmt(account.services.length) } }}</span>
+                      <span class="facility-classification">{{ 'd3.subscriptions.table.servicesCount' | appPlural: account.services.length }}</span>
                     </div>
                   </div>
                 </td>

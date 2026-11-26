@@ -96,6 +96,45 @@
     </div>
 
     <div class="dd-grid">
+      <!-- Made from a demo link: who it was for (area / notes, admin only) and how often it was opened -->
+      @if (account.signupLink; as sl) {
+        <section class="dd-card dd-card--wide dd-link">
+          <div class="dd-link__head">
+            <h3><i-tabler name="link" class="icon-18"></i-tabler>{{ 'd3.demoAccounts.signupLinkInfo.title' | translate }}</h3>
+            <button type="button" class="da-btn sm" (click)="openSignupLink(sl.batchId, sl.code)">
+              <i-tabler name="list-details" class="icon-16"></i-tabler>
+              {{ 'd3.demoAccounts.signupLinkInfo.track' | translate }}
+            </button>
+          </div>
+          <dl class="dd-list dd-list--cols dd-link__list">
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.area' | translate }}</dt>
+              <dd dir="auto">{{ sl.area || emptyValue }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.notes' | translate }}</dt>
+              <dd class="dd-note" dir="auto">{{ sl.additionalNotes || emptyValue }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.firstOpen' | translate }}</dt>
+              <dd><span class="da-ltr" dir="ltr">{{ date(sl.firstOpenedAt) || emptyValue }}</span></dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.opens' | translate }}</dt>
+              <dd>{{ 'd3.demoAccounts.signupLinkInfo.opensCount' | appPlural: sl.openCount }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'd3.demoAccounts.signupLinkInfo.code' | translate }}</dt>
+              <dd><span class="da-ltr da-mono" dir="ltr">{{ sl.code }}</span></dd>
+            </div>
+          </dl>
+          <p class="dd-link__hint">
+            <i-tabler name="info-circle" class="icon-14"></i-tabler>
+            {{ 'd3.demoAccounts.signupLinkInfo.hint' | translate }}
+          </p>
+        </section>
+      }
+
       <!-- Section 1: person -->
       <section class="dd-card">
         <h3>{{ 'd3.demoAccounts.sections.person' | translate }}</h3>

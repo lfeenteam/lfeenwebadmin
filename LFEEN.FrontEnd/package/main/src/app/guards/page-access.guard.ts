@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { LoginService } from '../pages/dashboards/dashboard3/services/login/login.service';
 import { SidebarService } from '../pages/dashboards/dashboard3/services/sidebar.service';
-import { PAGE_ACCESS, PageAccessKey, canAccessPage } from './page-access';
+import { PAGE_ACCESS, PageAccessKey, canAccessPage, canWriteModule } from './page-access';
 
 function langOf(state: RouterStateSnapshot): string {
   const lang = state.url.split('/')[1];
@@ -32,6 +32,28 @@ export function pageAccessGuard(key: PageAccessKey): CanActivateFn {
     if (key === 'dashboard') {
       return inject(Router).parseUrl(inject(SidebarService).landingUrl(langOf(state)));
     }
+    return forbiddenRedirect(state);
+  };
+}
+
+/**
+ * For create/edit pages: also requires a write permission of the module (see
+ * canWriteModule), so a view-only admin typing e.g. /roles/add lands on the
+ * "no permission" page instead of a form whose save answers 403 (BUG-2739).
+ * Put it after pageAccessGuard.
+ */
+export function pageWriteGuard(prefixes: string | string[]): CanActivateFn {
+  return permissionGuard(perms => canWriteModule(perms, prefixes));
+}
+
+/**
+ * A page whose data call needs a permission other than its module's view one
+ * (e.g. the wallet approvals queue) — refused up front rather than showing the 403
+ * as a "retry" state (BUG-2739). Put it after pageAccessGuard.
+ */
+export function permissionGuard(check: (permissions: string[]) => boolean): CanActivateFn {
+  return (_route, state) => {
+    if (check(inject(LoginService).permissions() ?? [])) return true;
     return forbiddenRedirect(state);
   };
 }

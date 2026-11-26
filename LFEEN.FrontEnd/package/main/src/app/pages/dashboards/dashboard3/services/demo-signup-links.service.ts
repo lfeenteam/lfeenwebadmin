@@ -8,7 +8,8 @@ import {
   DemoSignupCancelResult,
   DemoSignupLink,
   DemoSignupLinksQuery,
-  DemoSignupPage
+  DemoSignupPage,
+  UpdateDemoSignupMetaRequest
 } from '../interfaces/demo-signup-link.model';
 
 /**
@@ -48,6 +49,16 @@ export class DemoSignupLinksService {
   /** The whole batch with every link; 404 DEMO_SIGNUP_BATCH_NOT_FOUND. */
   batch(batchId: string): Observable<DemoSignupBatch> {
     return this.http.get(`${this.baseUrl}/batches/${batchId}`).pipe(map(r => unwrap<DemoSignupBatch>(r)));
+  }
+
+  /** Area / notes of one link, any time. "" clears the link's own value (back to the batch's). Returns the row. */
+  updateLink(linkId: string, body: UpdateDemoSignupMetaRequest): Observable<DemoSignupLink> {
+    return this.http.patch(`${this.baseUrl}/${linkId}`, body).pipe(map(r => unwrap<DemoSignupLink>(r)));
+  }
+
+  /** Area / notes of a batch — every link without its own value follows. Returns the whole batch. */
+  updateBatch(batchId: string, body: UpdateDemoSignupMetaRequest): Observable<DemoSignupBatch> {
+    return this.http.patch(`${this.baseUrl}/batches/${batchId}`, body).pipe(map(r => unwrap<DemoSignupBatch>(r)));
   }
 
   /** Opened links are cancelled too — their demo account is stopped for good (accountsStopped). */

@@ -8,7 +8,8 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ComplaintService } from '../../services/complaint.service';
-import { AR_DATE_LOCALE, ComplaintStatus, TicketAttachment, TicketDetail, TicketMessage, isClosedTicketStatus } from '../../interfaces/complaint.model';
+import { AR_DATE_LOCALE, COMPLAINT_PERMISSION_PREFIXES, ComplaintStatus, TicketAttachment, TicketDetail, TicketMessage, isClosedTicketStatus } from '../../interfaces/complaint.model';
+import { PermissionService } from '../../../../services/permission.service';
 import { PageTitleOverrideService } from '../../../../services/page-title-override.service';
 import { LoginService } from '../../../../services/login/login.service';
 import { DashboardEmptyComponent } from '../../../../../../../components/dashboard3/dashboard-empty/dashboard-empty.component';
@@ -36,6 +37,10 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   private loginService = inject(LoginService);
   private toastr = inject(ToastrService);
   private destroyRef = inject(DestroyRef);
+  private perms = inject(PermissionService);
+  /** BUG-2739: view-only admins can read the ticket but not reply to or close it. Kept
+   * apart from readOnly so an open ticket isn't shown with the "closed" banner. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
 
   replyText       = '';
   closeNote       = '';
@@ -82,8 +87,9 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Tell the page header (outside this component) to hide "Close & resolve" on a finished ticket.
-    effect(() => this.service.detailReadOnly.set(this.isClosed()));
+    // Tell the page header (outside this component) to hide "Close & resolve" on a finished
+    // ticket, or for an admin who can't write tickets (BUG-2739).
+    effect(() => this.service.detailReadOnly.set(this.isClosed() || !this.canManage()));
   }
 
   ngOnInit(): void {
@@ -143,7 +149,7 @@ export class HostComplaintDetailComponent implements OnInit, OnDestroy {
   }
 
   private get canWrite(): boolean {
-    return this.loadState() === 'ready' && !!this.ticket() && !!this.ticketId && !this.readOnly();
+    return this.loadState() === 'ready' && !!this.ticket() && !!this.ticketId && !this.readOnly() && this.canManage();
   }
 
   ngOnDestroy(): void {

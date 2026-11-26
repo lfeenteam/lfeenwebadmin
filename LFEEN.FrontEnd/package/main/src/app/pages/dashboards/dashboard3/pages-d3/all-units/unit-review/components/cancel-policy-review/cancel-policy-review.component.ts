@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import {
   CancelPolicyRule,
   CancelPolicySet,
@@ -65,6 +66,7 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   // The unit doesn't exist (404 / malformed id) — the page body and its buttons stay hidden.
   notFound = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
   currentLang = 'ar';
 
   /** Display-ready models, rebuilt on load and on language change. */
@@ -133,7 +135,9 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     if (!this.unitId) {
       this.notFound = true;
@@ -243,6 +247,7 @@ export class CancelPolicyReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
     const dialogRef = this.dialog.open(ReviewConfirmDialogComponent, {

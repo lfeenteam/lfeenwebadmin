@@ -52,10 +52,12 @@
           <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
         </span>
       </div>
-      <button class="add-article-btn" type="button" (click)="openAddDialog()">
-        <i-tabler name="plus" class="icon-18"></i-tabler>
-        {{ 'd3.faq.addArticle' | translate }}
-      </button>
+      @if (canManage()) {
+        <button class="add-article-btn" type="button" (click)="openAddDialog()">
+          <i-tabler name="plus" class="icon-18"></i-tabler>
+          {{ 'd3.faq.addArticle' | translate }}
+        </button>
+      }
 
     
     </div>
@@ -136,6 +138,8 @@
           </div>
 
           <div class="col-actions">
+            <!-- BUG-2739: the menu holds only write actions, so view-only admins get none -->
+            @if (canManage()) {
             <button class="row-menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
               <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
             </button>
@@ -160,6 +164,7 @@
                 </button>
               }
             </mat-menu>
+            }
           </div>
 
         </div>

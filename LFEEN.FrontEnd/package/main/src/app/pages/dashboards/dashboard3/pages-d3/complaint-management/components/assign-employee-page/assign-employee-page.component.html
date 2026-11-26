@@ -153,9 +153,11 @@
       } @else {
         <p class="assign-confirm-text muted">{{ 'd3.complaints.assignDialog.selectHint' | translate }}</p>
       }
-      <button class="confirm-btn" type="button" [disabled]="!selected() || submitting() || !canAssign" (click)="confirm()">
-        {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
-      </button>
+      @if (canManage()) {
+        <button class="confirm-btn" type="button" [disabled]="!selected() || submitting() || !canAssign" (click)="confirm()">
+          {{ 'd3.complaints.assignDialog.confirmBtn' | translate }}
+        </button>
+      }
     </div>
 
     }

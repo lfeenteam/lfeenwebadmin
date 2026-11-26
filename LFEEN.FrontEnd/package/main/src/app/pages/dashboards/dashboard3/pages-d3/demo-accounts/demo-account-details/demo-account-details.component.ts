@@ -381,6 +381,13 @@ export class DemoAccountDetailsComponent implements OnInit, OnDestroy {
     this.load();
   }
 
+  /** The tracking table, on this link's batch and searched by its code (one row). */
+  openSignupLink(batchId: string, code: string): void {
+    this.router.navigate(['/', this.currentLang, 'd3', 'demo-accounts', 'signup-links'], {
+      queryParams: { batchId, search: code },
+    });
+  }
+
   private isNotFound(e: DemoApiError): boolean {
     return e.code === 'DEMO_ACCOUNT_NOT_FOUND' || (!e.code && e.status === 404);
   }

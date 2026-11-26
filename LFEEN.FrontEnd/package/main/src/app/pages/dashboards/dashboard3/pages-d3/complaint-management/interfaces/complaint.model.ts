@@ -397,6 +397,10 @@ export const CLIENT_TICKET_STATUS = {
   ClosedByAdmin: 'ClosedByAdmin',
 } as const;
 
+/** The complaints page's permission modules (PAGE_ACCESS.complaints) — for
+ * `PermissionService.canWrite`, so view-only admins get no reply/close/assign (BUG-2739). */
+export const COMPLAINT_PERMISSION_PREFIXES = ['complaints', 'clienttickets', 'hosttickets', 'tickets'];
+
 const CLOSED_TICKET_STATUSES = new Set(['resolved', 'closed', 'closedbyclient', 'closedbyadmin', '5']);
 
 /** Whether a host or client ticket is already finished (Resolved / Closed*), so it

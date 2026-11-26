@@ -18,6 +18,7 @@ import { FAQ_DEPARTMENT_OPTIONS, FaqArticle, FaqArticleDto, FaqDepartment, FaqDe
 import { FaqService } from './services/faq.service';
 import { CoreService } from 'src/app/services/core.service';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
+import { PermissionService } from '../../services/permission.service';
 
 type FaqTab = 'client' | 'service';
 
@@ -32,6 +33,9 @@ export class FaqManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private perms = inject(PermissionService);
+  /** BUG-2739: add/edit/delete/activate are hidden from view-only admins. */
+  readonly canManage = computed(() => this.perms.canWrite(['clientfaq', 'faq', 'faqs']));
 
   /** Client app FAQ / service (worker) app FAQ — kept in the URL as ?tab=service (TAS-2317). */
   readonly showServiceTab = PAGE_FLAGS['service-faq'] !== false;
@@ -150,6 +154,7 @@ export class FaqManagementComponent implements OnInit {
   }
 
   openAddDialog(): void {
+    if (!this.canManage()) return;
     const nextOrder = this.articles().reduce((max, a) => Math.max(max, a.order), 0) + 1;
     const dialogRef = this.dialog.open(AddFaqDialogComponent, {
       width: '560px',
@@ -166,6 +171,7 @@ export class FaqManagementComponent implements OnInit {
   }
 
   openEditDialog(article: FaqArticle): void {
+    if (!this.canManage()) return;
     this.faqService.getArticleById(article.externalId).subscribe({
       next: (dto) => {
         const fresh = this.mapDtoToArticle(dto);
@@ -190,6 +196,7 @@ export class FaqManagementComponent implements OnInit {
   }
 
   toggleStatus(article: FaqArticle): void {
+    if (!this.canManage()) return;
     const isActivating = article.status === 'inactive';
     const titleKey = isActivating ? 'd3.faq.toggle.activateTitle' : 'd3.faq.toggle.deactivateTitle';
     const messageKey = isActivating ? 'd3.faq.toggle.activateMessage' : 'd3.faq.toggle.deactivateMessage';
@@ -218,6 +225,7 @@ export class FaqManagementComponent implements OnInit {
   }
 
   deleteArticle(article: FaqArticle): void {
+    if (!this.canManage()) return;
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: { title: 'd3.faq.delete.title', message: 'd3.faq.delete.message' },

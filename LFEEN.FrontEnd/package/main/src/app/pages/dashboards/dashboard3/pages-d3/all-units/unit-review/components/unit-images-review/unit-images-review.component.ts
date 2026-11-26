@@ -11,6 +11,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitPhotoItem } from '../../../../../interfaces/unit-card.model';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
@@ -72,6 +73,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   loadState: 'loaded' | LoadFailure = 'loaded';
   isSubmitting = false;
   isReadOnly = false;
+  private perms = inject(PermissionService);
   totalPhotoCount = 0;
   minRequired = 0;
 
@@ -126,7 +128,9 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId') ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     // Fetched by id rather than looked up in getBuildingsWithUnits(): that list only
     // holds the units page currently loaded in the list view, so a direct link or a
@@ -196,6 +200,7 @@ export class UnitImagesReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId || !this.allReviewed) return;
     if (decision === 'rejected' && !this.hasNoPhotos && !this.hasRejections) return;
 

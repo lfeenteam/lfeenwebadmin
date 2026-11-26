@@ -27,12 +27,14 @@
           </mat-select>
         </div>
 
-        <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
-          <div class="d-flex align-items-center justify-content-center gap-8">
-            <i-tabler name="plus" class="icon-18"></i-tabler>
-            {{ 'd3.rolesPage.addRoleBtn' | translate }}
-          </div>
-        </button>
+        @if (canManage()) {
+          <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
+            <div class="d-flex align-items-center justify-content-center gap-8">
+              <i-tabler name="plus" class="icon-18"></i-tabler>
+              {{ 'd3.rolesPage.addRoleBtn' | translate }}
+            </div>
+          </button>
+        }
       </div>
     </mat-card-content>
   </mat-card>
@@ -106,9 +108,11 @@
                         <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate" [attr.aria-label]="'d3.permissions.table.viewTooltip' | translate">
                           <i-tabler name="eye" class="icon-18"></i-tabler>
                         </button>
-                        <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.actionsMenu' | translate">
-                          <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                        </button>
+                        @if (canManage()) {
+                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.actionsMenu' | translate">
+                            <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
+                          </button>
+                        }
                       </div>
                       <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
                         <button mat-menu-item (click)="editRole(role)">

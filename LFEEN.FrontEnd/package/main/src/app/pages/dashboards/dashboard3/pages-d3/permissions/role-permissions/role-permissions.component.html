@@ -56,11 +56,13 @@
           <span class="role-badge">{{ roleName }}</span>
           @if (!loadError && groupedPermissions.length > 0) {
             <div class="d-flex align-items-center flex-wrap gap-8">
-              <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6"
-                (click)="toggleSelectAll()">
-                <i-tabler [name]="allPermissionsSelected ? 'square-off' : 'checkbox'" class="icon-16"></i-tabler>
-                {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
-              </button>
+              @if (canManage()) {
+                <button type="button" class="select-all-btn d-inline-flex align-items-center gap-6"
+                  (click)="toggleSelectAll()">
+                  <i-tabler [name]="allPermissionsSelected ? 'square-off' : 'checkbox'" class="icon-16"></i-tabler>
+                  {{ (allPermissionsSelected ? 'd3.addRolePage.deselectAllBtn' : 'd3.addRolePage.selectAllBtn') | translate }}
+                </button>
+              }
               <span class="selected-badge">
                 {{ 'd3.addRolePage.selectedOfTotal' | translate: { count: selectedCount, total: permissions.length } }}
               </span>
@@ -89,6 +91,7 @@
             [groups]="groupedPermissions"
             [lang]="currentLang"
             [isLocked]="isLocked"
+            [readonly]="!canManage()"
             (permissionToggle)="togglePermission($event.perm, $event.checked)"
             (groupAction)="applyGroupAction($event)">
           </app-permission-tree>
@@ -102,14 +105,16 @@
       <button mat-stroked-button class="cancel-btn" (click)="cancel()">
         {{ 'd3.permissions.cancelBtn' | translate }}
       </button>
-      <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="!isDirty || isSaving || loadError">
-        @if (isSaving) {
-          <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
-        } @else {
-          <i-tabler name="check" class="icon-16"></i-tabler>
-        }
-        {{ 'd3.permissions.rolePermsEdit.saveBtn' | translate }}
-      </button>
+      @if (canManage()) {
+        <button mat-flat-button color="dark" class="save-btn" (click)="save()" [disabled]="!isDirty || isSaving || loadError">
+          @if (isSaving) {
+            <mat-spinner diameter="18" style="display:inline-block;vertical-align:middle;margin-inline-end:6px;"></mat-spinner>
+          } @else {
+            <i-tabler name="check" class="icon-16"></i-tabler>
+          }
+          {{ 'd3.permissions.rolePermsEdit.saveBtn' | translate }}
+        </button>
+      }
     </div>
 
   }

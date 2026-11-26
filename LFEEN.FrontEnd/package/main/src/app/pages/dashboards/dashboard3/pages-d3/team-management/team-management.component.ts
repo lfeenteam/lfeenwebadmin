@@ -32,6 +32,7 @@ import {
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
   selector: 'app-team-management',
@@ -67,6 +68,11 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   readonly canViewAudits = computed(() =>
     this.loginService.permissions().some(p => p.toLowerCase() === 'operationaudits.view')
   );
+
+  private readonly perms = inject(PermissionService);
+  /** View-only admins don't get write actions the API would refuse with 403 (BUG-2739). */
+  readonly canManageDepartments = computed(() => this.perms.canWrite('departments'));
+  readonly canManageEmployees = computed(() => this.perms.canWrite(['adminusers', 'departments']));
 
   activeTab: 'structure' | 'employees' | 'logs' = 'structure';
   stats: StatItem[] = [];
@@ -363,6 +369,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   onEditEmployee(employee: Employee): void {
+    if (!this.canManageEmployees()) return;
     const deptId = this.departmentId || employee.departmentId || '';
 
     const dialogRef = this.dialog.open(AddEmployeeDialogComponent, {
@@ -381,6 +388,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   onDeleteEmployee(employee: Employee): void {
+    if (!this.canManageEmployees()) return;
     const dialogRef = this.dialog.open(DeleteConfirmDialogComponent, {
       width: '440px',
       data: { title: 'common.deleteConfirmTitle', message: 'common.deleteConfirmMessage' },
@@ -404,6 +412,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   onToggleStatusEmployee(employee: Employee): void {
+    if (!this.canManageEmployees()) return;
     const isActivating = !employee.isActive;
     const titleKey = isActivating ? 'common.activateConfirmTitle' : 'common.deactivateConfirmTitle';
     const messageKey = isActivating ? 'common.activateConfirmMessage' : 'common.deactivateConfirmMessage';
@@ -438,6 +447,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
 
   onHeaderAction(): void {
     if (this.activeTab === 'structure') {
+      if (!this.canManageDepartments()) return;
       this.router.navigate(['add'], { relativeTo: this.route });
     } else if (this.activeTab === 'employees' || this.departmentId) {
       this.openAddEmployeeDialog();
@@ -445,6 +455,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   openAddEmployeeDialog(): void {
+    if (!this.canManageEmployees()) return;
     const dialogRef = this.dialog.open(AddEmployeeDialogComponent, {
       width: '640px',
       maxWidth: '95vw',

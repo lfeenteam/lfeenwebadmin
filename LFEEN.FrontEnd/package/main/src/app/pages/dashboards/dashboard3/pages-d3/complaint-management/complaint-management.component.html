@@ -11,7 +11,7 @@
   <div class="content-area" [class.chat-open]="chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')">
 
     <div class="table-column">
-      @if (activeTab() === 'customers' || activeTab() === 'hosts') {
+      @if ((activeTab() === 'customers' || activeTab() === 'hosts') && canManage()) {
         <div class="assign-warning">
           <i-tabler name="info-circle" class="icon-16"></i-tabler>
           <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>

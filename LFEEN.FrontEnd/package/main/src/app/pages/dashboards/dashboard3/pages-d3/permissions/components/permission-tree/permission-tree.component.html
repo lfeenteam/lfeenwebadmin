@@ -46,6 +46,7 @@
       <mat-checkbox class="pt-head-check"
         [checked]="stateOf(group) === 'all'"
         [indeterminate]="stateOf(group) === 'some'"
+        [disabled]="readonly"
         [attr.aria-label]="group.name"
         (click)="$event.stopPropagation()"
         (change)="onGroupCheck(group)">
@@ -64,7 +65,7 @@
       <div class="pt-body">
         @if (blocks(group); as list) {
           @if (list.length > 0) {
-            @if (showActions(group)) {
+            @if (!readonly && showActions(group)) {
             <div class="pt-actions">
               @if (hasBase(group)) {
                 <button type="button" (click)="groupAction.emit({ group: group, action: 'base' })">
@@ -119,7 +120,7 @@
     [class.is-base]="base"
     [class.is-locked]="isLocked(perm)"
     [checked]="perm.selected"
-    [disabled]="isLocked(perm)"
+    [disabled]="readonly || isLocked(perm)"
     (change)="permissionToggle.emit({ perm: perm, checked: $event.checked })">
     <span class="pt-text">
       <span class="pt-name">

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { isForbiddenError } from '../../utils/transport-error.util';
 import { Subscription, forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,7 @@ import { DeleteConfirmDialogComponent } from '../team-management/components/dele
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { resolveBilingualText } from '../../utils/bilingual.util';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
+import { PermissionService } from '../../services/permission.service';
 
 interface RoleRow {
   id: string;
@@ -36,6 +37,9 @@ interface RoleRow {
 })
 export class RolesComponent implements OnInit, OnDestroy {
   private langSub!: Subscription;
+  private perms = inject(PermissionService);
+  /** Add/edit/delete need a Roles write permission; Roles.View-only admins just browse (BUG-2739). */
+  readonly canManage = computed(() => this.perms.canWrite('roles'));
 
   isLoading = true;
   loadError = false;
@@ -142,6 +146,7 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   openAddRole(): void {
+    if (!this.canManage()) return;
     this.router.navigate([`/${this.currentLang}/d3/roles/add`]);
   }
 
@@ -150,6 +155,7 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   editRole(role: RoleRow): void {
+    if (!this.canManage()) return;
     const ref = this.dialog.open(AddRoleDialogComponent, {
       width: '560px',
       maxWidth: '600px',
@@ -171,6 +177,7 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   deleteRole(role: RoleRow): void {
+    if (!this.canManage()) return;
     this.departmentService.getEmployeeCountForRole(role.id).subscribe({
       next: (count) => this.confirmDeleteRole(role, count),
       error: () => this.confirmDeleteRole(role, 0)

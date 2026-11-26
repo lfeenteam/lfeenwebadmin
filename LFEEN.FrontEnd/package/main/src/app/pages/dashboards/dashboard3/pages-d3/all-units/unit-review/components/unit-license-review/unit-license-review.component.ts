@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'src/app/material.module';
 import { ReviewConfirmDialogComponent } from '../../../../build-review/review-confirm-dialog/review-confirm-dialog.component';
 import { UnitReviewDecision, UnitsService } from '../../../../../services/units.service';
+import { PermissionService } from '../../../../../services/permission.service';
 import { UnitLicenseResponse } from '../../../../../interfaces/unit-card.model';
 import { PageBreadcrumbTrailService } from '../../../../../services/page-breadcrumb-trail.service';
 import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-empty-state/review-empty-state.component';
@@ -43,6 +44,7 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
   license: UnitLicenseResponse | null = null;
   isLoading   = false;
   isReadOnly  = false;
+  private perms = inject(PermissionService);
   // The page body (and its approve/reject buttons) renders only once this is 'loaded'.
   loadState: 'loaded' | LoadFailure = 'loaded';
 
@@ -126,7 +128,9 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildingId = this.route.snapshot.paramMap.get('buildingId') ?? '';
     this.unitId     = this.route.snapshot.paramMap.get('unitId')     ?? '';
-    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view';
+    this.isReadOnly = this.route.snapshot.queryParamMap.get('mode') === 'view'
+      // BUG-2739: no section decision for an admin who can't write units.
+      || !this.perms.canWrite('units');
 
     if (!this.unitId) {
       this.loadState = 'notFound';
@@ -172,6 +176,7 @@ export class UnitLicenseReviewComponent implements OnInit, OnDestroy {
   }
 
   submitDecision(decision: UnitReviewDecision): void {
+    if (this.isReadOnly) return;
     if (!this.unitId) return;
     const isApprove = decision === 'approved';
 

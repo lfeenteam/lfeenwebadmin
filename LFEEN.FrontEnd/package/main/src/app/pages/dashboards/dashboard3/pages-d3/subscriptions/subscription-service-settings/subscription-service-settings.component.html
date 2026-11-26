@@ -522,7 +522,8 @@
     </div>
   </div>
 
-  <!-- Footer actions -->
+  <!-- Footer actions — BUG-2739: only for admins who can save the catalog or the pack price -->
+  @if (canSaveSettings) {
   <div class="footer-actions d-flex align-items-center justify-content-between flex-wrap gap-16">
     <p class="footer-note m-0">{{ 'd3.subscriptions.serviceSettings.footerNote' | translate }}</p>
     <div class="d-flex gap-12">
@@ -532,6 +533,7 @@
       </button>
     </div>
   </div>
+  }
 
   <!-- Subscribers (GET /{id}/subscribers): a read-only report, below Save — nothing in it is saved by the button above. -->
   <div class="section-card m-t-24">

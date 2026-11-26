@@ -19,8 +19,8 @@ import {
   DemoAccountKind
 } from '../../../../interfaces/demo-account.model';
 import {
-  DEMO_SIGNUP_LABEL_FORBIDDEN,
   DEMO_SIGNUP_LIMITS,
+  DEMO_SIGNUP_TEXT_FORBIDDEN,
   DemoSignupBatch,
   DemoSignupLink
 } from '../../../../interfaces/demo-signup-link.model';
@@ -32,23 +32,24 @@ import { InvitationEditorComponent } from '../../components/invitation-editor/in
 import { SignupPagePreviewComponent } from '../components/signup-page-preview.component';
 import { countText, signupErrorMessage, signupLinkUrl } from '../demo-signup-links.util';
 
-type Field = 'count' | 'durationDays' | 'linkValidDays' | 'label' | 'note';
-const FIELDS: Field[] = ['count', 'durationDays', 'label', 'linkValidDays', 'note'];
+type Field = 'count' | 'durationDays' | 'area' | 'additionalNotes' | 'linkValidDays';
+const FIELDS: Field[] = ['count', 'durationDays', 'area', 'additionalNotes', 'linkValidDays'];
 const LINKS_FIELDS: Field[] = ['count', 'durationDays'];
-const EXTRA_FIELDS: Field[] = ['linkValidDays', 'note'];
+const META_FIELDS: Field[] = ['area', 'additionalNotes'];
 
 /** Server codes that belong to one field (shown under it). */
 const FIELD_OF_CODE: Record<string, Field> = {
   DEMO_SIGNUP_COUNT_INVALID: 'count',
   DEMO_DURATION_INVALID: 'durationDays',
   DEMO_SIGNUP_LINK_DAYS_INVALID: 'linkValidDays',
-  DEMO_SIGNUP_LABEL_INVALID: 'label',
+  DEMO_SIGNUP_AREA_INVALID: 'area',
+  DEMO_SIGNUP_NOTES_INVALID: 'additionalNotes',
 };
 
 // /demo-accounts/signup-links/new — "Create demo links" (guide §4). Nothing is sent: the first time
-// a link is opened the account is created and its sign-in data shows on the link's page. The form
-// has the links (count, kind, trial), the organisation name and the welcome message, with the link
-// validity and the internal note folded. The end side previews the page the organisation sees.
+// a link is opened its account ("حساب تجريبي") is created and the sign-in data shows on the link's
+// page. ① links (count, kind, trial) · ② who it's for (area + notes, admin only) · ③ welcome message ·
+// ④ link validity, folded. The end side previews the page the organisation sees.
 @Component({
   selector: 'app-signup-links-create',
   standalone: true,
@@ -91,12 +92,12 @@ export class SignupLinksCreateComponent implements OnInit {
   count: number | null = DEMO_SIGNUP_LIMITS.defaultCount;
   kind: DemoAccountKind = DEFAULT_DEMO_KIND;
   durationDays: number | null = DEMO_LIMITS.defaultDays;
-  label = '';
+  area = '';
+  additionalNotes = '';
   linkValidDays: number | null = DEMO_SIGNUP_LIMITS.defaultLinkDays;
-  note = '';
 
-  /** Numbered sections like the demo-account create page; ③ (link validity, note) starts folded. */
-  open = { links: true, welcome: true, extras: false };
+  /** Numbered sections like the demo-account create page; ④ (link validity) starts folded. */
+  open = { links: true, meta: true, welcome: true, extras: false };
 
   /** DEMO_SIGNUP_DISABLED from the last create. */
   featureDisabled = false;
@@ -126,10 +127,10 @@ export class SignupLinksCreateComponent implements OnInit {
       return;
     }
     // The welcome text shows on the link's page — not an email, so no subject. WhatsApp is the
-    // plain-text rendering the page preview reads. The organisation name stands in for {{name}}.
-    // With no organisation name the account is "حساب تجريبي 1…", so the preview greets that, not the server's example person.
+    // plain-text rendering the page preview reads. Every account is called "حساب تجريبي", and the
+    // area / notes never reach the organisation, so {{name}} is always that.
     this.invitation.typedValues = () => ({
-      name: this.label.trim() || this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName'),
+      name: this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName'),
       days: Number(this.durationDays) || undefined,
     });
     this.invitation.init({ channel: 'WhatsApp', kind: this.kind });
@@ -185,22 +186,25 @@ export class SignupLinksCreateComponent implements OnInit {
 
   onInput(field: Field): void {
     if (this.touched.has(field)) this.errors[field] = this.validate(field);
-    // These feed the page preview.
-    if (field === 'durationDays' || field === 'label') this.invitation.refresh();
+    if (field === 'durationDays') this.invitation.refresh();
   }
 
   get linksHaveErrors(): boolean {
     return LINKS_FIELDS.some(f => this.errors[f]);
   }
 
+  get metaHasErrors(): boolean {
+    return META_FIELDS.some(f => this.errors[f]);
+  }
+
   get welcomeHasErrors(): boolean {
     const inv = this.invitation;
     const messageIssues = !inv.previewLoading && inv.issues('Message').length > 0;
-    return !!this.errors.label || messageIssues || !!(inv.fieldErrors.message || inv.fieldErrors.language);
+    return messageIssues || !!(inv.fieldErrors.message || inv.fieldErrors.language);
   }
 
   get extrasHaveErrors(): boolean {
-    return EXTRA_FIELDS.some(f => this.errors[f]);
+    return !!this.errors.linkValidDays;
   }
 
   /** Folded ① header: links · kind · days. */
@@ -213,18 +217,23 @@ export class SignupLinksCreateComponent implements OnInit {
     ].join(' · ');
   }
 
-  /** Folded ② header: the organisation name · the message's first line. */
-  get welcomeSummary(): string {
-    const name = this.label.trim() || this.translate.instant('d3.demoAccounts.signupLinks.create.noLabel');
-    const text = this.invitation.message.trim().split('\n')[0]
-      || this.translate.instant('d3.demoAccounts.signupLinks.create.standardWelcome');
-    return `${name} · ${text}`;
+  /** Folded ② header: area · notes. */
+  get metaSummary(): string {
+    const area = this.area.trim() || this.translate.instant('d3.demoAccounts.signupLinks.create.noArea');
+    return this.additionalNotes.trim()
+      ? `${area} · ${this.translate.instant('d3.demoAccounts.signupLinks.create.hasNotes')}`
+      : area;
   }
 
-  /** Folded ③ header: first-open window · note. */
+  /** Folded ③ header: the message's first line, else "standard welcome message". */
+  get welcomeSummary(): string {
+    return this.invitation.message.trim().split('\n')[0]
+      || this.translate.instant('d3.demoAccounts.signupLinks.create.standardWelcome');
+  }
+
+  /** Folded ④ header: the first-open window. */
   get extrasSummary(): string {
-    const days = this.translate.instant('d3.demoAccounts.signupLinks.create.linkValidSummary', { days: Number(this.linkValidDays) || 0 });
-    return this.note.trim() ? `${days} · ${this.translate.instant('d3.demoAccounts.signupLinks.create.hasNote')}` : days;
+    return this.translate.instant('d3.demoAccounts.signupLinks.create.linkValidSummary', { days: Number(this.linkValidDays) || 0 });
   }
 
   /** The day the links can no longer be opened for the first time, if made now. */
@@ -233,16 +242,6 @@ export class SignupLinksCreateComponent implements OnInit {
     const d = new Date();
     d.setDate(d.getDate() + Number(this.linkValidDays));
     return d;
-  }
-
-  /** The default account names when no organisation name is given ("حساب تجريبي 1، 2…"). */
-  get namesExample(): string {
-    const n = Number(this.count) || 1;
-    const base = this.label.trim() || this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName');
-    const sep = this.lang === 'en' ? ', ' : '، ';
-    // One named link keeps the name as is; otherwise the server numbers them.
-    if (n === 1) return this.label.trim() ? base : `${base} 1`;
-    return n === 2 ? `${base} 1${sep}${base} 2` : `${base} 1${sep}${base} 2${sep}…`;
   }
 
   submit(): void {
@@ -263,11 +262,11 @@ export class SignupLinksCreateComponent implements OnInit {
       kind: this.kind,
       durationDays: Number(this.durationDays),
       linkValidDays: Number(this.linkValidDays),
-      ...(this.label.trim() ? { label: this.label.trim() } : {}),
+      ...(this.area.trim() ? { area: this.area.trim() } : {}),
+      ...(this.additionalNotes.trim() ? { additionalNotes: this.additionalNotes.trim() } : {}),
       // Empty = the standard welcome text. Sent exactly as typed.
       ...(message.trim() ? { invitationMessage: message } : {}),
       invitationLanguage: language,
-      ...(this.note.trim() ? { note: this.note.trim() } : {}),
     }).subscribe({
       next: batch => {
         this.submitting = false;
@@ -336,12 +335,6 @@ export class SignupLinksCreateComponent implements OnInit {
     });
   }
 
-  /** What the account behind link n will be called ("فندق الريم 2"). */
-  accountNameFor(index: number): string {
-    const base = this.batch?.label?.trim() || this.translate.instant('d3.demoAccounts.signupLinks.preview.defaultName');
-    return this.links.length === 1 && this.batch?.label?.trim() ? base : `${base} ${index + 1}`;
-  }
-
   copy(link: DemoSignupLink): void {
     const value = signupLinkUrl(link) ?? link.code;
     if (!this.clipboard.copy(value)) {
@@ -396,13 +389,10 @@ export class SignupLinksCreateComponent implements OnInit {
 
   private validate(field: Field): string | null {
     const t = (key: string, params?: object) => this.translate.instant(`d3.demoAccounts.signupLinks.validation.${key}`, params);
-    if (field === 'note') {
-      return this.note.length > DEMO_LIMITS.note ? this.translate.instant('d3.demoAccounts.validation.noteMax') : null;
-    }
-    if (field === 'label') {
-      const v = this.label.trim();
-      if (v.length > DEMO_SIGNUP_LIMITS.label) return t('labelMax', { max: DEMO_SIGNUP_LIMITS.label });
-      return DEMO_SIGNUP_LABEL_FORBIDDEN.test(v) ? t('labelChars') : null;
+    if (field === 'area' || field === 'additionalNotes') {
+      const v = this[field].trim();
+      if (v.length > DEMO_SIGNUP_LIMITS[field]) return t(`${field}Max`, { max: DEMO_SIGNUP_LIMITS[field] });
+      return DEMO_SIGNUP_TEXT_FORBIDDEN.test(v) ? t('textChars') : null;
     }
     const [min, max] = this.range(field);
     const v = Number(this[field]);
@@ -412,6 +402,7 @@ export class SignupLinksCreateComponent implements OnInit {
 
   private focusError(): void {
     if (this.linksHaveErrors) this.open.links = true;
+    if (this.metaHasErrors) this.open.meta = true;
     if (this.welcomeHasErrors) this.open.welcome = true;
     if (this.extrasHaveErrors) this.open.extras = true;
     scrollToFirstError(this.host.nativeElement, this.injector);

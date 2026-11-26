@@ -18,7 +18,7 @@
       actionLabel="d3.teamManagement.addEmployee"
       actionIcon="user-plus"
       [showFilters]="true"
-      [showAction]="employees.length > 0 || hasEmployeeFilters"
+      [showAction]="canManageEmployees() && (employees.length > 0 || hasEmployeeFilters)"
       [departments]="filterDepartments"
       [roles]="filterRoles"
       [searchValue]="employeeFilters.search"
@@ -103,7 +103,7 @@
       }
     }
   } @else if (activeTab === 'employees' || departmentId) {
-    @if (departmentId && selectedDepartment) {
+    @if (departmentId && selectedDepartment && canManageEmployees()) {
       <app-manager-card
         [department]="selectedDepartment"
         [currentLang]="currentLang"
@@ -127,6 +127,7 @@
         [currentPage]="employeeCurrentPage"
         [totalCount]="employeeTotalCount"
         [hasFilters]="hasEmployeeFilters"
+        [canManage]="canManageEmployees()"
         (clearFilters)="clearEmployeeFilters()"
         (edit)="onEditEmployee($event)"
         (delete)="onDeleteEmployee($event)"

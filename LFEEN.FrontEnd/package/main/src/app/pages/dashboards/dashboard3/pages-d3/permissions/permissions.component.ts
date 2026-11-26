@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { Subscription, combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, startWith, switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,7 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
 import { DeleteConfirmDialogComponent } from '../team-management/components/delete-confirm-dialog/delete-confirm-dialog.component';
 import { PageTitleOverrideService } from '../../services/page-title-override.service';
 import { resolveBilingualText } from '../../utils/bilingual.util';
+import { PermissionService } from '../../services/permission.service';
 
 interface RoleRow {
   id: string;
@@ -34,6 +35,9 @@ interface RoleRow {
 })
 export class PermissionsComponent implements OnInit, OnDestroy {
   private dataSub!: Subscription;
+  private perms = inject(PermissionService);
+  /** Add/edit/delete role need a Roles write permission (BUG-2739). */
+  readonly canManage = computed(() => this.perms.canWrite('roles'));
   deptId: string | null = null;
   deptName = '';
   deptEnglishName = '';
@@ -129,6 +133,7 @@ export class PermissionsComponent implements OnInit, OnDestroy {
   }
 
 openAddRoleDialog(): void {
+  if (!this.canManage()) return;
   this.router.navigate([`/${this.translate.currentLang || 'ar'}/d3/permissions/${this.deptId}/add-role`]);
 }
 
@@ -138,6 +143,7 @@ viewPermissions(role: RoleRow): void {
 }
 
 editRole(role: RoleRow): void {
+  if (!this.canManage()) return;
   const ref = this.dialog.open(AddRoleDialogComponent, {
     width: '560px',
     maxWidth: '600px',
@@ -157,6 +163,7 @@ editRole(role: RoleRow): void {
 
 
   deleteRole(role: RoleRow): void {
+    if (!this.canManage()) return;
     this.departmentService.getEmployeeCountForRole(role.id).subscribe({
       next: (count) => this.confirmDeleteRole(role, count),
       error: () => this.confirmDeleteRole(role, 0)

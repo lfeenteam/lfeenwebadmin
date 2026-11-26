@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
@@ -9,8 +9,9 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, COMPLAINT_PERMISSION_PREFIXES, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
+import { PermissionService } from '../../../../services/permission.service';
 import { ComplaintService } from '../../services/complaint.service';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { getVisiblePages } from 'src/app/utils/pagination.util';
@@ -61,6 +62,9 @@ export class ComplaintsTableComponent implements OnChanges {
   private toastr = inject(ToastrService);
   private loginService = inject(LoginService);
   private complaintService = inject(ComplaintService);
+  private perms = inject(PermissionService);
+  /** BUG-2739: view-only admins see who a ticket is assigned to but can't (re)assign it. */
+  readonly canManage = computed(() => this.perms.canWrite(COMPLAINT_PERMISSION_PREFIXES));
   private searchSubject = new Subject<string>();
   private assignSearchSubject = new Subject<string>();
 
@@ -366,6 +370,7 @@ export class ComplaintsTableComponent implements OnChanges {
   }
 
   onAssignBtnClick(complaint: Complaint): void {
+    if (!this.canManage()) return;
     if (this.isAssignLocked(complaint)) {
       this.toastr.info(this.assignButtonTitle(complaint));
       return;
@@ -380,7 +385,7 @@ export class ComplaintsTableComponent implements OnChanges {
 
   /** null closes the popover for locked rows without opening the shared mat-menu instance. */
   assignMenuFor(complaint: Complaint): MatMenu | null {
-    return this.isAssignLocked(complaint) ? null : this.assignMenu;
+    return !this.canManage() || this.isAssignLocked(complaint) ? null : this.assignMenu;
   }
 
   onAssignMenuClosed(): void {
@@ -432,7 +437,7 @@ export class ComplaintsTableComponent implements OnChanges {
   selectAssignEmployee(employee: AssignableEmployee): void {
     const complaint = this.assigningComplaint;
     // A deactivated employee can't sign in to handle the ticket (BUG-2501).
-    if (!complaint || this.assignSubmitting || isInactiveEmployee(employee)) return;
+    if (!complaint || this.assignSubmitting || isInactiveEmployee(employee) || !this.canManage()) return;
 
     this.assignSubmitting = true;
     const request$ = complaint.type === 'customer'
