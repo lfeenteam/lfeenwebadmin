@@ -1,4 +1,12 @@
-<div class="d3-cards-wrapper">
+<!--
+  Executive KPI cards + host / guest app panels — Tailwind (tw- prefix, see tailwind.config.js).
+  Look and motion follow the LFEEN host dashboard: white 18px cards, a tinted icon tile in the
+  metric's colour (tw-tone-*), the number first, a "view list" pill, cards rising in on load.
+  Repeated class groups live in cards-top.styles.ts; layout classes that depend on how many
+  widgets this admin may see come from the component (kpiGridClass, tileGridClass…).
+  `d3-kpi` / `d3-tile` / `d3-mh` stay as hooks: tests, the skeleton shimmer and icon motion.
+-->
+<div class="tw-flex tw-flex-col tw-gap-6 tw-font-cairo">
 
   @if (summary.error() && !summary.data()) {
     <div class="d3-panel-error" role="alert">
@@ -7,22 +15,16 @@
     </div>
   }
 
-  <!--
-    dataQuality banner intentionally hidden: the backend's dataQuality[].message
-    text isn't localized to Arabic and reads as unpolished/technical to admins.
-    The signal below is still populated — flip this back on (or filter it) once
-    the backend either localizes the messages or a whitelist of user-facing
-    codes is agreed on.
-  -->
+  <!-- dataQuality banner intentionally hidden: the backend's messages aren't localized yet. -->
 
-  <!-- ───────────── Executive overview: the four platform KPIs ───────────── -->
+  <!-- ───────────── Executive overview: the platform KPIs ───────────── -->
   @if (showPlatform) {
-    <section class="d3-block" [attr.aria-busy]="summary.loading()">
+    <section class="tw-flex tw-flex-col tw-gap-4 tw-min-w-0" [attr.aria-busy]="summary.loading()">
       @if (showHeading) {
-        <header class="d3-block-head">
-          <div class="d3-block-heading">
-            <h2 class="d3-block-title">{{ 'd3.sections.platformPerformance' | translate }}</h2>
-            <p class="d3-block-sub">{{ 'd3.sections.platformPerformanceHint' | translate }}</p>
+        <header class="tw-flex tw-items-end tw-justify-between tw-gap-3 tw-flex-wrap">
+          <div class="tw-min-w-0">
+            <h2 [class]="S.sectionTitle">{{ 'd3.sections.platformPerformance' | translate }}</h2>
+            <p [class]="S.sectionSub">{{ 'd3.sections.platformPerformanceHint' | translate }}</p>
           </div>
           @if (summary.loading() && summary.data()) {
             <span class="d3-refreshing" role="status">
@@ -32,23 +34,26 @@
         </header>
       }
 
-      <!-- Columns follow the number of KPIs this admin may see (data-count), never fixed positions. -->
-      <div class="d3-kpi-grid" [attr.data-count]="platformCount()" [class.has-hero]="hasHero()"
-           [class.is-refreshing]="summary.loading() && summary.data()">
+      <!-- Columns follow the number of KPIs this admin may see, never fixed positions. -->
+      <div data-role="kpi-grid" [attr.data-count]="platformCount()"
+           [class]="'tw-grid tw-gap-4 tw-transition-opacity tw-duration-hover ' + kpiGridClass()"
+           [class.tw-opacity-55]="summary.loading() && summary.data()">
         @if (summary.initialLoading()) {
           @for (i of platformSkeletons(); track i) {
-            <div class="d3-kpi d3-skeleton" [class.d3-kpi--hero]="i === 0 && hasHero()"></div>
+            <div class="d3-kpi d3-skeleton tw-min-h-[150px] tw-rounded-card"></div>
           }
         }
 
         @for (card of platformCards(); track card.id; let i = $index) {
           @if (linkCommands(card); as commands) {
-            <a class="d3-kpi d3-mh is-link" [ngClass]="'tone-' + card.tone" [class.d3-kpi--hero]="card.hero" [routerLink]="commands" [queryParams]="card.link?.queryParams"
-               [style.--d3-i]="i">
+            <a [class]="'d3-kpi d3-mh tw-cursor-pointer ' + S.kpiCard + ' ' + toneClass(card.tone)"
+               [style.animation-delay.ms]="i * 120"
+               [routerLink]="commands" [queryParams]="card.link?.queryParams">
               <ng-container *ngTemplateOutlet="kpiBody; context: { $implicit: card }"></ng-container>
             </a>
           } @else {
-            <div class="d3-kpi d3-mh" [ngClass]="'tone-' + card.tone" [class.d3-kpi--hero]="card.hero" [style.--d3-i]="i">
+            <div [class]="'d3-kpi d3-mh ' + S.kpiCard + ' ' + toneClass(card.tone)"
+                 [style.animation-delay.ms]="i * 120">
               <ng-container *ngTemplateOutlet="kpiBody; context: { $implicit: card }"></ng-container>
             </div>
           }
@@ -59,35 +64,37 @@
 
   <!-- ───────────── Host & guest app performance ───────────── -->
   @if (showApps) {
-    <section class="d3-block">
-      <header class="d3-block-head">
-        <div class="d3-block-heading">
-          <h2 class="d3-block-title">{{ 'd3.sections.appsPerformance' | translate }}</h2>
-          <p class="d3-block-sub">{{ 'd3.sections.appsPerformanceHint' | translate }}</p>
-        </div>
+    <section class="tw-flex tw-flex-col tw-gap-4 tw-min-w-0">
+      <header class="tw-min-w-0">
+        <h2 [class]="S.sectionTitle">{{ 'd3.sections.appsPerformance' | translate }}</h2>
+        <p [class]="S.sectionSub">{{ 'd3.sections.appsPerformanceHint' | translate }}</p>
       </header>
 
-      <div class="d3-apps-grid" [class.is-solo]="appPanels().length === 1">
-        @for (panel of appPanels(); track panel.key) {
-          <article class="d3-app-panel" [ngClass]="'tone-' + panel.tone">
-            <header class="d3-app-head">
-              <span class="d3-app-badge"><app-d3-icon [name]="panel.icon"></app-d3-icon></span>
-              <h3 class="d3-app-title">{{ panel.title | translate }}</h3>
+      <div [class]="'tw-grid tw-gap-4 max-lg:tw-grid-cols-1 ' + (appPanels().length === 1 ? 'tw-grid-cols-1' : 'tw-grid-cols-2')">
+        @for (panel of appPanels(); track panel.key; let p = $index) {
+          <article [class]="S.panel + ' ' + toneClass(panel.tone)" [style.animation-delay.ms]="p * 120">
+            <header class="tw-flex tw-items-center tw-gap-3 tw-mb-[18px]">
+              <span [class]="S.iconTileMd"><app-d3-icon [name]="panel.icon"></app-d3-icon></span>
+              <h3 class="tw-m-0 tw-text-lg tw-font-extrabold tw-text-ink">{{ panel.title | translate }}</h3>
             </header>
 
-            <div class="d3-tile-grid" [style.--d3-tile-cols]="panel.cols">
+            <div [class]="'tw-grid tw-gap-3 ' + tileGridClass(panel.cols)">
               @if (summary.initialLoading()) {
                 @for (i of tileSkeletons(panel); track i) {
-                  <div class="d3-tile d3-skeleton" [class.is-span]="tileSpans(panel, i, panel.count)"></div>
+                  <div class="d3-tile d3-skeleton tw-min-h-[74px] tw-rounded-tile"
+                       [class.tw-col-span-full]="tileSpans(panel, i, panel.count)"></div>
                 }
               }
               @for (card of panel.cards; track card.id; let i = $index, n = $count) {
                 @if (linkCommands(card); as commands) {
-                  <a class="d3-tile d3-mh is-link" [class.is-span]="tileSpans(panel, i, n)" [routerLink]="commands" [queryParams]="card.link?.queryParams">
+                  <a [class]="'d3-tile d3-mh tw-cursor-pointer ' + S.tile + ' ' + toneClass(card.tone)"
+                     [class.tw-col-span-full]="tileSpans(panel, i, n)"
+                     [routerLink]="commands" [queryParams]="card.link?.queryParams">
                     <ng-container *ngTemplateOutlet="tileBody; context: { $implicit: card }"></ng-container>
                   </a>
                 } @else {
-                  <div class="d3-tile d3-mh" [class.is-span]="tileSpans(panel, i, n)">
+                  <div [class]="'d3-tile d3-mh ' + S.tile + ' ' + toneClass(card.tone)"
+                       [class.tw-col-span-full]="tileSpans(panel, i, n)">
                     <ng-container *ngTemplateOutlet="tileBody; context: { $implicit: card }"></ng-container>
                   </div>
                 }
@@ -100,68 +107,77 @@
   }
 </div>
 
-<!-- KPI card body (shared by the linked and plain variants) -->
+<!-- KPI card: tinted icon tile · label + "view list" · the number · trend and previous period. -->
 <ng-template #kpiBody let-card>
-  <div class="d3-kpi-head">
-    <span class="d3-kpi-icon"><app-d3-icon [name]="card.icon"></app-d3-icon></span>
-    <span class="d3-kpi-title">{{ card.title | translate }}</span>
-    @if (card.link) {
-      <span class="d3-kpi-go" aria-hidden="true"><app-d3-icon name="arrow-up"></app-d3-icon></span>
-    }
-  </div>
+  <div class="tw-flex tw-items-start tw-gap-3.5 tw-min-w-0">
+    <span [class]="S.iconTileLg"><app-d3-icon [name]="card.icon"></app-d3-icon></span>
 
-  <div class="d3-kpi-value-row">
-    <span class="d3-kpi-value" dir="ltr"
-          [d3CountUp]="card.raw" [d3CountUpFormat]="card.format" [d3CountUpFallback]="card.fallback ?? ''"></span>
-    @if (card.currency) {
-      <img [src]="currencyIconSrc" [alt]="currencyIconAlt" class="d3-riyal-icon" [class.d3-riyal-icon--en]="currencyIconEn" />
-    }
-  </div>
-
-  @if (card.trend) {
-    <div class="d3-kpi-trend">
-      <span class="d3-trend-chip"
-            [class.up]="trendClass(card) === 'up'"
-            [class.warn]="trendClass(card) === 'warn'">
-        @if (card.trend.direction !== 'flat') {
-          <app-d3-icon [name]="card.trend.direction === 'up' ? 'arrow-up' : 'arrow-down'"></app-d3-icon>
+    <div class="tw-flex-1 tw-min-w-0 tw-grid tw-gap-1">
+      <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-min-h-[26px]">
+        <span class="tw-flex-1 tw-min-w-0 tw-truncate tw-text-[13px] tw-font-bold tw-text-muted">{{ card.title | translate }}</span>
+        @if (card.link) {
+          <span [class]="S.pill" aria-hidden="true">
+            <span class="tw-hidden min-[1800px]:tw-inline">{{ 'd3.cards.viewList' | translate }}</span>
+            <app-d3-icon [name]="lang() === 'en' ? 'chevron-right' : 'chevron-left'"></app-d3-icon>
+          </span>
         }
-        <span dir="ltr">{{ card.trend.text }}</span>
-        @if (card.trendIsPoints && card.trend.text !== '—') {
-          <span>{{ 'd3.cards.points' | translate }}</span>
+      </div>
+      <div class="tw-flex tw-items-center tw-gap-1.5 tw-min-w-0">
+        <span class="tw-truncate tw-text-[30px] tw-leading-[1.1] tw-font-extrabold tw-text-ink tw-tabular-nums tw-tracking-[-0.01em]"
+              dir="ltr"
+              [d3CountUp]="card.raw" [d3CountUpFormat]="card.format" [d3CountUpFallback]="card.fallback ?? ''"></span>
+        @if (card.currency) {
+          <img [src]="currencyIconSrc" [alt]="currencyIconAlt"
+               [class]="'tw-shrink-0 tw-object-contain ' + (currencyIconEn ? 'tw-h-[18px] tw-min-w-[30px] tw-w-auto' : 'tw-h-[22px] tw-w-[22px]')" />
         }
-      </span>
-      @if (card.trend.direction !== 'flat' || card.trend.text !== '—') {
-        <span class="d3-kpi-compare">{{ (card.comparisonLabel ?? 'd3.cards.trendUpLastMonth') | translate }}</span>
-      }
+      </div>
     </div>
-  }
+  </div>
 
-  <!-- The trend chip already compares; the previous value is one quiet line at the foot. -->
-  @if (card.previous != null && card.raw != null) {
-    <div class="d3-kpi-previous">
-      <span>{{ 'd3.cards.previousPeriod' | translate }}</span>
-      <span class="d3-kpi-previous-value" dir="ltr">{{ card.format(card.previous) }}</span>
+  @if (card.trend || (card.previous != null && card.raw != null)) {
+    <div class="tw-flex tw-items-center tw-flex-wrap tw-gap-x-2 tw-gap-y-1.5 tw-pt-3.5 tw-border-0 tw-border-t tw-border-solid tw-border-divider">
+      @if (card.trend) {
+        <span [class]="S.trendChip + ' ' + trendChipClass(card)">
+          @if (card.trend.direction !== 'flat') {
+            <app-d3-icon [name]="card.trend.direction === 'up' ? 'arrow-up' : 'arrow-down'"></app-d3-icon>
+          }
+          <span dir="ltr">{{ card.trend.text }}</span>
+          @if (card.trendIsPoints && card.trend.text !== '—') {
+            <span>{{ 'd3.cards.points' | translate }}</span>
+          }
+        </span>
+        @if (card.trend.direction !== 'flat' || card.trend.text !== '—') {
+          <span class="tw-text-xs tw-font-semibold tw-text-faint">{{ (card.comparisonLabel ?? 'd3.cards.trendUpLastMonth') | translate }}</span>
+        }
+      }
+      @if (card.previous != null && card.raw != null) {
+        <span class="tw-ms-auto tw-whitespace-nowrap tw-text-xs tw-font-semibold tw-text-faint">
+          {{ 'd3.cards.previousPeriod' | translate }}
+          <bdi class="tw-font-extrabold tw-text-body tw-tabular-nums" dir="ltr">{{ card.format(card.previous) }}</bdi>
+        </span>
+      }
     </div>
   }
 </ng-template>
 
-<!-- App tile body -->
+<!-- App tile: tinted icon beside the number and its label (host dashboard unit tiles). -->
 <ng-template #tileBody let-card>
-  <span class="d3-tile-icon"><app-d3-icon [name]="card.icon"></app-d3-icon></span>
-  <span class="d3-tile-label">{{ card.title | translate }}</span>
-  <span class="d3-tile-value-row">
-    <span class="d3-tile-value" dir="ltr"
-          [class.green]="card.valueTone === 'up'"
-          [class.blue]="card.valueTone === 'blue'"
-          [class.muted]="card.raw == null"
-          [attr.title]="card.unavailableHint ? ('d3.cards.requiredSource' | translate) + ': ' + card.unavailableHint : null"
-          [d3CountUp]="card.raw" [d3CountUpFormat]="card.format" [d3CountUpFallback]="card.fallback ?? ''"></span>
-    @if (card.icon === 'star' && card.raw != null) {
-      <svg class="d3-star-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 .9 5.6L12 16.4l-5 2.7.9-5.6-4-4 5.6-.8z" /></svg>
-    }
+  <span [class]="S.iconTileSm"><app-d3-icon [name]="card.icon"></app-d3-icon></span>
+  <span class="tw-flex-1 tw-min-w-0 tw-grid">
+    <span class="tw-flex tw-items-center tw-gap-1.5">
+      <span dir="ltr"
+            [class]="'tw-tabular-nums tw-leading-[1.15] ' + (card.raw == null ? 'tw-text-[15px] tw-font-bold tw-text-faint' : 'tw-text-[21px] tw-font-extrabold tw-text-ink')"
+            [attr.title]="card.unavailableHint ? ('d3.cards.requiredSource' | translate) + ': ' + card.unavailableHint : null"
+            [d3CountUp]="card.raw" [d3CountUpFormat]="card.format" [d3CountUpFallback]="card.fallback ?? ''"></span>
+      @if (card.icon === 'star' && card.raw != null) {
+        <svg class="tw-w-4 tw-h-4 tw-fill-[#D97706]" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.5 5.1 5.6.8-4 4 .9 5.6L12 16.4l-5 2.7.9-5.6-4-4 5.6-.8z" /></svg>
+      }
+    </span>
+    <span class="tw-truncate tw-text-xs tw-font-bold tw-text-muted tw-leading-[1.35]">{{ card.title | translate }}</span>
   </span>
   @if (card.link) {
-    <span class="d3-tile-go" aria-hidden="true"><app-d3-icon name="arrow-up"></app-d3-icon></span>
+    <span [class]="S.tileGo" aria-hidden="true">
+      <app-d3-icon [name]="lang() === 'en' ? 'chevron-right' : 'chevron-left'"></app-d3-icon>
+    </span>
   }
 </ng-template>

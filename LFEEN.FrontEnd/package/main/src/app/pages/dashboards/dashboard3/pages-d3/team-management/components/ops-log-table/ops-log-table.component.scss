@@ -1,17 +1,33 @@
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+@keyframes olFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes olRowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .ops-log-wrapper {
   border: 1px solid #E8E8E4;
-  border-radius: 20px;
+  border-radius: 28px;
   overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04), 0 14px 34px -26px rgba(17, 17, 16, 0.3);
+  animation: olFadeUp 0.5s $ease 0.08s both;
 }
 
 .ops-log-table {
   ::ng-deep {
     .mat-mdc-header-row {
-      background: #FAFAFA;
+      background: #FCFCFB;
+      height: 50px;
     }
     .mat-mdc-header-cell {
-      font-size: 12px;
-      font-weight: 900;
+      font-size: 11.5px;
+      font-weight: 800;
       color: #9E9E9A;
       font-family: 'Cairo', sans-serif;
       border-bottom: 1px solid #E8E8E4;
@@ -21,9 +37,27 @@
     }
   }
 
-  .log-row:hover {
-    background: #FAFAFA;
-    transition: background 0.15s;
+  .log-row {
+    animation: olRowIn 0.45s $ease both;
+    animation-delay: calc(min(var(--i, 0), 14) * 0.035s);
+    transition: background 0.2s;
+
+    td { transition: box-shadow 0.3s $ease; }
+
+    &:hover {
+      background: #FAFAF8;
+
+      td:first-child { box-shadow: inset 3px 0 0 #111110; }
+
+      .expand-row-btn {
+        background: #111110;
+        color: #fff;
+
+        i-tabler { color: #fff !important; translate: 2px 0; }
+      }
+    }
+
+    &:last-child td { border-bottom: none; }
   }
 }
 
@@ -44,14 +78,28 @@
   font-family: 'Cairo', sans-serif;
 }
 .log-initials-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid transparent;
   background: #F1F5F9;
   color: #64748B;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   flex-shrink: 0;
+
+  &.tone-0 { background: #EFF6FF; color: #2563EB; border-color: #DBEAFE; }
+  &.tone-1 { background: #F0FDF4; color: #16A34A; border-color: #DCFCE7; }
+  &.tone-2 { background: #FFFBEB; color: #B45309; border-color: #FEF3C7; }
+  &.tone-3 { background: #FDF2F8; color: #DB2777; border-color: #FCE7F3; }
+  &.tone-4 { background: #F5F3FF; color: #7C3AED; border-color: #EDE9FE; }
+  &.tone-5 { background: #F4F4F5; color: #3F3F46; border-color: #E4E4E7; }
+}
+
+.actor-name {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #111110;
 }
 
 .text-role {
@@ -61,16 +109,27 @@
   font-weight: 700;
 }
 .log-action-icon {
-  width: 28px;
-  height: 28px;
-  color: #9E9E9A;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  color: #6B6B67;
+  background: #F7F7F5;
+  border: 1px solid #EDEDE9;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
+  &.succeeded {
+    color: #16A34A;
+    background: #F0FDF4;
+    border-color: #DCFCE7;
+  }
+
   &.failed {
     color: #EF4444;
+    background: #FEF2F2;
+    border-color: #FEE2E2;
   }
 }
 
@@ -78,10 +137,10 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 12px;
-  border-radius: 8px;
+  border-radius: 999px;
   background: #F7F7F5;
   color:#111110;
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 700;
   border: 1px solid #E8E8E4;
   white-space: nowrap;
@@ -128,15 +187,18 @@
 
 .log-action-icon.denied {
   color: #D97706;
+  background: #FFFBEB;
+  border-color: #FEF3C7;
 }
 
 .log-row {
   cursor: pointer;
 }
 
+// filter (not opacity): the entrance animation holds opacity at 1, which would hide the dim.
 .ops-log-wrapper.is-refreshing {
-  opacity: 0.6;
-  transition: opacity 0.15s;
+  filter: opacity(0.6);
+  transition: filter 0.15s;
   pointer-events: none;
 }
 
@@ -162,9 +224,21 @@
   min-width: 0;
 }
 
+.log-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: #F7F7F5;
+  border: 1px solid #E8E8E4;
+  color: #9E9E9A;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .log-empty {
-  gap: 8px;
-  padding: 48px 16px;
+  gap: 12px;
+  padding: 56px 16px;
   color: #9E9E9A;
   font-size: 13px;
   font-weight: 600;
@@ -175,7 +249,7 @@
   .page-number-btn {
     width: 36px;
     height: 36px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #E8E8E4;
     background: #fff;
     color: #444;
@@ -208,16 +282,46 @@
     }
 
     &.active {
-      background: #1B2559;
+      background: #111110;
       color: #fff;
-      border-color: #1B2559;
+      border-color: #111110;
       opacity: 1;
+      box-shadow: 0 6px 14px -8px rgba(17, 17, 16, 0.6);
     }
   }
 }
 
-.expand-row-btn {
+.expand-row-btn.mat-mdc-icon-button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
   color: #9E9E9A;
+  background: #F7F7F5;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+
+  // The nudge uses the separate `translate` property: `transform` is already taken by
+  // .dir-icon (scaleX(-1) in Arabic), and overriding it flipped the arrow the wrong way.
+  i-tabler {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: translate 0.3s $ease, color 0.2s;
+  }
+
+  ::ng-deep .mat-mdc-button-persistent-ripple,
+  ::ng-deep .mat-mdc-button-ripple,
+  ::ng-deep .mat-mdc-focus-indicator,
+  ::ng-deep .mat-mdc-button-touch-target {
+    display: none !important;
+  }
+}
+
+:host-context([dir="rtl"]) .log-row:hover .expand-row-btn i-tabler {
+  translate: -2px 0;
 }
 
 .text-danger {
@@ -354,5 +458,32 @@
     td.mat-mdc-cell::before {
       letter-spacing: 0;
     }
+  }
+}
+
+.log-status-badge.succeeded .dot {
+  background: #22C55E;
+}
+
+// RTL: the hover accent bar sits on the right edge; Arabic headers keep their letters joined.
+:host-context([dir="rtl"]) .ops-log-table .log-row:hover td:first-child {
+  box-shadow: inset -3px 0 0 #111110;
+}
+
+@media (max-width: 767.98px) {
+  .ops-log-wrapper {
+    box-shadow: none;
+  }
+
+  .ops-log-table .log-row:hover td:first-child,
+  :host-context([dir="rtl"]) .ops-log-table .log-row:hover td:first-child {
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ops-log-wrapper,
+  .ops-log-table .log-row {
+    animation: none;
   }
 }

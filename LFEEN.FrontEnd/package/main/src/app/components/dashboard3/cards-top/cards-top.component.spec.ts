@@ -62,7 +62,7 @@ describe('CardsTopComponent (permission-aware cards)', () => {
     const c = fixture.componentInstance;
     expect(c.platformCards().map((k) => k.id)).toEqual(['completedBookings', 'cancellationRate']);
     expect(c.hasHero()).toBeFalse();
-    const grid = (fixture.nativeElement as HTMLElement).querySelector('.d3-kpi-grid')!;
+    const grid = (fixture.nativeElement as HTMLElement).querySelector('[data-role=kpi-grid]')!;
     expect(grid.getAttribute('data-count')).toBe('2');
     expect(grid.querySelectorAll('.d3-kpi').length).toBe(2);
   });

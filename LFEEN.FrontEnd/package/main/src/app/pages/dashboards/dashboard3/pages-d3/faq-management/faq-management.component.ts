@@ -19,13 +19,14 @@ import { FaqService } from './services/faq.service';
 import { CoreService } from 'src/app/services/core.service';
 import { extractApiErrorMessage } from '../../utils/api-error.util';
 import { PermissionService } from '../../services/permission.service';
+import { CountUpDirective } from '../../directives/count-up.directive';
 
 type FaqTab = 'client' | 'service';
 
 @Component({
   selector: 'app-faq-management',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent, ServiceFaqManagementComponent],
+  imports: [CommonModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent, ServiceFaqManagementComponent, CountUpDirective],
   templateUrl: './faq-management.component.html',
   styleUrl: './faq-management.component.scss'
 })
@@ -53,15 +54,39 @@ export class FaqManagementComponent implements OnInit {
 
   private articles = signal<FaqArticle[]>([]);
 
+  /** Client-side search over both languages' titles and answers. */
+  searchTerm = signal('');
+  /** Rows whose answer preview is open. */
+  readonly expanded = signal<ReadonlySet<string>>(new Set());
+
   filteredArticles = computed(() => {
     const filter = this.departmentFilter();
-    const list = filter === 'all' ? this.articles() : this.articles().filter(a => a.department === filter);
+    const term = this.searchTerm().trim().toLowerCase();
+    let list = filter === 'all' ? this.articles() : this.articles().filter(a => a.department === filter);
+    if (term) {
+      list = list.filter(a =>
+        [a.titleAr, a.titleEn, a.contentAr, a.contentEn].some(v => (v || '').toLowerCase().includes(term)));
+    }
     return [...list].sort((a, b) => a.order - b.order);
   });
 
   totalCount = computed(() => this.articles().length);
   activeCount = computed(() => this.articles().filter(a => a.status === 'active').length);
   inactiveCount = computed(() => this.articles().filter(a => a.status === 'inactive').length);
+  /** Share of articles that are active, 0–100. */
+  activePercent = computed(() => {
+    const total = this.totalCount();
+    return total ? Math.round((this.activeCount() / total) * 100) : 0;
+  });
+  /** Article count per department, for the filter chips. */
+  deptCounts = computed(() => {
+    const counts: Record<string, number> = {};
+    for (const a of this.articles()) {
+      if (a.department) counts[a.department] = (counts[a.department] || 0) + 1;
+    }
+    return counts;
+  });
+  hasFilters = computed(() => this.departmentFilter() !== 'all' || !!this.searchTerm().trim());
 
   selectedDeptLabel(): string {
     const filter = this.departmentFilter();
@@ -142,6 +167,28 @@ export class FaqManagementComponent implements OnInit {
 
   setDeptFilter(value: FaqDepartment | 'all'): void {
     this.departmentFilter.set(value);
+  }
+
+  clearFilters(): void {
+    this.departmentFilter.set('all');
+    this.searchTerm.set('');
+  }
+
+  isExpanded(id: string): boolean {
+    return this.expanded().has(id);
+  }
+
+  toggleExpand(id: string): void {
+    this.expanded.update(set => {
+      const next = new Set(set);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  /** The answer in the UI language, falling back to the other one. */
+  answer(article: FaqArticle): string {
+    return this.isEn() ? (article.contentEn || article.contentAr) : (article.contentAr || article.contentEn);
   }
 
   departmentLabel(dept: FaqDepartment): string {

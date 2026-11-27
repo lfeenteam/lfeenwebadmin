@@ -312,7 +312,8 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         maxWidth: '100vw',
         height: '100vh',
         autoFocus: false,
-        panelClass: 'audit-drawer-panel'
+        panelClass: 'audit-drawer-panel',
+        backdropClass: 'audit-drawer-backdrop'
       }
     );
 

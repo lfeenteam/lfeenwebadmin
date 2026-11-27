@@ -44,7 +44,7 @@ describe('CeoPageComponent', () => {
 
   it('with no statistic allowed, shows the no-permission state and the admin\'s own pages', () => {
     expect(el().querySelector('app-dashboard-empty')).not.toBeNull();
-    const links = Array.from(el().querySelectorAll('.ceo-shortcut')).map((a) => a.getAttribute('href'));
+    const links = Array.from(el().querySelectorAll('[data-role=shortcut]')).map((a) => a.getAttribute('href'));
     expect(links).toEqual(['/ar/d3/units', '/ar/d3/bookings']); // the dashboard itself is not offered
   });
 

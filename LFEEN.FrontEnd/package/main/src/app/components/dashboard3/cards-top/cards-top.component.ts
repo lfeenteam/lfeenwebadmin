@@ -22,6 +22,7 @@ import {
 } from '../../../pages/dashboards/dashboard3/pages-d3/ceo-page/dashboard-format';
 import { D3IconComponent, D3IconName } from '../d3-icon/d3-icon.component';
 import { CountUpDirective } from '../count-up/count-up.directive';
+import { CARD_STYLES, KPI_GRID_CLASS, TILE_GRID_CLASS, TONE_CLASS, TREND_CHIP_CLASS } from './cards-top.styles';
 
 type Formatter = (n: number) => string;
 type Tone = 'navy' | 'blue' | 'green' | 'red' | 'amber' | 'violet';
@@ -193,6 +194,24 @@ export class CardsTopComponent {
     return good ? 'up' : 'warn';
   }
 
+  // ── Tailwind classes (literal strings live in cards-top.styles.ts) ──
+  readonly S = CARD_STYLES;
+
+  toneClass(tone: Tone): string {
+    return TONE_CLASS[tone];
+  }
+
+  /** Columns from the number of KPIs this admin may see. */
+  readonly kpiGridClass = computed(() => KPI_GRID_CLASS[this.platformCount()] ?? KPI_GRID_CLASS[4]);
+
+  tileGridClass(cols: number): string {
+    return TILE_GRID_CLASS[cols] ?? TILE_GRID_CLASS[2];
+  }
+
+  trendChipClass(card: MetricCard): string {
+    return TREND_CHIP_CLASS[this.trendClass(card) || 'flat'];
+  }
+
   linkCommands(card: MetricCard): string[] | null {
     return card.link ? ['/', this.lang() === 'en' ? 'en' : 'ar', 'd3', card.link.route] : null;
   }
@@ -221,12 +240,12 @@ export class CardsTopComponent {
       } : null,
       p.completedBookings ? {
         id: 'completedBookings', title: 'd3.cards.completedBookings',
-        raw: p.completedBookings.value, previous: p.completedBookings.previousValue, format: int, icon: 'bookings', tone: 'blue',
+        raw: p.completedBookings.value, previous: p.completedBookings.previousValue, format: int, icon: 'bookings', tone: 'green',
         comparisonLabel, trend: relativeTrend(p.completedBookings, lang), link: this.linkFor('completedBookings'),
       } : null,
       p.averageBookingValue ? {
         id: 'averageBookingValue', title: 'd3.cards.avgBookingValue',
-        raw: p.averageBookingValue.value, previous: p.averageBookingValue.previousValue, format: money, icon: 'avg-value', tone: 'violet',
+        raw: p.averageBookingValue.value, previous: p.averageBookingValue.previousValue, format: money, icon: 'avg-value', tone: 'blue',
         currency: true, comparisonLabel, trend: relativeTrend(p.averageBookingValue, lang), link: this.linkFor('averageBookingValue'),
       } : null,
       p.cancellationRate ? {

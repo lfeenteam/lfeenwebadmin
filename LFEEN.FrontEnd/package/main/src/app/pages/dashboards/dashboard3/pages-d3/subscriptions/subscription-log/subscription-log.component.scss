@@ -176,17 +176,6 @@
   flex-shrink: 0;
 }
 
-.actor-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #F8FAFC;
-  border: 1px solid #E8E8E4;
-  color: #6B6B67;
-  font-size: 11px;
-  font-weight: 800;
-  flex-shrink: 0;
-}
 
 .log-date {
   display: block;
@@ -315,9 +304,10 @@
   th:nth-child(1), td:nth-child(1) { width: 14%; }
   th:nth-child(2), td:nth-child(2) { width: 14%; }
   th:nth-child(3), td:nth-child(3) { width: 17%; }
-  th:nth-child(4), td:nth-child(4) { width: 11%; }
+  // "By" holds one word ("Merchant" / "النظام"); 12% of the 960px minimum leaves ~87px for it.
+  th:nth-child(4), td:nth-child(4) { width: 12%; }
   th:nth-child(5), td:nth-child(5) { width: 14%; }
-  th:nth-child(6), td:nth-child(6) { width: 30%; }
+  th:nth-child(6), td:nth-child(6) { width: 29%; }
 
   // The global `.table-responsive td { white-space: nowrap }` would let text run out of its
   // fixed-width cell and under the next column (BUG-2149) — wrap at word boundaries instead.
@@ -349,8 +339,10 @@
     line-height: 1.5;
   }
 
+  // No avatar circle: it only repeated the first letter and left the name ~42px (BUG-2149).
+  // The ellipsis is a safety net only — every known actor fits the column.
   .actor-label {
-    min-width: 0;
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

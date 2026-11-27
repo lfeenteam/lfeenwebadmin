@@ -1,7 +1,7 @@
 <div class="sdc-root" [dir]="currentDir">
 
   <div class="sdc-header">
-    <button type="button" class="sdc-nav-btn" (click)="headerNavPrev()">
+    <button type="button" class="sdc-nav-btn" [attr.aria-label]="navPrevLabelKey | translate" (click)="headerNavPrev()">
       <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
     </button>
     <!-- The label itself is the only affordance to drill up (days -> months -> years) —
@@ -9,7 +9,7 @@
     <button type="button" class="sdc-month-title" [disabled]="view === 'years'" (click)="drillUp()">
       {{ headerLabel }}
     </button>
-    <button type="button" class="sdc-nav-btn" (click)="headerNavNext()">
+    <button type="button" class="sdc-nav-btn" [attr.aria-label]="navNextLabelKey | translate" (click)="headerNavNext()">
       <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
     </button>
   </div>
@@ -32,6 +32,7 @@
             [class.sdc-day-selected]="day.isSelected"
             [class.sdc-day-blocked]="day.inCurrentMonth && day.isBlocked"
             [disabled]="!day.inCurrentMonth || day.isBlocked"
+            [attr.aria-hidden]="day.inCurrentMonth ? null : 'true'"
             (click)="selectDay(day)">
             @if (day.inCurrentMonth) { {{ dayNumberLabel(day.date) }} }
           </button>

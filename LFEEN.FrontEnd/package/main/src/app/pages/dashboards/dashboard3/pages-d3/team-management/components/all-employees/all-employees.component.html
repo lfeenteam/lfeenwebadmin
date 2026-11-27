@@ -8,9 +8,9 @@
           <td mat-cell *matCellDef="let element">
             <div class="d-flex align-items-center gap-12 p-y-12">
               @if (element.avatar) {
-                <img [src]="element.avatar" class="employee-avatar" />
+                <img [src]="element.avatar" class="employee-avatar" alt="" />
               } @else {
-                <div class="initials-avatar d-flex align-items-center justify-content-center">
+                <div class="initials-avatar d-flex align-items-center justify-content-center" [class]="'initials-avatar d-flex align-items-center justify-content-center tone-' + avatarTone(element.fullName)">
                   {{ getInitials(element.fullName) }}
                 </div>
               }
@@ -18,10 +18,13 @@
                 <div class="d-flex align-items-center gap-6">
                   <h6 class="m-0 employee-name" dir="auto">{{ element.fullName }}</h6>
                   @if (element.roles?.[0]?.isManagerRole) {
-                    <i-tabler name="crown" class="crown-icon"></i-tabler>
+                    <span class="manager-chip">
+                      <i-tabler name="crown" class="crown-icon"></i-tabler>
+                      {{ 'd3.teamManagement.managerBadge' | translate }}
+                    </span>
                   }
                 </div>
-                <span class="f-s-12 text-muted" dir="auto">{{ element.email }}</span>
+                <span class="f-s-12 text-muted employee-email" dir="auto">{{ element.email }}</span>
               </div>
             </div>
           </td>
@@ -31,7 +34,16 @@
         <ng-container matColumnDef="phone">
           <th mat-header-cell *matHeaderCellDef>{{ 'd3.teamManagement.table.phone' | translate }}</th>
           <td mat-cell *matCellDef="let element" class="f-s-14"
-              [attr.data-label]="'d3.teamManagement.table.phone' | translate">{{ element.phoneNumber || '---' }}</td>
+              [attr.data-label]="'d3.teamManagement.table.phone' | translate">
+            @if (element.phoneNumber) {
+              <span class="phone-chip" dir="ltr">
+                <i-tabler name="phone" class="icon-14"></i-tabler>
+                {{ element.phoneNumber }}
+              </span>
+            } @else {
+              <span class="no-value">—</span>
+            }
+          </td>
         </ng-container>
 
         <!-- Role Column -->
@@ -66,26 +78,25 @@
                     [attr.aria-label]="'d3.teamManagement.table.employeeActionsAria' | translate: { name: element.fullName }">
               <i-tabler name="dots-vertical" class="icon-18 icon-muted"></i-tabler>
             </button>
-            <mat-menu #menu="matMenu" xPosition="before">
-              <button mat-menu-item (click)="onEdit(element)">
-                <i-tabler name="edit" class="icon-18"></i-tabler>
+            <mat-menu #menu="matMenu" xPosition="before" class="emp-row-menu">
+              <button mat-menu-item class="menu-neutral" (click)="onEdit(element)">
+                <i-tabler name="edit" class="icon-16"></i-tabler>
                 <span>{{ 'common.edit' | translate }}</span>
               </button>
-              <mat-divider></mat-divider>
               @if (element.isActive) {
-                <button mat-menu-item class="text-danger" (click)="onToggleStatus(element)">
-                  <i-tabler name="user-off" class="icon-18"></i-tabler>
+                <button mat-menu-item class="menu-warn" (click)="onToggleStatus(element)">
+                  <i-tabler name="user-off" class="icon-16"></i-tabler>
                   <span>{{ 'common.deactivate' | translate }}</span>
                 </button>
               } @else {
-                <button mat-menu-item class="text-success" (click)="onToggleStatus(element)">
-                  <i-tabler name="user-check" class="icon-18"></i-tabler>
+                <button mat-menu-item class="menu-success" (click)="onToggleStatus(element)">
+                  <i-tabler name="user-check" class="icon-16"></i-tabler>
                   <span>{{ 'common.activate' | translate }}</span>
                 </button>
               }
-              <mat-divider></mat-divider>
-              <button mat-menu-item class="text-danger" (click)="onDelete(element)">
-                <i-tabler name="trash" class="icon-18"></i-tabler>
+              <div class="menu-sep"></div>
+              <button mat-menu-item class="menu-danger" (click)="onDelete(element)">
+                <i-tabler name="trash" class="icon-16"></i-tabler>
                 <span>{{ 'common.delete' | translate }}</span>
               </button>
             </mat-menu>
@@ -93,7 +104,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index" class="emp-row" [style.--i]="i"></tr>
 
         <tr class="mat-row empty-state-row" *matNoDataRow>
           <td [attr.colspan]="displayedColumns.length" class="empty-state-cell">

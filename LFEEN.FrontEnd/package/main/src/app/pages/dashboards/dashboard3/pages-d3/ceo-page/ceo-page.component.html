@@ -1,23 +1,24 @@
 <!--
-  Executive dashboard, ordered by what the CEO needs first:
+  Executive dashboard — layout in Tailwind (tw- prefix, tailwind.config.js), same design
+  language as the LFEEN host dashboard. Ordered by what the CEO needs first:
     1. overview heading + period → the platform KPIs → 2. growth trend beside what needs a
     decision → 3. host & guest app performance → 4. detailed analytics.
   Every section and widget is gated by DashboardAccessService (services/dashboard-widgets.ts):
-  what the admin may not see is not rendered, so it is never requested either, and each grid
-  is sized from the widgets actually shown (no empty cells). Each section reveals once as it
-  scrolls into view (d3Reveal). The components share one period (DashboardService.filters)
-  and the summary request is cached per admin + period, so the split adds no API calls.
+  what the admin may not see is not rendered, so it is never requested either, and every grid
+  is sized from the widgets actually shown (no empty cells). One 12-column rhythm: KPIs 3·3·3·3,
+  analytics 8·4, apps 6·6, details 4·4·4. Sections rise in once on load (d3Reveal).
 -->
-<div class="ceo-page d3-dash" [attr.dir]="currentDir">
+<div class="ceo-page d3-dash tw-font-cairo tw-w-full tw-max-w-[1600px] tw-mx-auto tw-flex tw-flex-col tw-gap-8 max-md:tw-gap-6"
+     [attr.dir]="currentDir">
   @if (hasAny()) {
     <!-- 1. Executive overview: heading and period selector on one row -->
-    <section class="d3-block" d3Reveal>
-      <header class="ceo-toolbar">
-        <div class="d3-block-heading">
-          <h2 class="d3-block-title">{{ 'd3.sections.platformPerformance' | translate }}</h2>
-          <p class="d3-block-sub">{{ 'd3.sections.platformPerformanceHint' | translate }}</p>
+    <section class="tw-flex tw-flex-col tw-gap-4 tw-min-w-0" d3Reveal>
+      <header class="tw-flex tw-items-end tw-justify-between tw-gap-4 tw-flex-wrap max-[991px]:tw-flex-col max-[991px]:tw-items-stretch">
+        <div class="tw-min-w-0">
+          <h2 [class]="S.sectionTitle">{{ 'd3.sections.platformPerformance' | translate }}</h2>
+          <p [class]="S.sectionSub">{{ 'd3.sections.platformPerformanceHint' | translate }}</p>
         </div>
-        <app-dashboard3-period-filter></app-dashboard3-period-filter>
+        <app-dashboard3-period-filter class="tw-min-w-0 max-[991px]:tw-w-full"></app-dashboard3-period-filter>
       </header>
       @if (hasOverview()) {
         <app-cards-top part="platform" [showHeading]="false"></app-cards-top>
@@ -26,14 +27,12 @@
 
     <!-- 2. Performance analytics + executive insights -->
     @if (hasAnalytics()) {
-      <section class="d3-block" d3Reveal>
-        <header class="d3-block-head">
-          <div class="d3-block-heading">
-            <h2 class="d3-block-title">{{ 'd3.sections.performance' | translate }}</h2>
-            <p class="d3-block-sub">{{ 'd3.sections.performanceHint' | translate }}</p>
-          </div>
+      <section class="tw-flex tw-flex-col tw-gap-4 tw-min-w-0" d3Reveal>
+        <header class="tw-min-w-0">
+          <h2 [class]="S.sectionTitle">{{ 'd3.sections.performance' | translate }}</h2>
+          <p [class]="S.sectionSub">{{ 'd3.sections.performanceHint' | translate }}</p>
         </header>
-        <div class="d3-stagger ceo-grid ceo-grid--analytics" [class.is-single]="!(showGrowth() && showDecisions())">
+        <div [class]="'tw-grid tw-gap-4 tw-items-stretch [&>*]:tw-min-w-0 ' + analyticsGridClass()">
           @if (showGrowth()) {
             <app-dashboard3-chart part="growth"></app-dashboard3-chart>
           }
@@ -51,14 +50,12 @@
 
     <!-- 4. Detailed analytics -->
     @if (detailsCount() > 0) {
-      <section class="d3-block" d3Reveal>
-        <header class="d3-block-head">
-          <div class="d3-block-heading">
-            <h2 class="d3-block-title">{{ 'd3.sections.detailed' | translate }}</h2>
-            <p class="d3-block-sub">{{ 'd3.sections.detailedHint' | translate }}</p>
-          </div>
+      <section class="tw-flex tw-flex-col tw-gap-4 tw-min-w-0" d3Reveal>
+        <header class="tw-min-w-0">
+          <h2 [class]="S.sectionTitle">{{ 'd3.sections.detailed' | translate }}</h2>
+          <p [class]="S.sectionSub">{{ 'd3.sections.detailedHint' | translate }}</p>
         </header>
-        <div class="d3-stagger ceo-grid ceo-grid--details" [attr.data-count]="detailsCount()">
+        <div [class]="'tw-grid tw-gap-4 tw-items-stretch [&>*]:tw-min-w-0 ' + detailsGridClass()">
           @if (showRevenueSources()) {
             <app-dashboard3-insights part="revenue"></app-dashboard3-insights>
           }
@@ -73,7 +70,7 @@
     }
   } @else {
     <!-- Dashboard access, but no statistic this admin may see (or the server withheld them all). -->
-    <section class="ceo-no-stats" d3Reveal>
+    <section class="tw-flex tw-flex-col tw-items-center tw-gap-6 tw-py-12" d3Reveal>
       <app-dashboard-empty
         icon="lock"
         titleKey="d3.access.noStatsTitle"
@@ -81,14 +78,17 @@
       </app-dashboard-empty>
 
       @if (shortcuts().length) {
-        <nav class="ceo-shortcuts" [attr.aria-label]="'d3.access.shortcuts' | translate">
-          <p class="ceo-shortcuts-label">{{ 'd3.access.shortcuts' | translate }}</p>
-          <ul>
+        <nav class="tw-w-full tw-max-w-[640px]" [attr.aria-label]="'d3.access.shortcuts' | translate">
+          <p class="tw-m-0 tw-mb-3 tw-text-center tw-text-[13px] tw-font-semibold tw-text-faint">{{ 'd3.access.shortcuts' | translate }}</p>
+          <ul class="tw-list-none tw-m-0 tw-p-0 tw-grid tw-grid-cols-[repeat(auto-fit,minmax(220px,1fr))] tw-gap-3">
             @for (s of shortcuts(); track s.link) {
               <li>
-                <a class="ceo-shortcut" [routerLink]="langPrefix + s.link">
+                <a data-role="shortcut" [routerLink]="langPrefix + s.link" [class]="S.shortcut">
                   <span>{{ s.translationKey ? (s.translationKey | translate) : s.title }}</span>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"
+                       class="tw-w-4 tw-h-4 tw-shrink-0 tw-fill-none tw-stroke-current tw-stroke-2 tw-text-faint tw-transition-transform tw-duration-icon tw-ease-soft rtl:tw-scale-x-[-1] ltr:can-hover:group-hover:tw-translate-x-[3px] rtl:can-hover:group-hover:tw-translate-x-[-3px]">
+                    <path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
                 </a>
               </li>
             }

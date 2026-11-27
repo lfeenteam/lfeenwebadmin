@@ -68,8 +68,8 @@
       </div>
     } @else {
       <div class="row">
-        @for(dept of departments; track dept.id) {
-          <div class="col-md-6 col-lg-4">
+        @for(dept of departments; track dept.id; let i = $index) {
+          <div class="col-md-6 col-lg-4" [style.--i]="i">
             <app-dept-card [dept]="dept" [iconMap]="iconMap" [currentLang]="currentLang"></app-dept-card>
           </div>
         }

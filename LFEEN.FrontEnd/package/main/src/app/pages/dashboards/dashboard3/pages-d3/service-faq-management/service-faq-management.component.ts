@@ -18,12 +18,13 @@ import { SERVICE_FAQ_CATEGORY_OPTIONS, ServiceFaqCategory, ServiceFaqDto } from 
 import { parseServiceFaqError } from './interfaces/service-faq-error.util';
 import { ServiceFaqService } from './services/service-faq.service';
 import { PermissionService } from '../../services/permission.service';
+import { CountUpDirective } from '../../directives/count-up.directive';
 
 /** Service (worker) app FAQ — what the admin edits here shows in the worker app right away. */
 @Component({
   selector: 'app-service-faq-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, MaterialModule, DashboardLoadingComponent, DashboardEmptyComponent, CountUpDirective],
   templateUrl: './service-faq-management.component.html',
   styleUrls: [
     '../faq-management/faq-management.component.scss',
@@ -62,6 +63,10 @@ export class ServiceFaqManagementComponent implements OnInit {
   readonly totalCount = computed(() => this.faqs().length);
   readonly activeCount = computed(() => this.faqs().filter(f => f.isActive).length);
   readonly inactiveCount = computed(() => this.faqs().filter(f => !f.isActive).length);
+  readonly activePercent = computed(() => {
+    const total = this.totalCount();
+    return total ? Math.round((this.activeCount() / total) * 100) : 0;
+  });
   readonly hasFilters = computed(() => this.category() !== null || !!this.appliedSearch());
 
   private readonly load$ = new Subject<void>();

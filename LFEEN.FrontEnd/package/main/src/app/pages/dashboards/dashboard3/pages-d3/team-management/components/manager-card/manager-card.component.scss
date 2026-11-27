@@ -60,18 +60,53 @@
   vertical-align: middle;
 }
 
+@keyframes mcShine {
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to   { transform: translateX(260%) skewX(-20deg); }
+}
+
 .add-emp-btn {
   --mdc-filled-button-container-color: #111110;
   --mdc-filled-button-label-text-color: #fff;
-  width: 234px;
-  height: 52px;
-  gap: 12px;
-  padding: 16px 40px;
-  border-radius: 16px;
-  background-color: #111110;
+  position: relative;
+  overflow: hidden;
+  min-width: 220px;
+  height: 48px;
+  gap: 10px;
+  padding: 0 28px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #2b2b29, #111110);
   color: #fff;
   font-weight: 700;
   opacity: 1;
+  box-shadow: 0 12px 24px -14px rgba(17, 17, 16, 0.75) !important;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-120%) skewX(-20deg);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 30px -16px rgba(17, 17, 16, 0.85) !important;
+
+    &::after { animation: mcShine 0.8s ease; }
+    .add-emp-icon { color: #fff; }
+  }
+
+  &:active { transform: scale(0.98); }
+
+  @media (max-width: 575.98px) {
+    width: 100%;
+  }
 }
 
 .max-width-400 {

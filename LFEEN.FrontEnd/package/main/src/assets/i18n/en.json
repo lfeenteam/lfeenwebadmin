@@ -6182,11 +6182,14 @@
       "stats": {
         "total": "Total",
         "active": "Active",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "activeRate": "of articles active"
       },
       "filter": {
         "all": "All",
-        "byDepartment": "Filter by department"
+        "byDepartment": "Filter by department",
+        "searchPlaceholder": "Search titles and answers...",
+        "clear": "Clear filters"
       },
       "table": {
         "articleTitle": "Title",
@@ -6195,7 +6198,12 @@
         "status": "Status",
         "actions": "Actions",
         "empty": "No articles found",
-        "rowActionsAria": "Question options: {{name}}"
+        "rowActionsAria": "Question options: {{name}}",
+        "emptyFiltered": "No articles match your search or filter",
+        "showAnswer": "Show answer",
+        "hideAnswer": "Hide answer",
+        "noAnswer": "This article has no answer",
+        "showing": "Showing {{shown}} of {{total}}"
       },
       "status": {
         "active": "Active",

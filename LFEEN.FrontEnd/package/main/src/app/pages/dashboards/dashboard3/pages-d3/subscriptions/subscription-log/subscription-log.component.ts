@@ -26,7 +26,6 @@ interface LogRow {
   actionTone: ActionTone;
   serviceName: string;
   actorLabel: string;
-  actorInitial: string;
   date: string;
   /** Shown on its own line under the date, so the column stays narrow. */
   time: string;
@@ -181,7 +180,6 @@ export class SubscriptionLogComponent implements OnInit {
       actionTone: this.actionTone(e.action),
       serviceName: e.serviceName?.trim() || '-',
       actorLabel: actor,
-      actorInitial: actor !== '-' ? actor.charAt(0).toUpperCase() : '-',
       date: formatApiDateLocal(e.createdAt, this.currentLang) ?? '-',
       time: parseApiUtc(e.createdAt)?.toLocaleTimeString(appLocale(this.currentLang), { hour: 'numeric', minute: '2-digit' }) ?? '',
       ...this.parseDetails(e.details),

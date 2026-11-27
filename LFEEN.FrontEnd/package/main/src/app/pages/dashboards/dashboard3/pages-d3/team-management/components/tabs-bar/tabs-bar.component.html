@@ -1,13 +1,25 @@
-<div class="tabs-wrapper" [class.no-border]="noBorder">
-  <button mat-button class="tab-btn" [class.active]="activeTab === 'structure'" (click)="tabChange.emit('structure')">
-    {{ 'd3.teamManagement.tabs.structure' | translate }}
+<div class="tabs-wrapper" [class.no-border]="noBorder" role="tablist">
+  <button mat-button class="tab-btn" role="tab" [class.active]="activeTab === 'structure'"
+    [attr.aria-selected]="activeTab === 'structure'" (click)="tabChange.emit('structure')">
+    <span class="tab-inner">
+      <i-tabler name="sitemap" class="icon-18"></i-tabler>
+      {{ 'd3.teamManagement.tabs.structure' | translate }}
+    </span>
   </button>
-  <button mat-button class="tab-btn" [class.active]="activeTab === 'employees'" (click)="tabChange.emit('employees')">
-    {{ 'd3.teamManagement.tabs.allEmployees' | translate }}
+  <button mat-button class="tab-btn" role="tab" [class.active]="activeTab === 'employees'"
+    [attr.aria-selected]="activeTab === 'employees'" (click)="tabChange.emit('employees')">
+    <span class="tab-inner">
+      <i-tabler name="users" class="icon-18"></i-tabler>
+      {{ 'd3.teamManagement.tabs.allEmployees' | translate }}
+    </span>
   </button>
   @if (showLogs) {
-    <button mat-button class="tab-btn" [class.active]="activeTab === 'logs'" (click)="tabChange.emit('logs')">
-      {{ 'd3.teamManagement.tabs.opsLog' | translate }}
+    <button mat-button class="tab-btn" role="tab" [class.active]="activeTab === 'logs'"
+      [attr.aria-selected]="activeTab === 'logs'" (click)="tabChange.emit('logs')">
+      <span class="tab-inner">
+        <i-tabler name="history" class="icon-18"></i-tabler>
+        {{ 'd3.teamManagement.tabs.opsLog' | translate }}
+      </span>
     </button>
   }
 </div>

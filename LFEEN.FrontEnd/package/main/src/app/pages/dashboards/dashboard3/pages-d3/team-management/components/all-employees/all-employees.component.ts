@@ -5,6 +5,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { Employee } from '../../../../interfaces/department.model';
+import { avatarTone } from '../../../../utils/avatar-tone.util';
 
 @Component({
   selector: 'app-all-employees',
@@ -57,6 +58,8 @@ export class AllEmployeesComponent {
   getInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   }
+
+  readonly avatarTone = avatarTone;
 
   getDepartmentName(employee: Employee): string {
     return (this.currentLang === 'ar' ? employee.departmentNameAr : employee.departmentNameEn)

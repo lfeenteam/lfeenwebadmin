@@ -24,71 +24,37 @@
     flex-wrap: wrap;
   }
 
-  // Report-style section headings: a running index (01, 02 …) beside the title, then a
-  // hairline. The index is a CSS counter, so it numbers only the sections this admin
-  // is allowed to see — hidden sections never leave a gap in the sequence.
-  counter-reset: d3-section;
-
-  .d3-block-heading {
-    min-width: 0;
-    counter-increment: d3-section;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    column-gap: var(--d3-space-3);
-    align-items: start;
-
-    // Quiet index: outlined, muted — the navy is kept for the hero KPI, the active
-    // menu item and selected filters only, so dark blocks don't compete on the page.
-    &::before {
-      content: counter(d3-section, decimal-leading-zero);
-      grid-row: 1 / span 2;
-      align-self: center;
-      min-width: 34px;
-      padding: 6px 0;
-      border-radius: var(--d3-radius-sm);
-      border: 1px solid var(--d3-border-strong);
-      color: var(--d3-text-3);
-      font-size: var(--d3-fs-xs);
-      font-weight: 800;
-      line-height: 1.2;
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.06em;
-    }
-  }
+  // Section headings: bold title + quiet hint (same as the host dashboard panels).
+  .d3-block-heading { min-width: 0; }
 
   .d3-block-title {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
     line-height: 1.35;
-    color: var(--d3-text);
-    letter-spacing: -0.01em;
+    color: #111827;
   }
 
   .d3-block-sub {
-    margin: 1px 0 0;
-    font-size: var(--d3-fs-sm);
-    font-weight: 500;
-    color: var(--d3-text-3);
+    margin: 2px 0 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #94A3B8;
     line-height: 1.5;
   }
 
   // The hairline that closes each section heading row and runs to the far edge.
   .d3-block-head,
-  .ceo-toolbar {
-    padding-bottom: var(--d3-space-3);
-    border-bottom: 1px solid var(--d3-border);
-  }
+  .ceo-toolbar { padding-bottom: 0; border-bottom: 0; }
 
   // White card on the light canvas.
   // One card anatomy for every panel on the page (KPI strip and app panels included):
   // same radius, border, shadow and 24px padding.
   .d3-surface {
-    background: var(--d3-surface);
-    border: 1px solid var(--d3-border);
-    border-radius: var(--d3-radius-lg);
-    box-shadow: var(--d3-shadow-xs);
+    background: #FFFFFF;
+    border: 1px solid #EEF2F7;
+    border-radius: 18px;
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.04);
     min-width: 0;
   }
 
@@ -106,8 +72,8 @@
     align-items: center;
     gap: var(--d3-space-3);
     margin: 0;
-    font-size: var(--d3-fs-lg);
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 800;
     color: var(--d3-text);
     line-height: 1.4;
   }
@@ -121,16 +87,18 @@
 
   // Small rounded icon chip used next to panel titles.
   .d3-head-icon {
-    --d3-icon-size: 18px;
-    width: 34px;
-    height: 34px;
-    border-radius: var(--d3-radius-md);
+    --d3-icon-size: 20px;
+    --d3-icon-fill: .18;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    --d3-icon-fill: .16;
-    background: var(--d3-surface-hover);
-    color: var(--d3-navy-800);
+    background-color: #F1F5F9;
+    background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 60%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 14px -10px rgba(17, 24, 39, 0.28);
+    color: #111827;
     flex-shrink: 0;
   }
 
@@ -319,32 +287,26 @@
 }
 
 // ───────────────────────── Page entrance (see RevealDirective) ─────────────────────────
-// One quiet entrance when the page opens: each section fades in with a 6px rise, 320ms,
-// sections 60ms apart (≈0.5s for the whole page). Nothing waits for scrolling and cards
-// don't animate a second time inside their section — the motion is felt, not watched.
-// Opacity/transform only, so nothing reflows; off under prefers-reduced-motion.
+// Host dashboard motion: each section rises 10px and fades in over 600ms on the calm
+// ease-out, sections and KPI cards 120ms apart. Plays once, on load; nothing waits for
+// scrolling, nothing loops. Opacity/transform only; off under prefers-reduced-motion.
 .d3-dash {
   .d3-reveal {
-    animation: d3-enter 320ms var(--d3-ease-out) both;
+    animation: d3-enter var(--d3-dur-enter) var(--d3-ease-out) backwards;
   }
 
-  // Delay by position on the page (sections are direct children of .ceo-page).
-  > .d3-reveal:nth-child(2) { animation-delay: 60ms; }
-  > .d3-reveal:nth-child(3) { animation-delay: 120ms; }
-  > .d3-reveal:nth-child(4) { animation-delay: 180ms; }
-  > .d3-reveal:nth-child(n + 5) { animation-delay: 240ms; }
+  > .d3-reveal:nth-child(2) { animation-delay: calc(var(--d3-stagger) * 1); }
+  > .d3-reveal:nth-child(3) { animation-delay: calc(var(--d3-stagger) * 2); }
+  > .d3-reveal:nth-child(4) { animation-delay: calc(var(--d3-stagger) * 3); }
+  > .d3-reveal:nth-child(n + 5) { animation-delay: calc(var(--d3-stagger) * 4); }
 
-  // The four KPIs settle left-to-right in reading order, 40ms apart.
-  .d3-kpi { animation: d3-enter 320ms var(--d3-ease-out) both; animation-delay: calc(80ms + var(--d3-i, 0) * 40ms); }
+  // KPI cards animate themselves (tw-animate-enter, delay set inline in cards-top).
 }
 
 @keyframes d3-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; transform: translateY(10px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .d3-dash .d3-reveal,
-  .d3-dash .d3-kpi { animation: none; }
+  .d3-dash .d3-reveal { animation: none; }
 }
-

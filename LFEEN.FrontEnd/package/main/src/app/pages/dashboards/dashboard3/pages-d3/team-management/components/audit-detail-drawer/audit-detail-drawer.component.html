@@ -2,7 +2,10 @@
 
   <!-- Header -->
   <div class="drawer-header d-flex align-items-center justify-content-between">
-    <h3 class="drawer-title m-0">{{ 'd3.teamManagement.opsLog.details.title' | translate }}</h3>
+    <div class="drawer-heading">
+      <span class="drawer-heading-icon"><i-tabler name="file-description" class="icon-18"></i-tabler></span>
+      <h3 class="drawer-title m-0">{{ 'd3.teamManagement.opsLog.details.title' | translate }}</h3>
+    </div>
     <button mat-icon-button type="button" class="drawer-close" (click)="close()"
             [attr.aria-label]="'d3.teamManagement.opsLog.details.close' | translate">
       <i-tabler name="x" class="icon-18"></i-tabler>
@@ -76,7 +79,7 @@
     }
 
     <!-- Actor -->
-    <section class="drawer-section">
+    <section class="drawer-section" style="--s: 1">
       <h4 class="section-title">
         <i-tabler name="user" class="icon-16"></i-tabler>
         {{ 'd3.teamManagement.opsLog.details.actor' | translate }}
@@ -84,7 +87,7 @@
 
       <div class="card">
         <div class="actor-row">
-          <div class="initials-avatar">{{ initials }}</div>
+          <div [class]="'initials-avatar tone-' + avatarTone(item.actorName)">{{ initials }}</div>
           <div class="min-w-0 flex-1">
             <span class="actor-name" dir="auto">{{ item.actorName }}</span>
             @if (item.actorEmail) {
@@ -130,7 +133,7 @@
     </section>
 
     <!-- What changed -->
-    <section class="drawer-section">
+    <section class="drawer-section" style="--s: 2">
       <h4 class="section-title">
         <i-tabler name="list-details" class="icon-16"></i-tabler>
         {{ 'd3.teamManagement.opsLog.details.changes' | translate }}
@@ -178,13 +181,18 @@
           }
         }
       </div>
-
-      @if (entityRoute) {
-        <button mat-flat-button type="button" class="entity-link" (click)="openEntity()">
-          <i-tabler name="external-link" class="icon-16"></i-tabler>
-          {{ 'd3.teamManagement.opsLog.details.openEntity' | translate }}
-        </button>
-      }
     </section>
   </div>
+
+  <!-- Pinned footer, so the main action is always in reach -->
+  @if (entityRoute) {
+    <div class="drawer-footer">
+      <button mat-flat-button type="button" class="entity-link" (click)="openEntity()">
+        <span class="entity-link-inner">
+          {{ 'd3.teamManagement.opsLog.details.openEntity' | translate }}
+          <i-tabler name="external-link" class="icon-16"></i-tabler>
+        </span>
+      </button>
+    </div>
+  }
 </div>

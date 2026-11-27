@@ -23,6 +23,7 @@ import {
   summarizeUserAgent
 } from '../ops-log-table/audit-presentation';
 import { appLocale } from 'src/app/utils/locale-format.util';
+import { avatarTone } from '../../../../utils/avatar-tone.util';
 
 const I18N = 'd3.teamManagement.opsLog.details';
 
@@ -62,6 +63,7 @@ export class AuditDetailDrawerComponent implements OnInit {
   readonly statusKey = auditStatusKey(this.item.status);
   readonly departmentName = auditDepartmentName(this.item);
   readonly initials = auditInitials(this.item.actorName);
+  readonly avatarTone = avatarTone;
   readonly entityRoute = auditEntityRoute(this.item);
   readonly entityTypeLabel = this.translateOr(`${I18N}.entityTypes.${this.item.entityType}`, this.item.entityType);
   readonly durationLabel = this.formatDuration(this.item.durationMilliseconds);

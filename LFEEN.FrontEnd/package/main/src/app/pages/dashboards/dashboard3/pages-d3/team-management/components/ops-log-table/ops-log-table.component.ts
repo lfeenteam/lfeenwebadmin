@@ -13,6 +13,7 @@ import {
   formatAuditDate
 } from './audit-presentation';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { avatarTone } from '../../../../utils/avatar-tone.util';
 
 @Component({
   selector: 'app-ops-log-table',
@@ -38,6 +39,7 @@ export class OpsLogTableComponent {
   readonly statusKey = auditStatusKey;
   readonly departmentName = auditDepartmentName;
   readonly initials = auditInitials;
+  readonly avatarTone = avatarTone;
 
   // The audit log grows without bound, so show a 5-page window around the current page.
   get pageNumbers(): number[] {

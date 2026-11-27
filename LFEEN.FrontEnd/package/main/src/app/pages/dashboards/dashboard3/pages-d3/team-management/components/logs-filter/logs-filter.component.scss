@@ -1,10 +1,19 @@
+@keyframes lfFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .logs-filter-box {
   background: #fff;
-  border: 1px solid #F1F1F0;
-  border-radius: 24px;
-  padding: 8px 16px;
-  box-shadow: 0px 1px 2px 0px #0000000D;
+  border: 1px solid #EDEDE9;
+  border-radius: 20px;
+  padding: 10px;
+  gap: 10px !important;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04), 0 12px 28px -22px rgba(17, 17, 16, 0.3);
   font-family: 'Cairo', sans-serif;
+  animation: lfFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @media (prefers-reduced-motion: reduce) { animation: none; }
 }
 
 .logs-search-wrapper {
@@ -15,21 +24,33 @@
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: #9E9E9A;
+    pointer-events: none;
+    transition: color 0.2s;
   }
 
+  &:focus-within .logs-search-icon { color: #111110; }
+
   .logs-search-input {
-   height: 40px;
+    height: 44px;
     width: 100%;
-    padding: 7px 48px 7px 16px;
+    padding: 7px 44px 7px 16px;
+    box-sizing: border-box;
     border-radius: 12px;
-    border: none;
+    border: 1px solid transparent;
     background-color: #F7F7F5;
     font-size: 13px;
     font-family: 'Cairo', sans-serif;
+    color: #111110;
     outline: none;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.25s;
+
+    &:hover { border-color: #E8E8E4; }
+
     &:focus {
+      background: #fff;
       border-color: #111110;
+      box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
     }
 
     &::placeholder {
@@ -47,23 +68,23 @@
     }
     .logs-search-input {
       padding-left: 16px;
-      padding-right: 40px;
+      padding-right: 44px;
     }
   }
 }
 
 .filter-select-native {
   width: auto !important;
-  min-width: 140px;
-  height: 40px;
+  min-width: 150px;
+  height: 44px;
   flex: 0 0 auto;
   padding: 0;
   box-sizing: border-box;
   border-radius: 12px;
   border: 1px solid #E8E8E4;
   background: #fff;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #111110;
   font-family: 'Cairo', sans-serif;
   cursor: pointer;
@@ -72,6 +93,21 @@
   display: inline-flex;
   align-items: center;
   line-height: 1;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
+
+  &:hover {
+    border-color: #D6D6D0;
+    background: #FAFAF8;
+  }
+
+  &.mat-mdc-select-focused {
+    border-color: #111110;
+    box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
+  }
+
+  &[aria-expanded='true'] ::ng-deep .mat-mdc-select-arrow {
+    transform: rotate(180deg);
+  }
 
   // Text on the start side, arrow pinned to the far end (left in RTL).
   ::ng-deep .mat-mdc-select-trigger {
@@ -89,8 +125,8 @@
     text-overflow: clip;
     color: #111110;
     font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
   }
 
   ::ng-deep .mat-mdc-select-value-text {
@@ -100,11 +136,18 @@
 
   ::ng-deep .mat-mdc-select-arrow {
     color: #6B6B67;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
+@keyframes lfPop {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
+
 .clear-filters-btn {
-  height: 40px;
+  height: 44px;
+  animation: lfPop 0.25s ease both;
   padding: 0 14px;
   display: inline-flex;
   align-items: center;

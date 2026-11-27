@@ -1,42 +1,112 @@
 .tabs-wrapper {
   display: flex;
   align-items: center;
-  gap: 32px;
-  height: 48px;
+  gap: 8px;
+  height: 52px;
   overflow-x: auto;
+  overflow-y: hidden;
   white-space: nowrap;
   scrollbar-width: none;
 
-  @media (max-width: 575.98px) {
-    gap: 4px;
-  }
   &::-webkit-scrollbar { display: none; }
 
   .tab-btn {
     flex-shrink: 0;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     color: #9E9E9A;
-    padding: 0 4px;
+    padding: 0 14px;
     min-width: unset !important;
-    height: 48px;
+    height: 52px;
     display: inline-flex;
     align-items: center;
     font-family: 'Cairo', sans-serif;
     position: relative;
-    border-radius: 0;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
+    border-radius: 12px 12px 0 0;
+    transition: color 0.25s ease, background 0.25s ease;
 
     ::ng-deep .mdc-button__label {
       padding: 0;
       letter-spacing: normal;
     }
 
+    .tab-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    i-tabler {
+      width: 30px;
+      height: 30px;
+      box-sizing: border-box;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #F7F7F5;
+      border: 1px solid #EDEDE9;
+      transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    // Underline grows from the center when the tab becomes active.
+    &::after {
+      content: '';
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: #111110;
+      transform: scaleX(0);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    &:hover:not(.active) {
+      color: #111110;
+      background: #FAFAF8;
+
+      i-tabler { transform: translateY(-1px); background: #fff; }
+      &::after { transform: scaleX(0.35); background: #D8D8D2; }
+    }
+
     &.active {
       color: #111110;
-      font-weight: 900;
-      border-bottom-color: #111110;
+      font-weight: 800;
+
+      i-tabler {
+        background: #111110;
+        border-color: #111110;
+        color: #fff;
+        box-shadow: 0 6px 14px -8px rgba(17, 17, 16, 0.6);
+      }
+
+      &::after { transform: scaleX(1); }
     }
+
+    &:focus-visible {
+      outline: 2px solid #111110;
+      outline-offset: -2px;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    gap: 2px;
+
+    .tab-btn {
+      padding: 0 8px;
+      font-size: 13px;
+
+      i-tabler { width: 26px; height: 26px; }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs-wrapper .tab-btn,
+  .tabs-wrapper .tab-btn::after,
+  .tabs-wrapper .tab-btn i-tabler {
+    transition: none;
   }
 }

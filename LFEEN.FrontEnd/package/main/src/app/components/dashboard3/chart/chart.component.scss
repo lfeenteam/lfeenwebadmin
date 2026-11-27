@@ -210,8 +210,8 @@
   border-radius: 50%;
   display: inline-block;
 
-  &.is-guests { background: var(--d3-navy-900); }
-  &.is-hosts { background: #94A3B8; }
+  &.is-guests { background: #059669; }
+  &.is-hosts { background: #2563EB; }
 }
 
 // Directly under the table (not pushed to the card bottom), split off by a hairline.

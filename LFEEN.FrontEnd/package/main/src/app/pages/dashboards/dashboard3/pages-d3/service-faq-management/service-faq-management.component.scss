@@ -4,6 +4,8 @@
 .sfq-toolbar {
   flex-wrap: wrap;
   row-gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--faq-line);
 }
 
 .sfq-filters {
@@ -34,8 +36,12 @@
     color: #111110;
   }
 
+  transition: border-color 0.2s, box-shadow 0.25s;
+
   &:focus-within {
     border-color: #111110;
+    box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
+    color: #111110;
   }
 }
 
@@ -71,6 +77,8 @@
 }
 
 .sfq-table .table-row.row-busy {
+  // The entrance animation keeps its final opacity; drop it so the busy dim shows.
+  animation: none;
   opacity: 0.6;
   pointer-events: none;
 }

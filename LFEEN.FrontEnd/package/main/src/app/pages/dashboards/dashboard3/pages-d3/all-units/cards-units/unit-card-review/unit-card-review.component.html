@@ -49,7 +49,7 @@
           [listingName]="unit.title"
           (changed)="onBanChanged()" />
       }
-      <button class="footer-btn arrow-btn" *ngIf="!isLockedDisplay">
+      <button type="button" class="footer-btn arrow-btn" *ngIf="!isLockedDisplay" [attr.aria-label]="'d3.unitReview.title' | translate">
         <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'"></i-tabler>
       </button>
       <div class="stopped-lock" *ngIf="isLockedDisplay">

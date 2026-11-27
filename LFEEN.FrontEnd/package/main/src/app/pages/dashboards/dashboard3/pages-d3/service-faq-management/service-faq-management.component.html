@@ -1,44 +1,63 @@
 <div class="faq-page" [dir]="dirSignal()">
 
   <!-- Hero header -->
-  <div class="faq-hero">
-    <div class="hero-title-block">
-      <div class="hero-title-row">
-        <span class="help-icon" aria-hidden="true">
-          <i-tabler name="tool" class="icon-16"></i-tabler>
-        </span>
-        <h1 class="hero-title">{{ 'd3.serviceFaq.pageTitle' | translate }}</h1>
-      </div>
-      <p class="hero-subtitle">{{ 'd3.serviceFaq.pageSubtitle' | translate }}</p>
-    </div>
+  <section class="faq-hero">
+    <span class="hero-orb hero-orb-1" aria-hidden="true"></span>
+    <span class="hero-orb hero-orb-2" aria-hidden="true"></span>
 
-    <div class="hero-actions">
-      <div class="stats-row">
-        <span class="stat-item">
-          <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
-          <span class="stat-circle stat-circle-total">{{ loadError() ? '—' : totalCount() }}</span>
-        </span>
-        <span class="stat-divider"></span>
-        <span class="stat-item">
-          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
-          <span class="stat-circle stat-circle-active">{{ loadError() ? '—' : activeCount() }}</span>
-        </span>
-        @if (includeInactive()) {
-          <span class="stat-divider"></span>
-          <span class="stat-item">
-            <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
-            <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
+    <div class="hero-top">
+      <div class="hero-title-block">
+        <div class="hero-title-row">
+          <span class="help-icon" aria-hidden="true">
+            <i-tabler name="tool" class="icon-20"></i-tabler>
           </span>
-        }
+          <div>
+            <h1 class="hero-title">{{ 'd3.serviceFaq.pageTitle' | translate }}</h1>
+            <p class="hero-subtitle">{{ 'd3.serviceFaq.pageSubtitle' | translate }}</p>
+          </div>
+        </div>
       </div>
+
       @if (canManage()) {
         <button class="add-article-btn" type="button" (click)="openAddDialog()">
-          <i-tabler name="plus" class="icon-18"></i-tabler>
+          <span class="btn-plus"><i-tabler name="plus" class="icon-16"></i-tabler></span>
           {{ 'd3.serviceFaq.add' | translate }}
         </button>
       }
     </div>
-  </div>
+
+    <div class="stat-cards">
+      <div class="stat-card stat-total" style="--d: 0">
+        <span class="stat-icon"><i-tabler name="files" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() ? '—' : totalCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-active" style="--d: 1">
+        <span class="stat-icon"><i-tabler name="circle-check" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() ? '—' : activeCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
+        </div>
+        @if (includeInactive()) {
+          <div class="stat-meter" [attr.title]="activePercent() + '% ' + ('d3.faq.stats.activeRate' | translate)">
+            <span class="stat-meter-fill" [style.width.%]="loadError() ? 0 : activePercent()"></span>
+          </div>
+          <span class="stat-percent" [appCountUp]="loadError() ? '' : activePercent()" countUpSuffix="%"></span>
+        }
+      </div>
+
+      <div class="stat-card stat-inactive" style="--d: 2">
+        <span class="stat-icon"><i-tabler name="circle-off" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() || !includeInactive() ? '—' : inactiveCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <div class="faq-card">
 
@@ -49,7 +68,7 @@
       <div class="sfq-filters">
         <div class="sfq-search">
           <i-tabler name="search" class="icon-16"></i-tabler>
-          <input type="search" dir="auto" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)"
+          <input type="search" [attr.dir]="searchTerm ? 'auto' : null" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)"
             [placeholder]="'d3.serviceFaq.filter.searchPlaceholder' | translate"
             [attr.aria-label]="'d3.serviceFaq.filter.searchPlaceholder' | translate">
         </div>
@@ -94,8 +113,8 @@
         </app-dashboard-empty>
       } @else {
 
-        @for (f of faqs(); track f.id) {
-          <div class="table-row" [class.row-busy]="isBusy(f.id)">
+        @for (f of faqs(); track f.id; let i = $index) {
+          <div class="table-row" [class.row-busy]="isBusy(f.id)" [style.--i]="i">
 
             <div class="col-order">
               <span class="order-badge" [class.order-badge-inactive]="!f.isActive">{{ f.displayOrder }}</span>
@@ -143,10 +162,10 @@
           </div>
         } @empty {
           <div class="empty-state">
-            <i-tabler name="file-off" class="icon-32"></i-tabler>
+            <span class="empty-icon"><i-tabler [name]="hasFilters() ? 'search-off' : 'file-off'" class="icon-28"></i-tabler></span>
             <span>{{ (hasFilters() ? 'd3.serviceFaq.table.emptyFiltered' : 'd3.serviceFaq.table.empty') | translate }}</span>
             @if (hasFilters()) {
-              <button class="sfq-clear-btn" type="button" (click)="clearFilters()">{{ 'd3.serviceFaq.filter.clear' | translate }}</button>
+              <button class="clear-btn" type="button" (click)="clearFilters()">{{ 'd3.serviceFaq.filter.clear' | translate }}</button>
             }
           </div>
         }

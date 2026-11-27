@@ -125,7 +125,8 @@
   </button>
   <div class="d3-user-menu-sep" role="separator"></div>
   <button mat-menu-item class="d3-user-menu-item d3-user-menu-logout d3-mh" (click)="logout()">
-    <app-d3-icon name="logout"></app-d3-icon>
+    <!-- The exit arrow follows the reading direction (the menu sits in an overlay, outside [dir]). -->
+    <app-d3-icon name="logout" [class.d3-icon-mirror]="isRtl()"></app-d3-icon>
     <span>{{ 'd3.sidebar.logout' | translate }}</span>
   </button>
 </mat-menu>

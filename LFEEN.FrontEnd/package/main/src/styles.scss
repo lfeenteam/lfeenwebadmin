@@ -2,6 +2,12 @@
 @use "assets/scss/d3/tokens";
 @use "assets/scss/d3/dashboard";
 
+// Tailwind (tailwind.config.js): `tw-` prefixed utilities, preflight off — `base` only adds
+// Tailwind's own --tw-* variables, it resets nothing, so existing pages are unaffected.
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
@@ -262,9 +268,18 @@ html .cdk-overlay-container .team-filter-panel.mat-mdc-select-panel {
     }
 
     &.mdc-list-item--selected {
-      background: #F1F5F9 !important;
-      color: #111110 !important;
+      --mat-option-label-text-color: #fff;
+      --mdc-list-list-item-label-text-color: #fff;
+      background: #111110 !important;
+      color: #fff !important;
       font-weight: 700;
+
+      .mat-mdc-option-pseudo-checkbox,
+      .mat-pseudo-checkbox {
+        display: none;
+      }
+
+      .mdc-list-item__primary-text { color: inherit !important; }
     }
 
     .mdc-list-item__primary-text {
@@ -393,4 +408,16 @@ html[dir="rtl"] .dir-icon {
       i-tabler { color: #16a34a !important; }
     }
   }
+}
+
+// Operation details drawer (team management → سجل العمليات): full-height side sheet.
+.audit-drawer-panel .mat-mdc-dialog-surface {
+  border-radius: 0 !important;
+  box-shadow: 0 0 60px -12px rgba(17, 17, 16, 0.35) !important;
+  overflow: hidden;
+}
+
+.audit-drawer-backdrop {
+  background: rgba(17, 17, 16, 0.32);
+  backdrop-filter: blur(2px);
 }

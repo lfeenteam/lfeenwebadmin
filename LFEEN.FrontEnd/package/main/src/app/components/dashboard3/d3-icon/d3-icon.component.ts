@@ -189,12 +189,12 @@ export type D3IconName =
     :host-context(.d3-mh:hover) .f, :host-context(.d3-mh:focus-visible) .f {
       fill-opacity: calc(var(--d3-icon-fill, .14) * 1.6);
     }
-    .f { transition: fill-opacity var(--d3-dur-base, 180ms) ease; }
+    .f { transition: fill-opacity var(--d3-dur-icon, 420ms) var(--d3-ease-out, ease); }
 
     /* Moving parts: transform/opacity only, so nothing reflows. */
     .m-arrow, .m-tag, .m-x, .m-pop, .m-door, .m-needle, .m-spin, .m-drop, .m-bell, .m-clapper, .m-key {
       transform-box: fill-box;
-      transition: transform var(--d3-dur-base, 180ms) var(--d3-ease, ease), opacity var(--d3-dur-base, 180ms) ease;
+      transition: transform var(--d3-dur-icon, 420ms) var(--d3-ease-out, ease), opacity var(--d3-dur-icon, 420ms) ease;
     }
     .m-tag, .m-x, .m-spin, .m-pop { transform-origin: center; }
     .m-needle { transform-origin: 0% 100%; }

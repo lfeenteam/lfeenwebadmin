@@ -2,7 +2,8 @@
 
 @if (showServiceTab) {
   <!-- Client app / service (worker) app FAQ — ?tab=service in the URL -->
-  <div class="faq-tabs" role="tablist">
+  <div class="faq-tabs" role="tablist" [class.is-service]="activeTab() === 'service'">
+    <span class="faq-tab-indicator" aria-hidden="true"></span>
     <button type="button" role="tab" class="faq-tab" [class.active]="activeTab() === 'client'"
       [attr.aria-selected]="activeTab() === 'client'" (click)="setTab('client')">
       <i-tabler name="users" class="icon-16"></i-tabler>
@@ -17,71 +18,108 @@
 }
 
 @if (activeTab() === 'service') {
-  <app-service-faq-management></app-service-faq-management>
+  <div class="faq-tab-panel">
+    <app-service-faq-management></app-service-faq-management>
+  </div>
 } @else {
-<div class="faq-page" [dir]="dirSignal()">
+<div class="faq-page faq-tab-panel" [dir]="dirSignal()">
 
   <!-- Hero header -->
-  <div class="faq-hero">
-    <div class="hero-title-block">
-      <div class="hero-title-row">
-        <span class="help-icon" aria-hidden="true">
-          <i-tabler name="question-mark" class="icon-16"></i-tabler>
-        </span>
-        <h1 class="hero-title">{{ 'd3.faq.pageTitle' | translate }}</h1>
-      </div>
-      <p class="hero-subtitle">{{ 'd3.faq.pageSubtitle' | translate }}</p>
-    </div>
+  <section class="faq-hero">
+    <span class="hero-orb hero-orb-1" aria-hidden="true"></span>
+    <span class="hero-orb hero-orb-2" aria-hidden="true"></span>
 
-    <div class="hero-actions">
-        <div class="stats-row">
-        <span class="stat-item">
-           <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
-        <span class="stat-circle stat-circle-total">{{ loadError() ? '—' : totalCount() }}</span>
+    <div class="hero-top">
+      <div class="hero-title-block">
+        <div class="hero-title-row">
+          <span class="help-icon" aria-hidden="true">
+            <i-tabler name="message-question" class="icon-20"></i-tabler>
           </span>
-        <span class="stat-divider"></span>
-        <span class="stat-item">
-
-          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
-                  <span class="stat-circle stat-circle-active">{{ loadError() ? '—' : activeCount() }}</span>
-        </span>
-        <span class="stat-divider"></span>
-        <span class="stat-item">
-
-          <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
-          <span class="stat-circle stat-circle-inactive">{{ loadError() ? '—' : inactiveCount() }}</span>
-        </span>
+          <div>
+            <h1 class="hero-title">{{ 'd3.faq.pageTitle' | translate }}</h1>
+            <p class="hero-subtitle">{{ 'd3.faq.pageSubtitle' | translate }}</p>
+          </div>
+        </div>
       </div>
+
       @if (canManage()) {
         <button class="add-article-btn" type="button" (click)="openAddDialog()">
-          <i-tabler name="plus" class="icon-18"></i-tabler>
+          <span class="btn-plus"><i-tabler name="plus" class="icon-16"></i-tabler></span>
           {{ 'd3.faq.addArticle' | translate }}
         </button>
       }
-
-    
     </div>
-  </div>
+
+    <div class="stat-cards">
+      <div class="stat-card stat-total" style="--d: 0">
+        <span class="stat-icon"><i-tabler name="files" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() ? '—' : totalCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.total' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-active" style="--d: 1">
+        <span class="stat-icon"><i-tabler name="circle-check" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() ? '—' : activeCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.active' | translate }}</span>
+        </div>
+        <div class="stat-meter" [attr.title]="activePercent() + '% ' + ('d3.faq.stats.activeRate' | translate)">
+          <span class="stat-meter-fill" [style.width.%]="loadError() ? 0 : activePercent()"></span>
+        </div>
+        <span class="stat-percent" [appCountUp]="loadError() ? '' : activePercent()" countUpSuffix="%"></span>
+      </div>
+
+      <div class="stat-card stat-inactive" style="--d: 2">
+        <span class="stat-icon"><i-tabler name="circle-off" class="icon-20"></i-tabler></span>
+        <div class="stat-body">
+          <span class="stat-value" [appCountUp]="loadError() ? '—' : inactiveCount()"></span>
+          <span class="stat-label">{{ 'd3.faq.stats.inactive' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Articles table card -->
-  <div class="faq-card">
+  <section class="faq-card">
 
     <div class="faq-card-toolbar">
-      <h2 class="list-title">{{ 'd3.faq.listTitle' | translate }}</h2>
-
-      <div class="dept-filter-wrap">
-        <span class="filter-label">{{ 'd3.faq.filter.byDepartment' | translate }}:</span>
-        <button class="dept-filter-btn" type="button" [matMenuTriggerFor]="deptMenu">
-          <span class="filter-value">{{ selectedDeptLabel() }}</span>
-          <i-tabler name="chevron-down" class="icon-14"></i-tabler>
-        </button>
-      </div>
-      <mat-menu #deptMenu="matMenu">
-        <button mat-menu-item type="button" (click)="setDeptFilter('all')">{{ 'd3.faq.filter.all' | translate }}</button>
-        @for (dept of departmentOptions; track dept.value) {
-          <button mat-menu-item type="button" (click)="setDeptFilter(dept.value)">{{ deptOptionLabel(dept) }}</button>
+      <div class="toolbar-head">
+        <h2 class="list-title">{{ 'd3.faq.listTitle' | translate }}</h2>
+        @if (!loading() && !loadError() && hasFilters()) {
+          <span class="list-count">{{ 'd3.faq.table.showing' | translate: { shown: filteredArticles().length, total: totalCount() } }}</span>
         }
-      </mat-menu>
+      </div>
+
+      <div class="faq-search">
+        <i-tabler name="search" class="icon-16"></i-tabler>
+        <input type="search" [attr.dir]="searchTerm() ? 'auto' : null" [value]="searchTerm()" (input)="searchTerm.set($any($event.target).value)"
+          [placeholder]="'d3.faq.filter.searchPlaceholder' | translate"
+          [attr.aria-label]="'d3.faq.filter.searchPlaceholder' | translate">
+        @if (searchTerm()) {
+          <button type="button" class="search-clear" (click)="searchTerm.set('')" [attr.aria-label]="'d3.faq.filter.clear' | translate">
+            <i-tabler name="x" class="icon-14"></i-tabler>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Department filter chips -->
+    <div class="dept-chips" role="group" [attr.aria-label]="'d3.faq.filter.byDepartment' | translate">
+      <button type="button" class="dept-chip" [class.active]="departmentFilter() === 'all'"
+        [attr.aria-pressed]="departmentFilter() === 'all'" (click)="setDeptFilter('all')">
+        {{ 'd3.faq.filter.all' | translate }}
+        <span class="chip-count">{{ totalCount() }}</span>
+      </button>
+      @for (dept of departmentOptions; track dept.value) {
+        <button type="button" class="dept-chip" [class]="'dept-chip chip-' + dept.value" [class.active]="departmentFilter() === dept.value"
+          [attr.aria-pressed]="departmentFilter() === dept.value" (click)="setDeptFilter(dept.value)">
+          <span class="chip-dot"></span>
+          {{ deptOptionLabel(dept) }}
+          <span class="chip-count">{{ deptCounts()[dept.value] || 0 }}</span>
+        </button>
+      }
     </div>
 
     <div class="faq-table">
@@ -102,26 +140,33 @@
         </app-dashboard-empty>
       } @else {
 
-      @for (article of filteredArticles(); track article.externalId) {
+      @for (article of filteredArticles(); track article.externalId; let i = $index) {
+        <div class="row-wrap" [class.is-open]="isExpanded(article.externalId)"
+          [class.is-inactive]="article.status === 'inactive'" [style.--i]="i">
         <div class="table-row">
 
-          <div class="col-title">
-            @if (isEn()) {
-              <span class="row-title" dir="ltr">{{ article.titleEn || article.titleAr }}</span>
-              @if (article.titleEn && article.titleAr) {
-                <span class="row-subtitle" dir="rtl">{{ article.titleAr }}</span>
+          <button type="button" class="col-title title-toggle" (click)="toggleExpand(article.externalId)"
+            [attr.aria-expanded]="isExpanded(article.externalId)"
+            [attr.title]="(isExpanded(article.externalId) ? 'd3.faq.table.hideAnswer' : 'd3.faq.table.showAnswer') | translate">
+            <span class="expand-icon" aria-hidden="true"><i-tabler name="chevron-down" class="icon-16"></i-tabler></span>
+            <span class="title-text">
+              @if (isEn()) {
+                <span class="row-title" dir="ltr">{{ article.titleEn || article.titleAr }}</span>
+                @if (article.titleEn && article.titleAr) {
+                  <span class="row-subtitle" dir="rtl">{{ article.titleAr }}</span>
+                }
+              } @else {
+                <span class="row-title" dir="rtl">{{ article.titleAr || article.titleEn }}</span>
+                @if (article.titleAr && article.titleEn) {
+                  <span class="row-subtitle" dir="ltr">{{ article.titleEn }}</span>
+                }
               }
-            } @else {
-              <span class="row-title" dir="rtl">{{ article.titleAr || article.titleEn }}</span>
-              @if (article.titleAr && article.titleEn) {
-                <span class="row-subtitle" dir="ltr">{{ article.titleEn }}</span>
-              }
-            }
-          </div>
+            </span>
+          </button>
 
           <div class="col-dept">
             @if (article.department) {
-              <span class="dept-badge" [class]="'dept-' + article.department">{{ departmentLabel(article.department) }}</span>
+              <span class="dept-badge" [class]="'dept-badge dept-' + article.department">{{ departmentLabel(article.department) || article.department }}</span>
             } @else {
               <span class="dept-none">—</span>
             }
@@ -149,12 +194,8 @@
                 <i-tabler name="pencil" class="icon-16"></i-tabler>
                 {{ 'common.edit' | translate }}
               </button>
-              <button mat-menu-item type="button" class="menu-item-danger" (click)="deleteArticle(article)">
-                <i-tabler name="trash" class="icon-16"></i-tabler>
-                {{ 'd3.faq.menu.delete' | translate }}
-              </button>
               @if (article.status === 'active') {
-                <button mat-menu-item type="button" class="menu-item-danger" (click)="toggleStatus(article)">
+                <button mat-menu-item type="button" class="menu-item-warn" (click)="toggleStatus(article)">
                   <i-tabler name="circle-x" class="icon-16"></i-tabler>
                   {{ 'd3.faq.menu.deactivate' | translate }}
                 </button>
@@ -164,24 +205,48 @@
                   {{ 'd3.faq.menu.activate' | translate }}
                 </button>
               }
+              <button mat-menu-item type="button" class="menu-item-danger" (click)="deleteArticle(article)">
+                <i-tabler name="trash" class="icon-16"></i-tabler>
+                {{ 'd3.faq.menu.delete' | translate }}
+              </button>
             </mat-menu>
             }
           </div>
 
         </div>
+
+        <!-- Answer preview (opens from the title) -->
+        <div class="row-answer" [attr.aria-hidden]="!isExpanded(article.externalId)">
+          <div class="row-answer-inner">
+            <div class="answer-box">
+              <i-tabler name="message-2" class="icon-16 answer-icon"></i-tabler>
+              @if (answer(article)) {
+                <p class="answer-text" dir="auto">{{ answer(article) }}</p>
+              } @else {
+                <p class="answer-text answer-empty">{{ 'd3.faq.table.noAnswer' | translate }}</p>
+              }
+            </div>
+          </div>
+        </div>
+        </div>
       }
 
       @empty {
         <div class="empty-state">
-          <i-tabler name="file-off" class="icon-32"></i-tabler>
-          <span>{{ 'd3.faq.table.empty' | translate }}</span>
+          <span class="empty-icon"><i-tabler [name]="hasFilters() ? 'search-off' : 'file-off'" class="icon-28"></i-tabler></span>
+          <span>{{ (hasFilters() ? 'd3.faq.table.emptyFiltered' : 'd3.faq.table.empty') | translate }}</span>
+          @if (hasFilters()) {
+            <button class="clear-btn" type="button" (click)="clearFilters()">{{ 'd3.faq.filter.clear' | translate }}</button>
+          } @else if (canManage()) {
+            <button class="clear-btn" type="button" (click)="openAddDialog()">{{ 'd3.faq.addArticle' | translate }}</button>
+          }
         </div>
       }
 
       }
     </div>
 
-  </div>
+  </section>
 
 </div>
 }

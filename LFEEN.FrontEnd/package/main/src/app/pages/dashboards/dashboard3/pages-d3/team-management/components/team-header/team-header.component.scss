@@ -1,42 +1,71 @@
-.boxed-container {
-  background: #fff;
-  border: 1px solid #F1F1F0;
-  border-radius: 24px;
-  padding: 8px 16px;
-  margin-bottom: 24px;
-  display: flex;
-  box-shadow: 0px 1px 2px 0px #0000000D;
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+@keyframes thFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
 }
 
+@keyframes thShine {
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to   { transform: translateX(260%) skewX(-20deg); }
+}
+
+.boxed-container {
+  background: #fff;
+  border: 1px solid #EDEDE9;
+  border-radius: 20px;
+  padding: 10px;
+  margin-bottom: 24px;
+  display: flex;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04), 0 12px 28px -22px rgba(17, 17, 16, 0.3);
+  animation: thFadeUp 0.45s $ease both;
+}
+
+// ── Search ────────────────────────────────────────────────
 .search-wrapper {
   min-width: 200px;
 
   .search-icon {
     position: absolute;
-    right: 12px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: #9E9E9A;
+    pointer-events: none;
+    transition: color 0.2s;
   }
 
   .search-input {
-    height: 40px;
+    height: 44px;
     width: 100%;
-    padding: 7px 48px 7px 16px;
+    padding: 7px 44px 7px 16px;
+    box-sizing: border-box;
     border-radius: 12px;
-    border: none;
+    border: 1px solid transparent;
     background-color: #F7F7F5;
     font-size: 13px;
     font-family: 'Cairo', sans-serif;
+    color: #111110;
     outline: none;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.25s;
 
     &::placeholder {
       color: #9E9E9A;
     }
 
-    &:focus {
-      box-shadow: none;
+    &:hover {
+      border-color: #E8E8E4;
     }
+
+    &:focus {
+      background: #fff;
+      border-color: #111110;
+      box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
+    }
+  }
+
+  &:focus-within .search-icon {
+    color: #111110;
   }
 }
 
@@ -44,29 +73,30 @@
   .search-wrapper {
     .search-icon {
       right: auto;
-      left: 12px;
+      left: 14px;
     }
     .search-input {
-      padding-left: 48px;
+      padding-left: 44px;
       padding-right: 16px;
     }
   }
 }
 
+// ── Filters ───────────────────────────────────────────────
 .filter-select-native {
   width: auto !important;
-  min-width: 155px;
-  height: 46px !important;
-  min-height: 46px !important;
-  max-height: 46px !important;
+  min-width: 165px;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
   flex: 0 0 auto;
   padding: 0;
   box-sizing: border-box;
   border-radius: 12px;
   border: 1px solid #E8E8E4;
   background: #fff;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: #111110;
   font-family: 'Cairo', sans-serif;
   cursor: pointer;
@@ -75,18 +105,26 @@
   display: inline-flex;
   align-items: center;
   line-height: 1;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
 
-  &:focus {
-    border-color: #E8E8E4;
-    box-shadow: none;
+  &:hover {
+    border-color: #D6D6D0;
+    background: #FAFAF8;
+  }
+
+  &:focus,
+  &.mat-mdc-select-focused {
+    border-color: #111110;
+    box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
   }
 
   ::ng-deep .mat-mdc-select-trigger {
     width: 100%;
     height: 100%;
-    padding: 8px 20px 8px 32px;
+    padding: 8px 16px 8px 14px;
     display: flex;
     align-items: center;
+    gap: 8px;
   }
 
   ::ng-deep .mat-mdc-select-value {
@@ -94,8 +132,8 @@
     text-overflow: clip;
     color: #111110;
     font-family: 'Cairo', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
   }
 
   ::ng-deep .mat-mdc-select-value-text {
@@ -105,23 +143,54 @@
 
   ::ng-deep .mat-mdc-select-arrow {
     color: #6B6B67;
+    transition: transform 0.3s $ease;
+  }
+
+  &[aria-expanded='true'] ::ng-deep .mat-mdc-select-arrow {
+    transform: rotate(180deg);
   }
 }
 
+// ── Action button ─────────────────────────────────────────
 .action-btn {
   --mdc-filled-button-container-color: #111110;
   --mdc-filled-button-label-text-color: #fff;
-  background-color: #111110;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #2b2b29, #111110);
   color: #fff;
-  height: 40px;
-  border-radius: 14px;
-  padding: 0 16px;
+  height: 44px;
+  border-radius: 12px;
+  padding: 0 18px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 10px 20px -12px rgba(17, 17, 16, 0.7);
+  transition: transform 0.25s $ease, box-shadow 0.25s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-120%) skewX(-20deg);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 26px -14px rgba(17, 17, 16, 0.8);
+
+    &::after { animation: thShine 0.8s ease; }
+  }
+
+  &:active { transform: scale(0.98); }
 }
 
 .hide-hint ::ng-deep .mat-mdc-form-field-subscript-wrapper {
@@ -131,7 +200,7 @@
 @media (max-width: 768px) {
   .boxed-container {
     border-radius: 16px;
-    padding: 8px 12px;
+    padding: 8px;
   }
 
   .search-wrapper {
@@ -148,4 +217,9 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boxed-container { animation: none; }
+  .action-btn, .action-btn:hover { transition: none; transform: none; }
 }

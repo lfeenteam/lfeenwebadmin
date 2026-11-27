@@ -6223,11 +6223,14 @@
       "stats": {
         "total": "إجمالي",
         "active": "نشطة",
-        "inactive": "معطلة"
+        "inactive": "معطلة",
+        "activeRate": "من المقالات مفعّلة"
       },
       "filter": {
         "all": "الكل",
-        "byDepartment": "تصفية حسب القسم"
+        "byDepartment": "تصفية حسب القسم",
+        "searchPlaceholder": "ابحث في العناوين والإجابات...",
+        "clear": "مسح الفلاتر"
       },
       "table": {
         "articleTitle": "العنوان",
@@ -6236,7 +6239,12 @@
         "status": "الحالة",
         "actions": "إجراءات",
         "empty": "لا توجد مقالات",
-        "rowActionsAria": "خيارات السؤال: {{name}}"
+        "rowActionsAria": "خيارات السؤال: {{name}}",
+        "emptyFiltered": "لا توجد مقالات تطابق البحث أو الفلتر",
+        "showAnswer": "عرض الإجابة",
+        "hideAnswer": "إخفاء الإجابة",
+        "noAnswer": "لا توجد إجابة لهذه المقالة",
+        "showing": "عرض {{shown}} من {{total}}"
       },
       "status": {
         "active": "نشط",

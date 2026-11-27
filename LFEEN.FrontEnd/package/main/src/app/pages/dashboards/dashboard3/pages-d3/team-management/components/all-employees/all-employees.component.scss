@@ -6,16 +6,38 @@
   }
 }
 
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+@keyframes empRowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes empPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
 .initials-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1px solid #E8E8E4;
-  background: #F8FAFC;
-  opacity: 1;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  border: 1px solid transparent;
+  background: #F7F7F5;
   font-size: 14px;
-  font-weight: 600;
-  color: #9E9E9A;
+  font-weight: 800;
+  color: #111110;
+  transition: transform 0.3s $ease;
+
+  // Soft tone per person (see avatarTone()).
+  &.tone-0 { background: #EFF6FF; color: #2563EB; border-color: #DBEAFE; }
+  &.tone-1 { background: #F0FDF4; color: #16A34A; border-color: #DCFCE7; }
+  &.tone-2 { background: #FFFBEB; color: #B45309; border-color: #FEF3C7; }
+  &.tone-3 { background: #FDF2F8; color: #DB2777; border-color: #FCE7F3; }
+  &.tone-4 { background: #F5F3FF; color: #7C3AED; border-color: #EDE9FE; }
+  &.tone-5 { background: #F4F4F5; color: #3F3F46; border-color: #E4E4E7; }
 }
 
 .status-badge {
@@ -51,6 +73,11 @@
     height: 6px;
     border-radius: 50%;
   }
+
+  &.active .dot {
+    background-color: #22c55e;
+    animation: empPulse 2s ease-out infinite;
+  }
 }
 
 // overflow-x: auto زي باقي جداول D3 (التسويات/الاشتراكات) عشان عمود الإجراءات (⋮)
@@ -70,14 +97,15 @@ table {
   th.mat-mdc-header-cell {
     background-color: #FCFCFB;
     color: #9E9E9A;
-    font-weight: 900;
-    font-size: 10px;
+    font-weight: 800;
+    font-size: 11.5px;
     line-height: 100%;
-    letter-spacing: 1px;
+    letter-spacing: 0.3px;
     text-align: start;
     vertical-align: middle;
     text-transform: uppercase;
     padding: 16px 32px;
+    height: 50px;
     border-bottom: 1px solid #E8E8E4;
   }
 
@@ -88,29 +116,79 @@ table {
   td.mat-mdc-cell {
     padding: 12px 32px;
     font-weight: 500;
+    border-bottom-color: #F0F0EC;
+    transition: box-shadow 0.3s $ease;
   }
 
-  tr.mat-mdc-row {
-    transition: background-color 0.15s;
+  // Rows slide in one after another (--i comes from the row index).
+  tr.emp-row {
+    animation: empRowIn 0.45s $ease both;
+    animation-delay: calc(min(var(--i, 0), 14) * 0.035s);
+    transition: background-color 0.2s;
 
     &:hover {
-      background-color: #FAFAF9;
+      background-color: #FAFAF8;
+
+      td:first-child { box-shadow: inset 3px 0 0 #111110; }
+      .initials-avatar, .employee-avatar { transform: scale(1.06); }
     }
+
+    &:last-child td.mat-mdc-cell { border-bottom: none; }
   }
 }
 
 // زرار الأكشن - بدون دايرة hover كبيرة
+// ⋮ button: a clean rounded square. Material's round, blurred hover/ripple layers are
+// turned off so they don't stack on top of our own hover background.
 .action-btn.mat-mdc-icon-button {
-  width: 32px !important;
-  height: 32px !important;
+  width: 34px !important;
+  height: 34px !important;
   padding: 0 !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
 
-  .mat-mdc-button-persistent-ripple,
-  .mat-ripple { border-radius: 8px !important; }
+  ::ng-deep .mat-mdc-button-persistent-ripple,
+  ::ng-deep .mat-mdc-button-ripple,
+  ::ng-deep .mat-mdc-focus-indicator,
+  ::ng-deep .mat-mdc-button-touch-target {
+    display: none !important;
+  }
+
+  line-height: 0 !important;
+
+  // The icon is inline by default and sits a few px off — center it as a box.
+  i-tabler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+  }
+
+  .icon-muted { transition: color 0.2s; }
 
   &:hover {
-    background-color: #F0F0EE !important;
+    background-color: #F3F3F0 !important;
+    border-color: #E8E8E4;
+
+    .icon-muted { color: #111110; }
+  }
+
+  &:active { transform: scale(0.94); }
+
+  &:focus-visible {
+    outline: 2px solid #111110;
+    outline-offset: 2px;
+  }
+
+  &.menu-open {
+    background-color: #111110 !important;
+    border-color: #111110;
+
+    .icon-muted { color: #fff; }
   }
 }
 
@@ -137,8 +215,47 @@ table {
 
 .employee-name {
   color: #111110;
-  font-weight: 900;
+  font-weight: 800;
   font-size: 14px;
+}
+
+.employee-email {
+  display: block;
+  margin-top: 1px;
+  color: #8D8D88 !important;
+}
+
+.manager-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #B45309;
+  font-size: 10.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.phone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111110;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3px;
+
+  i-tabler { color: #9E9E9A; }
+}
+
+.no-value {
+  color: #C8C8C3;
+  font-weight: 600;
 }
 
 .department-role {
@@ -170,9 +287,10 @@ table {
 }
 
 .employee-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  transition: transform 0.3s $ease;
   border: 1px solid #E8E8E4;
   background: #F8FAFC;
   opacity: 1;
@@ -464,5 +582,111 @@ table {
     &:hover {
       background-color: #2d2d2b;
     }
+  }
+}
+
+// RTL: the hover accent bar sits on the right edge.
+:host-context([dir="rtl"]) table tr.emp-row:hover td:first-child {
+  box-shadow: inset -3px 0 0 #111110;
+}
+
+// Arabic is cursive — letter-spacing breaks the joined letters.
+:host-context([dir="rtl"]) table th.mat-mdc-header-cell {
+  letter-spacing: 0;
+}
+
+@media (max-width: 767.98px) {
+  table tr.emp-row:hover td:first-child,
+  :host-context([dir="rtl"]) table tr.emp-row:hover td:first-child {
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  table tr.emp-row,
+  .status-badge.active .dot {
+    animation: none;
+  }
+}
+
+// ── Row actions menu (rendered in the overlay, so ::ng-deep) ──
+::ng-deep .emp-row-menu.mat-mdc-menu-panel {
+  min-width: 190px !important;
+  padding: 6px !important;
+  border-radius: 16px !important;
+  border: 1px solid #EDEDE9;
+  background: #fff !important;
+  box-shadow: 0 20px 44px -18px rgba(17, 17, 16, 0.35) !important;
+
+  .mat-mdc-menu-content { padding: 0 !important; }
+
+  .mat-mdc-menu-item {
+    min-height: 42px;
+    padding: 0 8px !important;
+    margin-bottom: 2px;
+    border-radius: 11px;
+    font-family: 'Cairo', sans-serif;
+    transition: background 0.18s;
+
+    &:last-child { margin-bottom: 0; }
+
+    .mat-mdc-menu-item-text,
+    span {
+      font-family: 'Cairo', sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+    }
+
+    .mat-mdc-menu-item-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    // Icon in its own small tinted square
+    i-tabler {
+      width: 30px;
+      height: 30px;
+      margin: 0 !important;
+      box-sizing: border-box;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    &:hover i-tabler { transform: scale(1.08); }
+
+    &.menu-neutral {
+      color: #111110;
+      i-tabler { background: #F7F7F5; color: #111110; border: 1px solid #EDEDE9; }
+      &:hover { background: #F7F7F5; }
+    }
+
+    &.menu-success {
+      color: #16A34A;
+      i-tabler { background: #F0FDF4; color: #16A34A; border: 1px solid #DCFCE7; }
+      &:hover { background: #F0FDF4; }
+    }
+
+    &.menu-warn {
+      color: #D97706;
+      i-tabler { background: #FFFBEB; color: #D97706; border: 1px solid #FEF3C7; }
+      &:hover { background: #FFFBEB; }
+    }
+
+    &.menu-danger {
+      color: #DC2626;
+      i-tabler { background: #FEF2F2; color: #DC2626; border: 1px solid #FEE2E2; }
+      &:hover { background: #FEF2F2; }
+    }
+  }
+
+  .menu-sep {
+    height: 1px;
+    margin: 4px 6px 6px;
+    background: #F0F0EC;
   }
 }

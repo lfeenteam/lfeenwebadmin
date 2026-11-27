@@ -82,11 +82,16 @@
 
   // Motion
   --d3-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
-  --d3-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  // Same motion as the LFEEN host dashboard (shared/styles/_motion.scss there):
+  // calm ease-out, things arrive quickly, nothing bounces, nothing loops.
+  --d3-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --d3-dur-tooltip: 120ms;
   --d3-dur-fast: 160ms;
   --d3-dur-base: 180ms;
-  --d3-dur-card: 200ms;
+  --d3-dur-card: 260ms;   // card hover
+  --d3-dur-icon: 420ms;   // an icon part moving with its meaning on hover
+  --d3-dur-enter: 600ms;  // cards arriving on page load
+  --d3-stagger: 120ms;    // between cards arriving
   --d3-dur-panel: 220ms;
   --d3-dur-reveal: 600ms;
 }
@@ -97,6 +102,8 @@
     --d3-dur-fast: 0ms;
     --d3-dur-base: 0ms;
     --d3-dur-card: 0ms;
+    --d3-dur-icon: 0ms;
+    --d3-dur-enter: 0ms;
     --d3-dur-panel: 0ms;
     --d3-dur-reveal: 0ms;
   }

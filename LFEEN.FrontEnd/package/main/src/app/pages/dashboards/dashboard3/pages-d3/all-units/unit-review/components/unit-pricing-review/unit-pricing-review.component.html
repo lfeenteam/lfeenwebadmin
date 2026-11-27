@@ -208,11 +208,11 @@
         <p>{{ 'd3.unitReview.pricingView.calendarSubtitle' | translate }}</p>
       </div>
         <div class="month-nav">
-        <button class="nav-btn" type="button" (click)="prevMonth()">
+        <button class="nav-btn" type="button" [attr.aria-label]="'common.calendar.previousMonth' | translate" (click)="prevMonth()">
           <i-tabler [name]="currentDir === 'rtl' ? 'chevron-right' : 'chevron-left'"></i-tabler>
         </button>
         <span class="month-label">{{ currentMonthLabel }}</span>
-        <button class="nav-btn" type="button" (click)="nextMonth()">
+        <button class="nav-btn" type="button" [attr.aria-label]="'common.calendar.nextMonth' | translate" (click)="nextMonth()">
           <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'"></i-tabler>
         </button>
       </div>

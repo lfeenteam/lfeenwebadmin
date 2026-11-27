@@ -29,11 +29,11 @@ const SEVERITY_META: Record<string, { icon: D3IconName; type: string; labelKey: 
 };
 
 const REVENUE_META: Record<string, { label: string; color: string }> = {
-  bookingCommissions: { label: 'd3.insights.revenueBookingCommission', color: '#0F172B' },
-  subscriptions: { label: 'd3.insights.revenueMonthlySubscriptions', color: '#64748B' },
-  usageServices: { label: 'd3.insights.revenueAdditionalServices', color: '#CBD5E1' },
+  bookingCommissions: { label: 'd3.insights.revenueBookingCommission', color: '#2563EB' },
+  subscriptions: { label: 'd3.insights.revenueMonthlySubscriptions', color: '#059669' },
+  usageServices: { label: 'd3.insights.revenueAdditionalServices', color: '#D97706' },
 };
-const REVENUE_FALLBACK_COLORS = ['#94A3B8', '#334155', '#E2E8F0'];
+const REVENUE_FALLBACK_COLORS = ['#7C3AED', '#DC2626', '#111827'];
 
 const SUPPORTED_LANGS = ['ar', 'en'];
 

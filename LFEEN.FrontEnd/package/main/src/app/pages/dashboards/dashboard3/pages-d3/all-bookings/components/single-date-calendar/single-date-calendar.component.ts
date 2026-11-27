@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TablerIconsModule } from 'angular-tabler-icons';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { appLocale } from 'src/app/utils/locale-format.util';
 
 interface CalendarDay {
@@ -18,7 +18,7 @@ const YEARS_PER_PAGE = 12;
 @Component({
   selector: 'app-single-date-calendar',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule],
+  imports: [CommonModule, TablerIconsModule, TranslateModule],
   templateUrl: './single-date-calendar.component.html',
   styleUrl: './single-date-calendar.component.scss'
 })
@@ -151,6 +151,19 @@ export class SingleDateCalendarComponent implements OnChanges {
     if (this.view === 'years') this.nextYearPage();
     else if (this.view === 'months') this.shiftYear(1);
     else this.nextMonth();
+  }
+
+  /** Accessible names for the header arrows — they step by month, year or year page depending on the view. */
+  get navPrevLabelKey(): string {
+    if (this.view === 'years') return 'common.calendar.previousYears';
+    if (this.view === 'months') return 'common.calendar.previousYear';
+    return 'common.calendar.previousMonth';
+  }
+
+  get navNextLabelKey(): string {
+    if (this.view === 'years') return 'common.calendar.nextYears';
+    if (this.view === 'months') return 'common.calendar.nextYear';
+    return 'common.calendar.nextMonth';
   }
 
   get headerLabel(): string {

@@ -63,9 +63,11 @@ interface GrowthTab {
 }
 
 const TABS: GrowthTab[] = [
-  { key: 'newGuests', label: 'd3.chart.tabNewGuests', icon: 'guests', color: '#0F172B' },
-  { key: 'newMerchants', label: 'd3.chart.tabNewHosts', icon: 'hosts', color: '#334155' },
-  { key: 'bookings', label: 'd3.chart.tabBookings', icon: 'bookings', color: '#475569' },
+  // Each series in its own colour, the same as on the rest of the page:
+  // guests = guest app green, hosts = host app blue, bookings = navy.
+  { key: 'newGuests', label: 'd3.chart.tabNewGuests', icon: 'guests', color: '#059669' },
+  { key: 'newMerchants', label: 'd3.chart.tabNewHosts', icon: 'hosts', color: '#2563EB' },
+  { key: 'bookings', label: 'd3.chart.tabBookings', icon: 'bookings', color: '#111827' },
 ];
 
 const AXIS_COLOR = '#90A1B9';
@@ -180,8 +182,8 @@ export class ChartComponent {
 
     return {
       segments: [
-        { label: 'd3.chart.segMale', value: male, color: '#0F172B' },
-        { label: 'd3.chart.segFemale', value: female, color: '#94A3B8' },
+        { label: 'd3.chart.segMale', value: male, color: '#2563EB' },
+        { label: 'd3.chart.segFemale', value: female, color: '#7C3AED' },
       ],
       // No known-gender guests → a 0%/0% bar would be meaningless, show a note instead.
       hasKnownData: knownCount !== 0 && male + female > 0,
@@ -261,7 +263,7 @@ export class ChartComponent {
         parentHeightOffset: 0,
         animations: {
           enabled: animate,
-          speed: 600,
+          speed: 1100,
           animateGradually: { enabled: false, delay: 0 },
           dynamicAnimation: { enabled: animate, speed: 450 },
         },

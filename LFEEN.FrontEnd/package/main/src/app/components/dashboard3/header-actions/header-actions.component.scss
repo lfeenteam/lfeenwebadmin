@@ -485,6 +485,8 @@
   .d3-user-menu-logout.mat-mdc-menu-item {
     .mat-mdc-menu-item-text, app-d3-icon { color: var(--d3-danger); }
 
+    app-d3-icon.d3-icon-mirror { transform: scaleX(-1); }
+
     &:hover {
       background: var(--d3-danger-soft);
       app-d3-icon { color: var(--d3-danger); }
