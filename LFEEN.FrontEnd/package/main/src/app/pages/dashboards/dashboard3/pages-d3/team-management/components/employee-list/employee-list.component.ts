@@ -27,6 +27,8 @@ export class EmployeeListComponent implements OnDestroy {
   @Input() hasFilters = false;
   /** False for view-only admins: row actions and "add first" are hidden (BUG-2739). */
   @Input() canManage = true;
+  /** Shows the "add employee" button in the table toolbar (department view, managers only). */
+  @Input() showAdd = false;
 
   @Output() clearFilters = new EventEmitter<void>();
   @Output() edit = new EventEmitter<Employee>();

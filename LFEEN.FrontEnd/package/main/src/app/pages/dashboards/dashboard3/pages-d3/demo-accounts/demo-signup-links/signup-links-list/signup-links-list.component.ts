@@ -43,6 +43,8 @@ import {
 } from '../demo-signup-links.util';
 
 const EMPTY = '—';
+/** Batch ids are GUIDs; anything else in ?batchId= is a 400 from the server. */
+const BATCH_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // /demo-accounts/signup-links — "Track links" (guide §4): one row per link — who it is for (area /
 // notes, own or from the batch), whether and how often it was opened, the account's state and the
@@ -94,10 +96,17 @@ export class SignupLinksListComponent implements OnInit {
   totalCount = 0;
   loading = false;
   loadError: string | null = null;
+  /** Retry only helps network / server / rate-limit errors, not a 400 or 404. */
+  loadRetryable = true;
   /** DEMO_SIGNUP_DISABLED: the feature is off on the server. */
   featureDisabled = false;
 
   batches: DemoSignupBatch[] = [];
+  /** The first page of batches has arrived (until then an unknown ?batchId= can't be judged). */
+  private batchesLoaded = false;
+  /** ?batchId= is not a GUID, or GET batches/{id} answered 404 — no batch actions then. */
+  batchMissing = false;
+  private batchLookup?: Subscription;
   /** Checked links (kept across pages until a cancel or a filter change). */
   private readonly selectedLinks = new Map<string, DemoSignupLink>();
   copiedId: string | null = null;
@@ -123,11 +132,21 @@ export class SignupLinksListComponent implements OnInit {
       this.searchText = (params.get('search') ?? '').slice(0, DEMO_LIMITS.search);
       // Pick-list values only: anything else would be a 400 VALIDATION_ERROR — ignore it.
       this.state = state && DEMO_SIGNUP_STATES.includes(state) ? state : null;
-      this.batchId = params.get('batchId') || null;
+      const batchId = params.get('batchId') || null;
+      if (batchId !== this.batchId) {
+        this.batchLookup?.unsubscribe();
+        this.batchMissing = !!batchId && !BATCH_ID.test(batchId);
+      }
+      this.batchId = batchId;
       this.page = Number.isInteger(page) && page > 0 ? page : 1;
       this.pageSize = (DEMO_PAGE_SIZES as readonly number[]).includes(size) ? size : DEMO_DEFAULT_PAGE_SIZE;
       if (filtersChanged) this.selectedLinks.clear();
+      if (this.batchMissing) {
+        this.showNoBatch();
+        return;
+      }
       this.load();
+      this.checkBatch();
     });
 
     this.searchInput$
@@ -192,17 +211,63 @@ export class SignupLinksListComponent implements OnInit {
         this.items = [];
         this.totalCount = 0;
         this.loading = false;
+        if (this.batchId && e.code === 'DEMO_SIGNUP_BATCH_NOT_FOUND') {
+          this.batchMissing = true;
+          return;
+        }
         this.featureDisabled = e.code === 'DEMO_SIGNUP_DISABLED';
+        this.loadRetryable = !e.status || e.status >= 500 || e.status === 429;
         if (!this.featureDisabled) this.loadError = signupErrorMessage(e, this.translate);
       },
     });
   }
 
+  /** An unknown batch: nothing to list, and no request that can only fail. */
+  private showNoBatch(): void {
+    this.listRequest?.unsubscribe();
+    this.items = [];
+    this.totalCount = 0;
+    this.loading = false;
+    this.loadError = null;
+  }
+
   /** The batch filter list; newest first, up to 100 (the page size limit). */
   loadBatches(): void {
     this.service.batches(1, 100).subscribe({
-      next: res => (this.batches = res?.items ?? []),
-      error: () => (this.batches = []),
+      next: res => {
+        this.batches = res?.items ?? [];
+        this.batchesLoaded = true;
+        this.checkBatch();
+      },
+      error: () => {
+        this.batches = [];
+        this.batchesLoaded = true;
+        this.checkBatch();
+      },
+    });
+  }
+
+  /**
+   * ?batchId= that is not among the first 100 batches: an older batch (fetched and added to the
+   * list, so its name, counters and actions show) or one that doesn't exist (404 → "not found").
+   */
+  private checkBatch(): void {
+    const id = this.batchId;
+    if (!id || !this.batchesLoaded || this.batchMissing || this.batch) return;
+    this.batchLookup?.unsubscribe();
+    this.batchLookup = this.service.batch(id).subscribe({
+      next: b => {
+        if (id !== this.batchId || !b) return;
+        if (!this.batches.some(x => x.id === b.id)) this.batches = [...this.batches, { ...b, links: undefined }];
+      },
+      error: err => {
+        if (id !== this.batchId) return;
+        const e = readDemoError(err);
+        if (e.status === 404 || e.status === 400) {
+          this.batchMissing = true;
+          this.showNoBatch();
+        }
+      },
     });
   }
 
@@ -227,6 +292,10 @@ export class SignupLinksListComponent implements OnInit {
 
   onPageSizeChange(size: number): void {
     this.updateQuery({ size: size === DEMO_DEFAULT_PAGE_SIZE ? null : size, page: null });
+  }
+
+  showAllBatches(): void {
+    this.updateQuery({ batchId: null, page: null });
   }
 
   clearFilters(): void {
@@ -350,14 +419,15 @@ export class SignupLinksListComponent implements OnInit {
     this.confirmCancel({ mode: 'links', linkIds: links.map(l => l.id), openedCount: links.filter(l => !!l.demoAccountId).length });
   }
 
+  /** Only for a batch we know (from the list or GET batches/{id}). */
   cancelBatch(): void {
-    if (!this.batchId) return;
     const b = this.batch;
+    if (!b) return;
     this.confirmCancel({
       mode: 'batch',
-      batchId: this.batchId,
+      batchId: b.id,
       total: this.batchCancellable,
-      openedCount: b ? b.usedLinks ?? 0 : null,
+      openedCount: b.usedLinks ?? 0,
     });
   }
 

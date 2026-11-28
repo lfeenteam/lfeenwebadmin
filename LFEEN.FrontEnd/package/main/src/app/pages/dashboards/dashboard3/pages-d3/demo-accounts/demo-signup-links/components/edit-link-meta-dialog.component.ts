@@ -97,7 +97,7 @@ interface FieldState {
         @if (error) {
           <div class="da-alert danger" role="alert">
             <i-tabler name="alert-circle" class="icon-18"></i-tabler>
-            <p>{{ error }}</p>
+            <p dir="auto">{{ error }}</p>
           </div>
         }
       </div>
@@ -230,7 +230,7 @@ export class EditLinkMetaDialogComponent {
         this.saving = false;
         const e = readDemoError(err);
         if (e.code !== 'VALIDATION_ERROR') {
-          // DEMO_SIGNUP_LINK_ID_NOT_FOUND / DEMO_SIGNUP_BATCH_NOT_FOUND / …: the server's sentence.
+          // DEMO_SIGNUP_LINK_ID_NOT_FOUND / DEMO_SIGNUP_BATCH_NOT_FOUND / …: our own text for the code.
           this.error = signupErrorMessage(e, this.translate);
           return;
         }

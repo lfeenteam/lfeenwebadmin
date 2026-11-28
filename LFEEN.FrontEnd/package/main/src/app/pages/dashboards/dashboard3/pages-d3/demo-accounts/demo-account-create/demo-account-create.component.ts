@@ -33,6 +33,7 @@ import { InvitationEditorStore } from '../components/invitation-editor/invitatio
 import { InvitationEditorComponent } from '../components/invitation-editor/invitation-editor.component';
 import { InvitationPreviewComponent } from '../components/invitation-editor/invitation-preview.component';
 import { CredentialsDialogComponent, CredentialsDialogData } from '../components/credentials-dialog/credentials-dialog.component';
+import { FieldErrorDirective } from '../../../directives/field-error.directive';
 
 type CreateSection = 'account' | 'trial' | 'message';
 type CreateField ='fullName' | 'channel' | 'email' | 'phoneNumber' | 'durationDays' | 'pin' | 'note';
@@ -50,6 +51,7 @@ const TRIAL_FIELDS: CreateField[] = ['durationDays', 'pin', 'note'];
   imports: [
     CommonModule, FormsModule, TablerIconsModule, TranslateModule,
     DemoAttachmentsComponent, InvitationEditorComponent, InvitationPreviewComponent, AppPluralPipe,
+    FieldErrorDirective,
   ],
   providers: [InvitationEditorStore],
   templateUrl: './demo-account-create.component.html',

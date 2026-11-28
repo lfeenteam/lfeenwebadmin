@@ -32,7 +32,7 @@
   }
 
   <!-- Table -->
-  <div class="complaints-table" [class.host-support-table]="hostSupportMode" [class.resolved-table]="resolvedMode" [class.compact-mode]="compact && resolvedMode">
+  <div class="complaints-table" [class.host-support-table]="hostSupportMode" [class.resolved-table]="resolvedMode" [class.compact-mode]="compact && resolvedMode" [class.customer-table]="!resolvedMode && !hostSupportMode" [class.chat-compact]="compact && !resolvedMode && !hostSupportMode">
     <!-- Header -->
     @if (resolvedMode) {
       <div class="table-head resolved-head">
@@ -62,9 +62,9 @@
         <div class="col-ticket">{{ 'd3.complaints.table.ticket' | translate }}</div>
         <div class="col-client">{{ 'd3.complaints.table.client' | translate }}</div>
         <div class="col-status">{{ 'd3.complaints.table.status' | translate }}</div>
-        <div class="col-department">{{ 'd3.complaints.hostFilters.department' | translate }}</div>
-        <div class="col-date">{{ 'd3.complaints.table.date' | translate }}</div>
+        <div class="col-activity">{{ 'd3.complaints.table.lastActivity' | translate }}</div>
         <div class="col-assign">{{ 'd3.complaints.table.assign' | translate }}</div>
+        <div class="col-go"></div>
       </div>
     }
 
@@ -78,6 +78,7 @@
         [class.host-row]="hostSupportMode"
         [class.resolved-row]="resolvedMode"
         [class.selected]="selectedId === c.id"
+        [style.--i]="$index"
         (click)="resolvedMode ? null : rowSelect.emit(c)">
 
         @if (resolvedMode) {
@@ -183,9 +184,12 @@
             </button>
           </div>
         } @else {
-          <!-- Ticket ID -->
+          <!-- Ticket ID + department tag -->
           <div class="col-ticket">
             <span class="ticket-id">{{ c.ticketId }}</span>
+            @if (c.department) {
+              <span class="dept-tag">{{ clientDepartmentLabel(c) }}</span>
+            }
           </div>
 
           <div class="col-client">
@@ -208,11 +212,18 @@
             </span>
           </div>
 
-          <!-- Department -->
-          <div class="col-department">{{ clientDepartmentLabel(c) }}</div>
-
-          <!-- Date -->
-          <div class="col-date">{{ displayDate(c) }}</div>
+          <!-- Last activity: relative time, a bar that fills over 30 days, the date -->
+          <div class="col-activity">
+            @if (activityOf(c); as act) {
+              <div class="activity" [class.is-late]="act.tone === 'late'" [class.is-overdue]="act.tone === 'overdue'">
+                <span class="activity-ago">{{ act.ago }}</span>
+                <span class="activity-bar"><span [style.width.%]="act.pct"></span></span>
+                <span class="activity-date">{{ displayDate(c) }}</span>
+              </div>
+            } @else {
+              <span class="activity-date">{{ displayDate(c) }}</span>
+            }
+          </div>
 
           <!-- Assign -->
           <div class="col-assign">
@@ -226,11 +237,17 @@
               [matMenuTriggerFor]="assignMenuFor(c)"
               [title]="assignButtonTitle(c)"
               (click)="$event.stopPropagation(); onAssignBtnClick(c)">
-              <i-tabler name="user-plus" class="icon-16"></i-tabler>
+              <span class="assign-circle"><i-tabler name="user-plus" class="icon-16"></i-tabler></span>
               @if (c.assignedAdminName) {
                 <span class="assign-name">{{ c.assignedAdminName }}</span>
+              } @else {
+                <span class="assign-label">{{ 'd3.complaints.table.assign' | translate }}</span>
               }
             </button>
+          </div>
+
+          <div class="col-go" aria-hidden="true">
+            <i-tabler [name]="currentDir === 'rtl' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
           </div>
         }
 

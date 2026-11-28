@@ -1,5 +1,6 @@
-import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -32,7 +33,7 @@ import { ReviewEmptyStateComponent } from 'src/app/components/dashboard3/review-
 @Component({
   selector: 'app-profile-change-review',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TablerIconsModule, AppDatePipe, ReviewEmptyStateComponent],
+  imports: [CommonModule, FormsModule, A11yModule, TranslateModule, TablerIconsModule, AppDatePipe, ReviewEmptyStateComponent],
   templateUrl: './profile-change-review.component.html',
   styleUrl: './profile-change-review.component.scss'
 })
@@ -61,6 +62,12 @@ export class ProfileChangeReviewComponent implements OnInit {
   reasons: Record<string, string> = { Branding: '', CommercialRegister: '' };
   submitting: ProfileSection | null = null;
   downloading: CertificateVersion | null = null;
+
+  /** BUG-2667: full-size logo preview; `requested` tells which column it came from. */
+  readonly logoPreview = signal<{ url: string; requested: boolean } | null>(null);
+  /** Original pixel size of the previewed logo, shown once it loads. */
+  readonly previewSize = signal<string | null>(null);
+  private previewTrigger?: HTMLElement;
 
   get dir(): 'rtl' | 'ltr' {
     return this.translate.currentLang === 'en' ? 'ltr' : 'rtl';
@@ -203,6 +210,33 @@ export class ProfileChangeReviewComponent implements OnInit {
         ));
       }
     });
+  }
+
+  openLogoPreview(url: string, requested: boolean, event: Event): void {
+    this.previewTrigger = event.currentTarget as HTMLElement;
+    this.previewSize.set(null);
+    this.logoPreview.set({ url, requested });
+  }
+
+  closeLogoPreview(): void {
+    if (!this.logoPreview()) return;
+    this.logoPreview.set(null);
+    this.previewSize.set(null);
+    const trigger = this.previewTrigger;
+    this.previewTrigger = undefined;
+    setTimeout(() => trigger?.focus());
+  }
+
+  onPreviewLoad(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img.naturalWidth && img.naturalHeight) {
+      this.previewSize.set(`${img.naturalWidth} × ${img.naturalHeight} px`);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeLogoPreview();
   }
 
   private viewOf(section: ProfileSection): AnySectionView | null {

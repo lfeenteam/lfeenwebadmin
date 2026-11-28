@@ -1,22 +1,25 @@
 <div class="complaint-page" [dir]="currentDir">
+ <div class="board">
 
-  <!-- Tabs -->
-  <div class="tabs-row border-bottom-gray">
+  <!-- Tabs + the auto-assign hint on one row -->
+  <div class="tabs-row">
     <app-complaint-tabs-bar
       [activeTab]="activeTab()"
+      [counts]="{ customers: customerTotalCount(), hosts: hostTotalCount(), resolved: resolvedTotalCount() }"
       (tabChange)="setTab($event)">
     </app-complaint-tabs-bar>
+
+    @if ((activeTab() === 'customers' || activeTab() === 'hosts') && canManage()) {
+      <div class="assign-warning">
+        <i-tabler name="info-circle" class="icon-16"></i-tabler>
+        <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>
+      </div>
+    }
   </div>
 
   <div class="content-area" [class.chat-open]="chatOpen && (activeTab() !== 'resolved' || selectedComplaint()?.type === 'customer')">
 
     <div class="table-column">
-      @if ((activeTab() === 'customers' || activeTab() === 'hosts') && canManage()) {
-        <div class="assign-warning">
-          <i-tabler name="info-circle" class="icon-16"></i-tabler>
-          <span>{{ 'd3.complaints.table.assignHint' | translate }}</span>
-        </div>
-      }
 
       @if (activeTab() === 'hosts') {
         <div class="host-filters-bar">
@@ -110,4 +113,5 @@
 
   </div>
 
+ </div>
 </div>

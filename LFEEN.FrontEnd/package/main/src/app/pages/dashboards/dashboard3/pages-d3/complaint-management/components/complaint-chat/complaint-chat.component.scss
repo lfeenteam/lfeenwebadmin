@@ -785,3 +785,160 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// ── Redesign ────────────────────────────────────────────────────────────────
+
+// New messages rise in softly (tracked by id, so existing ones don't replay).
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.msg-row {
+  animation: msgIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.chat-panel {
+  // Close is available on desktop too, beside the client's name.
+  .chat-header-top .close-btn.mobile-only {
+    display: inline-flex;
+  }
+
+  .chat-header-top .close-btn {
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #E8E8E4;
+    border-radius: 10px;
+    background: #fff;
+    color: #6B6B67;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background: #F7F7F5;
+      color: #111110;
+    }
+  }
+
+  // Resolving is the main action here: solid ink, not a green outline.
+  .chat-header .resolve-chat-btn {
+    min-height: 42px;
+    border-color: #111110;
+    background: #111110;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 10px 18px -12px rgba(17, 17, 16, 0.8);
+    transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease;
+
+    &:hover {
+      background: #000;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 22px -12px rgba(17, 17, 16, 0.9);
+    }
+
+    &:active {
+      transform: none;
+    }
+  }
+
+  // Thread on a faint dot grid so bubbles read as objects on a surface.
+  .chat-messages {
+    background:
+      radial-gradient(circle at 1px 1px, rgba(17, 17, 16, 0.05) 1px, transparent 0) 0 0 / 18px 18px,
+      #F7F7F5;
+  }
+
+  .date-separator {
+    color: #6B6B67;
+  }
+
+  .msg-bubble {
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04);
+  }
+
+  .bubble-support {
+    border-radius: 4px 16px 16px 16px; // same squared corner as before, softer radii
+    box-shadow: 0 8px 18px -12px rgba(17, 17, 16, 0.6);
+  }
+
+  .chat-footer {
+    border-radius: 14px;
+    background: #F7F7F5;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus-within {
+      border-color: #111110;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
+    }
+  }
+
+  .send-btn:not(:disabled) {
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Ticket number under the client's name.
+.chat-panel .client-meta .client-ticket {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: #9E9E9A;
+  direction: ltr;
+  text-align: start;
+}
+
+// The resolve button: a normal-weight action, not a slab.
+.chat-panel .chat-header .resolve-chat-btn {
+  min-height: 40px;
+  border-radius: 12px;
+  font-size: 14px;
+  box-shadow: 0 6px 14px -10px rgba(17, 17, 16, 0.7);
+
+  &:hover {
+    box-shadow: 0 10px 18px -10px rgba(17, 17, 16, 0.8);
+  }
+}
+
+// Who wrote it: a small label above assistant and support messages.
+.chat-panel .msg-support .msg-sender {
+  display: block;
+  margin-bottom: -4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9E9E9A;
+}
+
+// Support team replies stay ink, with a lighter shadow than before.
+.chat-panel .bubble-support {
+  box-shadow: 0 6px 14px -10px rgba(17, 17, 16, 0.6);
+}
+
+// The smart assistant reads differently from a person: white bubble, ink text.
+.chat-panel .msg-bot .bubble-support {
+  border-color: #E8E8E4;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.05);
+
+  .msg-text {
+    color: #1F1F1D;
+  }
+
+  .msg-attachment-file {
+    background: #F7F7F5;
+    color: #111110;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg-row {
+    animation: none;
+  }
+}

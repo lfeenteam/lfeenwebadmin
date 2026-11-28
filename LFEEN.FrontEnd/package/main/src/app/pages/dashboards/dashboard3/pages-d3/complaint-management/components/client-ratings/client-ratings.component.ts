@@ -25,6 +25,7 @@ import {
 } from '../../interfaces/ratings.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { CountUpDirective } from '../../../../directives/count-up.directive';
 
 type RatingsView = 'list' | 'agents';
 
@@ -37,7 +38,7 @@ const CLOSED_BY_KEYS: Record<string, string> = {
 @Component({
   selector: 'app-client-ratings',
   standalone: true,
-  imports: [CommonModule, TablerIconsModule, TranslateModule, MaterialModule, TabsFilterComponent, SingleDateCalendarComponent, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe],
+  imports: [CommonModule, TablerIconsModule, TranslateModule, MaterialModule, TabsFilterComponent, SingleDateCalendarComponent, DashboardEmptyComponent, DashboardLoadingComponent, AppPluralPipe, CountUpDirective],
   templateUrl: './client-ratings.component.html',
   styleUrl: './client-ratings.component.scss'
 })
@@ -58,6 +59,23 @@ export class ClientRatingsComponent implements OnInit {
 
   readonly starSlots = [1, 2, 3, 4, 5];
   readonly distributionStars = RATING_STARS;
+
+  /** Colour per star level for the stacked distribution bar: 5★ green → 1★ red. */
+  readonly starTone: Record<number, string> = {
+    5: 'tw-bg-emerald-500',
+    4: 'tw-bg-lime-400',
+    3: 'tw-bg-amber-400',
+    2: 'tw-bg-orange-500',
+    1: 'tw-bg-red-500',
+  };
+
+  private readonly avatarTones = [
+    'tw-bg-indigo-50 tw-text-indigo-700',
+    'tw-bg-sky-50 tw-text-sky-700',
+    'tw-bg-emerald-50 tw-text-emerald-700',
+    'tw-bg-amber-50 tw-text-amber-700',
+    'tw-bg-rose-50 tw-text-rose-700',
+  ];
 
   view: RatingsView = 'list';
 
@@ -334,6 +352,27 @@ export class ClientRatingsComponent implements OnInit {
 
   distributionPercent(distribution: Record<string, number> | null | undefined, stars: number, total: number): number {
     return total > 0 ? (this.distributionCount(distribution, stars) / total) * 100 : 0;
+  }
+
+  /** Whole-number share of the ratings at the given star levels, from the server's
+   * distribution over the full filtered set (0 when nothing is rated yet). */
+  sharePercent(distribution: Record<string, number> | null | undefined, total: number, stars: number[]): number {
+    if (!total) return 0;
+    const count = stars.reduce((sum, k) => sum + this.distributionCount(distribution, k), 0);
+    return Math.round((count / total) * 100);
+  }
+
+  initials(name: string | null | undefined): string {
+    const parts = (name ?? '').trim().split(/s+/).filter(Boolean);
+    if (!parts.length) return '—';
+    return parts.length === 1 ? parts[0].slice(0, 2) : parts[0][0] + parts[1][0];
+  }
+
+  avatarTone(name: string | null | undefined): string {
+    const key = name ?? '';
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash = (hash + key.charCodeAt(i)) % 997;
+    return this.avatarTones[hash % this.avatarTones.length];
   }
 
   /** 'YYYY-MM-DD' (a local calendar day) → localized short date. */

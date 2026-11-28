@@ -64,45 +64,45 @@
                           {{
                             "d3.platformOffers.fields.internalAr" | translate
                           }}*
-                          <input formControlName="internalNameAr" [attr.maxlength]="limits.nameMax" />
+                          <input formControlName="internalNameAr" [appFieldError]="fieldError('internalNameAr')" fieldErrorId="po-internalNameAr-err" [attr.maxlength]="limits.nameMax" />
                           @if (fieldError("internalNameAr"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-internalNameAr-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.internalEn" | translate
                           }}*
-                          <input formControlName="internalNameEn" dir="ltr" [attr.maxlength]="limits.nameMax" />
+                          <input formControlName="internalNameEn" [appFieldError]="fieldError('internalNameEn')" fieldErrorId="po-internalNameEn-err" dir="ltr" [attr.maxlength]="limits.nameMax" />
                           @if (fieldError("internalNameEn"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-internalNameEn-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.externalAr" | translate
                           }}
-                          <input formControlName="externalNameAr" [attr.maxlength]="limits.nameMax" />
+                          <input formControlName="externalNameAr" [appFieldError]="fieldError('externalNameAr')" fieldErrorId="po-externalNameAr-err" [attr.maxlength]="limits.nameMax" />
                           @if (fieldError("externalNameAr"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-externalNameAr-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.externalEn" | translate
                           }}
-                          <input formControlName="externalNameEn" dir="ltr" [attr.maxlength]="limits.nameMax" />
+                          <input formControlName="externalNameEn" [appFieldError]="fieldError('externalNameEn')" fieldErrorId="po-externalNameEn-err" dir="ltr" [attr.maxlength]="limits.nameMax" />
                           @if (fieldError("externalNameEn"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-externalNameEn-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{
                             "d3.platformOffers.fields.descriptionAr" | translate
                           }}
-                          <textarea formControlName="descriptionAr" [attr.maxlength]="limits.descriptionMax"></textarea>
+                          <textarea formControlName="descriptionAr" [appFieldError]="fieldError('descriptionAr')" fieldErrorId="po-descriptionAr-err" [attr.maxlength]="limits.descriptionMax"></textarea>
                           @if (fieldError("descriptionAr"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-descriptionAr-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -110,12 +110,12 @@
                             "d3.platformOffers.fields.descriptionEn" | translate
                           }}
                           <textarea
-                            formControlName="descriptionEn"
+                            formControlName="descriptionEn" [appFieldError]="fieldError('descriptionEn')" fieldErrorId="po-descriptionEn-err"
                             dir="ltr"
                             [attr.maxlength]="limits.descriptionMax"
                           ></textarea>
                           @if (fieldError("descriptionEn"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-descriptionEn-err">{{ msg }}</small>
                           }
                         </label>
                       </div>
@@ -155,13 +155,13 @@
                           <label>
                             {{ "d3.platformOffers.fields.code" | translate }}*
                             <input
-                              formControlName="code"
+                              formControlName="code" [appFieldError]="fieldError('code')" fieldErrorId="po-code-err"
                               dir="ltr"
                               [attr.maxlength]="limits.codeMax"
                               (input)="codeChanged($any($event.target).value)"
                             />
                             @if (fieldError("code"); as msg) {
-                              <small class="field-error">{{ msg }}</small>
+                              <small class="field-error" id="po-code-err">{{ msg }}</small>
                             } @else {
                               <small [class.ok]="codeState() === 'ok'">
                                 {{
@@ -195,7 +195,7 @@
                           {{ "d3.platformOffers.fields.value" | translate }}*
                           <input
                             type="number"
-                            formControlName="discountValue"
+                            formControlName="discountValue" [appFieldError]="fieldError('discountValue')" fieldErrorId="po-discountValue-err"
                             min="0.01"
                             [attr.max]="
                               form.value.discountType === 'Percentage'
@@ -204,7 +204,7 @@
                             "
                           />
                           @if (fieldError("discountValue"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-discountValue-err">{{ msg }}</small>
                           }
                         </label>
                         @if (form.value.discountType === "Percentage") {
@@ -216,10 +216,10 @@
                               type="number"
                               min="0"
                               [attr.max]="limits.amountMax"
-                              formControlName="maxDiscountAmount"
+                              formControlName="maxDiscountAmount" [appFieldError]="fieldError('maxDiscountAmount')" fieldErrorId="po-maxDiscountAmount-err"
                             />
                             @if (fieldError("maxDiscountAmount"); as msg) {
-                              <small class="field-error">{{ msg }}</small>
+                              <small class="field-error" id="po-maxDiscountAmount-err">{{ msg }}</small>
                             }
                           </label>
                         }
@@ -244,7 +244,7 @@
                             {{ "d3.platformOffers.fields.unitIds" | translate }}
                             <mat-select
                               #unitSelect
-                              formControlName="unitIds"
+                              formControlName="unitIds" [appFieldError]="fieldError('unitIds')" fieldErrorId="po-unitIds-err"
                               multiple
                               panelClass="d3-offer-select-panel d3-offer-unit-panel"
                               (openedChange)="unitPickerToggled($event, unitSelect, unitSearchInput)"
@@ -310,7 +310,7 @@
                               }}</small>
                             }
                             @if (fieldError("unitIds"); as msg) {
-                              <small class="field-error">{{ msg }}</small>
+                              <small class="field-error" id="po-unitIds-err">{{ msg }}</small>
                             }
                           </label>
                         }
@@ -323,7 +323,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="offerStartMenu"
+                            [matMenuTriggerFor]="offerStartMenu" [appFieldError]="fieldError('offerStartDate')" fieldErrorId="po-offerStartDate-err"
                           >
                             <i-tabler
                               name="calendar"
@@ -371,7 +371,7 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("offerStartDate"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-offerStartDate-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -379,7 +379,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="offerEndMenu"
+                            [matMenuTriggerFor]="offerEndMenu" [appFieldError]="fieldError('offerEndDate')" fieldErrorId="po-offerEndDate-err"
                           >
                             <i-tabler
                               name="calendar"
@@ -423,18 +423,18 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("offerEndDate"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-offerEndDate-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.days" | translate }}
                           <input
-                            formControlName="offerDaysOfWeek"
+                            formControlName="offerDaysOfWeek" [appFieldError]="fieldError('offerDaysOfWeek')" fieldErrorId="po-offerDaysOfWeek-err"
                             placeholder="Sat,Sun,Mon"
                             dir="ltr"
                           />
                           @if (fieldError("offerDaysOfWeek"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-offerDaysOfWeek-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -444,7 +444,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="happyStartMenu"
+                            [matMenuTriggerFor]="happyStartMenu" [appFieldError]="fieldError('happyHourStart')" fieldErrorId="po-happyHourStart-err"
                           >
                             <i-tabler name="clock" class="date-icon"></i-tabler>
                             <span class="date-label">
@@ -469,7 +469,7 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("happyHourStart"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-happyHourStart-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -477,7 +477,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="happyEndMenu"
+                            [matMenuTriggerFor]="happyEndMenu" [appFieldError]="fieldError('happyHourEnd')" fieldErrorId="po-happyHourEnd-err"
                           >
                             <i-tabler name="clock" class="date-icon"></i-tabler>
                             <span class="date-label">
@@ -502,7 +502,7 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("happyHourEnd"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-happyHourEnd-err">{{ msg }}</small>
                           }
                         </label>
                       </div>
@@ -517,7 +517,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="stayStartMenu"
+                            [matMenuTriggerFor]="stayStartMenu" [appFieldError]="fieldError('stayStartDate')" fieldErrorId="po-stayStartDate-err"
                           >
                             <i-tabler
                               name="calendar"
@@ -565,7 +565,7 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("stayStartDate"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-stayStartDate-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -573,7 +573,7 @@
                           <button
                             type="button"
                             class="date-pill"
-                            [matMenuTriggerFor]="stayEndMenu"
+                            [matMenuTriggerFor]="stayEndMenu" [appFieldError]="fieldError('stayEndDate')" fieldErrorId="po-stayEndDate-err"
                           >
                             <i-tabler
                               name="calendar"
@@ -617,14 +617,14 @@
                             </ng-template>
                           </mat-menu>
                           @if (fieldError("stayEndDate"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-stayEndDate-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.stayDays" | translate }}
-                          <input placeholder="Fri,Sat" formControlName="stayDaysOfWeek" dir="ltr" />
+                          <input placeholder="Fri,Sat" formControlName="stayDaysOfWeek" [appFieldError]="fieldError('stayDaysOfWeek')" fieldErrorId="po-stayDaysOfWeek-err" dir="ltr" />
                           @if (fieldError("stayDaysOfWeek"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-stayDaysOfWeek-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -635,24 +635,24 @@
                             type="number"
                             step="1"
                             [attr.max]="limits.arrivalDaysMax"
-                            formControlName="minDaysBeforeArrival"
+                            formControlName="minDaysBeforeArrival" [appFieldError]="fieldError('minDaysBeforeArrival')" fieldErrorId="po-minDaysBeforeArrival-err"
                           />
                           @if (fieldError("minDaysBeforeArrival"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-minDaysBeforeArrival-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.minStay" | translate }}
-                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="minStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="minStayDays" [appFieldError]="fieldError('minStayDays')" fieldErrorId="po-minStayDays-err" />
                           @if (fieldError("minStayDays"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-minStayDays-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.maxStay" | translate }}
-                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="maxStayDays" />
+                          <input min="0" step="1" [attr.max]="limits.stayDaysMax" type="number" formControlName="maxStayDays" [appFieldError]="fieldError('maxStayDays')" fieldErrorId="po-maxStayDays-err" />
                           @if (fieldError("maxStayDays"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-maxStayDays-err">{{ msg }}</small>
                           }
                         </label>
                       </div>
@@ -665,10 +665,10 @@
                             type="number"
                             step="1"
                             [attr.max]="limits.usageMax"
-                            formControlName="maxTotalUsage"
+                            formControlName="maxTotalUsage" [appFieldError]="fieldError('maxTotalUsage')" fieldErrorId="po-maxTotalUsage-err"
                           />
                           @if (fieldError("maxTotalUsage"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-maxTotalUsage-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -677,10 +677,10 @@
                             type="number"
                             step="1"
                             [attr.max]="limits.usageMax"
-                            formControlName="maxDailyUsage"
+                            formControlName="maxDailyUsage" [appFieldError]="fieldError('maxDailyUsage')" fieldErrorId="po-maxDailyUsage-err"
                           />
                           @if (fieldError("maxDailyUsage"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-maxDailyUsage-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -691,10 +691,10 @@
                             type="number"
                             step="1"
                             [attr.max]="limits.usageMax"
-                            formControlName="maxDailyUsagePerUser"
+                            formControlName="maxDailyUsagePerUser" [appFieldError]="fieldError('maxDailyUsagePerUser')" fieldErrorId="po-maxDailyUsagePerUser-err"
                           />
                           @if (fieldError("maxDailyUsagePerUser"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-maxDailyUsagePerUser-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -705,10 +705,10 @@
                             type="number"
                             step="1"
                             [attr.max]="limits.usageMax"
-                            formControlName="maxTotalUsagePerUser"
+                            formControlName="maxTotalUsagePerUser" [appFieldError]="fieldError('maxTotalUsagePerUser')" fieldErrorId="po-maxTotalUsagePerUser-err"
                           />
                           @if (fieldError("maxTotalUsagePerUser"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-maxTotalUsagePerUser-err">{{ msg }}</small>
                           }
                         </label>
                       </div>
@@ -726,16 +726,16 @@
                           <input min="0"
                             type="number"
                             [attr.max]="limits.amountMax"
-                            formControlName="minBookingAmount"
+                            formControlName="minBookingAmount" [appFieldError]="fieldError('minBookingAmount')" fieldErrorId="po-minBookingAmount-err"
                           />
                           @if (fieldError("minBookingAmount"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-minBookingAmount-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
                           {{ "d3.platformOffers.fields.channel" | translate }}
                           <mat-select
-                            formControlName="displayChannel"
+                            formControlName="displayChannel" [appFieldError]="fieldError('displayChannel')" fieldErrorId="po-displayChannel-err"
                             panelClass="d3-offer-select-panel"
                           >
                             <mat-option value="All">{{ enumLabel("All") }}</mat-option>
@@ -743,7 +743,7 @@
                             <mat-option value="Client">{{ enumLabel("Client") }}</mat-option>
                           </mat-select>
                           @if (fieldError("displayChannel"); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" id="po-displayChannel-err">{{ msg }}</small>
                           }
                         </label>
                         <label>
@@ -780,6 +780,8 @@
                               type="button"
                               class="date-pill"
                               [matMenuTriggerFor]="exclusionStartMenu"
+                              [appFieldError]="rowError(row)"
+                              [fieldErrorId]="'po-exclusion-' + $index + '-err'"
                             >
                               <i-tabler
                                 name="calendar"
@@ -820,6 +822,8 @@
                               type="button"
                               class="date-pill"
                               [matMenuTriggerFor]="exclusionEndMenu"
+                              [appFieldError]="rowError(row)"
+                              [fieldErrorId]="'po-exclusion-' + $index + '-err'"
                             >
                               <i-tabler
                                 name="calendar"
@@ -858,6 +862,8 @@
                             </mat-menu>
                             <input
                               formControlName="reason"
+                              [appFieldError]="rowError(row)"
+                              [fieldErrorId]="'po-exclusion-' + $index + '-err'"
                               [placeholder]="
                                 'd3.platformOffers.fields.reason' | translate
                               "
@@ -870,7 +876,7 @@
                             </button>
                           </div>
                           @if (rowError(row); as msg) {
-                            <small class="field-error">{{ msg }}</small>
+                            <small class="field-error" [id]="'po-exclusion-' + $index + '-err'">{{ msg }}</small>
                           }
                         }
                         <button
@@ -895,13 +901,17 @@
                             <mat-select
                               formControlName="type"
                               panelClass="d3-offer-select-panel"
+                              [appFieldError]="showError(row)"
+                              [fieldErrorId]="'po-message-' + $index + '-err'"
                             >
                               @for (type of messageTypes; track type) {
                                 <mat-option [value]="type">{{ enumLabel(type) }}</mat-option>
                               }
                             </mat-select>
-                            <input formControlName="messageAr" />
-                            <input formControlName="messageEn" dir="ltr" />
+                            <input formControlName="messageAr"
+                              [appFieldError]="showError(row)" [fieldErrorId]="'po-message-' + $index + '-err'" />
+                            <input formControlName="messageEn" dir="ltr"
+                              [appFieldError]="showError(row)" [fieldErrorId]="'po-message-' + $index + '-err'" />
                             <button
                               type="button"
                               (click)="messages.removeAt($index)"
@@ -910,7 +920,7 @@
                             </button>
                           </div>
                           @if (showError(row)) {
-                            <small class="field-error">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
+                            <small class="field-error" [id]="'po-message-' + $index + '-err'">{{ "d3.platformOffers.validation.rowIncomplete" | translate }}</small>
                           }
                         }
                         <button
@@ -927,9 +937,12 @@
                       <div formArrayName="offerTerms" class="repeat">
                         @for (row of terms.controls; track $index) {
                           <div [formGroupName]="$index" class="repeat-row">
-                            <input formControlName="termAr" />
-                            <input formControlName="termEn" dir="ltr" />
-                            <input type="number" min="1" step="1" [attr.max]="limits.orderMax" formControlName="order" />
+                            <input formControlName="termAr"
+                              [appFieldError]="showError(row)" [fieldErrorId]="'po-term-' + $index + '-err'" />
+                            <input formControlName="termEn" dir="ltr"
+                              [appFieldError]="showError(row)" [fieldErrorId]="'po-term-' + $index + '-err'" />
+                            <input type="number" min="1" step="1" [attr.max]="limits.orderMax" formControlName="order"
+                              [appFieldError]="showError(row)" [fieldErrorId]="'po-term-' + $index + '-err'" />
                             <button
                               type="button"
                               (click)="terms.removeAt($index)"
@@ -938,7 +951,7 @@
                             </button>
                           </div>
                           @if (showError(row)) {
-                            <small class="field-error">{{ termRowError(row) }}</small>
+                            <small class="field-error" [id]="'po-term-' + $index + '-err'">{{ termRowError(row) }}</small>
                           }
                         }
                         <button

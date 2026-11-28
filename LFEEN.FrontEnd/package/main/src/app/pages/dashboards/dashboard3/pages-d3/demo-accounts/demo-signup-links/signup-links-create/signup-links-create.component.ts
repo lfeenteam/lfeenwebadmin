@@ -293,7 +293,7 @@ export class SignupLinksCreateComponent implements OnInit {
           this.focusError();
           return;
         }
-        // DEMO_SIGNUP_PIN_KEY_MISSING / DEMO_SIGNUP_DISABLED / anything else: the server's sentence.
+        // DEMO_SIGNUP_PIN_KEY_MISSING / DEMO_SIGNUP_DISABLED / …: our own text for the code (the server's only for an unknown one).
         this.formError = signupErrorMessage(e, this.translate);
         this.focusError();
       },

@@ -29,6 +29,8 @@ export class PageHeaderComponent {
   @Input() showBack = false;
   @Input() statusBadge: { text: string; color: string } | null = null;
   @Input() actionButton: { text: string; icon?: string; color?: string; action: string } | null = null;
+  /** Whether the mobile sidebar drawer is open — drives the ☰ button's aria-expanded. */
+  @Input() sidebarOpen = false;
 
   @Output() sidebarToggle = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();

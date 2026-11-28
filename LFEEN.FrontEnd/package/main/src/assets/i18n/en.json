@@ -108,6 +108,14 @@
       "previousPage": "Previous page",
       "nextPage": "Next page"
     },
+    "calendar": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "previousYear": "Previous year",
+      "nextYear": "Next year",
+      "previousYears": "Previous years",
+      "nextYears": "Next years"
+    },
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
@@ -234,13 +242,17 @@
           "subtitle": "One row per link: opened or not, how often, and the state of its account",
           "create": "Create links",
           "emptyTitle": "No links yet",
-          "emptyDesc": "Create links and send them to organisations — every open shows up here."
+          "emptyDesc": "Create links and send them to organisations — every open shows up here.",
+          "errorTitle": "Could not load links"
         },
         "filters": {
           "search": "Search by area, notes, link code or login number",
           "batch": "Batch",
           "allBatches": "All batches",
-          "oneBatch": "Selected batch"
+          "oneBatch": "Selected batch",
+          "batchNotFound": "Batch not found",
+          "batchNotFoundDesc": "The batch may have been removed, or the link is wrong.",
+          "showAllBatches": "Show all batches"
         },
         "batch": {
           "createdBy": "Created by",
@@ -318,6 +330,8 @@
           "rateLimited": "Too many requests in a short time, try again in a minute.",
           "DEMO_SIGNUP_PIN_KEY_MISSING": "A server setting is missing (PinKey), so links can't be created now. Tell the backend team.",
           "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "This link doesn't exist any more. Refresh the page.",
+          "DEMO_SIGNUP_BATCH_NOT_FOUND": "This batch doesn't exist any more. Refresh the page.",
+          "DEMO_SIGNUP_DISABLED": "Demo links are turned off on the server right now.",
           "validation": "Check the values you entered and try again."
         },
         "edit": {
@@ -799,6 +813,7 @@
       "teamName": "LFEEN Team",
       "supervisorTitle": "LFEEN Supervisor",
       "openMenu": "Open menu",
+      "back": "Back",
       "onlineHint": "Online — data and alerts arrive live",
       "offlineHint": "No internet connection — the data shown may be out of date",
       "account": "Account menu",
@@ -1511,6 +1526,11 @@
         "expiryDate": "Register expiry date"
       },
       "noLogo": "No logo",
+      "logoPreview": {
+        "open": "Preview logo at full size",
+        "openOriginal": "Open the original image in a new tab",
+        "close": "Close preview"
+      },
       "cleared": "Empty",
       "noCertificate": "No certificate",
       "submittedAt": "Submitted",
@@ -1909,7 +1929,8 @@
       "concerningIncrease": "concerning increase",
       "unavailable": "Unavailable",
       "points": "pts",
-      "requiredSource": "Required source"
+      "requiredSource": "Required source",
+      "viewList": "View list"
     },
     "chart": {
       "title": "Platform Growth Analysis",
@@ -2375,6 +2396,13 @@
       "title": "Add New Job Role",
       "subtitle": "Define the new role's details and access permissions within the department",
       "subtitleGeneric": "Define the new role's details and access permissions",
+      "summaryTitle": "Role summary",
+      "summaryNamePlaceholder": "Role name",
+      "selectedPermissionsLabel": "Selected permissions",
+      "addSecondaryName": "Add the Arabic name",
+      "optional": "optional",
+      "basicInfoHint": "The name employees will see, its department, and a short description",
+      "permissionsHint": "Choose what a holder of this role can see or change in the dashboard",
       "basicInfoTitle": "Basic Role Information",
       "roleNameLabel": "Job Role Name",
       "roleNamePlaceholder": "e.g. Operations Manager, Quality Supervisor...",
@@ -2425,7 +2453,7 @@
       "subtitleGeneric": "These permissions will be assigned to this job role",
       "roleNameLabel": "Job Role Name",
       "namePlaceholderAr": "e.g. Booking Auditor, Quality Supervisor...",
-      "descriptionLabel": "Permission Description",
+      "descriptionLabel": "Role description",
       "descriptionPlaceholderAr": "Write a summary of tasks this role holder can perform...",
       "isManagerRoleLabel": "Manager Role",
       "isManagerRoleHint": "Grants the holder management authority and displays them as department manager",
@@ -2444,6 +2472,16 @@
       "noDepartment": "No Department",
       "noRoles": "No job roles added yet",
       "addRoleBtn": "Add New Job Role",
+      "searchPlaceholder": "Search by role name or description",
+      "moreDepartments": "More departments",
+      "statTotal": "Total roles",
+      "statManagers": "Manager roles",
+      "statDepartments": "Departments with roles",
+      "statNoDepartment": "Roles without a department",
+      "managerBadge": "Manager role",
+      "noDescription": "No description",
+      "viewPermissions": "Permissions",
+      "noResults": "No roles match the search or the selected department",
       "table": {
         "role": "Job Role",
         "department": "Department",
@@ -3571,14 +3609,21 @@
       },
       "ratings": {
         "views": {
-          "list": "Ratings",
+          "list": "All ratings",
           "agents": "By agent"
         },
         "summary": {
           "average": "Average rating",
           "outOf": "out of 5",
           "total": "Total ratings",
-          "distribution": "Rating distribution"
+          "distribution": "Rating distribution",
+          "title": "Customer ratings",
+          "subtitle": "What customers said after their support chat closed",
+          "totalHint": "rated support chats",
+          "satisfied": "Satisfied customers",
+          "satisfiedHint": "rated 4 or 5 stars",
+          "unsatisfied": "Unsatisfied customers",
+          "unsatisfiedHint": "rated 1 or 2 stars"
         },
         "filters": {
           "minRating": "Min rating",
@@ -3610,6 +3655,7 @@
           "ratedAt": "Rated at",
           "closedBy": "Closed by: {{by}}",
           "noAgent": "No agent (bot)",
+          "noComment": "No comment",
           "viewChat": "View chat",
           "total": { "one": "{{count}} rating", "other": "{{count}} ratings" }
         },
@@ -3654,6 +3700,7 @@
         "assignLockedMsg": "This complaint is already assigned — the assigned employee must reply to it or resolve it",
         "assignDelayedMsg": "No activity from the assignee for {{hours}} hours — you can reassign this complaint",
         "assignHint": "Note: sending a reply on an unassigned complaint will automatically assign it to you",
+        "lastActivity": "Last activity",
         "allStatuses": "All statuses",
         "allTypes": "All types",
         "typeClient": "Client",
@@ -3719,6 +3766,16 @@
         "closedByHost": "Closed by the host",
         "closedByAdmin": "Closed by an admin"
       },
+      "subjects": {
+        "payment": "Payment",
+        "refund": "Refund",
+        "booking": "Bookings",
+        "generalFaq": "General FAQ",
+        "complaint": "Complaint",
+        "general": "General",
+        "technical": "Technical",
+        "account": "Account"
+      },
       "customerFilters": {
         "dept": {
           "general": "General",
@@ -3736,6 +3793,7 @@
       },
       "chat": {
         "supportName": "Support",
+        "botName": "Smart assistant",
         "attachmentLabel": "Attachment",
         "online": "Online now",
         "typing": "Typing...",
@@ -3767,6 +3825,8 @@
         "hostName": "Fahad Al-Sayf",
         "hostSubtitle": "Host - Bab Al-Bahr Residential Hotel",
         "problemTitle": "Issue Subject",
+        "detailsTitle": "Complaint details",
+        "partiesTitle": "Parties",
         "problemBody": "Hello LFEEN team, I have an issue updating November prices. I changed the price in the host app, but the update does not appear in search results. Please help urgently as this affects upcoming bookings.",
         "problemAttachmentNote": "I attached a screenshot showing the issue from my dashboard.",
         "attachmentsTitle": "Attached files ({{count}})",
@@ -3863,6 +3923,7 @@
     },
     "bookings": {
       "title": "Bookings Record",
+      "subtitle": "Every platform booking, from the client portal and hosts, in one place",
       "cards": {
         "totalBookings": "Total Bookings",
         "confirmed": "Confirmed Bookings",
@@ -3874,6 +3935,7 @@
         "checkIn": "Check-in Date",
         "checkOut": "Check-out Date",
         "clear": "Clear Filters",
+        "moreStatuses": "More statuses",
         "moreFilters": "Filters",
         "dateRangeError": "Check-out date can't be before the check-in date.",
         "checkOutClearedHint": "Check-out date was cleared because it fell before the check-in date."
@@ -3961,6 +4023,7 @@
         "client": "Client",
         "unit": "Unit / Property",
         "dates": "Check-in / Check-out",
+        "nights": { "one":"1 night", "other":"{{count}} nights" },
         "amount": "Amount",
         "status": "Status",
         "empty": "No bookings found"
@@ -6054,8 +6117,10 @@
         "SettlementRequiresReview": "Settlement review",
         "PaymentIssueReported": "Payment issue",
         "RefundRequested": "Refund request",
+        "MerchantSettlementDebt": "Merchant settlement debt",
         "BookingIssueReported": "Booking issue",
         "SystemAlert": "System alert",
+        "DemoActivationRequested": "Demo activation request",
         "DemoSignupOpened": "Demo link opened for the first time",
         "default": "Notification"
       }

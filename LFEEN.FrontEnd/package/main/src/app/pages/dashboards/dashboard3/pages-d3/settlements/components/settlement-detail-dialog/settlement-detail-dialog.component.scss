@@ -275,7 +275,9 @@
 
 .entries-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  // Each row is its own grid, so tracks must ignore content min-width
+  // (minmax(0, …)) or a wider cell (e.g. the refund tag) shifts that row's columns.
+  grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding: 10px 12px;
   font-size: 12px;
@@ -292,9 +294,21 @@
     font-weight: 400;
     color: #62748E;
   }
+
+  // Amount cells: keep each figure on one line with aligned digits.
+  > span:not(.entry-booking) {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
+// Booking number with the refund tag stacked underneath it.
 .entry-booking {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
   direction: ltr;
   text-align: start;
   overflow-wrap: anywhere;
@@ -618,7 +632,7 @@
 
 .refund-tag {
   display: inline-flex;
-  margin-inline-start: 6px;
+  max-width: 100%;
   padding: 1px 8px;
   border-radius: 20px;
   border: 1px solid #fde68a;
@@ -626,7 +640,8 @@
   color: #b45309;
   font-size: 10px;
   font-weight: 700;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: normal;
 }
 
 // ── Receipt upload ──────────────────────────────────────────

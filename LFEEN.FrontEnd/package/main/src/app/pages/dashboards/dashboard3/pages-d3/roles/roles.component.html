@@ -1,168 +1,249 @@
-<div class="roles-container" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
-  <!-- Header Card -->
-  <mat-card class="m-b-24 header-card">
-    <mat-card-content class="p-24 header-content">
-      <div class="roles-summary">
-        <div class="dept-icon-wrapper d-flex align-items-center justify-content-center">
-          <i-tabler name="shield-check" class="icon-32"></i-tabler>
-        </div>
-        <div class="roles-details">
-          <h2 class="f-s-20 f-w-900 m-b-4">{{ 'd3.rolesPage.title' | translate }}</h2>
-          <p class="roles-description m-0">{{ 'd3.rolesPage.description' | translate }}</p>
+<div class="roles-page tw-font-cairo tw-text-ink" [dir]="currentLang === 'en' ? 'ltr' : 'rtl'">
+  <main class="tw-overflow-hidden tw-rounded-[20px] tw-border tw-border-solid tw-border-line-strong tw-bg-white tw-shadow-card tw-animate-enter">
+
+    <!-- Header -->
+    <header class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-4 tw-px-6 tw-pb-5 tw-pt-6">
+      <div class="tw-flex tw-items-center tw-gap-4">
+        <span class="tw-tone-navy rp-icon tw-h-12 tw-w-12 tw-rounded-tile">
+          <i-tabler name="shield-check" class="icon-24"></i-tabler>
+        </span>
+        <div>
+          <h1 class="tw-m-0 tw-text-xl tw-font-black">{{ 'd3.rolesPage.title' | translate }}</h1>
+          <p class="tw-m-0 tw-mt-1 tw-max-w-[640px] tw-text-[13px] tw-leading-relaxed tw-text-muted">{{ 'd3.rolesPage.description' | translate }}</p>
         </div>
       </div>
 
-      <div class="header-actions">
-        <div class="filter-wrapper">
-          <mat-select
-            class="dept-filter-select"
-            [(ngModel)]="selectedDeptFilter"
-            (ngModelChange)="applyFilter()"
-            disableOptionCentering
-            panelClass="permission-group-select-panel">
-            <mat-option value="">{{ 'd3.rolesPage.allDepartments' | translate }}</mat-option>
-            @for (dept of departments; track dept.id) {
-              <mat-option [value]="dept.id">{{ currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name) }}</mat-option>
-            }
-          </mat-select>
-        </div>
+      @if (canManage()) {
+        <button type="button" class="rp-primary" (click)="openAddRole()">
+          <i-tabler name="plus" class="icon-18"></i-tabler>
+          {{ 'd3.rolesPage.addRoleBtn' | translate }}
+        </button>
+      }
+    </header>
 
-        @if (canManage()) {
-          <button mat-flat-button class="add-role-btn-top" (click)="openAddRole()">
-            <div class="d-flex align-items-center justify-content-center gap-8">
-              <i-tabler name="plus" class="icon-18"></i-tabler>
-              {{ 'd3.rolesPage.addRoleBtn' | translate }}
-            </div>
-          </button>
-        }
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Roles Table -->
-  <mat-card class="shadow-none table-card m-b-24">
-    <mat-card-content class="p-0">
-      <div class="table-responsive">
-        <table class="table roles-table m-0">
-          <thead>
-            <tr>
-              <th>{{ 'd3.rolesPage.table.role' | translate }}</th>
-              <th>{{ 'd3.rolesPage.table.department' | translate }}</th>
-              <th>{{ 'd3.rolesPage.table.description' | translate }}</th>
-              <th class="text-center actions-header-wide">{{ 'd3.rolesPage.table.actions' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @if (isLoading) {
-              <tr>
-                <td colspan="4" class="p-24 text-center">
-                  <mat-spinner diameter="32" class="m-auto"></mat-spinner>
-                </td>
-              </tr>
-            } @else if (loadError) {
-              <tr>
-                <td colspan="4">
-                  <app-dashboard-empty variant="error"
-                    [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
-                    actionKey="d3.state.retry" actionIcon="refresh" (action)="loadData()">
-                  </app-dashboard-empty>
-                </td>
-              </tr>
-            } @else if (roles.length === 0) {
-              <tr>
-                <td colspan="4" class="p-24 text-center text-muted">
-                  {{ 'd3.rolesPage.noRoles' | translate }}
-                </td>
-              </tr>
-            } @else {
-              @for (role of pagedRoles; track role.id) {
-                <tr>
-                  <td class="p-24">
-                    <div class="d-flex align-items-center gap-12">
-                      <div class="permission-icon-wrapper">
-                        <i-tabler name="user-circle" class="permission-icon"></i-tabler>
-                      </div>
-                      <div class="d-flex align-items-start gap-6">
-                        <span class="f-s-14 f-w-900">{{ role.name }}</span>
-                        @if (role.isManagerRole) {
-                          <i-tabler name="crown" class="icon-14 perm-crown-icon m-t-2" [matTooltip]="'d3.permissions.table.managerRoleTooltip' | translate"></i-tabler>
-                        }
-                      </div>
-                    </div>
-                  </td>
-                  <td class="p-24">
-                    @if (role.departmentName) {
-                      <span class="dept-badge">{{ role.departmentName }}</span>
-                    } @else {
-                      <span class="dept-badge no-dept">{{ 'd3.rolesPage.noDepartment' | translate }}</span>
-                    }
-                  </td>
-                  <td class="p-24">
-                    <span class="perm-desc">{{ role.description }}</span>
-                  </td>
-                  <td class="p-24 text-center actions-col-wide">
-                    @if (deletingId === role.id) {
-                      <mat-spinner diameter="20" class="m-auto"></mat-spinner>
-                    } @else {
-                      <div class="d-flex align-items-center justify-content-center gap-4">
-                        <button mat-icon-button class="action-dots-btn" (click)="viewPermissions(role)" [matTooltip]="'d3.permissions.table.viewTooltip' | translate" [attr.aria-label]="'d3.permissions.table.viewRoleAria' | translate: { name: role.name }">
-                          <i-tabler name="eye" class="icon-18"></i-tabler>
-                        </button>
-                        @if (canManage()) {
-                          <button mat-icon-button [matMenuTriggerFor]="rowMenu" class="action-dots-btn" [attr.aria-label]="'d3.permissions.table.roleActionsAria' | translate: { name: role.name }">
-                            <i-tabler name="dots-vertical" class="icon-20"></i-tabler>
-                          </button>
-                        }
-                      </div>
-                      <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
-                        <button mat-menu-item (click)="editRole(role)">
-                          <span class="menu-item-row">
-                            <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
-                            <span>{{ 'd3.permissions.table.editBtn' | translate }}</span>
-                          </span>
-                        </button>
-                        <button mat-menu-item class="delete-item" (click)="deleteRole(role)">
-                          <span class="menu-item-row">
-                            <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
-                            <span>{{ 'd3.permissions.table.deleteBtn' | translate }}</span>
-                          </span>
-                        </button>
-                      </mat-menu>
-                    }
-                  </td>
-                </tr>
-              }
-            }
-          </tbody>
-        </table>
-      </div>
-
-      @if (totalPages > 1) {
-        <div class="pagination-wrapper d-flex align-items-center justify-content-between p-x-24 p-y-16">
-          <span class="f-s-13 text-muted">
-            {{ 'd3.rolesPage.pagination.total' | appPlural: roles.length }}
-          </span>
-          <div class="d-flex align-items-center gap-4">
-            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.previousPage' | translate"
-              [disabled]="currentPage === 1"
-              (click)="changePage(currentPage - 1)">
-              <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-18"></i-tabler>
-            </button>
-            @for (p of pageNumbers; track p) {
-              <button type="button" class="page-number-btn"
-                [class.active]="p === currentPage"
-                (click)="changePage(p)">
-                {{ p }}
-              </button>
-            }
-            <button type="button" class="page-nav-btn" [attr.aria-label]="'common.pagination.nextPage' | translate"
-              [disabled]="currentPage === totalPages"
-              (click)="changePage(currentPage + 1)">
-              <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-18"></i-tabler>
-            </button>
+    <!-- Summary over every loaded role -->
+    @if (!isLoading && !loadError && allRoles.length > 0) {
+      <section class="tw-grid tw-grid-cols-2 tw-gap-3 tw-px-6 lg:tw-grid-cols-4">
+        <div class="rp-kpi tw-tone-navy tw-animate-enter" style="animation-delay: 60ms">
+          <span class="rp-icon tw-h-10 tw-w-10 tw-rounded-icon-sm"><i-tabler name="shield" class="icon-20"></i-tabler></span>
+          <div>
+            <b class="tw-block tw-text-[22px] tw-font-black tw-leading-none tw-tabular-nums" [appCountUp]="stats.total"></b>
+            <span class="tw-mt-1 tw-block tw-text-xs tw-font-semibold tw-text-muted">{{ 'd3.rolesPage.statTotal' | translate }}</span>
           </div>
         </div>
-      }
-    </mat-card-content>
-  </mat-card>
+        <div class="rp-kpi tw-tone-amber tw-animate-enter" style="animation-delay: 120ms">
+          <span class="rp-icon tw-h-10 tw-w-10 tw-rounded-icon-sm"><i-tabler name="crown" class="icon-20"></i-tabler></span>
+          <div>
+            <b class="tw-block tw-text-[22px] tw-font-black tw-leading-none tw-tabular-nums" [appCountUp]="stats.managers"></b>
+            <span class="tw-mt-1 tw-block tw-text-xs tw-font-semibold tw-text-muted">{{ 'd3.rolesPage.statManagers' | translate }}</span>
+          </div>
+        </div>
+        <div class="rp-kpi tw-tone-blue tw-animate-enter" style="animation-delay: 180ms">
+          <span class="rp-icon tw-h-10 tw-w-10 tw-rounded-icon-sm"><i-tabler name="building" class="icon-20"></i-tabler></span>
+          <div>
+            <b class="tw-block tw-text-[22px] tw-font-black tw-leading-none tw-tabular-nums" [appCountUp]="stats.departments"></b>
+            <span class="tw-mt-1 tw-block tw-text-xs tw-font-semibold tw-text-muted">{{ 'd3.rolesPage.statDepartments' | translate }}</span>
+          </div>
+        </div>
+        <div class="rp-kpi tw-tone-violet tw-animate-enter" style="animation-delay: 240ms">
+          <span class="rp-icon tw-h-10 tw-w-10 tw-rounded-icon-sm"><i-tabler name="circle-dashed" class="icon-20"></i-tabler></span>
+          <div>
+            <b class="tw-block tw-text-[22px] tw-font-black tw-leading-none tw-tabular-nums" [appCountUp]="stats.noDepartment"></b>
+            <span class="tw-mt-1 tw-block tw-text-xs tw-font-semibold tw-text-muted">{{ 'd3.rolesPage.statNoDepartment' | translate }}</span>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Toolbar: search + department chips -->
+    @if (!loadError && allRoles.length > 0) {
+      <div class="tw-mt-5 tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-border-0 tw-border-y tw-border-solid tw-border-line tw-px-6 tw-py-3">
+        <label class="rp-search">
+          <i-tabler name="search" class="icon-18 tw-shrink-0 tw-text-faint"></i-tabler>
+          <input type="search" [ngModel]="searchQuery" (ngModelChange)="onSearch($event)"
+            [placeholder]="'d3.rolesPage.searchPlaceholder' | translate"
+            [attr.aria-label]="'d3.rolesPage.searchPlaceholder' | translate">
+        </label>
+        <div class="tw-flex tw-flex-wrap tw-gap-2" role="group" [attr.aria-label]="'d3.rolesPage.table.department' | translate">
+          @for (chip of visibleChips; track chip.value) {
+            <button type="button" class="rp-chip" [class.is-on]="selectedDeptFilter === chip.value"
+              [attr.aria-pressed]="selectedDeptFilter === chip.value" (click)="selectDept(chip.value)">
+              @if (chip.value && chip.value !== NO_DEPT) {
+                <span class="tw-h-2 tw-w-2 tw-rounded-full" [style.background]="deptTone(chip.value).dot"></span>
+              }
+              {{ chip.label }}
+              <span class="rp-chip-count">{{ chip.count }}</span>
+            </button>
+          }
+
+          <!-- Every other department in one menu, so the row stays short however many there are -->
+          @if (overflowChips.length) {
+            <button type="button" class="rp-chip" [class.is-on]="!!selectedOverflowChip"
+              [matMenuTriggerFor]="moreDepts" #moreTrigger="matMenuTrigger">
+              @if (selectedOverflowChip; as sel) {
+                <span class="tw-h-2 tw-w-2 tw-rounded-full" [style.background]="deptTone(sel.value).dot"></span>
+                {{ sel.label }}
+                <span class="rp-chip-count">{{ sel.count }}</span>
+              } @else {
+                {{ 'd3.rolesPage.moreDepartments' | translate }}
+                <span class="rp-chip-count">+{{ overflowChips.length }}</span>
+              }
+              <i-tabler name="chevron-down" class="icon-14 rp-chip-caret" [class.is-open]="moreTrigger.menuOpen"></i-tabler>
+            </button>
+            <mat-menu #moreDepts="matMenu" xPosition="before" class="rp-dept-menu">
+              @for (chip of overflowChips; track chip.value) {
+                <button mat-menu-item (click)="selectDept(chip.value)">
+                  <span class="rp-menu-row" [class.is-on]="selectedDeptFilter === chip.value">
+                    <span class="tw-h-2 tw-w-2 tw-shrink-0 tw-rounded-full" [style.background]="deptTone(chip.value).dot"></span>
+                    <span class="tw-flex-1 tw-truncate">{{ chip.label }}</span>
+                    <span class="rp-chip-count">{{ chip.count }}</span>
+                  </span>
+                </button>
+              }
+            </mat-menu>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="tw-mt-5 tw-border-0 tw-border-t tw-border-solid tw-border-line"></div>
+    }
+
+    <!-- Roles (sideways scroll only, so rows sliding in never flash a vertical scrollbar) -->
+    <div class="tw-overflow-x-auto tw-overflow-y-hidden">
+      <table class="rp-table">
+        <thead>
+          <tr>
+            <th>{{ 'd3.rolesPage.table.role' | translate }}</th>
+            <th>{{ 'd3.rolesPage.table.department' | translate }}</th>
+            <th>{{ 'd3.rolesPage.table.description' | translate }}</th>
+            <th class="tw-text-end"><span class="tw-sr-only">{{ 'd3.rolesPage.table.actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <tr>
+              <td colspan="4" class="tw-py-14 tw-text-center">
+                <mat-spinner diameter="32" class="m-auto"></mat-spinner>
+              </td>
+            </tr>
+          } @else if (loadError) {
+            <tr>
+              <td colspan="4">
+                <app-dashboard-empty variant="error"
+                  [titleKey]="loadForbidden ? 'd3.state.forbidden' : 'd3.state.loadError'" [descKey]="loadForbidden ? 'd3.state.forbiddenDesc' : 'd3.state.loadErrorDesc'"
+                  actionKey="d3.state.retry" actionIcon="refresh" (action)="loadData()">
+                </app-dashboard-empty>
+              </td>
+            </tr>
+          } @else if (roles.length === 0) {
+            <tr>
+              <td colspan="4" class="tw-py-14 tw-text-center">
+                <span class="tw-mx-auto tw-mb-3 tw-grid tw-h-12 tw-w-12 tw-place-items-center tw-rounded-full tw-bg-divider tw-text-faint">
+                  <i-tabler [name]="allRoles.length ? 'search-off' : 'shield-off'" class="icon-24"></i-tabler>
+                </span>
+                <p class="tw-m-0 tw-text-sm tw-text-muted">{{ (allRoles.length ? 'd3.rolesPage.noResults' : 'd3.rolesPage.noRoles') | translate }}</p>
+              </td>
+            </tr>
+          } @else {
+            @for (role of pagedRoles; track role.id; let i = $index) {
+              <tr class="rp-row tw-animate-enter" [style.animation-delay.ms]="100 + i * 40">
+                <td>
+                  <div class="tw-flex tw-items-center tw-gap-3">
+                    <span class="tw-grid tw-h-10 tw-w-10 tw-shrink-0 tw-place-items-center tw-rounded-tile"
+                      [style.background]="deptTone(role.departmentId).soft" [style.color]="deptTone(role.departmentId).text">
+                      <i-tabler name="user-circle" class="icon-20"></i-tabler>
+                    </span>
+                    <div class="tw-min-w-0">
+                      <span class="tw-block tw-text-sm tw-font-extrabold" dir="auto">{{ role.name }}</span>
+                      @if (role.isManagerRole) {
+                        <span class="tw-mt-1 tw-inline-flex tw-items-center tw-gap-1 tw-rounded-full tw-bg-amber-50 tw-px-2 tw-py-px tw-text-[11px] tw-font-bold tw-text-amber-700"
+                          [matTooltip]="'d3.permissions.table.managerRoleTooltip' | translate">
+                          <i-tabler name="crown" class="icon-14"></i-tabler>
+                          {{ 'd3.rolesPage.managerBadge' | translate }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  @if (role.departmentName) {
+                    <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-whitespace-nowrap tw-rounded-full tw-border tw-border-solid tw-border-line-strong tw-bg-white tw-px-2.5 tw-py-1 tw-text-xs tw-font-bold tw-text-body">
+                      <span class="tw-h-2 tw-w-2 tw-rounded-full" [style.background]="deptTone(role.departmentId).dot"></span>
+                      {{ role.departmentName }}
+                    </span>
+                  } @else {
+                    <span class="tw-whitespace-nowrap tw-rounded-full tw-border tw-border-dashed tw-border-line-strong tw-px-2.5 tw-py-1 tw-text-xs tw-font-semibold tw-text-faint">
+                      {{ 'd3.rolesPage.noDepartment' | translate }}
+                    </span>
+                  }
+                </td>
+                <td class="tw-max-w-[440px]">
+                  @if (role.description) {
+                    <span class="tw-line-clamp-2 tw-text-[13px] tw-leading-relaxed tw-text-body" dir="auto">{{ role.description }}</span>
+                  } @else {
+                    <span class="tw-text-[13px] tw-italic tw-text-faint">{{ 'd3.rolesPage.noDescription' | translate }}</span>
+                  }
+                </td>
+                <td>
+                  @if (deletingId === role.id) {
+                    <div class="tw-flex tw-justify-end"><mat-spinner diameter="20"></mat-spinner></div>
+                  } @else {
+                    <div class="tw-flex tw-items-center tw-justify-end tw-gap-1">
+                      <button type="button" class="rp-ghost" (click)="viewPermissions(role)"
+                        [attr.aria-label]="'d3.permissions.table.viewRoleAria' | translate: { name: role.name }">
+                        <i-tabler name="eye" class="icon-16"></i-tabler>
+                        <span class="rp-ghost-label">{{ 'd3.rolesPage.viewPermissions' | translate }}</span>
+                      </button>
+                      @if (canManage()) {
+                        <button type="button" class="rp-dots" [matMenuTriggerFor]="rowMenu"
+                          [attr.aria-label]="'d3.permissions.table.roleActionsAria' | translate: { name: role.name }">
+                          <i-tabler name="dots-vertical" class="icon-18"></i-tabler>
+                        </button>
+                      }
+                    </div>
+                    <mat-menu #rowMenu="matMenu" xPosition="before" class="role-row-menu">
+                      <button mat-menu-item (click)="editRole(role)">
+                        <span class="menu-item-row">
+                          <i-tabler name="edit" class="icon-16 menu-icon"></i-tabler>
+                          <span>{{ 'd3.permissions.table.editBtn' | translate }}</span>
+                        </span>
+                      </button>
+                      <button mat-menu-item class="delete-item" (click)="deleteRole(role)">
+                        <span class="menu-item-row">
+                          <i-tabler name="trash" class="icon-16 menu-icon delete-icon"></i-tabler>
+                          <span>{{ 'd3.permissions.table.deleteBtn' | translate }}</span>
+                        </span>
+                      </button>
+                    </mat-menu>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer: count + pages -->
+    @if (!isLoading && !loadError && roles.length > 0) {
+      <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-px-6 tw-py-3">
+        <span class="tw-text-xs tw-text-muted">{{ 'd3.rolesPage.pagination.total' | appPlural: roles.length }}</span>
+        @if (totalPages > 1) {
+          <div class="tw-flex tw-items-center tw-gap-1">
+            <button type="button" class="rp-page" [attr.aria-label]="'common.pagination.previousPage' | translate"
+              [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+              <i-tabler [name]="currentLang === 'en' ? 'chevron-left' : 'chevron-right'" class="icon-16"></i-tabler>
+            </button>
+            @for (p of pageNumbers; track p) {
+              <button type="button" class="rp-page" [class.is-on]="p === currentPage" (click)="changePage(p)">{{ p }}</button>
+            }
+            <button type="button" class="rp-page" [attr.aria-label]="'common.pagination.nextPage' | translate"
+              [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+              <i-tabler [name]="currentLang === 'en' ? 'chevron-right' : 'chevron-left'" class="icon-16"></i-tabler>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </main>
 </div>

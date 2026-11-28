@@ -77,7 +77,7 @@
                 <div class="option-field digit-field">
                   <label class="lang-label">{{ 'd3.callScripts.dialog.digit' | translate }}</label>
                   <input class="cs-input" type="text" dir="ltr" formControlName="digit" maxlength="1"
-                    [class.cs-input-invalid]="option.get('digit')?.invalid && option.get('digit')?.touched"
+                    [class.cs-input-invalid]="(option.get('digit')?.invalid && option.get('digit')?.touched) || isDuplicateDigit($index)"
                     [placeholder]="'d3.callScripts.dialog.digitPlaceholder' | translate">
                 </div>
                 <div class="option-field desc-field">
@@ -113,7 +113,7 @@
           }
         </div>
         @if (options.hasError('duplicateDigit')) {
-          <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.digitDuplicate' | translate }}</p>
+          <p class="field-error-msg" role="alert">{{ 'd3.callScripts.dialog.validation.digitDuplicate' | translate }}</p>
         }
         @if (options.hasError('maxOptions')) {
           <p class="field-error-msg">{{ 'd3.callScripts.dialog.validation.optionsMax' | translate: { max: optionsMax } }}</p>

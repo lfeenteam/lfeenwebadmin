@@ -1,17 +1,38 @@
-<div class="tabs-wrapper">
-  @for (tab of tabs; track tab.key) {
-    <button
-      mat-button
-      class="tab-btn"
-      [class.active]="activeTab === tab.key"
-      (click)="tabChange.emit(tab.key)">
-      {{ tab.label | translate }}
-      @if (tab.hasDot) {
-        <span class="tab-dot"></span>
-      }
-      @if (tab.key === 'profile_changes' && profileChangesCount) {
-        <span class="tab-count">{{ profileChangesCount }}</span>
-      }
-    </button>
-  }
+<div class="tabs-scroll" [class.can-scroll-start]="canScrollStart" [class.can-scroll-end]="canScrollEnd">
+  <button
+    type="button"
+    class="tabs-scroll-arrow tabs-scroll-arrow--start"
+    tabindex="-1"
+    aria-hidden="true"
+    (click)="scrollTabs(-1)">
+    <i-tabler name="chevron-left"></i-tabler>
+  </button>
+
+  <div #tabsRow class="tabs-wrapper" (scroll)="updateScrollState()">
+    @for (tab of tabs; track tab.key) {
+      <button
+        #tabBtn
+        mat-button
+        class="tab-btn"
+        [class.active]="activeTab === tab.key"
+        (click)="tabChange.emit(tab.key)">
+        {{ tab.label | translate }}
+        @if (tab.hasDot) {
+          <span class="tab-dot"></span>
+        }
+        @if (tab.key === 'profile_changes' && profileChangesCount) {
+          <span class="tab-count">{{ profileChangesCount }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="tabs-scroll-arrow tabs-scroll-arrow--end"
+    tabindex="-1"
+    aria-hidden="true"
+    (click)="scrollTabs(1)">
+    <i-tabler name="chevron-left"></i-tabler>
+  </button>
 </div>

@@ -13,6 +13,9 @@
         </div>
         <div class="client-meta">
           <span class="client-name">{{ displayClientName }}</span>
+          @if (complaint.ticketId) {
+            <span class="client-ticket">{{ complaint.ticketId }}</span>
+          }
           @if (clientOnline()) {
             <span class="client-online">
               <span class="online-dot"></span>
@@ -63,17 +66,18 @@
       <div
         class="msg-row"
         [class.msg-client]="msg.senderRole === 'client'"
-        [class.msg-support]="msg.senderRole !== 'client'">
+        [class.msg-support]="msg.senderRole !== 'client'"
+        [class.msg-bot]="msg.senderRole === 'bot'">
 
         @if (msg.senderRole !== 'client') {
           <div class="msg-avatar avatar-support">
-            <i-tabler name="headset" class="icon-16"></i-tabler>
+            <i-tabler [name]="msg.senderRole === 'bot' ? 'robot' : 'headset'" class="icon-16"></i-tabler>
           </div>
         }
 
         <div class="msg-content">
           @if (msg.senderRole !== 'client') {
-            <span class="msg-sender">{{ 'd3.complaints.chat.supportName' | translate }}</span>
+            <span class="msg-sender">{{ (msg.senderRole === 'bot' ? 'd3.complaints.chat.botName' : 'd3.complaints.chat.supportName') | translate }}</span>
           }
           <div class="msg-bubble" [class.bubble-support]="msg.senderRole !== 'client'">
             @if (msg.attachment) {

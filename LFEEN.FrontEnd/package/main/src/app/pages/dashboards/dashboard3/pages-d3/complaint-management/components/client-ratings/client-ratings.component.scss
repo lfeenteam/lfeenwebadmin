@@ -518,3 +518,332 @@ $star:   #d97706;
 @media (max-width: 480px) {
   .cr-summary { grid-template-columns: 1fr; }
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// Redesign (layout and tiles use Tailwind in the template; these cover the
+// stateful bits, the shared filter component and the table)
+// ══════════════════════════════════════════════════════════════════════════
+
+$r-ease: cubic-bezier(0.22, 1, 0.36, 1);
+$r-line: #EEF2F7;
+$r-line-strong: #E5E9F0;
+$r-faint: #94A3B8;
+$r-muted: #64748B;
+$r-ink: #111827;
+
+@keyframes crGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+// View switch (all ratings / by agent)
+.cr-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: $r-muted;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.26s ease, color 0.26s ease;
+
+  &:hover:not(.is-active) { color: $r-ink; }
+  &.is-active { background: $r-ink; color: #fff; }
+  &:focus-visible { outline: 2px solid $r-ink; outline-offset: 2px; }
+}
+
+// KPI tiles (tone comes from tw-tone-* on the tile)
+.cr-kpi {
+  padding: 16px;
+  border: 1px solid $r-line;
+  border-radius: 14px;
+  background: #fff;
+  transition: box-shadow 0.26s ease, transform 0.26s $r-ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.cr-kpi-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--tone-soft);
+  color: var(--tone);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 14px -10px var(--tone-shadow);
+}
+
+// SVG stars (consistent size and weight in any font)
+svg.cr-star {
+  display: inline-block;
+  flex-shrink: 0;
+  fill: currentColor;
+  color: #E2E8F0;
+
+  &.on { color: #F59E0B; }
+}
+
+.cr-star-lg { width: 18px; height: 18px; }
+.cr-star-sm { width: 14px; height: 14px; }
+.cr-star-xs { width: 11px; height: 11px; }
+
+// Segments of the stacked distribution bars
+.cr-stack-seg {
+  display: block;
+  height: 100%;
+  transform-origin: right;
+  animation: crGrow 1s $r-ease 0.3s backwards;
+}
+
+:host-context([dir='ltr']) .cr-stack-seg { transform-origin: left; }
+
+// ── Filters row ──
+.cr-filters-bar {
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid $r-line;
+  border-bottom: 1px solid $r-line;
+  background: #fff;
+
+  .cr-tabs-filter {
+    ::ng-deep .filter-pill,
+    ::ng-deep .filter-icon-btn {
+      height: 36px;
+      border-radius: 10px;
+      border-color: $r-line-strong;
+      box-shadow: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background-color 0.26s ease, border-color 0.26s ease;
+
+      &:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+      }
+    }
+  }
+}
+
+.cr-dates {
+  gap: 8px;
+}
+
+// From → To as one control
+.cr-range {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  border: 1px solid $r-line-strong;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.cr-range-btn {
+  all: unset;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $r-muted;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.26s ease, color 0.26s ease;
+
+  &:hover,
+  &[aria-expanded='true'] { background: #F8FAFC; }
+  &.has-value { color: $r-ink; }
+  &:focus-visible { outline: 2px solid $r-ink; outline-offset: -2px; }
+}
+
+.cr-range-sep {
+  color: $r-faint;
+  font-size: 12px;
+}
+
+// ── List: flush inside the page board ──
+.cr-body {
+  padding: 0;
+}
+
+.cr-table-box {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+  // Sideways scroll only: rows sliding in (tw-animate-enter) would otherwise flash a
+  // second vertical scrollbar while they animate (overflow-x: auto makes y auto too).
+  overflow-y: hidden;
+}
+
+.cr-table {
+  thead {
+    background: #F8FAFC;
+    border-bottom: 1px solid $r-line;
+
+    th {
+      height: 40px;
+      padding: 0 16px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: none;
+      color: $r-muted;
+    }
+  }
+
+  td {
+    padding: 16px;
+  }
+
+  th:first-child,
+  td:first-child { padding-inline-start: 24px; }
+
+  th:last-child,
+  td:last-child { padding-inline-end: 24px; }
+}
+
+.cr-row {
+  transition: background-color 0.26s ease;
+
+  &:hover { background: #FAFBFC; }
+  &.selected { background: #F7F7F5; }
+}
+
+.cr .cr-session {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace !important;
+  font-size: 11px;
+  color: $r-faint;
+}
+
+// Rating: stars + number on a soft pill, tinted by how good the rating is
+.cr-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+
+  &.is-good { background: #FFFBEB; b { color: #B45309; } }
+  &.is-mid  { background: #FFF7ED; b { color: #C2410C; } }
+  &.is-low  { background: #FEF2F2; b { color: #DC2626; } }
+}
+
+// Icon-only on desktop (label in tooltip / aria-label) so the table never scrolls sideways.
+.cr-open-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid $r-line-strong;
+  border-radius: 10px;
+  background: #fff;
+  color: $r-ink;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease;
+
+  &:hover {
+    border-color: $r-ink;
+    background: $r-ink;
+    color: #fff;
+  }
+
+  &:focus-visible { outline: 2px solid $r-ink; outline-offset: 2px; }
+}
+
+.cr-open-label { display: none; }
+
+.cr-pagination {
+  padding: 12px 24px;
+}
+
+@media (max-width: 767px) {
+  .cr-filters-bar { padding: 12px 16px; }
+  .cr-body { padding: 16px; }
+
+  .cr-range { width: 100%; }
+  .cr-range-btn { flex: 1 1 0; justify-content: center; }
+
+  .cr-table td:first-child,
+  .cr-table td:last-child { padding-inline: 14px; }
+
+  .cr-actions-cell .cr-open-btn { width: 100%; padding: 0 12px; }
+  .cr-open-label { display: inline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cr .tw-animate-enter,
+  .cr-stack-seg { animation: none !important; }
+  .cr-kpi { transition: none; }
+}
+
+// ── Assistant mark (no agent): a small bot head that blinks now and then ──
+@keyframes crBotBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.12); }
+}
+
+@keyframes crBotLight {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+@keyframes crBotFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+
+.cr-bot-disc {
+  background: linear-gradient(160deg, #F5F3FF 0%, #EDE9FE 100%);
+  color: #7C3AED;
+  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.14), 0 6px 14px -10px rgba(124, 58, 237, 0.5);
+}
+
+.cr-bot {
+  width: 19px;
+  height: 19px;
+  animation: crBotFloat 3.2s ease-in-out infinite;
+}
+
+.cr-bot-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: crBotBlink 4.5s ease-in-out infinite;
+}
+
+.cr-bot-light {
+  animation: crBotLight 2.4s ease-in-out infinite;
+}
+
+// Each row's bot starts at a different moment so they don't blink in unison.
+.cr-row:nth-child(3n + 2) .cr-bot-eyes { animation-delay: 1.4s; }
+.cr-row:nth-child(3n + 3) .cr-bot-eyes { animation-delay: 2.9s; }
+.cr-row:nth-child(2n) .cr-bot { animation-delay: 0.8s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-bot,
+  .cr-bot-eyes,
+  .cr-bot-light { animation: none; }
+}

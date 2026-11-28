@@ -1,7 +1,113 @@
-<div class="cr" [dir]="currentDir">
+<div class="cr tw-font-cairo tw-text-ink" [dir]="currentDir">
+
+  <!-- Header: title + view switch -->
+  <header class="tw-flex tw-flex-wrap tw-items-end tw-justify-between tw-gap-4 tw-px-6 tw-pb-4 tw-pt-6 tw-animate-enter">
+    <div>
+      <h2 class="tw-m-0 tw-text-xl tw-font-black">{{ 'd3.complaints.ratings.summary.title' | translate }}</h2>
+      <p class="tw-m-0 tw-mt-1 tw-text-[13px] tw-text-muted">{{ 'd3.complaints.ratings.summary.subtitle' | translate }}</p>
+    </div>
+
+    @if (canViewAll()) {
+      <div class="tw-inline-flex tw-rounded-xl tw-border tw-border-solid tw-border-line-strong tw-bg-white tw-p-[3px]" role="tablist">
+        <button type="button" role="tab" class="cr-view-btn" [class.is-active]="view === 'list'"
+          [attr.aria-selected]="view === 'list'" (click)="setView('list')">
+          <i-tabler name="list" class="icon-16"></i-tabler>
+          {{ 'd3.complaints.ratings.views.list' | translate }}
+        </button>
+        <button type="button" role="tab" class="cr-view-btn" [class.is-active]="view === 'agents'"
+          [attr.aria-selected]="view === 'agents'" (click)="setView('agents')">
+          <i-tabler name="users" class="icon-16"></i-tabler>
+          {{ 'd3.complaints.ratings.views.agents' | translate }}
+        </button>
+      </div>
+    }
+  </header>
+
+  <!-- Summary — computed server-side over the full filtered set, not the current page -->
+  @if (view === 'list' && summary; as s) {
+    <section class="tw-grid tw-grid-cols-1 tw-gap-3 tw-px-6 sm:tw-grid-cols-2 xl:tw-grid-cols-6">
+
+      <div class="cr-kpi tw-tone-amber tw-animate-enter" style="animation-delay: 60ms">
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <span class="tw-text-[13px] tw-font-semibold tw-text-muted">{{ 'd3.complaints.ratings.summary.average' | translate }}</span>
+          <span class="cr-kpi-icon"><i-tabler name="star" class="icon-18"></i-tabler></span>
+        </div>
+        <div class="tw-mt-2 tw-flex tw-items-baseline tw-gap-1.5">
+          <b class="tw-text-[26px] tw-font-black tw-leading-none tw-tabular-nums">{{ fmtAverage(s.averageRating) }}</b>
+          <span class="tw-text-sm tw-text-faint">{{ 'd3.complaints.ratings.summary.outOf' | translate }}</span>
+        </div>
+        <span class="tw-mt-1.5 tw-flex tw-gap-0.5" aria-hidden="true">
+          @for (slot of starSlots; track slot) {
+            <svg class="cr-star cr-star-lg" [class.on]="slot <= roundedStars(s.averageRating)" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>
+          }
+        </span>
+      </div>
+
+      <div class="cr-kpi tw-tone-navy tw-animate-enter" style="animation-delay: 120ms">
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <span class="tw-text-[13px] tw-font-semibold tw-text-muted">{{ 'd3.complaints.ratings.summary.total' | translate }}</span>
+          <span class="cr-kpi-icon"><i-tabler name="message-circle" class="icon-18"></i-tabler></span>
+        </div>
+        <b class="tw-mt-2 tw-block tw-text-[26px] tw-font-black tw-leading-none tw-tabular-nums" [appCountUp]="s.totalRated"></b>
+        <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-faint">{{ 'd3.complaints.ratings.summary.totalHint' | translate }}</p>
+      </div>
+
+      <div class="cr-kpi tw-tone-green tw-animate-enter" style="animation-delay: 180ms">
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <span class="tw-text-[13px] tw-font-semibold tw-text-muted">{{ 'd3.complaints.ratings.summary.satisfied' | translate }}</span>
+          <span class="cr-kpi-icon"><i-tabler name="mood-smile" class="icon-18"></i-tabler></span>
+        </div>
+        <b class="tw-mt-2 tw-block tw-text-[26px] tw-font-black tw-leading-none tw-text-tone tw-tabular-nums"
+          [appCountUp]="sharePercent(s.distribution, s.totalRated, [4, 5])" countUpSuffix="%"></b>
+        <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-faint">{{ 'd3.complaints.ratings.summary.satisfiedHint' | translate }}</p>
+      </div>
+
+      <div class="cr-kpi tw-tone-red tw-animate-enter" style="animation-delay: 240ms">
+        <div class="tw-flex tw-items-center tw-justify-between">
+          <span class="tw-text-[13px] tw-font-semibold tw-text-muted">{{ 'd3.complaints.ratings.summary.unsatisfied' | translate }}</span>
+          <span class="cr-kpi-icon"><i-tabler name="mood-sad" class="icon-18"></i-tabler></span>
+        </div>
+        <b class="tw-mt-2 tw-block tw-text-[26px] tw-font-black tw-leading-none tw-tabular-nums"
+          [class.tw-text-tone]="sharePercent(s.distribution, s.totalRated, [1, 2]) > 0"
+          [appCountUp]="sharePercent(s.distribution, s.totalRated, [1, 2])" countUpSuffix="%"></b>
+        <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-text-faint">{{ 'd3.complaints.ratings.summary.unsatisfiedHint' | translate }}</p>
+      </div>
+
+      <!-- Distribution: one stacked bar (5 stars → 1 star) + legend -->
+      <div class="tw-rounded-tile tw-border tw-border-solid tw-border-line tw-p-4 tw-animate-enter sm:tw-col-span-2" style="animation-delay: 280ms">
+      <div class="tw-mb-3 tw-flex tw-items-center tw-justify-between">
+        <span class="tw-text-[13px] tw-font-bold">{{ 'd3.complaints.ratings.summary.distribution' | translate }}</span>
+        <span class="tw-text-xs tw-text-faint">{{ 'd3.complaints.ratings.table.total' | appPlural: s.totalRated }}</span>
+      </div>
+      <div class="tw-flex tw-h-2.5 tw-overflow-hidden tw-rounded-full tw-bg-divider">
+        @for (stars of distributionStars; track stars) {
+          @if (distributionCount(s.distribution, stars) > 0) {
+            <span class="cr-stack-seg" [ngClass]="starTone[stars]"
+              [style.width.%]="distributionPercent(s.distribution, stars, s.totalRated)"
+              [attr.title]="fmt(stars) + '★ · ' + fmt(distributionCount(s.distribution, stars))"></span>
+          }
+        }
+      </div>
+      <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-2">
+        @for (stars of distributionStars; track stars) {
+          <span class="tw-inline-flex tw-items-center tw-gap-2 tw-text-xs"
+            [class.tw-text-body]="distributionCount(s.distribution, stars) > 0"
+            [class.tw-text-faint]="distributionCount(s.distribution, stars) === 0">
+            <span class="tw-inline-block tw-h-2.5 tw-w-2.5 tw-rounded-full" [ngClass]="starTone[stars]"
+              [class.tw-opacity-30]="distributionCount(s.distribution, stars) === 0"></span>
+            <b class="tw-inline-flex tw-items-center tw-gap-0.5 tw-font-bold">{{ fmt(stars) }}<svg class="cr-star cr-star-xs on" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg></b>
+            <span class="tw-tabular-nums">
+              {{ fmt(distributionCount(s.distribution, stars)) }} · {{ fmt(sharePercent(s.distribution, s.totalRated, [stars])) }}%
+            </span>
+          </span>
+        }
+      </div>
+      </div>
+    </section>
+  }
 
   <!-- Filters -->
-  <div class="cr-filters-bar">
+  <div class="cr-filters-bar tw-mt-5">
     <app-tabs-filter
       class="cr-tabs-filter"
       [tabs]="[]"
@@ -12,10 +118,17 @@
     </app-tabs-filter>
 
     <div class="cr-dates">
-      <button type="button" class="cr-date-pill" [class.has-value]="!!fromDate" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger">
-        <i-tabler name="calendar" class="cr-date-icon"></i-tabler>
-        <span>{{ 'd3.complaints.ratings.filters.from' | translate }}@if (fromDate) {: {{ fmtDay(fromDate) }}}</span>
-      </button>
+      <!-- From → To as one control -->
+      <div class="cr-range">
+        <button type="button" class="cr-range-btn" [class.has-value]="!!fromDate" [matMenuTriggerFor]="fromMenu" #fromMenuTrigger="matMenuTrigger">
+          <i-tabler name="calendar" class="cr-date-icon"></i-tabler>
+          <span>{{ 'd3.complaints.ratings.filters.from' | translate }}@if (fromDate) {: {{ fmtDay(fromDate) }}}</span>
+        </button>
+        <span class="cr-range-sep" aria-hidden="true">{{ currentDir === 'rtl' ? '←' : '→' }}</span>
+        <button type="button" class="cr-range-btn" [class.has-value]="!!toDate" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger">
+          <span>{{ 'd3.complaints.ratings.filters.to' | translate }}@if (toDate) {: {{ fmtDay(toDate) }}}</span>
+        </button>
+      </div>
       <mat-menu #fromMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
         <ng-template matMenuContent>
           <app-single-date-calendar
@@ -25,11 +138,6 @@
           </app-single-date-calendar>
         </ng-template>
       </mat-menu>
-
-      <button type="button" class="cr-date-pill" [class.has-value]="!!toDate" [matMenuTriggerFor]="toMenu" #toMenuTrigger="matMenuTrigger">
-        <i-tabler name="calendar" class="cr-date-icon"></i-tabler>
-        <span>{{ 'd3.complaints.ratings.filters.to' | translate }}@if (toDate) {: {{ fmtDay(toDate) }}}</span>
-      </button>
       <mat-menu #toMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
         <ng-template matMenuContent>
           <app-single-date-calendar
@@ -40,6 +148,7 @@
           </app-single-date-calendar>
         </ng-template>
       </mat-menu>
+
       @if (hasActiveFilters) {
         <button type="button" class="cr-reset" (click)="resetFilters()">
           <i-tabler name="x" class="icon-16"></i-tabler>
@@ -50,62 +159,10 @@
   </div>
 
   <div class="cr-body">
-
-    @if (canViewAll()) {
-      <div class="cr-views" role="tablist">
-        <button type="button" role="tab" class="cr-view" [class.active]="view === 'list'"
-          [attr.aria-selected]="view === 'list'" (click)="setView('list')">
-          {{ 'd3.complaints.ratings.views.list' | translate }}
-        </button>
-        <button type="button" role="tab" class="cr-view" [class.active]="view === 'agents'"
-          [attr.aria-selected]="view === 'agents'" (click)="setView('agents')">
-          {{ 'd3.complaints.ratings.views.agents' | translate }}
-        </button>
-      </div>
-    }
-
     @if (view === 'list') {
 
-      <!-- Summary — computed server-side over the full filtered set, not the current page -->
-      @if (summary; as s) {
-        <div class="cr-summary">
-          <div class="cr-card cr-card--average">
-            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.average' | translate }}</span>
-            <div class="cr-average">
-              <strong>{{ fmtAverage(s.averageRating) }}</strong>
-              <span class="cr-out-of">{{ 'd3.complaints.ratings.summary.outOf' | translate }}</span>
-            </div>
-            <span class="cr-stars cr-stars--lg" aria-hidden="true">
-              @for (slot of starSlots; track slot) {
-                <span class="cr-star" [class.on]="slot <= roundedStars(s.averageRating)">★</span>
-              }
-            </span>
-          </div>
-
-          <div class="cr-card">
-            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.total' | translate }}</span>
-            <strong class="cr-total-value">{{ fmt(s.totalRated) }}</strong>
-          </div>
-
-          <div class="cr-card cr-card--distribution">
-            <span class="cr-card-label">{{ 'd3.complaints.ratings.summary.distribution' | translate }}</span>
-            <div class="cr-distribution">
-              @for (stars of distributionStars; track stars) {
-                <div class="cr-dist-row">
-                  <span class="cr-dist-label">{{ fmt(stars) }} <span class="cr-star on">★</span></span>
-                  <span class="cr-dist-track">
-                    <span class="cr-dist-fill" [style.width.%]="distributionPercent(s.distribution, stars, s.totalRated)"></span>
-                  </span>
-                  <span class="cr-dist-count">{{ fmt(distributionCount(s.distribution, stars)) }}</span>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-
       @if (loading && rows.length === 0) {
-        <app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading>
+        <div class="tw-px-6 tw-py-4"><app-dashboard-loading variant="table" [rows]="6"></app-dashboard-loading></div>
       } @else {
         <div class="cr-table-box" [class.is-refreshing]="loading">
           <table class="cr-table">
@@ -121,34 +178,49 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of rows; track row.sessionExternalId) {
-                <tr class="cr-row" [class.selected]="row.sessionExternalId === selectedSessionId">
+              @for (row of rows; track row.sessionExternalId; let i = $index) {
+                <tr class="cr-row tw-animate-enter" [class.selected]="row.sessionExternalId === selectedSessionId"
+                  [style.animation-delay.ms]="80 + (i < 12 ? i : 12) * 40">
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.table.session' | translate }}</span>
-                    <span class="cr-strong">{{ row.clientName || '—' }}</span>
-                    <span class="cr-sub">{{ row.sessionNumber || '—' }}</span>
+                    <div class="tw-flex tw-items-center tw-gap-3">
+                      <span class="tw-grid tw-h-9 tw-w-9 tw-shrink-0 tw-place-items-center tw-rounded-full tw-text-xs tw-font-extrabold"
+                        [ngClass]="avatarTone(row.clientName)">{{ initials(row.clientName) }}</span>
+                      <div class="tw-min-w-0">
+                        <span class="tw-block tw-truncate tw-text-sm tw-font-extrabold">{{ row.clientName || '—' }}</span>
+                        <span class="cr-session" dir="ltr">{{ row.sessionNumber || '—' }}</span>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.table.department' | translate }}</span>
-                    <span class="cr-text">{{ departmentLabel(row.department) }}</span>
-                  </td>
-                  <td>
-                    <span class="cr-label">{{ 'd3.complaints.ratings.table.agent' | translate }}</span>
-                    @if (row.assignedAgentName) {
-                      <span class="cr-text">{{ row.assignedAgentName }}</span>
+                    @if (row.department) {
+                      <span class="tw-whitespace-nowrap tw-rounded-md tw-bg-divider tw-px-2 tw-py-0.5 tw-text-xs tw-font-semibold tw-text-body">{{ departmentLabel(row.department) }}</span>
                     } @else {
-                      <span class="cr-muted">{{ 'd3.complaints.ratings.table.noAgent' | translate }}</span>
+                      <span class="cr-muted">—</span>
                     }
                   </td>
                   <td>
+                    <span class="cr-label">{{ 'd3.complaints.ratings.table.agent' | translate }}</span>
+                    <span class="tw-inline-flex tw-items-center tw-gap-2 tw-text-[13px] tw-text-body">
+                      @if (row.assignedAgentName) {
+                        <span class="tw-grid tw-h-[30px] tw-w-[30px] tw-place-items-center tw-rounded-full tw-bg-ink tw-text-[11px] tw-font-extrabold tw-text-white">{{ initials(row.assignedAgentName) }}</span>
+                        {{ row.assignedAgentName }}
+                      } @else {
+                        <span class="cr-bot-disc tw-grid tw-h-8 tw-w-8 tw-shrink-0 tw-place-items-center tw-rounded-full"><svg class="cr-bot" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.6v2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle class="cr-bot-light" cx="12" cy="2.9" r="1.3" fill="currentColor"/><rect x="2.4" y="10.6" width="2.2" height="4.4" rx="1.1" fill="currentColor" opacity=".55"/><rect x="19.4" y="10.6" width="2.2" height="4.4" rx="1.1" fill="currentColor" opacity=".55"/><rect x="4.6" y="6.6" width="14.8" height="12.4" rx="4.6" fill="currentColor"/><g class="cr-bot-eyes" fill="#fff"><circle cx="9.4" cy="12.2" r="1.55"/><circle cx="14.6" cy="12.2" r="1.55"/></g><path d="M10.2 15.7h3.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+                        {{ 'd3.complaints.ratings.table.noAgent' | translate }}
+                      }
+                    </span>
+                  </td>
+                  <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.table.rating' | translate }}</span>
-                    <span class="cr-rating" [ngClass]="ratingClass(row.rating)" [attr.aria-label]="row.rating + ' / 5'">
-                      <span class="cr-stars" aria-hidden="true">
+                    <span class="cr-rating-pill" [ngClass]="ratingClass(row.rating)" [attr.aria-label]="row.rating + ' / 5'">
+                      <span class="tw-flex tw-gap-px" aria-hidden="true">
                         @for (slot of starSlots; track slot) {
-                          <span class="cr-star" [class.on]="slot <= row.rating">★</span>
+                          <svg class="cr-star cr-star-sm" [class.on]="slot <= row.rating" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>
                         }
                       </span>
-                      <span class="cr-rating-value">{{ fmt(row.rating) }}</span>
+                      <b class="tw-text-[13px] tw-font-extrabold tw-tabular-nums">{{ fmt(row.rating) }}</b>
                     </span>
                   </td>
                   <td class="cr-comment-cell">
@@ -156,20 +228,22 @@
                     @if (row.comment) {
                       <p class="cr-comment" dir="auto">{{ row.comment }}</p>
                     } @else {
-                      <span class="cr-muted">—</span>
+                      <span class="tw-text-[13px] tw-italic tw-text-faint">{{ 'd3.complaints.ratings.table.noComment' | translate }}</span>
                     }
                   </td>
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.table.ratedAt' | translate }}</span>
-                    <span class="cr-date">{{ fmtDate(row.ratedAtUtc) }}</span>
-                    <span class="cr-sub">
+                    <span class="tw-block tw-whitespace-nowrap tw-text-[13px] tw-font-semibold">{{ fmtDate(row.ratedAtUtc) }}</span>
+                    <span class="tw-text-xs tw-text-faint">
                       {{ 'd3.complaints.ratings.table.closedBy' | translate: { by: closedByLabel(row.closedBy) } }}
                     </span>
                   </td>
                   <td class="cr-actions-cell">
-                    <button type="button" class="cr-btn" (click)="openSession.emit(row.sessionExternalId)">
-                      <i-tabler name="message-circle" class="cr-btn-icon"></i-tabler>
-                      {{ 'd3.complaints.ratings.table.viewChat' | translate }}
+                    <button type="button" class="cr-open-btn" (click)="openSession.emit(row.sessionExternalId)"
+                      [attr.aria-label]="'d3.complaints.ratings.table.viewChat' | translate"
+                      [attr.title]="'d3.complaints.ratings.table.viewChat' | translate">
+                      <svg class="tw-h-4 tw-w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.7A8.4 8.4 0 1 1 21 11.5z"/></svg>
+                      <span class="cr-open-label">{{ 'd3.complaints.ratings.table.viewChat' | translate }}</span>
                     </button>
                   </td>
                 </tr>
@@ -223,7 +297,7 @@
 
       <!-- Per-agent aggregate -->
       @if (agentsLoading && agentRows.length === 0) {
-        <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
+        <div class="tw-px-6 tw-py-4"><app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading></div>
       } @else {
         <div class="cr-table-box" [class.is-refreshing]="agentsLoading">
           <table class="cr-table cr-table--agents">
@@ -236,38 +310,40 @@
               </tr>
             </thead>
             <tbody>
-              @for (agent of agentRows; track agent.agentUserId ?? 'unassigned') {
-                <tr class="cr-row">
+              @for (agent of agentRows; track agent.agentUserId ?? 'unassigned'; let i = $index) {
+                <tr class="cr-row tw-animate-enter" [style.animation-delay.ms]="80 + (i < 12 ? i : 12) * 40">
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.agents.agent' | translate }}</span>
-                    @if (agent.agentUserId) {
-                      <span class="cr-strong">{{ agent.agentName || '—' }}</span>
-                    } @else {
-                      <span class="cr-strong cr-muted">{{ 'd3.complaints.ratings.table.noAgent' | translate }}</span>
-                    }
+                    <span class="tw-inline-flex tw-items-center tw-gap-2.5 tw-text-sm tw-font-extrabold">
+                      @if (agent.agentUserId) {
+                        <span class="tw-grid tw-h-8 tw-w-8 tw-place-items-center tw-rounded-full tw-bg-ink tw-text-[11px] tw-font-extrabold tw-text-white">{{ initials(agent.agentName) }}</span>
+                        {{ agent.agentName || '—' }}
+                      } @else {
+                        <span class="cr-bot-disc tw-grid tw-h-8 tw-w-8 tw-shrink-0 tw-place-items-center tw-rounded-full"><svg class="cr-bot" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.6v2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle class="cr-bot-light" cx="12" cy="2.9" r="1.3" fill="currentColor"/><rect x="2.4" y="10.6" width="2.2" height="4.4" rx="1.1" fill="currentColor" opacity=".55"/><rect x="19.4" y="10.6" width="2.2" height="4.4" rx="1.1" fill="currentColor" opacity=".55"/><rect x="4.6" y="6.6" width="14.8" height="12.4" rx="4.6" fill="currentColor"/><g class="cr-bot-eyes" fill="#fff"><circle cx="9.4" cy="12.2" r="1.55"/><circle cx="14.6" cy="12.2" r="1.55"/></g><path d="M10.2 15.7h3.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+                        <span class="tw-text-muted">{{ 'd3.complaints.ratings.table.noAgent' | translate }}</span>
+                      }
+                    </span>
                   </td>
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.agents.average' | translate }}</span>
-                    <span class="cr-rating" [ngClass]="ratingClass(agent.averageRating)">
-                      <span class="cr-star on" aria-hidden="true">★</span>
-                      <span class="cr-rating-value">{{ fmtAverage(agent.averageRating) }}</span>
+                    <span class="cr-rating-pill" [ngClass]="ratingClass(agent.averageRating)">
+                      <svg class="cr-star cr-star-sm on" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>
+                      <b class="tw-text-[13px] tw-font-extrabold tw-tabular-nums">{{ fmtAverage(agent.averageRating) }}</b>
                     </span>
                   </td>
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.agents.total' | translate }}</span>
-                    <span class="cr-text">{{ fmt(agent.totalRated) }}</span>
+                    <b class="tw-text-sm tw-tabular-nums">{{ fmt(agent.totalRated) }}</b>
                   </td>
                   <td>
                     <span class="cr-label">{{ 'd3.complaints.ratings.summary.distribution' | translate }}</span>
-                    <div class="cr-distribution cr-distribution--compact">
+                    <div class="tw-flex tw-h-2 tw-w-40 tw-max-w-full tw-overflow-hidden tw-rounded-full tw-bg-divider">
                       @for (stars of distributionStars; track stars) {
-                        <div class="cr-dist-row">
-                          <span class="cr-dist-label">{{ fmt(stars) }} <span class="cr-star on">★</span></span>
-                          <span class="cr-dist-track">
-                            <span class="cr-dist-fill" [style.width.%]="distributionPercent(agent.distribution, stars, agent.totalRated)"></span>
-                          </span>
-                          <span class="cr-dist-count">{{ fmt(distributionCount(agent.distribution, stars)) }}</span>
-                        </div>
+                        @if (distributionCount(agent.distribution, stars) > 0) {
+                          <span class="cr-stack-seg" [ngClass]="starTone[stars]"
+                            [style.width.%]="distributionPercent(agent.distribution, stars, agent.totalRated)"
+                            [attr.title]="fmt(stars) + '★ · ' + fmt(distributionCount(agent.distribution, stars))"></span>
+                        }
                       }
                     </div>
                   </td>

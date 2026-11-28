@@ -1,11 +1,15 @@
 <header class="d3-page-header" [dir]="dir()">
   <div class="d3-page-header-right">
     @if (showBack) {
-      <button class="d3-page-back-btn" type="button" (click)="onBack($event)">
+      <button class="d3-page-back-btn" type="button" (click)="onBack($event)"
+              [attr.aria-label]="'d3.header.back' | translate">
         <i-tabler [name]="isRtl() ? 'arrow-right' : 'arrow-left'" class="d3-page-icon"></i-tabler>
       </button>
     } @else {
-      <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)">
+      <button class="d3-page-sidebar-toggle" type="button" (click)="onSidebarToggle($event)"
+              [attr.aria-label]="'d3.header.openMenu' | translate"
+              [attr.aria-expanded]="sidebarOpen"
+              aria-controls="d3-main-sidebar">
         <i-tabler name="menu-2" class="d3-page-icon"></i-tabler>
       </button>
     }

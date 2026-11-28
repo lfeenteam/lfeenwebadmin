@@ -6,18 +6,20 @@ import { DemoSignupLink, DemoSignupLinkState } from '../../../interfaces/demo-si
 import { DemoApiError, demoErrorMessage } from '../demo-accounts.util';
 
 /**
- * The sign-up endpoints answer with a fixed errorCode and a friendly sentence already in the
- * page's language (Accept-Language) — show that sentence. Codes the demo-accounts screens
- * already translate (text, duration…) and transport errors keep their own text.
+ * The sign-up endpoints answer with a fixed errorCode and a sentence that is always English
+ * (whatever Accept-Language says), so the page translates the code itself
+ * (signupLinks.errors.<code>) and shows the server's sentence only for a code it doesn't know.
+ * Codes the demo-accounts screens already translate (text, duration…) and transport errors
+ * keep their own text.
  */
 export function signupErrorMessage(e: DemoApiError, translate: TranslateService): string {
   // Any invalid value is a plain 400 VALIDATION_ERROR whose message may be English — never show it.
   if (e.code === 'VALIDATION_ERROR') return translate.instant('d3.demoAccounts.signupLinks.errors.validation');
-  if (e.code?.startsWith('DEMO_SIGNUP_') && e.message) return e.message;
   if (e.code?.startsWith('DEMO_SIGNUP_')) {
     const key = `d3.demoAccounts.signupLinks.errors.${e.code}`;
     const own = translate.instant(key);
     if (own !== key) return own;
+    if (e.message) return e.message;
   }
   if (e.status === 429) return translate.instant('d3.demoAccounts.signupLinks.errors.rateLimited');
   return demoErrorMessage(e, translate);

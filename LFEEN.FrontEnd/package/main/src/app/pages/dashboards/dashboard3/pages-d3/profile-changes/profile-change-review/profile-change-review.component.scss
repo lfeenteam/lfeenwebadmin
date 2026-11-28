@@ -123,13 +123,139 @@
   }
 }
 
+// BUG-2667: the logo is a button that opens a full-size preview. It's wider than
+// tall so wide logos (16:9) don't shrink to a thin strip.
+.pcr-logo-btn {
+  position: relative;
+  align-self: flex-start;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  cursor: zoom-in;
+
+  &:hover .pcr-logo { border-color: #BDBDB8; }
+  &:focus-visible { outline: 2px solid #111110; outline-offset: 2px; }
+
+  &__mark {
+    position: absolute;
+    inset-block-start: 5px;
+    inset-inline-end: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #111110CC;
+    color: #FFFFFF;
+
+    i-tabler { width: 14px; height: 14px; ::ng-deep svg { width: 14px; height: 14px; } }
+  }
+}
+
 .pcr-logo {
-  width: 72px;
-  height: 72px;
+  display: block;
+  box-sizing: border-box;
+  width: 160px;
+  height: 90px;
+  padding: 4px;
   object-fit: contain;
   border-radius: 12px;
   background: #FFFFFF;
   border: 1px solid #E8E8E4;
+}
+
+.pcr-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: #111110D9;
+}
+
+.pcr-preview {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  max-height: calc(100dvh - 36px);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #FFFFFF26;
+  border-radius: 14px;
+  background: #191918;
+  color: #FFFFFF;
+  box-shadow: 0 24px 70px #0008;
+
+  figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 14px;
+
+    span { display: block; color: #BDBDB8; font-size: 10px; font-weight: 700; }
+    strong { display: block; font-size: 13px; }
+  }
+
+  &__actions { display: flex; gap: 8px; flex: none; }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #FFFFFF2B;
+    border-radius: 8px;
+    background: #FFFFFF12;
+    color: #FFFFFF;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover { background: #FFFFFF24; }
+    &:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+    i-tabler { width: 18px; height: 18px; ::ng-deep svg { width: 18px; height: 18px; } }
+  }
+
+  // Checkerboard so a logo with transparent parts still reads against the backdrop.
+  &__stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+    padding: 16px;
+    background-color: #FFFFFF;
+    background-image:
+      linear-gradient(45deg, #EEEEEA 25%, transparent 25%),
+      linear-gradient(-45deg, #EEEEEA 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #EEEEEA 75%),
+      linear-gradient(-45deg, transparent 75%, #EEEEEA 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+
+    img {
+      display: block;
+      max-width: 100%;
+      max-height: calc(100dvh - 160px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+  }
+
+  footer { padding: 9px 14px; color: #BDBDB8; font-size: 11px; }
+}
+
+@media (max-width: 520px) {
+  .pcr-preview-backdrop { padding: 8px; }
+  .pcr-preview { max-height: calc(100dvh - 16px); border-radius: 11px; }
+  .pcr-preview__stage img { max-height: calc(100dvh - 140px); }
 }
 
 .pcr-reason {

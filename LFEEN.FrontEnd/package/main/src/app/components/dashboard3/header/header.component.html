@@ -2,7 +2,9 @@
   <!-- Start: menu (mobile) + page title -->
   <div class="d3-header-start">
     <button class="d3-icon-btn d3-sidebar-toggle d3-mh" type="button" (click)="onSidebarToggle($event)"
-            [attr.aria-label]="'d3.header.openMenu' | translate">
+            [attr.aria-label]="'d3.header.openMenu' | translate"
+            [attr.aria-expanded]="sidebarOpen"
+            aria-controls="d3-main-sidebar">
       <app-d3-icon name="menu"></app-d3-icon>
     </button>
 

@@ -1,427 +1,319 @@
-.add-role-container {
-  font-family: 'Cairo', sans-serif !important;
+// Add role page. Layout and the summary use Tailwind (tw-, project config) in the
+// template; this file covers fields, interactive states and the toggle colours.
 
-  .page-title-block {
-    .page-subtitle {
-      font-size: 13px;
-      font-weight: 700;
-      color: #6B6B67;
-    }
+$ink: #111827;
+$body: #475569;
+$muted: #64748B;
+$faint: #94A3B8;
+$line: #EEF2F7;
+$line-strong: #E5E9F0;
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+.ar-page {
+  font-family: 'Cairo', sans-serif;
+  // Room under the content so the fixed chat button never sits on the save button.
+  padding-bottom: 88px;
+}
+
+// Main column + sticky summary
+.ar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ar-side {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 1100px) {
+    position: static;
+  }
+}
+
+.ar-card {
+  background: #fff;
+  border: 1px solid $line-strong;
+  border-radius: 20px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.04);
+}
+
+.ar-step {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: $ink;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ar-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--tone-soft);
+  color: var(--tone);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 14px -10px var(--tone-shadow);
+}
+
+.ar-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+}
+
+// Inputs, select and textareas share one look
+.ar-field {
+  display: block;
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid $line-strong;
+  border-radius: 12px;
+  background: #F8FAFC;
+  color: $ink;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.26s ease, background-color 0.26s ease, box-shadow 0.26s ease;
+
+  &::placeholder { color: $faint; font-weight: 500; }
+
+  &:focus,
+  &:focus-within {
+    border-color: $ink;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.06);
   }
 
-  // ── Section Header ─────────────────────────
-  .section-bar {
-    display: inline-block;
-    width: 4px;
-    height: 20px;
-    background: #111110;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .section-title {
-    font-size: 16px;
-    font-weight: 900;
-    color: #111110;
-  }
-
-  // ── Tabler icon sizing/alignment helpers ───
-  i-tabler {
-    &.icon-14, &.icon-16, &.icon-18, &.icon-20, &.icon-24, &.icon-40 {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
-    }
-    &.icon-14 ::ng-deep svg { width: 14px; height: 14px; }
-    &.icon-16 ::ng-deep svg { width: 16px; height: 16px; }
-    &.icon-18 ::ng-deep svg { width: 18px; height: 18px; }
-    &.icon-20 ::ng-deep svg { width: 20px; height: 20px; }
-    &.icon-24 ::ng-deep svg { width: 24px; height: 24px; }
-    &.icon-40 ::ng-deep svg { width: 40px; height: 40px; }
-  }
-
-  // Shown in the permissions card when save is attempted with nothing selected
-  .perms-required-error {
-    font-size: 12px;
-    font-weight: 700;
-    color: #DC2626;
+  &.is-invalid {
+    border-color: #EF4444;
     background: #FEF2F2;
-    border-bottom: 1px solid #FECACA;
   }
+}
 
-  // ── Info Card ──────────────────────────────
-  .info-card {
-    border-radius: 20px !important;
-    border: 1px solid #E8E8E4 !important;
-    background: #FCFCFB;
+// Fixed height, no drag-to-resize handle.
+.ar-textarea {
+  height: 104px;
+  padding: 12px 14px;
+  line-height: 1.7;
+  resize: none;
+}
 
-    .field-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #111110;
-    }
+.ar-select-field {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 
-    .field-error {
-      font-size: 11px;
-      color: #DC2626;
-      font-weight: 600;
-    }
+  .dept-select {
+    width: 100%;
 
-    // Bilingual input pattern (reused from add-role-dialog)
-    .bilingual-input-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #fff;
-      border: 1.5px solid #E8E8E4;
-      border-radius: 12px;
-      padding: 0 12px;
-      transition: border-color 0.15s;
-
-      &:focus-within { border-color: #111110; }
-      &.is-invalid { border-color: #DC2626; }
-      &.secondary { background: #F7F7F5; }
-
-      &.textarea-wrapper {
-        align-items: flex-start;
-        padding: 12px;
-      }
-
-      .bilingual-input {
-        flex: 1;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-family: 'Cairo', sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111110;
-        padding: 12px 0;
-
-        &::placeholder { color: #BFBFBA; font-weight: 600; }
-      }
-
-      &.select-wrapper {
-        padding: 0 12px;
-      }
-
-      .dept-select {
-        cursor: pointer;
-        width: 100%;
-
-        ::ng-deep .mat-mdc-select-trigger {
-          width: 100%;
-          height: 100%;
-          padding: 12px 0;
-          display: flex;
-          align-items: center;
-        }
-
-        ::ng-deep .mat-mdc-select-value {
-          font-family: 'Cairo', sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          color: #111110;
-        }
-
-        ::ng-deep .mat-mdc-select-arrow {
-          color: #6B6B67;
-        }
-      }
-
-      .bilingual-textarea {
-        flex: 1;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-family: 'Cairo', sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        color: #111110;
-        resize: none;
-        line-height: 1.6;
-
-        &::placeholder { color: #BFBFBA; font-weight: 600; }
-      }
-
-      .lang-chip {
-        flex-shrink: 0;
-        background: #F1F1EE;
-        border: 1px solid #E8E8E4;
-        border-radius: 8px;
-        padding: 4px 10px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #6B6B67;
-        cursor: pointer;
-        transition: all 0.15s;
-
-        &:hover { background: #E8E8E4; color: #111110; }
-        &.active { background: #111110; color: #fff; border-color: #111110; }
-        &.static { cursor: default; pointer-events: none; }
-      }
-    }
+    ::ng-deep .mat-mdc-select-trigger { height: 42px; display: flex; align-items: center; }
+    ::ng-deep .mat-mdc-select-value { font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; color: $ink; }
+    ::ng-deep .mat-mdc-select-arrow { color: $muted; }
   }
+}
 
-  // ── Permissions Card ───────────────────────
-  .perms-card {
-    border: 1px solid #E8E8E4 !important;
-    border-radius: 24px !important;
-    overflow: hidden;
+.ar-error {
+  margin: 6px 2px 0;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 600;
+}
 
-    .perms-card-header {
-      background: #FCFCFB;
+// "+ English / + عربي" — reveals the other-language field
+.ar-lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 8px;
+  line-height: 1;
+  border: 1px solid $line-strong;
+  border-radius: 999px;
+  background: #fff;
+  color: $muted;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease;
 
-      .select-all-btn {
-        background: #111110;
-        color: #fff;
-        border: 1px solid #111110;
-        border-radius: 20px;
-        padding: 5px 14px;
-        font-size: 12px;
-        font-weight: 700;
-        font-family: 'Cairo', sans-serif;
-        cursor: pointer;
-        transition: opacity 0.15s;
+  &:hover { color: $ink; border-color: #CBD5E1; }
 
-        &:hover { opacity: 0.88; }
-        &:disabled { opacity: 0.5; cursor: not-allowed; }
-      }
-
-      .selected-badge {
-        background: #F1F1EE;
-        border: 1px solid #E8E8E4;
-        border-radius: 20px;
-        padding: 4px 14px;
-        font-size: 12px;
-        font-weight: 700;
-        color: #6B6B67;
-      }
-    }
-
-    .perms-divider {
-      height: 1px;
-      background: #E8E8E4;
-    }
-
-    .perms-empty {
-      color: #9E9E9A;
-
-      i-tabler { color: #C9C9C4; }
-
-      p { font-size: 14px; font-weight: 700; }
-    }
-
-    .pagination-wrapper {
-      border-top: 1px solid #E8E8E4;
-
-      .page-nav-btn,
-      .page-number-btn {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        padding: 0;
-        margin: 0;
-        border: 1px solid #E8E8E4;
-        border-radius: 8px;
-        background: #fff;
-        color: #6B6B67;
-        font-family: 'Cairo', sans-serif;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.15s, color 0.15s, border-color 0.15s;
-
-        &:hover:not(:disabled) { background: #F7F7F5; color: #111110; }
-        &:disabled { opacity: 0.4; cursor: not-allowed; }
-      }
-
-      .page-nav-btn i-tabler {
-        display: flex;
-        width: 16px;
-        height: 16px;
-      }
-
-      .page-number-btn.active {
-        background: #111110;
-        color: #fff;
-        border-color: #111110;
-      }
-
-      @media (max-width: 767.98px) {
-        padding: 12px 16px !important;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center !important;
-
-        .page-nav-btn, .page-number-btn { width: 32px; height: 32px; min-width: 32px; }
-      }
-    }
-
-    // Group / permission styles live in the shared permission-tree component.
-  }
-
-  // ── Alert Box ──────────────────────────────
-  .alert-box {
-    background: #FFFBEB;
-    border: 1px solid #FDE68A;
-    border-radius: 16px;
-
-    h4 {
-      font-size: 13px;
-      font-weight: 900;
-      color: #92400E;
-    }
-
-    p {
-      font-size: 12px;
-      font-weight: 700;
-      color: #B45309;
-    }
-
-    .text-warning { color: #D97706; }
-  }
-
-  // ── Footer Buttons ─────────────────────────
-  .save-btn {
-    background-color: #111110;
+  &.is-on {
+    border-color: $ink;
+    background: $ink;
     color: #fff;
-    border-radius: 12px;
-    height: auto;
-    font-weight: 700;
-    padding: 12px 48px;
+  }
+
+  // icon-12 forces a 20px line-height; inside this 22px pill that pushes the glyph down.
+  i-tabler {
     display: inline-flex;
     align-items: center;
-    font-size: 14px;
-    font-family: 'Cairo', sans-serif;
+    justify-content: center;
+    line-height: 1 !important;
 
-    // mat-flat-button wraps projected content in .mdc-button__label —
-    // make that the flex row so the icon lines up with the text
-    ::ng-deep .mdc-button__label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    ::ng-deep i-tabler svg {
-      display: block;
-      width: 16px;
-      height: 16px;
-    }
-  }
-
-  .cancel-btn {
-    border: none;
-    border-radius: 12px;
-    height: auto;
-    font-weight: 700;
-    padding: 12px 32px;
-    background-color: #F7F7F5;
-    color: #111110;
-    font-size: 14px;
-    font-family: 'Cairo', sans-serif;
+    ::ng-deep svg { display: block; }
   }
 }
 
-// ════════════════════════════════════════
-// Tablet (768px)
-// ════════════════════════════════════════
-@media (max-width: 768px) {
-  .add-role-container {
-    // page title
-    .page-title-block h1 { font-size: 20px !important; }
+// Manager role card — the whole card toggles
+.ar-manager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid $line;
+  border-radius: 14px;
+  background: #F8FAFC;
+  cursor: pointer;
+  transition: border-color 0.26s ease, background-color 0.26s ease;
 
-    // info card
-    .info-card mat-card-content { padding: 20px !important; }
-
-    // perms card
-    .perms-card {
-      .perms-card-header { padding: 14px 16px !important; }
-    }
-
-    // alert
-    .alert-box { padding: 14px !important; gap: 10px !important; }
-
-    // buttons
-    > div:last-child { justify-content: stretch !important; }
-
-    .save-btn, .cancel-btn {
-      width: 100%;
-      padding: 12px 16px;
-      justify-content: center;
-    }
+  &.is-on {
+    border-color: #FCD34D;
+    background: #FFFBEB;
   }
 }
 
-// ════════════════════════════════════════
-// Mobile (576px)
-// ════════════════════════════════════════
-@media (max-width: 576px) {
-  .add-role-container {
-    .page-title-block {
-      h1 { font-size: 18px !important; }
-      .page-subtitle { font-size: 12px; }
-    }
+// Compact switch (36×20): grey track, white knob; ink when on.
+.ar-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #CBD5E1;
+  cursor: pointer;
+  transition: background-color 0.26s ease;
 
-    .info-card {
-      border-radius: 16px !important;
-
-      mat-card-content { padding: 16px !important; }
-
-      .section-title { font-size: 15px; }
-
-      .bilingual-input-wrapper {
-        border-radius: 10px;
-
-        .bilingual-input  { font-size: 13px; padding: 10px 0; }
-        .bilingual-textarea { font-size: 13px; }
-        .lang-chip { font-size: 10px; padding: 3px 8px; }
-      }
-    }
-
-    .perms-card {
-      border-radius: 20px !important;
-
-      .perms-card-header {
-        padding: 12px 14px !important;
-        .section-title  { font-size: 14px; }
-        .selected-badge { font-size: 11px; padding: 3px 10px; }
-      }
-    }
-
-    .alert-box {
-      padding: 12px !important;
-      gap: 8px !important;
-      border-radius: 14px;
-
-      h4 { font-size: 12px; }
-      p  { font-size: 11px; }
-    }
-
-    > div:last-child { flex-direction: column !important; }
-
-    .save-btn, .cancel-btn {
-      width: 100%;
-      padding: 12px 16px;
-      justify-content: center;
-    }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    inset-inline-start: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+    transition: transform 0.3s $ease;
   }
+
+  &[aria-checked='true'] {
+    background: $ink;
+
+    &::after { transform: translateX(-16px); }
+  }
+
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
 }
 
-// ════════════════════════════════════════
-// Small Mobile (360px)
-// ════════════════════════════════════════
-@media (max-width: 360px) {
-  .add-role-container {
-    .page-title-block h1 { font-size: 16px !important; }
+:host-context([dir='ltr']) .ar-switch[aria-checked='true']::after {
+  transform: translateX(16px);
+}
 
-    .info-card mat-card-content { padding: 12px !important; }
+.ar-outline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid $line-strong;
+  border-radius: 10px;
+  background: #fff;
+  color: $body;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.26s ease, border-color 0.26s ease;
+
+  &:hover:not(:disabled) { background: #F8FAFC; border-color: #CBD5E1; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.ar-progress {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: $ink;
+  transition: width 0.5s $ease;
+}
+
+.ar-save {
+  flex: 1;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 12px;
+  background: $ink;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 18px -12px rgba(17, 24, 39, 0.8);
+  transition: background-color 0.26s ease, transform 0.26s $ease, box-shadow 0.26s ease;
+
+  &:hover:not(:disabled) {
+    background: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 22px -12px rgba(17, 24, 39, 0.9);
   }
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+  ::ng-deep .mat-mdc-progress-spinner circle { stroke: #fff !important; }
+}
+
+.ar-cancel {
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid $line-strong;
+  border-radius: 12px;
+  background: #fff;
+  color: $body;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.26s ease;
+
+  &:hover { background: #F8FAFC; }
+}
+
+.ar-save,
+.ar-cancel,
+.ar-outline-btn,
+.ar-lang-toggle {
+  &:focus-visible { outline: 2px solid $ink; outline-offset: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ar-page .tw-animate-enter { animation: none !important; }
+  .ar-progress,
+  .ar-save { transition: none; }
 }
 
 // ── Slide Toggle colors ─────────────────────
@@ -462,10 +354,4 @@
       flex-shrink: 0;
     }
   }
-}
-
-// Leave room below the actions so the fixed chat FAB (bottom-left, ~84px tall
-// including its offset) doesn't sit on top of the save button.
-.form-actions {
-  padding-bottom: 88px;
 }

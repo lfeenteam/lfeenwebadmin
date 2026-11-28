@@ -98,6 +98,37 @@
       </section>
     }
   }
+
+  @if (logoPreview(); as preview) {
+    <div class="pcr-preview-backdrop" (click)="closeLogoPreview()">
+      <figure class="pcr-preview" role="dialog" aria-modal="true" aria-labelledby="pcr-preview-title"
+              cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (click)="$event.stopPropagation()">
+        <figcaption>
+          <div>
+            <span>{{ (preview.requested ? 'd3.profileChanges.compare.requested' : 'd3.profileChanges.compare.current') | translate }}</span>
+            <strong id="pcr-preview-title">{{ 'd3.profileChanges.fields.logo' | translate }}</strong>
+          </div>
+          <div class="pcr-preview__actions">
+            <a class="pcr-preview__btn" [href]="preview.url" target="_blank" rel="noopener noreferrer"
+               [attr.aria-label]="'d3.profileChanges.logoPreview.openOriginal' | translate"
+               [title]="'d3.profileChanges.logoPreview.openOriginal' | translate">
+              <i-tabler name="external-link"></i-tabler>
+            </a>
+            <button type="button" class="pcr-preview__btn" cdkFocusInitial (click)="closeLogoPreview()"
+                    [attr.aria-label]="'d3.profileChanges.logoPreview.close' | translate">
+              <i-tabler name="x"></i-tabler>
+            </button>
+          </div>
+        </figcaption>
+        <div class="pcr-preview__stage">
+          <img [src]="preview.url" [alt]="'d3.profileChanges.fields.logo' | translate" (load)="onPreviewLoad($event)">
+        </div>
+        @if (previewSize(); as size) {
+          <footer><span dir="ltr">{{ size }}</span></footer>
+        }
+      </figure>
+    </div>
+  }
 </div>
 
 <!-- Section title + status chip -->
@@ -181,7 +212,13 @@
   <div class="pcr-field" [class.pcr-field--changed]="other && differs(v?.logoUrl, other.logoUrl)">
     <span class="pcr-field__label">{{ 'd3.profileChanges.fields.logo' | translate }}</span>
     @if (v?.logoUrl) {
-      <img class="pcr-logo" [src]="v.logoUrl" [alt]="'d3.profileChanges.fields.logo' | translate">
+      <!-- BUG-2667: the thumbnail is too small to judge the logo, so it opens a full-size preview. -->
+      <button type="button" class="pcr-logo-btn"
+              (click)="openLogoPreview(v.logoUrl, !!other, $event)"
+              [attr.aria-label]="'d3.profileChanges.logoPreview.open' | translate">
+        <img class="pcr-logo" [src]="v.logoUrl" [alt]="'d3.profileChanges.fields.logo' | translate">
+        <span class="pcr-logo-btn__mark" aria-hidden="true"><i-tabler name="zoom-in"></i-tabler></span>
+      </button>
     } @else {
       <span class="pcr-field__value pcr-field__value--muted">{{ 'd3.profileChanges.noLogo' | translate }}</span>
     }

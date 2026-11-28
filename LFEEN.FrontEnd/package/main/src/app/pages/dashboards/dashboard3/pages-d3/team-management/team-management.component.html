@@ -5,11 +5,11 @@
 
   <!-- Header row: tabs (structure). No search here: the departments API has no search
        parameter, so a search box on this tab would look active but filter nothing. -->
-  <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
-    @if (activeTab === 'structure' && !departmentId) {
+  @if (activeTab === 'structure' && !departmentId) {
+    <div class="d-flex align-items-end justify-content-between m-b-16 flex-wrap gap-16 border-bottom-gray">
       <app-tabs-bar [activeTab]="activeTab" [noBorder]="true" [showLogs]="canViewAudits()" (tabChange)="onTabChange($event)"></app-tabs-bar>
-    }
-  </div>
+    </div>
+  }
 
   <!-- Employees tab: search header + tabs -->
   @if (activeTab === 'employees' && !departmentId) {
@@ -103,13 +103,6 @@
       }
     }
   } @else if (activeTab === 'employees' || departmentId) {
-    @if (departmentId && selectedDepartment && canManageEmployees()) {
-      <app-manager-card
-        [department]="selectedDepartment"
-        [currentLang]="currentLang"
-        (addEmployee)="onHeaderAction()">
-      </app-manager-card>
-    }
     @if (isLoadingEmployees) {
       <app-dashboard-loading variant="table" [rows]="5"></app-dashboard-loading>
     } @else if (employeesLoadFailed) {
@@ -123,6 +116,7 @@
       <app-employee-list
         [employees]="employees"
         [showHeader]="!!departmentId"
+        [showAdd]="!!departmentId && !!selectedDepartment && canManageEmployees()"
         [totalPages]="employeeTotalPages"
         [currentPage]="employeeCurrentPage"
         [totalCount]="employeeTotalCount"

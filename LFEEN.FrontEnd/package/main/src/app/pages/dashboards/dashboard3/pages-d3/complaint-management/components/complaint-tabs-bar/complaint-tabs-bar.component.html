@@ -1,11 +1,24 @@
-<div class="tabs-wrapper">
+<div class="tabs-wrapper" #track role="tablist">
+  <span
+    class="tab-thumb"
+    [class.ready]="thumb.ready"
+    [style.left.px]="thumb.left"
+    [style.width.px]="thumb.width"
+    aria-hidden="true"></span>
+
   @for (tab of tabs; track tab.key) {
     <button
-      mat-button
+      #tabBtn
+      type="button"
+      role="tab"
       class="tab-btn"
       [class.active]="activeTab === tab.key"
+      [attr.aria-selected]="activeTab === tab.key"
       (click)="tabChange.emit(tab.key)">
-      {{ tab.labelKey | translate }}
+      <span>{{ tab.labelKey | translate }}</span>
+      @if (countFor(tab.key) !== null) {
+        <span class="tab-count">{{ countFor(tab.key) }}</span>
+      }
     </button>
   }
 </div>

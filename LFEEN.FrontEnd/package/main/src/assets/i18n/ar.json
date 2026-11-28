@@ -110,6 +110,14 @@
       "previousPage": "الصفحة السابقة",
       "nextPage": "الصفحة التالية"
     },
+    "calendar": {
+      "previousMonth": "الشهر السابق",
+      "nextMonth": "الشهر التالي",
+      "previousYear": "السنة السابقة",
+      "nextYear": "السنة التالية",
+      "previousYears": "السنوات السابقة",
+      "nextYears": "السنوات التالية"
+    },
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
@@ -240,13 +248,17 @@
           "subtitle": "يعرض كل صف حالة الرابط وعدد مرات فتحه وحالة الحساب المرتبط به",
           "create": "إنشاء روابط",
           "emptyTitle": "لا توجد روابط بعد",
-          "emptyDesc": "أنشئ روابط وأرسلها إلى الجهات، وستظهر هنا كل عملية فتح."
+          "emptyDesc": "أنشئ روابط وأرسلها إلى الجهات، وستظهر هنا كل عملية فتح.",
+          "errorTitle": "تعذر تحميل الروابط"
         },
         "filters": {
           "search": "ابحث بالجهة أو الملاحظات أو رمز الرابط أو رقم جوال الدخول",
           "batch": "الدفعة",
           "allBatches": "جميع الدفعات",
-          "oneBatch": "دفعة محددة"
+          "oneBatch": "دفعة محددة",
+          "batchNotFound": "الدفعة غير موجودة",
+          "batchNotFoundDesc": "قد تكون الدفعة محذوفة أو الرابط غير صحيح.",
+          "showAllBatches": "عرض جميع الدفعات"
         },
         "batch": {
           "createdBy": "أنشأها",
@@ -324,6 +336,8 @@
           "rateLimited": "تم إرسال طلبات كثيرة خلال وقت قصير، يُرجى المحاولة بعد دقيقة.",
           "DEMO_SIGNUP_PIN_KEY_MISSING": "أحد إعدادات الخادم غير مضبوط (PinKey)، لذا لا يمكن إنشاء روابط حاليًا. يُرجى إبلاغ الفريق التقني.",
           "DEMO_SIGNUP_LINK_ID_NOT_FOUND": "هذا الرابط غير موجود، يُرجى تحديث الصفحة.",
+          "DEMO_SIGNUP_BATCH_NOT_FOUND": "هذه الدفعة غير موجودة، يُرجى تحديث الصفحة.",
+          "DEMO_SIGNUP_DISABLED": "الروابط التجريبية غير مفعّلة على الخادم حاليًا.",
           "validation": "تأكد من القيم المدخلة وحاول مرة أخرى."
         },
         "edit": {
@@ -811,6 +825,7 @@
       "teamName": "فريق لفين",
       "supervisorTitle": "مشرف لفين",
       "openMenu": "فتح القائمة",
+      "back": "رجوع",
       "onlineHint": "متصل بالإنترنت — البيانات والتنبيهات تصلك مباشرة",
       "offlineHint": "لا يوجد اتصال بالإنترنت — قد لا تكون البيانات المعروضة محدّثة",
       "account": "قائمة الحساب",
@@ -1532,6 +1547,11 @@
         "expiryDate": "تاريخ انتهاء السجل"
       },
       "noLogo": "بدون شعار",
+      "logoPreview": {
+        "open": "معاينة الشعار بالحجم الكامل",
+        "openOriginal": "فتح الصورة الأصلية في تبويب جديد",
+        "close": "إغلاق المعاينة"
+      },
       "cleared": "فارغ",
       "noCertificate": "لا توجد شهادة",
       "submittedAt": "تاريخ التقديم",
@@ -1930,7 +1950,8 @@
       "concerningIncrease": "زيادة مقلقة",
       "unavailable": "غير متاح",
       "points": "نقطة",
-      "requiredSource": "المصدر المطلوب"
+      "requiredSource": "المصدر المطلوب",
+      "viewList": "عرض القائمة"
     },
     "chart": {
       "title": "تحليل نمو المنصة",
@@ -2404,6 +2425,13 @@
       "title": "إضافة دور وظيفي جديد",
       "subtitle": "قم بتحديد بيانات الدور الجديد وصلاحيات الوصول الخاصة به داخل القسم",
       "subtitleGeneric": "قم بتحديد بيانات الدور الجديد وصلاحيات الوصول الخاصة به",
+      "summaryTitle": "ملخص الدور",
+      "summaryNamePlaceholder": "اسم الدور",
+      "selectedPermissionsLabel": "الصلاحيات المختارة",
+      "addSecondaryName": "إضافة الاسم بالإنجليزي",
+      "optional": "اختياري",
+      "basicInfoHint": "الاسم اللي هيظهر للموظفين، والقسم، ووصف مختصر لمهام الدور",
+      "permissionsHint": "اختار اللي يقدر صاحب الدور ده يشوفه أو يعدّله في لوحة التحكم",
       "basicInfoTitle": "معلومات الدور الأساسية",
       "roleNameLabel": "اسم الدور الوظيفي",
       "roleNamePlaceholder": "مثال: مدير عمليات، مشرف جودة...",
@@ -2454,7 +2482,7 @@
       "subtitleGeneric": "سيتم تخصيص هذه الصلاحيات لهذا الدور الوظيفي",
       "roleNameLabel": "اسم الدور الوظيفي",
       "namePlaceholderAr": "مثال: مدقق حجوزات، مشرف جودة...",
-      "descriptionLabel": "وصف الصلاحية",
+      "descriptionLabel": "وصف الدور",
       "descriptionPlaceholderAr": "اكتب ملخصاً للمهام التي سيتمكن صاحب هذا الدور من القيام بها...",
       "isManagerRoleLabel": "دور مدير",
       "isManagerRoleHint": "يُخوّل شاغله صلاحيات الإدارة ويظهر كمدير للقسم",
@@ -2473,6 +2501,16 @@
       "noDepartment": "بدون قسم",
       "noRoles": "لا توجد أدوار وظيفية مضافة حالياً",
       "addRoleBtn": "إضافة دور وظيفي جديد",
+      "searchPlaceholder": "ابحث باسم الدور أو وصفه",
+      "moreDepartments": "أقسام أخرى",
+      "statTotal": "إجمالي الأدوار",
+      "statManagers": "أدوار إدارية",
+      "statDepartments": "أقسام لها أدوار",
+      "statNoDepartment": "أدوار بدون قسم",
+      "managerBadge": "دور إداري",
+      "noDescription": "بدون وصف",
+      "viewPermissions": "الصلاحيات",
+      "noResults": "لا توجد أدوار مطابقة للبحث أو القسم المختار",
       "table": {
         "role": "الدور الوظيفي",
         "department": "القسم",
@@ -2757,14 +2795,21 @@
       },
       "ratings": {
         "views": {
-          "list": "التقييمات",
+          "list": "كل التقييمات",
           "agents": "حسب الموظف"
         },
         "summary": {
           "average": "متوسط التقييم",
           "outOf": "من 5",
           "total": "إجمالي التقييمات",
-          "distribution": "توزيع التقييمات"
+          "distribution": "توزيع التقييمات",
+          "title": "تقييمات العملاء",
+          "subtitle": "آراء العملاء بعد إغلاق محادثات الدعم",
+          "totalHint": "محادثة دعم تم تقييمها",
+          "satisfied": "عملاء راضون",
+          "satisfiedHint": "قيّموا بـ 4 أو 5 نجوم",
+          "unsatisfied": "عملاء غير راضين",
+          "unsatisfiedHint": "قيّموا بنجمة أو نجمتين"
         },
         "filters": {
           "minRating": "أقل تقييم",
@@ -2796,6 +2841,7 @@
           "ratedAt": "تاريخ التقييم",
           "closedBy": "أغلقها: {{by}}",
           "noAgent": "بدون موظف (بوت)",
+          "noComment": "بدون تعليق",
           "viewChat": "عرض المحادثة",
           "total": { "one": "تقييم واحد", "two": "تقييمان", "few": "{{count}} تقييمات", "many": "{{count}} تقييمًا", "other": "{{count}} تقييم" }
         },
@@ -2840,6 +2886,7 @@
         "assignLockedMsg": "هذه الشكوى معينة بالفعل، يجب على الموظف المعين الرد عليها أو حلها",
         "assignDelayedMsg": "لا يوجد نشاط من الموظف المعين منذ {{hours}} ساعة — يمكنك إعادة تعيين هذه الشكوى",
         "assignHint": "تنبيه: إرسال رد على شكوى غير معينة سيؤدي لتعيينها لك تلقائيًا",
+        "lastActivity": "آخر نشاط",
         "allStatuses": "كل الحالات",
         "allTypes": "كل الأنواع",
         "typeClient": "عميل",
@@ -2905,6 +2952,16 @@
         "closedByHost": "أغلقها المضيف",
         "closedByAdmin": "أغلقها المشرف"
       },
+      "subjects": {
+        "payment": "الدفع",
+        "refund": "الاسترداد",
+        "booking": "الحجوزات",
+        "generalFaq": "الأسئلة الشائعة",
+        "complaint": "شكوى",
+        "general": "عام",
+        "technical": "تقني",
+        "account": "الحساب"
+      },
       "customerFilters": {
         "dept": {
           "general": "عام",
@@ -2922,6 +2979,7 @@
       },
       "chat": {
         "supportName": "فريق الدعم",
+        "botName": "المساعد الذكي",
         "attachmentLabel": "مرفق",
         "online": "متصل الآن",
         "typing": "يكتب الآن...",
@@ -2953,6 +3011,8 @@
         "hostName": "فهد السيف",
         "hostSubtitle": "مضيف - فندق باب البحر السكني",
         "problemTitle": "موضوع المشكلة",
+        "detailsTitle": "تفاصيل الشكوى",
+        "partiesTitle": "الأطراف",
         "problemBody": "السلام عليكم فريق لفيين، عندي مشكلة في تحديث الأسعار لشهر نوفمبر. قمت بتغيير السعر في تطبيق المضيفين، ولكن لا يظهر التغيير في نتائج البحث. أرجو المساعدة فوراً لأن هذا يؤثر على الحجوزات القادمة.",
         "problemAttachmentNote": "مرفق لكم لقطة شاشة توضح المشكلة من لوحة التحكم الخاصة بي.",
         "attachmentsTitle": "الملفات المرفقة ({{count}})",
@@ -3049,6 +3109,7 @@
     },
     "bookings": {
       "title": "سجل الحجوزات",
+      "subtitle": "كل حجوزات المنصة من بوابة العميل والمضيفين في مكان واحد",
       "cards": {
         "totalBookings": "إجمالي الحجوزات",
         "confirmed": "حجوزات مؤكدة",
@@ -3060,6 +3121,7 @@
         "checkIn": "تاريخ الدخول",
         "checkOut": "تاريخ الخروج",
         "clear": "مسح الفلاتر",
+        "moreStatuses": "حالات أخرى",
         "moreFilters": "الفلاتر",
         "dateRangeError": "تاريخ الخروج لا يمكن أن يكون قبل تاريخ الدخول.",
         "checkOutClearedHint": "تم مسح تاريخ الخروج لأنه أصبح قبل تاريخ الدخول."
@@ -3147,6 +3209,7 @@
         "client": "العميل",
         "unit": "الوحدة / المبنى",
         "dates": "تاريخ الدخول / الخروج",
+        "nights": { "one":"ليلة واحدة", "two":"ليلتان", "few":"{{count}} ليالٍ", "many":"{{count}} ليلة", "other":"{{count}} ليلة" },
         "amount": "المبلغ",
         "status": "الحالة",
         "empty": "لا توجد حجوزات"
@@ -6095,8 +6158,10 @@
         "SettlementRequiresReview": "مراجعة تسوية",
         "PaymentIssueReported": "مشكلة دفع",
         "RefundRequested": "طلب استرداد",
+        "MerchantSettlementDebt": "مديونية تسوية تاجر",
         "BookingIssueReported": "مشكلة حجز",
         "SystemAlert": "تنبيه النظام",
+        "DemoActivationRequested": "طلب تفعيل حساب تجريبي",
         "DemoSignupOpened": "تم فتح رابط تجريبي لأول مرة",
         "default": "إشعار"
       }

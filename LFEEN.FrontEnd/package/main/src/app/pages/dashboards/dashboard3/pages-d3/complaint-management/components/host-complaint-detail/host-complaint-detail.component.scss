@@ -1,3 +1,11 @@
+// The page paints its own grey canvas edge to edge, so the layout's padding (which would
+// leave a white frame around it) is dropped for this page only; the bottom padding below
+// keeps room for the floating chat button.
+::ng-deep .page-content:has(> app-host-complaint-detail) {
+  padding: 0 !important;
+  background: #F7F7F5;
+}
+
 .host-detail-page {
   display: flex;
   flex-direction: column;
@@ -824,5 +832,416 @@
   .notice-bar {
     flex-wrap: wrap;
     text-align: center;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Redesign: header, conversation column, side panel with facts and parties
+// ══════════════════════════════════════════════════════════════════════════
+
+$hd-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+@keyframes hdUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.host-detail-page {
+  gap: 16px;
+  padding: 24px 28px 96px;
+  background: #F7F7F5;
+
+  // ── Header ──
+  .detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    animation: hdUp 0.5s $hd-ease both;
+  }
+
+  // Main action of the page: solid ink, same as the list's chat panel.
+  .resolve-btn {
+    height: 42px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #111110;
+    border-radius: 12px;
+    background: #111110;
+    color: #fff;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 10px 18px -12px rgba(17, 17, 16, 0.8);
+    transition: background-color 0.2s ease, transform 0.2s $hd-ease, box-shadow 0.2s ease;
+
+    &:hover {
+      background: #000;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 22px -12px rgba(17, 17, 16, 0.9);
+    }
+
+    &:active {
+      transform: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #111110;
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 560px) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .ticket-meta {
+    gap: 12px;
+  }
+
+  .ticket-number {
+    font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111110;
+    letter-spacing: -0.01em;
+    direction: ltr;
+  }
+
+  // ── Two columns ──
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .convo-card,
+  .side-card {
+    background: #fff;
+    border: 1px solid #E8E8E4;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(17, 17, 16, 0.03), 0 24px 48px -40px rgba(17, 17, 16, 0.3);
+  }
+
+  // ── Conversation ──
+  .convo-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: hdUp 0.55s $hd-ease 0.08s both;
+  }
+
+  .message-card {
+    padding: 22px 24px 20px;
+    border: 0;
+    border-bottom: 1px solid #E8E8E4;
+    border-radius: 0;
+    background: #fff;
+    color: #3F3F3C;
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    p {
+      max-width: 70ch;
+      margin: 0;
+      line-height: 1.8;
+    }
+
+    .attachment-card {
+      margin-top: 14px;
+    }
+  }
+
+  .attachment-section {
+    padding: 16px 24px;
+    border-bottom: 1px solid #E8E8E4;
+  }
+
+  // Replies sit on a faint dot grid, like the chat on the complaints list.
+  .thread {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 24px;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(17, 17, 16, 0.045) 1px, transparent 0) 0 0 / 18px 18px,
+      #F7F7F5;
+
+    &:not(:has(.support-reply-card)) {
+      display: none;
+    }
+  }
+
+  .support-reply-card {
+    padding: 18px 20px;
+    border: 1px solid #E8E8E4;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(17, 17, 16, 0.04);
+    animation: hdUp 0.45s $hd-ease both;
+
+    &:not(.user-reply-card):not(.internal-note-card) {
+      border-color: #D6D6D0;
+      box-shadow: 0 10px 22px -18px rgba(17, 17, 16, 0.45);
+    }
+
+    &.internal-note-card {
+      border: 1px dashed #F0D08A;
+      background: #FFF8E6;
+      box-shadow: none;
+    }
+  }
+
+  // ── Reply ──
+  .reply-section {
+    min-height: 0;
+    padding: 16px 24px 20px;
+    border: 0;
+    border-top: 1px solid #E8E8E4;
+    border-radius: 0;
+
+    h3 {
+      color: #6B6B67;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    // Fixed height, no drag-to-resize handle.
+    textarea {
+      min-height: 104px;
+      height: 104px;
+      padding: 12px 14px;
+      border: 1px solid #E8E8E4;
+      border-radius: 14px;
+      background: #F7F7F5;
+      line-height: 1.7;
+      resize: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: #111110;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(17, 17, 16, 0.06);
+      }
+    }
+  }
+
+  .reply-footer {
+    margin-top: 12px;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .send-reply-btn {
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    box-shadow: 0 10px 18px -12px rgba(17, 17, 16, 0.8);
+    transition: background-color 0.2s ease, transform 0.2s $hd-ease, box-shadow 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: #000;
+      transform: translateY(-1px);
+    }
+  }
+
+  .notice-bar,
+  .resolved-notice-bar {
+    margin: 0 24px 20px;
+  }
+
+  .notice-bar {
+    justify-content: flex-start;
+    border: 0;
+    background: none;
+    padding: 0;
+    min-height: 0;
+    color: #9E9E9A;
+    font-size: 12px;
+  }
+
+  // ── Side panel ──
+  .detail-side {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .side-card {
+    padding: 18px 20px;
+    animation: hdUp 0.55s $hd-ease both;
+
+    &:nth-child(1) { animation-delay: 0.14s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+  }
+
+  .side-title {
+    margin: 0 0 6px;
+    color: #6B6B67;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  // Facts as a list: label on one side, value on the other.
+  .detail-side .summary-strip {
+    display: block;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .detail-side .summary-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 0;
+    padding: 12px 0;
+    border-top: 0;
+    border-bottom: 1px solid #F0F0EC;
+
+    &::before {
+      display: none;
+    }
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 2px;
+    }
+
+    .summary-heading {
+      align-items: center;
+      color: #6B6B67;
+
+      i-tabler {
+        color: #9E9E9A;
+      }
+    }
+
+    .summary-label {
+      font-size: 13px;
+    }
+
+    strong {
+      font-size: 13px;
+      text-align: end;
+    }
+  }
+
+  // Parties stacked, one per row.
+  .detail-side .host-profile {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .detail-side .host-profile-item {
+    padding: 10px 0;
+
+    & + .host-profile-item {
+      border-inline-start: 0;
+      border-top: 1px solid #F0F0EC;
+    }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 2px 0 0;
+    }
+  }
+
+  .detail-side .host-avatar {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+}
+
+// Text keeps its own direction (textDir) for correct word order, but always lines up with
+// the page edge; otherwise English text in the Arabic page floats inside its 70ch box.
+.host-detail-page[dir='rtl'] {
+  .message-card p,
+  .support-reply-card p {
+    text-align: right;
+  }
+}
+
+.host-detail-page[dir='ltr'] {
+  .message-card p,
+  .support-reply-card p {
+    text-align: left;
+  }
+}
+
+@media (max-width: 1100px) {
+  .host-detail-page {
+    .detail-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-side {
+      position: static;
+      order: -1;
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .host-detail-page {
+    padding: 12px 12px 88px;
+
+    .message-card,
+    .thread,
+    .reply-section,
+    .attachment-section {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .notice-bar,
+    .resolved-notice-bar {
+      margin: 0 16px 16px;
+    }
+
+    .detail-side .summary-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+
+      strong {
+        text-align: start;
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .host-detail-page {
+    .detail-head,
+    .convo-card,
+    .side-card,
+    .support-reply-card {
+      animation: none;
+    }
   }
 }

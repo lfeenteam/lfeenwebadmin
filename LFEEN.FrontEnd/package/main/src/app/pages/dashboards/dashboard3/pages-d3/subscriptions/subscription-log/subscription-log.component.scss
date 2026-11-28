@@ -402,6 +402,11 @@
   white-space: nowrap;
 }
 
+.pagination-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .page-nav-btn,
 .page-number-btn {
   all: unset;
@@ -476,6 +481,25 @@
   }
 
   .pagination-total { width: 100%; text-align: center; }
+}
+
+@media (max-width: 576px) {
+  // Safety net beside the compact page list: wrap rather than overflow the card.
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-nav-btn,
+  .page-number-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .page-ellipsis {
+    width: 20px;
+    height: 32px;
+  }
 }
 
 @media (max-width: 576px) {

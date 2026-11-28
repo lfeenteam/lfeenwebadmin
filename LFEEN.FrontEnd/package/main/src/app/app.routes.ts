@@ -800,12 +800,7 @@ export const routes: Routes = [
                   showBack: true,
                   showLive: false,
                   showDate: true,
-                  actionButton: {
-                    text: 'd3.complaints.chat.resolveBtn',
-                    icon: 'circle-check',
-                    color: '#16803A',
-                    action: 'resolveComplaint'
-                  }
+                  // "Close & resolve" lives in the page itself, beside the ticket number.
                 },
               },
               {

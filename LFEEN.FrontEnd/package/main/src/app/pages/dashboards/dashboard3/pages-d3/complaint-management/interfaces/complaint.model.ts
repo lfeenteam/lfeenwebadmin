@@ -380,6 +380,37 @@ export const CLIENT_TICKET_DEPARTMENT_OPTIONS: { value: string; labelKey: string
   { value: 'Account',   labelKey: 'd3.complaints.customerFilters.dept.account' },
 ];
 
+/** BUG-2525: ticket subjects come back as raw topic values in either language and any casing
+ * ("payment", "Refund", "General FAQ", "الحجوزات"…) with no subjectEn. Known topics map to an
+ * i18n key so they read in the admin's language; anything else (free text) is shown as-is. */
+const KNOWN_TICKET_SUBJECTS: { labelKey: string; aliases: string[] }[] = [
+  { labelKey: 'd3.complaints.subjects.payment',    aliases: ['payment', 'payments', 'الدفع', 'المدفوعات'] },
+  { labelKey: 'd3.complaints.subjects.refund',     aliases: ['refund', 'refunds', 'الاسترداد', 'الاسترجاع', 'استرداد', 'استرجاع'] },
+  { labelKey: 'd3.complaints.subjects.booking',    aliases: ['booking', 'bookings', 'الحجوزات', 'الحجز', 'حجز'] },
+  { labelKey: 'd3.complaints.subjects.generalFaq', aliases: ['generalfaq', 'faq', 'الأسئلة الشائعة', 'الاسئلة الشائعة'] },
+  { labelKey: 'd3.complaints.subjects.complaint',  aliases: ['complaint', 'complaints', 'شكوى', 'الشكاوى'] },
+  { labelKey: 'd3.complaints.subjects.general',    aliases: ['general', 'عام'] },
+  { labelKey: 'd3.complaints.subjects.technical',  aliases: ['technical', 'تقني', 'الدعم الفني'] },
+  { labelKey: 'd3.complaints.subjects.account',    aliases: ['account', 'الحساب'] },
+];
+
+/** Latin: case-insensitive and ignoring spaces/_/- ("General FAQ" = "general_faq" = "GeneralFaq").
+ * Arabic: trimmed, inner whitespace collapsed. */
+function normalizeSubject(value: string): string {
+  const trimmed = value.trim().replace(/\s+/g, ' ');
+  return /^[A-Za-z\s_-]+$/.test(trimmed) ? trimmed.toLowerCase().replace(/[\s_-]/g, '') : trimmed;
+}
+
+const SUBJECT_KEY_BY_ALIAS = new Map<string, string>(
+  KNOWN_TICKET_SUBJECTS.flatMap(s => s.aliases.map(a => [normalizeSubject(a), s.labelKey] as [string, string]))
+);
+
+/** i18n key for a known ticket topic, or null when the subject is free text. */
+export function ticketSubjectLabelKey(subject: string | null | undefined): string | null {
+  if (!subject) return null;
+  return SUBJECT_KEY_BY_ALIAS.get(normalizeSubject(subject)) ?? null;
+}
+
 export const CLIENT_TICKET_PRIORITY_OPTIONS: { value: string; labelKey: string }[] = [
   { value: 'Low',    labelKey: 'd3.complaints.customerFilters.priority.low' },
   { value: 'Normal', labelKey: 'd3.complaints.customerFilters.priority.normal' },

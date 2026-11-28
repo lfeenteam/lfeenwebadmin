@@ -27,6 +27,9 @@ const TYPE_PRESENTATION: Record<string, TypePresentation> = {
   SettlementRequiresReview:      { category: 'finance',    icon: 'clipboard-check',  severity: 'warning' },
   PaymentIssueReported:          { category: 'finance',    icon: 'credit-card',      severity: 'error' },
   RefundRequested:               { category: 'finance',    icon: 'receipt-refund',   severity: 'warning' },
+  // A settlement cycle closed with the merchant owing the platform: refunds made after
+  // settlement exceed what they are owed (BUG-1482 / BUG-2312).
+  MerchantSettlementDebt:        { category: 'finance',    icon: 'cash-off',         severity: 'error' },
   // Severity isn't a backend field yet, so a SystemAlert is not assumed to be an error.
   SystemAlert:                   { category: 'system',     icon: 'alert-circle',     severity: 'neutral' },
   // A demo host asked for a real account (name, bookings, payments and interest in the text).
@@ -83,6 +86,9 @@ const REFERENCE_ROUTES: Record<string, (id: string) => NotificationDestination> 
   ContactUsRequest:  id => ({ commands: ['contact-us'], queryParams: { id } }),
   SubscriptionOrder: () => ({ commands: ['subscriptions', 'requests'] }),
   Settlement:        () => ({ commands: ['settlements'] }),
+  // MerchantSettlementDebt: referenceId = the merchant's accountId — opens the
+  // "Merchant debts" tab of Settlements filtered on that merchant.
+  MerchantSettlement: id => ({ commands: ['settlements'], queryParams: { tab: 'debts', accountId: id } }),
   Booking:           () => ({ commands: ['bookings'] }),
   // Opens the activation-requests tab with this request open (no single-request endpoint).
   DemoActivationRequest: id => ({ commands: ['demo-accounts', 'activation-requests', id] }),

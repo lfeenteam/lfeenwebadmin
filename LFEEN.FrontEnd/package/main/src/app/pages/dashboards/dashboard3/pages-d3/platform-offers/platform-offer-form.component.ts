@@ -55,6 +55,7 @@ import {
 } from './platform-offer.validators';
 import { maxValueValidator, wholeNumberValidator } from '../../utils/number-validators';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { FieldErrorDirective } from '../../directives/field-error.directive';
 
 /** A whole number from 0 to `max` (the API binds these fields as int). */
 const wholeCount = (max: number) => [Validators.min(0), maxValueValidator(max), wholeNumberValidator];
@@ -71,7 +72,8 @@ const wholeCount = (max: number) => [Validators.min(0), maxValueValidator(max), 
     MaterialModule,
     SingleDateCalendarComponent,
     TimeSelectComponent,
-    AppPluralPipe
+    AppPluralPipe,
+    FieldErrorDirective
   ],
   templateUrl: './platform-offer-form.component.html',
   styleUrl: './platform-offers.component.scss',

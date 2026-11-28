@@ -104,14 +104,8 @@
     overflow-x: hidden;
 
     .border-bottom-gray {
+      // The tab strip scrolls inside app-account-tabs-bar (which keeps the open tab in view).
       margin-bottom: 16px !important;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scrollbar-width: none;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
     }
 
     .empty-state {

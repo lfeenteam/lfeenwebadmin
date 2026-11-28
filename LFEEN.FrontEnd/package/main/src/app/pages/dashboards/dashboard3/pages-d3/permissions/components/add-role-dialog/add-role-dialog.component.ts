@@ -87,6 +87,26 @@ export class AddRoleDialogComponent implements OnInit {
     }
   }
 
+  /** The current language's name/description are the main fields; the other language opens on demand. */
+  get primaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameAr' : 'nameEn';
+  }
+
+  get secondaryNameField(): RoleNameField {
+    return this.currentLang === 'ar' ? 'nameEn' : 'nameAr';
+  }
+
+  get isManager(): boolean {
+    return !!this.roleForm.get('isManagerRole')?.value;
+  }
+
+  /** Compact switch writing the same control the slide toggle used. */
+  toggleManager(): void {
+    const control = this.roleForm.get('isManagerRole');
+    control?.setValue(!control.value);
+    control?.markAsDirty();
+  }
+
   get currentLang(): string {
     return this.translate.currentLang || 'ar';
   }

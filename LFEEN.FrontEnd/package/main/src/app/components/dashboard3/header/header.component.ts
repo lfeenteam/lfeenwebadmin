@@ -1,4 +1,4 @@
-import { Component, HostListener, Output, EventEmitter, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter, computed, inject, signal } from '@angular/core';
 import { MaterialModule } from 'src/app/material.module';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +24,8 @@ export class HeaderComponent {
   /** Browser connectivity (navigator.onLine + online/offline events) — a real signal, not a fixed badge. */
   readonly isOnline = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
 
+  /** Whether the mobile sidebar drawer is open — drives the ☰ button's aria-expanded. */
+  @Input() sidebarOpen = false;
   @Output() sidebarToggle = new EventEmitter<void>();
 
   private readonly lang = computed(() => this.settings.getOptionsSignal()().language);

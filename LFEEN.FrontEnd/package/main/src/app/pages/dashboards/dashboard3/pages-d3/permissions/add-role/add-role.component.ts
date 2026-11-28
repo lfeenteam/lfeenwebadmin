@@ -22,6 +22,7 @@ import {
   SelectablePermission
 } from '../components/permission-tree/permission-tree.component';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { FieldErrorDirective } from '../../../directives/field-error.directive';
 
 type PermissionRow = SelectablePermission;
 type PermissionGroupSection = PermissionTreeGroup<PermissionRow>;
@@ -32,7 +33,8 @@ type PermissionGroupSection = PermissionTreeGroup<PermissionRow>;
   imports: [
     CommonModule, MaterialModule, TablerIconsModule, ReactiveFormsModule, RouterModule, TranslateModule,
     PermissionTreeComponent,
-    AppPluralPipe
+    AppPluralPipe,
+    FieldErrorDirective
   ],
   templateUrl: './add-role.component.html',
   styleUrl: './add-role.component.scss'
@@ -214,6 +216,43 @@ export class AddRoleComponent implements OnInit, OnDestroy {
 
   get selectedCount(): number {
     return this.permissions.filter(p => p.selected).length;
+  }
+
+  // ── Live summary panel ──
+
+  get summaryName(): string {
+    return (this.roleForm.get(this.primaryNameField)?.value ?? '').trim();
+  }
+
+  /** The department the role will belong to: the scoped one, or the one picked in the form. */
+  get summaryDept(): string {
+    if (this.deptId) return this.currentLang === 'ar' ? this.deptName : (this.deptEnglishName || this.deptName);
+    const id = this.roleForm.get('departmentId')?.value;
+    const dept = id ? this.departments.find(d => d.id === id) : null;
+    if (!dept) return '';
+    return (this.currentLang === 'ar' ? (dept.nameAr ?? dept.name) : (dept.nameEn ?? dept.name)) ?? '';
+  }
+
+  get summaryIsManager(): boolean {
+    return !!this.roleForm.get('isManagerRole')?.value;
+  }
+
+  /** The compact switch writes the same form control the old slide toggle used. */
+  toggleManager(): void {
+    const control = this.roleForm.get('isManagerRole');
+    control?.setValue(!control.value);
+    control?.markAsDirty();
+  }
+
+  get selectedPercent(): number {
+    return this.permissions.length ? (this.selectedCount / this.permissions.length) * 100 : 0;
+  }
+
+  /** Top-level groups that have at least one selected permission, with how many. */
+  get selectedByGroup(): { id: string; name: string; count: number }[] {
+    return this.groupedPermissions
+      .map(g => ({ id: g.id, name: g.name, count: g.allPerms.filter(p => p.selected).length }))
+      .filter(g => g.count > 0);
   }
 
   get primaryNameField(): RoleNameField {

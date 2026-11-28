@@ -18,6 +18,7 @@ import { resolveBilingualText } from '../../utils/bilingual.util';
 import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard-empty/dashboard-empty.component';
 import { PermissionService } from '../../services/permission.service';
 import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
+import { CountUpDirective } from '../../directives/count-up.directive';
 
 interface RoleRow {
   id: string;
@@ -32,7 +33,7 @@ interface RoleRow {
 @Component({
   selector: 'app-roles',
   standalone: true,
-  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent, AppPluralPipe],
+  imports: [CommonModule, MaterialModule, TablerIconsModule, FormsModule, RouterModule, TranslateModule, DashboardEmptyComponent, AppPluralPipe, CountUpDirective],
   templateUrl: './roles.component.html',
   styleUrl: './roles.component.scss'
 })
@@ -52,7 +53,92 @@ export class RolesComponent implements OnInit, OnDestroy {
   allRoles: RoleRow[] = [];
   roles: RoleRow[] = [];
 
+  /** '' = all, NO_DEPT = roles without a department, otherwise a department id. */
   selectedDeptFilter = '';
+  searchQuery = '';
+  readonly NO_DEPT = '__none';
+
+  private readonly deptTones = [
+    { soft: '#EFF6FF', text: '#1D4ED8', dot: '#3B82F6' },
+    { soft: '#F5F3FF', text: '#6D28D9', dot: '#8B5CF6' },
+    { soft: '#ECFDF5', text: '#047857', dot: '#10B981' },
+    { soft: '#FFF7ED', text: '#C2410C', dot: '#F97316' },
+    { soft: '#FDF2F8', text: '#BE185D', dot: '#EC4899' },
+    { soft: '#ECFEFF', text: '#0E7490', dot: '#06B6D4' },
+  ];
+
+  /** Summary over every loaded role (the API returns them all; paging is client-side). */
+  get stats() {
+    const withDept = this.allRoles.filter(r => !!r.departmentId);
+    return {
+      total: this.allRoles.length,
+      managers: this.allRoles.filter(r => r.isManagerRole).length,
+      departments: new Set(withDept.map(r => r.departmentId)).size,
+      noDepartment: this.allRoles.length - withDept.length,
+    };
+  }
+
+  /** Department chips: all, each department that has roles (with its count), then "no department". */
+  get deptChips(): { value: string; label: string; count: number }[] {
+    const counts = new Map<string, { label: string; count: number }>();
+    for (const r of this.allRoles) {
+      if (!r.departmentId) continue;
+      const entry = counts.get(r.departmentId) ?? { label: r.departmentName, count: 0 };
+      entry.count++;
+      counts.set(r.departmentId, entry);
+    }
+    const chips = [{ value: '', label: this.translate.instant('d3.rolesPage.allDepartments'), count: this.allRoles.length }];
+    counts.forEach((v, id) => chips.push({ value: id, label: v.label, count: v.count }));
+    const none = this.stats.noDepartment;
+    if (none > 0) chips.push({ value: this.NO_DEPT, label: this.translate.instant('d3.rolesPage.noDepartment'), count: none });
+    return chips;
+  }
+
+  /** How many departments get their own chip; the rest go in the "more departments" menu. */
+  readonly visibleDeptCount = 4;
+
+  /** Departments with roles, busiest first (ties keep API order). */
+  private get rankedDeptChips(): { value: string; label: string; count: number }[] {
+    return this.deptChips
+      .filter(c => c.value && c.value !== this.NO_DEPT)
+      .map((c, i) => ({ c, i }))
+      .sort((a, b) => b.c.count - a.c.count || a.i - b.i)
+      .map(x => x.c);
+  }
+
+  /** "All", the busiest departments, then "no department" — always one short row. */
+  get visibleChips(): { value: string; label: string; count: number }[] {
+    const all = this.deptChips;
+    const none = all.find(c => c.value === this.NO_DEPT);
+    return [all[0], ...this.rankedDeptChips.slice(0, this.visibleDeptCount), ...(none ? [none] : [])];
+  }
+
+  get overflowChips(): { value: string; label: string; count: number }[] {
+    return this.rankedDeptChips.slice(this.visibleDeptCount);
+  }
+
+  /** The selected department when it lives in the overflow menu (its button shows it). */
+  get selectedOverflowChip(): { value: string; label: string; count: number } | undefined {
+    return this.overflowChips.find(c => c.value === this.selectedDeptFilter);
+  }
+
+  /** Stable colour per department, so the same department always reads the same. */
+  deptTone(departmentId: string | null): { soft: string; text: string; dot: string } {
+    if (!departmentId) return { soft: '#F1F5F9', text: '#475569', dot: '#94A3B8' };
+    let hash = 0;
+    for (let i = 0; i < departmentId.length; i++) hash = (hash * 31 + departmentId.charCodeAt(i)) >>> 0;
+    return this.deptTones[hash % this.deptTones.length];
+  }
+
+  selectDept(value: string): void {
+    this.selectedDeptFilter = value;
+    this.applyFilter();
+  }
+
+  onSearch(query: string): void {
+    this.searchQuery = query;
+    this.applyFilter();
+  }
 
   currentPage = 1;
   pageSize = 10;
@@ -136,9 +222,11 @@ export class RolesComponent implements OnInit, OnDestroy {
   }
 
   private recomputeRoles(): void {
-    this.roles = this.selectedDeptFilter
-      ? this.allRoles.filter(r => r.departmentId === this.selectedDeptFilter)
-      : this.allRoles;
+    const dept = this.selectedDeptFilter;
+    const q = this.searchQuery.trim().toLowerCase();
+    this.roles = this.allRoles.filter(r =>
+      (!dept || (dept === this.NO_DEPT ? !r.departmentId : r.departmentId === dept)) &&
+      (!q || r.name.toLowerCase().includes(q) || (r.description ?? '').toLowerCase().includes(q)));
   }
 
   applyFilter(): void {

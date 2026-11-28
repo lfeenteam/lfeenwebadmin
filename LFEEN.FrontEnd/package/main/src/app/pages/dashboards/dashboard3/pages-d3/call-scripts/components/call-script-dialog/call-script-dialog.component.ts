@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Inject, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Inject, Injector, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,7 @@ import { CoreService } from 'src/app/services/core.service';
 import { CallScript, CallScriptScenarioType, scenarioDisplayName, scenarioHint } from '../../interfaces/call-script.model';
 import { CallScriptsService } from '../../services/call-scripts.service';
 import { resolveCallScriptError } from '../../interfaces/call-script-error.util';
+import { scrollToFirstError } from 'src/app/utils/scroll-to-error.util';
 
 // Validators.required lets "   " through; the API would then reject the trimmed empty value.
 function requiredTrimmed(control: AbstractControl): ValidationErrors | null {
@@ -86,6 +87,8 @@ export class CallScriptDialogComponent {
   private coreService = inject(CoreService);
   private service = inject(CallScriptsService);
   private destroyRef = inject(DestroyRef);
+  private host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private injector = inject(Injector);
 
   /** True while the create/update request is in flight — blocks double submits and closing. */
   readonly submitting = signal(false);
@@ -145,6 +148,13 @@ export class CallScriptDialogComponent {
     return hit ? hit[1] : null;
   }
 
+  /** True when this row's digit is also used by another row — marks both rows, not just the array. */
+  isDuplicateDigit(index: number): boolean {
+    const digit = (this.options.at(index).get('digit')?.value ?? '').trim();
+    if (!digit) return false;
+    return this.options.controls.some((row, i) => i !== index && (row.get('digit')?.value ?? '').trim() === digit);
+  }
+
   descriptionLength(index: number): number {
     return (this.options.at(index).get('description')?.value ?? '').trim().length;
   }
@@ -180,6 +190,9 @@ export class CallScriptDialogComponent {
     if (this.submitting()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      // The footer button stays in view while the error can sit below the dialog body's fold
+      // (390px: message at y≈871, body visible to y≈699), so bring the first message into view (BUG-2666).
+      scrollToFirstError(this.host.nativeElement, this.injector, '.field-error-msg');
       return;
     }
 

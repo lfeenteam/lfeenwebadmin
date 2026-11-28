@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, computed, effect, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, computed, effect, inject } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SidebarComponent } from '../../../components/dashboard3/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../components/dashboard3/header/header.component';
@@ -71,6 +72,8 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   // Test builds show the Flow "report an issue" button, kept on the sidebar side (see syncBodyDir).
   readonly flowReportOn = !!environment.flowReport;
   sidebarMobileOpen = false;
+  private drawerReturnFocus: HTMLElement | null = null;
+  private readonly dialog = inject(MatDialog);
 
   headerType: D3HeaderType = 'ceo';
   pageTitleKey = '';
@@ -203,11 +206,39 @@ export class AppDashboard3Component implements OnInit, OnDestroy {
   }
 
   toggleMobileSidebar(): void {
-    this.sidebarMobileOpen = !this.sidebarMobileOpen;
+    if (this.sidebarMobileOpen) {
+      this.closeMobileSidebar();
+      return;
+    }
+    // Remember the ☰ button so focus can go back to it when the drawer closes.
+    const active = this.document.activeElement;
+    this.drawerReturnFocus = active instanceof HTMLElement ? active : null;
+    this.sidebarMobileOpen = true;
+    // The drawer is display:none until this change renders — move focus into it on the next tick.
+    setTimeout(() => {
+      const drawer = this.document.getElementById('d3-main-sidebar');
+      const target = drawer?.querySelector<HTMLElement>('.d3-mobile-close')
+        ?? drawer?.querySelector<HTMLElement>('a[href], button:not([disabled])');
+      target?.focus();
+    });
   }
 
   closeMobileSidebar(): void {
+    if (!this.sidebarMobileOpen) return;
     this.sidebarMobileOpen = false;
+    // The header may have been swapped by a navigation (dashboard ↔ page header) — fall back to the live ☰.
+    const back = this.drawerReturnFocus?.isConnected
+      ? this.drawerReturnFocus
+      : this.document.querySelector<HTMLElement>('.d3-page-sidebar-toggle, .d3-sidebar-toggle');
+    this.drawerReturnFocus = null;
+    back?.focus();
+  }
+
+  /** Esc closes the mobile drawer — unless a dialog is open, which owns Esc itself. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (!this.sidebarMobileOpen || this.dialog.openDialogs.length) return;
+    this.closeMobileSidebar();
   }
 
   onPageBack(): void {

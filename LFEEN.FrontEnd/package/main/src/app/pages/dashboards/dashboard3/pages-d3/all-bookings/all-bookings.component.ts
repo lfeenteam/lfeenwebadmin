@@ -24,6 +24,7 @@ import { ReviewReportsComponent, ReviewReportsCount } from './components/review-
 import { BOOKING_REVIEW_PERMISSIONS, hasBookingPermission } from './interfaces/review-report.model';
 import { appLocale } from 'src/app/utils/locale-format.util';
 import { PermissionService } from '../../services/permission.service';
+import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
 
 /** Page-level view; the reported-reviews queue lives at ?tab=reviews. */
 type BookingsView = 'bookings' | 'reviews';
@@ -39,7 +40,7 @@ interface MetricCard {
 @Component({
   selector: 'app-all-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent, DashboardEmptyComponent, ReviewReportsComponent],
+  imports: [CommonModule, FormsModule, TablerIconsModule, TranslateModule, MaterialModule, SingleDateCalendarComponent, BookingDetailDrawerComponent, DashboardLoadingComponent, DashboardEmptyComponent, ReviewReportsComponent, AppPluralPipe],
   // Dialog components are opened imperatively via MatDialog, so they are not
   // listed in `imports`.
   templateUrl: './all-bookings.component.html',
@@ -431,6 +432,51 @@ export class AllBookingsComponent implements OnInit {
     this.checkOutDate = date;
     this.currentPage = 1;
     this.reload();
+  }
+
+  // ── Redesign helpers ─────────────────────────────────────────────────────
+
+  /** Metric card tone → Tailwind tone class (tw-tone-*) from the project config. */
+  metricTone(card: MetricCard): string {
+    return { green: 'tw-tone-green', orange: 'tw-tone-amber', gray: 'tw-tone-violet', black: 'tw-tone-navy' }[card.tone];
+  }
+
+  /** Statuses shown as chips beside the search; the rest sit in the "more" menu. */
+  private readonly chipStatuses: (BookingApiStatus | 'all')[] =
+    ['all', 'Confirmed', 'AwaitingCheckIn', 'CheckedIn', 'AwaitingCheckOut', 'Completed', 'Cancelled'];
+
+  get chipStatusOptions() {
+    return this.statusOptions.filter(o => this.chipStatuses.includes(o.value));
+  }
+
+  get moreStatusOptions() {
+    return this.statusOptions.filter(o => !this.chipStatuses.includes(o.value));
+  }
+
+  /** The selected status when it lives in the "more" menu (its button then shows it). */
+  get selectedMoreStatus() {
+    return this.moreStatusOptions.find(o => o.value === this.selectedStatus);
+  }
+
+  /** Dot colour per status, matching the status badges. */
+  statusDot(status: BookingApiStatus | 'all'): string {
+    // Same colours as the .status-badge dots in the table.
+    const colors: Partial<Record<BookingApiStatus, string>> = {
+      Confirmed: '#22c55e', CheckedIn: '#3b82f6', AwaitingCheckIn: '#f59e0b', AwaitingCheckOut: '#f59e0b',
+      Completed: '#9e9e9a', Cancelled: '#ef4444', NoShow: '#ef4444', Blocked: '#ef4444',
+      OnHold: '#a855f7', AwaitingCustomerAcknowledgement: '#a855f7', Pending: '#eab308', Unconfirmed: '#eab308',
+      Expired: '#9e9e9a', Unknown: '#9e9e9a',
+    };
+    return status === 'all' ? '' : colors[status] ?? '#94A3B8';
+  }
+
+  /** Whole nights between check-in and check-out (null when a date is missing). */
+  nightsOf(booking: Booking): number | null {
+    if (!booking.checkIn || !booking.checkOut) return null;
+    const a = new Date(booking.checkIn); a.setHours(0, 0, 0, 0);
+    const b = new Date(booking.checkOut); b.setHours(0, 0, 0, 0);
+    const n = Math.round((b.getTime() - a.getTime()) / 86_400_000);
+    return n > 0 ? n : null;
   }
 
   selectedStatusLabel(): string {

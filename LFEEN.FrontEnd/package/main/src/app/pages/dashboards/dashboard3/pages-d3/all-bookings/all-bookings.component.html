@@ -1,4 +1,10 @@
-<div class="bookings-page" [dir]="currentDir">
+<div class="bookings-page tw-font-cairo tw-text-ink" [dir]="currentDir">
+
+  <header class="bk-head tw-animate-enter">
+    <div>
+      <h1 class="tw-m-0 tw-text-2xl tw-font-black">{{ 'd3.bookings.title' | translate }}</h1>
+      <p class="tw-m-0 tw-mt-1 tw-text-[13px] tw-text-muted">{{ 'd3.bookings.subtitle' | translate }}</p>
+    </div>
 
   <!-- Page tabs: bookings list | reported guest reviews -->
   @if (canViewReviews()) {
@@ -33,32 +39,30 @@
       </button>
     </div>
   }
+  </header>
 
   @if (activeView === 'bookings') {
 
-  <!-- Metric Cards -->
-  <div class="metrics-container">
-  <section class="sub-header-metrics">
-    @for (card of metrics; track card.titleKey) {
-      <article class="metric-card">
-        <div class="metric-content">
-          <p class="metric-title">{{ card.titleKey | translate }}</p>
-          <h3 class="metric-value" [ngClass]="card.tone">
+  <!-- Metric tiles -->
+  <section class="tw-grid tw-grid-cols-2 tw-gap-3 lg:tw-grid-cols-4">
+    @for (card of metrics; track card.titleKey; let i = $index) {
+      <article class="bk-kpi tw-animate-enter" [ngClass]="metricTone(card)" [style.animation-delay.ms]="60 + i * 50">
+        <span class="bk-kpi-icon"><i-tabler [name]="card.icon" class="icon-20"></i-tabler></span>
+        <div class="tw-min-w-0">
+          <div class="tw-flex tw-items-center tw-gap-1.5 tw-text-[24px] tw-font-black tw-leading-none tw-tabular-nums">
             {{ card.value }}
             @if (card.isCurrency) {
-              <img [src]="currencyIconSrc" alt="" class="metric-riyal-icon" [class.is-text-currency]="currencyIconEn" />
+              <img [src]="currencyIconSrc" alt="" class="bk-riyal bk-riyal--lg" [class.is-text-currency]="currencyIconEn" />
             }
-          </h3>
+          </div>
+          <p class="tw-m-0 tw-mt-1.5 tw-text-xs tw-font-semibold tw-text-muted">{{ card.titleKey | translate }}</p>
         </div>
-        <span class="metric-icon" [ngClass]="card.tone">
-          <i-tabler [name]="card.icon"></i-tabler>
-        </span>
       </article>
     }
   </section>
-  </div>
 
   <!-- Origin Tabs -->
+  <div class="bk-board tw-animate-enter" style="animation-delay: 220ms">
   <div class="origin-tabs" role="tablist">
     @for (opt of originOptions; track opt.value) {
       <button
@@ -91,9 +95,10 @@
     <!-- Desktop filter pills -->
     <div class="filter-pills-desktop">
 
-      <!-- Check-in Date -->
-      <button type="button" class="date-pill" [matMenuTriggerFor]="checkInMenu" #checkInMenuTrigger="matMenuTrigger">
-        <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <!-- Check-in → check-out as one control -->
+      <div class="bk-range">
+      <button type="button" class="date-pill" [class.has-value]="!!checkInDate" [matMenuTriggerFor]="checkInMenu" #checkInMenuTrigger="matMenuTrigger">
+        <i-tabler name="calendar" class="icon-16 date-icon"></i-tabler>
         <span class="date-label">{{ checkInDate || ('d3.bookings.filters.checkIn' | translate) }}</span>
       </button>
 
@@ -107,11 +112,12 @@
         </ng-template>
       </mat-menu>
 
+      <span class="bk-range-sep" aria-hidden="true">{{ currentDir === 'rtl' ? '←' : '→' }}</span>
       <!-- Check-out Date -->
-      <button type="button" class="date-pill" [matMenuTriggerFor]="checkOutMenu" #checkOutMenuTrigger="matMenuTrigger">
-        <i-tabler name="calendar" class="date-icon"></i-tabler>
+      <button type="button" class="date-pill" [class.has-value]="!!checkOutDate" [matMenuTriggerFor]="checkOutMenu" #checkOutMenuTrigger="matMenuTrigger">
         <span class="date-label">{{ checkOutDate || ('d3.bookings.filters.checkOut' | translate) }}</span>
       </button>
+      </div>
 
       <mat-menu #checkOutMenu="matMenu" class="single-date-calendar-menu cardWithShadow" yPosition="below">
         <ng-template matMenuContent>
@@ -123,14 +129,19 @@
         </ng-template>
       </mat-menu>
 
-      <!-- Status Filter -->
-      <button type="button" class="status-filter-btn" [matMenuTriggerFor]="statusMenu">
-        <span>{{ selectedStatusLabel() }}</span>
+      <!-- Less common statuses (the common ones are chips under the search) -->
+      <button type="button" class="status-filter-btn" [class.is-on]="!!selectedMoreStatus" [matMenuTriggerFor]="statusMenu">
+        @if (selectedMoreStatus; as more) {
+          <span class="bk-dot" [style.background]="statusDot(more.value)"></span>
+          <span>{{ more.labelKey | translate }}</span>
+        } @else {
+          <span>{{ 'd3.bookings.filters.moreStatuses' | translate }}</span>
+        }
         <i-tabler name="chevron-down" class="icon-14"></i-tabler>
       </button>
 
       <mat-menu #statusMenu="matMenu" class="d3-builds-filter-menu cardWithShadow" yPosition="below">
-        @for (opt of statusOptions; track opt.value) {
+        @for (opt of moreStatusOptions; track opt.value) {
           <button
             mat-menu-item
             type="button"
@@ -147,6 +158,19 @@
         <span>{{ 'd3.bookings.filters.clear' | translate }}</span>
       </button>
 
+    </div>
+
+    <!-- Common statuses as chips -->
+    <div class="bk-status-chips" role="group" [attr.aria-label]="'d3.bookings.table.status' | translate">
+      @for (opt of chipStatusOptions; track opt.value) {
+        <button type="button" class="bk-chip" [class.is-on]="selectedStatus === opt.value"
+          [attr.aria-pressed]="selectedStatus === opt.value" (click)="onStatusChange(opt.value)">
+          @if (opt.value !== 'all') {
+            <span class="bk-dot" [style.background]="statusDot(opt.value)"></span>
+          }
+          {{ opt.labelKey | translate }}
+        </button>
+      }
     </div>
 
     <!-- Mobile filters trigger -->
@@ -290,7 +314,14 @@
       <ng-container matColumnDef="dates">
         <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.dates' | translate }}</th>
         <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.dates' | translate">
-          <span class="dates-range">{{ booking.checkInLabel }} - {{ booking.checkOutLabel }}</span>
+          <span class="bk-stay">
+            <span>{{ booking.checkInLabel }}</span>
+            <i-tabler [name]="currentDir === 'rtl' ? 'arrow-left' : 'arrow-right'" class="icon-14 bk-stay-arrow"></i-tabler>
+            <span>{{ booking.checkOutLabel }}</span>
+          </span>
+          @if (nightsOf(booking); as n) {
+            <span class="bk-nights">{{ 'd3.bookings.table.nights' | appPlural: n }}</span>
+          }
         </td>
       </ng-container>
 
@@ -299,8 +330,8 @@
         <th mat-header-cell *matHeaderCellDef>{{ 'd3.bookings.table.amount' | translate }}</th>
         <td mat-cell *matCellDef="let booking" [attr.data-label]="'d3.bookings.table.amount' | translate">
           <span class="amount-value">
-            <img [src]="currencyIconSrc" alt="" class="amount-riyal-icon" [class.is-text-currency]="currencyIconEn" />
             <span>{{ booking.amountLabel }}</span>
+            <img [src]="currencyIconSrc" alt="" class="bk-riyal" [class.is-text-currency]="currencyIconEn" />
           </span>
         </td>
       </ng-container>
@@ -402,6 +433,7 @@
   </div>
 
   }
+  </div>
 
   } @else {
     <app-review-reports

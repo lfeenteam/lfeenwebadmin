@@ -21,7 +21,6 @@ import { EmployeeListComponent } from './components/employee-list/employee-list.
 import { StatsRowComponent } from './components/stats-row/stats-row.component';
 import { TabsBarComponent } from './components/tabs-bar/tabs-bar.component';
 import { DeptCardComponent } from './components/dept-card/dept-card.component';
-import { ManagerCardComponent } from './components/manager-card/manager-card.component';
 import { LogsFilterComponent, LogsFilterOption } from './components/logs-filter/logs-filter.component';
 import { OpsLogTableComponent } from './components/ops-log-table/ops-log-table.component';
 import {
@@ -49,7 +48,6 @@ import { AppPluralPipe } from 'src/app/pipes/app-plural.pipe';
     StatsRowComponent,
     TabsBarComponent,
     DeptCardComponent,
-    ManagerCardComponent,
     LogsFilterComponent,
     OpsLogTableComponent,
     DashboardLoadingComponent,

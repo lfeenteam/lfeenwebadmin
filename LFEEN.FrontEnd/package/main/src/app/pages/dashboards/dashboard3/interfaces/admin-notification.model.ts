@@ -11,6 +11,7 @@ export type AdminNotificationType =
   | 'SettlementRequiresReview'
   | 'PaymentIssueReported'
   | 'RefundRequested'
+  | 'MerchantSettlementDebt'
   | 'BookingIssueReported'
   | 'SystemAlert';
 

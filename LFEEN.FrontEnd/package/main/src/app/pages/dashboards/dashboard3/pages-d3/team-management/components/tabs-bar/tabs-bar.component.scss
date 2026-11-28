@@ -1,4 +1,14 @@
+// The host sits inside a flex parent (.border-bottom-gray). Without min-width: 0 it
+// takes the full tabs width (min-width: auto) and the whole page scrolls sideways on
+// narrow screens; with it, the overflow stays inside .tabs-wrapper (BUG-2642).
+:host {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .tabs-wrapper {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 8px;

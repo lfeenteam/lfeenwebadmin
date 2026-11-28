@@ -9,7 +9,7 @@ import { Subject, debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastrService } from 'ngx-toastr';
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
-import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, COMPLAINT_PERMISSION_PREFIXES, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus } from '../../interfaces/complaint.model';
+import { ASSIGN_DELAY_THRESHOLD_HOURS, AssignableEmployee, CLIENT_TICKET_DEPARTMENT_OPTIONS, COMPLAINT_PERMISSION_PREFIXES, Complaint, ComplaintTab, isInactiveEmployee, isUnengagedStatus, ticketSubjectLabelKey } from '../../interfaces/complaint.model';
 import { LoginService } from '../../../../services/login/login.service';
 import { PermissionService } from '../../../../services/permission.service';
 import { ComplaintService } from '../../services/complaint.service';
@@ -229,6 +229,40 @@ export class ComplaintsTableComponent implements OnChanges {
       : complaint.clientName;
   }
 
+  /** Last-activity cell: "3 days ago", how far a 30-day bar is filled, and a tone that turns
+   * amber after 2 days and red after 14 days without activity. Null when the API sent no time. */
+  activityOf(complaint: Complaint): { ago: string; pct: number; tone: '' | 'late' | 'overdue' } | null {
+    const iso = complaint.lastMessageAtUtc;
+    if (!iso) return null;
+    const lang = this.translate.currentLang === 'en' ? 'en' : 'ar';
+    const key = `${iso}|${lang}`;
+    const cached = this.activityCache.get(complaint);
+    if (cached?.key === key) return cached.value;
+
+    // The API's UTC timestamps sometimes come without a zone suffix.
+    const time = Date.parse(/[zZ]|[+-]dd:?dd$/.test(iso) ? iso : `${iso}Z`);
+    if (Number.isNaN(time)) return null;
+
+    const minutes = Math.max(0, (Date.now() - time) / 60000);
+    const days = minutes / 1440;
+    const rtf = new Intl.RelativeTimeFormat(lang === 'ar' ? 'ar-u-nu-latn' : 'en', { numeric: 'auto' });
+    const ago = minutes < 60
+      ? rtf.format(-Math.max(1, Math.round(minutes)), 'minute')
+      : minutes < 1440
+        ? rtf.format(-Math.round(minutes / 60), 'hour')
+        : rtf.format(-Math.round(days), 'day');
+
+    const value = {
+      ago,
+      pct: Math.max(4, Math.min(100, Math.round((days / 30) * 100))),
+      tone: (days > 14 ? 'overdue' : days > 2 ? 'late' : '') as '' | 'late' | 'overdue',
+    };
+    this.activityCache.set(complaint, { key, value });
+    return value;
+  }
+
+  private readonly activityCache = new WeakMap<Complaint, { key: string; value: { ago: string; pct: number; tone: '' | 'late' | 'overdue' } }>();
+
   displayDate(complaint: Complaint): string {
     return this.translate.currentLang === 'en'
       ? complaint.dateEn ?? complaint.date
@@ -244,6 +278,8 @@ export class ComplaintsTableComponent implements OnChanges {
 
   displaySubject(complaint: Complaint): string {
     if (complaint.subject) {
+      const key = ticketSubjectLabelKey(complaint.subject);
+      if (key) return this.translate.instant(key);
       const text = this.translate.currentLang === 'en'
         ? complaint.subjectEn ?? complaint.subject
         : complaint.subject;
@@ -264,6 +300,8 @@ export class ComplaintsTableComponent implements OnChanges {
 
   displayResolvedSubject(complaint: Complaint): string {
     if (complaint.subject) {
+      const key = ticketSubjectLabelKey(complaint.subject);
+      if (key) return this.translate.instant(key);
       const text = this.translate.currentLang === 'en'
         ? complaint.subjectEn ?? complaint.subject
         : complaint.subject;

@@ -44,7 +44,7 @@ export type CancelLinksDialogData =
         @if (error) {
           <div class="da-alert danger" role="alert">
             <i-tabler name="alert-circle" class="icon-18"></i-tabler>
-            <p>{{ error }}</p>
+            <p dir="auto">{{ error }}</p>
           </div>
         }
       </div>

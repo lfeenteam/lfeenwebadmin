@@ -53,7 +53,7 @@
       <mat-select-trigger>
         <span class="d-flex align-items-center gap-6 sl-trigger">
           <i-tabler name="stack-2" class="icon-16"></i-tabler>
-          <span>{{ batch ? batchLabel(batch) : batchId ? ('d3.demoAccounts.signupLinks.filters.oneBatch' | translate) : ('d3.demoAccounts.signupLinks.filters.allBatches' | translate) }}</span>
+          <span>{{ batch ? batchLabel(batch) : batchMissing ? ('d3.demoAccounts.signupLinks.filters.batchNotFound' | translate) : batchId ? ('d3.demoAccounts.signupLinks.filters.oneBatch' | translate) : ('d3.demoAccounts.signupLinks.filters.allBatches' | translate) }}</span>
         </span>
       </mat-select-trigger>
       <mat-option [value]="all">{{ 'd3.demoAccounts.signupLinks.filters.allBatches' | translate }}</mat-option>
@@ -61,7 +61,7 @@
         <mat-option [value]="b.id">{{ batchLabel(b) }}</mat-option>
       }
       @if (batchId && !batch) {
-        <mat-option [value]="batchId">{{ 'd3.demoAccounts.signupLinks.filters.oneBatch' | translate }}</mat-option>
+        <mat-option [value]="batchId">{{ (batchMissing ? 'd3.demoAccounts.signupLinks.filters.batchNotFound' : 'd3.demoAccounts.signupLinks.filters.oneBatch') | translate }}</mat-option>
       }
     </mat-select>
   </div>
@@ -88,12 +88,24 @@
           <span class="sl-count ls-cancelled">{{ 'd3.demoAccounts.signupLinks.states.Cancelled' | translate }} <b>{{ fmt(b.cancelledLinks) }}</b></span>
           <span class="sl-count ls-expired">{{ 'd3.demoAccounts.signupLinks.states.Expired' | translate }} <b>{{ fmt(b.expiredLinks) }}</b></span>
         </div>
+      } @else if (batchMissing) {
+        <div class="sl-batch__info">
+          <strong>{{ 'd3.demoAccounts.signupLinks.filters.batchNotFound' | translate }}</strong>
+          <span>{{ 'd3.demoAccounts.signupLinks.filters.batchNotFoundDesc' | translate }}</span>
+        </div>
+        <div class="sl-batch__actions">
+          <button type="button" class="da-btn sm" (click)="showAllBatches()">
+            <i-tabler name="stack-2" class="icon-16"></i-tabler>
+            {{ 'd3.demoAccounts.signupLinks.filters.showAllBatches' | translate }}
+          </button>
+        </div>
       } @else {
         <div class="sl-batch__info"><strong>{{ 'd3.demoAccounts.signupLinks.filters.oneBatch' | translate }}</strong></div>
       }
-      @if (canManage()) {
+      <!-- Edit / cancel only for a batch we know: never for an unknown or missing id. -->
+      @if (canManage() && batch) {
         <div class="sl-batch__actions">
-          <button type="button" class="da-btn sm" [disabled]="!batch" (click)="editBatch()">
+          <button type="button" class="da-btn sm" (click)="editBatch()">
             <i-tabler name="pencil" class="icon-16"></i-tabler>
             {{ 'd3.demoAccounts.signupLinks.edit.batchButton' | translate }}
           </button>
@@ -280,13 +292,22 @@
                   @if (featureDisabled) {
                     <app-dashboard-empty icon="link-off" titleKey="d3.demoAccounts.empty.disabledTitle"
                                          descKey="d3.demoAccounts.signupLinks.errors.disabled"></app-dashboard-empty>
-                  } @else if (loadError) {
-                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.demoAccounts.empty.errorTitle" descKey="">
-                      <p class="da-load-error">{{ loadError }}</p>
-                      <button type="button" class="da-btn sm" (click)="load()">
-                        <i-tabler name="refresh" class="icon-16"></i-tabler>
-                        {{ 'd3.demoAccounts.actions.retry' | translate }}
+                  } @else if (batchMissing) {
+                    <app-dashboard-empty icon="stack-2" titleKey="d3.demoAccounts.signupLinks.filters.batchNotFound"
+                                         descKey="d3.demoAccounts.signupLinks.filters.batchNotFoundDesc">
+                      <button type="button" class="da-link-btn" (click)="showAllBatches()">
+                        {{ 'd3.demoAccounts.signupLinks.filters.showAllBatches' | translate }}
                       </button>
+                    </app-dashboard-empty>
+                  } @else if (loadError) {
+                    <app-dashboard-empty variant="error" icon="cloud-off" titleKey="d3.demoAccounts.signupLinks.list.errorTitle" descKey="">
+                      <p class="da-load-error" dir="auto">{{ loadError }}</p>
+                      @if (loadRetryable) {
+                        <button type="button" class="da-btn sm" (click)="load()">
+                          <i-tabler name="refresh" class="icon-16"></i-tabler>
+                          {{ 'd3.demoAccounts.actions.retry' | translate }}
+                        </button>
+                      }
                     </app-dashboard-empty>
                   } @else if (hasFilters) {
                     <app-dashboard-empty icon="search-off" titleKey="d3.demoAccounts.empty.noMatchTitle" descKey="">

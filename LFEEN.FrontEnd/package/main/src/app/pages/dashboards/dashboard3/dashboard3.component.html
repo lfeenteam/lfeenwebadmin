@@ -21,7 +21,7 @@
     <!-- Header -->
     @if (!isLoginRoute) {
       @if (headerType === 'ceo') {
-        <app-dashboard3-header (sidebarToggle)="toggleMobileSidebar()"></app-dashboard3-header>
+        <app-dashboard3-header [sidebarOpen]="sidebarMobileOpen" (sidebarToggle)="toggleMobileSidebar()"></app-dashboard3-header>
       } @else if (pageTitleKey) {
         <app-dashboard3-page-header
           [titleKey]="pageTitleKey"
@@ -35,6 +35,7 @@
           [showBack]="pageShowBack"
           [statusBadge]="pageStatusBadge"
           [actionButton]="headerActionButton"
+          [sidebarOpen]="sidebarMobileOpen"
           (sidebarToggle)="toggleMobileSidebar()"
           (back)="onPageBack()"
           (action)="onPageAction($event)">

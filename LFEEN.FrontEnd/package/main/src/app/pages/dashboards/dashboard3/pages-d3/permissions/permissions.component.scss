@@ -40,6 +40,7 @@
 
     .header-content {
       display: flex;
+      flex-wrap: wrap; // stats card drops below the name when space is tight
       align-items: center;
       justify-content: space-between;
       gap: 24px;
@@ -50,7 +51,7 @@
       align-items: center;
       gap: 16px;
       min-width: 0;
-      flex: 1 1 auto;
+      flex: 1 1 260px; // never squeeze the name below a readable width
     }
 
     .department-details {
@@ -58,8 +59,12 @@
       text-align: start;
 
       h2 {
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word; // wrap at word boundaries, not mid-word
         font-size: 17px !important;
+      }
+
+      .permissions-description {
+        overflow-wrap: break-word;
       }
     }
 
@@ -76,7 +81,8 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(110px, auto));
       gap: 12px;
-      flex: 0 0 auto;
+      flex: 0 1 auto;
+      max-width: 100%;
     }
 
     .stat-item {
@@ -262,9 +268,26 @@
   .permissions-table {
     width: 100%;
     border-collapse: collapse;
+    // Fixed layout keeps the table inside its card: the description column
+    // takes the remaining width and wraps, so the actions column stays visible.
+    table-layout: fixed;
+
+    thead th:first-child { width: 35%; }
+
+    // Override the global `.table-responsive td { white-space: nowrap }`
+    tbody td {
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+
+    .perm-desc {
+      display: block;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
 
     // role name in table rows
-    tbody td .f-s-14 { font-size: 13px !important; }
+    tbody td .f-s-14 { font-size: 13px !important; min-width: 0; }
 
     thead {
       background-color: #FCFCFB;

@@ -25,21 +25,92 @@
   }
 
   .table-header-section {
-    padding: 32px 32px 0 32px;
+    padding: 28px 32px 24px;
 
     @media (max-width: 767.98px) {
-      padding: 16px 16px 0 16px;
+      padding: 16px;
+    }
+  }
+
+  .count-chip {
+    min-width: 30px;
+    height: 26px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #F1F1EE;
+    color: #3F3F3C;
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-tools {
+    @media (max-width: 767.98px) {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  .add-btn {
+    height: 42px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 14px;
+    background: #111110;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 10px 20px -14px rgba(17, 17, 16, 0.8);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+    i-tabler {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    &:hover {
+      background: #000;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 24px -14px rgba(17, 17, 16, 0.9);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #111110;
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 767.98px) {
+      width: 100%;
+      justify-content: center;
     }
   }
 
   .search-wrapper {
     width: 288px !important;
-    height: 36px !important;
+    height: 42px !important;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
     background-color: #F7F7F5 !important;
     border-radius: 12px !important;
     position: relative !important;
     display: flex !important;
     overflow: hidden;
+
+    &:focus-within {
+      background-color: #fff !important;
+      border-color: #111110;
+    }
 
     @media (max-width: 767.98px) {
       width: 100% !important;

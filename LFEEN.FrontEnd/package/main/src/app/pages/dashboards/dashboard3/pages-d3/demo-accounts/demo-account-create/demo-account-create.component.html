@@ -72,9 +72,10 @@
               <input id="da-fullName" name="demo-full-name" type="text" class="da-input" autocomplete="off"
                      [placeholder]="'d3.demoAccounts.create.fullNamePlaceholder' | translate"
                      [class.invalid]="errors.fullName" [disabled]="submitting"
+                     [appFieldError]="errors.fullName" fieldErrorId="da-fullName-err"
                      [(ngModel)]="fullName" (blur)="onBlur('fullName')" (ngModelChange)="onInput('fullName')" />
             </div>
-            @if (errors.fullName) { <p class="da-error">{{ errors.fullName }}</p> }
+            @if (errors.fullName) { <p class="da-error" id="da-fullName-err">{{ errors.fullName }}</p> }
           </div>
 
           <div class="da-row">
@@ -89,9 +90,10 @@
                 <input id="da-email" name="demo-contact-email" type="text" inputmode="email" class="da-input" dir="ltr"
                        autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="name@example.com"
                        [maxLength]="limits.email" [class.invalid]="errors.email" [disabled]="submitting"
+                       [appFieldError]="errors.email" fieldErrorId="da-email-err"
                        [(ngModel)]="email" (blur)="onBlur('email')" (ngModelChange)="onInput('email')" />
               </div>
-              @if (errors.email) { <p class="da-error">{{ errors.email }}</p> }
+              @if (errors.email) { <p class="da-error" id="da-email-err">{{ errors.email }}</p> }
             </div>
 
             <div class="da-field">
@@ -104,9 +106,10 @@
                 <input id="da-phone" name="demo-contact-phone" type="tel" class="da-input" dir="ltr"
                        autocomplete="off" data-lpignore="true" data-1p-ignore
                        placeholder="05XXXXXXXX" [class.invalid]="errors.phoneNumber" [disabled]="submitting"
+                       [appFieldError]="errors.phoneNumber" fieldErrorId="da-phone-err"
                        [(ngModel)]="phoneNumber" (blur)="onBlur('phoneNumber')" (ngModelChange)="onInput('phoneNumber')" />
               </div>
-              @if (errors.phoneNumber) { <p class="da-error">{{ errors.phoneNumber }}</p> }
+              @if (errors.phoneNumber) { <p class="da-error" id="da-phone-err">{{ errors.phoneNumber }}</p> }
               @else { <p class="da-helper">{{ 'd3.demoAccounts.create.phoneHelp' | translate }}</p> }
             </div>
           </div>
@@ -141,6 +144,7 @@
                 <input id="da-days" name="durationDays" type="number" inputmode="numeric"
                        [min]="limits.minDays" [max]="limits.maxDays" step="1"
                        [disabled]="submitting" [(ngModel)]="durationDays"
+                       [appFieldError]="errors.durationDays" fieldErrorId="da-days-err"
                        (blur)="onBlur('durationDays')" (ngModelChange)="onInput('durationDays')" />
                 <button type="button" [disabled]="submitting || (durationDays ?? 0) >= limits.maxDays"
                         [attr.aria-label]="'d3.demoAccounts.create.increase' | translate" (click)="stepDays(1)">
@@ -156,7 +160,7 @@
               </div>
             </div>
             @if (errors.durationDays) {
-              <p class="da-error">{{ errors.durationDays }}</p>
+              <p class="da-error" id="da-days-err">{{ errors.durationDays }}</p>
             } @else if (endDate) {
               <p class="dc-hint">
                 <i-tabler name="calendar-event" class="icon-14"></i-tabler>
@@ -176,6 +180,7 @@
                          autocomplete="new-password" data-lpignore="true" data-1p-ignore placeholder="••••••"
                          [type]="showPin ? 'text' : 'password'"
                          [class.invalid]="errors.pin" [disabled]="submitting"
+                         [appFieldError]="errors.pin" fieldErrorId="da-pin-err"
                          [ngModel]="pin" (ngModelChange)="onPinInput($event, pinInput)" #pinInput
                          (blur)="onBlur('pin')" />
                   <button type="button" class="da-icon-btn" (click)="showPin = !showPin"
@@ -189,7 +194,7 @@
                   <span>{{ 'd3.demoAccounts.create.generatePin' | translate }}</span>
                 </button>
               </div>
-              @if (errors.pin) { <p class="da-error">{{ errors.pin }}</p> }
+              @if (errors.pin) { <p class="da-error" id="da-pin-err">{{ errors.pin }}</p> }
               @else { <p class="da-helper">{{ 'd3.demoAccounts.create.pinHelp' | translate }}</p> }
             </div>
 
@@ -201,9 +206,10 @@
               <textarea id="da-note" name="note" class="da-input" rows="2"
                         [placeholder]="'d3.demoAccounts.create.notePlaceholder' | translate"
                         [class.invalid]="errors.note" [disabled]="submitting"
+                        [appFieldError]="errors.note" fieldErrorId="da-note-err"
                         [(ngModel)]="note" (blur)="onBlur('note')" (ngModelChange)="onInput('note')"></textarea>
               <p class="da-helper dc-counter">
-                @if (errors.note) { <span class="da-error">{{ errors.note }}</span> } @else { <span></span> }
+                @if (errors.note) { <span class="da-error" id="da-note-err">{{ errors.note }}</span> } @else { <span></span> }
                 <span class="da-ltr" dir="ltr">{{ note.length }}/{{ limits.note }}</span>
               </p>
             </div>
@@ -230,7 +236,8 @@
         <div class="da-acc__body" id="acc-message" [hidden]="!open.message">
           <div class="da-field">
             <span class="da-label" id="da-channel-label">{{ 'd3.demoAccounts.create.channel' | translate }}</span>
-            <div class="dc-options dc-options--4" role="radiogroup" aria-labelledby="da-channel-label">
+            <div class="dc-options dc-options--4" role="radiogroup" aria-labelledby="da-channel-label"
+                 [appFieldError]="errors.channel" fieldErrorId="da-channel-err">
               <button type="button" role="radio" class="dc-option dc-option--compact" [class.active]="channel === null"
                       [attr.aria-checked]="channel === null" [disabled]="submitting" (click)="setChannel(null)"
                       [title]="'d3.demoAccounts.create.noChannelHint' | translate">
@@ -253,7 +260,7 @@
                 </button>
               }
             </div>
-            @if (errors.channel) { <p class="da-error">{{ errors.channel }}</p> }
+            @if (errors.channel) { <p class="da-error" id="da-channel-err">{{ errors.channel }}</p> }
             @if (!sendInvitation) {
               <div class="da-alert soft dc-note">
                 <i-tabler name="info-circle" class="icon-16"></i-tabler>

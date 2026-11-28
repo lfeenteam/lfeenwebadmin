@@ -1,32 +1,83 @@
+// Segmented control: a white thumb slides under the active tab.
 .tabs-wrapper {
-  
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 24px;
-  height: 56px;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #E8E8E4;
+  border-radius: 12px;
+  background: #F7F7F5;
   direction: rtl;
+  max-width: 100%;
+}
 
-  .tab-btn {
-    font-size: 14px;
-    font-weight: 500;
-    color: #9E9E9A;
-    padding: 0 4px;
-    height: 56px;
-    display: inline-flex;
-    align-items: center;
-    font-family: 'Cairo', sans-serif;
-    position: relative;
-    border-radius: 0;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s;
-    min-width: unset;
+.tab-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(17, 17, 16, 0.08), 0 4px 10px -4px rgba(17, 17, 16, 0.16);
+  opacity: 0;
+  pointer-events: none;
 
-    &.active {
-      color: #111110;
-      font-weight: 800;
-      border-bottom-color: #111110;
-    }
+  &.ready {
+    opacity: 1;
+    transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.tab-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #6B6B67;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover:not(.active) {
+    color: #111110;
+  }
+
+  &.active {
+    color: #111110;
+    font-weight: 800;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #111110;
+    outline-offset: 1px;
+  }
+}
+
+.tab-count {
+  min-width: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: #E8E8E4;
+  color: #3F3F3C;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  .active & {
+    background: #111110;
+    color: #fff;
   }
 }
 
@@ -37,13 +88,15 @@
 }
 
 @media (max-width: 480px) {
-  .tabs-wrapper {
-    gap: 16px;
-    height: 48px;
+  .tab-btn {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
 
-    .tab-btn {
-      font-size: 13px;
-      height: 48px;
-    }
+@media (prefers-reduced-motion: reduce) {
+  .tab-thumb.ready {
+    transition: none;
   }
 }

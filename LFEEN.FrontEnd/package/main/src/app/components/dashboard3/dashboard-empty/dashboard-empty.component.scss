@@ -29,6 +29,11 @@
   text-align: center;
   font-family: 'Cairo', sans-serif;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  // Often rendered inside a `.table-responsive td`, which sets `nowrap` globally;
+  // without this the title/description stay on one line and get clipped on phones.
+  white-space: normal;
 
   &__img {
     width: 200px;
@@ -73,9 +78,11 @@
     font-weight: 700;
     color: #121212;
     line-height: 1.5;
+    overflow-wrap: anywhere;
   }
 
   &__desc {
+    overflow-wrap: anywhere;
     margin: 0;
     font-size: 13px;
     font-weight: 500;

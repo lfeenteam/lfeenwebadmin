@@ -11,7 +11,8 @@ import { DashboardEmptyComponent } from 'src/app/components/dashboard3/dashboard
 import { DashboardLoadingComponent } from 'src/app/components/dashboard3/dashboard-loading/dashboard-loading.component';
 import { formatApiDateLocal, parseApiUtc } from 'src/app/utils/date-format.util';
 import { appLocale, formatAppNumber } from 'src/app/utils/locale-format.util';
-import { getVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { getVisiblePages, getCompactVisiblePages, formatLocalizedNumber } from 'src/app/utils/pagination.util';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { SubscriptionsService } from '../../../services/subscriptions.service';
 import { SubscriptionAuditLog, SubscriptionCatalogItem } from '../interfaces/subscription.model';
 import { resolveSubscriptionError } from '../interfaces/subscription-error.util';
@@ -92,6 +93,10 @@ export class SubscriptionLogComponent implements OnInit {
   private translate = inject(TranslateService);
   private toastr = inject(ToastrService);
   private subscriptionsService = inject(SubscriptionsService);
+  private breakpoints = inject(BreakpointObserver);
+
+  /** Phone width: the full 9-slot pager is wider than the card (BUG-2902). */
+  private compactPager = false;
 
   isLoading = true;
   /** The log failed to load — shown as error + retry, not "no activity". */
@@ -127,6 +132,10 @@ export class SubscriptionLogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.breakpoints.observe('(max-width: 576px)')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(state => this.compactPager = state.matches);
+
     this.subscriptionsService.getCatalog()
       .pipe(catchError(() => of([] as SubscriptionCatalogItem[])), takeUntilDestroyed(this.destroyRef))
       .subscribe(catalog => {
@@ -274,7 +283,9 @@ export class SubscriptionLogComponent implements OnInit {
   }
 
   get visiblePages(): (number | '...')[] {
-    return getVisiblePages(this.currentPage, this.totalPages);
+    return this.compactPager
+      ? getCompactVisiblePages(this.currentPage, this.totalPages)
+      : getVisiblePages(this.currentPage, this.totalPages);
   }
 
   onServiceFilterChange(value: number | 'all'): void {

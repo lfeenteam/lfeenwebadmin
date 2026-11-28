@@ -1182,3 +1182,334 @@ table {
     justify-content: center;
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// Redesign: header, KPI tiles, one board (source → search/filters → status
+// chips → table → pages). Tiles/text use Tailwind (tw-) in the template.
+// ══════════════════════════════════════════════════════════════════════════
+
+$bk-ink: #111827;
+$bk-body: #475569;
+$bk-muted: #64748B;
+$bk-faint: #94A3B8;
+$bk-line: #EEF2F7;
+$bk-line-strong: #E5E9F0;
+$bk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+@keyframes bkRowIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.bk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  .page-tabs { margin-bottom: 0; }
+}
+
+// KPI tiles (tone from tw-tone-* on the tile)
+.bk-kpi {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid $bk-line;
+  border-radius: 14px;
+  background: #fff;
+  transition: box-shadow 0.26s ease, transform 0.26s $bk-ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.bk-kpi-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: var(--tone-soft);
+  color: var(--tone);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 14px -10px var(--tone-shadow);
+}
+
+// Saudi riyal symbol (project SVG)
+.bk-riyal {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  flex-shrink: 0;
+
+  &.is-text-currency { width: 28px; height: 14px; }
+
+  &--lg {
+    width: 20px;
+    height: 20px;
+
+    &.is-text-currency { width: 36px; height: 18px; }
+  }
+}
+
+// One white board for source, filters, table and pages
+.bk-board {
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid $bk-line-strong;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.04);
+}
+
+// Source: segmented control
+.bk-board .origin-tabs {
+  display: inline-flex;
+  gap: 2px;
+  height: auto;
+  margin: 20px 20px 0;
+  padding: 3px;
+  border: 1px solid $bk-line-strong;
+  border-radius: 12px;
+  background: #F8FAFC;
+  max-width: calc(100% - 40px);
+}
+
+.bk-board .origin-tab {
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  color: $bk-muted;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.26s ease, color 0.26s ease, box-shadow 0.26s ease;
+
+  &:hover:not(.active) { color: $bk-ink; }
+
+  &.active {
+    border: 0;
+    background: #fff;
+    color: $bk-ink;
+    font-weight: 800;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 10px -4px rgba(15, 23, 42, 0.16);
+  }
+}
+
+// Search + filters
+.bk-board .bookings-toolbar {
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid $bk-line;
+}
+
+.bk-board .search-box {
+  height: 40px;
+  border: 1px solid $bk-line-strong;
+  border-radius: 12px;
+  background: #F8FAFC;
+  transition: border-color 0.26s ease, background-color 0.26s ease, box-shadow 0.26s ease;
+
+  &:focus-within {
+    border-color: $bk-ink;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.06);
+  }
+}
+
+.bk-range {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  overflow: hidden;
+  border: 1px solid $bk-line-strong;
+  border-radius: 12px;
+  background: #fff;
+
+  .date-pill {
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: $bk-muted;
+
+    &:hover,
+    &[aria-expanded='true'] { background: #F8FAFC; }
+    &.has-value { color: $bk-ink; }
+  }
+}
+
+.bk-range-sep {
+  color: $bk-faint;
+  font-size: 12px;
+}
+
+.bk-board .status-filter-btn,
+.bk-board .clear-filters-btn {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.bk-board .status-filter-btn {
+  gap: 6px;
+  border-color: $bk-line-strong;
+
+  &.is-on {
+    border-color: $bk-ink;
+    background: $bk-ink;
+    color: #fff;
+  }
+}
+
+// Common statuses as chips (own row, scrolls sideways on small screens)
+.bk-status-chips {
+  display: flex;
+  flex-basis: 100%;
+  order: 10;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.bk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid $bk-line-strong;
+  border-radius: 999px;
+  background: #fff;
+  color: $bk-body;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.26s ease, color 0.26s ease, border-color 0.26s ease;
+
+  &:hover:not(.is-on) { background: #F8FAFC; border-color: #CBD5E1; }
+
+  &.is-on {
+    border-color: $bk-ink;
+    background: $bk-ink;
+    color: #fff;
+
+    .bk-dot { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); }
+  }
+
+  &:focus-visible { outline: 2px solid $bk-ink; outline-offset: 2px; }
+}
+
+.bk-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+// Table
+.bk-board table {
+  th.mat-mdc-header-cell {
+    height: 40px;
+    padding: 0 16px;
+    background: #F8FAFC;
+    color: $bk-muted;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    border-bottom: 1px solid $bk-line;
+  }
+
+  td.mat-mdc-cell {
+    padding: 14px 16px;
+    border-bottom-color: #F1F5F9;
+  }
+
+  th.mat-mdc-header-cell:first-child,
+  td.mat-mdc-cell:first-child { padding-inline-start: 24px; }
+
+  th.mat-mdc-header-cell:last-child,
+  td.mat-mdc-cell:last-child { padding-inline-end: 24px; }
+
+  tr.mat-mdc-row {
+    animation: bkRowIn 0.45s $bk-ease both;
+
+    @for $i from 1 through 12 {
+      &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 40}ms; }
+    }
+
+    @media (hover: hover) {
+      &:hover { background-color: #FAFBFC; }
+    }
+  }
+}
+
+.bk-board .booking-id {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace !important;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $bk-ink;
+}
+
+.bk-stay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: $bk-ink;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bk-stay-arrow { color: $bk-faint; }
+
+.bk-nights {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #F1F5F9;
+  color: $bk-body;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.bk-board .amount-value {
+  gap: 4px;
+  direction: inherit;
+}
+
+.bk-board .status-badge { border-color: transparent; }
+
+.bk-board .table-footer {
+  padding: 12px 24px;
+  border-top: 1px solid $bk-line;
+}
+
+@media (max-width: 768px) {
+  .bk-board .origin-tabs { margin: 16px 16px 0; max-width: calc(100% - 32px); }
+  .bk-board .bookings-toolbar { padding: 12px 16px; }
+  .bk-board .table-footer { padding: 12px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bookings-page .tw-animate-enter,
+  .bk-board table tr.mat-mdc-row { animation: none !important; }
+  .bk-kpi { transition: none; }
+}

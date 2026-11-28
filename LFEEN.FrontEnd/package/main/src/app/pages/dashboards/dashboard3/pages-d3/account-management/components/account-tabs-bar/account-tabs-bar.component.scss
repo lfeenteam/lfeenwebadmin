@@ -1,8 +1,29 @@
+:host {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.tabs-scroll {
+  position: relative;
+  min-width: 0;
+}
+
+// The strip scrolls sideways inside itself when the tabs don't fit (phones), so the
+// component can bring the open tab into view and show which edge has hidden tabs.
 .tabs-wrapper {
   display: flex;
   align-items: center;
   gap: 24px;
   height: 48px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar { display: none; }
 
   .tab-btn {
     font-size: 14px;
@@ -12,6 +33,7 @@
     height: 48px;
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     gap: 6px;
     font-family: 'Cairo', sans-serif;
     position: relative;
@@ -49,17 +71,109 @@
   }
 }
 
+// Overflow hint: a fade plus a small arrow on whichever edge still has hidden tabs
+// (`can-scroll-start` / `can-scroll-end`, set from the component).
+%tabs-scroll-fade {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  width: 44px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+// Default gradients are for RTL (start = right); LTR flips them below.
+.tabs-scroll::before {
+  @extend %tabs-scroll-fade;
+  inset-inline-start: 0;
+  background: linear-gradient(to left, #ffffff 45%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll::after {
+  @extend %tabs-scroll-fade;
+  inset-inline-end: 0;
+  background: linear-gradient(to right, #ffffff 45%, rgba(255, 255, 255, 0) 100%);
+}
+
+.tabs-scroll-arrow {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #E8E8E4;
+  box-shadow: 0 1px 5px rgba(17, 17, 16, 0.16);
+  color: #111110;
+  cursor: pointer;
+  line-height: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  i-tabler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+  }
+
+  ::ng-deep svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+  }
+}
+
+.tabs-scroll-arrow--start {
+  inset-inline-start: 0;
+
+  i-tabler { transform: rotate(180deg); }
+}
+
+.tabs-scroll-arrow--end {
+  inset-inline-end: 0;
+}
+
+.tabs-scroll.can-scroll-start::before,
+.tabs-scroll.can-scroll-end::after {
+  opacity: 1;
+}
+
+.tabs-scroll.can-scroll-start .tabs-scroll-arrow--start,
+.tabs-scroll.can-scroll-end .tabs-scroll-arrow--end {
+  display: flex;
+}
+
+:host-context([dir='ltr']) {
+  .tabs-scroll::before {
+    background: linear-gradient(to right, #ffffff 45%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll::after {
+    background: linear-gradient(to left, #ffffff 45%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  .tabs-scroll-arrow--start i-tabler { transform: none; }
+  .tabs-scroll-arrow--end i-tabler { transform: rotate(180deg); }
+}
+
 @media (max-width: 767px) {
   .tabs-wrapper {
-    width: max-content;
-    min-width: 100%;
     gap: 18px;
     height: 44px;
     padding-inline: 2px;
 
     .tab-btn {
       height: 44px;
-      flex: 0 0 auto;
       font-size: 13px;
       white-space: nowrap;
     }
